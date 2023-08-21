@@ -7,7 +7,7 @@ import { Amount } from 'components/Amount/Amount'
 import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
@@ -30,7 +30,7 @@ type TradeQuoteLoadedProps = {
   isActive: boolean
   isBest: boolean
   quoteData: ApiQuote
-  bestInputOutputRatio: number
+  bestBuyAmountBeforeFeesCryptoBaseUnit: string
 }
 
 /*
@@ -74,7 +74,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
   isBest,
   quoteData,
-  bestInputOutputRatio,
+  bestBuyAmountBeforeFeesCryptoBaseUnit,
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -120,8 +120,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-  const quoteDifferenceDecimalPercentage =
-    (quoteData.inputOutputRatio / bestInputOutputRatio - 1) * -1
+  // the difference percentage is on the gross receive amount only
+  const quoteDifferenceDecimalPercentage = useMemo(() => {
+    if (!quote) return Infinity
+    const lastStep = quote.steps[quote.steps.length - 1]
+    return bn(bestBuyAmountBeforeFeesCryptoBaseUnit)
+      .minus(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
+      .dividedBy(bestBuyAmountBeforeFeesCryptoBaseUnit)
+  }, [bestBuyAmountBeforeFeesCryptoBaseUnit, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =

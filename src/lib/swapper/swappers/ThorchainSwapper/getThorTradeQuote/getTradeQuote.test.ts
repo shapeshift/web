@@ -27,8 +27,6 @@ jest.mock('../utils/thorService', () => {
   }
 })
 
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
-
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   return {
     getChainAdapterManager: () => mockChainAdapterManager,
@@ -106,7 +104,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
 
 describe('getTradeQuote', () => {
   ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
-    Promise.resolve(mockOk({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' })),
+    Promise.resolve({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' }),
   )
 
   const { quoteInput } = setupQuote()

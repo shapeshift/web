@@ -5,15 +5,10 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { TradeExecution, TradeExecutionEvent } from 'lib/swapper/tradeExecution'
-import {
-  selectPortfolioAccountMetadataByAccountId,
-  selectUsdRateByAssetId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveStepOrDefault,
-  selectFirstHopSellFeeAsset,
   selectIsLastStep,
-  selectLastHopBuyAsset,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -38,21 +33,10 @@ export const useTradeExecution = ({
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
 
-  const buyAsset = useAppSelector(selectLastHopBuyAsset)
-  const feeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
-  )
-
-  const buyAssetUsdRate = useAppSelector(state =>
-    buyAsset ? selectUsdRateByAssetId(state, buyAsset.assetId) : undefined,
-  )
-
-  const feeAssetUsdRate = useAppSelector(state =>
-    feeAsset ? selectUsdRateByAssetId(state, feeAsset.assetId) : undefined,
   )
 
   const activeStepOrDefault = useAppSelector(selectActiveStepOrDefault)
@@ -72,8 +56,6 @@ export const useTradeExecution = ({
 
   const executeTrade = useCallback(async () => {
     if (!wallet) throw Error('missing wallet')
-    if (!buyAssetUsdRate) throw Error('missing buyAssetUsdRate')
-    if (!feeAssetUsdRate) throw Error('missing feeAssetUsdRate')
     if (!accountMetadata) throw Error('missing accountMetadata')
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
@@ -122,24 +104,20 @@ export const useTradeExecution = ({
         quoteBuyAssetAccountId: buyAssetAccountId,
         wallet,
         supportsEIP1559,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
         slippageTolerancePercentageDecimal,
         getState: store.getState,
       })
     })
   }, [
     wallet,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
     accountMetadata,
     tradeQuote,
     swapperName,
+    sellAssetAccountId,
+    buyAssetAccountId,
     activeStepOrDefault,
     slippageTolerancePercentageDecimal,
     dispatch,
-    sellAssetAccountId,
-    buyAssetAccountId,
   ])
 
   useEffect(() => {

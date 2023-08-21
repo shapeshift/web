@@ -47,8 +47,6 @@ export class TradeExecution {
     quoteBuyAssetAccountId,
     wallet,
     supportsEIP1559,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
     slippageTolerancePercentageDecimal,
     getState,
   }: TradeExecutionInput) {
@@ -75,8 +73,6 @@ export class TradeExecution {
           accountMetadata,
           stepIndex,
           supportsEIP1559,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
           slippageTolerancePercentageDecimal,
         },
       )

@@ -26,7 +26,10 @@ export const thorchainApi: Swapper2Api = {
     input: GetTradeQuoteInput,
     rates: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const { receiveAddress, affiliateBps } = input
+    const { receiveAddress } = input
+
+    // TEMP: thorchain swapper is set at 25 bps
+    const affiliateBps = '25'
 
     const mapTradeQuoteToTradeQuote2 = (
       quoteResult: Result<ThorTradeQuote[], SwapErrorRight>,

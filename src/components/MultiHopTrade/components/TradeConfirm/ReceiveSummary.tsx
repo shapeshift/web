@@ -183,23 +183,21 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 </Row.Value>
               </Row>
             )}
-            {shapeShiftFee && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
-                  <Row.Label>
-                    <Text
-                      translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]}
-                    />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
+            <Row>
+              <Row.Label>
+                <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
+              </Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLoading}>
+                  {shapeShiftFee && shapeShiftFee !== '0' ? (
+                    <Amount.Fiat value={shapeShiftFee} />
+                  ) : (
                     <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
-            {donationAmount && (
+                  )}
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            {donationAmount && donationAmount !== '0' && (
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.donation')}>
                   <Row.Label>

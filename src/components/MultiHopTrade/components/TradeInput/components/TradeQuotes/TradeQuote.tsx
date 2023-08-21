@@ -127,6 +127,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     return bn(bestBuyAmountBeforeFeesCryptoBaseUnit)
       .minus(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
       .dividedBy(bestBuyAmountBeforeFeesCryptoBaseUnit)
+      .toNumber()
   }, [bestBuyAmountBeforeFeesCryptoBaseUnit, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
@@ -230,7 +231,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
               symbol={buyAsset?.symbol ?? ''}
               color={isBest ? greenColor : 'inherit'}
             />
-            {!isBest && hasAmountWithPositiveReceive && (
+            {!isBest && hasAmountWithPositiveReceive && quoteDifferenceDecimalPercentage > 0 && (
               <Amount.Percent
                 value={-quoteDifferenceDecimalPercentage}
                 prefix='('
@@ -243,7 +244,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       )}
       {quote && (
         <Flex justifyContent='left' alignItems='left' gap={8}>
-          {quote.estimatedExecutionTimeMs !== undefined && (
+          {quote.estimatedExecutionTimeMs !== undefined && quote.estimatedExecutionTimeMs > 0 && (
             <Flex gap={2} alignItems='center'>
               <RawText color='gray.500'>
                 <FaRegClock />

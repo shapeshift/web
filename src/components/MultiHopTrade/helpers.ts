@@ -2,6 +2,7 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {
+  selectActiveQuote,
   selectActiveQuoteIndex,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
@@ -33,6 +34,7 @@ export const getMixpanelEventData = () => {
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
   const willDonate = selectWillDonate(state)
   const swapperName = selectActiveQuoteIndex(state)
+  const activeQuote = selectActiveQuote(state)
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
@@ -48,5 +50,6 @@ export const getMixpanelEventData = () => {
     donationAmountUserCurrency,
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
+    isStreaming: activeQuote?.isStreaming ?? false,
   }
 }

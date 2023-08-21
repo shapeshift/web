@@ -65,7 +65,6 @@ export const lifiApi: Swapper2Api = {
         return {
           id,
           receiveAddress,
-          estimatedExecutionTimeMs: undefined,
           affiliateBps: undefined,
           ...tradeQuote,
         }

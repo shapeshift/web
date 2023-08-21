@@ -67,7 +67,6 @@ export const osmosisApi: Swapper2Api = {
       const quote = {
         id,
         receiveAddress,
-        estimatedExecutionTimeMs: undefined,
         receiveAccountNumber,
         affiliateBps,
         ...tradeQuote,

@@ -57,7 +57,6 @@ export const cowApi: Swapper2Api = {
         {
           id,
           receiveAddress,
-          estimatedExecutionTimeMs: undefined,
           affiliateBps: undefined,
           ...tradeQuote,
         },

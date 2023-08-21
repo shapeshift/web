@@ -198,6 +198,7 @@ export async function getTradeQuote(
         return {
           steps,
           rate: netRate,
+          estimatedExecutionTimeMs: undefined,
           selectedLifiRoute,
         }
       }),

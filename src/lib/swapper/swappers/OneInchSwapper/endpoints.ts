@@ -56,7 +56,6 @@ export const oneInchApi: Swapper2Api = {
         {
           id,
           receiveAddress,
-          estimatedExecutionTimeMs: undefined,
           affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
           ...tradeQuote,
         },

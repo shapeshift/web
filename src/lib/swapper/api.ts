@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -214,8 +214,8 @@ export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
   stepIndex: number
-  quoteSellAssetAccountId?: AccountId
-  quoteBuyAssetAccountId?: AccountId
+  sellAccount?: { chainId: ChainId; pubkey: string }
+  buyAccount?: { chainId: ChainId; pubkey: string }
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where

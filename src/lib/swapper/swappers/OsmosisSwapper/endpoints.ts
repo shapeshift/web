@@ -1,4 +1,4 @@
-import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -192,10 +192,22 @@ export const osmosisApi: Swapper2Api = {
     txHash,
     quoteId,
     stepIndex,
-    quoteSellAssetAccountId,
-    quoteBuyAssetAccountId,
+    sellAccount,
+    buyAccount,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     try {
+      const quoteSellAssetAccountId = sellAccount
+        ? toAccountId({
+            chainId: sellAccount.chainId,
+            account: sellAccount.pubkey,
+          })
+        : undefined
+      const quoteBuyAssetAccountId = buyAccount
+        ? toAccountId({
+            chainId: buyAccount.chainId,
+            account: buyAccount.pubkey,
+          })
+        : undefined
       const quote = tradeQuoteMetadata.get(quoteId)
       const step = quote?.steps[stepIndex]
       if (!step) throw new Error('Step not found')

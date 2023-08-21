@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import EventEmitter from 'events'
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
@@ -92,8 +93,14 @@ export class TradeExecution {
             txHash: sellTxHash,
             chainId,
             stepIndex,
-            quoteSellAssetAccountId,
-            quoteBuyAssetAccountId,
+            sellAccount: {
+              chainId: fromAccountId(quoteSellAssetAccountId).chainId,
+              pubkey: fromAccountId(quoteSellAssetAccountId).account,
+            },
+            buyAccount: {
+              chainId: fromAccountId(quoteBuyAssetAccountId).chainId,
+              pubkey: fromAccountId(quoteBuyAssetAccountId).account,
+            },
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

@@ -64,7 +64,14 @@ export const osmosisApi: Swapper2Api = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
-      const quote = { id, receiveAddress, receiveAccountNumber, affiliateBps, ...tradeQuote }
+      const quote = {
+        id,
+        receiveAddress,
+        estimatedExecutionTimeMs: undefined,
+        receiveAccountNumber,
+        affiliateBps,
+        ...tradeQuote,
+      }
       tradeQuoteMetadata.set(id, quote)
       return [quote]
     })

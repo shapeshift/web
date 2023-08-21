@@ -6,6 +6,7 @@ export const lifiQuote: TradeQuote2 = {
   rate: '51.34579860391078801712',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE',
@@ -52,6 +53,7 @@ export const thorQuote: TradeQuote2 = {
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
   recommendedSlippage: '0.00001',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       rate: '39.23942597524024759752',
@@ -130,6 +132,7 @@ export const oneInchQuote: TradeQuote2 = {
   rate: '51.63754486526613135844',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0x1111111254eeb25477b68fb85ed929f73a960582',
@@ -175,6 +178,7 @@ export const cowQuote: TradeQuote2 = {
   rate: '51.86127422365727736757',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -237,6 +241,7 @@ export const zrxQuote: TradeQuote2 = {
   rate: '51.603817692372651273',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',

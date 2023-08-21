@@ -62,7 +62,13 @@ export const lifiApi: Swapper2Api = {
         // store the lifi quote metadata for transaction building later
         tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-        return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
+        return {
+          id,
+          receiveAddress,
+          estimatedExecutionTimeMs: undefined,
+          affiliateBps: undefined,
+          ...tradeQuote,
+        }
       }),
     )
   },

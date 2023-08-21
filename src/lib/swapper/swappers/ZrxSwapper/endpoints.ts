@@ -57,6 +57,7 @@ export const zrxApi: Swapper2Api = {
           id,
           receiveAddress,
           affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
+          estimatedExecutionTimeMs: undefined,
           ...tradeQuote,
         },
       ]

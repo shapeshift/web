@@ -182,6 +182,7 @@ export enum SwapErrorType {
 
 export type TradeQuote2 = TradeQuote & {
   id: string
+  estimatedExecutionTimeMs: number | undefined
   receiveAddress: string
   receiveAccountNumber?: number
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper

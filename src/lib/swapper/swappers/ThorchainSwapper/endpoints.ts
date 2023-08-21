@@ -37,6 +37,7 @@ export const thorchainApi: Swapper2Api = {
         return quotes.map(quote => ({
           id: uuid(),
           receiveAddress,
+          estimatedExecutionTimeMs: undefined,
           affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
           ...quote,
         }))

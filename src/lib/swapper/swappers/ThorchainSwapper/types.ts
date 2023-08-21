@@ -35,6 +35,8 @@ export type ThornodeQuoteResponseSuccess = {
   slippage_bps: number
   streaming_slippage_bps: number
   warning: string
+  streaming_swap_seconds: number | undefined
+  total_swap_seconds: number | undefined
 }
 
 type ThornodeQuoteResponseError = { error: string }

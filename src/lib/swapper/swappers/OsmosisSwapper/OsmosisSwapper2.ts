@@ -12,7 +12,7 @@ import { SUPPORTED_ASSET_IDS } from './utils/constants'
 
 export const osmosisSwapper: Swapper2 = {
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
-    const adapter = assertGetCosmosSdkChainAdapter(chainId) as
+    const adapter = assertGetCosmosSdkChainAdapter(chainId) as  // i.e not a THOR adapter
       | cosmos.ChainAdapter
       | osmosis.ChainAdapter
 

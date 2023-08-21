@@ -156,6 +156,7 @@
     "node-polyglot": "^2.4.0",
     "os-browserify": "^0.3.0",
     "p-ratelimit": "^1.0.1",
+    "pretty-ms": "^8.0.0",
     "qr-image": "^3.2.0",
     "qs": "^6.10.5",
     "re-reselect": "^4.0.0",

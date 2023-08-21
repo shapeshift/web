@@ -114,6 +114,9 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
       isStreaming: false,
+      estimatedExecutionTimeMs:
+        1000 *
+        (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
     },
     {
       // streaming swap
@@ -121,6 +124,9 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.streaming_slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
       isStreaming: true,
+      estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
+        ? 1000 * thornodeQuote.total_swap_seconds
+        : undefined,
     },
   ]
 
@@ -181,7 +187,13 @@ export const getThorTradeQuote = async (
 
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(
-          async ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -196,6 +208,7 @@ export const getThorTradeQuote = async (
 
             return {
               isStreaming,
+              estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               data,
@@ -240,7 +253,13 @@ export const getThorTradeQuote = async (
     case CHAIN_NAMESPACE.Utxo: {
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(
-          async ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -268,6 +287,7 @@ export const getThorTradeQuote = async (
 
             return {
               isStreaming,
+              estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [
@@ -310,13 +330,20 @@ export const getThorTradeQuote = async (
 
       return Ok(
         perRouteValues.map(
-          ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
+          ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
             )
             return {
               isStreaming,
+              estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [

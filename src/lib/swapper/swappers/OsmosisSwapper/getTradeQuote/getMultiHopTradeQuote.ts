@@ -162,6 +162,7 @@ export const getTradeQuote = async (
 
   return Ok({
     rate,
+    estimatedExecutionTimeMs: undefined,
     steps: [firstStep, secondStep],
   })
 }

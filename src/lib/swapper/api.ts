@@ -132,6 +132,7 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 
 export type TradeQuote<C extends ChainId = ChainId> = {
   recommendedSlippage?: string
+  estimatedExecutionTimeMs: number | undefined
   id?: string
   steps: TradeQuoteStep<C>[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)

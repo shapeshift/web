@@ -96,6 +96,7 @@ export async function getCowSwapTradeQuote(
   const quote: TradeQuote<CowChainId> = {
     id: data.id.toString(),
     rate,
+    estimatedExecutionTimeMs: undefined,
     steps: [
       {
         allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,

@@ -70,6 +70,7 @@ export async function getTradeQuote(
 
     return Ok({
       rate,
+      estimatedExecutionTimeMs: undefined,
       steps: [
         {
           allowanceContract,

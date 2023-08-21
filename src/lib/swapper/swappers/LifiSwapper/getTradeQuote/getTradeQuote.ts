@@ -195,10 +195,15 @@ export async function getTradeQuote(
           .dividedBy(bn(selectedLifiRoute.fromAmount))
           .toString()
 
+        const estimatedExecutionTimeMs = selectedLifiRoute.steps.reduce(
+          (acc, step) => acc + 1000 * step.estimate.executionDuration,
+          0,
+        )
+
         return {
           steps,
           rate: netRate,
-          estimatedExecutionTimeMs: undefined,
+          estimatedExecutionTimeMs,
           selectedLifiRoute,
         }
       }),

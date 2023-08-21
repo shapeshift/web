@@ -201,9 +201,12 @@ export const getValuesFromQuoteResponse = ({
   )
 
   const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+  const sellAmountBeforeFeesCryptoBaseUnit = bnOrZero(sellAmountAfterFeesCryptoBaseUnit)
+    .plus(feeAmountInSellTokenCryptoBaseUnit)
+    .toFixed()
 
   const buyAmountBeforeFeesCryptoBaseUnit = convertPrecision({
-    value: bnOrZero(sellAmountAfterFeesCryptoBaseUnit).minus(feeAmountInSellTokenCryptoBaseUnit),
+    value: sellAmountBeforeFeesCryptoBaseUnit,
     inputExponent: sellAsset.precision,
     outputExponent: buyAsset.precision,
   })

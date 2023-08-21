@@ -46,12 +46,8 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 export const cowApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, {
-      sellAssetUsdRate,
-      buyAssetUsdRate,
-    })
+    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
     const { receiveAddress } = input
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -127,7 +123,11 @@ export const cowApi: Swapper2Api = {
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
-  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
+  }): Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | undefined
+  }> => {
     const maybeNetwork = getCowswapNetwork(chainId)
     if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
     const network = maybeNetwork.unwrap()

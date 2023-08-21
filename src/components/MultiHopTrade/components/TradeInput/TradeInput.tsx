@@ -40,6 +40,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { SwapperName } from 'lib/swapper/api'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -58,6 +59,7 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
+  selectQuoteDonationAmountUserCurrency,
   selectReceiveBuyAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -136,6 +138,7 @@ export const TradeInput = memo(() => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
+  const quoteAffiliateFee = useAppSelector(selectQuoteDonationAmountUserCurrency)
   const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
@@ -239,6 +242,14 @@ export const TradeInput = memo(() => {
       ) : null,
     [hasUserEnteredAmount, showTradeQuotes, sortedQuotes],
   )
+
+  const { shapeShiftFee, donationAmount } = useMemo(() => {
+    if (activeSwapperName === SwapperName.Thorchain) {
+      return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
+    }
+
+    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
+  }, [activeSwapperName, quoteAffiliateFee])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -347,7 +358,8 @@ export const TradeInput = memo(() => {
                     amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
                     amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                     protocolFees={totalProtocolFees}
-                    shapeShiftFee='0'
+                    shapeShiftFee={shapeShiftFee}
+                    donationAmount={donationAmount}
                     slippage={slippageDecimal}
                     swapperName={activeSwapperName ?? ''}
                   />
@@ -372,7 +384,9 @@ export const TradeInput = memo(() => {
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />
               </Button>
             </Tooltip>
-            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+            {hasUserEnteredAmount && activeSwapperName !== SwapperName.Thorchain && (
+              <DonationCheckbox isLoading={isLoading} />
+            )}
           </CardFooter>
         </Stack>
       </SlideTransition>

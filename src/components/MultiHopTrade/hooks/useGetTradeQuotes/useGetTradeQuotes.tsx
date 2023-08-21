@@ -59,12 +59,13 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
         swapperName,
         differenceFromBestQuoteDecimalPercentage,
         quoteReceived: !!quote,
+        isStreaming: quote?.isStreaming ?? false,
       }
     })
     .filter(isSome)
 
   // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
-  const version = '20230823'
+  const version = '20230824'
 
   return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, version }
 }

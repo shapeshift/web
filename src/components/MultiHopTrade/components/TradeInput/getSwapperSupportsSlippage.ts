@@ -8,10 +8,10 @@ export const getSwapperSupportsSlippage = (swapperName: SwapperName | undefined)
     case SwapperName.Zrx:
     case SwapperName.OneInch:
     case SwapperName.LIFI:
+    case SwapperName.CowSwap:
       return true
     case SwapperName.Osmosis:
     case SwapperName.Test:
-    case SwapperName.CowSwap:
       return false
     default:
       assertUnreachable(swapperName)

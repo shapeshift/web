@@ -4,10 +4,10 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
-import { AsyncResultOf, isTruthy } from 'lib/utils'
-import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
+import { isCrossAccountTradeSupported } from '../../state/helpers'
+import { AsyncResultOf, isTruthy } from '../utils'
 import type { SwapErrorRight } from './api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from './api'
 

@@ -1,7 +1,6 @@
-import { idleServiceFactory } from 'lib/investor/investor-idle/idleService'
-
 import type { IdleVault } from './constants'
 import { apiKey } from './constants/availableTokens'
+import { idleServiceFactory } from './idleService'
 
 export class IdleSdk {
   async getVaults(): Promise<IdleVault[]> {

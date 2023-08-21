@@ -186,6 +186,7 @@ export type TradeQuote2 = TradeQuote & {
   receiveAddress: string
   receiveAccountNumber?: number
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
+  isStreaming?: boolean
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }

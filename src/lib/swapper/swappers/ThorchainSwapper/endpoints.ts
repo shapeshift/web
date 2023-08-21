@@ -16,6 +16,7 @@ import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers
 import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import type { TradeQuoteDeps } from 'lib/swapper/types'
 
+import type { ThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
@@ -25,10 +26,13 @@ export const thorchainApi: Swapper2Api = {
     input: GetTradeQuoteInput,
     rates: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const { receiveAddress, affiliateBps } = input
+    const { receiveAddress } = input
+
+    // TEMP: thorchain swapper is set at 25 bps
+    const affiliateBps = '25'
 
     const mapTradeQuoteToTradeQuote2 = (
-      quoteResult: Result<TradeQuote[], SwapErrorRight>,
+      quoteResult: Result<ThorTradeQuote[], SwapErrorRight>,
       receiveAddress: string,
       affiliateBps: string | undefined,
       isDonationAmountBelowMinimum?: boolean,

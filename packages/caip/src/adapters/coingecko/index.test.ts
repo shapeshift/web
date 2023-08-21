@@ -65,8 +65,16 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
       })
+      const foxOnOptimism = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.OptimismMainnet,
+        assetNamespace,
+        assetReference: '0xf1a0da3367bc7aa04f8d94ba57b862ff37ced174',
+      })
+
       expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([
         foxOnEthereum,
+        foxOnOptimism,
         foxOnPolygon,
         foxOnGnosis,
       ])

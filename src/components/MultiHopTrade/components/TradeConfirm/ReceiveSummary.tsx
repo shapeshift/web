@@ -199,7 +199,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 </Skeleton>
               </Row.Value>
             </Row>
-            {donationAmount && (
+            {donationAmount && donationAmount !== '0' && (
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.donation')}>
                   <Row.Label>

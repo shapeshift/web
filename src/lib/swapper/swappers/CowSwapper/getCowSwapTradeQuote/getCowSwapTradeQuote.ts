@@ -29,7 +29,6 @@ import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
-  { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
@@ -92,8 +91,6 @@ export async function getCowSwapTradeQuote(
     buyAsset,
     sellAsset,
     response: data,
-    sellAssetUsdRate,
-    buyAssetUsdRate,
   })
 
   const quote: TradeQuote<CowChainId> = {

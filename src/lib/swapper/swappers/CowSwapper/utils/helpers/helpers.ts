@@ -7,8 +7,8 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
@@ -177,44 +177,18 @@ type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
   response: CowSwapQuoteResponse
-  sellAssetUsdRate: string
-  buyAssetUsdRate: string
 }
 
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
   response,
-  sellAssetUsdRate,
-  buyAssetUsdRate,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
   } = response.quote
-
-  const sellAssetTradeFeeCryptoPrecision = fromBaseUnit(
-    feeAmountInSellTokenCryptoBaseUnit,
-    sellAsset.precision,
-  )
-
-  const sellAssetTradeFeeUsd = bn(sellAssetTradeFeeCryptoPrecision)
-    .multipliedBy(bnOrZero(sellAssetUsdRate))
-    .toString()
-
-  const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
-    bnOrZero(buyAssetUsdRate),
-  )
-
-  const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
-    feeAmountInBuyTokenCryptoPrecision,
-    buyAsset.precision,
-  )
-
-  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
-    .plus(buyAmountAfterFeesCryptoBaseUnit)
-    .toFixed()
 
   const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
     buyAmountAfterFeesCryptoBaseUnit,
@@ -227,6 +201,17 @@ export const getValuesFromQuoteResponse = ({
   )
 
   const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+  const sellAmountBeforeFeesCryptoBaseUnit = bnOrZero(sellAmountAfterFeesCryptoBaseUnit)
+    .plus(feeAmountInSellTokenCryptoBaseUnit)
+    .toFixed()
+
+  const buyAmountBeforeFeesCryptoBaseUnit = convertPrecision({
+    value: sellAmountBeforeFeesCryptoBaseUnit,
+    inputExponent: sellAsset.precision,
+    outputExponent: buyAsset.precision,
+  })
+    .times(rate)
+    .toFixed(0)
 
   return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
 }

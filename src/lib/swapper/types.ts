@@ -28,8 +28,6 @@ export type TradeExecutionInput = {
   quoteBuyAssetAccountId: AccountId
   wallet: HDWallet
   supportsEIP1559: boolean
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
   slippageTolerancePercentageDecimal: string
   getState: () => ReduxState
 }

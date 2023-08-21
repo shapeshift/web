@@ -24,8 +24,6 @@ type GetCosmosTxDataInput = {
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
   affiliateBps: string
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
   memo: string
 }
 

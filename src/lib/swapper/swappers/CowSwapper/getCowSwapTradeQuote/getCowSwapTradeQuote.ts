@@ -2,7 +2,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
-import BigNumber from 'bignumber.js'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -12,7 +11,6 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_APP_DATA,
-  ORDER_KIND_BUY,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
@@ -28,22 +26,11 @@ import {
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    chainId,
-    receiveAddress,
-    slippageTolerancePercentage,
-  } = input
+  const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
@@ -65,6 +52,10 @@ export async function getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+    /*
+      We don't do any slippage logic here, as it's implemented by specifying the `buyAmountAfterFee` when building the unsigned TX
+      The CoW quote endpoint has no native concept of slippage, short of specifying a `buyAmountAfterFee` that is less than the `buyAmountAfterFee`
+     */
     `${baseUrl}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
@@ -98,63 +89,16 @@ export async function getCowSwapTradeQuote(
 
   const { data } = maybeQuoteResponse.unwrap()
 
-  const { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit } =
-    getValuesFromQuoteResponse({
-      buyAsset,
-      sellAsset,
-      response: data,
-    })
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
 
-  const slippageBps = slippageTolerancePercentage
-    ? convertDecimalPercentageToBasisPoints(slippageTolerancePercentage)
-    : undefined
-
-  // If user has specified slippage, we need to get a second quote using the buyAmount from the quote (which includes fees)
-  // So it's (buyAmount - fees) - slippage, which will be the buyAmountAfterFees to use to get the new quote
-  const maybeQuoteWithSlippageResponse = slippageBps
-    ? await cowService.post<CowSwapQuoteResponse>(`${baseUrl}/${network}/api/v1/quote/`, {
-        sellToken: fromAssetId(sellAsset.assetId).assetReference,
-        buyToken,
-        receiver: receiveAddress,
-        validTo: getNowPlusThirtyMinutesTimestamp(),
-        appData: DEFAULT_APP_DATA,
-        partiallyFillable: false,
-        from: receiveAddress,
-        kind: ORDER_KIND_BUY,
-        buyAmountAfterFee: subtractBasisPointAmount(
-          buyAmountAfterFeesCryptoBaseUnit,
-          slippageBps,
-          BigNumber.ROUND_DOWN,
-        ),
-      })
-    : undefined
-
-  if (maybeQuoteWithSlippageResponse?.isErr()) {
-    const err = maybeQuoteWithSlippageResponse.unwrapErr()
-    const errData = (err.cause as AxiosError)?.response?.data
-    if (
-      (err.cause as AxiosError)?.isAxiosError &&
-      errData?.errorType === 'SellAmountDoesNotCoverFee'
-    ) {
-      return Err(
-        createTradeAmountTooSmallErr({
-          assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
-        }),
-      )
-    }
-    return Err(maybeQuoteWithSlippageResponse.unwrapErr())
-  }
-
-  // If we have a quote with slippage, use that data, otherwise use the original quote data
-  const responseData =
-    maybeQuoteWithSlippageResponse && maybeQuoteWithSlippageResponse?.isOk()
-      ? maybeQuoteWithSlippageResponse.unwrap().data
-      : data
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = responseData.quote
+  const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
+    buyAsset,
+    sellAsset,
+    response: data,
+  })
 
   const quote: TradeQuote<CowChainId> = {
-    id: responseData.id.toString(),
+    id: data.id.toString(),
     rate,
     estimatedExecutionTimeMs: undefined,
     steps: [

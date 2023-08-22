@@ -17,7 +17,6 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
-  // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
   const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)
 
   if (feeAsset === undefined)

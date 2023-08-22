@@ -85,7 +85,7 @@ export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
 
 export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
 
-type Denom = 'uatom' | 'uosmo' | 'rune'
+type Denom = 'uatom' | 'rune'
 
 export interface ChainAdapterArgs {
   chainId?: CosmosSdkChainId

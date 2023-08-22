@@ -104,7 +104,6 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'cosmos:cosmoshub-4/slip44:118': ['atom_cosmos'],
   'eip155:137/erc20:0xd6df932a45c0f255f85145f286ea0b292b21c90b': ['aave_polygon'],
   'eip155:56/bep20:0xfb6115445bff7b52feb98650c87f44907e58f802': ['aave_bsc'],
-  'cosmos:osmosis-1/slip44:118': ['osmo_osmosis'],
   'eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870': ['ftm_ethereum'],
   'eip155:56/bep20:0xad29abb318791d579433d831ed122afeaf29dcfe': ['ftm_bsc'],
   'eip155:137/erc20:0xa1c57f48f0deb89f569dfbe6e2b7f46d33606fd4': ['mana_polygon'],

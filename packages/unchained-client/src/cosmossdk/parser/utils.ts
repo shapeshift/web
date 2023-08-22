@@ -1,10 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  cosmosAssetId,
-  fromAssetId,
-  thorchainAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 
 import type { Message } from '../types'
 import type { TxMetadata } from './types'

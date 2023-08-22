@@ -64,6 +64,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       walletSupportsChain({ chainId: e.chainId, wallet }),
   )
 
+  if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
+
   return (
     <Card variant='outline'>
       <CardHeader

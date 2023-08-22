@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   IconButton,
+  Input,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -31,7 +32,7 @@ import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
-import { SendRoutes } from '../SendCommon'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {
@@ -46,6 +47,7 @@ export const Confirm = () => {
   const {
     control,
     formState: { isSubmitting },
+    setValue,
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
@@ -72,6 +74,11 @@ export const Confirm = () => {
   }, [fees, feeType])
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  const handleNonceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setValue(SendFormFields.CustomNonce, value)
+  }
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
@@ -129,6 +136,20 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
+          </Row>
+          <Row>
+            <Row.Label>
+              <Text translation={'modals.send.confirm.customNonce'} />
+            </Row.Label>
+            <Row.Value>
+              <Input
+                onChange={handleNonceChange}
+                type='text'
+                placeholder={''}
+                pl={10}
+                variant='filled'
+              />
+            </Row.Value>
           </Row>
           {showMemoRow && (
             <Row>

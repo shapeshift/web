@@ -22,4 +22,5 @@ export enum SendFormFields {
   FiatSymbol = 'fiatSymbol',
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax',
+  CustomNonce = 'customNonce',
 }

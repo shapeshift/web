@@ -161,6 +161,7 @@ const validators = {
   REACT_APP_CHATWOOT_URL: str(),
   REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
   REACT_APP_FEATURE_ADVANCED_SLIPPAGE: bool({ default: false }),
+  REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

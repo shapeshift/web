@@ -33,6 +33,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Memo]?: string
   [SendFormFields.SendMax]: boolean
   [SendFormFields.VanityAddress]: string
+  [SendFormFields.CustomNonce]?: string
 }
 
 type SendFormProps = {

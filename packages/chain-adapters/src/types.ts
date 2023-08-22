@@ -146,6 +146,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   accountNumber: number
   sendMax?: boolean
   memo?: string
+  customNonce?: string
 } & ChainSpecificBuildTxData<T>
 
 export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {

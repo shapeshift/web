@@ -13,9 +13,6 @@ type GetTxLink = GetBaseUrl &
 
 export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseUrl): string => {
   switch (name) {
-    case SwapperName.Osmosis:
-    case Dex.Osmosis:
-      return 'https://www.mintscan.io/osmosis/txs/'
     case SwapperName.CowSwap:
     case Dex.CowSwap:
       return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'

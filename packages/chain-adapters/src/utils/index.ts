@@ -57,9 +57,6 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.CosmosHubMainnet:
         case CHAIN_REFERENCE.CosmosHubVega:
           return 'cosmos'
-        case CHAIN_REFERENCE.OsmosisMainnet:
-        case CHAIN_REFERENCE.OsmosisTestnet:
-          return 'osmosis'
         case CHAIN_REFERENCE.ThorchainMainnet:
           return 'thorchain'
         default:

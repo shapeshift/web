@@ -1955,19 +1955,10 @@
       "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al grupo Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX subyacente en los tokens LP FOX/ETH califica para el Airdrop Arkeo.",
       "cta": "Depositar Liquidez"
     },
-    "atomOsmoProviders": {
-      "title": "Proveedores LP ATOM/OSMO",
-      "body": "¿Tiene ATOM y OSMO? Proporcione liquidez al grupo para ganar %{apy} APR y calificar para el airdrop.",
-      "cta": "Depositar Liquidez"
-    },
     "stakeAtom": {
       "title": "Stake ATOM",
       "body": "Gane hasta %{apr} APR en su ATOM inactivo. ADEMÁS, cualquier ATOM en Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop.",
       "cta": "Stake ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Gane hasta %{apr} APR en su OSMO inactivo. ADEMÁS, cualquier OSMO que Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop."
     },
     "footer": {
       "title": "También hay otras formas de calificar, fuera de ShapeShift dApp. Para obtener una lista completa, consulte la propuesta de gobernanza.",

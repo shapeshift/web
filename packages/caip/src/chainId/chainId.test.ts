@@ -22,20 +22,6 @@ describe('chainId', () => {
       expect(result).toEqual('cosmos:vega-testnet')
     })
 
-    it('can turn Osmosis mainnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
-      const result = toChainId({ chainNamespace, chainReference })
-      expect(result).toEqual('cosmos:osmosis-1')
-    })
-
-    it('can turn Osmosis testnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisTestnet
-      const result = toChainId({ chainNamespace, chainReference })
-      expect(result).toEqual('cosmos:osmo-testnet-1')
-    })
-
     it('can turn Ethereum mainnet to ChainId', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const chainReference = CHAIN_REFERENCE.EthereumMainnet
@@ -104,20 +90,6 @@ describe('chainId', () => {
       expect(chainReference).toEqual(CHAIN_REFERENCE.CosmosHubVega)
     })
 
-    it('can turn Osmosis mainnet to chain and network', () => {
-      const osmosisChainId = 'cosmos:osmosis-1'
-      const { chainNamespace, chainReference } = fromChainId(osmosisChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.CosmosSdk)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.OsmosisMainnet)
-    })
-
-    it('can turn Osmosis testnet to chain and network', () => {
-      const osmosisChainId = 'cosmos:osmo-testnet-1'
-      const { chainNamespace, chainReference } = fromChainId(osmosisChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.CosmosSdk)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.OsmosisTestnet)
-    })
-
     it('can turn Ethereum mainnet to chain and network', () => {
       const ethereumChainId = 'eip155:1'
       const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
@@ -184,11 +156,6 @@ describe('isChainId', () => {
   it('should return true for cosmos', () => {
     expect(isChainId('cosmos:cosmoshub-4')).toBe(true)
     expect(isChainId('cosmos:vega-testnet')).toBe(true)
-  })
-
-  it('should return true for osmosis', () => {
-    expect(isChainId('cosmos:osmosis-1')).toBe(true)
-    expect(isChainId('cosmos:osmo-testnet-1')).toBe(true)
   })
 
   it('should throw for an unknown cosmos chain', () => {

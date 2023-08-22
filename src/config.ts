@@ -34,8 +34,6 @@ const validators = {
   REACT_APP_UNCHAINED_LITECOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
-  REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
-  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_THORCHAIN_WS_URL: url(),
   REACT_APP_THORCHAIN_NODE_URL: url(),
@@ -71,11 +69,6 @@ const validators = {
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
-  REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
-  REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
-  REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS: bool({ default: false }),
-  REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
-  REACT_APP_FEATURE_OSMOSIS_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_POLYGON: bool({ default: false }),
@@ -110,9 +103,6 @@ const validators = {
     default: 'https://api.cow.fi',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
-    default: 'https://dev-daemon.osmosis.shapeshift.com',
-  }),
-  REACT_APP_OSMOSIS_NODE_URL: url({
     default: 'https://dev-daemon.cosmos.shapeshift.com',
   }),
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
@@ -127,16 +117,6 @@ const validators = {
   REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
   REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
   REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
-  REACT_APP_OSMOSIS_LCD_BASE_URL: url({
-    default: 'https://daemon.osmosis.shapeshift.com/',
-  }),
-  REACT_APP_OSMOSIS_IMPERATOR_BASE_URL: url({
-    default: 'https://api-osmosis.imperator.co/',
-  }),
-  REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS: bool({ default: false }),
-  REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT: num({
-    default: 1000,
-  }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
   REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
   REACT_APP_MIXPANEL_TOKEN: str(),

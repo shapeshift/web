@@ -3,7 +3,6 @@ import {
   ASSET_NAMESPACE,
   cosmosAssetId,
   fromAssetId,
-  osmosisAssetId,
   thorchainAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
@@ -13,7 +12,6 @@ import type { TxMetadata } from './types'
 
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
-  ['uosmo', osmosisAssetId],
   ['rune', thorchainAssetId],
 ])
 

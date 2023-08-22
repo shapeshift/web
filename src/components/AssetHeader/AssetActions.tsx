@@ -26,7 +26,6 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
-  const isOsmosisSendEnabled = useFeatureFlag('OsmosisSend')
   const history = useHistory()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
@@ -45,13 +44,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
   useEffect(() => {
-    const isValid =
-      // feature flag to disable Osmosis Sends
-      asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
-        ? false
-        : chainAdapterManager.has(asset.chainId)
+    const isValid = chainAdapterManager.has(asset.chainId)
     setIsValidChainId(isValid)
-  }, [chainAdapterManager, asset, isOsmosisSendEnabled])
+  }, [chainAdapterManager, asset])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

@@ -6,8 +6,6 @@ import {
   ethChainId,
   foxAssetId,
   foxyAssetId,
-  osmosisAssetId,
-  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
 import type {
@@ -24,7 +22,6 @@ import {
   hashCode,
   isFulfilled,
   isNonEmpty,
-  isOsmosisLpAsset,
   isRejected,
   isSome,
   isToken,
@@ -61,12 +58,6 @@ describe('lib/utils', () => {
       const cosmosOpportunityId: OpportunityId = cosmosAssetId as OpportunityId
       const result: ChainId = opportunityIdToChainId(cosmosOpportunityId)
       expect(result).toEqual(cosmosChainId)
-    })
-
-    test('returns the correct chain ID for an Osmosis asset ID', () => {
-      const osmosisOpportunityId: OpportunityId = osmosisAssetId as OpportunityId
-      const result: ChainId = opportunityIdToChainId(osmosisOpportunityId)
-      expect(result).toEqual(osmosisChainId)
     })
   })
 
@@ -242,12 +233,6 @@ describe('lib/utils', () => {
     })
   })
 
-  describe('isOsmosisLpAsset', () => {
-    it('should return true for osmosis lp asset', () => {
-      const assetReference = 'gamm/pool/1'
-      expect(isOsmosisLpAsset(assetReference)).toBe(true)
-    })
-  })
   describe('isToken', () => {
     it('should return false for non-token', () => {
       const atomOsmoAssetReference = 'gamm/pool/1'

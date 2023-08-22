@@ -489,7 +489,6 @@ export const TradeConfirm = () => {
                     )} ${buyAsset?.symbol}`}</RawText>
                     {!!swapperName && (
                       // This works because we currently only support Li.Fi trades with a single hop,
-                      // and Osmosis uses Osmosis as a source for its two hops
                       // TODO(woodenfurniture): ensure we show the swapper name, not the first hop source, when we support multi-hop trades
                       <RawText color='text.subtle'>@{tradeQuoteStep.source}</RawText>
                     )}

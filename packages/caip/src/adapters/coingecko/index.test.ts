@@ -96,18 +96,6 @@ describe('adapters:coingecko', () => {
       expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnCosmos, atomOnBsc])
     })
 
-    it('can get AssetIds for osmosis', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
-      const assetId = toAssetId({
-        chainNamespace,
-        chainReference,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis,
-      })
-      expect(coingeckoToAssetIds('osmosis')).toEqual([assetId])
-    })
-
     it('can get AssetIds for USD Coin on EVM Chains', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const assetNamespace = 'erc20'
@@ -202,18 +190,6 @@ describe('adapters:coingecko', () => {
         assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('cosmos')
-    })
-
-    it('can get CoinGecko id for osmosis AssetId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
-      const assetId = toAssetId({
-        chainNamespace,
-        chainReference,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis,
-      })
-      expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
     })
 
     it('can get CoinGecko id for polygon AssetId', () => {

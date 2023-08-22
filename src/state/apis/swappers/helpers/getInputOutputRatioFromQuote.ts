@@ -1,12 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { TradeQuote } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { SwapperName, TradeQuote } from 'lib/swapper/api'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
@@ -19,7 +17,6 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
-  // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
   const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)
 
   if (feeAsset === undefined)
@@ -97,24 +94,7 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
       outputExponent: lastStep.buyAsset.precision,
     }),
   ).times(rate)
-  // Network fee represented as protocol fee for Osmosis swaps
-  const buySideNetworkFeeCryptoBaseUnit =
-    swapperName === SwapperName.Osmosis
-      ? (() => {
-          const isAtomOsmo = firstStep.sellAsset.chainId === cosmosChainId
-
-          // Subtract ATOM fees converted to OSMO for ATOM -> OSMO
-          if (isAtomOsmo) {
-            const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
-            if (!otherDenomFee) return bn(0)
-            return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
-          }
-
-          const firstHopNetworkFee = firstStep.feeData.networkFeeCryptoBaseUnit
-          // Subtract the first-hop network fees for OSMO -> ATOM, which aren't automagically subtracted in the multi-hop abstraction
-          return bnOrZero(firstHopNetworkFee)
-        })()
-      : bn(0)
+  const buySideNetworkFeeCryptoBaseUnit = bn(0)
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
 
   const netReceiveAmountCryptoBaseUnit = buyAmountCryptoBaseUnit

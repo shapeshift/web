@@ -1,11 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -19,7 +17,6 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   tradeQuoteStep: TradeQuote2['steps'][number],
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
 ): BigNumber | undefined => {
-  // TODO(gomes): handle osmo swapper crazy network fee logic here
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep?.sellAsset.assetId)
 
   if (feeAsset === undefined)
@@ -58,24 +55,7 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
 
-  // Network fee represented as protocol fee for Osmosis swaps
-  const buySideNetworkFeeCryptoBaseUnit =
-    swapperName === SwapperName.Osmosis
-      ? (() => {
-          const isAtomOsmo = firstStep.sellAsset.chainId === cosmosChainId
-
-          // Subtract ATOM fees converted to OSMO for ATOM -> OSMO
-          if (isAtomOsmo) {
-            const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
-            if (!otherDenomFee) return '0'
-            return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
-          }
-
-          const firstHopNetworkFee = firstStep.feeData.networkFeeCryptoBaseUnit
-          // Subtract the first-hop network fees for OSMO -> ATOM, which aren't automagically subtracted in the multi-hop abstraction
-          return bnOrZero(firstHopNetworkFee)
-        })()
-      : bn(0)
+  const buySideNetworkFeeCryptoBaseUnit = bn(0)
 
   const sellAssetProtocolFee = firstStep.feeData.protocolFees[firstStep.sellAsset.assetId]
   const buyAssetProtocolFee = lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]

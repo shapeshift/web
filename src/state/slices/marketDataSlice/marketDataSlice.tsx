@@ -1,7 +1,6 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -11,7 +10,6 @@ import type {
   SupportedFiatCurrencies,
 } from 'lib/market-service'
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from 'lib/market-service'
-import { isOsmosisLpAsset } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
 import type {
@@ -40,7 +38,7 @@ const shouldIgnoreAsset = (assetId: AssetId | string): boolean => {
   // since foxEthLpAsset market data is monkey-patched, requesting its price history
   // will return an empty array which overrides the patch.
   const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
-  return ignoreAssetIds.includes(assetId) || isOsmosisLpAsset(fromAssetId(assetId).assetReference)
+  return ignoreAssetIds.includes(assetId)
 }
 
 export const defaultMarketData: MarketData = {

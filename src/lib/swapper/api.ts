@@ -142,7 +142,6 @@ export type SwapSource = SwapperName | `${SwapperName} • ${string}`
 
 export enum SwapperName {
   Thorchain = 'THORChain',
-  Osmosis = 'Osmosis',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',

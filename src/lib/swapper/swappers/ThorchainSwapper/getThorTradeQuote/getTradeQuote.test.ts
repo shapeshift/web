@@ -37,6 +37,7 @@ jest.mock('config', () => {
   return {
     getConfig: () => ({
       REACT_APP_THORCHAIN_NODE_URL: '',
+      REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
     }),
   }
 })

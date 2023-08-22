@@ -910,6 +910,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "customNonce": "Custom Nonce",
         "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",

@@ -172,6 +172,7 @@ export const handleSend = async ({
             ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
           },
           sendMax: sendInput.sendMax,
+          customNonce: sendInput.customNonce,
         })
       }
 

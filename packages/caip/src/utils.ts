@@ -17,15 +17,6 @@ export const isValidChainPartsPair = (
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
 export const generateAssetIdFromCosmosDenom = (denom: string): AssetId => {
-  // TODO(gomes): do we still need this? Since we only do IBC parsing for CosmosHub now, the only denom starting with u should be uatom?
-  if (denom.startsWith('u') && denom !== 'uatom') {
-    return toAssetId({
-      assetNamespace: constants.ASSET_NAMESPACE.native,
-      assetReference: denom,
-      chainId: constants.cosmosChainId,
-    })
-  }
-
   if (denom.startsWith('ibc')) {
     return toAssetId({
       assetNamespace: constants.ASSET_NAMESPACE.ibc,

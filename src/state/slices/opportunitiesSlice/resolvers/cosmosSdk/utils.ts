@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
@@ -20,10 +20,7 @@ import type {
   ValidatorId,
 } from '../../types'
 import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from './constants'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
 import type { UserUndelegation } from './types'
 
 export const makeUniqueValidatorAccountIds = ({
@@ -129,8 +126,6 @@ export const getDefaultValidatorAddressFromChainId = (chainId: ChainId) => {
   switch (chainId) {
     case cosmosChainId:
       return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-    case osmosisChainId:
-      return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
     default:
       throw new Error(`chainId ${chainId} is not a valid Cosmos SDK chainId`)
   }

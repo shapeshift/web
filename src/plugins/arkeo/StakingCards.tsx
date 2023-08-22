@@ -1,4 +1,4 @@
-import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -34,9 +34,6 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
   )
-  const osmosisAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, osmosisChainId),
-  )
 
   const filteredOpportunities = stakingOpportunities
     .filter(opportunity => ids.includes(opportunity.id))
@@ -48,7 +45,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
       if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
-      const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
+      const defaultAccountId = cosmosAccountId
 
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

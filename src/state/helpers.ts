@@ -1,5 +1,5 @@
-import { SwapperName } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
+import { SwapperName } from '../lib/swapper/api'
+import { assertUnreachable } from '../lib/utils'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {

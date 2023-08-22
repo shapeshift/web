@@ -12,6 +12,8 @@ import { PositionDetails } from 'components/EarnDashboard/components/PositionDet
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
@@ -74,11 +76,24 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     }),
     [chainId, includeEarnBalances, includeRewardsBalances],
   )
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
   const positions = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByAssetId(
       state,
       selectAggregatedEarnOpportunitiesByAssetIdParams,
     ),
+  )
+
+  const filteredPositions = useMemo(
+    () =>
+      positions.filter(position =>
+        walletSupportsChain({ chainId: fromAssetId(position.assetId).chainId, wallet }),
+      ),
+    [positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -168,8 +183,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(positions, searchQuery) : positions
-  }, [filterRowsBySearchTerm, positions, searchQuery, isSearching])
+    return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
+  }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
 
   return (
     <ReactTable

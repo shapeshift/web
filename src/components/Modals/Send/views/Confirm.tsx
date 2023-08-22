@@ -16,7 +16,9 @@ import {
 import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { useMemo } from 'react'
+import { getConfig } from 'config'
+import type { ChangeEvent } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -56,6 +58,7 @@ export const Confirm = () => {
       control,
     }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const allowCustomSendNonce = getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(
@@ -75,10 +78,13 @@ export const Confirm = () => {
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const handleNonceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setValue(SendFormFields.CustomNonce, value)
-  }
+  const handleNonceChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      setValue(SendFormFields.CustomNonce, value)
+    },
+    [setValue],
+  )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
@@ -137,20 +143,22 @@ export const Confirm = () => {
             </Row.Label>
             <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
           </Row>
-          <Row>
-            <Row.Label>
-              <Text translation={'modals.send.confirm.customNonce'} />
-            </Row.Label>
-            <Row.Value>
-              <Input
-                onChange={handleNonceChange}
-                type='text'
-                placeholder={''}
-                pl={10}
-                variant='filled'
-              />
-            </Row.Value>
-          </Row>
+          {allowCustomSendNonce && (
+            <Row>
+              <Row.Label>
+                <Text translation={'modals.send.confirm.customNonce'} />
+              </Row.Label>
+              <Row.Value>
+                <Input
+                  onChange={handleNonceChange}
+                  type='text'
+                  placeholder={''}
+                  pl={10}
+                  variant='filled'
+                />
+              </Row.Value>
+            </Row>
+          )}
           {showMemoRow && (
             <Row>
               <Row.Label>

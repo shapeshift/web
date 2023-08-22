@@ -95,6 +95,7 @@ export const mockStore: ReduxState = {
       CoinbaseWallet: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
+      CustomSendNonce: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

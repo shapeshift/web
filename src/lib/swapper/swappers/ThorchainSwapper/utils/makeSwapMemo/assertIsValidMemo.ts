@@ -4,9 +4,11 @@ import {
   bchChainId,
   binanceChainId,
   btcChainId,
+  CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  fromChainId,
   ltcChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -20,6 +22,7 @@ import {
   POOL_PART_DELIMITER,
   THORCHAIN_AFFILIATE_NAME,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { assertUnreachable } from 'lib/utils'
 
 const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['ETH', ethChainId],
@@ -59,10 +62,7 @@ export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: st
   }
 }
 
-export const assertIsValidMemo = (memo: string): void => {
-  // BTC (and likely other utxo coins) can only support up to 80 character (byte) memos
-  const MAX_MEMO_LENGTH = 80
-
+export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
   const [, pool, address, limitComponent, affiliate, affiliateBps] = memo.split(MEMO_PART_DELIMITER)
 
   const buyAssetChainId = thorChainAssetToChainId.get(pool.split(POOL_PART_DELIMITER)[0])
@@ -112,8 +112,25 @@ export const assertIsValidMemo = (memo: string): void => {
     })
   }
 
-  if (memo.length > MAX_MEMO_LENGTH) {
-    throw new SwapError(`memo length exceeds ${MAX_MEMO_LENGTH} characters`, {
+  const { chainNamespace } = fromChainId(chainId)
+
+  const maxMemoLength = (() => {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Utxo:
+        // BTC (and likely other UTXO coins) can only support up to 80 character (byte) memos
+        return 80
+      case CHAIN_NAMESPACE.Evm:
+        return Infinity
+      case CHAIN_NAMESPACE.CosmosSdk:
+        // Cosmos (and likely other Cosmos SDK coins) can only support up to 256 character (byte) memos
+        return 256
+      default:
+        assertUnreachable(chainNamespace)
+    }
+  })()
+
+  if (memo.length > maxMemoLength) {
+    throw new SwapError(`memo length exceeds ${maxMemoLength} characters`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   }

@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Grid, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
-import { cosmosAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
@@ -22,11 +22,17 @@ type OpportunityReturn = {
   [k in DefiType]: OpportunityId[]
 }
 
+const cosmosOsmosLpAssetId = 'cosmos:osmosis-1/ibc:gamm/pool/1'
 const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b'
 
 const opportunities: OpportunityReturn = {
-  staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV7, cosmosAssetId] as OpportunityId[],
-  lp: [foxEthLpAssetId],
+  staking: [
+    FOXY_STAKING_CONTRACT,
+    foxEthStakingAssetIdV7,
+    osmosisAssetId,
+    cosmosAssetId,
+  ] as OpportunityId[],
+  lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
 }
 
 export const ArkeoPage = () => {

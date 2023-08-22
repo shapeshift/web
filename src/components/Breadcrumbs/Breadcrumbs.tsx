@@ -40,12 +40,15 @@ const GetAssetName = (props: {
 }) => {
   const {
     match: {
-      params: { chainId, assetSubId, assetId: assetIdParam, nftId },
+      params: { chainId, assetSubId, assetId: assetIdParam, poolId, nftId },
     },
   } = props
 
   const assetId: string = (() => {
     if (assetIdParam) return decodeURIComponent(assetIdParam)
+
+    // add pool segment and poolId attribute for osmosis lp assets
+    if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
 
     // add nft segment and nftId attribute for nft assets
     if (nftId) return `${chainId}/${assetSubId}/${nftId}`
@@ -82,6 +85,11 @@ const options: Options = {
   excludePaths: [
     '/assets/:chainId',
     '/trade/:chainId',
+    // If it's an Osmosis IBC asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
+    '/assets/:chainId/ibc\\:gamm',
+    '/assets/:chainId/ibc\\:gamm/pool',
+    '/trade/:chainId/ibc\\:gamm',
+    '/trade/:chainId/ibc\\:gamm/pool',
     // Making /assets/<nftAssetId>/transactions happy
     '/assets/:chainId/:assetSubId',
   ],

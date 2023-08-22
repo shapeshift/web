@@ -1955,10 +1955,19 @@
       "body": "Vous avez %{asset1} et %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Arkeo.",
       "cta": "Déposer des liquidités"
     },
+    "atomOsmoProviders": {
+      "title": "Fournisseurs LP en ATOM/OSMO",
+      "body": "Vous avez des ATOM et OSMO ? Fournissez des liquidités au pool pour gagner %{apy} APR et vous qualifier pour l'Airdrop.",
+      "cta": "Déposer des liquidités"
+    },
     "stakeAtom": {
       "title": "Miser des ATOM",
       "body": "Gagnez jusqu'à %{apr} APR sur vos ATOM inactifs. DE PLUS, tout les ATOM que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop.",
       "cta": "Miser des ATOM"
+    },
+    "stakeOsmo": {
+      "title": "Miser des OSMO",
+      "body": "Gagnez jusqu'à %{apr} APR sur vos OSMO inactifs. DE PLUS, tous les OSMO que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop."
     },
     "footer": {
       "title": "Il existe également d'autres moyens de vous qualifier, en dehors de l'application ShapeShift. Pour une liste complète, consultez la proposition de gouvernance.",

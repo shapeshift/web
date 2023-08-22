@@ -20,6 +20,7 @@ export const foxatarAssetId: AssetId =
 export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
+export const osmosisAssetId: AssetId = 'cosmos:osmosis-1/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-mainnet-v1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 export const kavaAssetId: AssetId = 'cosmos:kava_2222-10/slip44:459'
@@ -39,6 +40,7 @@ export const polygonChainId: ChainId = 'eip155:137'
 export const gnosisChainId: ChainId = 'eip155:100'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
+export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 export const kavaChainId: ChainId = 'cosmos:kava_2222-10'
@@ -69,6 +71,8 @@ export const CHAIN_REFERENCE = {
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
   CosmosHubMainnet: 'cosmoshub-4',
   CosmosHubVega: 'vega-testnet',
+  OsmosisMainnet: 'osmosis-1',
+  OsmosisTestnet: 'osmo-testnet-1',
   ThorchainMainnet: 'thorchain-mainnet-v1',
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
   BinanceMainnet: 'binance-chain-tigris', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
@@ -105,6 +109,7 @@ export const ASSET_REFERENCE = {
   Dogecoin: '3',
   Ethereum: '60',
   Cosmos: '118',
+  Osmosis: '118',
   Thorchain: '931',
   BitcoinCash: '145',
   AvalancheC: '60', // evm chain which uses ethereum derivation path as common practice
@@ -139,6 +144,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
     CHAIN_REFERENCE.CosmosHubVega,
+    CHAIN_REFERENCE.OsmosisMainnet,
+    CHAIN_REFERENCE.OsmosisTestnet,
     CHAIN_REFERENCE.ThorchainMainnet,
     CHAIN_REFERENCE.BinanceMainnet,
     CHAIN_REFERENCE.KavaMainnet,
@@ -177,6 +184,7 @@ export const FEE_ASSET_IDS = [
   btcAssetId,
   bchAssetId,
   cosmosAssetId,
+  osmosisAssetId,
   thorchainAssetId,
   dogeAssetId,
   ltcAssetId,

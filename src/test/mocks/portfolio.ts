@@ -5,6 +5,7 @@ import {
   cosmosAssetId,
   ethAssetId,
   optimismAssetId,
+  osmosisAssetId,
   polygonAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
@@ -83,6 +84,13 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => polygonAssetId,
       getDisplayName: () => 'Polygon',
+    },
+  ],
+  [
+    KnownChainIds.OsmosisMainnet,
+    {
+      getFeeAssetId: () => osmosisAssetId,
+      getDisplayName: () => 'Osmosis',
     },
   ],
   [

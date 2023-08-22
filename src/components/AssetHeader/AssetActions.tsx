@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, isNft } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
@@ -10,6 +11,7 @@ import { useHistory } from 'react-router-dom'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -24,6 +26,7 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const isOsmosisSendEnabled = useFeatureFlag('OsmosisSend')
   const history = useHistory()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
@@ -42,9 +45,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
   useEffect(() => {
-    const isValid = chainAdapterManager.has(asset.chainId)
+    const isValid =
+      // feature flag to disable Osmosis Sends
+      asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
+        ? false
+        : chainAdapterManager.has(asset.chainId)
     setIsValidChainId(isValid)
-  }, [chainAdapterManager, asset])
+  }, [chainAdapterManager, asset, isOsmosisSendEnabled])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

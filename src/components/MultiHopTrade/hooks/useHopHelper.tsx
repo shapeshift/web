@@ -21,7 +21,7 @@ export const useHopHelper = () => {
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
   // this is the account we're selling from - in this implementation, network fees are always paid
-  // from the sell account regardless of how many hops we have
+  // from the sell account regardless of how many hops we have (TODO: logic for osmo fees though)
   const sellAccountId = useAppSelector(selectSellAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(

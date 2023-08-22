@@ -60,6 +60,8 @@ export const chainIdFeeAssetReferenceMap = (
         switch (chainReference) {
           case CHAIN_REFERENCE.CosmosHubMainnet:
             return ASSET_REFERENCE.Cosmos
+          case CHAIN_REFERENCE.OsmosisMainnet:
+            return ASSET_REFERENCE.Osmosis
           case CHAIN_REFERENCE.ThorchainMainnet:
             return ASSET_REFERENCE.Thorchain
           default:

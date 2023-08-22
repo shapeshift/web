@@ -53,6 +53,8 @@ export const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | 
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.BnbSmartChainMainnet:
       return ASSET_NAMESPACE.bep20
+    case KnownChainIds.OsmosisMainnet:
+      return ASSET_NAMESPACE.ibc
     default:
       return undefined
   }

@@ -1,11 +1,19 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  cosmosAssetId,
+  fromAssetId,
+  osmosisAssetId,
+  thorchainAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 
 import type { Message } from '../types'
 import type { TxMetadata } from './types'
 
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
+  ['uosmo', osmosisAssetId],
   ['rune', thorchainAssetId],
 ])
 
@@ -14,7 +22,9 @@ export const getAssetIdByDenom = (denom: string, assetId: string): AssetId | und
 
   const { chainId } = fromAssetId(assetId)
 
-  const [assetNamespace, assetReference] = denom.split('/')
+  const [assetNamespace, assetReference] = denom.includes('gamm/pool')
+    ? [ASSET_NAMESPACE.ibc, denom]
+    : denom.split('/')
 
   if (assetNamespace === 'ibc' && assetReference) {
     return toAssetId({ chainId, assetNamespace, assetReference })
@@ -110,6 +120,23 @@ export const metaData = (
         memo: event['outbound']['memo'],
       }
     }
+    case 'swap_exact_amount_in':
+      return {
+        parser: 'swap',
+        method: msg.type,
+      }
+    case 'join_pool':
+      return {
+        parser: 'lp',
+        method: msg.type,
+        pool: event['pool_joined']['pool_id'],
+      }
+    case 'exit_pool':
+      return {
+        parser: 'lp',
+        method: msg.type,
+        pool: event['pool_exited']['pool_id'],
+      }
     case 'send':
       // known message types with no applicable metadata
       return

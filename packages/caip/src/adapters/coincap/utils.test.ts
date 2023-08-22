@@ -1,6 +1,6 @@
 import realFs from 'fs'
 
-import { bitcoinAssetMap, cosmosAssetMap } from '../../utils'
+import { bitcoinAssetMap, cosmosAssetMap, osmosisAssetMap } from '../../utils'
 import { parseData, parseEthData, writeFiles } from './utils'
 
 const makeEthMockCoincapResponse = () => ({
@@ -78,6 +78,21 @@ const makeCosmosMockCoincapResponse = () => ({
   explorer: 'https://www.mintscan.io/cosmos',
 })
 
+const makeOsmosisMockCoincapResponse = () => ({
+  id: 'osmosis',
+  rank: '730',
+  symbol: 'OSMO',
+  name: 'Osmosis',
+  supply: '229862431.0000000000000000',
+  maxSupply: '1000000000.0000000000000000',
+  marketCapUsd: '1957320025.1314825668859843',
+  volumeUsd24Hr: '15685.4558405572962647',
+  priceUsd: '8.5151802172121053',
+  changePercent24Hr: '0.5555705025303916',
+  vwap24Hr: '8.7723272775832324',
+  explorer: 'https://www.mintscan.io/osmosis',
+})
+
 jest.mock('fs', () => ({
   promises: {
     writeFile: jest.fn(() => undefined),
@@ -106,6 +121,14 @@ describe('adapters:coincap:utils', () => {
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
+
+    it('can parse osmosis data', () => {
+      const result = osmosisAssetMap
+      const expected = {
+        'cosmos:osmosis-1/slip44:118': 'osmosis',
+      }
+      expect(result).toEqual(expected)
+    })
   })
 
   describe('parseData', () => {
@@ -115,6 +138,7 @@ describe('adapters:coincap:utils', () => {
         makeFoxMockCoincapResponse(),
         makeBtcMockCoincapResponse(),
         makeCosmosMockCoincapResponse(),
+        makeOsmosisMockCoincapResponse(),
         makeThorchainMockCoincapResponse(),
       ])
       const expected = {
@@ -132,6 +156,9 @@ describe('adapters:coincap:utils', () => {
         },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
+        },
+        'cosmos:osmosis-1': {
+          'cosmos:osmosis-1/slip44:118': 'osmosis',
         },
         'cosmos:thorchain-mainnet-v1': {
           'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',

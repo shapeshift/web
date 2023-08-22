@@ -9,6 +9,7 @@ import bnbsmartchain from './eip155_56/adapter.json'
 import polygon from './eip155_137/adapter.json'
 import gnosis from './eip155_100/adapter.json'
 import cosmos from './cosmos_cosmoshub-4/adapter.json'
+import osmosis from './cosmos_osmosis-1/adapter.json'
 import thorchain from './cosmos_thorchain-mainnet-v1/adapter.json'
 
-export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis }
+export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, osmosis, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis }

@@ -62,7 +62,14 @@ export function partitionCompareWith<T>(
 }
 
 export const isToken = (assetReference: AssetReference | string) => {
-  return !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+  return !(
+    Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference) ||
+    isOsmosisLpAsset(assetReference)
+  )
+}
+
+export const isOsmosisLpAsset = (assetReference: AssetReference | string): boolean => {
+  return assetReference.startsWith('gamm/pool/')
 }
 
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>

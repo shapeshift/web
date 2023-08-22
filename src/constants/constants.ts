@@ -14,6 +14,7 @@ export const getDefaultSlippagePercentageForSwapper = (swapperName?: SwapperName
     case SwapperName.Thorchain:
     case SwapperName.Zrx:
     case SwapperName.OneInch:
+    case SwapperName.Osmosis:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.LIFI:

@@ -110,6 +110,14 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Gnosis && chainId === KnownChainIds.GnosisMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
+      if (
+        !featureFlags.OsmosisSend &&
+        !featureFlags.OsmosisStaking &&
+        !featureFlags.OsmosisSwap &&
+        !featureFlags.OsmosisLP &&
+        chainId === KnownChainIds.OsmosisMainnet
+      )
+        return false
       return true
     })
 

@@ -7,9 +7,15 @@ import {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
-const shapeshiftValidators = [SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS]
+const shapeshiftValidators = [
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+]
 
 type StakingInput = {
   asset: Asset

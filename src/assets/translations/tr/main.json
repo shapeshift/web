@@ -1955,10 +1955,19 @@
       "body": "%{asset1} ve %{asset2}'ye sahip misiniz? Uniswap V2 Havuzuna likidite sağlayarak %{apy} APR kazanın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
       "cta": "Likidite Ekleyin"
     },
+    "atomOsmoProviders": {
+      "title": "ATOM/OSMO LP Sağlayıcıları",
+      "body": "ATOM ve OSMO'nuz var mı? %{apy} APR kazanmak ve airdrop'a hak kazanmak için havuza likidite sağlayın.",
+      "cta": "Likidite Ekleyin"
+    },
     "stakeAtom": {
       "title": "ATOM Stake",
       "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
       "cta": "ATOM Stake"
+    },
+    "stakeOsmo": {
+      "title": "OSMO Stake ",
+      "body": "Boştaki OSMO'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir OSMO size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz."
     },
     "footer": {
       "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",

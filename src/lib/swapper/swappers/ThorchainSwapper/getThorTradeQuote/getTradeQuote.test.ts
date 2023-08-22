@@ -150,6 +150,7 @@ describe('getTradeQuote', () => {
               streaming_swap_seconds: 400,
               total_swap_seconds: 1600,
               inbound_confirmation_seconds: 600,
+              recommended_min_amount_in: '1',
             },
           }
           return Promise.resolve(Ok(mockThorQuote))

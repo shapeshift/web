@@ -18,6 +18,7 @@ export type ThornodePoolResponse = {
 }
 
 export type ThornodeQuoteResponseSuccess = {
+  recommended_min_amount_in: string | undefined
   expected_amount_out: string
   expected_amount_out_streaming: string
   expiry: string

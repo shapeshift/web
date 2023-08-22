@@ -27,6 +27,7 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -107,6 +108,26 @@ export const getThorTradeQuote = async (
 
   const thornodeQuote = maybeQuote.unwrap()
   const { fees } = thornodeQuote
+
+  const recommendedMinAmountInThorBaseUnit = thornodeQuote.recommended_min_amount_in
+    ? convertPrecision({
+        value: thornodeQuote.recommended_min_amount_in,
+        inputExponent: THORCHAIN_FIXED_PRECISION,
+        outputExponent: sellAsset.precision,
+      })
+    : undefined
+
+  if (
+    recommendedMinAmountInThorBaseUnit &&
+    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInThorBaseUnit)
+  ) {
+    return Err(
+      createTradeAmountTooSmallErr({
+        minAmountCryptoBaseUnit: recommendedMinAmountInThorBaseUnit.toFixed(),
+        assetId: sellAsset.assetId,
+      }),
+    )
+  }
 
   const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
 
@@ -207,7 +228,12 @@ export const getThorTradeQuote = async (
               expectedAmountOutThorBaseUnit,
             )
 
-            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
@@ -273,7 +299,12 @@ export const getThorTradeQuote = async (
               expectedAmountOutThorBaseUnit,
             )
 
-            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
             const maybeThorTxInfo = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,

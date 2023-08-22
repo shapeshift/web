@@ -14,6 +14,11 @@ import {
 } from './idle/idleMockData'
 import { MarketServiceManager } from './market-service-manager'
 import {
+  mockOsmosisFindAllData,
+  mockOsmosisFindByAssetIdData,
+  mockOsmosisYearlyHistoryData,
+} from './osmosis/osmosisMockData'
+import {
   mockYearnFindByAssetIdData,
   mockYearnPriceHistoryData,
   mockYearnServiceFindAllData,
@@ -99,6 +104,22 @@ jest.mock('./yearn/yearn-tokens', () => ({
   }),
 }))
 
+const mockOsmosisFindAll = jest.fn().mockImplementation(() => mockOsmosisFindAllData)
+const mockOsmosisFindByAssetId = jest.fn().mockImplementation(() => mockOsmosisFindByAssetIdData)
+const mockOsmosisFindPriceHistoryByAssetId = jest
+  .fn()
+  .mockImplementation(() => mockOsmosisYearlyHistoryData)
+
+jest.mock('./osmosis/osmosis', () => ({
+  OsmosisMarketService: jest.fn().mockImplementation(() => {
+    return {
+      findAll: mockOsmosisFindAll,
+      findByAssetId: mockOsmosisFindByAssetId,
+      findPriceHistoryByAssetId: mockOsmosisFindPriceHistoryByAssetId,
+    }
+  }),
+}))
+
 const mockFoxyFindAll = jest.fn().mockImplementation(() => mockFoxyMarketData)
 const mockFoxyFindByAssetId = jest.fn().mockImplementation(() => mockFoxyMarketData)
 const mockFoxyFindPriceHistoryByAssetId = jest
@@ -125,6 +146,8 @@ describe('market service', () => {
       jsonRpcProviderUrl: '',
       unchainedEthereumWsUrl: '',
       unchainedEthereumHttpUrl: '',
+      osmosisMarketDataUrl: '',
+      osmosisPoolMetadataUrl: '',
     },
   }
 
@@ -154,6 +177,7 @@ describe('market service', () => {
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindAll.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockOsmosisFindAll.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
       mockIdleFindAll.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
@@ -198,6 +222,7 @@ describe('market service', () => {
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockOsmosisFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockIdleFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
@@ -235,6 +260,7 @@ describe('market service', () => {
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockOsmosisFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockIdleFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)

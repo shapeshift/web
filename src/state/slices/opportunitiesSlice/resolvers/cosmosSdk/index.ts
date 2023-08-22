@@ -1,4 +1,4 @@
-import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -8,6 +8,7 @@ import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -34,8 +35,12 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
   const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
+  const { OsmosisStaking: isOsmoStakingEnabled } = selectFeatureFlags(state)
 
-  const cosmosSdkChainIdsWhitelist = [cosmosChainId]
+  const cosmosSdkChainIdsWhitelist = [
+    cosmosChainId,
+    ...(isOsmoStakingEnabled ? [osmosisChainId] : []),
+  ]
   // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
   // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
@@ -65,6 +70,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
   const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds({
     cosmosSdkAccounts,
+    isOsmoStakingEnabled,
   })
 
   return {
@@ -107,6 +113,8 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
           switch (chainId) {
             case cosmosChainId:
               return 'cosmoshub'
+            case osmosisChainId:
+              return 'osmosis'
             default:
               return ''
           }
@@ -178,7 +186,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { account: pubKey, chainId } = fromAccountId(accountId)
-    if (chainId !== cosmosChainId) {
+    if (![cosmosChainId, osmosisChainId].includes(chainId)) {
       return Promise.resolve({
         data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: defiType },
       })

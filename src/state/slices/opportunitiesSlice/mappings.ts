@@ -6,6 +6,7 @@ import {
   dogeChainId,
   ethChainId,
   ltcChainId,
+  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import pipe from 'lodash/flow'
 
@@ -29,6 +30,10 @@ import {
   idleStakingOpportunitiesUserDataResolver,
   idleStakingOpportunityIdsResolver,
 } from './resolvers/idle'
+import {
+  osmosisLpOpportunitiesMetadataResolver,
+  osmosisLpOpportunityIdsResolver,
+} from './resolvers/osmosis'
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -56,6 +61,9 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   },
   [`${DefiProvider.CosmosSdk}`]: {
     [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
+  },
+  [`${DefiProvider.OsmosisLp}`]: {
+    [`${DefiType.LiquidityPool}`]: osmosisLpOpportunitiesMetadataResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -89,6 +97,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   },
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
+  },
+  [`${DefiProvider.OsmosisLp}`]: {
+    [`${DefiType.LiquidityPool}`]: osmosisLpOpportunityIdsResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
@@ -171,6 +182,16 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
+    },
+  ],
+  [osmosisChainId]: [
+    {
+      defiProvider: DefiProvider.CosmosSdk,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.OsmosisLp,
+      defiType: DefiType.LiquidityPool,
     },
   ],
 }

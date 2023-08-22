@@ -50,6 +50,18 @@ describe('adapters:coincap', () => {
     expect(coincapToAssetId('cosmos')).toEqual(assetId)
   })
 
+  it('can get AssetId for osmosis', () => {
+    const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
+    const chainReference = CHAIN_REFERENCE.OsmosisMainnet
+    const assetId = toAssetId({
+      chainNamespace,
+      chainReference,
+      assetNamespace: 'slip44',
+      assetReference: ASSET_REFERENCE.Osmosis,
+    })
+    expect(coincapToAssetId('osmosis')).toEqual(assetId)
+  })
+
   describe('assetIdToCoinCap', () => {
     it('can get coincap id for bitcoin AssetId', () => {
       const chainNamespace = CHAIN_NAMESPACE.Utxo
@@ -94,6 +106,18 @@ describe('adapters:coincap', () => {
         assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(assetIdToCoinCap(assetId)).toEqual('cosmos')
+    })
+
+    it('can get coincap id for osmosis AssetId', () => {
+      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
+      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
+      const assetId = toAssetId({
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Osmosis,
+      })
+      expect(assetIdToCoinCap(assetId)).toEqual('osmosis')
     })
   })
 })

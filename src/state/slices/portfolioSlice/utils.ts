@@ -16,6 +16,7 @@ import {
   isNft,
   ltcChainId,
   optimismChainId,
+  osmosisChainId,
   polygonChainId,
   thorchainChainId,
   toAccountId,
@@ -82,6 +83,8 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       return 'Bitcoin Cash'
     case cosmosChainId:
       return 'Cosmos'
+    case osmosisChainId:
+      return 'Osmosis'
     case thorchainChainId:
       return 'Thorchain'
     case dogeChainId:

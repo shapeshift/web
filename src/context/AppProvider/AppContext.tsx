@@ -9,6 +9,7 @@ import {
   ethChainId,
   fromAccountId,
   ltcChainId,
+  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
@@ -207,6 +208,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case dogeChainId:
           case bchChainId:
           case cosmosChainId:
+          case osmosisChainId:
           case avalancheChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)

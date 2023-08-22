@@ -21,10 +21,11 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
-  const providerName =
-    DefiProvider.CosmosSdk === (provider as DefiProvider)
-      ? translate('common.validator', { name: opportunityName })
-      : provider
+  const providerName = [DefiProvider.CosmosSdk, DefiProvider.OsmosisLp].includes(
+    provider as DefiProvider,
+  )
+    ? translate('common.validator', { name: opportunityName })
+    : provider
 
   const { title, body, cta } = (() => {
     switch (provider) {

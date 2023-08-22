@@ -12,6 +12,7 @@ import {
   dogeChainId,
   ethChainId,
   ltcChainId,
+  osmosisChainId,
   thorchainChainId,
 } from '../../constants'
 import {
@@ -20,6 +21,7 @@ import {
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
+  osmosisAssetMap,
   thorchainAssetMap,
 } from '../../utils'
 
@@ -80,5 +82,6 @@ export const parseData = (d: CoinCapCoin[]) => ({
   [dogeChainId]: dogecoinAssetMap,
   [ltcChainId]: litecoinAssetMap,
   [cosmosChainId]: cosmosAssetMap,
+  [osmosisChainId]: osmosisAssetMap,
   [thorchainChainId]: thorchainAssetMap,
 })

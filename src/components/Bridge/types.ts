@@ -14,6 +14,7 @@ export enum AxelarChainNames {
   Injective = 'injective',
   Juno = 'juno',
   Kujira = 'kujira',
+  Osmosis = 'osmosis',
   Secret = 'secret',
   Terra2 = 'terra-2',
 }

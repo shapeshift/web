@@ -4,6 +4,8 @@ import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
 import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
+import { osmosisApi } from 'lib/swapper/swappers/OsmosisSwapper/endpoints'
+import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper2'
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
@@ -37,5 +39,9 @@ export const swappers = [
   {
     swapperName: SwapperName.OneInch,
     swapper: { ...oneInchSwapper, ...oneInchApi },
+  },
+  {
+    swapperName: SwapperName.Osmosis,
+    swapper: { ...osmosisSwapper, ...osmosisApi },
   },
 ]

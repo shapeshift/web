@@ -14,6 +14,7 @@ import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
 import { IdleMarketService } from './idle/idle'
+import { OsmosisMarketService } from './osmosis/osmosis'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
@@ -21,6 +22,8 @@ export type ProviderUrls = {
   jsonRpcProviderUrl: string
   unchainedEthereumHttpUrl: string
   unchainedEthereumWsUrl: string
+  osmosisMarketDataUrl: string
+  osmosisPoolMetadataUrl: string
 }
 
 export type MarketServiceManagerArgs = {
@@ -49,6 +52,7 @@ export class MarketServiceManager {
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
       new IdleMarketService({ providerUrls }),
+      new OsmosisMarketService(providerUrls),
       new FoxyMarketService({ providerUrls }),
     ]
   }

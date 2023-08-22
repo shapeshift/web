@@ -1955,19 +1955,10 @@
       "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2-Pool bereit, um %{apy} APR zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
       "cta": "Liquidität einzahlen"
     },
-    "atomOsmoProviders": {
-      "title": "ATOM/OSMO LP Provider",
-      "body": "Haben Sie ATOM und OSMO? Stellen Sie Liquidität in den Pool, um %{apy} APR zu verdienen und sich für den Airdrop zu qualifizieren.",
-      "cta": "Liquidität einzahlen"
-    },
     "stakeAtom": {
       "title": "Stake ATOM",
       "body": "Verdienen Sie bis zu %{apr} APR mit Ihrem ungenutzten ATOM. PLUS jedes ATOM, das Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Validator einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln.",
       "cta": "Stake ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Verdienen Sie bis zu %{apr} APR auf Ihre freien OSMO. PLUS jeden OSMO, den Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Prüfer einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln."
     },
     "footer": {
       "title": "Es gibt auch andere Möglichkeiten, sich außerhalb der ShapeShift dApp zu qualifizieren. Eine vollständige Liste finden Sie im Governance-Vorschlag.",

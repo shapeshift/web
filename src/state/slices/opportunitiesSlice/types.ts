@@ -18,7 +18,6 @@ export enum DefiProvider {
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
-  OsmosisLp = 'Osmosis LP',
   ThorchainSavers = 'THORChain Savers',
 }
 

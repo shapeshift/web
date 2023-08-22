@@ -22,7 +22,6 @@ import {
   ltcChainId,
   optimismAssetId,
   optimismChainId,
-  osmosisChainId,
   polygonAssetId,
   polygonChainId,
   thorchainChainId,
@@ -33,7 +32,6 @@ import {
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
-  osmosisAssetMap,
   thorchainAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
@@ -153,7 +151,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
     [cosmosChainId]: cosmosAssetMap,
-    [osmosisChainId]: osmosisAssetMap,
     [thorchainChainId]: thorchainAssetMap,
   }
 }

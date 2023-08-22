@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -107,6 +108,8 @@ export const getThorTradeQuote = async (
   const thornodeQuote = maybeQuote.unwrap()
   const { fees } = thornodeQuote
 
+  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+
   const perRouteValues = [
     {
       // regular swap
@@ -118,7 +121,8 @@ export const getThorTradeQuote = async (
         1000 *
         (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
     },
-    ...(thornodeQuote.expected_amount_out !== thornodeQuote.expected_amount_out_streaming
+    ...(thorSwapStreamingSwaps &&
+    thornodeQuote.expected_amount_out !== thornodeQuote.expected_amount_out_streaming
       ? [
           {
             // streaming swap

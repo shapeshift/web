@@ -87,20 +87,6 @@ export const atom: AssetWithNetworkName = {
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
 }
 
-export const osmosis: AssetWithNetworkName = {
-  assetId: caip.osmosisAssetId,
-  chainId: caip.osmosisChainId,
-  symbol: 'OSMO',
-  networkName: 'Osmosis',
-  name: 'Osmosis',
-  precision: 6,
-  color: '#750BBB',
-  icon: 'https://rawcdn.githack.com/cosmos/chain-registry/master/osmosis/images/osmo.png',
-  explorer: 'https://www.mintscan.io/osmosis',
-  explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
-  explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
-}
-
 export const avax: AssetWithNetworkName = {
   assetId: caip.avalancheAssetId,
   chainId: caip.avalancheChainId,

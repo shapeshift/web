@@ -65,8 +65,16 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
       })
+      const foxOnOptimism = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.OptimismMainnet,
+        assetNamespace,
+        assetReference: '0xf1a0da3367bc7aa04f8d94ba57b862ff37ced174',
+      })
+
       expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([
         foxOnEthereum,
+        foxOnOptimism,
         foxOnPolygon,
         foxOnGnosis,
       ])
@@ -86,18 +94,6 @@ describe('adapters:coingecko', () => {
         assetReference: '0x0eb3a705fc54725037cc9e008bdede697f62f335',
       })
       expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnCosmos, atomOnBsc])
-    })
-
-    it('can get AssetIds for osmosis', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
-      const assetId = toAssetId({
-        chainNamespace,
-        chainReference,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis,
-      })
-      expect(coingeckoToAssetIds('osmosis')).toEqual([assetId])
     })
 
     it('can get AssetIds for USD Coin on EVM Chains', () => {
@@ -194,18 +190,6 @@ describe('adapters:coingecko', () => {
         assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('cosmos')
-    })
-
-    it('can get CoinGecko id for osmosis AssetId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
-      const assetId = toAssetId({
-        chainNamespace,
-        chainReference,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis,
-      })
-      expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
     })
 
     it('can get CoinGecko id for polygon AssetId', () => {

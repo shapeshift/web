@@ -15,7 +15,6 @@ type CoinbaseCurrency = {
 function coinbaseCurrencyToAssetId(currency: CoinbaseCurrency): AssetId | null {
   if (currency.id === 'BTC') return 'bip122:000000000019d6689c085ae165831e93/slip44:0'
   if (currency.id === 'ATOM') return 'cosmos:cosmoshub-4/slip44:118'
-  if (currency.id === 'OSMO') return 'cosmos:osmosis-1/slip44:118'
   if (currency.id === 'ETH') return 'eip155:1/slip44:60'
   if (currency.default_network === 'ethereum') {
     const addressQuery = currency.details.crypto_address_link?.split('token/')[1]

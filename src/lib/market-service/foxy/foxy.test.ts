@@ -10,8 +10,6 @@ const foxyMarketService = new FoxyMarketService({
     jsonRpcProviderUrl: 'dummy',
     unchainedEthereumHttpUrl: '',
     unchainedEthereumWsUrl: '',
-    osmosisMarketDataUrl: '',
-    osmosisPoolMetadataUrl: '',
   },
 })
 

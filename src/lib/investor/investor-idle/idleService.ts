@@ -2,8 +2,9 @@ import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
-import { apiKey, baseUrl } from 'lib/investor/investor-idle/constants'
-import { createCache } from 'lib/swapper/utils'
+
+import { createCache } from '../../swapper/utils'
+import { apiKey, baseUrl } from './constants'
 
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = ['pools']

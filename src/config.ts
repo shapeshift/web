@@ -5,7 +5,7 @@ import memoize from 'lodash/memoize'
 
 import env from './env'
 
-const { cleanEnv, str, url, num } = envalid
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_

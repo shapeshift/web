@@ -20,6 +20,7 @@ import type { TradeQuoteDeps } from 'lib/swapper/types'
 import type { ThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
+import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
 export const thorchainApi: Swapper2Api = {
@@ -29,9 +30,11 @@ export const thorchainApi: Swapper2Api = {
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const { receiveAddress } = input
 
-    const thorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
+    const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
-    const affiliateBps = thorSwapAffiliateFees ? '25' : input.affiliateBps
+    const affiliateBps = applyThorSwapAffiliateFees
+      ? THORCHAIN_AFFILIATE_FEE_BPS
+      : input.affiliateBps
 
     const mapTradeQuoteToTradeQuote2 = (
       quoteResult: Result<ThorTradeQuote[], SwapErrorRight>,

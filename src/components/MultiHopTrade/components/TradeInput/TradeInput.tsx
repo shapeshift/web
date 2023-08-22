@@ -98,7 +98,7 @@ export const TradeInput = memo(() => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
-  const thorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
+  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -246,12 +246,12 @@ export const TradeInput = memo(() => {
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (thorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain) {
+    if (applyThorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain) {
       return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
     }
 
     return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
-  }, [activeSwapperName, quoteAffiliateFee, thorSwapAffiliateFees])
+  }, [activeSwapperName, quoteAffiliateFee, applyThorSwapAffiliateFees])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -387,7 +387,7 @@ export const TradeInput = memo(() => {
               </Button>
             </Tooltip>
             {hasUserEnteredAmount &&
-              (!thorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
+              (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
                 <DonationCheckbox isLoading={isLoading} />
               )}
           </CardFooter>

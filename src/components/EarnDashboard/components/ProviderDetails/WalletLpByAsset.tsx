@@ -21,29 +21,22 @@ import { OpportunityRow } from './OpportunityRow'
 import { OpportunityTableHeader } from './OpportunityTableHeader'
 
 type WalletLpByAssetProps = {
-  ids: OpportunityId[]
+  opportunities: LpEarnOpportunityType[]
 }
 
 export type RowProps = Row<LpEarnOpportunityType>
 
-export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
+export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-
-  const filteredDown = lpOpportunities.filter(
-    e =>
-      ids.includes(e.assetId as OpportunityId) &&
-      walletSupportsChain({ chainId: e.chainId, wallet }),
-  )
   const groupedItems = useMemo(() => {
-    const groups = filteredDown.reduce(
+    const groups = opportunities.reduce(
       (entryMap, currentItem) =>
         entryMap.set(currentItem.opportunityName, [
           ...(entryMap.get(currentItem.opportunityName) || []),
@@ -52,7 +45,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
       new Map(),
     )
     return Array.from(groups.entries())
-  }, [filteredDown])
+  }, [opportunities])
 
   const flatItems = useMemo(
     () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
@@ -137,7 +130,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
     )
   }, [data, handleClick, translate])
 
-  if (!filteredDown.length) return null
+  if (!opportunities.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>

@@ -15,8 +15,18 @@ import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDet
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
-import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import type {
+  AggregatedOpportunitiesByProviderReturn,
+  OpportunityId,
+} from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+import {
+  selectAggregatedEarnUserLpOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type ProviderCardProps = {
   isLoading?: boolean
@@ -31,6 +41,29 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 }) => {
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
+
+  const filteredDownStakingOpportunities = stakingOpportunities.filter(
+    e =>
+      staking.includes(e.id as OpportunityId) &&
+      walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
+
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
+
+  const filteredDownLpOpportunities = lpOpportunities.filter(
+    e =>
+      lp.includes(e.assetId as OpportunityId) &&
+      walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
+
   return (
     <Card variant='outline'>
       <CardHeader
@@ -74,8 +107,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         />
       </CardHeader>
       <CardBody px={0} pb={2} pt={0}>
-        <WalletStakingByAsset ids={staking} />
-        <WalletLpByAsset ids={lp} />
+        <WalletStakingByAsset opportunities={filteredDownStakingOpportunities} />
+        <WalletLpByAsset opportunities={filteredDownLpOpportunities} />
       </CardBody>
     </Card>
   )

@@ -10,47 +10,33 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type {
-  OpportunityId,
-  StakingEarnOpportunityType,
-} from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
-} from 'state/slices/selectors'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityRow } from './OpportunityRow'
 import { OpportunityTableHeader } from './OpportunityTableHeader'
 
 type StakingPositionsByAssetProps = {
-  ids: OpportunityId[]
+  opportunities: StakingEarnOpportunityType[]
 }
 
 export type RowProps = Row<StakingEarnOpportunityType>
 
-export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ ids }) => {
+export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ opportunities }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const stakingOpportunities = useAppSelector(
-    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  )
-
-  const filteredDown = stakingOpportunities.filter(
-    e => ids.includes(e.id as OpportunityId) && walletSupportsChain({ chainId: e.chainId, wallet }),
-  )
 
   const groupedItems = useMemo(() => {
-    const groups = filteredDown.reduce(
+    const groups = opportunities.reduce(
       (entryMap, currentItem) =>
         entryMap.set(currentItem.version ?? `${currentItem.provider} ${currentItem.type}`, [
           ...(entryMap.get(currentItem.version ?? `${currentItem.provider} ${currentItem.type}`) ||
@@ -60,7 +46,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
       new Map(),
     )
     return Array.from(groups.entries())
-  }, [filteredDown])
+  }, [opportunities])
 
   const flatItems = useMemo(
     () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
@@ -144,7 +130,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     )
   }, [data, handleClick, translate])
 
-  if (!filteredDown.length) return null
+  if (!opportunities.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>

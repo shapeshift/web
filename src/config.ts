@@ -83,6 +83,7 @@ const validators = {
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
+  REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),

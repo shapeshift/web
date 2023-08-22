@@ -1,6 +1,7 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
+import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -28,8 +29,9 @@ export const thorchainApi: Swapper2Api = {
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const { receiveAddress } = input
 
-    // TEMP: thorchain swapper is set at 25 bps
-    const affiliateBps = '25'
+    const thorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
+
+    const affiliateBps = thorSwapAffiliateFees ? '25' : input.affiliateBps
 
     const mapTradeQuoteToTradeQuote2 = (
       quoteResult: Result<ThorTradeQuote[], SwapErrorRight>,

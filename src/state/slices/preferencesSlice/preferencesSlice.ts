@@ -21,6 +21,7 @@ export type FeatureFlags = {
   Gnosis: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
+  ThorSwapAffiliateFees: boolean
   IdleFinance: boolean
   Axelar: boolean
   Yat: boolean
@@ -84,6 +85,7 @@ const initialState: Preferences = {
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
+    ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,

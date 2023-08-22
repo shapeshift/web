@@ -70,6 +70,7 @@ export const mockStore: ReduxState = {
       OsmosisSwap: false,
       ThorSwap: false,
       ThorSwapStreamingSwaps: false,
+      ThorSwapAffiliateFees: false,
       Cowswap: false,
       CowswapGnosis: false,
       IdleFinance: false,

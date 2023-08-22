@@ -1,5 +1,7 @@
 import type { AccountId } from './accountId/accountId'
 import { fromAccountId } from './accountId/accountId'
+import type { AssetId } from './assetId/assetId'
+import { toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 
@@ -13,6 +15,31 @@ export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
+
+export const generateAssetIdFromCosmosDenom = (denom: string): AssetId => {
+  // TODO(gomes): do we still need this? Since we only do IBC parsing for CosmosHub now, the only denom starting with u should be uatom?
+  if (denom.startsWith('u') && denom !== 'uatom') {
+    return toAssetId({
+      assetNamespace: constants.ASSET_NAMESPACE.native,
+      assetReference: denom,
+      chainId: constants.cosmosChainId,
+    })
+  }
+
+  if (denom.startsWith('ibc')) {
+    return toAssetId({
+      assetNamespace: constants.ASSET_NAMESPACE.ibc,
+      assetReference: denom.split('/')[1],
+      chainId: constants.cosmosChainId,
+    })
+  }
+
+  return toAssetId({
+    assetNamespace: constants.ASSET_NAMESPACE.slip44,
+    assetReference: constants.ASSET_REFERENCE.Cosmos,
+    chainId: constants.cosmosChainId,
+  })
+}
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }
 export const bitcoinCashAssetMap = { [constants.bchAssetId]: 'bitcoin-cash' }

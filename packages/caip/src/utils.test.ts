@@ -1,3 +1,4 @@
+import { toAssetId } from './assetId/assetId'
 import type { ChainNamespace, ChainReference } from './chainId/chainId'
 import {
   ASSET_NAMESPACE,
@@ -25,7 +26,12 @@ import {
   isChainNamespace,
   isChainReference,
 } from './typeGuards'
-import { accountIdToChainId, accountIdToSpecifier, isValidChainPartsPair } from './utils'
+import {
+  accountIdToChainId,
+  accountIdToSpecifier,
+  generateAssetIdFromCosmosDenom,
+  isValidChainPartsPair,
+} from './utils'
 
 describe('accountIdToChainId', () => {
   it('can get eth chainId from accountId', () => {
@@ -191,6 +197,28 @@ describe('type guard assertion', () => {
       expect(() =>
         assertValidChainPartsPair(CHAIN_NAMESPACE.Evm, 'invalid' as ChainReference),
       ).toThrow()
+    })
+  })
+  describe('generateAssetIdFromCosmosDenom', () => {
+    it('correctly generates ATOM native asset id', () => {
+      const nativeAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.slip44,
+        assetReference: ASSET_REFERENCE.Cosmos,
+        chainId: cosmosChainId,
+      })
+      const result = generateAssetIdFromCosmosDenom('uatom')
+      expect(result).toEqual(nativeAssetId)
+    })
+    it('correctly generates cosmoshub IBC asset id', () => {
+      const ibcAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.ibc,
+        assetReference: '14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
+        chainId: cosmosChainId,
+      })
+      const result = generateAssetIdFromCosmosDenom(
+        'ibc/14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
+      )
+      expect(result).toEqual(ibcAssetId)
     })
   })
 })

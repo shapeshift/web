@@ -109,7 +109,7 @@ export const getThorTradeQuote = async (
   const thornodeQuote = maybeQuote.unwrap()
   const { fees } = thornodeQuote
 
-  const recommendedMinAmountInThorBaseUnit = thornodeQuote.recommended_min_amount_in
+  const recommendedMinAmountInCryptoBaseUnit = thornodeQuote.recommended_min_amount_in
     ? convertPrecision({
         value: thornodeQuote.recommended_min_amount_in,
         inputExponent: THORCHAIN_FIXED_PRECISION,
@@ -118,12 +118,12 @@ export const getThorTradeQuote = async (
     : undefined
 
   if (
-    recommendedMinAmountInThorBaseUnit &&
-    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInThorBaseUnit)
+    recommendedMinAmountInCryptoBaseUnit &&
+    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
   ) {
     return Err(
       createTradeAmountTooSmallErr({
-        minAmountCryptoBaseUnit: recommendedMinAmountInThorBaseUnit.toFixed(),
+        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
         assetId: sellAsset.assetId,
       }),
     )

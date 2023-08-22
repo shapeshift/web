@@ -33,6 +33,7 @@ import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -97,6 +98,7 @@ export const TradeInput = memo(() => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
+  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -244,12 +246,12 @@ export const TradeInput = memo(() => {
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (activeSwapperName === SwapperName.Thorchain) {
+    if (applyThorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain) {
       return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
     }
 
     return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
-  }, [activeSwapperName, quoteAffiliateFee])
+  }, [activeSwapperName, quoteAffiliateFee, applyThorSwapAffiliateFees])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -384,9 +386,10 @@ export const TradeInput = memo(() => {
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />
               </Button>
             </Tooltip>
-            {hasUserEnteredAmount && activeSwapperName !== SwapperName.Thorchain && (
-              <DonationCheckbox isLoading={isLoading} />
-            )}
+            {hasUserEnteredAmount &&
+              (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
+                <DonationCheckbox isLoading={isLoading} />
+              )}
           </CardFooter>
         </Stack>
       </SlideTransition>

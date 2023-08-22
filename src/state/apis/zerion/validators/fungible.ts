@@ -27,19 +27,19 @@ const ChangesSchema = z.object({
 })
 
 const MarketDataSchema = z.object({
-  total_supply: z.number(),
-  circulating_supply: z.number(),
-  market_cap: z.number(),
-  fully_diluted_valuation: z.number(),
-  price: z.number(),
+  total_supply: z.number().nullable(),
+  circulating_supply: z.number().nullable(),
+  market_cap: z.number().nullable(),
+  fully_diluted_valuation: z.number().nullable(),
+  price: z.number().nullable(),
   changes: ChangesSchema,
 })
 
 const AttributesSchema = z.object({
   name: z.string(),
   symbol: z.string(),
-  description: z.string(),
-  icon: IconSchema.optional(),
+  description: z.string().nullable(),
+  icon: IconSchema.nullable().optional(),
   flags: z
     .object({
       verified: z.boolean(),

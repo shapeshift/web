@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -26,6 +27,7 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -107,6 +109,28 @@ export const getThorTradeQuote = async (
   const thornodeQuote = maybeQuote.unwrap()
   const { fees } = thornodeQuote
 
+  const recommendedMinAmountInCryptoBaseUnit = thornodeQuote.recommended_min_amount_in
+    ? convertPrecision({
+        value: thornodeQuote.recommended_min_amount_in,
+        inputExponent: THORCHAIN_FIXED_PRECISION,
+        outputExponent: sellAsset.precision,
+      })
+    : undefined
+
+  if (
+    recommendedMinAmountInCryptoBaseUnit &&
+    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
+  ) {
+    return Err(
+      createTradeAmountTooSmallErr({
+        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
+        assetId: sellAsset.assetId,
+      }),
+    )
+  }
+
+  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+
   const perRouteValues = [
     {
       // regular swap
@@ -118,16 +142,21 @@ export const getThorTradeQuote = async (
         1000 *
         (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
     },
-    {
-      // streaming swap
-      source: `${SwapperName.Thorchain} • Streaming` as SwapSource,
-      slippageBps: thornodeQuote.streaming_slippage_bps,
-      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
-      isStreaming: true,
-      estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
-        ? 1000 * thornodeQuote.total_swap_seconds
-        : undefined,
-    },
+    ...(thorSwapStreamingSwaps &&
+    thornodeQuote.expected_amount_out !== thornodeQuote.expected_amount_out_streaming
+      ? [
+          {
+            // streaming swap
+            source: `${SwapperName.Thorchain} • Streaming` as SwapSource,
+            slippageBps: thornodeQuote.streaming_slippage_bps,
+            expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
+            isStreaming: true,
+            estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
+              ? 1000 * thornodeQuote.total_swap_seconds
+              : undefined,
+          },
+        ]
+      : []),
   ]
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
@@ -199,7 +228,12 @@ export const getThorTradeQuote = async (
               expectedAmountOutThorBaseUnit,
             )
 
-            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
@@ -265,7 +299,12 @@ export const getThorTradeQuote = async (
               expectedAmountOutThorBaseUnit,
             )
 
-            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
             const maybeThorTxInfo = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,

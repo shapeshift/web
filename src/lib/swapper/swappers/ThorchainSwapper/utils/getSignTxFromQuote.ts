@@ -93,7 +93,7 @@ export const getSignTxFromQuote = async ({
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming)
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
 
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -128,7 +128,7 @@ export const getSignTxFromQuote = async ({
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming)
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
 
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')

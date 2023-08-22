@@ -21,7 +21,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance }) =
   const chainFiatBalance = useAppSelector(s =>
     selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
   )
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+  if (!feeAsset) return null
 
   return (
     <Flex alignItems='center' gap={4}>

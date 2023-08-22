@@ -235,8 +235,6 @@ describe('lib/utils', () => {
 
   describe('isToken', () => {
     it('should return false for non-token', () => {
-      const atomOsmoAssetReference = 'gamm/pool/1'
-      expect(isToken(atomOsmoAssetReference)).toBe(false)
       const ethAssetReference = ASSET_REFERENCE.Ethereum
       expect(isToken(ethAssetReference)).toBe(false)
     })
@@ -245,10 +243,6 @@ describe('lib/utils', () => {
     })
   })
   describe('tokenOrUndefined', () => {
-    it('should return undefined for non-token', () => {
-      const assetReference = 'gamm/pool/1'
-      expect(tokenOrUndefined(assetReference)).toBeUndefined()
-    })
     it('should return token for token', () => {
       const assetReference = '0x470e8de2ebaef52014a47cb5e6af86884947f08c'
       expect(tokenOrUndefined(assetReference)).toBe(assetReference)

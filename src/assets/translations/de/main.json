@@ -1960,10 +1960,6 @@
       "body": "Verdienen Sie bis zu %{apr} APR mit Ihrem ungenutzten ATOM. PLUS jedes ATOM, das Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Validator einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln.",
       "cta": "Stake ATOM"
     },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Verdienen Sie bis zu %{apr} APR auf Ihre freien OSMO. PLUS jeden OSMO, den Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Prüfer einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln."
-    },
     "footer": {
       "title": "Es gibt auch andere Möglichkeiten, sich außerhalb der ShapeShift dApp zu qualifizieren. Eine vollständige Liste finden Sie im Governance-Vorschlag.",
       "cta": "Sehen Sie sich den Governance-Vorschlag an",

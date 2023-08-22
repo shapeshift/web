@@ -1960,10 +1960,6 @@
       "body": "Gane hasta %{apr} APR en su ATOM inactivo. ADEMÁS, cualquier ATOM en Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop.",
       "cta": "Stake ATOM"
     },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Gane hasta %{apr} APR en su OSMO inactivo. ADEMÁS, cualquier OSMO que Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop."
-    },
     "footer": {
       "title": "También hay otras formas de calificar, fuera de ShapeShift dApp. Para obtener una lista completa, consulte la propuesta de gobernanza.",
       "cta": "Consulta la propuesta de gobernanza",

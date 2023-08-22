@@ -1960,10 +1960,6 @@
       "body": "Gagnez jusqu'à %{apr} APR sur vos ATOM inactifs. DE PLUS, tout les ATOM que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop.",
       "cta": "Miser des ATOM"
     },
-    "stakeOsmo": {
-      "title": "Miser des OSMO",
-      "body": "Gagnez jusqu'à %{apr} APR sur vos OSMO inactifs. DE PLUS, tous les OSMO que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop."
-    },
     "footer": {
       "title": "Il existe également d'autres moyens de vous qualifier, en dehors de l'application ShapeShift. Pour une liste complète, consultez la proposition de gouvernance.",
       "cta": "Consulter la proposition de gouvernance",

@@ -1960,10 +1960,6 @@
       "body": "Ganhe até %{apr} APR no ATOM na sua carteira. Além disso, os ATOMs em stake possibiltarã você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!",
       "cta": "Deposite ATOM"
     },
-    "stakeOsmo": {
-      "title": "Deposite OSMO",
-      "body": "Ganhe até %{apr} APR no OSMO na sua carteira. Além disso, os OSMOs em stake possibiltará você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!"
-    },
     "footer": {
       "title": "Existem outras maneiras de se qualificar também, fora do app da ShapeShift. Para obter uma lista completa, confira a proposta de governança.",
       "cta": "Confira a proposta de governança",

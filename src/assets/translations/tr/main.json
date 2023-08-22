@@ -1960,10 +1960,6 @@
       "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
       "cta": "ATOM Stake"
     },
-    "stakeOsmo": {
-      "title": "OSMO Stake ",
-      "body": "Boştaki OSMO'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir OSMO size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz."
-    },
     "footer": {
       "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",
       "cta": "Yönetişim teklifine göz atın",

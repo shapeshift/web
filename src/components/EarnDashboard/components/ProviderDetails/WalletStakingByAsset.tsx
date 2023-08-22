@@ -10,6 +10,7 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
@@ -36,7 +37,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const history = useHistory()
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { wallet, isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
@@ -44,7 +45,9 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.id as OpportunityId))
+  const filteredDown = stakingOpportunities.filter(
+    e => ids.includes(e.id as OpportunityId) && walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
 
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(

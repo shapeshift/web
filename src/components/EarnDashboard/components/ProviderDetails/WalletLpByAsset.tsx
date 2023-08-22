@@ -10,6 +10,7 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -30,13 +31,17 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const history = useHistory()
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { wallet, isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredDown = lpOpportunities.filter(
+    e =>
+      ids.includes(e.assetId as OpportunityId) &&
+      walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(
       (entryMap, currentItem) =>

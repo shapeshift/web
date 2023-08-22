@@ -231,7 +231,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
               symbol={buyAsset?.symbol ?? ''}
               color={isBest ? greenColor : 'inherit'}
             />
-            {!isBest && hasAmountWithPositiveReceive && quoteDifferenceDecimalPercentage > 0 && (
+            {!isBest && hasAmountWithPositiveReceive && quoteDifferenceDecimalPercentage !== 0 && (
               <Amount.Percent
                 value={-quoteDifferenceDecimalPercentage}
                 prefix='('

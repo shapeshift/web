@@ -47,8 +47,6 @@ Return an empty array `[]` if there are no matching opportunities.
 
 An `Opportunity` represents a destination for an `Asset`.
 
-Examples are a [Yearn Vault](https://yearn.finance/#/vault/0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f) or an [Osmosis Validator](https://www.mintscan.io/osmosis/validators/osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4)
-
 # Generic Types
 
 `TxType` defines the type returned by the `prepare` functions and is also required as an argument to the `signAndBroadcast` function.
@@ -102,10 +100,6 @@ In some protocols, there is no separate `Asset` to represent the position. In th
 For example, there may be a Vault protocol that accepts deposits of `FOX` ERC20 token and then user receives `spFOX` tokens. The user's balance of `spFOX` represents their position. When the user initiates a WITHDRAWAL with their `spFOX` balance, they receive `FOX`.
 
 In this example, `FOX` is the `UnderlyingAsset` and `spFOX` is the `PositionAsset`.
-
-In another example, a user delegates `OSMO` to a validator. Their `OSMO` wallet balance decreases.
-
-In this example, `OSMO` is both the `UnderlyingAsset` AND the `PositionAsset`.
 
 #### `assetId: string`
 

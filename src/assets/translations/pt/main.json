@@ -1955,19 +1955,10 @@
       "body": "Tem %{asset1} e %{asset2}? \nForneça liquidez para a pool da Uniswap V2 e ganhe %{apy} APR. Além disso, seus LPs depositados na pool de FOX/ETH contarão na hora de realizar o airdrop da Arkeo!",
       "cta": "Forneça Liquidez"
     },
-    "atomOsmoProviders": {
-      "title": "Delegadores de ATOM/OSMO",
-      "body": "Tem ATOM e OSMO? Forneça liquidez ao pool, para ganhar %{apy} APR e se qualificar para o airdrop.",
-      "cta": "Forneça Liquidez"
-    },
     "stakeAtom": {
       "title": "Deposite ATOM",
       "body": "Ganhe até %{apr} APR no ATOM na sua carteira. Além disso, os ATOMs em stake possibiltarã você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!",
       "cta": "Deposite ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Deposite OSMO",
-      "body": "Ganhe até %{apr} APR no OSMO na sua carteira. Além disso, os OSMOs em stake possibiltará você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!"
     },
     "footer": {
       "title": "Existem outras maneiras de se qualificar também, fora do app da ShapeShift. Para obter uma lista completa, confira a proposta de governança.",

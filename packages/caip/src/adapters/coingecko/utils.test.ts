@@ -1,6 +1,6 @@
 import realFs from 'fs'
 
-import { bitcoinAssetMap, cosmosAssetMap, osmosisAssetMap } from '../../utils'
+import { bitcoinAssetMap, cosmosAssetMap } from '../../utils'
 import { parseData, writeFiles } from './utils'
 
 const makeEthMockCoingeckoResponse = () => ({
@@ -46,14 +46,6 @@ const makeBtcMockCoingeckoResponse = () => ({
 const makeCosmosMockCoingeckoResponse = () => ({
   id: 'cosmos',
   symbol: 'atom',
-  platforms: {
-    osmosis: 'IBC/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
-  },
-})
-
-const makeOsmosisMockCoingeckoResponse = () => ({
-  id: 'osmosis',
-  symbol: 'osmo',
   platforms: {},
 })
 
@@ -96,12 +88,6 @@ describe('adapters:coingecko:utils', () => {
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
-
-    it('can make osmosis data', () => {
-      const result = osmosisAssetMap
-      const expected = { 'cosmos:osmosis-1/slip44:118': 'osmosis' }
-      expect(result).toEqual(expected)
-    })
   })
 
   describe('parseData', () => {
@@ -112,7 +98,6 @@ describe('adapters:coingecko:utils', () => {
         makeFoxMockCoingeckoResponse(),
         makeBtcMockCoingeckoResponse(),
         makeCosmosMockCoingeckoResponse(),
-        makeOsmosisMockCoingeckoResponse(),
         makeThorchainMockCoingeckoResponse(),
         makeAvalancheMockCoingeckoResponse(),
         makePolygonMockCoingeckoResponse(),
@@ -133,9 +118,6 @@ describe('adapters:coingecko:utils', () => {
         },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
-        },
-        'cosmos:osmosis-1': {
-          'cosmos:osmosis-1/slip44:118': 'osmosis',
         },
         'cosmos:thorchain-mainnet-v1': {
           'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',

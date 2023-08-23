@@ -9,7 +9,6 @@ export const getSwapperSupportsSlippage = (swapperName: SwapperName | undefined)
     case SwapperName.OneInch:
     case SwapperName.LIFI:
       return true
-    case SwapperName.Osmosis:
     case SwapperName.Test:
     case SwapperName.CowSwap:
       return false

@@ -12,7 +12,6 @@ import * as adapters from './generated'
 export enum CoingeckoAssetPlatform {
   Ethereum = 'ethereum',
   Cosmos = 'cosmos',
-  Osmosis = 'osmosis',
   Polygon = 'polygon-pos',
   Gnosis = 'xdai',
   Avalanche = 'avalanche',
@@ -73,8 +72,6 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
           return CoingeckoAssetPlatform.Cosmos
-        case CHAIN_REFERENCE.OsmosisMainnet:
-          return CoingeckoAssetPlatform.Osmosis
         case CHAIN_REFERENCE.ThorchainMainnet:
           return CoingeckoAssetPlatform.Thorchain
         default:

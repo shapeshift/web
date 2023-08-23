@@ -10,11 +10,6 @@ import type { SupportedFiatCurrencies } from 'lib/market-service'
 dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
-  OsmosisSend: boolean
-  OsmosisStaking: boolean
-  OsmosisSwap: boolean
-  OsmosisLP: boolean
-  OsmosisLPAdditionalPools: boolean
   Optimism: boolean
   BnbSmartChain: boolean
   Polygon: boolean
@@ -75,11 +70,6 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Jaypegz: getConfig().REACT_APP_FEATURE_JAYPEGZ,
-    OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
-    OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
-    OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
-    OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
-    OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,

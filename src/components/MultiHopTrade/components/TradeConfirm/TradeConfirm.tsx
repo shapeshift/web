@@ -24,6 +24,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
@@ -518,9 +519,11 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     <Row.Label>
-                      <RawText fontWeight='semibold' color={alertColor}>
-                        {maybeManualReceiveAddress}
-                      </RawText>
+                      <MiddleEllipsis
+                        value={maybeManualReceiveAddress}
+                        fontWeight='semibold'
+                        color={alertColor}
+                      />
                     </Row.Label>
                   </Row.Value>
                 </Row>

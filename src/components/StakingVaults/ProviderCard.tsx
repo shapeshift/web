@@ -78,9 +78,6 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         alignItems={{ base: 'flex-start', md: 'center' }}
         fontSize={{ base: 'md', md: 'xl' }}
         fontWeight='bold'
-        position='sticky'
-        top='71px'
-        zIndex='sticky'
       >
         <Flex
           width='full'

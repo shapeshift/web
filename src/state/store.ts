@@ -28,7 +28,7 @@ import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
   key: 'root',
-  version: 3,
+  version: Math.max(...Object.keys(migrations).map(Number)),
   whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft'],
   storage: localforage,
   // @ts-ignore createMigrate typings are wrong

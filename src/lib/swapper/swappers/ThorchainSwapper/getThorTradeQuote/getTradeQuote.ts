@@ -13,7 +13,6 @@ import type {
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
-  SwapSource,
   TradeQuote,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
@@ -37,6 +36,7 @@ import {
   convertDecimalPercentageToBasisPoints,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
@@ -147,7 +147,7 @@ export const getThorTradeQuote = async (
       ? [
           {
             // streaming swap
-            source: `${SwapperName.Thorchain} • Streaming` as SwapSource,
+            source: THORCHAIN_STREAM_SWAP_SOURCE,
             slippageBps: thornodeQuote.streaming_slippage_bps,
             expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
             isStreaming: true,

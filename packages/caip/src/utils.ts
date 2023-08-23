@@ -16,19 +16,19 @@ export const isValidChainPartsPair = (
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
-export const generateAssetIdFromCosmosDenom = (denom: string): AssetId => {
+export const generateAssetIdFromCosmosSdkDenom = (denom: string, chainId: ChainId): AssetId => {
   if (denom.startsWith('ibc')) {
     return toAssetId({
       assetNamespace: constants.ASSET_NAMESPACE.ibc,
       assetReference: denom.split('/')[1],
-      chainId: constants.cosmosChainId,
+      chainId,
     })
   }
 
   return toAssetId({
     assetNamespace: constants.ASSET_NAMESPACE.slip44,
     assetReference: constants.ASSET_REFERENCE.Cosmos,
-    chainId: constants.cosmosChainId,
+    chainId,
   })
 }
 

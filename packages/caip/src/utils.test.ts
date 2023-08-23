@@ -29,7 +29,7 @@ import {
 import {
   accountIdToChainId,
   accountIdToSpecifier,
-  generateAssetIdFromCosmosDenom,
+  generateAssetIdFromCosmosSdkDenom,
   isValidChainPartsPair,
 } from './utils'
 
@@ -206,7 +206,7 @@ describe('type guard assertion', () => {
         assetReference: ASSET_REFERENCE.Cosmos,
         chainId: cosmosChainId,
       })
-      const result = generateAssetIdFromCosmosDenom('uatom')
+      const result = generateAssetIdFromCosmosSdkDenom('uatom', cosmosChainId)
       expect(result).toEqual(nativeAssetId)
     })
     it('correctly generates cosmoshub IBC asset id', () => {
@@ -215,8 +215,9 @@ describe('type guard assertion', () => {
         assetReference: '14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
         chainId: cosmosChainId,
       })
-      const result = generateAssetIdFromCosmosDenom(
+      const result = generateAssetIdFromCosmosSdkDenom(
         'ibc/14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
+        cosmosChainId,
       )
       expect(result).toEqual(ibcAssetId)
     })

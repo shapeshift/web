@@ -50,8 +50,6 @@ export const getAssets = async (): Promise<Asset[]> => {
       return { assetNamespace: 'ibc' as const, assetReference: current.denom.split('/')[1] }
     })()
 
-    // if an asset has a path, it's bridged, so label it as ATOM on Cosmos
-    // Note, IBC assets don't have a name per se and Mintscan display them as "IBC Token" but we may be able to get it by introspecting the origin_denom?
     const getAssetName = (a: CosmosAsset): string =>
       a.denom.startsWith('ibc') ? `${a.symbol} on Cosmos` : a.symbol
 

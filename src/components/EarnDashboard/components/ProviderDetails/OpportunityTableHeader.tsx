@@ -15,8 +15,6 @@ export const OpportunityTableHeader: React.FC<SimpleGridProps> = props => {
       }}
       color='text.subtle'
       bg='background.surface.raised.base'
-      zIndex='docked'
-      position='sticky'
       top={{ base: 'calc(71px + 107px)', md: '135px' }}
       textTransform='uppercase'
       fontSize='xs'

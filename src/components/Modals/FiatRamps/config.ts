@@ -124,7 +124,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: OnRamperLogo,
     isActive: () => true,
     minimumSellThreshold: 0,
-    order: 2,
+    order: 3,
     getBuyAndSellList: async () => {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
@@ -145,7 +145,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: banxaLogo,
     isActive: () => true,
     minimumSellThreshold: 50,
-    order: 3,
+    order: 2,
     getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]

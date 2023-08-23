@@ -80,7 +80,7 @@ export type TxsMessage = {
   payload: { txs: Transaction[]; accountId: AccountId }
 }
 
-const initialState: TxHistory = {
+export const initialState: TxHistory = {
   txs: {
     byAccountIdAssetId: {},
     byId: {},

@@ -91,7 +91,7 @@ export const TradeInput = memo(() => {
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
+  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(true)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')

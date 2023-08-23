@@ -12,6 +12,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import type { TransactionRequest } from 'alchemy-sdk'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
@@ -223,6 +224,32 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
 
 export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
   const adapter = assertGetEvmChainAdapter(chainId)
+
+  // Note this block is currently disabled until we move this out of web - update me to true to test things out
+  // Else, this would always use MM (or whichever wallet window.ethereum interfaces with) for signing instead of native/KK, regardless of the currently connected wallet
+  const isExternalSignerEnabled = false
+  if (isExternalSignerEnabled) {
+    // Assumes window.ethereum is present for this PoC - doesn't matter since consumers should be the one passing in
+    // the signer as {signer: ethers.providers.JsonRpcSigner}
+    const provider = new ethers.providers.Web3Provider(window.ethereum!)
+    const signer = provider.getSigner()
+
+    const ethersTx: TransactionRequest = {
+      to: txToSign.to,
+      nonce: txToSign.nonce,
+
+      gasLimit: txToSign.gasLimit,
+      gasPrice: txToSign.gasPrice,
+
+      data: txToSign.data,
+    }
+    // TODO(gomes): This is just a PoC but should handle switch chain logic before sending
+    return (async () => {
+      const transactionResponse = await signer.sendTransaction(ethersTx)
+      return transactionResponse.hash
+    })()
+  }
+
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }
 

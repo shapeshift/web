@@ -1,7 +1,7 @@
 import type { AccountId } from './accountId/accountId'
 import { fromAccountId } from './accountId/accountId'
 import type { AssetId } from './assetId/assetId'
-import { toAssetId } from './assetId/assetId'
+import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 
@@ -16,20 +16,19 @@ export const isValidChainPartsPair = (
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
-export const generateAssetIdFromCosmosSdkDenom = (denom: string, chainId: ChainId): AssetId => {
+export const generateAssetIdFromCosmosSdkDenom = (
+  denom: string,
+  nativeAssetId: AssetId,
+): AssetId => {
   if (denom.startsWith('ibc')) {
     return toAssetId({
       assetNamespace: constants.ASSET_NAMESPACE.ibc,
       assetReference: denom.split('/')[1],
-      chainId,
+      chainId: fromAssetId(nativeAssetId).chainId,
     })
   }
 
-  return toAssetId({
-    assetNamespace: constants.ASSET_NAMESPACE.slip44,
-    assetReference: constants.ASSET_REFERENCE.Cosmos,
-    chainId,
-  })
+  return nativeAssetId
 }
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }

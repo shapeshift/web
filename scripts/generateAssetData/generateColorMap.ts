@@ -8,6 +8,7 @@ import type { Asset } from 'lib/asset-service'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
@@ -24,6 +25,7 @@ const generateColorMap = async () => {
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
+  const cosmosAssets = await cosmos.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -34,6 +36,7 @@ const generateColorMap = async () => {
     atom,
     thorchain,
     ...ethAssets,
+    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

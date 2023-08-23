@@ -128,6 +128,24 @@ describe('assetId', () => {
       )
     })
 
+    it('can make an IBC AssetId on CosmosHub', () => {
+      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
+      const chainReference = CHAIN_REFERENCE.CosmosHubMainnet
+      const assetIdArgSuperset = {
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'ibc' as AssetNamespace,
+        assetReference: '14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
+        chainId: toChainId({ chainNamespace, chainReference }),
+      }
+      const expected =
+        'cosmos:cosmoshub-4/ibc:14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC'
+      expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
+      expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
+        expected,
+      )
+    })
+
     it('throws with invalid Cosmos network', () => {
       const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
       const chainReference = CHAIN_REFERENCE.BitcoinTestnet

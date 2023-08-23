@@ -417,11 +417,10 @@ export const TradeInput = memo(() => {
                   onAssetChange={setBuyAsset}
                 />
               }
-            >
-              {MaybeRenderedTradeQuotes}
-            </TradeAssetInput>
+            ></TradeAssetInput>
           </Stack>
           {ConfirmSummary}
+          {MaybeRenderedTradeQuotes}
         </Stack>
       </SlideTransition>
     </MessageOverlay>

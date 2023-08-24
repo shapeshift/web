@@ -23,9 +23,8 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -97,24 +96,16 @@ export const Address = () => {
                   setIsValidating(true)
                   setValue(SendFormFields.To, '')
                   setValue(SendFormFields.VanityAddress, '')
-                  setValue(SendFormFields.CryptoAmount, '')
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
                   const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
-                  const { amountCryptoPrecision, address, vanityAddress } =
-                    await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+                  const { address, vanityAddress } = await parseAddressInputWithChainId(
+                    parseAddressInputWithChainIdArgs,
+                  )
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.To, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  if (amountCryptoPrecision) {
-                    const marketData = selectMarketDataById(store.getState(), assetId)
-                    setValue(SendFormFields.CryptoAmount, amountCryptoPrecision)
-                    setValue(
-                      SendFormFields.FiatAmount,
-                      bnOrZero(amountCryptoPrecision).times(marketData.price).toString(),
-                    )
-                  }
                   const invalidMessage = isYatSupported
                     ? 'common.invalidAddressOrYat'
                     : 'common.invalidAddress'

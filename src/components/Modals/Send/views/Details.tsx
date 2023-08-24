@@ -54,14 +54,16 @@ export const Details = () => {
       control,
     }) as Partial<SendInput>
 
+  const previousAccountId = usePrevious(accountId)
+
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
-      // TODO(gomes): find better heuristics for these - this will rug resetting crypto/fiat amount on AccountId change
+      if (!previousAccountId) return
       if (!cryptoAmount) setValue(SendFormFields.CryptoAmount, '')
       if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
-    [cryptoAmount, fiatAmount, setValue],
+    [cryptoAmount, fiatAmount, previousAccountId, setValue],
   )
 
   const send = useModal('send')
@@ -81,12 +83,11 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
-  const previousAccountId = usePrevious(accountId)
   useEffect(() => {
     // This component initially mounts without an accountId, because of how <AccountDropdown /> works
     // Also turns out we don't handle re-validation in case of changing AccountIds
     // This effect takes care of both the initial/account change cases
-    if (previousAccountId !== accountId) {
+    if ((previousAccountId ?? '') !== accountId) {
       const inputAmount = fieldName === SendFormFields.CryptoAmount ? cryptoAmount : fiatAmount
       handleInputChange(inputAmount ?? '0')
       trigger(fieldName)

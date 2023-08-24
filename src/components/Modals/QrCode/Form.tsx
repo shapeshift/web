@@ -9,7 +9,7 @@ import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-d
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { useModal } from 'hooks/useModal/useModal'
-import { parseMaybeUrl } from 'lib/address/address'
+import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
@@ -92,8 +92,15 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
           if (!maybeUrlResult.assetId) return
 
+          const parseAddressInputWithChainIdArgs = {
+            assetId: maybeUrlResult.assetId,
+            chainId: maybeUrlResult.chainId,
+            urlOrAddress: decodedText,
+          }
+          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
-          methods.setValue(SendFormFields.Input, decodedText.trim())
+          methods.setValue(SendFormFields.Input, address)
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           if (maybeUrlResult.amountCryptoPrecision) {
             const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')

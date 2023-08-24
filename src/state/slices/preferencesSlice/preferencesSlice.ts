@@ -44,6 +44,7 @@ export type FeatureFlags = {
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
   CustomSendNonce: boolean
+  Snaps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -103,6 +104,7 @@ const initialState: Preferences = {
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
+    Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

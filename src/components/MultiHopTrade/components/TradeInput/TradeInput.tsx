@@ -1,8 +1,14 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Button,
   CardFooter,
   CardHeader,
+  Center,
   Divider,
   Flex,
   Heading,
@@ -35,7 +41,6 @@ import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -91,7 +96,6 @@ export const TradeInput = memo(() => {
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(true)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -222,27 +226,12 @@ export const TradeInput = memo(() => {
     )
   }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
-  const RightRegion: JSX.Element = useMemo(
-    () =>
-      activeQuote && hasUserEnteredAmount ? (
-        <IconButton
-          size='sm'
-          icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          aria-label='Expand Quotes'
-          onClick={toggleShowTradeQuotes}
-        />
-      ) : (
-        <></>
-      ),
-    [activeQuote, hasUserEnteredAmount, showTradeQuotes, toggleShowTradeQuotes],
-  )
-
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
-        <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+        <TradeQuotes sortedQuotes={sortedQuotes} isLoading={isLoading} />
       ) : null,
-    [hasUserEnteredAmount, showTradeQuotes, sortedQuotes],
+    [hasUserEnteredAmount, sortedQuotes],
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
@@ -403,7 +392,6 @@ export const TradeInput = memo(() => {
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={RightRegion}
               onAccountIdChange={setBuyAssetAccountId}
               formControlProps={formControlProps}
               labelPostFix={
@@ -420,7 +408,20 @@ export const TradeInput = memo(() => {
             ></TradeAssetInput>
           </Stack>
           {ConfirmSummary}
-          {MaybeRenderedTradeQuotes}
+          {!!sortedQuotes.length && hasUserEnteredAmount && (
+            <Accordion allowToggle defaultIndex={0}>
+              <AccordionItem>
+                <h2>
+                  <Center>
+                    <AccordionButton>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </Center>
+                  <AccordionPanel>{MaybeRenderedTradeQuotes}</AccordionPanel>
+                </h2>
+              </AccordionItem>
+            </Accordion>
+          )}
         </Stack>
       </SlideTransition>
     </MessageOverlay>

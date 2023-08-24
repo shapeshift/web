@@ -16,6 +16,7 @@ import {
   IconButton,
   Stack,
   Tooltip,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -104,6 +105,7 @@ export const TradeInput = memo(() => {
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
+  const hoverColor = useColorModeValue('black', 'white')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -309,7 +311,12 @@ export const TradeInput = memo(() => {
                 <Center>
                   <AccordionButton>
                     <Box as='span' flex='1' textAlign='left'>
-                      {translate('trade.availableRoutes')}
+                      <Text
+                        translation={'trade.availableRoutes'}
+                        fontWeight={'semibold'}
+                        color='text.subtle'
+                        _hover={{ color: hoverColor }}
+                      />
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>
@@ -335,6 +342,7 @@ export const TradeInput = memo(() => {
       buyAsset.symbol,
       donationAmount,
       hasUserEnteredAmount,
+      hoverColor,
       isLoading,
       isModeratePriceImpact,
       priceImpactPercentage,
@@ -347,7 +355,6 @@ export const TradeInput = memo(() => {
       sortedQuotes.length,
       totalNetworkFeeFiatPrecision,
       totalProtocolFees,
-      translate,
     ],
   )
 

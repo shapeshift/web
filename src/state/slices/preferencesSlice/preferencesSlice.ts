@@ -66,6 +66,7 @@ export type Preferences = {
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
+  showSnapsModal: boolean
 }
 
 const initialState: Preferences = {
@@ -113,6 +114,7 @@ const initialState: Preferences = {
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
+  showSnapsModal: true,
 }
 
 export const preferences = createSlice({
@@ -145,6 +147,9 @@ export const preferences = createSlice({
     },
     setShowConsentBanner(state, { payload }: { payload: boolean }) {
       state.showConsentBanner = payload
+    },
+    setShowSnapssModal(state, { payload }: { payload: boolean }) {
+      state.showSnapsModal = payload
     },
   },
 })

@@ -27,6 +27,7 @@ export type Modals = {
   nativeOnboard: () => JSX.Element
   nft: React.FC<NftModalProps>
   feedbackSupport: () => JSX.Element
+  snaps: () => JSX.Element | null
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

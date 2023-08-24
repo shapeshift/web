@@ -17,6 +17,7 @@ import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { metaMaskFlaskSupported, shapeShiftSnapInstalled } from 'utils/snaps'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
@@ -679,7 +680,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
           if (KeyManager.MetaMask === walletType) {
-            ;(() => {
+            ;(async () => {
               const showSnapsModal = store.getState().preferences.showSnapsModal
               if (!showSnapsModal) return
 
@@ -688,6 +689,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
               const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
               if (!isSnapsEnabled) return
+
+              const isMetamaskFlask = await metaMaskFlaskSupported()
+              if (!isMetamaskFlask) return
+
+              const isSnapInstalled = await shapeShiftSnapInstalled(getConfig().REACT_APP_SNAP_ID)
+              if (isSnapInstalled) return
+
               if (snaps.isOpen) return
 
               snaps.open({})

@@ -1,14 +1,22 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
   Button,
   CardFooter,
   CardHeader,
+  Center,
   Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
   Tooltip,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -35,7 +43,6 @@ import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -91,7 +98,6 @@ export const TradeInput = memo(() => {
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(true)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -99,6 +105,7 @@ export const TradeInput = memo(() => {
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
+  const hoverColor = useColorModeValue('black', 'white')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -212,6 +219,10 @@ export const TradeInput = memo(() => {
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
+  const onHoverProps = useMemo(() => {
+    return { color: hoverColor }
+  }, [hoverColor])
+
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       quoteHasError ||
@@ -222,27 +233,12 @@ export const TradeInput = memo(() => {
     )
   }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
-  const RightRegion: JSX.Element = useMemo(
-    () =>
-      activeQuote && hasUserEnteredAmount ? (
-        <IconButton
-          size='sm'
-          icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          aria-label='Expand Quotes'
-          onClick={toggleShowTradeQuotes}
-        />
-      ) : (
-        <></>
-      ),
-    [activeQuote, hasUserEnteredAmount, showTradeQuotes, toggleShowTradeQuotes],
-  )
-
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
-        <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+        <TradeQuotes sortedQuotes={sortedQuotes} isLoading={isLoading} />
       ) : null,
-    [hasUserEnteredAmount, showTradeQuotes, sortedQuotes],
+    [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
@@ -312,9 +308,32 @@ export const TradeInput = memo(() => {
           (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
             <DonationCheckbox isLoading={isLoading} />
           )}
+        {!!sortedQuotes.length && hasUserEnteredAmount && (
+          <Accordion allowToggle defaultIndex={0}>
+            <AccordionItem>
+              <h2>
+                <Center>
+                  <AccordionButton>
+                    <Box as='span' flex='1' textAlign='left'>
+                      <Text
+                        translation={'trade.availableRoutes'}
+                        fontWeight={'semibold'}
+                        color='text.subtle'
+                        _hover={onHoverProps}
+                      />
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Center>
+                <AccordionPanel p={0}>{MaybeRenderedTradeQuotes}</AccordionPanel>
+              </h2>
+            </AccordionItem>
+          </Accordion>
+        )}
       </CardFooter>
     ),
     [
+      MaybeRenderedTradeQuotes,
       activeQuote,
       activeQuoteError,
       activeQuoteStatus.error?.message,
@@ -329,6 +348,7 @@ export const TradeInput = memo(() => {
       hasUserEnteredAmount,
       isLoading,
       isModeratePriceImpact,
+      onHoverProps,
       priceImpactPercentage,
       quoteHasError,
       rate,
@@ -336,6 +356,7 @@ export const TradeInput = memo(() => {
       shapeShiftFee,
       shouldDisablePreviewButton,
       slippageDecimal,
+      sortedQuotes.length,
       totalNetworkFeeFiatPrecision,
       totalProtocolFees,
     ],
@@ -403,7 +424,6 @@ export const TradeInput = memo(() => {
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={RightRegion}
               onAccountIdChange={setBuyAssetAccountId}
               formControlProps={formControlProps}
               labelPostFix={
@@ -420,7 +440,6 @@ export const TradeInput = memo(() => {
             ></TradeAssetInput>
           </Stack>
           {ConfirmSummary}
-          {MaybeRenderedTradeQuotes}
         </Stack>
       </SlideTransition>
     </MessageOverlay>

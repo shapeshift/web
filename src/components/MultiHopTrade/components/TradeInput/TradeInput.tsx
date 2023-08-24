@@ -5,6 +5,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
   Button,
   CardFooter,
   CardHeader,
@@ -231,7 +232,7 @@ export const TradeInput = memo(() => {
       hasUserEnteredAmount ? (
         <TradeQuotes sortedQuotes={sortedQuotes} isLoading={isLoading} />
       ) : null,
-    [hasUserEnteredAmount, sortedQuotes],
+    [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
@@ -301,9 +302,27 @@ export const TradeInput = memo(() => {
           (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
             <DonationCheckbox isLoading={isLoading} />
           )}
+        {!!sortedQuotes.length && hasUserEnteredAmount && (
+          <Accordion allowToggle defaultIndex={0}>
+            <AccordionItem>
+              <h2>
+                <Center>
+                  <AccordionButton>
+                    <Box as='span' flex='1' textAlign='left'>
+                      {translate('trade.availableRoutes')}
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Center>
+                <AccordionPanel>{MaybeRenderedTradeQuotes}</AccordionPanel>
+              </h2>
+            </AccordionItem>
+          </Accordion>
+        )}
       </CardFooter>
     ),
     [
+      MaybeRenderedTradeQuotes,
       activeQuote,
       activeQuoteError,
       activeQuoteStatus.error?.message,
@@ -325,8 +344,10 @@ export const TradeInput = memo(() => {
       shapeShiftFee,
       shouldDisablePreviewButton,
       slippageDecimal,
+      sortedQuotes.length,
       totalNetworkFeeFiatPrecision,
       totalProtocolFees,
+      translate,
     ],
   )
 
@@ -408,20 +429,6 @@ export const TradeInput = memo(() => {
             ></TradeAssetInput>
           </Stack>
           {ConfirmSummary}
-          {!!sortedQuotes.length && hasUserEnteredAmount && (
-            <Accordion allowToggle defaultIndex={0}>
-              <AccordionItem>
-                <h2>
-                  <Center>
-                    <AccordionButton>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </Center>
-                  <AccordionPanel>{MaybeRenderedTradeQuotes}</AccordionPanel>
-                </h2>
-              </AccordionItem>
-            </Accordion>
-          )}
         </Stack>
       </SlideTransition>
     </MessageOverlay>

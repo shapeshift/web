@@ -112,6 +112,7 @@ export type AmountDisplayMeta = {
 
 export type TradeBase<C extends ChainId> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit?: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string

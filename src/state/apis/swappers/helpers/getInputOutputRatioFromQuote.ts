@@ -97,11 +97,14 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   const buySideNetworkFeeCryptoBaseUnit = bn(0)
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
 
-  const netReceiveAmountCryptoBaseUnit = buyAmountCryptoBaseUnit
-    .minus(slippageAmountCryptoBaseUnit)
-    .minus(buySideNetworkFeeCryptoBaseUnit)
-    .minus(buySideProtocolFeeCryptoBaseUnit)
-    .minus(sellSideProtocolFeeBuyAssetBaseUnit)
+  const netReceiveAmountCryptoBaseUnit =
+    lastStep.buyAmountAfterFeesCryptoBaseUnit !== undefined
+      ? lastStep.buyAmountAfterFeesCryptoBaseUnit
+      : buyAmountCryptoBaseUnit
+          .minus(slippageAmountCryptoBaseUnit)
+          .minus(buySideNetworkFeeCryptoBaseUnit)
+          .minus(buySideProtocolFeeCryptoBaseUnit)
+          .minus(sellSideProtocolFeeBuyAssetBaseUnit)
 
   return {
     netReceiveAmountCryptoBaseUnit,

@@ -1,11 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import orderBy from 'lodash/orderBy'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { getTradeQuotes } from 'lib/swapper/swapper'
-import { getMinimumDonationUsdSellAmountByChainId } from 'lib/swapper/swappers/utils/getMinimumDonationUsdSellAmountByChainId'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
@@ -16,6 +13,10 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
+
+// these are the swappers with special logic regarding minimum donations
+const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
 
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -44,16 +45,11 @@ export const swappersApi = createApi({
         await dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId))
         await dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId))
 
-        const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset.precision,
-        )
-        const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
-          sellAssetUsdRate,
-        )
         // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
-        const isDonationAmountBelowMinimum = sellAmountBeforeFeesUsd.lt(
-          getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
+        const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAsset,
+          sellAssetUsdRate,
         )
 
         const quoteResults = await Promise.all([
@@ -62,15 +58,11 @@ export const swappersApi = createApi({
               ...getTradeQuoteInput,
               affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
             },
-            enabledSwappers.filter(swapperName =>
-              [SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
-            ),
+            enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
           ),
           getTradeQuotes(
             getTradeQuoteInput,
-            enabledSwappers.filter(
-              swapperName => ![SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
-            ),
+            enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
           ),
         ])
 

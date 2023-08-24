@@ -16,6 +16,7 @@ import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
@@ -35,6 +36,7 @@ export async function getTradeQuote(
     slippageTolerancePercentage,
     supportsEIP1559,
     wallet,
+    affiliateBps,
   } = input
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -83,6 +85,7 @@ export async function getTradeQuote(
       // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
       // use the `allowSwitchChain` param above when implemented
       allowSwitchChain: false,
+      fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   }
 

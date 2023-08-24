@@ -50,7 +50,7 @@ export const lifiApi: Swapper2Api = {
       lifiChainMap,
       assetsById,
     )
-    const { receiveAddress } = input
+    const { affiliateBps, receiveAddress } = input
 
     return tradeQuoteResult.map(quote =>
       quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
@@ -66,7 +66,7 @@ export const lifiApi: Swapper2Api = {
         return {
           id,
           receiveAddress,
-          affiliateBps: undefined,
+          affiliateBps,
           ...tradeQuote,
         }
       }),

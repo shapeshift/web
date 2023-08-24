@@ -8,11 +8,11 @@ export const getIsDonationAmountBelowMinimum = (
   sellAsset: Asset,
   sellAssetUsdRate: string,
 ) => {
-  const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+  const sellAmountIncludingFeesCryptoPrecision = fromBaseUnit(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sellAsset.precision,
   )
-  const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
+  const sellAmountBeforeFeesUsd = bnOrZero(sellAmountIncludingFeesCryptoPrecision).times(
     sellAssetUsdRate,
   )
   // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote

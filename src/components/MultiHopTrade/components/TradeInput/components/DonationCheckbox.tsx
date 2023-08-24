@@ -32,7 +32,8 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
     const isFromEvm = isEvmChainId(sellAsset.chainId)
     const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
     // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-    const showDonationOption = (walletIsKeepKey ? !isFromEvm : true) && affiliateBps !== undefined
+    const showDonationOption =
+      (walletIsKeepKey ? !isFromEvm : true) && affiliateBps !== undefined && affiliateBps !== '0'
 
     const {
       number: { toFiat },

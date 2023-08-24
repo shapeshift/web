@@ -17,6 +17,9 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
+// these are the swappers with special logic regarding minimum donations
+const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
+
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
@@ -62,15 +65,11 @@ export const swappersApi = createApi({
               ...getTradeQuoteInput,
               affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
             },
-            enabledSwappers.filter(swapperName =>
-              [SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
-            ),
+            enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
           ),
           getTradeQuotes(
             getTradeQuoteInput,
-            enabledSwappers.filter(
-              swapperName => ![SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
-            ),
+            enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
           ),
         ])
 

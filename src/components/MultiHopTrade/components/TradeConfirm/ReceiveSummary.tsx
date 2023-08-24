@@ -31,6 +31,7 @@ type ReceiveSummaryProps = {
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
   shapeShiftFee?: string
+  affiliateBps?: string
   slippage: string
   swapperName: string
   donationAmount?: string
@@ -45,6 +46,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     amountBeforeFeesCryptoPrecision,
     protocolFees,
     shapeShiftFee,
+    affiliateBps,
     slippage,
     swapperName,
     isLoading,
@@ -184,8 +186,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row>
             )}
             <Row>
-              <Row.Label>
+              <Row.Label display='flex'>
                 <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
+                <RawText>&nbsp;{` (${affiliateBps ?? '0'} bps)`}</RawText>
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>

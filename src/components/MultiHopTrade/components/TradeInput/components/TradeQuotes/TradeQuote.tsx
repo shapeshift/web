@@ -43,10 +43,6 @@ type TradeQuoteProps = {
   isLoading: boolean
 }
 
-/*
- TODO: Add loading skeleton - the below is an implementation for when trade quotes had separate loading states.
- They are now unified.
- */
 const TradeQuoteLoading = () => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   return (

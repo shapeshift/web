@@ -219,6 +219,10 @@ export const TradeInput = memo(() => {
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
+  const onHoverProps = useMemo(() => {
+    return { color: hoverColor }
+  }, [hoverColor])
+
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       quoteHasError ||
@@ -315,13 +319,13 @@ export const TradeInput = memo(() => {
                         translation={'trade.availableRoutes'}
                         fontWeight={'semibold'}
                         color='text.subtle'
-                        _hover={{ color: hoverColor }}
+                        _hover={onHoverProps}
                       />
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>
                 </Center>
-                <AccordionPanel>{MaybeRenderedTradeQuotes}</AccordionPanel>
+                <AccordionPanel p={0}>{MaybeRenderedTradeQuotes}</AccordionPanel>
               </h2>
             </AccordionItem>
           </Accordion>
@@ -342,9 +346,9 @@ export const TradeInput = memo(() => {
       buyAsset.symbol,
       donationAmount,
       hasUserEnteredAmount,
-      hoverColor,
       isLoading,
       isModeratePriceImpact,
+      onHoverProps,
       priceImpactPercentage,
       quoteHasError,
       rate,

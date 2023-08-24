@@ -43,7 +43,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
   )
 
   return (
-    <Flex flexDir='column' gap={2} width='full' px={4} py={2}>
+    <Flex flexDir='column' gap={2} width='full' px={0} py={2}>
       {quotes}
     </Flex>
   )

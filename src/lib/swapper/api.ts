@@ -10,8 +10,6 @@ import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
-import type { TradeQuoteDeps } from './types'
-
 export const SwapError = createErrorClass('SwapError')
 
 export type SwapErrorRight = {
@@ -234,6 +232,6 @@ export type Swapper2Api = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (input: GetTradeQuoteInput, deps: TradeQuoteDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput) => Promise<TradeQuoteResult>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

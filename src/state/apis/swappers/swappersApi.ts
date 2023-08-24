@@ -1,46 +1,21 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { getTradeQuotes } from 'lib/swapper/swapper'
-import type { TradeQuoteDeps } from 'lib/swapper/types'
+import { getMinimumDonationUsdSellAmountByChainId } from 'lib/swapper/swappers/utils/getMinimumDonationUsdSellAmountByChainId'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-
-const getDependencies = (
-  state: ReduxState,
-  getTradeQuoteInput: GetTradeQuoteInput,
-): TradeQuoteDeps => {
-  const assets = selectAssets(state)
-  const feeAsset = selectFeeAssetById(state, getTradeQuoteInput.sellAsset.assetId)
-
-  const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
-  const buyAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.buyAsset.assetId)
-  const feeAssetUsdRate = feeAsset ? selectUsdRateByAssetId(state, feeAsset.assetId) : undefined
-  const runeAssetUsdRate = selectUsdRateByAssetId(state, thorchainAssetId)
-
-  if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
-  if (!buyAssetUsdRate) throw Error('missing buyAssetUsdRate')
-  if (!feeAssetUsdRate) throw Error('missing feeAssetUsdRate')
-  if (!runeAssetUsdRate) throw Error('missing runeAssetUsdRate')
-
-  return {
-    assets,
-    sellAssetUsdRate,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-    runeAssetUsdRate,
-  }
-}
 
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -50,25 +25,57 @@ export const swappersApi = createApi({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const { sendAddress, receiveAddress } = getTradeQuoteInput
+        const {
+          sendAddress,
+          receiveAddress,
+          sellAsset,
+          buyAsset,
+          affiliateBps,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
 
+        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
+
         // Await market data fetching thunk, to ensure we can display some USD rate and don't bail in getDependencies above
-        await dispatch(
-          marketApi.endpoints.findByAssetId.initiate(getTradeQuoteInput.sellAsset.assetId),
+        await dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId))
+        await dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId))
+
+        const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAsset.precision,
         )
-        await dispatch(
-          marketApi.endpoints.findByAssetId.initiate(getTradeQuoteInput.buyAsset.assetId),
+        const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
+          sellAssetUsdRate,
+        )
+        // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
+        const isDonationAmountBelowMinimum = sellAmountBeforeFeesUsd.lt(
+          getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
         )
 
-        // We need to get the freshest state after fetching market data above
-        const deps = getDependencies(getState() as ReduxState, getTradeQuoteInput)
-
-        const quoteResults = await getTradeQuotes(getTradeQuoteInput, enabledSwappers, deps)
+        const quoteResults = await Promise.all([
+          getTradeQuotes(
+            {
+              ...getTradeQuoteInput,
+              affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+            },
+            enabledSwappers.filter(swapperName =>
+              [SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
+            ),
+          ),
+          getTradeQuotes(
+            getTradeQuoteInput,
+            enabledSwappers.filter(
+              swapperName => ![SwapperName.OneInch, SwapperName.Zrx].includes(swapperName),
+            ),
+          ),
+        ])
 
         const quotesWithInputOutputRatios = quoteResults
+          .flat()
           .map(result => {
             if (result.isErr()) {
               const error = result.unwrapErr()

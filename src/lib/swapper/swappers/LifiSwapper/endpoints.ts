@@ -5,6 +5,7 @@ import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
+import { AssetService } from 'lib/asset-service'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -14,7 +15,6 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { TradeQuoteDeps } from 'lib/swapper/types'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -29,7 +29,6 @@ let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assets }: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
@@ -44,10 +43,12 @@ export const lifiApi: Swapper2Api = {
 
     const lifiChainMap = await lifiChainMapPromise
 
+    const { assetsById } = new AssetService()
+
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,
       lifiChainMap,
-      assets,
+      assetsById,
     )
     const { receiveAddress } = input
 

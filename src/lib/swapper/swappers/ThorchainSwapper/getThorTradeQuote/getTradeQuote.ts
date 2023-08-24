@@ -240,6 +240,12 @@ export const getThorTradeQuote = async (
               memo: updatedMemo,
             })
 
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
             return {
               isStreaming,
               estimatedExecutionTimeMs,
@@ -252,7 +258,7 @@ export const getThorTradeQuote = async (
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
-                  buyAmountAfterFeesCryptoBaseUnit: expectedAmountOutThorBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,
@@ -325,6 +331,12 @@ export const getThorTradeQuote = async (
               protocolFees,
             })
 
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
             return {
               isStreaming,
               estimatedExecutionTimeMs,
@@ -335,7 +347,7 @@ export const getThorTradeQuote = async (
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
-                  buyAmountAfterFeesCryptoBaseUnit: expectedAmountOutThorBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,
@@ -382,6 +394,13 @@ export const getThorTradeQuote = async (
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
             )
+
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
             return {
               isStreaming,
               estimatedExecutionTimeMs,
@@ -392,7 +411,7 @@ export const getThorTradeQuote = async (
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
-                  buyAmountAfterFeesCryptoBaseUnit: expectedAmountOutThorBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,

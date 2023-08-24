@@ -55,7 +55,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
-        buyAmountAfterFeesCryptoBaseUnit: '10232161',
+        buyAmountAfterFeesCryptoBaseUnit: '102321610000000000',
         feeData: {
           protocolFees: {
             [ETH.assetId]: {
@@ -86,7 +86,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '124321610000000000',
-        buyAmountAfterFeesCryptoBaseUnit: '11232161',
+        buyAmountAfterFeesCryptoBaseUnit: '112321610000000000',
         feeData: {
           protocolFees: {
             [ETH.assetId]: {

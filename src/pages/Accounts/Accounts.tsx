@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
@@ -20,10 +21,12 @@ const AccountHeader = () => {
   } = useWallet()
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
+  const isSnapsEnabled = useFeatureFlag('Snaps')
+
   useEffect(() => {
     if (!wallet) return
-    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
-  }, [wallet])
+    setIsMultiAccountWallet(isSnapsEnabled || wallet.supportsBip44Accounts())
+  }, [isSnapsEnabled, wallet])
 
   const { open } = useModal('addAccount')
 

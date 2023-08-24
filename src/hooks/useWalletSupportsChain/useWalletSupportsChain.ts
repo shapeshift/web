@@ -25,6 +25,7 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { getConfig } from 'config'
 
 type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
@@ -32,6 +33,7 @@ type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 // use outside react
 export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
+  const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
   switch (chainId) {
     case btcChainId:
     case bchChainId:
@@ -51,7 +53,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case gnosisChainId:
       return supportsGnosis(wallet)
     case cosmosChainId:
-      return supportsCosmos(wallet)
+      return isSnapsEnabled || supportsCosmos(wallet)
     case thorchainChainId:
       return supportsThorchain(wallet)
     default: {

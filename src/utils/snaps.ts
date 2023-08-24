@@ -1,7 +1,10 @@
 import type { ExternalProvider } from '@ethersproject/providers'
 import detectEthereumProvider from '@metamask/detect-provider'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import assert from 'assert'
 import { getConfig } from 'config'
+
 // Snaps utils re-imported from http://github.com/shapeshift/metamask-snaps-adapter until it's actually ready
 // We should eventually interface with hdwallet and can remove all this fluff
 
@@ -99,4 +102,54 @@ export const enableShapeShiftSnap = async (
     console.error(error, 'walletRequestSnaps RPC call failed.')
   }
   return ret
+}
+
+// These are way too verbose to redeclare here and we will throw this code away anyway once interfacing with mm through hdwallet
+type ShapeShiftSnapRPCResponse = any
+type RPCHandlerResponse = any
+type ShapeShiftSnapRPCRequest = { method: string; params: Record<string, any> }
+
+export const sendFlaskRPCRequest = async <T extends ShapeShiftSnapRPCResponse>(
+  request: ShapeShiftSnapRPCRequest,
+  snapId: string,
+): Promise<RPCHandlerResponse> => {
+  try {
+    const provider = (await detectEthereumProvider()) as Provider
+    if (provider === undefined) {
+      throw new Error('Could not get MetaMask provider')
+    }
+    if (provider.request === undefined) {
+      throw new Error('MetaMask provider does not define a .request() method')
+    }
+    const ret = await provider.request({
+      method: 'wallet_invokeSnap',
+      params: {
+        snapId,
+        request,
+      },
+    })
+    return ret as T
+  } catch (error) {
+    console.error(error, `${request.method} RPC call failed.`)
+    return error
+  }
+}
+
+export const cosmosGetAddress = async (bip44Params: BIP44Params): Promise<string | null> => {
+  try {
+    const addressNList = toAddressNList(bip44Params)
+    return await sendFlaskRPCRequest(
+      {
+        method: 'cosmos_getAddress',
+        params: {
+          addressParams: { addressNList, snapId: getConfig().REACT_APP_SNAP_ID },
+          snapId: getConfig().REACT_APP_SNAP_ID,
+        },
+      },
+      getConfig().REACT_APP_SNAP_ID,
+    )
+  } catch (error) {
+    console.error(error, `cosmos_getAddress RPC call failed.`)
+    return Promise.reject(error)
+  }
 }

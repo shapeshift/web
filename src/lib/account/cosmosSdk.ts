@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
@@ -27,13 +27,9 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
         if (!supportsThorchain(wallet)) continue
       }
 
+      const bip44Params = adapter.getBIP44Params({ accountNumber })
+
       if (isSnapsEnabled) {
-        const bip44Params = {
-          // TODO: We shouldn't do this manually
-          accountNumber,
-          coinType: Number(ASSET_REFERENCE.Cosmos),
-          purpose: 44,
-        }
         const pubkey = await cosmosGetAddress(bip44Params)
         if (!pubkey) continue
         const accountId = toAccountId({ chainId, account: pubkey })
@@ -43,7 +39,6 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
         return acc
       }
 
-      const bip44Params = adapter.getBIP44Params({ accountNumber })
       const pubkey = await adapter.getAddress({ accountNumber, wallet })
       if (!pubkey) continue
       const accountId = toAccountId({ chainId, account: pubkey })

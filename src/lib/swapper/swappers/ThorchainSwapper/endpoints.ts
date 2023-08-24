@@ -1,10 +1,7 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -13,11 +10,8 @@ import type {
   TradeQuote2,
   UnsignedTx2,
 } from 'lib/swapper/api'
-import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import type { TradeQuoteDeps } from 'lib/swapper/types'
 
-import type { ThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
@@ -26,7 +20,6 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    rates: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const { receiveAddress } = input
 
@@ -36,58 +29,18 @@ export const thorchainApi: Swapper2Api = {
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    const mapTradeQuoteToTradeQuote2 = (
-      quoteResult: Result<ThorTradeQuote[], SwapErrorRight>,
-      receiveAddress: string,
-      affiliateBps: string | undefined,
-      isDonationAmountBelowMinimum?: boolean,
-    ): Result<TradeQuote2[], SwapErrorRight> => {
-      return quoteResult.map<TradeQuote2[]>(quotes => {
-        return quotes.map(quote => ({
-          id: uuid(),
-          receiveAddress,
-          affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
-          ...quote,
-        }))
-      })
-    }
+    const quoteResult = await getThorTradeQuote({
+      ...input,
+      affiliateBps,
+    })
 
-    return await getThorTradeQuote(input).then(async quoteResult => {
-      // If the first quote fails there is no need to check if the donation amount is below the minimum
-      if (quoteResult.isErr()) return Err(quoteResult.unwrapErr())
-
-      const quotes = quoteResult.unwrap()
-      const firstQuote = quotes[0]
-      const firstHop = firstQuote.steps[0]
-      const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-        firstHop.buyAmountBeforeFeesCryptoBaseUnit,
-        firstHop.buyAsset.precision,
-      )
-      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(rates.buyAssetUsdRate)
-      const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
-      const isDonationAmountBelowMinimum =
-        bnOrZero(affiliateBps).gt(0) &&
-        bnOrZero(donationAmountUsd)
-          .div(rates.runeAssetUsdRate)
-          .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
-
-      const quoteToUse = isDonationAmountBelowMinimum
-        ? /*
-        If the donation amount is below the minimum,
-        we need to fetch a new quote with no affiliate fee
-      */
-          await getThorTradeQuote({
-            ...input,
-            affiliateBps: '0',
-          })
-        : quoteResult
-
-      return mapTradeQuoteToTradeQuote2(
-        quoteToUse,
+    return quoteResult.map<TradeQuote2[]>(quotes => {
+      return quotes.map(quote => ({
+        id: uuid(),
         receiveAddress,
         affiliateBps,
-        isDonationAmountBelowMinimum,
-      )
+        ...quote,
+      }))
     })
   },
 

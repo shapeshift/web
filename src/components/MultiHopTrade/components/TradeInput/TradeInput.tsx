@@ -91,7 +91,7 @@ export const TradeInput = memo(() => {
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
+  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(true)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -222,7 +222,7 @@ export const TradeInput = memo(() => {
     )
   }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
-  const rightRegion = useMemo(
+  const RightRegion: JSX.Element = useMemo(
     () =>
       activeQuote && hasUserEnteredAmount ? (
         <IconButton
@@ -237,7 +237,7 @@ export const TradeInput = memo(() => {
     [activeQuote, hasUserEnteredAmount, showTradeQuotes, toggleShowTradeQuotes],
   )
 
-  const tradeQuotes = useMemo(
+  const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
         <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
@@ -252,6 +252,94 @@ export const TradeInput = memo(() => {
 
     return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
   }, [activeSwapperName, quoteAffiliateFee, applyThorSwapAffiliateFees])
+
+  const ConfirmSummary: JSX.Element = useMemo(
+    () => (
+      <CardFooter
+        borderTopWidth={1}
+        borderColor='border.subtle'
+        flexDir='column'
+        gap={4}
+        px={6}
+        bg='background.surface.raised.accent'
+        borderBottomRadius='xl'
+      >
+        {hasUserEnteredAmount && (
+          <>
+            <RateGasRow
+              sellSymbol={sellAsset.symbol}
+              buySymbol={buyAsset.symbol}
+              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+              rate={rate}
+              isLoading={isLoading}
+              isError={activeQuoteError !== undefined}
+            />
+
+            {activeQuote ? (
+              <ReceiveSummary
+                isLoading={isLoading}
+                symbol={buyAsset.symbol}
+                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                protocolFees={totalProtocolFees}
+                shapeShiftFee={shapeShiftFee}
+                donationAmount={donationAmount}
+                slippage={slippageDecimal}
+                swapperName={activeSwapperName ?? ''}
+              />
+            ) : null}
+            {isModeratePriceImpact && (
+              <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
+            )}
+          </>
+        )}
+
+        <ManualAddressEntry />
+        <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
+          <Button
+            type='submit'
+            colorScheme={quoteHasError ? 'red' : 'blue'}
+            size='lg-multiline'
+            data-test='trade-form-preview-button'
+            isDisabled={shouldDisablePreviewButton}
+            isLoading={isLoading}
+            mx={-2}
+          >
+            <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+          </Button>
+        </Tooltip>
+        {hasUserEnteredAmount &&
+          (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
+            <DonationCheckbox isLoading={isLoading} />
+          )}
+      </CardFooter>
+    ),
+    [
+      activeQuote,
+      activeQuoteError,
+      activeQuoteStatus.error?.message,
+      activeQuoteStatus.quoteErrors,
+      activeQuoteStatus.quoteStatusTranslation,
+      activeSwapperName,
+      applyThorSwapAffiliateFees,
+      buyAmountAfterFeesCryptoPrecision,
+      buyAmountBeforeFeesCryptoPrecision,
+      buyAsset.symbol,
+      donationAmount,
+      hasUserEnteredAmount,
+      isLoading,
+      isModeratePriceImpact,
+      priceImpactPercentage,
+      quoteHasError,
+      rate,
+      sellAsset.symbol,
+      shapeShiftFee,
+      shouldDisablePreviewButton,
+      slippageDecimal,
+      totalNetworkFeeFiatPrecision,
+      totalProtocolFees,
+    ],
+  )
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -315,7 +403,7 @@ export const TradeInput = memo(() => {
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={rightRegion}
+              rightRegion={RightRegion}
               onAccountIdChange={setBuyAssetAccountId}
               formControlProps={formControlProps}
               labelPostFix={
@@ -329,68 +417,10 @@ export const TradeInput = memo(() => {
                   onAssetChange={setBuyAsset}
                 />
               }
-            >
-              {tradeQuotes}
-            </TradeAssetInput>
+            ></TradeAssetInput>
           </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            {hasUserEnteredAmount && (
-              <>
-                <RateGasRow
-                  sellSymbol={sellAsset.symbol}
-                  buySymbol={buyAsset.symbol}
-                  gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                  rate={rate}
-                  isLoading={isLoading}
-                  isError={activeQuoteError !== undefined}
-                />
-
-                {activeQuote ? (
-                  <ReceiveSummary
-                    isLoading={isLoading}
-                    symbol={buyAsset.symbol}
-                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                    protocolFees={totalProtocolFees}
-                    shapeShiftFee={shapeShiftFee}
-                    donationAmount={donationAmount}
-                    slippage={slippageDecimal}
-                    swapperName={activeSwapperName ?? ''}
-                  />
-                ) : null}
-                {isModeratePriceImpact && (
-                  <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
-                )}
-              </>
-            )}
-
-            <ManualAddressEntry />
-            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-              <Button
-                type='submit'
-                colorScheme={quoteHasError ? 'red' : 'blue'}
-                size='lg-multiline'
-                data-test='trade-form-preview-button'
-                isDisabled={shouldDisablePreviewButton}
-                isLoading={isLoading}
-                mx={-2}
-              >
-                <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-              </Button>
-            </Tooltip>
-            {hasUserEnteredAmount &&
-              (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
-                <DonationCheckbox isLoading={isLoading} />
-              )}
-          </CardFooter>
+          {ConfirmSummary}
+          {MaybeRenderedTradeQuotes}
         </Stack>
       </SlideTransition>
     </MessageOverlay>

@@ -282,6 +282,7 @@ export const TradeInput = memo(() => {
                 donationAmount={donationAmount}
                 slippage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
+                affiliateBps={activeQuote.affiliateBps}
               />
             ) : null}
             {isModeratePriceImpact && (

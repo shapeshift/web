@@ -29,7 +29,10 @@ export const thorchainApi: Swapper2Api = {
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    const quoteResult = await getThorTradeQuote(input)
+    const quoteResult = await getThorTradeQuote({
+      ...input,
+      affiliateBps,
+    })
 
     return quoteResult.map<TradeQuote2[]>(quotes => {
       return quotes.map(quote => ({

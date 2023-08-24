@@ -679,6 +679,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
           if (KeyManager.MetaMask === walletType) {
+            ;(() => {
+              const showSnapsModal = store.getState().preferences.showSnapsModal
+              if (!showSnapsModal) return
+
+              const localWalletType = getLocalWalletType()
+              if (localWalletType !== KeyManager.MetaMask) return
+
+              const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
+              if (!isSnapsEnabled) return
+              if (snaps.isOpen) return
+
+              snaps.open({})
+            })()
             return (await detectEthereumProvider()) as MetaMaskLikeProvider
           }
           if (walletType === KeyManager.XDefi) {
@@ -731,20 +744,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet, onProviderChange])
 
   const snaps = useModal('snaps')
-  useEffect(() => {
-    const showSnapsModal = store.getState().preferences.showSnapsModal
-    console.log({ showSnapsModal })
-    if (!showSnapsModal) return
-
-    const localWalletType = getLocalWalletType()
-    if (localWalletType !== KeyManager.MetaMask) return
-
-    const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
-    if (!isSnapsEnabled) return
-    if (snaps.isOpen) return
-
-    snaps.open({})
-  }, [snaps])
 
   useEffect(() => {
     if (state.keyring) {

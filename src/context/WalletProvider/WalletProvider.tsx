@@ -23,6 +23,7 @@ import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/use
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { useModal } from 'hooks/useModal/useModal'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -728,6 +729,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       await onProviderChange(localWalletType)
     })()
   }, [state.wallet, onProviderChange])
+
+  const snaps = useModal('snaps')
+  useEffect(() => {
+    const showSnapsModal = store.getState().preferences.showSnapsModal
+    console.log({ showSnapsModal })
+    if (!showSnapsModal) return
+
+    const localWalletType = getLocalWalletType()
+    if (localWalletType !== KeyManager.MetaMask) return
+
+    const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
+    if (!isSnapsEnabled) return
+    if (snaps.isOpen) return
+
+    snaps.open({})
+  }, [snaps])
 
   useEffect(() => {
     if (state.keyring) {

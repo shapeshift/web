@@ -140,7 +140,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const quoteAffiliateFee = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -181,12 +181,18 @@ export const TradeConfirm = () => {
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (swapperName === SwapperName.Thorchain) {
-      return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
+    if (swapperName === SwapperName.Thorchain && tradeQuote) {
+      return {
+        shapeShiftFee: {
+          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
+          amountBps: tradeQuote.affiliateBps ?? '0',
+        },
+        donationAmount: undefined,
+      }
     }
 
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
-  }, [swapperName, quoteAffiliateFee])
+    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
+  }, [swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -375,11 +381,11 @@ export const TradeConfirm = () => {
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
+      shapeShiftFee,
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
       donationAmount,
-      shapeShiftFee,
     ],
   )
 

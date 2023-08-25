@@ -147,7 +147,7 @@ export const TradeInput = memo(() => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
-  const quoteAffiliateFee = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
   const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
@@ -242,12 +242,18 @@ export const TradeInput = memo(() => {
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (applyThorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain) {
-      return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
+    if (activeSwapperName === SwapperName.Thorchain && activeQuote) {
+      return {
+        shapeShiftFee: {
+          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
+          amountBps: activeQuote.affiliateBps ?? '0',
+        },
+        donationAmount: undefined,
+      }
     }
 
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
-  }, [activeSwapperName, quoteAffiliateFee, applyThorSwapAffiliateFees])
+    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
+  }, [activeSwapperName, activeQuote, quoteAffiliateFeeFiatPrecision])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
@@ -282,7 +288,6 @@ export const TradeInput = memo(() => {
                 donationAmount={donationAmount}
                 slippage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
-                affiliateBps={activeQuote.affiliateBps}
               />
             ) : null}
             {isModeratePriceImpact && (
@@ -306,6 +311,7 @@ export const TradeInput = memo(() => {
           </Button>
         </Tooltip>
         {hasUserEnteredAmount &&
+          activeSwapperName !== SwapperName.CowSwap &&
           (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
             <DonationCheckbox isLoading={isLoading} />
           )}

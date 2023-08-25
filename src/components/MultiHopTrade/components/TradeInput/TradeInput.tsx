@@ -311,10 +311,10 @@ export const TradeInput = memo(() => {
           </Button>
         </Tooltip>
         {hasUserEnteredAmount &&
-          (!applyThorSwapAffiliateFees ||
-            ![SwapperName.Thorchain, SwapperName.CowSwap].includes(
-              activeSwapperName as SwapperName,
-            )) && <DonationCheckbox isLoading={isLoading} />}
+          activeSwapperName !== SwapperName.CowSwap &&
+          (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
+            <DonationCheckbox isLoading={isLoading} />
+          )}
         {!!sortedQuotes.length && hasUserEnteredAmount && (
           <Accordion allowToggle defaultIndex={0}>
             <AccordionItem>

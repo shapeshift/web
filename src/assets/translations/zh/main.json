@@ -658,6 +658,7 @@
     "protocolFee": "协议费",
     "protocol": "协议",
     "tradeFeeSource": "%{tradeFeeSource} 费",
+    "gasFeeExceedsTradeAmountThreshold": "Gas费超过交易数量的 %{percentage}%",
     "confirmDetails": "确认详情",
     "confirmAndTrade": "确认并交易",
     "pending": "交易待处理",

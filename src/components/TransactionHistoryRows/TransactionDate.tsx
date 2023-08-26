@@ -10,14 +10,14 @@ export const TransactionDate = ({ blockTime }: { blockTime: number }) => {
     <RawText
       fontWeight='bold'
       fontSize='sm'
-      color='gray.700'
+      color='text.subtle'
       lineHeight='taller'
       whiteSpace='nowrap'
       px={{ base: 2, md: 4 }}
     >
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)
-        .format('ll')}
+        .format('LL')}
     </RawText>
   )
 }

@@ -1,11 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
-import type { Trade } from 'lib/swapper/api'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
 export type ThornodePoolResponse = {
   LP_units: string
@@ -25,7 +18,9 @@ export type ThornodePoolResponse = {
 }
 
 export type ThornodeQuoteResponseSuccess = {
+  recommended_min_amount_in: string | undefined
   expected_amount_out: string
+  expected_amount_out_streaming: string
   expiry: string
   fees: {
     affiliate: string
@@ -39,7 +34,12 @@ export type ThornodeQuoteResponseSuccess = {
   outbound_delay_seconds: number
   router: string
   slippage_bps: number
+  streaming_slippage_bps: number
   warning: string
+  streaming_swap_seconds: number | undefined
+  inbound_confirmation_seconds: number | undefined
+  // total number of seconds a swap is expected to take (inbound conf + streaming swap + outbound delay)
+  total_swap_seconds: number | undefined
 }
 
 type ThornodeQuoteResponseError = { error: string }
@@ -81,28 +81,19 @@ export type InboundAddressResponse = {
   outbound_fee: string
 }
 
-export interface UtxoThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorUtxoSupportedChainId
-  txData: SignTx<ThorUtxoSupportedChainId>
-}
+export type ThorUtxoSupportedChainId =
+  | KnownChainIds.BitcoinMainnet
+  | KnownChainIds.DogecoinMainnet
+  | KnownChainIds.LitecoinMainnet
+  | KnownChainIds.BitcoinCashMainnet
 
-export interface EvmThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorEvmSupportedChainId
-  txData: SignTx<ThorEvmSupportedChainId>
-}
+export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
 
-export interface CosmosSdkThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorCosmosSdkSupportedChainId
-  txData: SignTx<ThorCosmosSdkSupportedChainId>
-}
+export type ThorCosmosSdkSupportedChainId =
+  | KnownChainIds.ThorchainMainnet
+  | KnownChainIds.CosmosMainnet
 
-export type ThorTrade<C extends ChainId> =
-  | UtxoThorTrade<C>
-  | EvmThorTrade<C>
-  | CosmosSdkThorTrade<C>
-
-export type Rates = {
-  sellAssetUsdRate: string
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
-}
+export type ThorChainId =
+  | ThorCosmosSdkSupportedChainId
+  | ThorEvmSupportedChainId
+  | ThorUtxoSupportedChainId

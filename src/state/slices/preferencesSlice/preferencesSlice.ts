@@ -10,16 +10,13 @@ import type { SupportedFiatCurrencies } from 'lib/market-service'
 dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
-  OsmosisSend: boolean
-  OsmosisStaking: boolean
-  OsmosisSwap: boolean
-  OsmosisLP: boolean
-  OsmosisLPAdditionalPools: boolean
   Optimism: boolean
   BnbSmartChain: boolean
   Polygon: boolean
   Gnosis: boolean
   ThorSwap: boolean
+  ThorSwapStreamingSwaps: boolean
+  ThorSwapAffiliateFees: boolean
   IdleFinance: boolean
   Axelar: boolean
   Yat: boolean
@@ -43,10 +40,10 @@ export type FeatureFlags = {
   OneInch: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
-  MultiHopTrades: boolean
   CoinbaseWallet: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
+  CustomSendNonce: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -73,16 +70,13 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Jaypegz: getConfig().REACT_APP_FEATURE_JAYPEGZ,
-    OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
-    OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
-    OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
-    OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
-    OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
+    ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
+    ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
@@ -105,10 +99,10 @@ const initialState: Preferences = {
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
-    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
-    AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
+    AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
+    CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

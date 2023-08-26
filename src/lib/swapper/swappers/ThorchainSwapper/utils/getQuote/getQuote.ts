@@ -14,10 +14,12 @@ import type {
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
+  DEFAULT_STREAMING_INTERVAL,
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 import { thorService } from '../thorService'
 
@@ -60,6 +62,7 @@ export const getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
+    streaming_interval: DEFAULT_STREAMING_INTERVAL,
   })
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (
@@ -70,24 +73,26 @@ export const getQuote = async ({
 
   if (maybeData.isErr()) return Err(maybeData.unwrapErr())
   const data = maybeData.unwrap()
+  const isError = 'error' in data
 
-  if ('error' in data && /not enough fee/.test(data.error)) {
-    // TODO(gomes): How much do we want to bubble the error property up?
-    // In other words, is the consumer calling getTradeRateBelowMinimum() in case of a sell amount below minimum enough,
-    // or do we need to bubble the error up all the way so "web" is aware that the rate that was gotten was a below minimum one?
+  if (
+    isError &&
+    (/not enough fee/.test(data.error) || /not enough to pay transaction fee/.test(data.error))
+  ) {
+    return Err(createTradeAmountTooSmallErr())
+  } else if (isError && /trading is halted/.test(data.error)) {
     return Err(
       makeSwapErrorRight({
-        message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
-        code: SwapErrorType.TRADE_BELOW_MINIMUM,
+        message: `[getTradeRate]: Trading is halted, cannot process swap`,
+        code: SwapErrorType.TRADING_HALTED,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
-  } else if ('error' in data) {
+  } else if (isError) {
     return Err(
       makeSwapErrorRight({
-        message: `[getTradeRate]: THORChain quote returned an error: ${data.error}`,
+        message: data.error,
         code: SwapErrorType.TRADE_QUOTE_FAILED,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
   } else {

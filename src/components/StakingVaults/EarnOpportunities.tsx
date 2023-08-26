@@ -1,11 +1,10 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -101,14 +100,14 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   if (allRows.length === 0) return null
 
   return (
-    <Card>
-      <Card.Header flexDir='row' display='flex'>
+    <Card variant='outline'>
+      <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>
-            <Card.Heading>
+            <Heading as='h5'>
               <Text translation='navBar.defi' />
-            </Card.Heading>
-            <Text color='gray.500' translation='defi.earnBody' />
+            </Heading>
+            <Text color='text.subtle' translation='defi.earnBody' />
           </Box>
           <Box flex={1} textAlign='right'>
             <Button
@@ -124,11 +123,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
             </Button>
           </Box>
         </HStack>
-      </Card.Header>
+      </CardHeader>
       {Boolean(allRows?.length) && (
-        <Card.Body pt={0} px={2}>
+        <CardBody pt={0} px={2}>
           <StakingTable data={allRows} onClick={handleClick} />
-        </Card.Body>
+        </CardBody>
       )}
     </Card>
   )

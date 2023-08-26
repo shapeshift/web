@@ -59,7 +59,7 @@ export const DappHeaderMenuSummaryV2 = () => {
       <MenuGroup
         title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
         ml={3}
-        color='gray.500'
+        color='text.subtle'
       >
         <HStack spacing={4} px={4} py={1}>
           <DappAvatar
@@ -73,7 +73,7 @@ export const DappHeaderMenuSummaryV2 = () => {
             </RawText>
             <RawText
               fontSize='sm'
-              color='gray.500'
+              color='text.subtle'
               maxWidth='215px'
               overflow='hidden'
               textOverflow='ellipsis'
@@ -88,13 +88,14 @@ export const DappHeaderMenuSummaryV2 = () => {
 
       <VStack px={4} py={1} fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
         <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='gray.500' />
-          <RawText>
-            {dayjs.unix(session.expiry).locale(selectedLocale).format('ll hh:mm A')}
-          </RawText>
+          <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='text.subtle' />
+          <RawText>{dayjs.unix(session.expiry).locale(selectedLocale).format('ll LT')}</RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
-          <Text translation='plugins.walletConnectToDapps.header.menu.addresses' color='gray.500' />
+          <Text
+            translation='plugins.walletConnectToDapps.header.menu.addresses'
+            color='text.subtle'
+          />
           <Flex flexWrap='wrap' gap={2} flex={1} justifyContent='flex-end'>
             {renderConnectedAddresses}
           </Flex>

@@ -1,8 +1,7 @@
-import { Button, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
@@ -43,10 +42,10 @@ export const Debugging = () => {
   return (
     <Stack my={8} spacing={4} flex={1}>
       <Card>
-        <Card.Header>
-          <Card.Heading>Debugging</Card.Heading>
-        </Card.Header>
-        <Card.Body as={Stack}>
+        <CardHeader>
+          <Heading>Debugging</Heading>
+        </CardHeader>
+        <CardBody as={Stack}>
           {isMobile && (
             <Row alignItems='center'>
               <Row.Label>Mobile environment</Row.Label>
@@ -69,12 +68,12 @@ export const Debugging = () => {
               </Row>
             </>
           )}
-        </Card.Body>
-        <Card.Footer>
+        </CardBody>
+        <CardFooter>
           <Button onClick={handleReloadClick} colorScheme='blue'>
             Reload
           </Button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </Stack>
   )

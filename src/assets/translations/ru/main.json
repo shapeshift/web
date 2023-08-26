@@ -641,6 +641,7 @@
     "previewTrade": "Предварительный просмотр торгов",
     "rate": "Курс",
     "tradeFrom": "Обменять от",
+    "priceImpact": "Влияние на цену",
     "slippage": {
       "maxSlippage": "Максимальное проскальзывание",
       "auto": "Автоматическое",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Комиссия за газ превышает %{percentage}% от суммы сделки",
     "confirmDetails": "Подтвердить условия",
     "confirmAndTrade": "Подтвердить и торговать",
+    "tradeAnyway": "Всё равно обменять",
     "pending": "Торговля на стадии рассмотрения",
     "complete": "Выполнено",
     "approveAsset": "Подтвердить взаимодействие с %{symbol}",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Ожидаемый курс для данной пары",
       "noRateAvailable": "Часто это связано с очень ограниченной или отсутствующей ликвидностью по торговой паре.",
+      "priceImpact": "При текущей ликвидности пула обмен такого размера может оказать большое влияние на цену. Может возникнуть большая разница между суммой вашего входного токена и той, которую вы получите в виде выходного токена",
       "minerFee": "Это комиссия для обработки транзакции в блокчейне, эту комиссию не снимает ShapeShift.",
       "donation": "Поддержите ShapeShift и помогите нам продолжать работать.",
       "protocol": "Это протокол, по которому направляется ваша сделка.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "Недостаточно  %{symbol} на %{chainName} для оплаты комиссии",
       "invalidTradePair": "Неправильная торговая пара: %{sellAssetName} и %{buyAssetName}",
       "invalidTradePairBtnText": "Неверная торговая пара",
+      "unsupportedTradePair": "Неподдерживаемая торговая пара",
       "noLiquidityError": "недостаточно ликвидности",
       "overMaxSlippage": "Эта сделка приведет к проскальзыванию более %{slippagePercentage}%. Пожалуйста, торгуйте меньшей суммой для лучшей цены",
       "balanceToLow": "Баланс слишком мал. Минимальная торговая сумма для этой пары %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} не поддерживается кошельком",
       "noReceiveAddress": "Нет адреса получения для %{assetSymbol}",
       "tradingNotActive": "Для %{assetSymbol} торговля приостановлена",
+      "tradingNotActiveNoAssetSymbol": "Торговля по данному маршруту временно приостановлена",
       "signing": {
         "failed": "Произошла ошибка при подтверждении транзакции",
         "required": "Требуется подписание транзакции"
@@ -759,7 +764,8 @@
     "unknownGas": "(неизвестно)",
     "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную, чтобы продолжить.",
-    "addressPlaceholder": "%{chainName} адрес"
+    "addressPlaceholder": "%{chainName} адрес",
+    "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?"
   },
   "modals": {
     "popup": {
@@ -1065,6 +1071,8 @@
       "loadingText": "Подключить кошелек"
     },
     "settings": {
+      "clearCache": "Очистить кэш",
+      "clearCacheTooltip": "Очистите кэш и перезагрузите приложение",
       "settings": "Настройки",
       "currency": "Валюта",
       "clearWalletAccountData": "Удалить все аккаунты и данные кошелька",
@@ -1791,7 +1799,9 @@
       "linkedYat": "Linked Yat",
       "yatConnected": "Yat подключен!",
       "usdcAddress": "Yat USDC адрес",
-      "ethAddress": "Yat ETH адрес"
+      "ethAddress": "Yat ETH адрес",
+      "noAddressFound": "Адрес %{symbol} не найден",
+      "viewInApp": "Посмотреть в мобильном приложении ShapeShift"
     }
   },
   "gasInput": {
@@ -1945,19 +1955,10 @@
       "body": "Есть %{asset1} и %{asset2}? Предоставьте ликвидность в пул Uniswap V2, чтобы заработать %{apy} APR. Кроме того, базовый FOX в токенах FOX/ETH LP, которыми вы владеете, будет участвовать в Arkeo airdrop.",
       "cta": "Внести ликвидность"
     },
-    "atomOsmoProviders": {
-      "title": "Провайдеры ATOM/OSMO LP",
-      "body": "Есть ATOM и OSMO? Внесите ликвидность в пул, чтобы заработать %{apy} APR и получить право на участие в airdrop.",
-      "cta": "Внести ликвидность"
-    },
     "stakeAtom": {
       "title": "Стейкать ATOM",
       "body": "Зарабатывайте до %{apr} APR на ваших незадействованных АТОМах. Кроме того, любой ATOM, который вы стейкаете приносит вам токены Arkeo. Если вы застейкаете для ShapeShift DAO Validatorа, вы сможете в 2 раза увеличить свою квалификацию airdrop.",
       "cta": "Стейкать ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Стейкать OSMO",
-      "body": "Зарабатывайте до %{apr} APR on your idle OSMO. на простаивающем OSMO. Кроме того, любой OSMO, который стейкаете, приносит вам токены Arkeo. Если вы застейкаете для ShapeShift DAO Validatorа, вы сможете в 2 раза увеличить свою квалификацию airdrop."
     },
     "footer": {
       "title": "Существуют и другие способы получения квалификации, помимо ShapeShift dApp. Полный список можно найти в предложении по управлению.",

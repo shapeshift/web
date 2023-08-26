@@ -1,8 +1,7 @@
-import { Box, HStack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Card, HStack, useColorModeValue } from '@chakra-ui/react'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
-import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -35,7 +34,7 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
         <Box flex={1}>
           <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
           {showWalletProviderName && (
-            <RawText color='gray.500' fontWeight='medium' mt={1}>
+            <RawText color='text.subtle' fontWeight='medium' mt={1}>
               {walletName}
             </RawText>
           )}

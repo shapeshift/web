@@ -46,10 +46,10 @@ export const AssetDescriptionTeaser: React.FC<AssetDescriptionTeaserProps> = ({
         <Box ref={descriptionEl}>
           <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
             {description && isTrustedDescription && (
-              <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
+              <ParsedHtml color='text.subtle' innerHtml={markdownLinkToHTML(description)} />
             )}
             {description && !isTrustedDescription && (
-              <SanitizedHtml color='gray.500' dirtyHtml={markdownLinkToHTML(description)} />
+              <SanitizedHtml color='text.subtle' dirtyHtml={markdownLinkToHTML(description)} />
             )}
           </SkeletonText>
         </Box>

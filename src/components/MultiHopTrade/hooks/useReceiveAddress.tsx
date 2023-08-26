@@ -1,6 +1,7 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
-import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
+import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
@@ -11,6 +12,23 @@ import {
   selectManualReceiveAddress,
 } from 'state/slices/swappersSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+const getReceiveAddress = async ({
+  asset,
+  wallet,
+  accountMetadata,
+}: GetReceiveAddressArgs): Promise<string | undefined> => {
+  const { chainId } = fromAssetId(asset.assetId)
+  const { accountType, bip44Params } = accountMetadata
+  const chainAdapter = getChainAdapterManager().get(chainId)
+  if (!(chainAdapter && wallet)) return
+  const { accountNumber } = bip44Params
+  try {
+    return await chainAdapter.getAddress({ wallet, accountNumber, accountType })
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 export const useReceiveAddress = () => {
   // Hooks

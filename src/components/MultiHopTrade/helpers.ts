@@ -1,7 +1,9 @@
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { SwapperName } from 'lib/swapper/api'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {
+  selectActiveQuote,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
@@ -25,17 +27,41 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const donationAmountUserCurrency = selectQuoteDonationAmountUserCurrency(state)
-  const donationAmountUsd = selectQuoteDonationAmountUsd(state)
+  const _donationAmountUserCurrency = selectQuoteDonationAmountUserCurrency(state)
+  const _donationAmountUsd = selectQuoteDonationAmountUsd(state)
   const sellAmountBeforeFeesUsd = selectSellAmountUsd(state)
   const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
   const willDonate = selectWillDonate(state)
   const swapperName = selectActiveSwapperName(state)
+  const activeQuote = selectActiveQuote(state)
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
+
+  const {
+    shapeShiftFeeUserCurrency,
+    shapeshiftFeeUsd,
+    donationAmountUserCurrency,
+    donationAmountUsd,
+  } = (() => {
+    if (swapperName === SwapperName.Thorchain) {
+      return {
+        shapeshiftFeeUsd: _donationAmountUsd,
+        shapeShiftFeeUserCurrency: _donationAmountUserCurrency,
+        donationAmountUsd: undefined,
+        donationAmountUserCurrency: undefined,
+      }
+    }
+
+    return {
+      shapeshiftFeeUsd: undefined,
+      shapeShiftFeeUserCurrency: undefined,
+      donationAmountUsd: _donationAmountUsd,
+      donationAmountUserCurrency: _donationAmountUserCurrency,
+    }
+  })()
 
   return {
     buyAsset: compositeBuyAsset,
@@ -46,7 +72,10 @@ export const getMixpanelEventData = () => {
     hasUserOptedOutOfDonation: !willDonate,
     donationAmountUsd,
     donationAmountUserCurrency,
+    shapeShiftFeeUserCurrency,
+    shapeshiftFeeUsd,
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
+    isStreaming: activeQuote?.isStreaming ?? false,
   }
 }

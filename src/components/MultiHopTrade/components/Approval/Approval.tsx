@@ -1,31 +1,32 @@
 import {
   Box,
   Button,
-  Divider,
+  CardBody,
+  CardFooter,
+  CardHeader,
   Flex,
-  Icon,
+  Heading,
   Image,
   Link,
   Skeleton,
   SkeletonCircle,
   Switch,
   Text as CText,
-  Tooltip,
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
-import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -70,6 +71,15 @@ const ApprovalInner = ({
   } = useWallet()
 
   const symbol = useMemo(() => tradeQuoteStep.sellAsset.symbol, [tradeQuoteStep.sellAsset.symbol])
+
+  const approveAssetLabel: [string, number | InterpolationOptions] = useMemo(
+    () => ['trade.approveAsset', { symbol }],
+    [symbol],
+  )
+  const approvingAssetLabel: [string, number | InterpolationOptions] = useMemo(
+    () => ['trade.approvingAsset', { symbol }],
+    [symbol],
+  )
 
   const sellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const sellFeeAssetUserCurrencyRate = useAppSelector(state =>
@@ -145,23 +155,30 @@ const ApprovalInner = ({
     }
   }, [history, isApprovalNeeded, isSubmitting])
 
+  const handleComplete = useCallback(() => ({ shouldRepeat: true }), [])
+
+  const renderImage = useCallback(() => {
+    return (
+      <Image
+        src={tradeQuoteStep.sellAsset.icon}
+        boxSize='60px'
+        fallback={<SkeletonCircle boxSize='60px' />}
+      />
+    )
+  }, [tradeQuoteStep.sellAsset.icon])
+
+  const handleBack = useCallback(() => history.goBack(), [history])
+
   return (
     <SlideTransition>
-      <Card variant='unstyled'>
-        <Card.Header textAlign='center' px={0} pt={0}>
-          <Card.Heading>
+      <Box as='form' onSubmit={handleSubmit(approveContract)}>
+        <CardHeader textAlign='center'>
+          <Heading as='h5'>
             <Text translation='assets.assetCards.assetActions.trade' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body pb={0} px={0}>
-          <Flex
-            justifyContent='center'
-            alignItems='center'
-            flexDirection='column'
-            width='full'
-            as='form'
-            onSubmit={handleSubmit(approveContract)}
-          >
+          </Heading>
+        </CardHeader>
+        <CardBody>
+          <Flex justifyContent='center' alignItems='center' flexDirection='column' width='full'>
             <CountdownCircleTimer
               isPlaying={!!approvalTxId || isSubmitting}
               size={90}
@@ -169,24 +186,18 @@ const ApprovalInner = ({
               trailColor={theme.colors.whiteAlpha[500]}
               duration={60}
               colors={theme.colors.blue[500]}
-              onComplete={() => ({ shouldRepeat: true })}
+              onComplete={handleComplete}
             >
-              {() => (
-                <Image
-                  src={tradeQuoteStep.sellAsset.icon}
-                  boxSize='60px'
-                  fallback={<SkeletonCircle boxSize='60px' />}
-                />
-              )}
+              {renderImage}
             </CountdownCircleTimer>
             <Text
               my={2}
               fontSize='lg'
               fontWeight='bold'
               textAlign='center'
-              translation={['trade.approveAsset', { symbol }]}
+              translation={approveAssetLabel}
             />
-            <CText color='gray.500' textAlign='center'>
+            <CText color='text.subtle' textAlign='center'>
               <Link
                 href={`${tradeQuoteStep.sellAsset.explorerAddressLink}${tradeQuoteStep.allowanceContract}`}
                 color='blue.500'
@@ -200,12 +211,11 @@ const ApprovalInner = ({
             <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
               <Text color='blue.500' translation='trade.whyNeedThis' />
             </Link>
-            <Divider my={4} />
             <Flex flexDirection='column' width='full'>
               {approvalTxId && tradeQuoteStep.sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
-                    <Text translation={['trade.approvingAsset', { symbol }]} />
+                    <Text translation={approvingAssetLabel} />
                   </Row.Label>
                   <Row.Value>
                     <Link
@@ -218,58 +228,66 @@ const ApprovalInner = ({
                   </Row.Value>
                 </Row>
               )}
-              <Row>
-                <Row.Label display='flex' alignItems='center'>
-                  <Text color='gray.500' translation='trade.allowance' />
-                  <Tooltip label={translate('trade.allowanceTooltip')}>
-                    <Box ml={1}>
-                      <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
-                    </Box>
-                  </Tooltip>
-                </Row.Label>
-                <Row.Value textAlign='right' display='flex' alignItems='center'>
-                  <Text
-                    color={isExactAllowance ? 'gray.500' : 'white'}
-                    translation='trade.unlimited'
-                    fontWeight='bold'
-                  />
-                  <Switch
-                    size='sm'
-                    mx={2}
-                    isChecked={isExactAllowance}
-                    onChange={toggleIsExactAllowance}
-                  />
-                  <Text
-                    color={isExactAllowance ? 'white' : 'gray.500'}
-                    translation='trade.exact'
-                    fontWeight='bold'
-                  />
-                </Row.Value>
-              </Row>
-              <Button type='submit' size='lg' isLoading={isLoading} colorScheme='blue' mt={2}>
-                <Text translation='common.confirm' />
-              </Button>
-              {!approvalTxId && !isSubmitting && (
-                <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
-                  <Text translation='common.reject' />
-                </Button>
-              )}
-              <Divider my={4} />
-              <Row>
-                <Row.Label>
-                  <Text color='gray.500' translation='trade.estimatedGasFee' />
-                </Row.Label>
-                <Row.Value textAlign='right'>
-                  <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
-                    <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
-                    <RawText color='gray.500'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
-                  </Skeleton>
-                </Row.Value>
-              </Row>
             </Flex>
           </Flex>
-        </Card.Body>
-      </Card>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <Row>
+            <Row.Label display='flex' alignItems='center'>
+              <HelperTooltip label={translate('trade.allowanceTooltip')}>
+                <Text color='text.subtle' translation='trade.allowance' />
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value textAlign='right' display='flex' alignItems='center'>
+              <Text
+                color={isExactAllowance ? 'text.subtle' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch
+                size='sm'
+                mx={2}
+                isChecked={isExactAllowance}
+                onChange={toggleIsExactAllowance}
+              />
+              <Text
+                color={isExactAllowance ? 'white' : 'text.subtle'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </Row.Value>
+          </Row>
+          <Flex flexDir='column' gap={2} mx={-2}>
+            <Button type='submit' size='lg' isLoading={isLoading} colorScheme='blue' mt={2}>
+              <Text translation='common.confirm' />
+            </Button>
+            {!approvalTxId && !isSubmitting && (
+              <Button mt={2} size='lg' onClick={handleBack}>
+                <Text translation='common.reject' />
+              </Button>
+            )}
+          </Flex>
+          <Row>
+            <Row.Label>
+              <Text color='text.subtle' translation='trade.estimatedGasFee' />
+            </Row.Label>
+            <Row.Value textAlign='right'>
+              <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
+                <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
+                <RawText color='text.subtle'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        </CardFooter>
+      </Box>
     </SlideTransition>
   )
 }

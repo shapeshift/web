@@ -1,22 +1,12 @@
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
-import type {
-  ChainSignTx,
-  CosmosSdkChainId,
-  EvmChainId,
-  SignTx,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type {
-  ChainSpecific,
-  KnownChainIds,
-  MarketData,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -27,7 +17,7 @@ export type SwapErrorRight = {
   message: string
   cause?: unknown
   details?: unknown
-  code?: string
+  code?: SwapErrorType
 }
 
 export const makeSwapErrorRight = ({
@@ -39,7 +29,7 @@ export const makeSwapErrorRight = ({
   message: string
   details?: unknown
   cause?: unknown
-  code?: string
+  code?: SwapErrorType
 }): SwapErrorRight => ({
   name: 'SwapError',
   message,
@@ -73,45 +63,25 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData<T extends ChainId> = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
+  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
-export type ByPairInput = {
-  sellAssetId: AssetId
-  buyAssetId: AssetId
-}
-
-export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
-  feeAsset: Asset
-  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
-}
-
-export type SwapperWithQuoteMetadata = {
-  swapper: Swapper<ChainId>
-  quote: TradeQuote<ChainId>
-  inputOutputRatio: number | undefined
-}
-export type GetSwappersWithQuoteMetadataReturn = SwapperWithQuoteMetadata[]
-
 export type BuyAssetBySellIdInput = {
-  sellAssetId: AssetId
-  nonNftAssetIds: AssetId[]
-}
-
-export type SupportedSellAssetsInput = {
-  nonNftAssetIds: AssetId[]
+  sellAsset: Asset
+  assets: Asset[]
 }
 
 type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sendAddress?: string
   receiveAddress: string
   accountNumber: number
   receiveAccountNumber?: number
   affiliateBps: string
   allowMultiHop: boolean
+  slippageTolerancePercentage?: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -135,22 +105,18 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
-export type BuildTradeInput = GetTradeQuoteInput & {
-  wallet: HDWallet
-  slippage?: string
-}
-
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
-  asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
+  asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
 export type TradeBase<C extends ChainId> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit?: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string
-  sources: SwapSource[]
+  source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
@@ -164,34 +130,17 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 }
 
 export type TradeQuote<C extends ChainId = ChainId> = {
-  minimumCryptoHuman: string
   recommendedSlippage?: string
+  estimatedExecutionTimeMs: number | undefined
   id?: string
   steps: TradeQuoteStep<C>[]
+  rate: string // top-level rate for all steps (i.e. output amount / input amount)
 }
 
-export type Trade<C extends ChainId> = TradeBase<C> & {
-  receiveAddress: string
-  receiveAccountNumber?: number
-}
-
-export type ExecuteTradeInput<C extends ChainId> = {
-  trade: Trade<C>
-  wallet: HDWallet
-}
-
-export type TradeResult = {
-  tradeId: string
-}
-
-export type SwapSource = {
-  name: SwapperName | string
-  proportion: string
-}
+export type SwapSource = SwapperName | `${SwapperName} • ${string}`
 
 export enum SwapperName {
   Thorchain = 'THORChain',
-  Osmosis = 'Osmosis',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
@@ -199,16 +148,10 @@ export enum SwapperName {
   OneInch = '1INCH',
 }
 
-export type TradeTxs = {
-  sellTxid: string
-  buyTxid?: string
-}
-
 // Swap Errors
 export enum SwapErrorType {
   BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
   EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
-  INITIALIZE_FAILED = 'INITIALIZE_FAILED',
   MANAGER_ERROR = 'MANAGER_ERROR',
   MIN_MAX_FAILED = 'MIN_MAX_FAILED',
   RESPONSE_ERROR = 'RESPONSE_ERROR',
@@ -227,59 +170,21 @@ export enum SwapErrorType {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
-  TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
   // Catch-all for XHRs that can fail
   QUERY_FAILED = 'QUERY_FAILED',
   // Catch-all for missing input e.g AssetId missing when making a request
   MISSING_INPUT = 'MISSING_INPUT',
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
+  TRADING_HALTED = 'TRADING_HALTED',
 }
-export interface Swapper<T extends ChainId> {
-  /** Human-readable swapper name */
-  readonly name: SwapperName
-
-  /** perform any necessary async initialization */
-  initialize?(): Promise<Result<unknown, SwapErrorRight>>
-
-  /**
-   * Get builds a trade with definitive rate & txData that can be executed with executeTrade
-   **/
-  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
-
-  /**
-   * Get a trade quote
-   */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
-
-  /**
-   * Execute a trade built with buildTrade by signing and broadcasting
-   */
-  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>>
-
-  /**
-   * Get supported buyAssetId's by sellAssetId
-   */
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[]
-
-  /**
-   * Get supported sell assetIds
-   */
-  filterAssetIdsBySellable(nonNftAssetIds: AssetId[]): AssetId[]
-
-  /**
-   * Get transactions related to a trade
-   */
-  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
-}
-
-export type UnsignedTx = SignTx<keyof ChainSignTx>
 
 export type TradeQuote2 = TradeQuote & {
   id: string
   receiveAddress: string
   receiveAccountNumber?: number
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
+  isStreaming?: boolean
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
@@ -290,8 +195,7 @@ export type GetUnsignedTxArgs = {
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
+  slippageTolerancePercentageDecimal: string
 } & FromOrXpub
 
 // the client should never need to know anything about this payload, and since it varies from
@@ -315,8 +219,12 @@ export type CheckTradeStatusInput = {
   getState: () => ReduxState
 }
 
+// a result containing all routes that were successfully generated, or an error in the case where
+// no routes could be generated
+type TradeQuoteResult = Result<TradeQuote2[], SwapErrorRight>
+
 export type Swapper2 = {
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => Promise<AssetId[]>
+  filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 }
@@ -325,9 +233,6 @@ export type Swapper2Api = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (
-    input: GetTradeQuoteInput,
-    ...deps: any[]
-  ) => Promise<Result<TradeQuote2, SwapErrorRight>>
+  getTradeQuote: (input: GetTradeQuoteInput) => Promise<TradeQuoteResult>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

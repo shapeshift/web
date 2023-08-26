@@ -227,7 +227,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                     .toFixed(2)}
                 />
                 <Amount.Crypto
-                  color='gray.500'
+                  color='text.subtle'
                   value={bnOrZero(
                     state.txStatus === TxStatus.PENDING
                       ? estimatedGas

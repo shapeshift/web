@@ -4,9 +4,11 @@ import {
   bchChainId,
   binanceChainId,
   btcChainId,
+  CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  fromChainId,
   ltcChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -14,7 +16,13 @@ import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import WAValidator from 'multicoin-address-validator'
 import { bn } from 'lib/bignumber/bignumber'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import {
+  LIMIT_PART_DELIMITER,
+  MEMO_PART_DELIMITER,
+  POOL_PART_DELIMITER,
+  THORCHAIN_AFFILIATE_NAME,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { assertUnreachable } from 'lib/utils'
 
 const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['ETH', ethChainId],
@@ -26,6 +34,7 @@ const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['DOGE', dogeChainId],
   ['GAIA', cosmosChainId],
   ['RUNE', thorchainChainId],
+  ['THOR', thorchainChainId],
 ])
 
 export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: string): boolean => {
@@ -46,65 +55,82 @@ export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: st
     // See https://github.com/shapeshift/lib/blob/6b5c9c8e855ffb68d865cfae8f545e7a819a9667/packages/swapper/src/swappers/thorchain/utils/makeSwapMemo/makeSwapMemo.ts#L10
     // RUNE isn't a pool, it is the native asset of the THORChain network
     case thorId.startsWith('RUNE'):
+    case thorId.startsWith('THOR'):
       return address.startsWith('thor')
     default:
       return false
   }
 }
 
-export const assertIsValidMemo = (memo: string): void => {
-  // BTC (and likely other utxo coins) can only support up to 80 character (byte) memos
-  const MAX_MEMO_LENGTH = 80
-  const MEMO_PART_DELIMITER = ':'
-  const POOL_PART_DELIMITER = '.'
+export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
+  const [, pool, address, limitComponent, affiliate, affiliateBps] = memo.split(MEMO_PART_DELIMITER)
 
-  const memoParts = memo.split(MEMO_PART_DELIMITER)
-  const pool = memoParts[1]
-  const address = memoParts[2]
-  const limit = memoParts[3]
-  const affiliate = memoParts[4]
-  const affiliateBps = memoParts[5]
   const buyAssetChainId = thorChainAssetToChainId.get(pool.split(POOL_PART_DELIMITER)[0])
   const isAddressValid = buyAssetChainId
     ? isValidMemoAddress(buyAssetChainId, pool, address)
     : undefined
 
   if (!isAddressValid) {
-    throw new SwapError(`[makeSwapMemo] - memo ${memo} invalid`, {
+    throw new SwapError(`memo ${memo} invalid`, {
+      code: SwapErrorType.MAKE_MEMO_FAILED,
+    })
+  }
+
+  const [limit, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
+
+  if (streamingNumSwaps && !bn(streamingNumSwaps).isInteger()) {
+    throw new SwapError(`streamingNumSwaps ${streamingNumSwaps} is not a valid number`, {
+      code: SwapErrorType.MAKE_MEMO_FAILED,
+    })
+  }
+
+  if (streamingNumBlocks && !bn(streamingNumBlocks).isInteger()) {
+    throw new SwapError(`streamingNumBlocks ${streamingNumBlocks} is not a valid number`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   }
 
   // Check if limit is a valid number
   if (!bn(limit).isInteger()) {
-    throw new SwapError(`[makeSwapMemo] - limit ${limit} is not a valid number`, {
+    throw new SwapError(`limit ${limit} is not a valid number`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   }
 
   // Check if affiliate is "ss"
   if (affiliate !== THORCHAIN_AFFILIATE_NAME) {
-    throw new SwapError(
-      `[makeSwapMemo] - affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`,
-      {
-        code: SwapErrorType.MAKE_MEMO_FAILED,
-      },
-    )
+    throw new SwapError(`affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`, {
+      code: SwapErrorType.MAKE_MEMO_FAILED,
+    })
   }
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
   const affiliateBpsNum = parseFloat(affiliateBps)
   if (!bn(limit).isInteger() || bn(affiliateBpsNum).lt(0) || bn(affiliateBpsNum).gt(1000)) {
-    throw new SwapError(
-      `[makeSwapMemo] - affiliateBps ${affiliateBps} is not a number between 0 and 1000`,
-      {
-        code: SwapErrorType.MAKE_MEMO_FAILED,
-      },
-    )
+    throw new SwapError(`affiliateBps ${affiliateBps} is not a number between 0 and 1000`, {
+      code: SwapErrorType.MAKE_MEMO_FAILED,
+    })
   }
 
-  if (memo.length > MAX_MEMO_LENGTH) {
-    throw new SwapError(`[makeSwapMemo] - memo length exceeds ${MAX_MEMO_LENGTH} characters`, {
+  const { chainNamespace } = fromChainId(chainId)
+
+  const maxMemoLength = (() => {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Utxo:
+        // BTC (and likely other UTXO coins) can only support up to 80 character (byte) memos
+        return 80
+      case CHAIN_NAMESPACE.Evm:
+        return Infinity
+      case CHAIN_NAMESPACE.CosmosSdk:
+        // Cosmos (and likely other Cosmos SDK coins) can only support up to 256 character (byte) memos
+        return 256
+      default:
+        assertUnreachable(chainNamespace)
+    }
+  })()
+
+  if (memo.length > maxMemoLength) {
+    throw new SwapError(`memo length exceeds ${maxMemoLength} characters`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   }

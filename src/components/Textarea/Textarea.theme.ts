@@ -20,8 +20,8 @@ export const TextareaStyle = {
   },
   // Styles for the visual style variations
   variants: {
-    filled: (props: Record<string, any>) => ({
-      ...InputStyle.variants.filled(props).field,
+    filled: () => ({
+      ...InputStyle.variants.filled().field,
     }),
   },
   // The default `size` or `variant` values

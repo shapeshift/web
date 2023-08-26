@@ -94,8 +94,8 @@ export const AssetCell = ({
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
-          <Stack spacing={0} flex={1} alignItems='flex-start'>
-            <HStack alignItems='center'>
+          <Stack spacing={0} flex={1} alignItems='flex-start' width='full'>
+            <HStack alignItems='center' width='full'>
               <Box
                 position='relative'
                 overflow='hidden'
@@ -127,7 +127,7 @@ export const AssetCell = ({
               {isExternal && <ExternalLinkIcon boxSize={3} />}
             </HStack>
             {typeof subText === 'string' && (
-              <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
+              <RawText fontSize='sm' color='text.subtle' lineHeight='shorter'>
                 {subText}
               </RawText>
             )}

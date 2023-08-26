@@ -1,7 +1,6 @@
-import { Center } from '@chakra-ui/react'
+import { CardBody, Center } from '@chakra-ui/react'
 import { memo } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
@@ -18,7 +17,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
     const { next, data, hasMore } = useInfiniteScroll(txIds)
 
     return data.length ? (
-      <Card.Body px={0} pt={0}>
+      <CardBody px={0} pt={0}>
         <InfiniteScroll
           pageStart={0}
           loadMore={next}
@@ -31,15 +30,15 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
         >
           <TransactionsGroupByDate txIds={txIds} useCompactMode={useCompactMode} />
         </InfiniteScroll>
-      </Card.Body>
+      </CardBody>
     ) : (
-      <Card.Body>
+      <CardBody>
         <Text
           textAlign='center'
-          color='gray.500'
+          color='text.subtle'
           translation='assets.assetDetails.assetHistory.emptyTransactions'
         />
-      </Card.Body>
+      </CardBody>
     )
   },
 )

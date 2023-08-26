@@ -13,6 +13,7 @@ type Command =
   | 'addWallet'
   | 'listWallets'
   | 'getWalletCount'
+  | 'reloadWebview'
 
 type Message =
   | {
@@ -46,6 +47,9 @@ type Message =
   | {
       cmd: 'showDeveloperModal'
       key: string
+    }
+  | {
+      cmd: 'reloadWebview'
     }
 
 export type MessageFromMobileApp = {
@@ -173,6 +177,13 @@ export const createWallet = (): RevocableWallet => {
  */
 export const deleteWallet = (key: string): Promise<boolean> => {
   return postMessage<boolean>({ cmd: 'deleteWallet', key })
+}
+
+/**
+ * Ask the mobile app to reload the webview.
+ */
+export const reloadWebview = (): Promise<boolean> => {
+  return postMessage<boolean>({ cmd: 'reloadWebview' })
 }
 
 /**

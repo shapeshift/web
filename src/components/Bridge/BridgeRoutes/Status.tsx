@@ -5,7 +5,17 @@ import {
   ChevronRightIcon,
   CloseIcon,
 } from '@chakra-ui/icons'
-import { Button, Circle, Collapse, Divider, Stack, useDisclosure } from '@chakra-ui/react'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Circle,
+  Collapse,
+  Divider,
+  Heading,
+  Stack,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -13,7 +23,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -79,11 +88,11 @@ export const Status = () => {
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
-          <Card.Heading textAlign='center'>
+        <CardHeader px={0} pt={0}>
+          <Heading textAlign='center'>
             <Text translation={statusText} />
-          </Card.Heading>
-        </Card.Header>
+          </Heading>
+        </CardHeader>
         <Stack spacing={0} justifyContent='center'>
           <Stack py={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='center'>
@@ -103,7 +112,12 @@ export const Status = () => {
                 value={cryptoAmount ?? '0'}
                 symbol={bridgeAsset?.symbol ?? ''}
               />
-              <Stack direction='row' justifyContent='center' alignItems='center' color='gray.500'>
+              <Stack
+                direction='row'
+                justifyContent='center'
+                alignItems='center'
+                color='text.subtle'
+              >
                 <RawText>{fromChain?.name}</RawText>
                 <ArrowForwardIcon />
                 <RawText>{toChain?.name}</RawText>
@@ -145,7 +159,7 @@ export const Status = () => {
                       />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                         <RawText>{bridgeAsset?.symbol}</RawText>
-                        <RawText fontSize='sm' color='gray.500'>
+                        <RawText fontSize='sm' color='text.subtle'>
                           {fromChain?.name}
                         </RawText>
                       </Stack>
@@ -175,7 +189,7 @@ export const Status = () => {
                       />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                         <RawText>{bridgeAsset?.symbol}</RawText>
-                        <RawText fontSize='sm' color='gray.500'>
+                        <RawText fontSize='sm' color='text.subtle'>
                           {toChain?.name}
                         </RawText>
                       </Stack>
@@ -214,7 +228,7 @@ export const Status = () => {
                       <Stack textAlign='right' spacing={0}>
                         <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
-                          color='gray.500'
+                          color='text.subtle'
                           value={transferFeeNativeToken ?? '0'}
                           symbol={bridgeAsset?.symbol ?? ''}
                         />

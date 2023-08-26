@@ -1,21 +1,32 @@
 import {
+  Card,
+  CardBody,
+  CardHeader,
   Flex,
   List,
   ListItem,
   Skeleton,
   SkeletonCircle,
   Tag,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
-import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import type {
+  AggregatedOpportunitiesByProviderReturn,
+  OpportunityId,
+} from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
+import {
+  selectAggregatedEarnUserLpOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type ProviderCardProps = {
   isLoading?: boolean
@@ -28,15 +39,38 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
-  const headerBg = useColorModeValue('white', 'gray.785')
-
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
+
+  const filteredDownStakingOpportunities = stakingOpportunities.filter(
+    e =>
+      staking.includes(e.id as OpportunityId) &&
+      walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
+
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
+
+  const filteredDownLpOpportunities = lpOpportunities.filter(
+    e =>
+      lp.includes(e.assetId as OpportunityId) &&
+      walletSupportsChain({ chainId: e.chainId, wallet }),
+  )
+
+  if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
+
   return (
-    <Card variant='default'>
-      <Card.Header
+    <Card variant='outline'>
+      <CardHeader
         display='flex'
-        bg={headerBg}
+        bg='background.surface.raised.base'
         borderTopLeftRadius={{ base: 0, md: '2xl' }}
         borderTopRightRadius={{ base: '0', md: '2xl' }}
         flexDir={{ base: 'column', md: 'row' }}
@@ -44,9 +78,6 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         alignItems={{ base: 'flex-start', md: 'center' }}
         fontSize={{ base: 'md', md: 'xl' }}
         fontWeight='bold'
-        position='sticky'
-        top='71px'
-        zIndex='sticky'
       >
         <Flex
           width='full'
@@ -73,11 +104,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
           value={netProviderFiatAmount}
           display={{ base: 'block', md: 'none' }}
         />
-      </Card.Header>
-      <Card.Body px={0} pb={2} pt={0}>
-        <WalletStakingByAsset ids={staking} />
-        <WalletLpByAsset ids={lp} />
-      </Card.Body>
+      </CardHeader>
+      <CardBody px={0} pb={2} pt={0}>
+        <WalletStakingByAsset opportunities={filteredDownStakingOpportunities} />
+        <WalletLpByAsset opportunities={filteredDownLpOpportunities} />
+      </CardBody>
     </Card>
   )
 }
@@ -85,7 +116,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 export const ProviderCardLoading: React.FC = () => {
   return (
     <Card>
-      <Card.Header display='flex' gap={4} alignItems='center' fontSize='xl' fontWeight='bold'>
+      <CardHeader display='flex' gap={4} alignItems='center' fontSize='xl' fontWeight='bold'>
         <SkeletonCircle>
           <LazyLoadAvatar size='sm' />
         </SkeletonCircle>
@@ -100,8 +131,8 @@ export const ProviderCardLoading: React.FC = () => {
             <Amount.Percent value='0' /> Net APY
           </Tag>
         </Skeleton>
-      </Card.Header>
-      <Card.Body px={0} pb={2} pt={0}>
+      </CardHeader>
+      <CardBody px={0} pb={2} pt={0}>
         <Flex flexDir='column' gap={8}>
           <List ml={0} mt={0} spacing={4} position='relative'>
             <ListItem
@@ -128,7 +159,7 @@ export const ProviderCardLoading: React.FC = () => {
             </ListItem>
           </List>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

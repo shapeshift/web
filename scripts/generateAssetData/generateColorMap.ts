@@ -3,15 +3,15 @@ import 'dotenv/config'
 import type { AssetId } from '@shapeshiftoss/caip'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
+import type { Asset } from 'lib/asset-service'
 
-import type { Asset } from '../../src/lib/asset-service'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
-import * as osmosis from './osmosis'
 import * as polygon from './polygon'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
@@ -20,12 +20,12 @@ import { filterOutBlacklistedAssets } from './utils'
 // generate a color map so the generate asset script itself won't take so long.
 const generateColorMap = async () => {
   const ethAssets = await ethereum.getAssets()
-  const osmosisAssets = await osmosis.getAssets()
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
+  const cosmosAssets = await cosmos.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -36,7 +36,7 @@ const generateColorMap = async () => {
     atom,
     thorchain,
     ...ethAssets,
-    ...osmosisAssets,
+    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

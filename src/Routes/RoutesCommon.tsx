@@ -1,10 +1,10 @@
 import { getConfig } from 'config'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
-import { IoSwapVertical } from 'react-icons/io5'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { Asset } from 'pages/Assets/Asset'
@@ -17,7 +17,6 @@ import { Flags } from 'pages/Flags/Flags'
 import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
-import { Yat } from 'pages/Yat/Yat'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -84,29 +83,29 @@ export const routes: NestedRoute[] = [
     })),
   },
   {
-    path: '/earn',
-    label: 'navBar.defi',
-    icon: <DefiIcon />,
-    main: StakingVaults,
-    category: RouteCategory.Explore,
-    mobileNav: true,
-    priority: 3,
-  },
-  {
     path: '/trade',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
-    icon: <IoSwapVertical />,
+    icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
     main: Trade,
-    category: RouteCategory.Explore,
+    category: RouteCategory.Wallet,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Trade Asset',
       path: assetIdPath,
       main: Trade,
       hide: true,
     })),
+  },
+  {
+    path: '/earn',
+    label: 'navBar.defi',
+    icon: <DefiIcon />,
+    main: StakingVaults,
+    category: RouteCategory.Wallet,
+    mobileNav: true,
+    priority: 3,
   },
   {
     path: '/buy-crypto',
@@ -140,11 +139,5 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
-  },
-  {
-    path: '/yat',
-    label: 'Yat',
-    hide: true,
-    main: Yat,
   },
 ]

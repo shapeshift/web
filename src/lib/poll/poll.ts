@@ -43,7 +43,10 @@ export const poll = <T>({
       if (isCancelled) return // dont resolve/reject - leave promise on event loop
       try {
         const result = await fn()
-        if (validate(result)) resolve(result)
+        if (validate(result)) {
+          resolve(result)
+          return
+        }
         await sleep(interval)
       } catch (e) {
         reject(e)

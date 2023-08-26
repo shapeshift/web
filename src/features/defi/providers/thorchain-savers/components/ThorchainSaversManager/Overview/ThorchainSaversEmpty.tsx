@@ -97,7 +97,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             textShadow={`0 2px 2px var(${textShadow})`}
             letterSpacing='0.009em'
           />
-          <RawText color='gray.500'>
+          <RawText color='text.subtle'>
             {`${translate('defi.modals.saversVaults.risksBody.1')} `}
             <Link
               color={linkColor}

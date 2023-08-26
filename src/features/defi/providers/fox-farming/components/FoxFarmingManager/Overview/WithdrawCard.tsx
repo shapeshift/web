@@ -48,7 +48,7 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
     <Stack px={8} py={6}>
       <Text fontWeight='medium' translation='defi.modals.foxyOverview.withdrawals' />
       {!hasClaim ? (
-        <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
+        <Text color='text.subtle' translation='defi.modals.foxyOverview.emptyWithdraws' />
       ) : (
         <Button
           variant='input'

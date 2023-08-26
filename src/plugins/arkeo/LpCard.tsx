@@ -1,8 +1,7 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, CardBody, Flex } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -37,12 +36,6 @@ export const LpCard: React.FC<LpCardProps> = props => {
           body: 'arkeo.foxEthProviders.body',
           cta: 'arkeo.foxEthProviders.cta',
         }
-      case DefiProvider.OsmosisLp:
-        return {
-          title: 'arkeo.atomOsmoProviders.title',
-          body: 'arkeo.atomOsmoProviders.body',
-          cta: 'arkeo.atomOsmoProviders.cta',
-        }
       default:
         return {
           title: 'arkeo.lp.title',
@@ -53,7 +46,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
   })()
   return (
     <ArkeoCard>
-      <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
+      <CardBody display='flex' flexDir='column' gap={4} height='100%'>
         <Flex>{renderPairIcons}</Flex>
         <Text
           fontSize='xl'
@@ -61,7 +54,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
           translation={[title, { asset1: asset1?.symbol, asset2: asset2?.symbol }]}
         />
         <Text
-          color='gray.500'
+          color='text.subtle'
           translation={[
             body,
             { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: `${opportunityApy}%` },
@@ -70,7 +63,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
         <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(opportunity.id)}>
           {translate(cta)}
         </Button>
-      </Card.Body>
+      </CardBody>
     </ArkeoCard>
   )
 }

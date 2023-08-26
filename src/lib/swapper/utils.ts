@@ -1,20 +1,15 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { AssertionError } from 'assert'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
-import { AsyncResultOf } from 'lib/utils'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import type { SwapErrorRight, SwapperName } from './api'
-import { makeSwapErrorRight, SwapErrorType } from './api'
-
-// asserts x is type doesn't work when using arrow functions
-export function assertIsDefined<T>(val: T): asserts val is NonNullable<T> {
-  if (val === undefined || val === null) {
-    throw new AssertionError({ message: `Expected 'val' to be defined, but received ${val}` })
-  }
-}
+import { isCrossAccountTradeSupported } from '../../state/helpers'
+import { AsyncResultOf, isTruthy } from '../utils'
+import type { SwapErrorRight } from './api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from './api'
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))
@@ -49,12 +44,12 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
       get: <T = any>(
         url: string,
         config?: AxiosRequestConfig<any>,
-      ) => Promise<Result<AxiosResponse<T, any>, SwapErrorRight>>
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
       post: <T = any>(
         url: string,
         data: any,
         config?: AxiosRequestConfig<any>,
-      ) => Promise<Result<AxiosResponse<T, any>, SwapErrorRight>>
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
     }
   >(service, {
     get: (trappedAxios, method: 'get' | 'post') => {
@@ -92,3 +87,31 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
+
+export const getEnabledSwappers = (
+  { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags,
+  isCrossAccountTrade: boolean,
+) => {
+  return [
+    LifiSwap && SwapperName.LIFI,
+    ThorSwap && SwapperName.Thorchain,
+    ZrxSwap && SwapperName.Zrx,
+    OneInch && SwapperName.OneInch,
+    Cowswap && SwapperName.CowSwap,
+  ]
+    .filter(isTruthy)
+    .filter(swapperName => {
+      const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(swapperName)
+      return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
+    })
+}
+
+export const createTradeAmountTooSmallErr = (details?: {
+  minAmountCryptoBaseUnit: string
+  assetId: AssetId
+}) =>
+  makeSwapErrorRight({
+    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    message: 'Sell amount is too small',
+    details,
+  })

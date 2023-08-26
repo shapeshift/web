@@ -15,7 +15,7 @@ export const SelfCustody = () => {
         <Flex flexDir='column' gap={2}>
           <Text fontSize='2xl' fontWeight='bold' translation={translateKey('title')} />
           <Text fontSize='lg' translation={translateKey('subTitle')} />
-          <Text color='gray.500' translation={translateKey('body')} />
+          <Text color='text.subtle' translation={translateKey('body')} />
         </Flex>
       </Flex>
     </SlideTransition>

@@ -20,10 +20,10 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import type { Option } from 'components/FilterGroup'
+import { FilterGroup } from 'components/FilterGroup'
 import { Text } from 'components/Text'
 
-import type { Option } from '../../components/FilterGroup'
-import { FilterGroup } from '../../components/FilterGroup'
 import { DatePicker } from './components/DatePicker/DatePicker'
 
 const customRangeOption: string = 'customRange'
@@ -97,7 +97,7 @@ export const TransactionHistoryFilter = memo(
           <Text
             fontWeight='300'
             px={1}
-            color={'gray.500'}
+            color={'text.subtle'}
             translation='transactionHistory.filters.to'
           />
           <DatePicker name={FilterFormFields.ToDate} control={control} />

@@ -47,7 +47,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
+        <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea

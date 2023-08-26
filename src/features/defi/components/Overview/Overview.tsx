@@ -132,7 +132,7 @@ export const Overview: React.FC<OverviewProps> = ({
                     <RawText fontSize='lg' lineHeight='shorter'>
                       {name}
                     </RawText>
-                    <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
+                    <RawText color='text.subtle' fontSize='sm' lineHeight='shorter'>
                       {provider}
                     </RawText>
                   </Stack>

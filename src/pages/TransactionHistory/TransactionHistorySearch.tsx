@@ -1,5 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
+import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { forwardRef, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -17,7 +17,7 @@ export const TransactionHistorySearch = forwardRef<
   return (
     <InputGroup mr={inputGroupMargin}>
       <InputLeftElement pointerEvents='none'>
-        <SearchIcon color={useColorModeValue('gray.300', 'gray.750')} />
+        <SearchIcon color='text.subtlest' />
       </InputLeftElement>
       <Input
         onChange={handleOnChange}

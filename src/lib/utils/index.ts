@@ -62,14 +62,7 @@ export function partitionCompareWith<T>(
 }
 
 export const isToken = (assetReference: AssetReference | string) => {
-  return !(
-    Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference) ||
-    isOsmosisLpAsset(assetReference)
-  )
-}
-
-export const isOsmosisLpAsset = (assetReference: AssetReference | string): boolean => {
-  return assetReference.startsWith('gamm/pool/')
+  return !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
 }
 
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>
@@ -195,3 +188,18 @@ export const isUrl = (x: string) => {
 
 export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
   maybeSkipToken === skipToken
+
+export const timeout = <Left, Right>(
+  promise: Promise<Result<Left, Right>>,
+  timeoutMs: number,
+  timeoutRight: Right,
+): Promise<Result<Left, Right>> => {
+  return Promise.race([
+    promise,
+    new Promise<Result<Left, Right>>(resolve =>
+      setTimeout(() => {
+        resolve(Err(timeoutRight) as Result<Left, Right>)
+      }, timeoutMs),
+    ),
+  ])
+}

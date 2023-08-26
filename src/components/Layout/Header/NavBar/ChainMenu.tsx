@@ -163,7 +163,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         </Tooltip>
 
         <MenuList p='10px' zIndex={2}>
-          <MenuGroup title={translate('common.selectNetwork')} ml={3} color='gray.500'>
+          <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
             {supportedEvmChainIds.map(chainId => (
               <ChainMenuItem
                 isConnected={chainId === connectedEvmChainId}

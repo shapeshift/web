@@ -34,7 +34,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
         <Text translation={headerText} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={bodyText} />
+        <Text mb={4} color='text.subtle' translation={bodyText} />
         {loading ? (
           <Button
             width='full'

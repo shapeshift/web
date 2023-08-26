@@ -1,6 +1,6 @@
+import type { CardProps } from '@chakra-ui/react'
+import { Card } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
-import type { CardProps } from 'components/Card/Card'
-import { Card } from 'components/Card/Card'
 
 export const ArkeoCard: React.FC<CardProps> = props => (
   <Card

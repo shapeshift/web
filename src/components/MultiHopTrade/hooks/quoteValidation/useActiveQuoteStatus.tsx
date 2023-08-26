@@ -5,7 +5,7 @@ import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteVa
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/api'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,
@@ -13,11 +13,9 @@ import {
 import {
   selectActiveQuote,
   selectActiveQuoteError,
-  selectActiveSwapperName,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
   selectLastHopSellFeeAsset,
-  selectMinimumSellAmountCryptoHuman,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -25,11 +23,9 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   const validationErrors = useQuoteValidationErrors()
   const translate = useTranslate()
 
-  const selectedSwapperName = useAppSelector(selectActiveSwapperName)
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
-  const minimumCryptoHuman = useAppSelector(selectMinimumSellAmountCryptoHuman)
   const tradeBuyAsset = useAppSelector(selectBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
@@ -50,14 +46,24 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   )
 
   const quoteErrors: ActiveQuoteStatus[] = useMemo(() => {
-    if (isLoading || hasUserEnteredAmount) return []
+    if (isLoading || !hasUserEnteredAmount) return []
+
     const errors: ActiveQuoteStatus[] = []
+
     if (activeQuoteError) {
       // Map known swapper errors to quote status
-      if (activeQuoteError.code === SwapErrorType.UNSUPPORTED_PAIR)
-        errors.push(ActiveQuoteStatus.NoQuotesAvailableForTradePair)
-      // We didn't recognize the error, use a generic error message
-      if (errors.length === 0) errors.push(ActiveQuoteStatus.UnknownError)
+
+      const errorData = (() => {
+        switch (activeQuoteError.code) {
+          case SwapErrorType.UNSUPPORTED_PAIR:
+            return ActiveQuoteStatus.NoQuotesAvailableForTradePair
+          default:
+            // We didn't recognize the error, use a generic error message
+            return ActiveQuoteStatus.UnknownError
+        }
+      })()
+
+      errors.push(errorData)
     } else if (activeQuote) {
       // We have a quote, but something might be wrong
       return validationErrors
@@ -67,10 +73,6 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     }
     return errors
   }, [isLoading, hasUserEnteredAmount, activeQuoteError, activeQuote, validationErrors])
-
-  const minimumAmountUserMessage = `${bnOrZero(minimumCryptoHuman).decimalPlaces(6)} ${
-    firstHopSellAsset?.symbol
-  }`
 
   // Map validation errors to translation stings
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
@@ -96,10 +98,6 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
           return 'trade.errors.quoteError'
         case ActiveQuoteStatus.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
-        case ActiveQuoteStatus.SellAmountBelowMinimum:
-          return selectedSwapperName && [SwapperName.LIFI].includes(selectedSwapperName)
-            ? 'trade.errors.amountTooSmallOrInvalidTradePair'
-            : ['trade.errors.amountTooSmall', { minLimit: minimumAmountUserMessage }]
         case ActiveQuoteStatus.SellAssetNotNotSupportedByWallet:
           return [
             'trade.errors.assetNotSupportedByWallet',
@@ -132,9 +130,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     tradeBuyAsset?.symbol,
     firstHopSellFeeAsset?.symbol,
     lastHopSellFeeAsset?.symbol,
-    selectedSwapperName,
-    minimumAmountUserMessage,
-    firstHopSellAsset?.symbol,
+    firstHopSellAsset,
     translate,
     insufficientBalanceProtocolFeeMeta,
   ])

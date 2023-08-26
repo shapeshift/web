@@ -57,7 +57,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({
         {chain && symbol ? (
           <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
         ) : (
-          <Text flex={1} color='gray.500' textAlign='left' translation='bridge.selectChain' />
+          <Text flex={1} color='text.subtle' textAlign='left' translation='bridge.selectChain' />
         )}
         <ChevronRightIcon boxSize={4} />
       </Stack>

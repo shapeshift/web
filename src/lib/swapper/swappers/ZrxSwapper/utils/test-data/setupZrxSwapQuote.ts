@@ -1,4 +1,5 @@
 import type { Asset } from 'lib/asset-service'
+import { SwapperName } from 'lib/swapper/api'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 
@@ -44,7 +45,7 @@ export const setupExecuteTrade = () => {
       networkFeeCryptoBaseUnit: '0',
     },
     rate: '0',
-    sources: [],
+    source: SwapperName.Zrx,
   }
   return { executeTradeInput, buyAsset, sellAsset }
 }

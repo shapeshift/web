@@ -1,4 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
+import type { Selector } from 'react-redux'
+import { bn } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -21,6 +23,16 @@ export const selectSellAsset = createDeepEqualOutputSelector(
   selectSwappers,
   swappers => swappers.sellAsset,
 )
+
+export const selectUserSlippagePercentage: Selector<ReduxState, string | undefined> =
+  createSelector(selectSwappers, swappers => swappers.slippagePreferencePercentage)
+
+// User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
+export const selectUserSlippagePercentageDecimal: Selector<ReduxState, string | undefined> =
+  createSelector(selectUserSlippagePercentage, slippagePercentage => {
+    if (!slippagePercentage) return
+    return bn(slippagePercentage).div(100).toString()
+  })
 
 // selects the account ID we're selling from
 // note lack of "asset" and "hop" vernacular - this is deliberate

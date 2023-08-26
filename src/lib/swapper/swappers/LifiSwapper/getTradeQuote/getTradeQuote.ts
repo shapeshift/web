@@ -8,93 +8,97 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import {
-  LIFI_INTEGRATOR_ID,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
-import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
-import { getLifiChainMap } from '../utils/getLifiChainMap'
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
-  sellAssetPriceUsdPrecision: string,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
-  try {
-    const {
-      chainId,
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sendAddress,
-      receiveAddress,
-      accountNumber,
-      supportsEIP1559,
-      wallet,
-    } = input
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+  const {
+    chainId,
+    sellAsset,
+    buyAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sendAddress,
+    receiveAddress,
+    accountNumber,
+    slippageTolerancePercentage,
+    supportsEIP1559,
+    wallet,
+    affiliateBps,
+  } = input
 
-    const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
-    const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+  const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
+  const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
 
-    const defaultLifiSwapperSlippage = getDefaultSlippagePercentageForSwapper(SwapperName.LIFI)
+  if (sellLifiChainKey === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      }),
+    )
+  }
+  if (buyLifiChainKey === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      }),
+    )
+  }
 
-    if (sellLifiChainKey === undefined) {
-      throw new SwapError(
-        `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        { code: SwapErrorType.UNSUPPORTED_PAIR },
-      )
-    }
-    if (buyLifiChainKey === undefined) {
-      throw new SwapError(
-        `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        { code: SwapErrorType.UNSUPPORTED_PAIR },
-      )
-    }
+  const lifi = getLifi()
 
-    const lifi = getLifi()
+  const routesRequest: RoutesRequest = {
+    fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
+    toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
+    fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
+    toTokenAddress: getLifiEvmAssetAddress(buyAsset),
+    // HACK: use the receive address as the send address
+    // lifi's exchanges may use this to check allowance on their side
+    // this swapper is not cross-account so this works
+    fromAddress: sendAddress,
+    toAddress: receiveAddress,
+    fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    // as recommended by lifi, dodo is denied until they fix their gas estimates
+    // TODO: convert this config to .env variable
+    options: {
+      // used for analytics and donations - do not change this without considering impact
+      integrator: LIFI_INTEGRATOR_ID,
+      slippage: Number(
+        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
+      ),
+      exchanges: { deny: ['dodo'] },
+      // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
+      // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
+      // use the `allowSwitchChain` param above when implemented
+      allowSwitchChain: false,
+      fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
+    },
+  }
 
-    const routesRequest: RoutesRequest = {
-      fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
-      toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-      fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
-      toTokenAddress: getLifiEvmAssetAddress(buyAsset),
-      // HACK: use the receive address as the send address
-      // lifi's exchanges may use this to check allowance on their side
-      // this swapper is not cross-account so this works
-      fromAddress: sendAddress,
-      toAddress: receiveAddress,
-      fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
-      // as recommended by lifi, dodo is denied until they fix their gas estimates
-      // TODO: convert this config to .env variable
-      options: {
-        // used for analytics and donations - do not change this without considering impact
-        integrator: LIFI_INTEGRATOR_ID,
-        slippage: Number(defaultLifiSwapperSlippage),
-        exchanges: { deny: ['dodo'] },
-        // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
-        // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
-        // use the `allowSwitchChain` param above when implemented
-        allowSwitchChain: false,
-      },
-    }
-
-    // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
-    //   swapper: SwapperName.LIFI,
-    //   method: 'get',
-    //   // Note, this may change if the Li.Fi SDK changes
-    //   url: 'https://li.quest/v1/advanced/routes',
-    // })
-    const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
+  // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+  //   swapper: SwapperName.LIFI,
+  //   method: 'get',
+  //   // Note, this may change if the Li.Fi SDK changes
+  //   url: 'https://li.quest/v1/advanced/routes',
+  // })
+  const routesResponse = await lifi
+    .getRoutes(routesRequest)
+    .then(response => Ok(response))
+    .catch((e: LifiError) => {
       const code = (() => {
         switch (e.code) {
           case LifiErrorCode.ValidationError:
@@ -106,23 +110,87 @@ export async function getTradeQuote(
             return SwapErrorType.TRADE_QUOTE_FAILED
         }
       })()
-      throw new SwapError(`[getTradeQuote] ${e.message}`, { code })
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code,
+        }),
+      )
     })
 
-    const selectedLifiRoute = routesResponse.routes[SELECTED_ROUTE_INDEX]
+  if (routesResponse.isErr()) return Err(routesResponse.unwrapErr())
 
-    if (selectedLifiRoute === undefined) {
-      throw new SwapError('[getTradeQuote] no route found', {
+  const { routes } = routesResponse.unwrap()
+
+  if (routes.length === 0) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'no route found',
         code: SwapErrorType.TRADE_QUOTE_FAILED,
-      })
-    }
+      }),
+    )
+  }
 
-    // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
-    // generate a multi-hop quote
-    const steps = await Promise.all(
-      selectedLifiRoute.steps.map(async lifiStep => {
-        // for the rate to be valid, both amounts must be converted to the same precision
-        const estimateRate = convertPrecision({
+  return Ok(
+    await Promise.all(
+      routes.slice(0, 3).map(async selectedLifiRoute => {
+        // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
+        // generate a multi-hop quote
+        const steps = await Promise.all(
+          selectedLifiRoute.steps.map(async lifiStep => {
+            // for the rate to be valid, both amounts must be converted to the same precision
+            const estimateRate = convertPrecision({
+              value: selectedLifiRoute.toAmountMin,
+              inputExponent: buyAsset.precision,
+              outputExponent: sellAsset.precision,
+            })
+              .dividedBy(bn(selectedLifiRoute.fromAmount))
+              .toString()
+
+            const protocolFees = transformLifiStepFeeData({
+              chainId,
+              lifiStep,
+              assets,
+            })
+
+            const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+            const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
+              assets,
+              lifiStep,
+            )
+
+            const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+              accountNumber,
+              chainId,
+              lifiStep,
+              supportsEIP1559,
+              wallet,
+            })
+
+            const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
+
+            return {
+              allowanceContract: lifiStep.estimate.approvalAddress,
+              accountNumber,
+              buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+              buyAsset,
+              intermediaryTransactionOutputs,
+              feeData: {
+                protocolFees,
+                networkFeeCryptoBaseUnit,
+              },
+              // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
+              // might be better replaced by inputOutputRatio downstream
+              rate: estimateRate,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              sellAsset,
+              source,
+            }
+          }),
+        )
+
+        // The rate for the entire multi-hop swap
+        const netRate = convertPrecision({
           value: selectedLifiRoute.toAmountMin,
           inputExponent: buyAsset.precision,
           outputExponent: sellAsset.precision,
@@ -130,89 +198,18 @@ export async function getTradeQuote(
           .dividedBy(bn(selectedLifiRoute.fromAmount))
           .toString()
 
-        const protocolFees = transformLifiStepFeeData({
-          chainId,
-          lifiStep,
-          assets,
-        })
-
-        const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-        const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
-
-        const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-          accountNumber,
-          chainId,
-          lifiStep,
-          supportsEIP1559,
-          wallet,
-        })
+        const estimatedExecutionTimeMs = selectedLifiRoute.steps.reduce(
+          (acc, step) => acc + 1000 * step.estimate.executionDuration,
+          0,
+        )
 
         return {
-          allowanceContract: lifiStep.estimate.approvalAddress,
-          accountNumber,
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
-          buyAsset,
-          intermediaryTransactionOutputs,
-          feeData: {
-            protocolFees,
-            networkFeeCryptoBaseUnit,
-          },
-          // TODO(woodenfurniture): the rate should be top level not step level
-          // might be better replaced by inputOutputRatio downstream
-          rate: estimateRate,
-          sellAmountBeforeFeesCryptoBaseUnit,
-          sellAsset,
-          sources: [
-            { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
-          ],
+          steps,
+          rate: netRate,
+          estimatedExecutionTimeMs,
+          selectedLifiRoute,
         }
       }),
-    )
-
-    const isSameChainSwap = sellAsset.chainId === buyAsset.chainId
-    // TODO(gomes): intermediary error-handling within this module function calls
-    return Ok({
-      minimumCryptoHuman: getMinimumCryptoHuman(
-        sellAssetPriceUsdPrecision,
-        isSameChainSwap,
-      ).toString(),
-      steps,
-      selectedLifiRoute,
-    })
-  } catch (e) {
-    // TODO(gomes): this is a temporary shim from the old error handling to monads, remove try/catch
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote]',
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
-  }
-}
-
-let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
-
-// TODO(woodenfurniture): this function and its singletons should be moved elsewhere once we have
-// more visibility on the pattern for multi-hop swappers
-export const getLifiTradeQuote = async (
-  input: GetEvmTradeQuoteInput,
-  assets: Partial<Record<AssetId, Asset>>,
-  sellAssetPriceUsdPrecision: string,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> => {
-  if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
-
-  const maybeLifiChainMap = await lifiChainMapPromise
-
-  if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
-
-  return getTradeQuote(input, maybeLifiChainMap.unwrap(), assets, sellAssetPriceUsdPrecision)
+    ),
+  )
 }

@@ -1,11 +1,11 @@
-import axios from 'axios'
-
 import type { IdleVault } from './constants'
-import { apiKey, baseUrl } from './constants/availableTokens'
+import { apiKey } from './constants/availableTokens'
+import { idleServiceFactory } from './idleService'
 
 export class IdleSdk {
   async getVaults(): Promise<IdleVault[]> {
-    const results = await axios.get(`${baseUrl}pools`, {
+    const idleService = idleServiceFactory()
+    const results = await idleService.get(`pools`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     })
     if (results && results.data) {

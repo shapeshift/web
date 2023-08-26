@@ -120,7 +120,7 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
                         translation={[body, { assetName, unbondingDays }]}
-                        color='gray.500'
+                        color='text.subtle'
                         fontWeight='semibold'
                         fontSize='15px'
                       />

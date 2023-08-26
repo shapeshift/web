@@ -109,7 +109,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
         <RawText>
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
@@ -122,7 +122,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
           </Tag>{' '}
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>
@@ -154,7 +154,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                 transform='translate(-50%, -50%)'
                 left='50%'
                 position='absolute'
-                color='gray.500'
+                color='text.subtle'
               />
             </Box>
             <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>

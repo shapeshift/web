@@ -12,20 +12,20 @@ import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnUserLpOpportunities, selectAssets } from 'state/slices/selectors'
+import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityRow } from './OpportunityRow'
 import { OpportunityTableHeader } from './OpportunityTableHeader'
 
 type WalletLpByAssetProps = {
-  ids: OpportunityId[]
+  opportunities: LpEarnOpportunityType[]
 }
 
 export type RowProps = Row<LpEarnOpportunityType>
 
-export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
+export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
@@ -34,11 +34,8 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-
-  const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
   const groupedItems = useMemo(() => {
-    const groups = filteredDown.reduce(
+    const groups = opportunities.reduce(
       (entryMap, currentItem) =>
         entryMap.set(currentItem.opportunityName, [
           ...(entryMap.get(currentItem.opportunityName) || []),
@@ -47,7 +44,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
       new Map(),
     )
     return Array.from(groups.entries())
-  }, [filteredDown])
+  }, [opportunities])
 
   const flatItems = useMemo(
     () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
@@ -132,7 +129,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
     )
   }, [data, handleClick, translate])
 
-  if (!filteredDown.length) return null
+  if (!opportunities.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>

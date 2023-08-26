@@ -2,10 +2,9 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import { DEFAULT_SLIPPAGE } from './constants'
 import { oneInchService } from './oneInchService'
 import type { OneInchSwapApiInput, OneInchSwapResponse } from './types'
 
@@ -13,30 +12,25 @@ export type FetchOneInchSwapInput = {
   affiliateBps: string | undefined
   buyAsset: Asset
   receiveAddress: string
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  maximumSlippageDecimalPercentage?: string
+  maximumSlippageDecimalPercentage: string
 }
 
 export const fetchOneInchSwap = async ({
   affiliateBps,
   buyAsset,
   receiveAddress,
-  sellAmountBeforeFeesCryptoBaseUnit,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
   sellAsset,
-  maximumSlippageDecimalPercentage: slippage,
+  maximumSlippageDecimalPercentage,
 }: FetchOneInchSwapInput) => {
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
-  /**
-   * limit of price slippage you are willing to accept in percentage,
-   * may be set with decimals. &slippage=0.5 means 0.5% slippage is acceptable.
-   * Low values increase chances that transaction will fail,
-   * high values increase chances of front running. Set values in the range from 0 to 50
-   */
-  const maximumSlippagePercentage = (slippage ? bnOrZero(slippage) : bnOrZero(DEFAULT_SLIPPAGE))
-    .times(100)
-    .toNumber()
+  // The maximum acceptable slippage percentage for the swap (e.g., 1 for 1%)
+  // Note, we internally represent slippage as a decimal across the app (e.g., 0.01 for 1%)
+  // so we need to multiply it by 100 when calling 1inch swap endpoint
+  const maximumSlippagePercentage = bnOrZero(maximumSlippageDecimalPercentage).times(100).toNumber()
 
   const buyTokenPercentageFee = affiliateBps
     ? convertBasisPointsToPercentage(affiliateBps).toNumber()
@@ -49,7 +43,7 @@ export const fetchOneInchSwap = async ({
     // 1inch uses this to check allowance on their side
     // this swapper is not cross-account so this works
     fromAddress: receiveAddress,
-    amount: sellAmountBeforeFeesCryptoBaseUnit,
+    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippage: maximumSlippagePercentage,
     allowPartialFill: false,
     referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),

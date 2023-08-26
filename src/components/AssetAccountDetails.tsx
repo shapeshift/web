@@ -5,8 +5,7 @@ import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -31,7 +30,6 @@ const maxWidth = { base: 'full', xl: 'sm' }
 const display = { base: 'none', md: 'block' }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
-  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
@@ -48,11 +46,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>
         <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>
-          {MultiHopTrades ? (
-            <MultiHopTrade display={display} defaultBuyAssetId={assetId} />
-          ) : (
-            <TradeCard display={display} defaultBuyAssetId={assetId} />
-          )}
+          <MultiHopTrade display={display} defaultBuyAssetId={assetId} />
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />
         </Flex>

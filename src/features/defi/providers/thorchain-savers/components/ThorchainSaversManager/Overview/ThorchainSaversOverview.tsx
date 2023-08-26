@@ -307,7 +307,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             <Amount.Fiat
               value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
               prefix='/'
-              color='gray.500'
+              color='text.subtle'
             />
           </Flex>
         </Flex>

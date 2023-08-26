@@ -1,14 +1,13 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
-  DEFAULT_SOURCE,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
@@ -19,13 +18,10 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
-import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
-
-import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
-  sellAssetUsdRate: string,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
   const {
     sellAsset,
@@ -35,8 +31,9 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     affiliateBps,
     chainId,
     supportsEIP1559,
+    slippageTolerancePercentage,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
-  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -44,13 +41,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   const maybeAdapter = getAdapter(chainId)
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
-
-  const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
-  const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
-
-  const sellAmountCryptoBaseUnit = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
-    ? minimumCryptoBaseUnit
-    : sellAmountBeforeFeesCryptoBaseUnit
 
   const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
@@ -61,10 +51,12 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
-      sellAmount: sellAmountCryptoBaseUnit,
+      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
+      slippagePercentage:
+        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Zrx),
       feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
@@ -73,12 +65,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const { data } = maybeZrxPriceResponse.unwrap()
 
-  const useSellAmount = !!sellAmountBeforeFeesCryptoBaseUnit
+  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
   const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
 
-  // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
-  const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : data.buyAmount
+  const buyAmountCryptoBaseUnit = data.buyAmount
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
@@ -94,7 +84,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     })
 
     return Ok({
-      minimumCryptoHuman,
+      rate,
       steps: [
         {
           allowanceContract: data.allowanceTarget,
@@ -103,15 +93,15 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           accountNumber,
           rate,
           feeData: {
-            networkFeeCryptoBaseUnit,
             protocolFees: {},
+            networkFeeCryptoBaseUnit,
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-          sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          source: SwapperName.Zrx,
         },
       ],
-    } as TradeQuote<T>)
+    } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs
   } catch (err) {
     return Err(
       makeSwapErrorRight({

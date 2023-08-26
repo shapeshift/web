@@ -35,7 +35,7 @@ export const MobileNavLink = ({ label, shortLabel, path, icon }: Route) => {
       zIndex='sticky'
     >
       {icon}
-      <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'gray.500'}>
+      <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'text.subtle'}>
         {translate(shortLabel ?? label)}
       </Flex>
     </Button>

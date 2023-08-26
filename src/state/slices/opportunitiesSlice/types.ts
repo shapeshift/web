@@ -18,7 +18,6 @@ export enum DefiProvider {
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
-  OsmosisLp = 'Osmosis LP',
   ThorchainSavers = 'THORChain Savers',
 }
 
@@ -164,8 +163,6 @@ export type GetOpportunityMetadataOutput = {
   type: DefiType
 }
 
-export type GetReadOnlyOpportunitiesOutput = ReadOnlyOpportunityType[] | undefined
-
 export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[DefiType]['byAccountId']
   type: DefiType
@@ -238,13 +235,6 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
   cryptoBalancePrecision: string
   fiatRewardsAmount: string
   opportunities: Record<DefiType, OpportunityId[]>
-}
-
-export type AggregatedOpportunitiesByFilterReturn = {
-  id: OpportunityId
-  type: string
-  fiatAmount: string
-  cryptoBalancePrecision: string
 }
 
 export type AggregatedOpportunitiesByProviderReturn = {

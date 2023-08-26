@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { parseMaybeUrl } from 'lib/address/address'
+import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -33,6 +33,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Memo]?: string
   [SendFormFields.SendMax]: boolean
   [SendFormFields.VanityAddress]: string
+  [SendFormFields.CustomNonce]?: string
 }
 
 type SendFormProps = {
@@ -90,9 +91,17 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
       try {
-        methods.setValue(SendFormFields.Input, decodedText.trim())
-
         const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+
+        const parseAddressInputWithChainIdArgs = {
+          assetId: maybeUrlResult.assetId,
+          chainId: maybeUrlResult.chainId,
+          urlOrAddress: decodedText,
+        }
+        const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+
+        methods.setValue(SendFormFields.Input, address)
+
         if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
           const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)

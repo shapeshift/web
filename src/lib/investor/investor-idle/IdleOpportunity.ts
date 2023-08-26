@@ -11,7 +11,7 @@ import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
 import { DAO_TREASURY_ETHEREUM_MAINNET } from '../../../constants/treasury'
-import { bn, bnOrZero } from '../../../lib/bignumber/bignumber'
+import { bn, bnOrZero } from '../../bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -307,7 +307,7 @@ export class IdleOpportunity
   }
 
   async getRewardAssetIds(): Promise<AssetId[]> {
-    let govTokens = []
+    let govTokens: any[]
 
     if (this.metadata.cdoAddress) {
       const cdoContract: Contract = new this.#internals.web3.eth.Contract(

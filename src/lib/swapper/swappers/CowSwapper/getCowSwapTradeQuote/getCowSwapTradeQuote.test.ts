@@ -15,11 +15,6 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
-const foxRate = '0.0873'
-const usdcXdaiRate = '1.001'
-const ethRate = '1233.65940923824103061992'
-const wethRate = '1233.65940923824103061992'
-
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -92,7 +87,9 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.01621193001101461472',
+  id: '123',
+  rate: '14924.80846543344314936607', // 14942 FOX per WETH
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -107,9 +104,9 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
         },
         networkFeeCryptoBaseUnit: '0',
       },
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
-      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // 14924 FOX
+      source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
       accountNumber: 0,
@@ -118,7 +115,9 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '229.09507445589919816724',
+  id: '123',
+  rate: '0.00004995640398295996',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -133,9 +132,9 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
         },
         networkFeeCryptoBaseUnit: '0',
       },
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
-      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '49956403982959960',
+      source: SwapperName.CowSwap,
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
       accountNumber: 0,
@@ -144,7 +143,9 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
-  minimumCryptoHuman: '0.00999000999000999001',
+  id: '123',
+  rate: '1.0003121775396440882',
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -159,9 +160,9 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
         },
         networkFeeCryptoBaseUnit: '0',
       },
-      sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '21006555357465608755',
-      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '21006555728332525852',
+      source: SwapperName.CowSwap,
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
       accountNumber: 0,
@@ -170,7 +171,9 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.01621193001101461472',
+  id: '123',
+  rate: '14716.04718939437523468382', // 14716 FOX per WETH
+  estimatedExecutionTimeMs: undefined,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -185,9 +188,9 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
         },
         networkFeeCryptoBaseUnit: '0',
       },
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
-      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '166441655297153832879', // 166 FOX
+      source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
       accountNumber: 0,
@@ -201,18 +204,16 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
       buyAsset: FOX_MAINNET,
-      sellAmountBeforeFeesCryptoBaseUnit: '11111',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '11111',
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
-      sellAssetUsdRate: ethRate,
-      buyAssetUsdRate: foxRate,
-    })
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -228,18 +229,20 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
+            id: 123,
             quote: {
               ...expectedApiInputWethToFox,
               sellAmountBeforeFee: undefined,
@@ -254,10 +257,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
-      sellAssetUsdRate: wethRate,
-      buyAssetUsdRate: foxRate,
-    })
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
@@ -272,18 +272,20 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX_MAINNET,
       buyAsset: ETH,
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
+            id: 123,
             quote: {
               ...expectedApiInputFoxToEth,
               sellAmountBeforeFee: undefined,
@@ -298,10 +300,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
-      sellAssetUsdRate: foxRate,
-      buyAssetUsdRate: ethRate,
-    })
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -316,18 +315,20 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.GnosisMainnet,
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,
-      sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
+            id: 123,
             quote: {
               ...expectedApiInputUsdcGnosisToXdai,
               sellAmountBeforeFee: undefined,
@@ -342,10 +343,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
-      sellAssetUsdRate: usdcXdaiRate,
-      buyAssetUsdRate: usdcXdaiRate,
-    })
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
@@ -360,18 +358,20 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
-      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
+            id: 123,
             quote: {
               ...expectedApiInputSmallAmountWethToFox,
               sellAmountBeforeFee: undefined,
@@ -386,10 +386,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
-      sellAssetUsdRate: wethRate,
-      buyAssetUsdRate: foxRate,
-    })
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)

@@ -309,13 +309,13 @@ export const GlobalSeachButton = () => {
           onClick={onOpen}
         />
         <Button
-          variant='input'
           width='full'
           leftIcon={<SearchIcon />}
           onClick={onOpen}
           size='lg'
           fontSize='md'
           alignItems='center'
+          color='text.subtle'
           display={{ base: 'none', md: 'flex' }}
           sx={{ svg: { width: '18px', height: '18px' } }}
         >

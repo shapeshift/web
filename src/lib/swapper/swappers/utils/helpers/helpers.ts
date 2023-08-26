@@ -21,7 +21,6 @@ import {
 } from 'constants/treasury'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 
 export const normalizeIntegerAmount = (amount: string | number | BigNumber): string => {
   return bnOrZero(amount)
@@ -47,31 +46,6 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === gnosisAssetId
     default:
       return false
-  }
-}
-
-export const createEmptyEvmTradeQuote = (
-  input: GetTradeQuoteInput,
-  minimumCryptoHuman: string,
-): TradeQuote<EvmChainId> => {
-  return {
-    minimumCryptoHuman,
-    steps: [
-      {
-        allowanceContract: '',
-        buyAmountBeforeFeesCryptoBaseUnit: '0',
-        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit: undefined,
-          protocolFees: {},
-        },
-        rate: '0',
-        sources: [],
-        buyAsset: input.buyAsset,
-        sellAsset: input.sellAsset,
-        accountNumber: input.accountNumber,
-      },
-    ],
   }
 }
 

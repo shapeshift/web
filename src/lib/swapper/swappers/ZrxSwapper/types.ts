@@ -1,6 +1,4 @@
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { SwapSource, Trade } from 'lib/swapper/api'
 
 export const zrxSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -12,6 +10,11 @@ export const zrxSupportedChainIds = [
 
 export type ZrxSupportedChainId = typeof zrxSupportedChainIds[number]
 
+type ZrxSwapSource = {
+  name: string
+  proportion: string
+}
+
 export type ZrxCommonResponse = {
   price: string
   estimatedGas: string
@@ -20,7 +23,7 @@ export type ZrxCommonResponse = {
   buyAmount: string
   sellAmount: string
   allowanceTarget: string
-  sources: SwapSource[]
+  sources: ZrxSwapSource[]
 }
 
 export type ZrxPriceResponse = ZrxCommonResponse
@@ -29,20 +32,4 @@ export type ZrxQuoteResponse = ZrxCommonResponse & {
   to: string
   data: string
   value: string
-}
-
-export type ZrxSwapStatusResponse = {
-  status: 'pending' | 'submitted' | 'succeeded' | 'confirmed' | 'failed'
-  transactions: { hash: string; timestamp: number }[]
-  reason?: string
-}
-
-export interface ZrxTrade extends Trade<ZrxSupportedChainId> {
-  txData: string
-  depositAddress: string
-}
-
-export type ZrxExecuteTradeInput = {
-  trade: ZrxTrade
-  wallet: HDWallet
 }

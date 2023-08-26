@@ -1,22 +1,22 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { Result } from '@sniptt/monads'
-import { orderBy } from 'lodash'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
+import orderBy from 'lodash/orderBy'
+import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import { getTradeQuotes } from 'lib/swapper/swapper'
+import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
-import { getLifiTradeQuoteHelper } from 'state/apis/swappers/helpers/getLifiTradeQuoteApiHelper'
-import { getThorTradeQuoteHelper } from 'state/apis/swappers/helpers/getThorTradeQuoteApiHelper'
 import type { ApiQuote } from 'state/apis/swappers/types'
-import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { getCowTradeQuoteHelper } from './helpers/getCowTradeQuoteHelper'
-import { getOneInchTradeQuoteHelper } from './helpers/getOneInchTradeQuoteHelper'
-import { getOsmosisTradeQuoteHelper } from './helpers/getOsmosisTradeQuoteApiHelper'
-import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
+import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
+
+// these are the swappers with special logic regarding minimum donations
+const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
 
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -24,120 +24,80 @@ export const swappersApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
-      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState }) => {
+      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const { sendAddress, receiveAddress } = getTradeQuoteInput
+        const {
+          sendAddress,
+          receiveAddress,
+          sellAsset,
+          buyAsset,
+          affiliateBps,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { OsmosisSwap, LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
-          selectFeatureFlags(state)
-        const quotes: (Result<TradeQuote2, SwapErrorRight> & {
-          swapperName: SwapperName
-        })[] = []
-        const quoteHelperArgs = [getTradeQuoteInput, state] as const
-        if (OsmosisSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getOsmosisTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Osmosis,
-            })
-          } catch (error) {
-            console.error(error)
-          }
+        const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
+        const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
 
-        if (LifiSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getLifiTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.LIFI,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (ThorSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getThorTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Thorchain,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (ZrxSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getZrxTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Zrx,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (OneInch)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getOneInchTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.OneInch,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (Cowswap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getCowTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.CowSwap,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        const quotesWithInputOutputRatios = quotes
+        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
+
+        // Await market data fetching thunk, to ensure we can display some USD rate and don't bail in getDependencies above
+        await dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId))
+        await dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId))
+
+        // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
+        const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAsset,
+          sellAssetUsdRate,
+        )
+
+        const quoteResults = await Promise.all([
+          getTradeQuotes(
+            {
+              ...getTradeQuoteInput,
+              affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+            },
+            enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
+          ),
+          getTradeQuotes(
+            getTradeQuoteInput,
+            enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
+          ),
+        ])
+
+        const quotesWithInputOutputRatios = quoteResults
+          .flat()
           .map(result => {
-            const quote = result && result.isOk() ? result.unwrap() : undefined
-            const error = result && result.isErr() ? result.unwrapErr() : undefined
-            const inputOutputRatio = quote
-              ? getInputOutputRatioFromQuote({
-                  state,
-                  quote,
+            if (result.isErr()) {
+              const error = result.unwrapErr()
+              return [
+                {
+                  quote: undefined,
+                  error,
+                  inputOutputRatio: -Infinity,
                   swapperName: result.swapperName,
-                })
-              : -Infinity
-            return { quote, error, inputOutputRatio, swapperName: result.swapperName }
+                },
+              ]
+            }
+
+            return result.unwrap().map(quote => {
+              const inputOutputRatio = getInputOutputRatioFromQuote({
+                // We need to get the freshest state after fetching market data above
+                state: getState() as ReduxState,
+                quote,
+                swapperName: result.swapperName,
+              })
+              return { quote, error: undefined, inputOutputRatio, swapperName: result.swapperName }
+            })
           })
-          .filter(result => {
-            const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(
-              result.swapperName,
-            )
-            return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
-          })
+          .flat()
+
         const orderedQuotes: ApiQuote[] = orderBy(
           quotesWithInputOutputRatios,
           ['inputOutputRatio', 'swapperName'],
           ['desc', 'asc'],
-        )
-
-        // TODO: this causes a circular dependency
-        // // if the active swapper name doesn't exist in the returned quotes, reset it
-        // const activeSwapperName = selectActiveSwapperName(state)
-        // if (!orderedQuotes.some(apiQuote => apiQuote.swapperName === activeSwapperName)) {
-        //   dispatch(tradeQuoteSlice.actions.resetSwapperName())
-        // }
+        ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
         return { data: orderedQuotes }
       },

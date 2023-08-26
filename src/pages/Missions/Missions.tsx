@@ -16,7 +16,7 @@ import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
+import FoxMissionsBg from 'assets/fox-mission-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import FoxRewardsBg from 'assets/foxrewards-mission.png'
@@ -80,6 +80,7 @@ export const useGetMissions = () => {
             'https://x.postmint.xyz/community/64665c31a6c1394b3a35be58/64997a2a590fc8641c50f51a',
           ),
         startDate: '2023-06-26 7:00 AM',
+        endDate: '2023-08-07 7:00 AM',
       },
       {
         title: translate('missions.yat.title'),
@@ -171,7 +172,7 @@ export const MissionSidebar = () => {
     return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
   }, [active])
   return (
-    <Card px={sideBarPadding}>
+    <Card variant='unstyled' px={sideBarPadding}>
       <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
         {renderMissions}
       </Carousel>

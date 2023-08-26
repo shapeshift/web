@@ -1,13 +1,26 @@
-import { Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Card,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  Stack,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import prettyMilliseconds from 'pretty-ms'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
+import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
+import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
-import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { SwapErrorType } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
+  selectAssets,
   selectBuyAsset,
   selectFeeAssetByChainId,
   selectSellAmountCryptoPrecision,
@@ -22,55 +35,52 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
-type TradeQuoteLoadedProps = {
+type TradeQuoteProps = {
   isActive: boolean
   isBest: boolean
   quoteData: ApiQuote
-  bestInputOutputRatio: number
+  bestBuyAmountBeforeFeesCryptoBaseUnit: string
+  isLoading: boolean
 }
 
-/*
- TODO: Add loading skeleton - the below is an implementation for when trade quotes had separate loading states.
- They are now unified.
- */
-// const TradeQuoteLoading = () => {
-//   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-//   return (
-//     <Stack
-//       borderWidth={1}
-//       cursor='not-allowed'
-//       borderColor={borderColor}
-//       borderRadius='xl'
-//       flexDir='column'
-//       spacing={2}
-//       width='full'
-//       px={4}
-//       py={2}
-//       fontSize='sm'
-//     >
-//       <Flex justifyContent='space-between'>
-//         <Stack direction='row' spacing={2}>
-//           <Skeleton height='20px' width='50px' />
-//           <Skeleton height='20px' width='50px' />
-//         </Stack>
-//         <Skeleton height='20px' width='80px' />
-//       </Flex>
-//       <Flex justifyContent='space-between'>
-//         <Stack direction='row' alignItems='center'>
-//           <SkeletonCircle height='24px' width='24px' />
-//           <Skeleton height='21px' width='50px' />
-//         </Stack>
-//         <Skeleton height='20px' width='100px' />
-//       </Flex>
-//     </Stack>
-//   )
-// }
+const TradeQuoteLoading = () => {
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  return (
+    <Stack
+      borderWidth={1}
+      cursor='not-allowed'
+      borderColor={borderColor}
+      borderRadius='xl'
+      flexDir='column'
+      spacing={2}
+      width='full'
+      px={4}
+      py={2}
+      fontSize='sm'
+    >
+      <Flex justifyContent='space-between'>
+        <Stack direction='row' spacing={2}>
+          <Skeleton height='20px' width='50px' />
+          <Skeleton height='20px' width='50px' />
+        </Stack>
+        <Skeleton height='20px' width='80px' />
+      </Flex>
+      <Flex justifyContent='space-between'>
+        <Stack direction='row' alignItems='center'>
+          <SkeletonCircle height='24px' width='24px' />
+          <Skeleton height='21px' width='50px' />
+        </Stack>
+        <Skeleton height='20px' width='100px' />
+      </Flex>
+    </Stack>
+  )
+}
 
-export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
+export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isActive,
   isBest,
   quoteData,
-  bestInputOutputRatio,
+  bestBuyAmountBeforeFeesCryptoBaseUnit,
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -80,41 +90,51 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
+  const { quote, error } = quoteData
+
   const { isTradingActive } = useIsTradingActive()
 
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const assetsById = useAppSelector(selectAssets)
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const networkFeeUserCurrencyPrecision = useMemo(
-    () => (quoteData.quote ? getTotalNetworkFeeUserCurrencyPrecision(quoteData.quote) : undefined),
-    [quoteData.quote],
+    () => (quote ? getTotalNetworkFeeUserCurrencyPrecision(quote) : undefined),
+    [quote],
   )
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const totalReceiveAmountCryptoPrecision = useMemo(
     () =>
-      quoteData.quote
+      quote
         ? getNetReceiveAmountCryptoPrecision({
-            quote: quoteData.quote,
+            quote,
             swapperName: quoteData.swapperName,
           })
         : '0',
-    [quoteData.quote, quoteData.swapperName],
+    [quote, quoteData.swapperName],
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-  }, [dispatch, quoteData.swapperName])
+    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(quoteData.index))
+  }, [dispatch, quoteData.index])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
-    throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
+    throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-  const quoteDifferenceDecimalPercentage =
-    (quoteData.inputOutputRatio / bestInputOutputRatio - 1) * -1
+  // the difference percentage is on the gross receive amount only
+  const quoteDifferenceDecimalPercentage = useMemo(() => {
+    if (!quote) return Infinity
+    const lastStep = quote.steps[quote.steps.length - 1]
+    return bn(bestBuyAmountBeforeFeesCryptoBaseUnit)
+      .minus(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
+      .dividedBy(bestBuyAmountBeforeFeesCryptoBaseUnit)
+      .toNumber()
+  }, [bestBuyAmountBeforeFeesCryptoBaseUnit, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
@@ -126,23 +146,32 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
   const tag: JSX.Element = useMemo(() => {
-    switch (true) {
-      case !hasAmountWithPositiveReceive && isAmountEntered:
-        return (
-          <Tag size='sm' colorScheme='red'>
-            {translate('trade.rates.tags.negativeRatio')}
-          </Tag>
-        )
-      case isBest:
-        return (
-          <Tag size='sm' colorScheme='green'>
-            {translate('common.best')}
-          </Tag>
-        )
-      default:
-        return <Tag size='sm'>{translate('common.alternative')}</Tag>
+    if (quote)
+      switch (true) {
+        case !hasAmountWithPositiveReceive && isAmountEntered:
+          return (
+            <Tag size='sm' colorScheme='red'>
+              {translate('trade.rates.tags.negativeRatio')}
+            </Tag>
+          )
+        case isBest:
+          return (
+            <Tag size='sm' colorScheme='green'>
+              {translate('common.best')}
+            </Tag>
+          )
+        default:
+          return <Tag size='sm'>{translate('common.alternative')}</Tag>
+      }
+    else {
+      // Add helper to get user-friendly error message from code
+      return (
+        <Tag size='sm' colorScheme='red'>
+          {translate(...quoteStatusTranslation(error, assetsById))}
+        </Tag>
+      )
     }
-  }, [hasAmountWithPositiveReceive, isAmountEntered, translate, isBest])
+  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, error, assetsById])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor
@@ -152,7 +181,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   })()
 
   const hoverProps = useMemo(
-    () => ({ borderColor: isActive ? activeSwapperColor : hoverColor }),
+    () => ({ borderColor: isActive ? activeSwapperColor : hoverColor, cursor: 'pointer' }),
     [activeSwapperColor, hoverColor, isActive],
   )
   const activeProps = useMemo(
@@ -160,60 +189,93 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     [activeSwapperColor, focusColor, isActive],
   )
 
-  return totalReceiveAmountCryptoPrecision ? (
-    <Flex
+  const isDisabled = !!error
+
+  // TODO: work out for which error codes we want to show a swapper with a human-readable error vs hiding it
+  const showSwapperError =
+    error?.code &&
+    [
+      SwapErrorType.TRADING_HALTED,
+      SwapErrorType.UNSUPPORTED_PAIR,
+      SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    ].includes(error.code)
+
+  const showSwapper = !!quote || showSwapperError
+
+  return showSwapper ? (
+    <Card
       borderWidth={1}
-      cursor='pointer'
+      bg='background.surface.raised.accent'
+      cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : borderColor}
-      _hover={hoverProps}
-      _active={activeProps}
-      borderRadius='xl'
+      _hover={isDisabled ? undefined : hoverProps}
+      _active={isDisabled ? undefined : activeProps}
+      borderRadius='lg'
       flexDir='column'
       gap={2}
       width='full'
       px={4}
       py={2}
       fontSize='sm'
-      onClick={handleQuoteSelection}
+      onClick={isDisabled ? undefined : handleQuoteSelection}
       transitionProperty='common'
       transitionDuration='normal'
+      opacity={isDisabled ? 0.4 : 1}
     >
       <Flex justifyContent='space-between' alignItems='center'>
-        <Flex gap={2}>
-          {tag}
-          {!isBest && hasAmountWithPositiveReceive && (
-            <Tag size='sm' colorScheme='red' variant='xs-subtle'>
-              <Amount.Percent value={quoteDifferenceDecimalPercentage} suffix='more expensive' />
-            </Tag>
-          )}
-        </Flex>
-        <Flex gap={2} alignItems='center'>
-          <RawText color='gray.500'>
-            <FaGasPump />
-          </RawText>
-          {
-            // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-            !networkFeeUserCurrencyPrecision ? (
-              translate('trade.unknownGas')
-            ) : (
-              <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
-            )
-          }
-        </Flex>
-      </Flex>
-      <Flex justifyContent='space-between' alignItems='center'>
+        <Flex gap={2}>{tag}</Flex>
         <Flex gap={2} alignItems='center'>
           <SwapperIcon swapperName={quoteData.swapperName} />
-          <RawText>{quoteData.swapperName}</RawText>
+          <RawText>{quote?.steps[0].source ?? quoteData.swapperName}</RawText>
         </Flex>
-        <Amount.Crypto
-          value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-          symbol={buyAsset?.symbol ?? ''}
-          color={isBest ? greenColor : 'inherit'}
-        />
       </Flex>
-    </Flex>
+      {quote && (
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Flex gap={2} alignItems='center'>
+            <Amount.Crypto
+              value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
+              symbol={buyAsset?.symbol ?? ''}
+              color={isBest ? greenColor : 'inherit'}
+            />
+            {!isBest && hasAmountWithPositiveReceive && quoteDifferenceDecimalPercentage !== 0 && (
+              <Amount.Percent
+                value={-quoteDifferenceDecimalPercentage}
+                prefix='('
+                suffix=')'
+                autoColor
+              />
+            )}
+          </Flex>
+        </Flex>
+      )}
+      {quote && (
+        <Flex justifyContent='left' alignItems='left' gap={8}>
+          {quote.estimatedExecutionTimeMs !== undefined && quote.estimatedExecutionTimeMs > 0 && (
+            <Flex gap={2} alignItems='center'>
+              <RawText color='gray.500'>
+                <FaRegClock />
+              </RawText>
+              {prettyMilliseconds(quote.estimatedExecutionTimeMs)}
+            </Flex>
+          )}
+          <Flex gap={2} alignItems='center'>
+            <RawText color='gray.500'>
+              <FaGasPump />
+            </RawText>
+            {
+              // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+              !networkFeeUserCurrencyPrecision ? (
+                translate('trade.unknownGas')
+              ) : (
+                <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
+              )
+            }
+          </Flex>
+        </Flex>
+      )}
+    </Card>
   ) : null
 }
 
-export const TradeQuote: React.FC<TradeQuoteLoadedProps> = props => <TradeQuoteLoaded {...props} />
+export const TradeQuote: FC<TradeQuoteProps> = props =>
+  props.isLoading ? <TradeQuoteLoading /> : <TradeQuoteLoaded {...props} />

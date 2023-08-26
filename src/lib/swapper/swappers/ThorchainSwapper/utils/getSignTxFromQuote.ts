@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
@@ -6,30 +5,33 @@ import type {
   utxo,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { TradeQuote, UnsignedTx } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
-import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type {
+  ThorEvmTradeQuote,
+  ThorTradeQuote,
+} from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   ThorCosmosSdkSupportedChainId,
   ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { addSlippageToMemo } from './addSlippageToMemo'
+import { getQuote } from './getQuote/getQuote'
 
 type GetSignTxFromQuoteArgs = {
-  tradeQuote: TradeQuote<ChainId>
+  tradeQuote: TradeQuote
   receiveAddress: string
   affiliateBps?: string
   chainSpecific?: utxo.BuildTxInput
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
   supportsEIP1559: boolean
+  slippageTolerancePercentage: string
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export const getSignTxFromQuote = async ({
@@ -37,20 +39,21 @@ export const getSignTxFromQuote = async ({
   receiveAddress,
   affiliateBps = '0',
   chainSpecific,
-  buyAssetUsdRate,
-  feeAssetUsdRate,
   from,
   xpub,
   supportsEIP1559,
-}: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
-  const { recommendedSlippage } = quote
+  slippageTolerancePercentage,
+}: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
+  // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
+  // on ChainId to define additional metadata for a chain-specific TradeQuote
+  const { isStreaming, recommendedSlippage } = quote as ThorTradeQuote
 
-  const slippageTolerance =
-    recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
+  const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()
 
   const {
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     accountNumber,
   } = quote.steps[0]
@@ -80,6 +83,18 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
+      const maybeThornodeQuote = await getQuote({
+        sellAsset,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit,
+        receiveAddress,
+        affiliateBps,
+      })
+
+      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
+
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
       const maybeTxData = await getCosmosTxData({
@@ -94,8 +109,7 @@ export const getSignTxFromQuote = async ({
         destinationAddress: receiveAddress,
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
         affiliateBps,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
+        memo,
       })
 
       if (maybeTxData.isErr()) throw maybeTxData.unwrapErr()
@@ -104,20 +118,25 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
+      const maybeThornodeQuote = await getQuote({
+        sellAsset,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit,
+        receiveAddress,
+        affiliateBps,
+      })
+
+      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
+
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 
       const maybeThorTxInfo = await getThorTxInfo({
         sellAsset,
-        buyAsset,
-        sellAmountCryptoBaseUnit,
-        slippageTolerance,
-        destinationAddress: receiveAddress,
         xpub: xpub!,
-        protocolFees: quote.steps[0].feeData.protocolFees,
-        affiliateBps,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
+        memo,
       })
 
       if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()

@@ -12,22 +12,22 @@ import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 import path from 'path'
+import type { Asset, AssetsById } from 'lib/asset-service'
 
-import type { Asset, AssetsById } from '../../src/lib/asset-service'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
-import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import { filterOutBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
-  const osmosisAssets = await osmosis.getAssets()
+  const cosmosAssets = await cosmos.getAssets()
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
@@ -43,7 +43,7 @@ const generateAssetData = async () => {
     atom,
     thorchain,
     ...ethAssets,
-    ...osmosisAssets,
+    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

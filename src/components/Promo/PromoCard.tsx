@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Button, Card, CardBody, Flex, useColorModeValue } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -7,7 +7,6 @@ import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -93,7 +92,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
             backgroundRepeat='no-repeat'
             backgroundPosition='center -80px'
           >
-            <Card.Body display='flex' pb={filteredPromoCards.length > 1 ? 8 : 6} gap={6}>
+            <CardBody display='flex' pb={filteredPromoCards.length > 1 ? 8 : 6} gap={6}>
               <Flex direction='column' alignItems='flex-start' gap={2}>
                 <Text
                   letterSpacing='0.012em'
@@ -120,7 +119,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                 </Button>
               </Flex>
               {rightElement && <Flex alignItems='center'>{rightElement}</Flex>}
-            </Card.Body>
+            </CardBody>
           </Card>
         )
       },

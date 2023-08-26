@@ -61,7 +61,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.rename.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
+        <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input

@@ -20,7 +20,7 @@ export const SearchEmpty = ({ searchQuery }: { searchQuery?: string }) => {
           translation='common.noResultsFound'
         />
         <Text
-          color='gray.500'
+          color='text.subtle'
           letterSpacing='0.012em'
           translation={['common.noResultsBody', { searchQuery: `"${searchQuery}"` }]}
         />

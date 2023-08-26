@@ -112,7 +112,7 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
           <Divider />
           <Flex gap={4} flexDir='column' px={8} py={6}>
             <Text translation='nft.description' fontWeight='medium' />
-            <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
+            <ParsedHtml color='text.subtle' innerHtml={markdownLinkToHTML(description)} />
           </Flex>
         </>
       )}

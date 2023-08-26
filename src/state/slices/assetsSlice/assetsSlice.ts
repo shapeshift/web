@@ -7,7 +7,6 @@ import {
   fromAssetId,
   gnosisChainId,
   optimismChainId,
-  osmosisChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
@@ -88,7 +87,7 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
   const explorerLinks = ((): ExplorerLinks => {
     const feeAssetId = chainIdToFeeAssetId(chainId)
     if (!feeAssetId) throw new Error('makeAsset: feeAssetId not found')
-    const feeAsset = getAssetService().getAll()[feeAssetId]
+    const feeAsset = getAssetService().assetsById[feeAssetId]
     return {
       explorer: feeAsset.explorer,
       explorerTxLink: feeAsset.explorerTxLink,
@@ -125,20 +124,12 @@ export const assetApi = createApi({
       queryFn: (_, { getState }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
-        const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
+        const assets = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
             if (!flags.Polygon && asset.chainId === polygonChainId) return prev
             if (!flags.Gnosis && asset.chainId === gnosisChainId) return prev
-            if (
-              !flags.OsmosisSend &&
-              !flags.OsmosisStaking &&
-              !flags.OsmosisSwap &&
-              !flags.OsmosisLP &&
-              asset.chainId === osmosisChainId
-            )
-              return prev
             prev[assetId] = asset
             return prev
           },

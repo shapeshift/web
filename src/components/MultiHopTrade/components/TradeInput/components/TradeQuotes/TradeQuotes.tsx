@@ -1,50 +1,50 @@
-import { Collapse, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import type { ApiQuote } from 'state/apis/swappers'
-import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
-  isOpen?: boolean
   sortedQuotes: ApiQuote[]
+  isLoading: boolean
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isOpen, sortedQuotes }) => {
-  const activeSwapperName = useAppSelector(selectActiveSwapperName)
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isLoading }) => {
+  const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
 
   const bestQuoteData = sortedQuotes[0]
 
   const quotes = useMemo(
     () =>
       sortedQuotes.map((quoteData, i) => {
-        const { quote, swapperName } = quoteData
-
-        // TODO(woodenfurniture): we may want to display per-swapper errors here
-        if (!quote) return null
+        const { index } = quoteData
 
         // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
-        const isActive = activeSwapperName === swapperName
+        const isActive = activeQuoteIndex === index
+        const bestQuoteSteps = bestQuoteData?.quote?.steps
+        const lastStep = bestQuoteSteps?.[bestQuoteSteps.length - 1]
 
         return (
           <TradeQuote
             isActive={isActive}
+            isLoading={isLoading}
             isBest={i === 0}
-            key={swapperName}
+            key={index}
             quoteData={quoteData}
-            bestInputOutputRatio={bestQuoteData.inputOutputRatio}
+            bestBuyAmountBeforeFeesCryptoBaseUnit={
+              lastStep?.buyAmountBeforeFeesCryptoBaseUnit ?? '0'
+            }
           />
         )
       }),
-    [activeSwapperName, bestQuoteData, sortedQuotes],
+    [activeQuoteIndex, bestQuoteData?.quote?.steps, isLoading, sortedQuotes],
   )
 
   return (
-    <Collapse in={isOpen}>
-      <Flex flexDir='column' gap={2} width='full' px={4} py={2}>
-        {quotes}
-      </Flex>
-    </Collapse>
+    <Flex flexDir='column' gap={2} width='full' px={0} py={2}>
+      {quotes}
+    </Flex>
   )
 })

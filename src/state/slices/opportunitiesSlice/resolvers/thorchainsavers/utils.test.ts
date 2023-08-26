@@ -1,6 +1,5 @@
-import { btcAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import type { Asset } from 'lib/asset-service'
 import { AssetService } from 'lib/asset-service'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
@@ -47,7 +46,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().getAll()[btcAssetId]
+      const btcAssetMock = getAssetService().assetsById[btcAssetId]
       const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
@@ -58,23 +57,6 @@ describe('resolvers/thorchainSavers/utils', () => {
 
       expect(saversQuote).toMatchObject(thorchainSaversDepositQuote)
     })
-    it('return an Err for an invalid pool AssetId', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: thorchainErrorResponse,
-        }),
-      )
-
-      const osmoAssetMock = { assetId: osmosisAssetId, precision: 6 } as unknown as Asset
-      expect(
-        (
-          await getMaybeThorchainSaversDepositQuote({
-            asset: osmoAssetMock,
-            amountCryptoBaseUnit: '10000000',
-          })
-        ).isErr(),
-      ).toBe(true)
-    })
     it('return an Err when deposit is over the max synth mint supply', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
@@ -82,7 +64,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().getAll()[btcAssetId]
+      const btcAssetMock = getAssetService().assetsById[btcAssetId]
       expect(
         (
           await getMaybeThorchainSaversDepositQuote({

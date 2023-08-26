@@ -28,7 +28,7 @@ export const KeepKeyRecoverySentenceInvalid = () => {
       </ModalHeader>
       <ModalBody textAlign='center'>
         <WarningTwoIcon color='yellow.500' boxSize={20} mb={6} />
-        <Text color='gray.500' translation={'modals.keepKey.recoveryInvalid.body'} mb={4} />
+        <Text color='text.subtle' translation={'modals.keepKey.recoveryInvalid.body'} mb={4} />
         <Button width='full' colorScheme='blue' isDisabled={loading} onClick={handleRetryClick}>
           <Text translation={'modals.keepKey.recoveryInvalid.button'} />
         </Button>

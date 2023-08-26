@@ -14,7 +14,7 @@ export const StepsStyle = {
       labelContainer: {
         ...StepsStyleConfig.baseStyle(props).labelContainer,
         '& span': {
-          color: 'gray.500',
+          color: 'text.subtle',
         },
         _highlighted: {
           '& span': {

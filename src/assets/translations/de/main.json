@@ -641,6 +641,7 @@
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
+    "priceImpact": "Preisauswirkungen",
     "slippage": {
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
     "confirmAndTrade": "Bestätigen und Handeln",
+    "tradeAnyway": "Trotzdem handeln",
     "pending": "Handel ausstehend",
     "complete": "Handel abgeschlossen",
     "approveAsset": "Interaktion mit %{symbol} genehmigen",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
+      "priceImpact": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "donation": "Unterstützen Sie ShapeShift und halten Sie uns am Laufen.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "invalidTradePair": "Ungültiges Handelspaar: %{sellAssetName} und %{buyAssetName}",
       "invalidTradePairBtnText": "Ungültiges Handelspaar",
+      "unsupportedTradePair": "Nicht unterstütztes Handelspaar",
       "noLiquidityError": "Nicht genügend Liquidität vorhanden",
       "overMaxSlippage": "Dieser Handel würde zu einer Marktabweichung von über %{slippagePercentage} % führen. Bitte tauschen Sie einen geringeren Betrag gegen einen besseren Preis",
       "balanceToLow": "Guthaben zu niedrig. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
       "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
+      "tradingNotActiveNoAssetSymbol": "Der Handel auf dieser Route wurde vorübergehend eingestellt",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -759,7 +764,8 @@
     "unknownGas": "(unbekannt)",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName}-Adresse in verbundener Wallet gefunden. Geben Sie die Adresse manuell ein, um fortzufahren.",
-    "addressPlaceholder": "%{chainName} Adresse"
+    "addressPlaceholder": "%{chainName} Adresse",
+    "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?"
   },
   "modals": {
     "popup": {
@@ -1065,6 +1071,8 @@
       "loadingText": "Wallet koppeln"
     },
     "settings": {
+      "clearCache": "Cache leeren",
+      "clearCacheTooltip": "Cache leeren und App neu laden",
       "settings": "Einstellungen",
       "currency": "Währung",
       "clearWalletAccountData": "Löschen Sie alle Konten und Wallets",
@@ -1791,7 +1799,9 @@
       "linkedYat": "Verlinktes Yat",
       "yatConnected": "Yat verbunden!",
       "usdcAddress": "Yat USDC-Adresse",
-      "ethAddress": "Yat ETH-Adresse"
+      "ethAddress": "Yat ETH-Adresse",
+      "noAddressFound": "Keine %{symbol} Adresse gefunden",
+      "viewInApp": "In der mobilen ShapeShift-App anzeigen"
     }
   },
   "gasInput": {
@@ -1945,19 +1955,10 @@
       "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2-Pool bereit, um %{apy} APR zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
       "cta": "Liquidität einzahlen"
     },
-    "atomOsmoProviders": {
-      "title": "ATOM/OSMO LP Provider",
-      "body": "Haben Sie ATOM und OSMO? Stellen Sie Liquidität in den Pool, um %{apy} APR zu verdienen und sich für den Airdrop zu qualifizieren.",
-      "cta": "Liquidität einzahlen"
-    },
     "stakeAtom": {
       "title": "Stake ATOM",
       "body": "Verdienen Sie bis zu %{apr} APR mit Ihrem ungenutzten ATOM. PLUS jedes ATOM, das Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Validator einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln.",
       "cta": "Stake ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Verdienen Sie bis zu %{apr} APR auf Ihre freien OSMO. PLUS jeden OSMO, den Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Prüfer einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln."
     },
     "footer": {
       "title": "Es gibt auch andere Möglichkeiten, sich außerhalb der ShapeShift dApp zu qualifizieren. Eine vollständige Liste finden Sie im Governance-Vorschlag.",

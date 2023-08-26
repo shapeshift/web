@@ -148,19 +148,6 @@
           "useSingleRequestParameter": true
         }
       },
-      "osmosis": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/osmosis/api/swagger.json",
-        "generatorName": "typescript-fetch",
-        "output": "#{cwd}/src/generated/osmosis",
-        "enablePostProcessFile": true,
-        "reservedWordsMappings": {
-          "in": "in"
-        },
-        "additionalProperties": {
-          "supportsES6": "true",
-          "useSingleRequestParameter": true
-        }
-      },
       "thorchain": {
         "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain/api/swagger.json",
         "generatorName": "typescript-fetch",

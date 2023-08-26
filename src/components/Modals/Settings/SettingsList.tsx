@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
+import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
@@ -22,7 +22,10 @@ import { useHistory } from 'react-router-dom'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import {
+  deleteWallet,
+  reloadWebview,
+} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
@@ -31,7 +34,7 @@ import {
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { persistor, useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -86,6 +89,18 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }
 
+  const handleClearCacheClick = useCallback(async () => {
+    try {
+      // clear store
+      await persistor.purge()
+      // send them back to the connect wallet route in case the bug was something to do with the current page
+      // and so they can reconnect their native wallet to avoid the app looking broken in an infinite loading state
+      appHistory.replace('/connect-wallet')
+      // reload the page
+      isMobileApp ? reloadWebview() : window.location.reload()
+    } catch (e) {}
+  }, [appHistory])
+
   return (
     <SlideTransition>
       <ModalHeader textAlign='center' userSelect='none' onClick={handleHeaderClick}>
@@ -98,7 +113,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
           <SettingsListItem
             label={isLightMode ? 'common.lightTheme' : 'common.darkTheme'}
             onClick={toggleColorMode}
-            icon={<Icon as={isLightMode ? SunIcon : MoonIcon} color='gray.500' />}
+            icon={<Icon as={isLightMode ? SunIcon : MoonIcon} color='text.subtle' />}
           >
             <Switch isChecked={isLightMode} pointerEvents='none' />
           </SettingsListItem>
@@ -107,26 +122,26 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
             <SettingsListItem
               label='modals.settings.currency'
               onClick={() => history.push(SettingsRoutes.FiatCurrencies)}
-              icon={<Icon as={FaCoins} color='gray.500' />}
+              icon={<Icon as={FaCoins} color='text.subtle' />}
             >
               <Flex alignItems='center'>
                 <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
                   {selectedCurrency}
                 </RawText>
-                <MdChevronRight color='gray.500' size='1.5em' />
+                <MdChevronRight color='text.subtle' size='1.5em' />
               </Flex>
             </SettingsListItem>
             <Divider my={1} />
             <SettingsListItem
               label='modals.settings.currencyFormat'
               onClick={() => history.push(SettingsRoutes.CurrencyFormat)}
-              icon={<Icon as={FaDollarSign} color='gray.500' />}
+              icon={<Icon as={FaDollarSign} color='text.subtle' />}
             >
               <Flex alignItems='center'>
                 <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
                   {currencyFormatsRepresenter(selectedCurrencyFormat, selectedCurrency)}
                 </RawText>
-                <MdChevronRight color='gray.500' size='1.5em' />
+                <MdChevronRight color='text.subtle' size='1.5em' />
               </Flex>
             </SettingsListItem>
             <Divider my={1} />
@@ -134,34 +149,41 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
           <SettingsListItem
             label='modals.settings.language'
             onClick={() => history.push(SettingsRoutes.Languages)}
-            icon={<Icon as={MdLanguage} color='gray.500' />}
+            icon={<Icon as={MdLanguage} color='text.subtle' />}
           >
             <Flex alignItems='center'>
               <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
                 {getLocaleLabel(selectedLocale)}
               </RawText>
-              <MdChevronRight color='gray.500' size='1.5em' />
+              <MdChevronRight color='text.subtle' size='1.5em' />
             </Flex>
           </SettingsListItem>
           <Divider my={1} />
           <SettingsListItem
             label='modals.settings.balanceThreshold'
-            icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}
+            icon={<Icon as={FaGreaterThanEqual} color='text.subtle' />}
             tooltipText='modals.settings.balanceThresholdTooltip'
           >
             <BalanceThresholdInput />
           </SettingsListItem>
           <Divider my={1} />
           <SettingsListItem
+            label='modals.settings.clearCache'
+            icon={<Icon as={FaBroom} color='text.subtle' />}
+            tooltipText='modals.settings.clearCacheTooltip'
+            onClick={handleClearCacheClick}
+          />
+          <Divider my={1} />
+          <SettingsListItem
             label='common.terms'
             onClick={() => closeModalAndNavigateTo('/legal/terms-of-service')}
-            icon={<Icon as={IoLockClosed} color='gray.500' />}
+            icon={<Icon as={IoLockClosed} color='text.subtle' />}
           />
           <Divider my={1} />
           <SettingsListItem
             label='common.privacy'
             onClick={() => closeModalAndNavigateTo('/legal/privacy-policy')}
-            icon={<Icon as={IoDocumentTextOutline} color='gray.500' />}
+            icon={<Icon as={IoDocumentTextOutline} color='text.subtle' />}
           />
           {isMobileApp && (
             <>

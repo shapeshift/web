@@ -28,7 +28,7 @@ const EarnHeader = () => {
           {translate('defi.viewAllPositions')}
         </Button>
       </Flex>
-      <RawText color='gray.500'>{translate('defi.myPositionsBody')}</RawText>
+      <RawText color='text.subtle'>{translate('defi.myPositionsBody')}</RawText>
     </Flex>
   )
 }

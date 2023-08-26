@@ -62,7 +62,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const undelegationNodes = useMemo(() => {
     if (!hasUndelegations)
-      return <Text color='gray.500' translation='defi.modals.cosmosOverview.emptyWithdraws' />
+      return <Text color='text.subtle' translation='defi.modals.cosmosOverview.emptyWithdraws' />
     return undelegationEntries.map(({ undelegationAmountCryptoBaseUnit, completionTime }) => {
       return (
         <Button

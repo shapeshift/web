@@ -2,17 +2,17 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import { ethers } from 'ethers'
-import memoize from 'lodash/memoize'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
-
-import type { IUniswapV2Pair } from './__generated'
 import {
   ERC20ABI__factory,
   FarmingAbi__factory,
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
-} from './__generated/factories'
+} from 'contracts/__generated'
+import { ethers } from 'ethers'
+import memoize from 'lodash/memoize'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
+
+import type { IUniswapV2Pair } from './__generated'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
@@ -21,6 +21,7 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
   FOX_TOKEN_CONTRACT_ADDRESS,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
@@ -42,6 +43,7 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V4]: FarmingAbi__factory,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V5]: FarmingAbi__factory,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V6]: FarmingAbi__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FarmingAbi__factory,
   [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
   [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
 } as const

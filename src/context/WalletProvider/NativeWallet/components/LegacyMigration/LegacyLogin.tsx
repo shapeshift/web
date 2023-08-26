@@ -150,7 +150,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box display={!isTwoFactorRequired ? 'block' : 'none'}>
             <Text
-              color='gray.500'
+              color='text.subtle'
               mb={4}
               translation={'walletProvider.shapeShift.legacy.loginInformations'}
             />
@@ -193,7 +193,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
 
           <Box display={isTwoFactorRequired ? 'block' : 'none'}>
             <Text
-              color='gray.500'
+              color='text.subtle'
               mb={4}
               translation={'walletProvider.shapeShift.legacy.twoFactorDescription'}
             />

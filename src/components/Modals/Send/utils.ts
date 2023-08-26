@@ -1,11 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  ASSET_NAMESPACE,
-  CHAIN_NAMESPACE,
-  fromAccountId,
-  fromAssetId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
   CosmosSdkChainId,
@@ -23,11 +17,11 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isOsmosisLpAsset, tokenOrUndefined } from 'lib/utils'
+import { tokenOrUndefined } from 'lib/utils'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -172,6 +166,7 @@ export const handleSend = async ({
             ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
           },
           sendMax: sendInput.sendMax,
+          customNonce: sendInput.customNonce,
         })
       }
 
@@ -210,22 +205,6 @@ export const handleSend = async ({
           accountNumber,
           chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
           sendMax: sendInput.sendMax,
-        }
-
-        const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
-        if (
-          asset.chainId === KnownChainIds.OsmosisMainnet &&
-          assetNamespace === ASSET_NAMESPACE.ibc
-        ) {
-          return (
-            adapter as unknown as CosmosSdkBaseAdapter<KnownChainIds.OsmosisMainnet>
-          ).buildSendTransaction({
-            ...params,
-            chainSpecific: {
-              ...params.chainSpecific,
-              denom: isOsmosisLpAsset(assetReference) ? assetReference : `ibc/${assetReference}`,
-            },
-          })
         }
 
         return adapter.buildSendTransaction(params)

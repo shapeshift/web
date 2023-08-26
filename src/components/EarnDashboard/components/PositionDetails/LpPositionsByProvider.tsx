@@ -154,7 +154,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
             <Flex direction='column'>
               <Flex gap={1}>
                 <Amount.Fiat value={underlyingBalances[assetId].fiatAmount} />
-                <Flex color='gray.500'>
+                <Flex color='text.subtle'>
                   {'('} <Amount.Fiat value={row.original.fiatAmount} /> {')'}
                 </Flex>
               </Flex>

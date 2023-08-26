@@ -8,7 +8,7 @@ export const RowStyle = {
       alignItems: 'flex-start',
     },
     label: {
-      color: 'gray.500',
+      color: 'text.subtle',
       fontWeight: 'medium',
     },
     value: {},

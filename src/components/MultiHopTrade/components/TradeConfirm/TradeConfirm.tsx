@@ -1,4 +1,3 @@
-import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -6,8 +5,12 @@ import {
   AlertTitle,
   Box,
   Button,
+  CardBody,
+  CardFooter,
+  CardHeader,
   Divider,
   Flex,
+  Heading,
   Link,
   Skeleton,
   Stack,
@@ -20,22 +23,23 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
+import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
+import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
+import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { AssetToAsset } from 'components/Trade/TradeConfirm/AssetToAsset'
-import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
-import { chainSupportsTxHistory } from 'components/Trade/utils'
-import { WithBackButton } from 'components/Trade/WithBackButton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -54,25 +58,26 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectNetBuyAmountCryptoPrecision,
-  selectNetBuyAmountUserCurrency,
+  selectNetReceiveAmountCryptoPrecision,
   selectQuoteDonationAmountUserCurrency,
+  selectReceiveBuyAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
-  selectSlippage,
   selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from '../../types'
+import { PriceImpact } from '../PriceImpact'
 
 export const TradeConfirm = () => {
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
-  const warningColor = useColorModeValue('red.600', 'red.400')
+  const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -123,9 +128,9 @@ export const TradeConfirm = () => {
   const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
-  const slippage = useAppSelector(selectSlippage)
-  const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const netBuyAmountUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
@@ -135,7 +140,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const donationAmount = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -153,27 +158,41 @@ export const TradeConfirm = () => {
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
       getTxLink({
-        name: tradeQuoteStep?.sources[0]?.name,
+        name: tradeQuoteStep?.source,
         defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
         tradeId: sellTxHash,
       }),
-    [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.sources],
+    [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.source],
   )
 
   const getBuyTxLink = useCallback(
     (buyTxHash: string) =>
       getTxLink({
-        name: lastStep?.sources[0]?.name,
+        name: lastStep?.source,
         defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
         txId: buyTxHash,
       }),
-    [lastStep?.buyAsset.explorerTxLink, lastStep?.sources],
+    [lastStep?.buyAsset.explorerTxLink, lastStep?.source],
   )
 
   const txLink = useMemo(() => {
     if (buyTxHash) return getBuyTxLink(buyTxHash)
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
+
+  const { shapeShiftFee, donationAmount } = useMemo(() => {
+    if (swapperName === SwapperName.Thorchain && tradeQuote) {
+      return {
+        shapeShiftFee: {
+          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
+          amountBps: tradeQuote.affiliateBps ?? '0',
+        },
+        donationAmount: undefined,
+      }
+    }
+
+    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
+  }, [swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -206,6 +225,16 @@ export const TradeConfirm = () => {
         return
       }
 
+      const shouldContinueTrade =
+        !isHighPriceImpact ||
+        window.confirm(
+          translate('trade.priceImpactWarning', {
+            priceImpactPercentage: priceImpactPercentage.toFixed(2),
+          }),
+        )
+
+      if (!shouldContinueTrade) return
+
       await executeTrade()
       // only track after swapper successfully executes trade
       // otherwise unsigned txs will be tracked as confirmed trades
@@ -224,8 +253,11 @@ export const TradeConfirm = () => {
     handleBack,
     history,
     isConnected,
+    isHighPriceImpact,
     mixpanel,
+    priceImpactPercentage,
     showErrorToast,
+    translate,
     wallet,
     walletDispatch,
   ])
@@ -256,13 +288,13 @@ export const TradeConfirm = () => {
     })()
     return (
       <>
-        <Card.Header px={0} pt={0}>
+        <CardHeader>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading as='h5' textAlign='center'>
               <Text translation={statusText} />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
+        </CardHeader>
         <Divider />
       </>
     )
@@ -310,7 +342,7 @@ export const TradeConfirm = () => {
 
   const sendReceiveSummary: JSX.Element | null = useMemo(
     () => (
-      <Stack spacing={4}>
+      <>
         <Row>
           <Row.Label>{translate('common.send')}</Row.Label>
           <Row.Value textAlign='right'>
@@ -319,7 +351,7 @@ export const TradeConfirm = () => {
               symbol={sellAsset?.symbol ?? ''}
             />
             <Amount.Fiat
-              color='gray.500'
+              color='text.subtle'
               value={bnOrZero(sellAmountBeforeFeesUserCurrency).toFixed(2)}
               prefix='≈'
             />
@@ -327,17 +359,17 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={buyAsset?.symbol ?? ''}
-          amountCryptoPrecision={netBuyAmountCryptoPrecision ?? ''}
+          amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? ''}
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
-          shapeShiftFee='0'
-          slippage={slippage}
+          shapeShiftFee={shapeShiftFee}
+          slippage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
           donationAmount={donationAmount}
         />
-      </Stack>
+      </>
     ),
     [
       translate,
@@ -345,11 +377,12 @@ export const TradeConfirm = () => {
       sellAsset?.symbol,
       sellAmountBeforeFeesUserCurrency,
       buyAsset?.symbol,
-      netBuyAmountCryptoPrecision,
+      buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
-      slippage,
+      shapeShiftFee,
+      slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
       donationAmount,
@@ -358,30 +391,54 @@ export const TradeConfirm = () => {
 
   const footer: JSX.Element = useMemo(
     () => (
-      <Card.Footer px={0} py={0}>
+      <CardFooter flexDir='column' gap={2} px={4}>
         {!txHash && !isSubmitting && (
           <>
+            {tradeWarning}
             {swapperName === SwapperName.LIFI && (
-              <Alert status='warning' fontSize='sm' mt={6}>
+              <Alert status='warning' size='sm'>
                 <AlertIcon />
-                {translate('trade.lifiWarning')}
+                <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+              </Alert>
+            )}
+            {isFeeRatioOverThreshold && (
+              <Alert status='warning' size='sm'>
+                <AlertIcon />
+                <AlertDescription>
+                  <Text
+                    translation={[
+                      'trade.gasFeeExceedsTradeAmountThreshold',
+                      { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
+                    ]}
+                  />
+                </AlertDescription>
               </Alert>
             )}
             <Button
-              colorScheme='blue'
+              colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
               size='lg'
               width='full'
-              mt={6}
               data-test='trade-form-confirm-and-trade-button'
               type='submit'
             >
-              <Text translation='trade.confirmAndTrade' />
+              <Text
+                translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
+              />
             </Button>
           </>
         )}
-      </Card.Footer>
+      </CardFooter>
     ),
-    [isSubmitting, txHash, swapperName, translate],
+    [
+      txHash,
+      isSubmitting,
+      tradeWarning,
+      swapperName,
+      translate,
+      isFeeRatioOverThreshold,
+      networkFeeToTradeRatioPercentage,
+      isModeratePriceImpact,
+    ],
   )
 
   if (!tradeQuoteStep) return null
@@ -389,101 +446,98 @@ export const TradeConfirm = () => {
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Card variant='unstyled'>
-          {header}
-          <Card.Body pb={0} px={0}>
-            <Stack
-              spacing={4}
-              borderColor={borderColor}
-              divider={<StackDivider />}
-              fontSize='sm'
-              fontWeight='medium'
-            >
-              <AssetToAsset
-                buyIcon={buyAsset?.icon ?? ''}
-                sellIcon={sellAsset?.icon ?? ''}
-                buyColor={buyAsset?.color ?? ''}
-                sellColor={sellAsset?.color ?? ''}
-                status={status}
-                isSubmitting={isSubmitting}
-              />
-              {tradeWarning}
-              {sendReceiveSummary}
-              <Stack spacing={4}>
-                {txLink && (
-                  <Row>
-                    <Row.Label>
-                      <RawText>{translate('common.txId')}</RawText>
-                    </Row.Label>
-                    <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={txLink}>
-                        <Text translation='trade.viewTransaction' />
-                      </Link>
-                    </Box>
-                  </Row>
-                )}
-                <Row>
-                  <HelperTooltip label={translate('trade.tooltip.rate')}>
-                    <Row.Label>
-                      <Text translation='trade.rate' />
-                    </Row.Label>
-                  </HelperTooltip>
-                  <Skeleton isLoaded>
-                    <Box textAlign='right'>
-                      <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
-                        bnOrZero(tradeQuoteStep?.rate),
-                      )} ${buyAsset?.symbol}`}</RawText>
-                      {!!swapperName && <RawText color='gray.500'>@{swapperName}</RawText>}
-                    </Box>
-                  </Skeleton>
+        {header}
+        <CardBody px={0}>
+          <Stack
+            spacing={4}
+            borderColor={borderColor}
+            divider={<StackDivider />}
+            fontSize='sm'
+            fontWeight='medium'
+          >
+            <AssetToAsset
+              buyIcon={buyAsset?.icon ?? ''}
+              sellIcon={sellAsset?.icon ?? ''}
+              buyColor={buyAsset?.color ?? ''}
+              sellColor={sellAsset?.color ?? ''}
+              status={status}
+              isSubmitting={isSubmitting}
+              px={4}
+            />
+            <Stack px={4}>{sendReceiveSummary}</Stack>
+            <Stack spacing={4}>
+              {txLink && (
+                <Row px={4}>
+                  <Row.Label>
+                    <RawText>{translate('common.txId')}</RawText>
+                  </Row.Label>
+                  <Box textAlign='right'>
+                    <Link isExternal color='blue.500' href={txLink}>
+                      <Text translation='trade.viewTransaction' />
+                    </Link>
+                  </Box>
                 </Row>
-                <Row>
-                  <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              )}
+              <Row px={4}>
+                {isModeratePriceImpact && (
+                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
+                )}
+              </Row>
+              <Row px={4}>
+                <HelperTooltip label={translate('trade.tooltip.rate')}>
+                  <Row.Label>
+                    <Text translation='trade.rate' />
+                  </Row.Label>
+                </HelperTooltip>
+                <Skeleton isLoaded>
+                  <Box textAlign='right'>
+                    <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
+                      bnOrZero(tradeQuoteStep?.rate),
+                    )} ${buyAsset?.symbol}`}</RawText>
+                    {!!swapperName && (
+                      // This works because we currently only support Li.Fi trades with a single hop,
+                      // TODO(woodenfurniture): ensure we show the swapper name, not the first hop source, when we support multi-hop trades
+                      <RawText color='text.subtle'>@{tradeQuoteStep.source}</RawText>
+                    )}
+                  </Box>
+                </Skeleton>
+              </Row>
+              <Row px={4}>
+                <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+                  <Row.Label>
+                    <Text translation='trade.minerFee' />
+                  </Row.Label>
+                </HelperTooltip>
+                <Row.Value>
+                  {defaultFeeAsset &&
+                    networkFeeUserCurrency &&
+                    `${networkFeeCryptoHuman} ${defaultFeeAsset.symbol} ≃ ${toFiat(
+                      networkFeeUserCurrency,
+                    )}`}
+                </Row.Value>
+              </Row>
+              {maybeManualReceiveAddress && (
+                <Row px={4}>
+                  <HelperTooltip label={translate('trade.tooltip.manualReceiveAddress')}>
                     <Row.Label>
-                      <Text translation='trade.minerFee' />
+                      <Text translation='trade.manualReceiveAddress' />
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {defaultFeeAsset &&
-                      networkFeeUserCurrency &&
-                      `${networkFeeCryptoHuman} ${defaultFeeAsset.symbol} ≃ ${toFiat(
-                        networkFeeUserCurrency,
-                      )}`}
+                    <Row.Label>
+                      <MiddleEllipsis
+                        value={maybeManualReceiveAddress}
+                        fontWeight='semibold'
+                        color={alertColor}
+                      />
+                    </Row.Label>
                   </Row.Value>
                 </Row>
-                {maybeManualReceiveAddress && (
-                  <Row>
-                    <HelperTooltip label={translate('trade.tooltip.manualReceiveAddress')}>
-                      <Row.Label>
-                        <Text translation='trade.manualReceiveAddress' />
-                      </Row.Label>
-                    </HelperTooltip>
-                    <Row.Value>
-                      <Row.Label>
-                        <RawText fontWeight='semibold' color={alertColor}>
-                          {maybeManualReceiveAddress}
-                        </RawText>
-                      </Row.Label>
-                    </Row.Value>
-                  </Row>
-                )}
-                {isFeeRatioOverThreshold && (
-                  <Flex justifyContent='center' gap={4} alignItems='center'>
-                    <WarningTwoIcon w={5} h={5} color={warningColor} />
-                    <Text
-                      color={warningColor}
-                      translation={[
-                        'trade.gasFeeExceedsTradeAmountThreshold',
-                        { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
-                      ]}
-                    />
-                  </Flex>
-                )}
-              </Stack>
+              )}
             </Stack>
-          </Card.Body>
-          {footer}
-        </Card>
+          </Stack>
+        </CardBody>
+        {footer}
       </Box>
     </SlideTransition>
   )

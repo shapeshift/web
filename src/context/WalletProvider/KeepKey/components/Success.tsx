@@ -12,7 +12,7 @@ export const KeepKeySuccess = () => {
           fontWeight='bold'
           translation={'walletProvider.shapeShift.success.success'}
         />
-        <Text color='gray.500' translation={'walletProvider.shapeShift.success.success'} />
+        <Text color='text.subtle' translation={'walletProvider.shapeShift.success.success'} />
       </ModalBody>
     </>
   )

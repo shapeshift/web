@@ -1,6 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId } from '@shapeshiftoss/caip'
+import type { cosmos } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export enum StakingAction {
@@ -11,21 +11,12 @@ export enum StakingAction {
 }
 
 // UnbondingTime is an IBC-chain specific parameter
-// Hardcoded to CosmosHub and Osmosis staking for now, but in the future we should find a better home for this with the right unbonding days per protocol-level unbonding days
+// Hardcoded to CosmosHub staking for now, but in the future we should find a better home for this with the right unbonding days per protocol-level unbonding days
 // https://docs.cosmos.network/v0.44/modules/staking/08_params.html
 export const COSMOS_UNBONDING_DAYS = '21'
-export const OSMOSIS_UNBONDING_DAYS = '14'
 
-export const supportsStaking = (chainId: ChainId) => {
-  if (chainId === cosmosChainId) return true
-  if (chainId === osmosisChainId) return true
-  return false
-}
-
-export const isStakingChainAdapter = (
-  adapter: unknown,
-): adapter is cosmos.ChainAdapter | osmosis.ChainAdapter => {
-  const a = adapter as cosmos.ChainAdapter | osmosis.ChainAdapter
+export const isStakingChainAdapter = (adapter: unknown): adapter is cosmos.ChainAdapter => {
+  const a = adapter as cosmos.ChainAdapter
 
   return (
     a.buildClaimRewardsTransaction !== undefined &&
@@ -37,7 +28,6 @@ export const isStakingChainAdapter = (
 export const assetIdToUnbondingDays = (assetId: AssetId): string => {
   const assetIdToUnbondingDaysMap: Record<AssetId, string> = {
     [cosmosAssetId]: COSMOS_UNBONDING_DAYS,
-    [osmosisAssetId]: OSMOSIS_UNBONDING_DAYS,
   }
   return assetIdToUnbondingDaysMap[assetId]
 }

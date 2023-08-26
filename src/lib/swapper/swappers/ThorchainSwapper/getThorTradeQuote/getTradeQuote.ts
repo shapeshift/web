@@ -1,18 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkBaseAdapter,
-  CosmosSdkChainId,
-  EvmChainAdapter,
-  GetFeeDataInput,
-  UtxoBaseAdapter,
-} from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
@@ -26,23 +18,26 @@ import type {
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
-  Rates,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import {
-  THOR_MINIMUM_PADDING,
-  THORCHAIN_FIXED_PRECISION,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
-import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
+import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import {
+  convertBasisPointsToDecimalPercentage,
+  convertDecimalPercentageToBasisPoints,
+} from 'state/slices/tradeQuoteSlice/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
+import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
 export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
@@ -50,31 +45,34 @@ export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
   data: string
 }
 
-type ThorTradeQuote =
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
+type ThorTradeQuoteBase =
   | TradeQuote<ThorCosmosSdkSupportedChainId>
   | TradeQuote<ThorUtxoSupportedChainId>
   | ThorEvmTradeQuote
+export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (
-  input: GetTradeQuoteInput & { wallet?: HDWallet },
-  rates: Rates,
-): Promise<Result<ThorTradeQuote, SwapErrorRight>> => {
+  input: GetTradeQuoteInput,
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     accountNumber,
     chainId,
     receiveAddress,
     affiliateBps,
-    wallet,
+    slippageTolerancePercentage,
   } = input
 
-  const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+  const inputSlippageBps = convertDecimalPercentageToBasisPoints(
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+  ).toString()
 
-  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
   const buyAdapter = chainAdapterManager.get(buyAssetChainId)
@@ -98,7 +96,7 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const quote = await getQuote({
+  const maybeQuote = await getQuote({
     sellAsset,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
@@ -106,257 +104,335 @@ export const getThorTradeQuote = async (
     affiliateBps,
   })
 
-  const slippagePercentage = quote.isOk()
-    ? bn(quote.unwrap().slippage_bps).div(1000)
-    : bn(DEFAULT_SLIPPAGE).times(100)
+  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
-  const maybeRate = await quote.match({
-    ok: quote => {
-      const THOR_PRECISION = 8
-      const expectedAmountOutThorBaseUnit = quote.expected_amount_out
-      const sellAmountCryptoPrecision = baseUnitToPrecision({
-        value: sellAmountCryptoBaseUnit,
-        inputExponent: sellAsset.precision,
+  const thornodeQuote = maybeQuote.unwrap()
+  const { fees } = thornodeQuote
+
+  const recommendedMinAmountInCryptoBaseUnit = thornodeQuote.recommended_min_amount_in
+    ? convertPrecision({
+        value: thornodeQuote.recommended_min_amount_in,
+        inputExponent: THORCHAIN_FIXED_PRECISION,
+        outputExponent: sellAsset.precision,
       })
-      // All thorchain pool amounts are base 8 regardless of token precision
-      const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
+    : undefined
 
-      return Promise.resolve(
-        Ok(bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()),
-      )
-    },
-    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-    // safety never hurts
-    err: _err =>
-      getTradeRateBelowMinimum({
-        sellAssetId: sellAsset.assetId,
-        buyAssetId: buyAsset.assetId,
+  if (
+    recommendedMinAmountInCryptoBaseUnit &&
+    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
+  ) {
+    return Err(
+      createTradeAmountTooSmallErr({
+        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
+        assetId: sellAsset.assetId,
       }),
-  })
+    )
+  }
 
-  const rate = maybeRate.isOk() ? maybeRate.unwrap() : '0'
+  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
 
-  const fees = quote.isOk() ? quote.unwrap().fees : undefined
+  const perRouteValues = [
+    {
+      // regular swap
+      source: SwapperName.Thorchain,
+      slippageBps: thornodeQuote.slippage_bps,
+      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
+      isStreaming: false,
+      estimatedExecutionTimeMs:
+        1000 *
+        (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
+    },
+    ...(thorSwapStreamingSwaps &&
+    thornodeQuote.expected_amount_out !== thornodeQuote.expected_amount_out_streaming
+      ? [
+          {
+            // streaming swap
+            source: THORCHAIN_STREAM_SWAP_SOURCE,
+            slippageBps: thornodeQuote.streaming_slippage_bps,
+            expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
+            isStreaming: true,
+            estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
+              ? 1000 * thornodeQuote.total_swap_seconds
+              : undefined,
+          },
+        ]
+      : []),
+  ]
 
-  const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
+  const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
+    const THOR_PRECISION = 8
+    const sellAmountCryptoPrecision = baseUnitToPrecision({
+      value: sellAmountCryptoBaseUnit,
+      inputExponent: sellAsset.precision,
+    })
+    // All thorchain pool amounts are base 8 regardless of token precision
+    const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
-  const maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision = fees
-    ? Ok(bnOrZero(fees.outbound))
-    : (await getInboundAddressDataForChain(daemonUrl, buyAsset.assetId)).andThen<BigNumber>(data =>
-        Ok(bnOrZero(data?.outbound_fee)),
-      )
+    return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
+  }
 
-  const buyAssetTradeFeeBuyAssetCryptoThorPrecision =
-    maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.isErr()
-      ? bn(0)
-      : maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.unwrap()
+  const getRouteBuyAmount = (expectedAmountOutThorBaseUnit: string) => {
+    // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
+    // Add back the outbound fees
+    const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
+      .plus(fees.outbound)
+      .plus(fees.affiliate)
 
-  const buyAssetTradeFeeBuyAssetCryptoHuman = fromBaseUnit(
-    buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-    THORCHAIN_FIXED_PRECISION,
-  )
+    return toBaseUnit(
+      fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
+      buyAsset.precision,
+    )
+  }
 
-  const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
-    value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-    inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: buyAsset.precision,
-  })
+  const protocolFees = (() => {
+    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
 
-  // donation is denominated in the buy asset from thor but we display it in sell asset for ux reasons
-  const sellAssetTradeFeeCryptoBaseUnit = convertPrecision({
-    value: fees ? fees.affiliate : '0',
-    inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: sellAsset.precision,
-  }).times(buySellAssetRate)
+    const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
+      value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
+      inputExponent: THORCHAIN_FIXED_PRECISION,
+      outputExponent: buyAsset.precision,
+    })
 
-  // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
-  // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
-  const buyAmountCryptoBaseUnit = (() => {
-    if (quote.isOk()) {
-      const unwrappedQuote = quote.unwrap()
-      const expectedAmountOutThorBaseUnit = unwrappedQuote.expected_amount_out
-      // Add back the outbound fees
-      const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
-        .plus(unwrappedQuote.fees.outbound)
-        .plus(unwrappedQuote.fees.affiliate)
+    const protocolFees: Record<AssetId, ProtocolFee> = {}
 
-      return toBaseUnit(
-        fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
-        buyAsset.precision,
-      )
-    } else {
-      return '0'
+    if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+      protocolFees[buyAsset.assetId] = {
+        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+        requiresBalance: false,
+        asset: buyAsset,
+      }
     }
+
+    return protocolFees
   })()
 
-  const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
-    .times(buyAssetTradeFeeBuyAssetCryptoHuman)
-    .toString()
-
-  const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
-    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
-    : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
-
-  // minimum is tradeFee padded by an amount to be sure they get something back
-  // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
-  const minimumSellAssetAmountPaddedCryptoHuman = minimumSellAssetAmountCryptoHuman
-    .times(THOR_MINIMUM_PADDING)
-    .toString()
-
-  const commonQuoteFields = {
-    minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-    recommendedSlippage: slippagePercentage.div(100).toString(),
-  }
-
-  const commonStepFields = {
-    rate,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-    sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-    buyAsset,
-    sellAsset,
-    accountNumber,
-  }
-
-  const protocolFees: Record<AssetId, ProtocolFee> = {}
-
-  if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
-    protocolFees[buyAsset.assetId] = {
-      amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
-      requiresBalance: false,
-      asset: buyAsset,
-    }
-  }
-
-  if (!sellAssetTradeFeeCryptoBaseUnit.isZero()) {
-    protocolFees[sellAsset.assetId] = {
-      amountCryptoBaseUnit: sellAssetTradeFeeCryptoBaseUnit.toString(),
-      requiresBalance: false,
-      asset: sellAsset,
-    }
-  }
-
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm:
-      return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
-        const maybeThorTxInfo = await getEvmThorTxInfo({
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit,
-          slippageTolerance: DEFAULT_SLIPPAGE,
-          destinationAddress: receiveAddress,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-        })
+    case CHAIN_NAMESPACE.Evm: {
+      const sellAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
+      const { networkFeeCryptoBaseUnit } = await getEvmTxFees({
+        adapter: sellAdapter,
+        supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+      })
 
-        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
-        const { data, router } = maybeThorTxInfo.unwrap()
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map(
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
 
-        const maybeEvmTxFees = await getEvmTxFees({
-          accountNumber,
-          adapter: sellAdapter as unknown as EvmChainAdapter,
-          data,
-          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
-          router,
-          value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-          wallet,
-        })
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
+            const { data, router } = await getEvmThorTxInfo({
+              sellAsset,
+              sellAmountCryptoBaseUnit,
+              memo: updatedMemo,
+            })
 
-        if (maybeEvmTxFees.isErr()) return Err(maybeEvmTxFees.unwrapErr())
-        const { networkFeeCryptoBaseUnit } = maybeEvmTxFees.unwrap()
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
 
-        return Ok({
-          ...commonQuoteFields,
-          data,
-          router,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: router,
-              feeData: {
-                networkFeeCryptoBaseUnit,
-                protocolFees,
-              },
-            },
-          ],
-        })
-      })()
-
-    case CHAIN_NAMESPACE.Utxo:
-      return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
-        const maybeThorTxInfo = await getUtxoThorTxInfo({
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit,
-          slippageTolerance: DEFAULT_SLIPPAGE,
-          destinationAddress: receiveAddress,
-          xpub: (input as GetUtxoTradeQuoteInput).xpub,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-        })
-
-        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
-        const thorTxInfo = maybeThorTxInfo.unwrap()
-        const { vault, opReturnData, pubkey } = thorTxInfo
-
-        const feeData = await getUtxoTxFees({
-          sellAmountCryptoBaseUnit,
-          vault,
-          opReturnData,
-          pubkey,
-          sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
-          protocolFees,
-        })
-
-        return Ok({
-          ...commonQuoteFields,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: '0x0', // not applicable to UTXOs
-              feeData,
-            },
-          ],
-        })
-      })()
-    case CHAIN_NAMESPACE.CosmosSdk:
-      return (async (): Promise<
-        Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
-      > => {
-        const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
-
-        const feeData = await (
-          sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-        ).getFeeData(getFeeDataInput)
-
-        return Ok({
-          ...commonQuoteFields,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: '0x0', // not applicable to cosmos
-              feeData: {
-                networkFeeCryptoBaseUnit: feeData.fast.txFee,
-                protocolFees,
-                chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
-              },
-            },
-          ],
-        })
-      })()
-    default:
-      return Err(
-        makeSwapErrorRight({
-          message: '[getThorTradeQuote] - Asset chainId is not supported.',
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-          details: { chainId },
-        }),
+            return {
+              isStreaming,
+              estimatedExecutionTimeMs,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              data,
+              router,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: router,
+                  feeData: {
+                    networkFeeCryptoBaseUnit,
+                    protocolFees,
+                  },
+                },
+              ],
+            }
+          },
+        ),
       )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+      // if no routes succeeded, return failure from swapper
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+          }),
+        )
+
+      // otherwise, return all that succeeded
+      return Ok(routes)
+    }
+
+    case CHAIN_NAMESPACE.Utxo: {
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map(
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
+
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
+            const maybeThorTxInfo = await getUtxoThorTxInfo({
+              sellAsset,
+              xpub: (input as GetUtxoTradeQuoteInput).xpub,
+              memo: updatedMemo,
+            })
+            if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
+            const thorTxInfo = maybeThorTxInfo.unwrap()
+            const { vault, opReturnData, pubkey } = thorTxInfo
+
+            const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+            const feeData = await getUtxoTxFees({
+              sellAmountCryptoBaseUnit,
+              vault,
+              opReturnData,
+              pubkey,
+              sellAdapter,
+              protocolFees,
+            })
+
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
+            return {
+              isStreaming,
+              estimatedExecutionTimeMs,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: '0x0', // not applicable to UTXOs
+                  feeData,
+                },
+              ],
+            }
+          },
+        ),
+      )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+      // if no routes succeeded, return failure from swapper
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+          }),
+        )
+
+      // otherwise, return all that succeeded
+      return Ok(routes)
+    }
+
+    case CHAIN_NAMESPACE.CosmosSdk: {
+      const sellAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
+      const feeData = await sellAdapter.getFeeData({})
+
+      return Ok(
+        perRouteValues.map(
+          ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
+
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
+            return {
+              isStreaming,
+              estimatedExecutionTimeMs,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: '0x0', // not applicable to cosmos
+                  feeData: {
+                    networkFeeCryptoBaseUnit: feeData.fast.txFee,
+                    protocolFees,
+                    chainSpecific: {
+                      estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit,
+                    },
+                  },
+                },
+              ],
+            }
+          },
+        ),
+      )
+    }
+
+    default:
+      assertUnreachable(chainNamespace)
   }
 }

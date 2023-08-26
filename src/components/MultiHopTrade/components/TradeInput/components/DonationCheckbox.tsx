@@ -9,11 +9,13 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getIsDonationAmountBelowMinimum } from 'state/apis/swappers/helpers/getIsDonationAmountBelowMinimum'
+import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectSellAsset, selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
-  selectActiveQuoteDonationBps,
   selectPotentialDonationAmountUserCurrency,
+  selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -29,10 +31,26 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
     const wallet = useWallet().state.wallet
     const walletIsKeepKey = wallet && isKeepKey(wallet)
     const sellAsset = useAppSelector(selectSellAsset)
+    const sellAssetUsdRate = useAppSelector(state =>
+      selectUsdRateByAssetId(state, sellAsset.assetId),
+    )
+    const sellAmountIncludingProtocolFeesCryptoBaseUnit = useAppSelector(
+      selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
+    )
     const isFromEvm = isEvmChainId(sellAsset.chainId)
-    const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
+
+    const isDonationAmountBelowMinimum = useMemo(() => {
+      if (!sellAmountIncludingProtocolFeesCryptoBaseUnit || !sellAssetUsdRate) return true
+      return getIsDonationAmountBelowMinimum(
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAsset,
+        sellAssetUsdRate,
+      )
+    }, [sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, sellAssetUsdRate])
+
     // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-    const showDonationOption = (walletIsKeepKey ? !isFromEvm : true) && affiliateBps !== undefined
+    const showDonationOption =
+      (walletIsKeepKey ? !isFromEvm : true) && !isDonationAmountBelowMinimum
 
     const {
       number: { toFiat },
@@ -47,7 +65,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
     const donationOption: JSX.Element = useMemo(
       () => (
         <Stack spacing={4}>
-          <Row>
+          <Row fontSize='sm'>
             <HelperTooltip label={translate('trade.tooltip.donation')}>
               <Row.Label>
                 <Checkbox
@@ -55,7 +73,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
                   onChange={handleDonationToggle}
                   isDisabled={isLoading}
                 >
-                  <Text translation='trade.donation' />
+                  <Text fontSize='sm' translation='trade.donation' />
                 </Checkbox>
               </Row.Label>
             </HelperTooltip>

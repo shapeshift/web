@@ -151,6 +151,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   /**
    * Helper function to abbreviate number to truncate rather than round fractions
    * @param {number} maximumFractionDigits - truncate fraction after this number of digits. Use 0 for no fraction.
+   * @param omitDecimalTrailingZeros
    */
   function partsReducer(maximumFractionDigits: number, omitDecimalTrailingZeros?: boolean) {
     return (accum: string, { type, value }: Intl.NumberFormatPart) => {

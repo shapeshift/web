@@ -1,10 +1,11 @@
+import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import type { Asset } from 'lib/asset-service'
+import { AssetService } from 'lib/asset-service'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -14,7 +15,7 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -22,15 +23,14 @@ import { getUnsignedTx } from './utils/getUnsignedTx/getUnsignedTx'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()
 
-let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
+// cached metadata - would need persistent cache with expiry if moved server-side
+let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    assets: Partial<Record<AssetId, Asset>>,
-    sellAssetPriceUsdPrecision: string,
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    if (input.sellAmountBeforeFeesCryptoBaseUnit === '0') {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
+    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
           message: 'sell amount too low',
@@ -38,32 +38,39 @@ export const lifiApi: Swapper2Api = {
         }),
       )
     }
+
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
 
-    const maybeLifiChainMap = await lifiChainMapPromise
+    const lifiChainMap = await lifiChainMapPromise
 
-    if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
+    const { assetsById } = new AssetService()
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,
-      maybeLifiChainMap.unwrap(),
-      assets,
-      sellAssetPriceUsdPrecision,
+      lifiChainMap,
+      assetsById,
     )
-    const { receiveAddress } = input
+    const { affiliateBps, receiveAddress } = input
 
-    return tradeQuoteResult.map(({ selectedLifiRoute, ...tradeQuote }) => {
-      // TODO: quotes below the minimum arent valid and should not be processed as such
-      // selectedLifiRoute willbe missing for quotes below the minimum
-      if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
+    return tradeQuoteResult.map(quote =>
+      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+        // TODO: quotes below the minimum aren't valid and should not be processed as such
+        // selectedLifiRoute will be missing for quotes below the minimum
+        if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
 
-      const id = selectedLifiRoute.id
+        const id = selectedLifiRoute.id
 
-      // store the lifi quote metadata for transaction building later
-      tradeQuoteMetadata.set(id, selectedLifiRoute)
+        // store the lifi quote metadata for transaction building later
+        tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
-    })
+        return {
+          id,
+          receiveAddress,
+          affiliateBps,
+          ...tradeQuote,
+        }
+      }),
+    )
   },
 
   getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
@@ -90,20 +97,28 @@ export const lifiApi: Swapper2Api = {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 
-    const getStatusRequest: GetStatusRequest = {
-      txHash,
-      bridge: lifiRoute.steps[0].tool,
-      fromChain: lifiRoute.fromChainId,
-      toChain: lifiRoute.toChainId,
-    }
-
     // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
     //   swapper: SwapperName.LIFI,
     //   method: 'get',
     //   // Note, this may change if the Li.Fi SDK changes
     //   url: 'https://li.quest/v1/status',
     // })
-    const statusResponse = await getLifi().getStatus(getStatusRequest)
+
+    // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
+    // i.e don't do `await getLifi().getStatus(getStatusRequest)`
+    const url = new URL('https://li.quest/v1/status')
+    const getStatusRequestParams: { [Key in keyof GetStatusRequest]: string } = {
+      txHash,
+      bridge: lifiRoute.steps[0].tool,
+      fromChain: lifiRoute.fromChainId.toString(),
+      toChain: lifiRoute.toChainId.toString(),
+    }
+    url.search = new URLSearchParams(getStatusRequestParams).toString()
+    const response = await fetch(url, { cache: 'no-store' }) // don't cache!
+
+    if (!response.ok) return createDefaultStatusResponse()
+
+    const statusResponse = await response.json()
 
     const status = (() => {
       switch (statusResponse.status) {
@@ -120,7 +135,7 @@ export const lifiApi: Swapper2Api = {
 
     return {
       status,
-      buyTxHash: statusResponse.receiving?.txHash,
+      buyTxHash: (statusResponse.receiving as ExtendedTransactionInfo)?.txHash,
       message: statusResponse.substatusMessage,
     }
   },

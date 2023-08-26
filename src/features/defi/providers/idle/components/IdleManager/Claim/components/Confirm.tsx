@@ -305,7 +305,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.claim.estimatedGasCrypto)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

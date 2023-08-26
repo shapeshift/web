@@ -1,10 +1,9 @@
-import { Button } from '@chakra-ui/react'
+import type { CardProps } from '@chakra-ui/react'
+import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import type { CardProps } from 'components/Card/Card'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import type { ReduxState } from 'state/reducer'
@@ -17,11 +16,11 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
     const recentTxIds = useSelector((state: ReduxState) => selectLastNTxIds(state, limit))
     const translate = useTranslate()
     return (
-      <Card {...rest}>
-        <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
-          <Card.Heading>
+      <Card variant='outline' {...rest}>
+        <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
+          <Heading as='h5'>
             <Text translation={'dashboard.recentTransactions.recentTransactions'} />
-          </Card.Heading>
+          </Heading>
           {viewMoreLink && (
             <Button
               as={NavLink}
@@ -33,7 +32,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
               {translate('common.viewAll')}
             </Button>
           )}
-        </Card.Header>
+        </CardHeader>
         <TransactionHistoryList txIds={recentTxIds} useCompactMode={true} />
       </Card>
     )

@@ -36,7 +36,7 @@ export const KeepKeyFactoryState = () => {
         </Flex>
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.factoryState.body'} mb={4} />
+        <Text color='text.subtle' translation={'modals.keepKey.factoryState.body'} mb={4} />
         <Button
           width='full'
           size='lg'

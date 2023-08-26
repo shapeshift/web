@@ -1,4 +1,4 @@
-import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, List } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -49,7 +49,6 @@ export const OpportunityRow: React.FC<
   } = opportunity
   const translate = useTranslate()
   const history = useHistory()
-  const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
@@ -164,7 +163,7 @@ export const OpportunityRow: React.FC<
       flexDir='column'
       gap={4}
       borderBottomWidth={1}
-      borderColor={borderColor}
+      borderColor='border.base'
       _last={{ borderBottomWidth: 0 }}
     >
       <List ml={0} mt={0} spacing={4} position='relative'>

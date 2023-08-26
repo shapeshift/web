@@ -641,6 +641,7 @@
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
+    "priceImpact": "Price Impact",
     "slippage": {
       "maxSlippage": "Max Slippage",
       "auto": "Auto",
@@ -650,9 +651,12 @@
     },
     "from": "From",
     "to": "To",
+    "on": "on",
     "youPay": "You Pay",
+    "payWith": "Pay With",
     "youGet": "You Get",
     "tradeTo": "Trade to",
+    "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
     "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
@@ -661,6 +665,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
+    "tradeAnyway": "Trade Anyway",
     "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
@@ -684,6 +689,7 @@
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
+      "priceImpact": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
       "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
@@ -705,7 +711,7 @@
       "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
-      "amountTooSmallOrInvalidTradePair": "Amount too low or no route",
+      "amountTooSmallUnknownMinimum": "Amount too low",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
@@ -717,6 +723,7 @@
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
       "invalidTradePairBtnText": "Invalid Trade Pair",
+      "unsupportedTradePair": "Unsupported Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -742,6 +749,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
       "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -759,7 +767,8 @@
     "unknownGas": "(unknown)",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter address to continue.",
-    "addressPlaceholder": "%{chainName} address"
+    "addressPlaceholder": "%{chainName} address",
+    "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?"
   },
   "modals": {
     "popup": {
@@ -902,6 +911,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "customNonce": "Custom Nonce",
         "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
@@ -1065,6 +1075,8 @@
       "loadingText": "Pairing Wallet"
     },
     "settings": {
+      "clearCache": "Clear cache",
+      "clearCacheTooltip": "Clear cache and reload app",
       "settings": "Settings",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",
@@ -1791,7 +1803,9 @@
       "linkedYat": "Linked Yat",
       "yatConnected": "Yat Connected!",
       "usdcAddress": "Yat USDC address",
-      "ethAddress": "Yat ETH address"
+      "ethAddress": "Yat ETH address",
+      "noAddressFound": "No %{symbol} address found",
+      "viewInApp": "View in ShapeShift Mobile App"
     }
   },
   "gasInput": {
@@ -1945,19 +1959,10 @@
       "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
       "cta": "Deposit Liquidity"
     },
-    "atomOsmoProviders": {
-      "title": "ATOM/OSMO LP Providers",
-      "body": "Got ATOM and OSMO? Provide liquidity into the pool, to earn %{apy} APR and qualify for the airdrop.",
-      "cta": "Deposit Liquidity"
-    },
     "stakeAtom": {
       "title": "Stake ATOM",
       "body": "Earn up to %{apr} APR on your idle ATOM. PLUS any ATOM you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification.",
       "cta": "Stake ATOM"
-    },
-    "stakeOsmo": {
-      "title": "Stake OSMO",
-      "body": "Earn up to %{apr} APR on your idle OSMO. PLUS any OSMO you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification."
     },
     "footer": {
       "title": "There are other ways you can qualify too, outside of the ShapeShift dApp. For a complete list, check out the governance proposal.",

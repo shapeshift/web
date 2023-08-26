@@ -4,7 +4,6 @@ import type {
   CosmosSignTx,
   ETHSignTx,
   HDWallet,
-  OsmosisSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
@@ -31,7 +30,6 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.DogecoinMainnet]: utxo.Account
     [KnownChainIds.LitecoinMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmossdk.Account
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.Account
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
   }
 >
@@ -69,7 +67,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.FeeData
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
   }
 >
@@ -133,7 +130,6 @@ export type ChainSignTx = {
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
-  [KnownChainIds.OsmosisMainnet]: OsmosisSignTx
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
 }
 
@@ -146,6 +142,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   accountNumber: number
   sendMax?: boolean
   memo?: string
+  customNonce?: string
 } & ChainSpecificBuildTxData<T>
 
 export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
@@ -170,7 +167,6 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
   }
 >
@@ -302,7 +298,6 @@ export type ZrxGasApiResponse = {
 
 export enum ChainAdapterDisplayName {
   Thorchain = 'THORChain',
-  Osmosis = 'Osmosis',
   Ethereum = 'Ethereum',
   Avalanche = 'Avalanche C-Chain',
   Optimism = 'Optimism',

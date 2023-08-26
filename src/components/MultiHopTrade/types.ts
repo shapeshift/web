@@ -1,5 +1,8 @@
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { Asset } from 'lib/asset-service'
+import type { GetTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 export type StepperStep = {
@@ -40,3 +43,21 @@ export enum TradeRoutePaths {
   Confirm = '/trade/confirm',
   Approval = '/trade/approval',
 }
+
+export type GetReceiveAddressArgs = {
+  asset: Asset
+  wallet: HDWallet | null
+  accountMetadata: AccountMetadata
+}
+
+export type TradeQuoteInputCommonArgs = Pick<
+  GetTradeQuoteInput,
+  | 'sellAmountIncludingProtocolFeesCryptoBaseUnit'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'receiveAddress'
+  | 'accountNumber'
+  | 'affiliateBps'
+  | 'allowMultiHop'
+  | 'slippageTolerancePercentage'
+>

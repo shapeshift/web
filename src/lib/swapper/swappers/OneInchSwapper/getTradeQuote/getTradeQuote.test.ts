@@ -1,10 +1,9 @@
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
+import { SwapperName } from 'lib/swapper/api'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { DEFAULT_SOURCE } from '../utils/constants'
 import { oneInchService } from '../utils/oneInchService'
-import type { OneInchSwapperDeps } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
 
 jest.mock('../utils/oneInchService', () => {
@@ -31,11 +30,9 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  const deps: OneInchSwapperDeps = {
-    apiUrl: 'https://api.1inch.io/v5.0',
-  }
-  const quoteURL = `${deps.apiUrl}/1/quote`
-  const approvalURL = `${deps.apiUrl}/1/approve/spender`
+  const apiUrl = 'https://api-shapeshift.1inch.io/v5.0'
+  const quoteURL = `${apiUrl}/1/quote`
+  const approvalURL = `${apiUrl}/1/approve/spender`
 
   it('returns the correct quote', async () => {
     ;(oneInchService.get as jest.Mock<unknown>).mockImplementation(async url => {
@@ -91,12 +88,11 @@ describe('getTradeQuote', () => {
     })
 
     const { quoteInput } = setupQuote()
-    const maybeQuote = await getTradeQuote(quoteInput, '0.02000')
+    const maybeQuote = await getTradeQuote(quoteInput)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].rate).toBe('0.000016426735042245')
     expect(quote.steps[0].allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
-    expect(quote.minimumCryptoHuman).toBe('50')
-    expect(quote.steps[0].sources).toEqual(DEFAULT_SOURCE)
+    expect(quote.steps[0].source).toEqual(SwapperName.OneInch)
   })
 })

@@ -75,13 +75,13 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
       >
         <Stack alignItems='flex-start' spacing={0} flex={1}>
           <RawText color='var(--chakra-colors-chakra-body-text)'>{title}</RawText>
-          <RawText fontSize='sm' color='gray.500'>
+          <RawText fontSize='sm' color='text.subtle'>
             {subtitle}
           </RawText>
         </Stack>
         <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }} gap={2}>
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
-          {asset?.id && <RawText color='gray.500'>{middleEllipsis(asset?.id)}</RawText>}
+          {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
           <Amount.Fiat value={fiatBalance} />

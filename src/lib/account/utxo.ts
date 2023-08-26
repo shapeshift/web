@@ -35,7 +35,10 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
           },
         ])
 
-        if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
+        // TODO(gomes): hdwallet snaps is borked and can't get UTXOs, this is commented so we don't crash all
+        // Unrug UTXOs and uncomment me.
+        if (!pubkeys?.[0]?.xpub) continue
+        // if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
 
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         if (!pubkey) continue

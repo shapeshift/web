@@ -1,4 +1,4 @@
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 

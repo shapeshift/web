@@ -7397,6 +7397,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-shapeshift-multichain@file:../shapeshiftHdWallet/packages/hdwallet-metamask-shapeshift-multichain::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 1.50.4
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@file:../shapeshiftHdWallet/packages/hdwallet-metamask-shapeshift-multichain#../shapeshiftHdWallet/packages/hdwallet-metamask-shapeshift-multichain::hash=b8a868&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    "@metamask/detect-provider": ^1.2.0
+    "@metamask/onboarding": ^1.0.1
+    "@shapeshiftoss/hdwallet-core": 1.50.4
+    eth-rpc-errors: ^4.0.3
+    lodash: ^4.17.21
+  checksum: 8ed19c39a411842eb124c85cd7b0bc466e13db972a7ef0b393830feef5d22b82d4cb826c54b52fcf41e60021e65419afe3261ff3247e98151861715f19ab1c56
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-walletconnect@npm:^1.50.4":
   version: 1.50.4
   resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.50.4"
@@ -7501,6 +7514,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": ../shapeshiftHdWallet/packages/hdwallet-metamask-shapeshift-multichain
     "@shapeshiftoss/hdwallet-walletconnect": ^1.50.4
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/types": "workspace:^"

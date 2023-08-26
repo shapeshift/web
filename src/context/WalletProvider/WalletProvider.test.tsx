@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { act, renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'

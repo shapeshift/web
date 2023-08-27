@@ -152,7 +152,32 @@ export async function getTradeQuote(
               assets,
             })
 
-            const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+            const sellAssetProtocolFee = protocolFees[sellAsset.assetId]
+            const buyAssetProtocolFee = protocolFees[buyAsset.assetId]
+            const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(
+              sellAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+            const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+              convertPrecision({
+                value: sellSideProtocolFeeCryptoBaseUnit,
+                inputExponent: sellAsset.precision,
+                outputExponent: buyAsset.precision,
+              }),
+            ).times(estimateRate)
+            const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
+              buyAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+
+            const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
+              selectedLifiRoute.toAmount,
+            ).toPrecision()
+
+            // TODO: Add buySideNetworkFeeCryptoBaseUnit when we implement multihop
+            const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+              .plus(sellSideProtocolFeeBuyAssetBaseUnit)
+              .plus(buySideProtocolFeeCryptoBaseUnit)
+              .toString()
+
             const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
               assets,
               lifiStep,
@@ -169,7 +194,8 @@ export async function getTradeQuote(
             return {
               allowanceContract: lifiStep.estimate.approvalAddress,
               accountNumber,
-              buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+              buyAmountBeforeFeesCryptoBaseUnit,
+              buyAmountAfterFeesCryptoBaseUnit,
               buyAsset,
               intermediaryTransactionOutputs,
               feeData: {

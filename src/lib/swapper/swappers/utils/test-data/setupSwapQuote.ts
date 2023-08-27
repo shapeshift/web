@@ -19,6 +19,7 @@ export const setupQuote = () => {
       {
         allowanceContract: 'allowanceContractAddress',
         buyAmountBeforeFeesCryptoBaseUnit: '',
+        buyAmountAfterFeesCryptoBaseUnit: '',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
         sellAsset,
         buyAsset,

@@ -91,7 +91,7 @@
     "search": "搜索",
     "searchAsset": "搜索资产",
     "enterAmount": "输入数量",
-    "pageNotFound": "找不到您要查找的页面",
+    "pageNotFound": "找不到你要查找的页面",
     "buySell": "买/卖",
     "all": "全部",
     "viewAll": "查看全部",
@@ -113,7 +113,7 @@
   },
   "consentBanner": {
     "body": {
-      "1": "我们的 dApp 使用匿名点击跟踪来分析性能并改善您的体验。使用 app.shapeshift.com，即表示您同意我们的跟踪。访问",
+      "1": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问",
       "2": "private.shapeshift.com",
       "3": "如果你不想被匿名跟踪。看看我们的",
       "4": "隐私政策",
@@ -129,14 +129,14 @@
   "buyPage": {
     "title": {
       "first": "购买加密货币",
-      "second": "很快"
+      "second": "快速"
     },
-    "body": "使用信用卡、借记卡或银行账户。购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
+    "body": "使用信用卡、借记卡或银行账户来购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
     "disclaimer": "*你还可以直接出售加密货币以换取现金存入你的银行账户。",
     "cta": {
       "title": {
-        "first": "您还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和",
-        "second": "在 %{chainCount} 条链上跟踪您的加密货币"
+        "first": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和",
+        "second": "在 %{chainCount} 条链上跟踪你的加密货币"
       }
     },
     "availableAssets": "可用资产"
@@ -154,7 +154,7 @@
   "multiCurrency": {
     "toast": {
       "title": "加载 %{symbol} 的数据时出错",
-      "description": "您的货币已重置为美元"
+      "description": "你的货币已重置为美元"
     }
   },
   "dashboard": {
@@ -191,7 +191,7 @@
     "routeTitle": "买入或卖出",
     "routeTitleForGem": "Gem on Ramp",
     "title": "购买或出售加密货币",
-    "titleMessage": "您可以使用以下方法%{action} %{asset}：",
+    "titleMessage": "你可以使用以下方法%{action} %{asset}：",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -204,7 +204,7 @@
     "asset": "资产",
     "assetToBuy": "选择要购买的资产",
     "selectAnAssetToBuy": "选择要购买的一种资产",
-    "selectBody": "从增长型的加密货币列表中进行选择。",
+    "selectBody": "从不断增长的加密货币列表中进行选择。",
     "assetToSell": "选择要出售的资产",
     "selectAnAssetToSell": "选择要出售的资产",
     "fundsTo": "资金将发送至",
@@ -225,8 +225,8 @@
     "shapeshift": "ShapeShift",
     "exploreThe": "探索",
     "defiUniverse": "DeFi 宇宙",
-    "body": "100% 免费。开源。社区所有。非监管。隐私的。",
-    "body2": "欢迎使用新的 ShapeShift。 100% 免费。开源。社区所有。非监管。隐私的。",
+    "body": "100% 免费、开源化、社区所有、非监管和隐私的。",
+    "body2": "欢迎使用新的 ShapeShift。100% 免费、开源化、社区所有、非监管和隐私的。",
     "header": "请连接钱包以开始",
     "cta": "连接钱包",
     "viewADemo": "查看演示"
@@ -252,10 +252,10 @@
         },
         "bodies": {
           "rateFluctuationInfo": "您赚取的 %{assetName} 的比率，即年度回报率 (APR)，通常在 7% - 20% 之间波动。",
-          "amountStakingInfo": "您可以质押任意数量的 %{assetName}，它们将立即开始赚取奖励。",
+          "amountStakingInfo": "你可以质押任意数量的 %{assetName}，它们将立即开始赚取奖励。",
           "withdrawInfo": "你可以随时提取奖励，这需要 0.01 美元左右的小额手续费。",
           "unbondingInfo": "当你取消质押代币时，它们将保持锁定状态 %{unbondingDays} 天，在此期间它们不会获得奖励。 %{unbondingDays} 天后，你的 %{assetName} 将返回到你的主钱包。",
-          "slashingInfo": "质押是通过验证器完成的。这种情况非常罕见，但如果您质押的验证器因允许虚假或不正确的交易而发生混乱，您可能会损失部分资产。",
+          "slashingInfo": "质押是通过验证器完成的。这种情况非常罕见，但如果你质押的验证器因允许虚假或不正确的交易而发生混乱，你可能会损失部分资产。",
           "partnerInfo": "我们通过与信誉良好的验证者合作来降低这种风险，该验证者拥有安全、可靠且经过审计的基础设施。"
         },
         "userProtectionInfo": "*回报情况是预估的，并随市场状况而波动。",
@@ -274,7 +274,7 @@
         }
       },
       "cosmosOverview": {
-        "rewards": "您获得的奖励将自动累积。",
+        "rewards": "你获得的奖励将自动累积。",
         "cta": "开始质押",
         "learnMore": "了解更多",
         "withdrawals": "取消质押",
@@ -284,7 +284,7 @@
       "foxyOverview": {
         "header": "充值FOX即可赚取FOXy",
         "body": "FOXy 是一种与 FOX 价格挂钩的变基代币。 质押 FOX 可以在不同的 DeFi 协议中发挥作用，以获得尽可能高的收益。",
-        "rewards": "您获得的奖励将自动累积。",
+        "rewards": "你获得的奖励将自动累积。",
         "cta": "现在充值 FOX",
         "foxyBalance": "FOXy 余额",
         "withdrawals": "提现",
@@ -332,7 +332,7 @@
         "fee": "费用",
         "dustAmount": "Dust 数量",
         "dustAmountTooltip": "需要少量 DUST 来识别你的地址，并将保留以供以后提款时使用",
-        "sendDustBody": "您需要发送一些 dust 到该地址才能提现。",
+        "sendDustBody": "你需要发送一些 dust 到该地址才能提现。",
         "sendDust": "发送 Dust",
         "addressToSendTo": "发送地址到",
         "introducingSaversVaults": "介绍储户金库",
@@ -434,7 +434,7 @@
     "emptyEarn": "赚钱的机会会出现在这里。",
     "empty": {
       "farming": {
-        "body": "您目前收益挖矿任何东西。",
+        "body": "你目前没有进行任何一种收益挖矿。",
         "cta": "查看机会"
       },
       "stakingVaults": {
@@ -442,7 +442,7 @@
         "cta": "查看机会"
       },
       "pools": {
-        "body": "您尚未存入任何流动资金池。",
+        "body": "你尚未存入任何流动资金池。",
         "cta": "查看机会"
       }
     },
@@ -451,7 +451,7 @@
       "deposit": {
         "info": {
           "title": "充值信息",
-          "description": "输入您想要存入的 %{asset} 的数量。"
+          "description": "输入你想要存入的 %{asset} 的数量。"
         }
       },
       "withdraw": {
@@ -483,7 +483,7 @@
   "staking": {
     "staking": "质押中",
     "itWillTake": "这将需要",
-    "toUnlock": "在取消质押后解锁您的 %{assetSymbol} ,质押奖励需要单独提取。",
+    "toUnlock": "在取消质押后解锁你的 %{assetSymbol} ,质押奖励需要单独提取。",
     "assetStakingBalance": "%{assetSymbol} 质押余额"
   },
   "navBar": {
@@ -669,7 +669,7 @@
     "pending": "交易待处理",
     "complete": "交易完成",
     "approveAsset": "授权与 %{symbol} 交互",
-    "needPermission": "需要您的许可才能使用你的 %{symbol}",
+    "needPermission": "需要你的授权才能使用你的 %{symbol}",
     "whyNeedThis": "为什么我需要这样做？",
     "estimatedGasFee": "预估手续费",
     "receiveInclFee": "接收（含手续费）",
@@ -772,7 +772,7 @@
   },
   "modals": {
     "popup": {
-      "body": "我们启动了一个安全窗口来完成您的订单。",
+      "body": "我们启动了一个安全窗口来完成你的订单。",
       "body2": "没有看到安全窗口？我们将帮助你重新启动窗口来完成你的订单。",
       "continue": "点击继续",
       "showWindow": "显示窗口",
@@ -800,7 +800,7 @@
         "sentenceLengthLabel": "恢复句子长度",
         "recoveryPassphraseLabel": "恢复密码",
         "recoveryPassphraseToggle": "使用密码恢复？",
-        "recoveryPassphraseDescription": "如果您不确定您的恢复语句是否受密码短语保护，请将其保留。",
+        "recoveryPassphraseDescription": "如果你不确定你的恢复语句是否受密码短语保护，请将其保留。",
         "wordEntropy": "%{wordEntropy} 个单词",
         "button": "恢复钱包"
       },
@@ -813,7 +813,7 @@
       },
       "factoryState": {
         "header": "开始使用 Keepkey",
-        "body": "您的 KeepKey 设置为出厂默认。请创建新钱包或使用你的助记词恢复钱包",
+        "body": "你的 KeepKey 设置为出厂默认。请创建新钱包或使用你的助记词恢复钱包",
         "createButton": "创建一个新钱包",
         "recoverButton": "恢复钱包"
       },
@@ -830,7 +830,7 @@
       },
       "recoveryInvalid": {
         "header": "恢复助记词",
-        "body": "您输入的助记词无效。",
+        "body": "你输入的助记词无效。",
         "button": "再试一次"
       },
       "downloadUpdater": {
@@ -840,7 +840,7 @@
       },
       "disconnect": {
         "header": "断开 KeepKey 设备",
-        "body": "不幸的是，恢复/设置您的 KeepKey 设备时发生错误。请断开并重新连接您的设备，然后尝试再次设置您的 KeepKey 设备。如果问题仍然存在，请联系 KeepKey 支持。"
+        "body": "不幸的是，恢复/设置你的 KeepKey 设备时发生错误。请断开并重新连接你的设备，然后尝试再次设置你的 KeepKey 设备。如果问题仍然存在，请联系 KeepKey 支持。"
       }
     },
     "shapeShift": {
@@ -848,7 +848,7 @@
         "header": "输入你的密码",
         "walletName": "钱包昵称（可选）",
         "walletNameRequired": "钱包昵称（必填）",
-        "body": "输入您的密码以解密您的钱包",
+        "body": "输入你的密码以解锁你的钱包",
         "placeholder": "输入密码",
         "show": "显示密码",
         "hide": "隐藏密码",
@@ -856,14 +856,14 @@
           "invalid": "无效的密码",
           "required": "密码是必需的",
           "walletNameRequired": "钱包昵称为必填项",
-          "length": "您的密码必须至少包含 %{length} 个字符",
+          "length": "你的密码必须至少包含 %{length} 个字符",
           "maxLength": "昵称不得超过 %{length} 个字符"
         }
       },
       "confirmPassword": {
         "header": "确认你的密码",
         "walletName": "钱包昵称（可选）",
-        "body": "确认您的密码以解密您的钱包",
+        "body": "确认你的密码以解密你的钱包",
         "placeholder": "确认密码",
         "show": "显示密码",
         "hide": "隐藏密码",
@@ -876,16 +876,16 @@
       },
       "backupPassphrase": {
         "menuItem": "备份我的钱包",
-        "enterPassword": "输入您的密码以继续",
-        "testTitle": "验证您的助记词",
+        "enterPassword": "输入你的密码以继续",
+        "testTitle": "验证你的助记词",
         "info": {
           "title": "你的助记词",
           "description": "写下这12个单词并安全地离线存储。这个12个单词的短语用做恢复你的钱包私钥。",
-          "warning": "注意：如果您丢失了助记词，ShapeShift 无法帮助你恢复钱包，你的资金将永远丢失。"
+          "warning": "注意：如果你丢失了助记词，ShapeShift 无法帮助你恢复钱包，你的资金将永远丢失。"
         },
         "success": {
           "title": "成功",
-          "description": "你已经备份了你的钱包。请记住将您的助记词存储在安全的地方。"
+          "description": "你已经备份了你的钱包。请记住将你的助记词存储在安全的地方。"
         }
       }
     },
@@ -962,7 +962,7 @@
       "footerDisclaimerLink": "服务条款。",
       "slippageSettings": "滑点设置",
       "status": {
-        "pending": "您的交易已广播并等待确认。",
+        "pending": "你的交易已广播并等待确认。",
         "success": "你已成功充值 %{opportunity} 。",
         "failed": "你的充值出现问题。"
       }
@@ -978,7 +978,7 @@
       "footerDisclaimer": "继续即表示你同意我们的",
       "footerDisclaimerLink": "服务条款。",
       "status": {
-        "pending": "您的交易已广播并等待确认。",
+        "pending": "你的交易已广播并等待确认。",
         "success": "你已经成功的质押了你的 %{opportunity} 。",
         "failed": "你的质押交易存在问题。"
       }
@@ -1002,7 +1002,7 @@
       "status": {
         "pending": "你的交易已广播并等待确认。",
         "success": "你已成功从%{opportunity} 提现。",
-        "failed": "您的提现出现问题。"
+        "failed": "你的提现出现了问题。"
       },
       "info": {
         "delayed": "延迟提现有两笔交易：",
@@ -1014,7 +1014,7 @@
     "approve": {
       "header": "允许 %{spenderName} 使用你的 %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO 路由",
-      "body": "需要您的授权才能使用您的 %{asset}",
+      "body": "需要你的授权才能使用你的 %{asset}",
       "learnMore": "为什么我需要这样做？",
       "depositFee": "充值时将收取单独的手续费。",
       "estimatedGas": "预估手续费",
@@ -1110,13 +1110,13 @@
     },
     "mobileWelcome": {
       "success": {
-        "header": "您的钱包已导入！",
+        "header": "你的钱包已导入！",
         "body": "欢迎使用新的 ShapeShift 应用程序。",
         "primaryCta": "继续"
       },
       "notice": {
         "header": "使用电子邮件登录已被弃用。赶紧备份你的钱包吧！",
-        "body": "如果您无法访问您的设备，您需要您的助记词来恢复您的资金。",
+        "body": "如果你无法访问你的设备，你需要你的助记词来恢复你的资金。",
         "primaryCta": "获取助记词",
         "secondaryCta": "我已经知道我的助记词"
       }
@@ -1124,7 +1124,7 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "无法与您的钱包通信。如果问题仍然存在，请联系 Keepkey 支持。"
+      "walletNotFound": "无法与你的钱包通信。如果问题仍然存在，请联系 Keepkey 支持。"
     },
     "keepKey": {
       "errors": {
@@ -1142,17 +1142,17 @@
         "downloadUpdaterApp": "下载更新程序应用程序"
       },
       "pin": {
-        "header": "输入您的 PIN 码",
+        "header": "输入你的 PIN 码",
         "body": "使用设备上显示的 PIN 布局来查找在 PIN 键盘上按下的位置。",
         "button": "解锁"
       },
       "newPin": {
-        "header": "输入您的新 PIN 码",
+        "header": "输入你的新 PIN 码",
         "body": "使用 KeepKey 上的布局显示创建新的 PIN（最多 9 位数字）。",
         "button": "确认"
       },
       "newPinConfirm": {
-        "header": "确认您的新 PIN 码",
+        "header": "确认你的新 PIN 码",
         "body": "使用 KeepKey 上显示的布局重新输入 PIN。",
         "button": "保存密码"
       },
@@ -1244,7 +1244,7 @@
       "errors": {
         "unknown": "与 MetaMask 通信时发生意外错误",
         "connectFailure": "无法连接 MetaMask 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 MetaMask 。您安装了多个钱包吗？"
+        "multipleWallets": "检测到的以太坊提供商不是 MetaMask 。你安装了多个钱包吗？"
       },
       "connect": {
         "header": "配对 MetaMask 钱包",
@@ -1265,7 +1265,7 @@
       "errors": {
         "unknown": "与 Coinbase 通信时发生意外错误",
         "connectFailure": "无法连接 Coinbase 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 Coinbase。您安装了多个钱包吗？"
+        "multipleWallets": "检测到的以太坊提供商不是 Coinbase。你安装了多个钱包吗？"
       },
       "connect": {
         "header": "匹配 Coinbase 钱包",
@@ -1296,7 +1296,7 @@
       "errors": {
         "unknown": "与 XDEFI 通信时发生意外错误",
         "connectFailure": "无法连接 XDEFI 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。您安装了多个钱包吗？"
+        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。你安装了多个钱包吗？"
       },
       "connect": {
         "header": "匹配 XDEFI",
@@ -1316,18 +1316,18 @@
     "shapeShift": {
       "load": {
         "error": {
-          "delete": "抱歉，无法删除您的钱包。",
-          "noWallet": "您没有保存的钱包",
+          "delete": "抱歉，无法删除你的钱包。",
+          "noWallet": "你没有保存的钱包",
           "pair": "无法匹配的的钱包"
         },
         "header": "保存的钱包",
-        "body": "正在加载您保存的钱包...出现提示时输入您的密码。",
+        "body": "正在加载你保存的钱包...出现提示时输入你的密码。",
         "button": "继续",
         "confirmForget": "你确定要忘记 %{wallet} 吗？"
       },
       "import": {
         "header": "导入你的钱包",
-        "body": "以全小写形式输入或粘贴您的助记词，不带逗号或数字，并且每个单词之间有一个空格。",
+        "body": "以全小写形式输入或粘贴你的助记词，不带逗号或数字，并且每个单词之间有一个空格。",
         "button": "下一步",
         "secretRecoveryPhraseError": "输入你的助记词，单词之间有一个空格。省略任何逗号、回车或任何其他字符。",
         "secretRecoveryPhraseRequired": "需要助记词",
@@ -1336,7 +1336,7 @@
       "password": {
         "header": "创建新密码",
         "body": "输入强密码来加密你导入的钱包。这是你如何访问钱包的方式。",
-        "warning": "注意：如果您忘记密码，ShapeShift 无法帮助您恢复密码。",
+        "warning": "注意：如果你忘记密码，ShapeShift 无法帮助你恢复密码。",
         "button": "下一步",
         "connect": "连接到另一个钱包"
       },
@@ -1349,7 +1349,7 @@
       },
       "start": {
         "header": "ShapeShift 钱包",
-        "body": "您可以拥有多个 ShapeShift 钱包。您可以加载钱包、从助记词导入钱包或创建新钱包。",
+        "body": "你可以拥有多个 ShapeShift 钱包。你可以导入助记词来加载钱包或创建新钱包。",
         "import": "导入钱包",
         "create": "创建一个新钱包",
         "load": "保存的钱包"
@@ -1394,9 +1394,9 @@
       "rename": {
         "header": "重命名你的钱包",
         "walletName": "你钱包的新昵称",
-        "body": "输入您钱包的新昵称和密码以解密您的钱包。",
+        "body": "输入你的钱包的新昵称和密码以解密你的钱包。",
         "button": "下一步",
-        "confirmDelete": "您确定要删除该钱包的昵称吗？"
+        "confirmDelete": "你确定要删除该钱包的昵称吗？"
       },
       "legacy": {
         "deprecatedWarning": "ShapeShift 日志已被弃用",
@@ -1443,7 +1443,7 @@
         "easyToUse": {
           "title": "它很容易使用！",
           "subTitle": "使用 ShapeShift 钱包，你可以：",
-          "trackBalance": "追踪您的余额",
+          "trackBalance": "追踪你的余额",
           "sendReceive": "发送/接收加密货币",
           "buyCrypto": "购买加密货币",
           "tradeAssets": "交易资产",
@@ -1471,7 +1471,7 @@
         "error": {
           "delete": "抱歉，无法删除你的钱包。",
           "noWallet": "你没有保存的钱包",
-          "pair": "无法配对您的钱包"
+          "pair": "无法配对你的钱包"
         }
       }
     }
@@ -1558,7 +1558,7 @@
     "selectChain": "为你即将创建帐户的选择一个链。",
     "requiresPriorTxHistory": "仅当现有账户有先前的交易历史记录时，你才可以添加新账户",
     "newAccountAdded": "新的 %{name} 账户已添加",
-    "youCanNowUse": "您现在可以使用 %{name} 账户 #%{accountNumber}",
+    "youCanNowUse": "你现在可以使用 %{name} 账户 #%{accountNumber}",
     "showAssets": "显示资产",
     "hideAssets": "隐藏资产",
     "viewAccount": "查看账户"
@@ -1817,7 +1817,7 @@
     "estGasCost": "预估手续费",
     "gasPrice": {
       "label": "Gas 价格",
-      "tooltip": "您希望向矿工或验证者支付每单位 Gas 费用的数量"
+      "tooltip": "你希望向矿工或验证者支付每单位 Gas 费用的数量"
     },
     "base": {
       "label": "基础费",
@@ -1825,7 +1825,7 @@
     },
     "priority": {
       "label": "优先费",
-      "tooltip": "优先费是一项可选的小费，旨在激励区块生产者优先处理您的交易。设置莫希望为每单位 Gas 支付的优先费用（以 gwei 为单位）。"
+      "tooltip": "优先费是一项可选的小费，旨在激励区块生产者优先处理你的交易。设置莫希望为每单位 Gas 支付的优先费用（以 gwei 为单位）。"
     },
     "custom": "定制"
   },
@@ -1926,7 +1926,7 @@
     },
     "whoQualifies": {
       "title": "谁有资格获得 Arkeo 空投？",
-      "body": "你可以通过多种方式获得使用 ShapeShift dApp 获得空投的资格。快照正在滚动，您还有时间晋级！"
+      "body": "你可以通过多种方式获得使用 ShapeShift dApp 获得空投的资格。快照正在滚动，你还有时间晋级！"
     },
     "staking": {
       "title": "%{asset} 质押者",
@@ -1935,7 +1935,7 @@
     },
     "lp": {
       "title": "%{asset1}/%{asset2} 提供者",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上您持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
+      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
       "cta": "存款流动性"
     },
     "foxTokenHolders": {
@@ -1946,7 +1946,7 @@
     },
     "foxFarmers": {
       "title": "FOX/ETH LP Farmers",
-      "body": "将你的 ETH/FOX LP 代币质押到 FOX Farm 中，可赚取高达 %{apy} 的年利率。再加上您在 FOX 农场第 5 轮中质押的 ETH/FOX LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
+      "body": "将你的 ETH/FOX LP 代币质押到 FOX Farm 中，可赚取高达 %{apy} 的年利率。再加上你在 FOX 农场第 5 轮中质押的 ETH/FOX LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
       "cta": "质押 FOX/ETH LP"
     },
     "foxyTokenHolders": {
@@ -1956,7 +1956,7 @@
     },
     "foxEthProviders": {
       "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上您持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
+      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
       "cta": "存款流动性"
     },
     "stakeAtom": {
@@ -2003,7 +2003,7 @@
       "1": "释放去中心化的宇宙和",
       "2": "收获奖励"
     },
-    "body": "执行任务、赚取奖励并扩展您对不断扩展的 ShapeShift 生态系统的了解",
+    "body": "执行任务、赚取奖励并扩展你对不断扩展的 ShapeShift 生态系统的了解",
     "ends": "结束",
     "ongoing": "进行中的任务",
     "optimism": {

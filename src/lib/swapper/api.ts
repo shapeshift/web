@@ -20,24 +20,6 @@ export type SwapErrorRight = {
   code?: SwapErrorType
 }
 
-export const makeSwapErrorRight = ({
-  details,
-  cause,
-  code,
-  message,
-}: {
-  message: string
-  details?: unknown
-  cause?: unknown
-  code?: SwapErrorType
-}): SwapErrorRight => ({
-  name: 'SwapError',
-  message,
-  details,
-  cause,
-  code,
-})
-
 export type UtxoFeeData = {
   byteCount: string
   satsPerByte: string

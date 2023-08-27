@@ -8,9 +8,10 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/api'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 
 type GetCosmosTxDataInput = {
   accountNumber: number

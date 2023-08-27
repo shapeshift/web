@@ -3,7 +3,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
@@ -17,6 +17,7 @@ import {
   getAdapter,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 

@@ -14,7 +14,8 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'

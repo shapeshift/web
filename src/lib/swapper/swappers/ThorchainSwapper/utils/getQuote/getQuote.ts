@@ -8,7 +8,7 @@ import type { Asset } from 'lib/asset-service'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/api'
 import type {
   ThornodeQuoteResponse,
   ThornodeQuoteResponseSuccess,
@@ -19,7 +19,7 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 
 import { thorService } from '../thorService'
 

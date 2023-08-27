@@ -95,6 +95,8 @@ export async function getCowSwapTradeQuote(
 
   const quote: TradeQuote<CowChainId> = {
     id: data.id.toString(),
+    receiveAddress,
+    affiliateBps: undefined,
     rate,
     estimatedExecutionTimeMs: undefined,
     steps: [

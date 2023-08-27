@@ -1,16 +1,14 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import { v4 as uuid } from 'uuid'
+import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
   Swapper2Api,
   TradeQuote,
-  TradeQuote2,
   UnsignedTx2,
 } from 'lib/swapper/types'
-import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
@@ -20,27 +18,16 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const { receiveAddress } = input
-
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
     const affiliateBps = applyThorSwapAffiliateFees
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    const quoteResult = await getThorTradeQuote({
+    return await getThorTradeQuote({
       ...input,
       affiliateBps,
-    })
-
-    return quoteResult.map<TradeQuote2[]>(quotes => {
-      return quotes.map(quote => ({
-        id: uuid(),
-        receiveAddress,
-        affiliateBps,
-        ...quote,
-      }))
     })
   },
 

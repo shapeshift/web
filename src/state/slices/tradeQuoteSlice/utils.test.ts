@@ -1,9 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import BigNumber from 'bignumber.js'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/types'
 import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
 import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
+import type { ProtocolFee } from 'lib/swapper/types'
 import {
   subtractBasisPointAmount,
   sumProtocolFeesToDenom,

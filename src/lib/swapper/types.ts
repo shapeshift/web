@@ -111,9 +111,13 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 export type TradeQuote<C extends ChainId = ChainId> = {
   recommendedSlippage?: string
   estimatedExecutionTimeMs: number | undefined
-  id?: string
+  id: string
   steps: TradeQuoteStep<C>[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
+  receiveAddress: string
+  receiveAccountNumber?: number
+  affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
+  isStreaming?: boolean
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -158,18 +162,10 @@ export enum SwapErrorType {
   TRADING_HALTED = 'TRADING_HALTED',
 }
 
-export type TradeQuote2 = TradeQuote & {
-  id: string
-  receiveAddress: string
-  receiveAccountNumber?: number
-  affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
-  isStreaming?: boolean
-}
-
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
 export type GetUnsignedTxArgs = {
-  tradeQuote: TradeQuote2
+  tradeQuote: TradeQuote
   chainId: ChainId
   accountMetadata?: AccountMetadata
   stepIndex: number
@@ -200,7 +196,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote2[], SwapErrorRight>
+type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
 export type Swapper2 = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
@@ -216,13 +212,13 @@ export type Swapper2Api = {
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }
 
-export type QuoteResult = Result<TradeQuote2[], SwapErrorRight> & {
+export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
 export type TradeExecutionInput = {
   swapperName: SwapperName
-  tradeQuote: TradeQuote2
+  tradeQuote: TradeQuote
   stepIndex: number
   accountMetadata: AccountMetadata
   quoteSellAssetAccountId: AccountId

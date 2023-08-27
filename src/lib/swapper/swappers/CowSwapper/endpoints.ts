@@ -13,7 +13,7 @@ import type {
   GetUnsignedTxArgs,
   SwapErrorRight,
   Swapper2Api,
-  TradeQuote2,
+  TradeQuote,
 } from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, createDefaultStatusResponse } from 'lib/utils/evm'
 
@@ -46,21 +46,13 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 export const cowApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
-    const { receiveAddress } = input
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
-      return [
-        {
-          id,
-          receiveAddress,
-          affiliateBps: undefined,
-          ...tradeQuote,
-        },
-      ]
+      return [tradeQuote]
     })
   },
 

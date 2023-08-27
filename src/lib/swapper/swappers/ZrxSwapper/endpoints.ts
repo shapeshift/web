@@ -8,7 +8,7 @@ import type {
   GetUnsignedTxArgs,
   SwapErrorRight,
   Swapper2Api,
-  TradeQuote2,
+  TradeQuote,
 } from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
@@ -20,7 +20,7 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 export const zrxApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps, receiveAddress } = input
 
     const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInput)

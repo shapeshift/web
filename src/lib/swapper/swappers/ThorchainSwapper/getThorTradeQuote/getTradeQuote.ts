@@ -4,6 +4,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -247,6 +248,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
@@ -338,6 +342,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
@@ -402,6 +409,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),

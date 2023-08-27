@@ -205,6 +205,9 @@ export async function getTradeQuote(
         )
 
         return {
+          id: selectedLifiRoute.id,
+          receiveAddress,
+          affiliateBps,
           steps,
           rate: netRate,
           estimatedExecutionTimeMs,

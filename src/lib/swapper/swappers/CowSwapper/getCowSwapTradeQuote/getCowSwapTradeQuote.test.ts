@@ -88,6 +88,8 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
+  receiveAddress: '0x1234',
+  affiliateBps: undefined,
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -116,6 +118,8 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
+  receiveAddress: '0x1234',
+  affiliateBps: undefined,
   rate: '0.00004995640398295996',
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -144,6 +148,8 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
   id: '123',
+  receiveAddress: '0x1234',
+  affiliateBps: undefined,
   rate: '1.0003121775396440882',
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -172,6 +178,8 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
+  receiveAddress: '0x1234',
+  affiliateBps: undefined,
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   estimatedExecutionTimeMs: undefined,
   steps: [

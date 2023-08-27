@@ -3,9 +3,14 @@ import { AssetService } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote2 } from './types'
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
-import type { QuoteResult } from './types'
+import type {
+  GetTradeQuoteInput,
+  QuoteResult,
+  SwapErrorRight,
+  SwapperName,
+  TradeQuote,
+} from './types'
 
 export { TradeExecution } from './tradeExecution'
 
@@ -20,7 +25,7 @@ export const getTradeQuotes = async (
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
       .map(({ swapperName, swapper }) =>
-        timeout<TradeQuote2[], SwapErrorRight>(
+        timeout<TradeQuote[], SwapErrorRight>(
           swapper.getTradeQuote(getTradeQuoteInput),
           QUOTE_TIMEOUT_MS,
           QUOTE_TIMEOUT_ERROR,

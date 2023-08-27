@@ -3,6 +3,7 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
+import { v4 as uuid } from 'uuid'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
@@ -70,6 +71,9 @@ export async function getTradeQuote(
     })
 
     return Ok({
+      id: uuid(),
+      receiveAddress,
+      affiliateBps,
       rate,
       estimatedExecutionTimeMs: undefined,
       steps: [

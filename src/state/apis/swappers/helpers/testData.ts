@@ -1,7 +1,7 @@
-import type { TradeQuote2 } from 'lib/swapper/types'
+import type { TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 
-export const lifiQuote: TradeQuote2 = {
+export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
   rate: '51.34579860391078801712',
   affiliateBps: undefined,
@@ -47,7 +47,7 @@ export const lifiQuote: TradeQuote2 = {
   ],
 }
 
-export const thorQuote: TradeQuote2 = {
+export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
@@ -127,7 +127,7 @@ export const thorQuote: TradeQuote2 = {
   ],
 }
 
-export const oneInchQuote: TradeQuote2 = {
+export const oneInchQuote: TradeQuote = {
   id: '89654b4f-c90b-4578-bb9f-7c93e7ad227d',
   rate: '51.63754486526613135844',
   affiliateBps: undefined,
@@ -173,7 +173,7 @@ export const oneInchQuote: TradeQuote2 = {
   ],
 }
 
-export const cowQuote: TradeQuote2 = {
+export const cowQuote: TradeQuote = {
   id: '220858750',
   rate: '51.86127422365727736757',
   affiliateBps: undefined,
@@ -236,7 +236,7 @@ export const cowQuote: TradeQuote2 = {
   ],
 }
 
-export const zrxQuote: TradeQuote2 = {
+export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
   rate: '51.603817692372651273',
   affiliateBps: undefined,
@@ -282,4 +282,4 @@ export const zrxQuote: TradeQuote2 = {
   ],
 }
 
-export const quotes: TradeQuote2[] = [lifiQuote, thorQuote, zrxQuote, cowQuote, oneInchQuote]
+export const quotes: TradeQuote[] = [lifiQuote, thorQuote, zrxQuote, cowQuote, oneInchQuote]

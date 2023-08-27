@@ -44,6 +44,9 @@ jest.mock('config', () => {
 
 const expectedQuoteResponse: ThorTradeQuote[] = [
   {
+    id: '1324',
+    receiveAddress: '0x1234',
+    affiliateBps: '0',
     isStreaming: false,
     rate: '144114.94366197183098591549',
     recommendedSlippage: '0.0435',
@@ -75,6 +78,9 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
     ],
   },
   {
+    id: '1325',
+    receiveAddress: '0x1234',
+    affiliateBps: '0',
     isStreaming: true,
     rate: '158199.45070422535211267606',
     recommendedSlippage: '0.042',

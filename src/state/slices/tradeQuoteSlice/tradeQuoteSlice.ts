@@ -1,11 +1,11 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TradeQuote2 } from 'lib/swapper/types'
+import type { TradeQuote } from 'lib/swapper/types'
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
-  confirmedQuote: TradeQuote2 | undefined // the quote being executed
+  confirmedQuote: TradeQuote | undefined // the quote being executed
 }
 
 const initialState: TradeQuoteSliceState = {
@@ -35,7 +35,7 @@ export const tradeQuoteSlice = createSlice({
     resetActiveQuoteIndex: state => {
       state.activeQuoteIndex = undefined
     },
-    setConfirmedQuote: (state, action: PayloadAction<TradeQuote2 | undefined>) => {
+    setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
       state.confirmedQuote = action.payload
     },
     resetConfirmedQuote: state => {

@@ -1,8 +1,9 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { v4 as uuid } from 'uuid'
 import type { Asset } from 'lib/asset-service'
+import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
-import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import { DEFAULT_SLIPPAGE } from '../constants'
 
@@ -10,6 +11,9 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+    id: uuid(),
+    receiveAddress: '0x1234',
+    affiliateBps: undefined,
     rate: '1',
     estimatedExecutionTimeMs: undefined,
     steps: [

@@ -8,7 +8,6 @@ import {
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 import { DEFAULT_LIFI_TOKEN_ADDRESS } from '../constants'
 
@@ -55,9 +54,7 @@ export const lifiTokenToAssetId = (lifiToken: Token): AssetId => {
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:
-        throw new SwapError(`[lifiTokenToAssetId] chainId '${lifiToken.chainId}' not supported`, {
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-        })
+        throw Error(`chainId '${lifiToken.chainId}' not supported`)
     }
   })()
 

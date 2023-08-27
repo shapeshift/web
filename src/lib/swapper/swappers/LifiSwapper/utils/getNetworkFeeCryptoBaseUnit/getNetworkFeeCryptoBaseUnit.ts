@@ -7,7 +7,6 @@ import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { calcNetworkFeeCryptoBaseUnit, getFees, isEvmChainAdapter } from 'lib/utils/evm'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
@@ -32,9 +31,8 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const adapter = getChainAdapterManager().get(chainId)
 
   if (!isEvmChainAdapter(adapter)) {
-    throw new SwapError('[getNetworkFeeCryptoBaseUnit] - unsupported chain adapter', {
-      code: SwapErrorType.VALIDATION_FAILED,
-      details: { chainId },
+    throw new Error('unsupported chain adapter', {
+      cause: { chainId },
     })
   }
 
@@ -42,9 +40,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const { value, to, data, gasLimit } = transactionRequest ?? {}
 
   if (!value || !to || !data || !gasLimit) {
-    throw new SwapError('[getNetworkFeeCryptoBaseUnit] getStepTransaction failed', {
-      code: SwapErrorType.VALIDATION_FAILED,
-    })
+    throw new Error('getStepTransaction failed')
   }
 
   // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation

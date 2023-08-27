@@ -11,7 +11,7 @@ import type {
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
   SwapErrorRight,
-  Swapper2Api,
+  SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
@@ -27,7 +27,7 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 // cached metadata - would need persistent cache with expiry if moved server-side
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
-export const lifiApi: Swapper2Api = {
+export const lifiApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {

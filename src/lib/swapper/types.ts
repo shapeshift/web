@@ -162,10 +162,10 @@ export type GetUnsignedTxArgs = {
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
 // data originates from the correct place (assuming no casting).
-export type UnsignedTx2 = Nominal<Record<string, any>, 'UnsignedTx2'>
+export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
 
 export type ExecuteTradeArgs = {
-  txToSign: UnsignedTx2
+  txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId
 }
@@ -184,18 +184,18 @@ export type CheckTradeStatusInput = {
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
-export type Swapper2 = {
+export type Swapper = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 }
 
-export type Swapper2Api = {
+export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (input: GetTradeQuoteInput) => Promise<TradeQuoteResult>
-  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
+  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {

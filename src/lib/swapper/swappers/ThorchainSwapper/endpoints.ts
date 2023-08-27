@@ -4,9 +4,9 @@ import { getConfig } from 'config'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
-  Swapper2Api,
+  SwapperApi,
   TradeQuote,
-  UnsignedTx2,
+  UnsignedTx,
   UtxoFeeData,
 } from 'lib/swapper/types'
 
@@ -15,7 +15,7 @@ import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
-export const thorchainApi: Swapper2Api = {
+export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -38,7 +38,7 @@ export const thorchainApi: Swapper2Api = {
     xpub,
     supportsEIP1559,
     slippageTolerancePercentageDecimal,
-  }): Promise<UnsignedTx2> => {
+  }): Promise<UnsignedTx> => {
     const { receiveAddress, affiliateBps } = tradeQuote
 
     const accountType = accountMetadata?.accountType

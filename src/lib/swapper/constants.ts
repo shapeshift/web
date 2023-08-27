@@ -9,7 +9,7 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 
-import { SwapperName } from './api'
+import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
 
 export const QUOTE_TIMEOUT_MS = 10_000

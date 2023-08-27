@@ -3,7 +3,7 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,

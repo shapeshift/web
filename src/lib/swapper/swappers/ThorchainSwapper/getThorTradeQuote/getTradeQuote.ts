@@ -7,15 +7,6 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type {
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
-  ProtocolFee,
-  SwapErrorRight,
-  TradeQuote,
-} from 'lib/swapper/api'
-import { SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
   ThorCosmosSdkSupportedChainId,
@@ -26,6 +17,15 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import type {
+  GetEvmTradeQuoteInput,
+  GetTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
+  ProtocolFee,
+  SwapErrorRight,
+  TradeQuote,
+} from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'

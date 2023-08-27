@@ -13,8 +13,8 @@ import type {
   SwapErrorRight,
   Swapper2Api,
   TradeQuote2,
-} from 'lib/swapper/api'
-import { SwapErrorType } from 'lib/swapper/api'
+} from 'lib/swapper/types'
+import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 

@@ -8,8 +8,8 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
-import type { SwapErrorRight } from './api'
-import { SwapErrorType, SwapperName } from './api'
+import type { SwapErrorRight } from './types'
+import { SwapErrorType, SwapperName } from './types'
 
 export const makeSwapErrorRight = ({
   details,

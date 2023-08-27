@@ -9,7 +9,7 @@ import type {
   SwapErrorRight,
   Swapper2Api,
   TradeQuote2,
-} from 'lib/swapper/api'
+} from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'

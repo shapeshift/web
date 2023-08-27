@@ -14,7 +14,7 @@ import type {
   SwapErrorRight,
   Swapper2Api,
   TradeQuote2,
-} from 'lib/swapper/api'
+} from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'

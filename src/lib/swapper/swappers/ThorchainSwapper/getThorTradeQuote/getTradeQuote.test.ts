@@ -1,8 +1,8 @@
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 
-import type { GetTradeQuoteInput } from '../../../api'
-import { SwapperName } from '../../../api'
+import type { GetTradeQuoteInput } from '../../../types'
+import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'

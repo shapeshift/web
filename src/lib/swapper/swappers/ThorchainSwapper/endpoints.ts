@@ -9,7 +9,7 @@ import type {
   TradeQuote,
   TradeQuote2,
   UnsignedTx2,
-} from 'lib/swapper/api'
+} from 'lib/swapper/types'
 import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'

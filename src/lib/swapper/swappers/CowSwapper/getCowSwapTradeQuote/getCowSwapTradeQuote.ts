@@ -4,8 +4,6 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
 import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -25,6 +23,8 @@ import {
   isNativeEvmAsset,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(

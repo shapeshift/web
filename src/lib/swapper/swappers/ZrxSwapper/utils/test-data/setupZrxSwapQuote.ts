@@ -1,5 +1,5 @@
 import type { Asset } from 'lib/asset-service'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 

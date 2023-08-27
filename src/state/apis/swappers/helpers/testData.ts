@@ -1,5 +1,5 @@
-import type { TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { TradeQuote2 } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 
 export const lifiQuote: TradeQuote2 = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',

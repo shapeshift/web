@@ -8,8 +8,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapErrorRight } from 'lib/swapper/api'
-import { SwapErrorType } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/types'
+import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 

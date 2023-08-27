@@ -3,7 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/api'
+import type { ProtocolFee } from 'lib/swapper/types'
 
 import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'

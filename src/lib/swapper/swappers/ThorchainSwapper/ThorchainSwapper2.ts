@@ -9,7 +9,7 @@ import type {
 import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
+import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/types'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,

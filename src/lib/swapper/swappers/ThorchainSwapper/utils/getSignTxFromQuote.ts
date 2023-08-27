@@ -6,7 +6,6 @@ import type {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import type {
   ThorEvmTradeQuote,
@@ -17,6 +16,7 @@ import type {
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'

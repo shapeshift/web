@@ -3,7 +3,7 @@ import { AssetService } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote2 } from './api'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote2 } from './types'
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type { QuoteResult } from './types'
 

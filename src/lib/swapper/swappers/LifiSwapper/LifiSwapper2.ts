@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { optimismChainId } from '@shapeshiftoss/caip'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from 'lib/asset-service'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
+import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'

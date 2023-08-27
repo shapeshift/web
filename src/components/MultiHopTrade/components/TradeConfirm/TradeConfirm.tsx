@@ -44,7 +44,7 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {

@@ -4,7 +4,7 @@ import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
+import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/types'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'

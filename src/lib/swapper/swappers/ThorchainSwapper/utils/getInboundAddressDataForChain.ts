@@ -1,11 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { SwapErrorRight } from 'lib/swapper/api'
-import { SwapErrorType } from 'lib/swapper/api'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { SwapErrorRight } from 'lib/swapper/types'
+import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 
 export const getInboundAddressDataForChain = async (

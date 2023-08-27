@@ -641,6 +641,7 @@
     "previewTrade": "预览交易",
     "rate": "利率",
     "tradeFrom": "交易从",
+    "priceImpact": "价格影响",
     "slippage": {
       "maxSlippage": "最大滑点",
       "auto": "自动",
@@ -650,9 +651,12 @@
     },
     "from": "从",
     "to": "到",
+    "on": "在",
     "youPay": "你付",
+    "payWith": "支付使用",
     "youGet": "你得到",
     "tradeTo": "交易成",
+    "availableRoutes": "可用路由",
     "minerFee": "矿工费",
     "donation": "ShapeShift 捐款",
     "protocolFee": "协议费",
@@ -661,6 +665,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gas费超过交易数量的 %{percentage}%",
     "confirmDetails": "确认详情",
     "confirmAndTrade": "确认并交易",
+    "tradeAnyway": "继续交易",
     "pending": "交易待处理",
     "complete": "交易完成",
     "approveAsset": "授权与 %{symbol} 交互",
@@ -684,6 +689,7 @@
     "tooltip": {
       "rate": "这是该交易对的预期利率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
+      "priceImpact": "考虑到池中当前的流动性，这种规模的兑换可能会对价格产生很大的影响。你的输入代币数量与你将在输出代币中收到的数量之间可能存在很大差异",
       "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
       "donation": "帮助支持 ShapeShift 并使我们保持正常运行。",
       "protocol": "这是你的交易路由的协议。",
@@ -705,7 +711,7 @@
       "buyAssetMiddleSentence": "购买资产",
       "notEnoughEth": "没有足够的 ETH 来支付此交易的手续费。",
       "amountTooSmall": "最小: %{minLimit}",
-      "amountTooSmallOrInvalidTradePair": "数量太少或没有路由",
+      "amountTooSmallUnknownMinimum": "数量太少",
       "sellAmountDoesNotCoverFee": "卖出数量低于手续费",
       "negativeMax": "资金不足，无法支付本次交易的矿工费。预计矿工费 %{estimatedMinerFee}",
       "invalidMax": "数量无效。该交易对的最大交易数量为 %{maxLimit} 。",
@@ -717,6 +723,7 @@
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
       "invalidTradePair": "无效的交易对：%{sellAssetName} 和 %{buyAssetName}",
       "invalidTradePairBtnText": "无效的交易对",
+      "unsupportedTradePair": "不支持的交易对",
       "noLiquidityError": "没有足够的流动性",
       "overMaxSlippage": "此交易将导致超过 %{slippagePercentage}% 的滑点。请以较低的金额数量以获得更好的价格",
       "balanceToLow": "余额太低。该交易对对的最低交易数量为 %{minLimit}",
@@ -742,6 +749,7 @@
       "assetNotSupportedByWallet": "钱包不支持 %{assetSymbol}",
       "noReceiveAddress": "%{assetSymbol} 没有接收地址",
       "tradingNotActive": "%{assetSymbol} 的交易暂时停止",
+      "tradingNotActiveNoAssetSymbol": "该路由交易暂时停止",
       "signing": {
         "failed": "签名交易时发生错误",
         "required": "交易需要签名"
@@ -759,7 +767,8 @@
     "unknownGas": "（未知）",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "从连接的钱包中找不到 %{chainName} 地址。手动输入地址来继续。",
-    "addressPlaceholder": "%{chainName} 地址"
+    "addressPlaceholder": "%{chainName} 地址",
+    "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？"
   },
   "modals": {
     "popup": {
@@ -902,6 +911,7 @@
         "sendAsset": "发送 %{asset}",
         "send": "发送",
         "sendTo": "发送给",
+        "customNonce": "自定义随机数",
         "sendFrom": "发送自",
         "edit": "编辑",
         "total": "总共",
@@ -1065,6 +1075,8 @@
       "loadingText": "正在匹配钱包"
     },
     "settings": {
+      "clearCache": "清除缓存",
+      "clearCacheTooltip": "清除缓存并重新加载应用程序",
       "settings": "设置",
       "currency": "货币",
       "clearWalletAccountData": "删除所有账户和钱包数据",
@@ -1791,7 +1803,9 @@
       "linkedYat": "已关联 Yat",
       "yatConnected": "Yat 已连接!",
       "usdcAddress": "Yat USDC 地址",
-      "ethAddress": "Yat ETH 地址"
+      "ethAddress": "Yat ETH 地址",
+      "noAddressFound": "找不到 %{symbol} 地址",
+      "viewInApp": "在 ShapeShift 移动应用程序中查看"
     }
   },
   "gasInput": {
@@ -1820,11 +1834,11 @@
     "emptyBody": {
       "seniorBestYield": {
         "page-1": {
-          "title": "高级最佳收益策略",
+          "title": "Senior Best Yield 策略",
           "body": "Senior Best Yield 金库是一劳永逸的策略，可自动在多个保守风险收益来源之间分配资金，以始终提供最高的年化收益"
         },
         "page-2": {
-          "title": "高级最佳收益策略：",
+          "title": "Senior Best Yield 策略：",
           "bullets": {
             "one": "Aave、Compound 和多个高级部分的收益生成的自动化和优化",
             "two": "提供最大化的回报，而无需用户在每次转账时不断检查费率和消耗手续费"
@@ -1945,19 +1959,10 @@
       "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上您持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
       "cta": "存款流动性"
     },
-    "atomOsmoProviders": {
-      "title": "ATOM/OSMO LP 提供商",
-      "body": "有 ATOM 和 OSMO 吗？向池中提供流动性，即可赚取 %{apy} 年利率并获得空投资格。",
-      "cta": "存款流动性"
-    },
     "stakeAtom": {
       "title": "质押 ATOM",
       "body": "使用你闲置 ATOM 可赚取高达 %{apr} 的年利率。再加上你质押的ATOM，你可以赚取 Arkeo 代币。如果你质押到 ShapeShift DAO 验证器，你可以获得 2 倍的空投资格。",
       "cta": "质押ATOM"
-    },
-    "stakeOsmo": {
-      "title": "质押 OSMO",
-      "body": "使用你闲置的 OSMO 赚取高达 %{apr} 的年利率。再加上你质押的 OSMO，你可以赚取 Arkeo 代币。如果你质押到 ShapeShift DAO 验证器，您可以获得 2 倍的空投资格。"
     },
     "footer": {
       "title": "除了 ShapeShift dApp 之外，你还可以通过其他方式获得资格。如需完整列表，请查看治理提案。",

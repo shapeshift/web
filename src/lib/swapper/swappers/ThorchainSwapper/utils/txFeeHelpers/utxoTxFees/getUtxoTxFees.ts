@@ -21,7 +21,7 @@ export const getUtxoTxFees = async ({
   sellAdapter,
   pubkey,
   protocolFees,
-}: GetUtxoTxFeesInput): Promise<QuoteFeeData<ThorUtxoSupportedChainId>> => {
+}: GetUtxoTxFeesInput): Promise<QuoteFeeData> => {
   const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
     to: vault,
     value: sellAmountCryptoBaseUnit,

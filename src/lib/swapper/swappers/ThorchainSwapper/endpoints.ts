@@ -1,13 +1,13 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
   Swapper2Api,
   TradeQuote,
   UnsignedTx2,
+  UtxoFeeData,
 } from 'lib/swapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
@@ -48,8 +48,7 @@ export const thorchainApi: Swapper2Api = {
         ? {
             xpub,
             accountType,
-            satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
-              .chainSpecific.satsPerByte,
+            satoshiPerByte: (tradeQuote.steps[0].feeData.chainSpecific as UtxoFeeData).satsPerByte,
           }
         : undefined
 

@@ -4,7 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
-import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -29,7 +29,7 @@ import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
-): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -93,7 +93,7 @@ export async function getCowSwapTradeQuote(
     response: data,
   })
 
-  const quote: TradeQuote<CowChainId> = {
+  const quote: TradeQuote = {
     id: data.id.toString(),
     receiveAddress,
     affiliateBps: undefined,

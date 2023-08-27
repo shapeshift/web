@@ -9,7 +9,7 @@ import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
-import type { SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import type { CosmosSdkFeeData, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 
@@ -21,7 +21,7 @@ type GetCosmosTxDataInput = {
   buyAsset: Asset
   slippageTolerance: string
   from: string
-  quote: TradeQuote<ThorCosmosSdkSupportedChainId>
+  quote: TradeQuote
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
   affiliateBps: string
@@ -64,7 +64,8 @@ export const getCosmosTxData = async (
             value: sellAmountCryptoBaseUnit,
             memo,
             chainSpecific: {
-              gas: quote.steps[0].feeData.chainSpecific.estimatedGasCryptoBaseUnit,
+              gas: (quote.steps[0].feeData.chainSpecific as CosmosSdkFeeData)
+                .estimatedGasCryptoBaseUnit,
               fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit ?? '0',
             },
           }),
@@ -88,8 +89,8 @@ export const getCosmosTxData = async (
             to: vault,
             memo,
             chainSpecific: {
-              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).steps[0].feeData
-                .chainSpecific.estimatedGasCryptoBaseUnit,
+              gas: (quote.steps[0].feeData.chainSpecific as CosmosSdkFeeData)
+                .estimatedGasCryptoBaseUnit,
               fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit ?? '0',
             },
           }),

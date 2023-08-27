@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
@@ -26,24 +26,13 @@ export type CosmosSdkFeeData = {
   estimatedGasCryptoBaseUnit: string
 }
 
-type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
-  T,
-  {
-    [KnownChainIds.BitcoinMainnet]: UtxoFeeData
-    [KnownChainIds.DogecoinMainnet]: UtxoFeeData
-    [KnownChainIds.LitecoinMainnet]: UtxoFeeData
-    [KnownChainIds.BitcoinCashMainnet]: UtxoFeeData
-    [KnownChainIds.CosmosMainnet]: CosmosSdkFeeData
-    [KnownChainIds.ThorchainMainnet]: CosmosSdkFeeData
-  }
->
-
 export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
-export type QuoteFeeData<T extends ChainId> = {
+export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
-} & ChainSpecificQuoteFeeData<T>
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData
+}
 
 export type BuyAssetBySellIdInput = {
   sellAsset: Asset
@@ -89,11 +78,11 @@ export type AmountDisplayMeta = {
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
-export type TradeBase<C extends ChainId> = {
+export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit?: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  feeData: QuoteFeeData<C>
+  feeData: QuoteFeeData
   rate: string
   source: SwapSource
   buyAsset: Asset
@@ -102,17 +91,14 @@ export type TradeBase<C extends ChainId> = {
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
-}
-
-export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
   allowanceContract: string
 }
 
-export type TradeQuote<C extends ChainId = ChainId> = {
+export type TradeQuote = {
   recommendedSlippage?: string
   estimatedExecutionTimeMs: number | undefined
   id: string
-  steps: TradeQuoteStep<C>[]
+  steps: TradeQuoteStep[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string
   receiveAccountNumber?: number

@@ -9,7 +9,7 @@ import { DEFAULT_SLIPPAGE } from '../constants'
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
-  const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  const tradeQuote: TradeQuote = {
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: undefined,

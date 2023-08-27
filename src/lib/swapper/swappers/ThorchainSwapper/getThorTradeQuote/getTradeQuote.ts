@@ -9,11 +9,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
@@ -41,16 +36,13 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
+export type ThorEvmTradeQuote = TradeQuote & {
   router: string
   data: string
 }
 
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
-type ThorTradeQuoteBase =
-  | TradeQuote<ThorCosmosSdkSupportedChainId>
-  | TradeQuote<ThorUtxoSupportedChainId>
-  | ThorEvmTradeQuote
+type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (

@@ -1,5 +1,4 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -17,7 +16,7 @@ import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,

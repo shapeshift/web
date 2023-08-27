@@ -21,8 +21,6 @@ export const zrxApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const { affiliateBps, receiveAddress } = input
-
     const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -30,14 +28,7 @@ export const zrxApi: Swapper2Api = {
       const firstHop = tradeQuote.steps[0]
       tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
 
-      return [
-        {
-          id,
-          receiveAddress,
-          affiliateBps,
-          ...tradeQuote,
-        },
-      ]
+      return [tradeQuote]
     })
   },
 

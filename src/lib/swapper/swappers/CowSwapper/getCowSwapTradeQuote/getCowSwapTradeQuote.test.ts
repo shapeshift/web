@@ -86,7 +86,7 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   validTo: 1656797787,
 }
 
-const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
@@ -116,7 +116,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ],
 }
 
-const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
@@ -146,7 +146,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ],
 }
 
-const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
+const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
@@ -176,7 +176,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
   ],
 }
 
-const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,

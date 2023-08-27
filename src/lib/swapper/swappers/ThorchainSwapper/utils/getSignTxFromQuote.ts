@@ -107,7 +107,7 @@ export const getSignTxFromQuote = async ({
         buyAsset,
         from: from!,
         destinationAddress: receiveAddress,
-        quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
+        quote: quote as TradeQuote,
         affiliateBps,
         memo,
       })

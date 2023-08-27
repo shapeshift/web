@@ -9,7 +9,6 @@ import type {
 import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/types'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,
@@ -17,6 +16,7 @@ import {
 import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { executeEvmTrade } from 'lib/utils/evm'
 

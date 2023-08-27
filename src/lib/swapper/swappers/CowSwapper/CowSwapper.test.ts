@@ -8,7 +8,7 @@ import {
   XDAI,
 } from 'lib/swapper/swappers/utils/test-data/assets'
 
-import { cowSwapper } from './CowSwapper2'
+import { cowSwapper } from './CowSwapper'
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),

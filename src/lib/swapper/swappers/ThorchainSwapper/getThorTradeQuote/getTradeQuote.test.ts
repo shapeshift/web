@@ -1,5 +1,6 @@
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
+import { omit } from 'lodash'
 
 import type { GetTradeQuoteInput } from '../../../types'
 import { SwapperName } from '../../../types'
@@ -14,7 +15,7 @@ import type {
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
-import type { ThorTradeQuote } from './getTradeQuote'
+import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../evm/utils/getThorTxData')
@@ -42,10 +43,9 @@ jest.mock('config', () => {
   }
 })
 
-const expectedQuoteResponse: ThorTradeQuote[] = [
+const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
-    id: '1324',
-    receiveAddress: '0x1234',
+    receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     isStreaming: false,
     rate: '144114.94366197183098591549',
@@ -78,8 +78,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
     ],
   },
   {
-    id: '1325',
-    receiveAddress: '0x1234',
+    receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     isStreaming: true,
     rate: '158199.45070422535211267606',
@@ -175,6 +174,9 @@ describe('getTradeQuote', () => {
 
     const maybeTradeQuote = await getThorTradeQuote(input)
     expect(maybeTradeQuote.isOk()).toBe(true)
-    expect(maybeTradeQuote.unwrap()).toEqual(expectedQuoteResponse)
+    const result = maybeTradeQuote.unwrap()
+    // ids are uuids, so don't bother checking them
+    const resultWithoutIds = result.map(route => omit(route, 'id'))
+    expect(resultWithoutIds).toEqual(expectedQuoteResponse)
   })
 })

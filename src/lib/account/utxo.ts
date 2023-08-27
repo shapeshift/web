@@ -24,7 +24,8 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         chainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
 
-      for (const accountType of adapter.getSupportedAccountTypes()) {
+      const supportedAccountTypes = adapter.getSupportedAccountTypes()
+      for (const accountType of supportedAccountTypes) {
         const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, accountNumber)
         const pubkeys = await wallet.getPublicKeys([
           {
@@ -37,7 +38,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
 
         // TODO(gomes): hdwallet snaps is borked and can't get UTXOs, this is commented so we don't crash all
         // Unrug UTXOs and uncomment me.
-        if (!pubkeys?.[0]?.xpub) continue
+        if (!pubkeys?.[0]?.xpub || typeof pubkeys?.[0]?.xpub !== 'string') continue
         // if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
 
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)

@@ -108,6 +108,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // 14924 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
@@ -138,6 +139,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '49956403982959960',
+      buyAmountAfterFeesCryptoBaseUnit: '46868859830863283',
       source: SwapperName.CowSwap,
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
@@ -168,6 +170,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       buyAmountBeforeFeesCryptoBaseUnit: '21006555728332525852',
+      buyAmountAfterFeesCryptoBaseUnit: '21005367357465608755',
       source: SwapperName.CowSwap,
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
@@ -198,6 +201,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '166441655297153832879', // 166 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '145018118182475950905', // 145 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,

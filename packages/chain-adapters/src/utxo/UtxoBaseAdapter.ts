@@ -402,6 +402,20 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
+  async signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string> {
+    try {
+      const { wallet } = signTxInput
+
+      if (!supportsBTC(wallet)) {
+        throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
+      }
+      const signedTx = await this.signTransaction(signTxInput)
+      return this.broadcastTransaction(signedTx)
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
     if (!this.accountAddresses[input.pubkey]) {
       await this.getAccount(input.pubkey)

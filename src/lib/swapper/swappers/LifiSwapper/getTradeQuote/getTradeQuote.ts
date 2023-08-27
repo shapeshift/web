@@ -2,7 +2,6 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
@@ -22,7 +21,7 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
+  input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
@@ -36,7 +35,6 @@ export async function getTradeQuote(
     accountNumber,
     slippageTolerancePercentage,
     supportsEIP1559,
-    wallet,
     affiliateBps,
   } = input
 
@@ -161,11 +159,9 @@ export async function getTradeQuote(
             )
 
             const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-              accountNumber,
               chainId,
               lifiStep,
               supportsEIP1559,
-              wallet,
             })
 
             const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`

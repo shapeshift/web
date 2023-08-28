@@ -5,7 +5,7 @@ import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteVa
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/types'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,

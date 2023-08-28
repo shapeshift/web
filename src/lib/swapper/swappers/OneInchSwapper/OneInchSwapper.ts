@@ -1,12 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from 'lib/asset-service'
-import type { BuyAssetBySellIdInput, Swapper2 } from 'lib/swapper/api'
+import type { BuyAssetBySellIdInput, Swapper } from 'lib/swapper/types'
 import { executeEvmTrade } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
-export const oneInchSwapper: Swapper2 = {
+export const oneInchSwapper: Swapper = {
   executeTrade: executeEvmTrade,
 
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {

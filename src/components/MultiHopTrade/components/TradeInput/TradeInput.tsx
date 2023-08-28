@@ -48,7 +48,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,

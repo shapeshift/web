@@ -4,7 +4,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/api'
+import type { ProtocolFee } from 'lib/swapper/types'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import {
   selectAccountNumberByAccountId,

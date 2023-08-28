@@ -9,7 +9,6 @@ import type {
 import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,
@@ -17,12 +16,13 @@ import {
 import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { executeEvmTrade } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
-export const thorchainSwapper: Swapper2 = {
+export const thorchainSwapper: Swapper = {
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
     const { chainNamespace } = fromChainId(chainId)
     const chainAdapterManager = getChainAdapterManager()

@@ -1,6 +1,6 @@
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
-import type { AmountDisplayMeta } from 'lib/swapper/api'
+import type { AmountDisplayMeta } from 'lib/swapper/types'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'
 import { multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'

@@ -1,7 +1,7 @@
 import type { Asset } from 'lib/asset-service'
-import { SwapperName } from 'lib/swapper/api'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
+import { SwapperName } from 'lib/swapper/types'
 
 export const setupZrxTradeQuoteResponse = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }

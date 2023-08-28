@@ -1,46 +1,33 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import { v4 as uuid } from 'uuid'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
-  Swapper2Api,
+  SwapperApi,
   TradeQuote,
-  TradeQuote2,
-  UnsignedTx2,
-} from 'lib/swapper/api'
-import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+  UnsignedTx,
+  UtxoFeeData,
+} from 'lib/swapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
-export const thorchainApi: Swapper2Api = {
+export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const { receiveAddress } = input
-
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
     const affiliateBps = applyThorSwapAffiliateFees
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    const quoteResult = await getThorTradeQuote({
+    return await getThorTradeQuote({
       ...input,
       affiliateBps,
-    })
-
-    return quoteResult.map<TradeQuote2[]>(quotes => {
-      return quotes.map(quote => ({
-        id: uuid(),
-        receiveAddress,
-        affiliateBps,
-        ...quote,
-      }))
     })
   },
 
@@ -51,7 +38,7 @@ export const thorchainApi: Swapper2Api = {
     xpub,
     supportsEIP1559,
     slippageTolerancePercentageDecimal,
-  }): Promise<UnsignedTx2> => {
+  }): Promise<UnsignedTx> => {
     const { receiveAddress, affiliateBps } = tradeQuote
 
     const accountType = accountMetadata?.accountType
@@ -61,8 +48,7 @@ export const thorchainApi: Swapper2Api = {
         ? {
             xpub,
             accountType,
-            satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
-              .chainSpecific.satsPerByte,
+            satoshiPerByte: (tradeQuote.steps[0].feeData.chainSpecific as UtxoFeeData).satsPerByte,
           }
         : undefined
 

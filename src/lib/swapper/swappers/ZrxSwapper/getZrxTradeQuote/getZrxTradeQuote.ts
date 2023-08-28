@@ -1,11 +1,10 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
@@ -17,12 +16,15 @@ import {
   getAdapter,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
-export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
+export async function getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -84,6 +86,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     })
 
     return Ok({
+      id: uuid(),
+      estimatedExecutionTimeMs: undefined,
+      receiveAddress,
+      affiliateBps,
       rate,
       steps: [
         {
@@ -101,7 +107,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           source: SwapperName.Zrx,
         },
       ],
-    } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs
+    })
   } catch (err) {
     return Err(
       makeSwapErrorRight({

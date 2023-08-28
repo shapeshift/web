@@ -2,26 +2,26 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
+  input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
@@ -35,7 +35,6 @@ export async function getTradeQuote(
     accountNumber,
     slippageTolerancePercentage,
     supportsEIP1559,
-    wallet,
     affiliateBps,
   } = input
 
@@ -160,11 +159,9 @@ export async function getTradeQuote(
             )
 
             const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-              accountNumber,
               chainId,
               lifiStep,
               supportsEIP1559,
-              wallet,
             })
 
             const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
@@ -204,6 +201,9 @@ export async function getTradeQuote(
         )
 
         return {
+          id: selectedLifiRoute.id,
+          receiveAddress,
+          affiliateBps,
           steps,
           rate: netRate,
           estimatedExecutionTimeMs,

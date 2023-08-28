@@ -4,7 +4,7 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { SwapperName, TradeQuote } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {

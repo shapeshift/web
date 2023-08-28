@@ -17,7 +17,9 @@ const SUPPORTED_ACCOUNT_TYPES = [
 ]
 
 export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinMainnet> {
-  public static readonly defaultUtxoAccountType = UtxoAccountType.SegwitNative
+  // TODO(gomes): this is for development only - default script type should still be SegiwtNative
+  // make this a non-static property and introduce a setter that sets this to legacy on Flask/Snap connected
+  public static readonly defaultUtxoAccountType = UtxoAccountType.P2pkh
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 84,
     coinType: Number(ASSET_REFERENCE.Bitcoin),

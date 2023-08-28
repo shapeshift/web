@@ -21,6 +21,10 @@ import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -30,8 +34,11 @@ type ReceiveSummaryProps = {
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
-  shapeShiftFee?: { amountFiatPrecision: string; amountBps: string }
-  slippage: string
+  shapeShiftFee?: {
+    amountFiatPrecision: string
+    amountBps: string
+  }
+  slippageDecimalPercentage: string
   swapperName: string
   donationAmount?: string
 } & RowProps
@@ -45,7 +52,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     amountBeforeFeesCryptoPrecision,
     protocolFees,
     shapeShiftFee,
-    slippage,
+    slippageDecimalPercentage,
     swapperName,
     isLoading,
     donationAmount,
@@ -58,7 +65,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
-    const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+    const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
@@ -96,6 +103,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       () => intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0,
       [intermediaryTransactionOutputsParsed],
     )
+
+    const amountAfterSlippage = useMemo(() => {
+      const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
+      return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
+    }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
 
     return (
       <>
@@ -228,10 +240,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <Row.Value whiteSpace='nowrap'>
                   <Stack spacing={0} alignItems='flex-end'>
                     <Skeleton isLoaded={!isLoading}>
-                      <Amount.Crypto
-                        value={isAmountPositive ? amountCryptoPrecision : '0'}
-                        symbol={symbol}
-                      />
+                      <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
                     </Skeleton>
                     {isAmountPositive &&
                       hasIntermediaryTransactionOutputs &&

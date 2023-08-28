@@ -1,8 +1,8 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
-import type { SwapSource } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
 import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { SwapSource } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 // TODO: read from https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
 export const RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN = bn('0.02')
 

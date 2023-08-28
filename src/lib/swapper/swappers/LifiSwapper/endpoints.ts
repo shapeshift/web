@@ -11,10 +11,11 @@ import type {
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
   SwapErrorRight,
-  Swapper2Api,
-  TradeQuote2,
-} from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+  SwapperApi,
+  TradeQuote,
+} from 'lib/swapper/types'
+import { SwapErrorType } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -26,10 +27,10 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 // cached metadata - would need persistent cache with expiry if moved server-side
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
-export const lifiApi: Swapper2Api = {
+export const lifiApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -50,7 +51,6 @@ export const lifiApi: Swapper2Api = {
       lifiChainMap,
       assetsById,
     )
-    const { affiliateBps, receiveAddress } = input
 
     return tradeQuoteResult.map(quote =>
       quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
@@ -63,12 +63,7 @@ export const lifiApi: Swapper2Api = {
         // store the lifi quote metadata for transaction building later
         tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-        return {
-          id,
-          receiveAddress,
-          affiliateBps,
-          ...tradeQuote,
-        }
+        return tradeQuote
       }),
     )
   },

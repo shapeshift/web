@@ -1,15 +1,16 @@
-import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
+import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
-import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
 import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
-import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
+import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper'
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
-import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
-import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
+import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
-import { makeSwapErrorRight, SwapperName } from './api'
+import { SwapperName } from './types'
+import { makeSwapErrorRight } from './utils'
 
 export const QUOTE_TIMEOUT_MS = 10_000
 

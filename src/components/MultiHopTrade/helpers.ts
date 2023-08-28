@@ -1,5 +1,5 @@
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {

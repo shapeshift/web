@@ -3,8 +3,8 @@ import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
-import type { TradeQuote } from 'lib/swapper/api'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import type { TradeQuote } from 'lib/swapper/types'
 import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
 
 export const checkApprovalNeeded = async (

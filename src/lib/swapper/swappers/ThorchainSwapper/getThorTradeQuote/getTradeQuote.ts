@@ -4,9 +4,15 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
+import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
+import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -14,19 +20,9 @@ import type {
   ProtocolFee,
   SwapErrorRight,
   TradeQuote,
-} from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
-import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
-import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
-import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
+} from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -40,16 +36,13 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
+export type ThorEvmTradeQuote = TradeQuote & {
   router: string
   data: string
 }
 
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
-type ThorTradeQuoteBase =
-  | TradeQuote<ThorCosmosSdkSupportedChainId>
-  | TradeQuote<ThorUtxoSupportedChainId>
-  | ThorEvmTradeQuote
+type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (
@@ -247,6 +240,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
@@ -338,6 +334,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
@@ -402,6 +401,9 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             return {
+              id: uuid(),
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),

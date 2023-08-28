@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { TradeQuote } from 'lib/swapper/api'
+import type { TradeQuote } from 'lib/swapper/types'
 
 import { useApprovalTx } from './hooks/useApprovalTx'
 import { useExecuteAllowanceApproval } from './hooks/useExecuteAllowanceApproval'

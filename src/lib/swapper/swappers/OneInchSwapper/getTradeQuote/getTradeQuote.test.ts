@@ -1,6 +1,6 @@
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { oneInchService } from '../utils/oneInchService'

@@ -1,40 +1,32 @@
 import type { LifiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { calcNetworkFeeCryptoBaseUnit, getFees, isEvmChainAdapter } from 'lib/utils/evm'
+import { calcNetworkFeeCryptoBaseUnit, isEvmChainAdapter } from 'lib/utils/evm'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
 
 type GetNetworkFeeArgs = {
-  accountNumber: number
   chainId: ChainId
   lifiStep: LifiStep
   supportsEIP1559: boolean
-  wallet?: HDWallet
 }
 
 export const getNetworkFeeCryptoBaseUnit = async ({
-  accountNumber,
   chainId,
   lifiStep,
   supportsEIP1559,
-  wallet,
 }: GetNetworkFeeArgs) => {
   const lifi = getLifi()
   const adapter = getChainAdapterManager().get(chainId)
 
   if (!isEvmChainAdapter(adapter)) {
-    throw new SwapError('[getNetworkFeeCryptoBaseUnit] - unsupported chain adapter', {
-      code: SwapErrorType.VALIDATION_FAILED,
-      details: { chainId },
+    throw new Error('unsupported chain adapter', {
+      cause: { chainId },
     })
   }
 
@@ -42,23 +34,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const { value, to, data, gasLimit } = transactionRequest ?? {}
 
   if (!value || !to || !data || !gasLimit) {
-    throw new SwapError('[getNetworkFeeCryptoBaseUnit] getStepTransaction failed', {
-      code: SwapErrorType.VALIDATION_FAILED,
-    })
-  }
-
-  // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation
-  if (wallet) {
-    const { networkFeeCryptoBaseUnit } = await getFees({
-      accountNumber,
-      adapter,
-      to,
-      data: data.toString(),
-      value: bn(value.toString()).toFixed(),
-      wallet,
-    })
-
-    return networkFeeCryptoBaseUnit
+    throw new Error('getStepTransaction failed')
   }
 
   const { average } = await adapter.getGasFeeData()

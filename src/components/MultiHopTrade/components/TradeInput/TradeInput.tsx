@@ -286,7 +286,7 @@ export const TradeInput = memo(() => {
                 protocolFees={totalProtocolFees}
                 shapeShiftFee={shapeShiftFee}
                 donationAmount={donationAmount}
-                slippage={slippageDecimal}
+                slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
               />
             ) : null}

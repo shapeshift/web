@@ -363,7 +363,7 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
-          slippage={slippageDecimal}
+          slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}

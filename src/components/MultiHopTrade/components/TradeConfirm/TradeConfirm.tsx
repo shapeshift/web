@@ -51,6 +51,8 @@ import {
   selectActiveQuote,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
@@ -58,9 +60,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectNetReceiveAmountCryptoPrecision,
   selectQuoteDonationAmountUserCurrency,
-  selectReceiveBuyAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -128,9 +128,9 @@ export const TradeConfirm = () => {
   const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const netBuyAmountUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
+  const netBuyAmountUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)

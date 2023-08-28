@@ -15,9 +15,9 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectUserSlippagePercentageDecimal } from 'state/slices/swappersSlice/selectors'
 import {
+  getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
-  getNetReceiveAmountCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
   getTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/helpers'
@@ -121,9 +121,9 @@ export const selectHopTotalNetworkFeeFiatPrecision: Selector<ReduxState, string 
         : undefined,
   )
 
-export const selectNetReceiveAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, selectActiveSwapperName, (quote, swapperName) =>
-    quote && swapperName ? getNetReceiveAmountCryptoPrecision({ quote, swapperName }) : undefined,
+export const selectBuyAmountAfterFeesCryptoPrecision: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, selectActiveSwapperName, quote =>
+    quote ? getBuyAmountAfterFeesCryptoPrecision({ quote }) : undefined,
   )
 
 export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
@@ -343,12 +343,12 @@ export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLa
   )
 })
 
-export const selectReceiveBuyAmountUserCurrency = createSelector(
-  selectNetReceiveAmountCryptoPrecision,
+export const selectBuyAmountAfterFeesUserCurrency = createSelector(
+  selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAssetUserCurrencyRate,
-  (netReceiveAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!netReceiveAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(netReceiveAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
+  (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 

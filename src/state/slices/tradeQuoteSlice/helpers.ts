@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote } from 'lib/swapper/types'
+import type { ProtocolFee, TradeQuote } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -76,15 +76,9 @@ export const getHopTotalNetworkFeeFiatPrecision = (
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
  * @param quote The trade quote
- * @param swapperName The swapper name
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
-export const getNetReceiveAmountCryptoPrecision = ({
-  quote,
-}: {
-  quote: TradeQuote
-  swapperName: SwapperName
-}) => {
+export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 

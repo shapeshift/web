@@ -97,7 +97,6 @@ export async function getZrxTradeQuote(
       receiveAddress,
       affiliateBps,
       rate,
-      estimatedExecutionTimeMs: undefined,
       steps: [
         {
           allowanceContract: allowanceTarget,

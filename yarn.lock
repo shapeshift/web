@@ -7926,9 +7926,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:v1.50.5-alpha-16":
-  version: 1.50.5-alpha-16
-  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha-16"
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:v1.50.5-alpha-20":
+  version: 1.50.5-alpha-20
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha-20"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
@@ -7937,8 +7937,7 @@ __metadata:
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.7
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-    p-memoize: ^7.1.1
-  checksum: 8231a87715c53b25d1c328f2c29de8e4601e018fb78ccb79fdff31a7d41931f805f61ded463d96dbce4987510b9c7f02f09e9f411f0dd92615c53893463cd53c
+  checksum: 2cce132864a9e3d74fc6a1f38c912d86eb5719e7ce7b335fae04ec8181cb60f1426ca24531057e10f4a03ccf837a43ce276bd4d6ce8eccebebda67a3d4b4287f
   languageName: node
   linkType: hard
 
@@ -8179,7 +8178,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": v1.50.5-alpha-16
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": v1.50.5-alpha-20
     "@shapeshiftoss/hdwallet-walletconnect": ^1.50.4
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/metamask-snaps": ^1.0.0
@@ -22693,13 +22692,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mimic-fn@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "mimic-fn@npm:4.0.0"
-  checksum: 995dcece15ee29aa16e188de6633d43a3db4611bcf93620e7e62109ec41c79c0f34277165b8ce5e361205049766e371851264c21ac64ca35499acb5421c2ba56
-  languageName: node
-  linkType: hard
-
 "mimic-response@npm:^1.0.0, mimic-response@npm:^1.0.1":
   version: 1.0.1
   resolution: "mimic-response@npm:1.0.1"
@@ -23960,16 +23952,6 @@ __metadata:
   dependencies:
     aggregate-error: ^3.0.0
   checksum: cb0ab21ec0f32ddffd31dfc250e3afa61e103ef43d957cc45497afe37513634589316de4eb88abdfd969fe6410c22c0b93ab24328833b8eb1ccc087fc0442a1c
-  languageName: node
-  linkType: hard
-
-"p-memoize@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "p-memoize@npm:7.1.1"
-  dependencies:
-    mimic-fn: ^4.0.0
-    type-fest: ^3.0.0
-  checksum: 2fc5b12fc530aed9c1e455f706d8da2a2e6bed4573f611a4e92b2a75f253e8c0acc63ad014b55f155b5d5de110c586b490a4d6612d64bc743106cad626d995fd
   languageName: node
   linkType: hard
 
@@ -29577,13 +29559,6 @@ pvutils@latest:
   version: 1.4.0
   resolution: "type-fest@npm:1.4.0"
   checksum: b011c3388665b097ae6a109a437a04d6f61d81b7357f74cbcb02246f2f5bd72b888ae33631b99871388122ba0a87f4ff1c94078e7119ff22c70e52c0ff828201
-  languageName: node
-  linkType: hard
-
-"type-fest@npm:^3.0.0":
-  version: 3.13.1
-  resolution: "type-fest@npm:3.13.1"
-  checksum: c06b0901d54391dc46de3802375f5579868949d71f93b425ce564e19a428a0d411ae8d8cb0e300d330071d86152c3ea86e744c3f2860a42a79585b6ec2fdae8e
   languageName: node
   linkType: hard
 

@@ -99,6 +99,7 @@ export const getInputOutputRatioFromQuote = ({
   const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
   const lastStep = quote.steps[quote.steps.length - 1]
   const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
+  // TODO: implement this when we do multi-hop
   const buySideNetworkFeeCryptoBaseUnit = bn(0)
 
   const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(

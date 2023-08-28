@@ -17,7 +17,7 @@ import { quoteStatusTranslation } from 'components/MultiHopTrade/components/Trad
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectAssets,

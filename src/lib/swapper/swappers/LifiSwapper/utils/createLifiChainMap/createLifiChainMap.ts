@@ -1,7 +1,6 @@
 import type { ChainKey as LifiChainKey, EVMChain as LifiEVMChain } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, isChainReference, toChainId } from '@shapeshiftoss/caip'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 export const createLifiChainMap = (
   lifiChains: Pick<LifiEVMChain, 'key' | 'id'>[],
@@ -12,9 +11,8 @@ export const createLifiChainMap = (
         const maybeChainReference = id.toString()
 
         if (!isChainReference(maybeChainReference))
-          throw new SwapError('[createLifiChainMap] invalid chainId', {
-            code: SwapErrorType.UNSUPPORTED_CHAIN,
-            details: { chainId: maybeChainReference },
+          throw Error('invalid chainId', {
+            cause: { chainId: maybeChainReference },
           })
         return maybeChainReference
       })()

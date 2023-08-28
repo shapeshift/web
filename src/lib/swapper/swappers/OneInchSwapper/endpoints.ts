@@ -7,9 +7,9 @@ import type {
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
   SwapErrorRight,
-  Swapper2Api,
-  TradeQuote2,
-} from 'lib/swapper/api'
+  SwapperApi,
+  TradeQuote,
+} from 'lib/swapper/types'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -17,26 +17,17 @@ import { fetchOneInchSwap } from './utils/fetchOneInchSwap'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
-export const oneInchApi: Swapper2Api = {
+export const oneInchApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
-    const { affiliateBps, receiveAddress } = input
-
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       const firstHop = tradeQuote.steps[0]
       tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
-      return [
-        {
-          id,
-          receiveAddress,
-          affiliateBps,
-          ...tradeQuote,
-        },
-      ]
+      return [tradeQuote]
     })
   },
 

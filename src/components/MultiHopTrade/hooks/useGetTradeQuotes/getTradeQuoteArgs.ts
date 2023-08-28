@@ -11,7 +11,7 @@ import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { toBaseUnit } from 'lib/math'
-import type { GetTradeQuoteInput } from 'lib/swapper/api'
+import type { GetTradeQuoteInput } from 'lib/swapper/types'
 
 export type GetTradeQuoteInputArgs = {
   sellAsset: Asset

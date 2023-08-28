@@ -15,7 +15,6 @@ import {
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import WAValidator from 'multicoin-address-validator'
 import { bn } from 'lib/bignumber/bignumber'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import {
   LIMIT_PART_DELIMITER,
   MEMO_PART_DELIMITER,
@@ -71,45 +70,33 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
     : undefined
 
   if (!isAddressValid) {
-    throw new SwapError(`memo ${memo} invalid`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`memo ${memo} invalid`)
   }
 
   const [limit, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
 
   if (streamingNumSwaps && !bn(streamingNumSwaps).isInteger()) {
-    throw new SwapError(`streamingNumSwaps ${streamingNumSwaps} is not a valid number`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`streamingNumSwaps ${streamingNumSwaps} is not a valid number`)
   }
 
   if (streamingNumBlocks && !bn(streamingNumBlocks).isInteger()) {
-    throw new SwapError(`streamingNumBlocks ${streamingNumBlocks} is not a valid number`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`streamingNumBlocks ${streamingNumBlocks} is not a valid number`)
   }
 
   // Check if limit is a valid number
   if (!bn(limit).isInteger()) {
-    throw new SwapError(`limit ${limit} is not a valid number`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`limit ${limit} is not a valid number`)
   }
 
   // Check if affiliate is "ss"
   if (affiliate !== THORCHAIN_AFFILIATE_NAME) {
-    throw new SwapError(`affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`)
   }
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
   const affiliateBpsNum = parseFloat(affiliateBps)
   if (!bn(limit).isInteger() || bn(affiliateBpsNum).lt(0) || bn(affiliateBpsNum).gt(1000)) {
-    throw new SwapError(`affiliateBps ${affiliateBps} is not a number between 0 and 1000`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`affiliateBps ${affiliateBps} is not a number between 0 and 1000`)
   }
 
   const { chainNamespace } = fromChainId(chainId)
@@ -130,8 +117,6 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
   })()
 
   if (memo.length > maxMemoLength) {
-    throw new SwapError(`memo length exceeds ${maxMemoLength} characters`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
+    throw Error(`memo length exceeds ${maxMemoLength} characters`)
   }
 }

@@ -17,8 +17,8 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
 
@@ -30,8 +30,7 @@ type ReceiveSummaryProps = {
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
-  shapeShiftFee?: string
-  affiliateBps?: string
+  shapeShiftFee?: { amountFiatPrecision: string; amountBps: string }
   slippage: string
   swapperName: string
   donationAmount?: string
@@ -46,7 +45,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     amountBeforeFeesCryptoPrecision,
     protocolFees,
     shapeShiftFee,
-    affiliateBps,
     slippage,
     swapperName,
     isLoading,
@@ -188,14 +186,16 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row>
               <Row.Label display='flex'>
                 <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
-                <RawText>&nbsp;{` (${affiliateBps ?? '0'} bps)`}</RawText>
+                {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
+                  <RawText>&nbsp;{` (${shapeShiftFee.amountBps} bps)`}</RawText>
+                )}
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  {shapeShiftFee && shapeShiftFee !== '0' ? (
-                    <Amount.Fiat value={shapeShiftFee} />
+                  {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
+                    <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
                   ) : (
-                    <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
                   )}
                 </Skeleton>
               </Row.Value>
@@ -204,7 +204,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.donation')}>
                   <Row.Label>
-                    <Text translation={'trade.donation'} />
+                    <Text translation='trade.donation' />
                   </Row.Label>
                 </HelperTooltip>
                 <Row.Value>

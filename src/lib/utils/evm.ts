@@ -17,7 +17,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ExecuteTradeArgs } from 'lib/swapper/api'
+import type { ExecuteTradeArgs } from 'lib/swapper/types'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string

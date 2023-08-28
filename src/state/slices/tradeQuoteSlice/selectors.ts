@@ -5,8 +5,8 @@ import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
@@ -35,7 +35,7 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
   tradeQuote => tradeQuote.activeStep ?? 0,
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
 export const selectActiveQuoteIndex: Selector<ReduxState, number> = createSelector(
@@ -65,7 +65,7 @@ export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | und
     },
   )
 
-export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,
     selectConfirmedQuote,
@@ -138,10 +138,10 @@ export const selectTotalProtocolFeeByAsset: Selector<
   quote ? getTotalProtocolFeeByAsset(quote) : undefined,
 )
 
-export const selectFirstHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
+export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[0] : undefined))
 
-export const selectLastHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
+export const selectLastHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote =>
     quote ? quote.steps[quote.steps.length - 1] : undefined,
   )

@@ -8,7 +8,6 @@ import type {
 import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
@@ -74,16 +73,14 @@ export const getUnsignedTx = async ({
   const adapter = adapterManager.get(chainId) as ChainAdapter<EvmChainId>
 
   if (adapter === undefined) {
-    throw new SwapError('[executeTrade] - getChainAdapterManager returned undefined', {
-      code: SwapErrorType.UNSUPPORTED_CHAIN,
-      details: { chainId },
+    throw Error('getChainAdapterManager returned undefined', {
+      cause: { chainId },
     })
   }
 
   if (!isEvmChainAdapter(adapter)) {
-    throw new SwapError('[executeTrade] - non-EVM chain adapter detected', {
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
-      details: {
+    throw Error('non-EVM chain adapter detected', {
+      cause: {
         chainAdapterName: adapter.getDisplayName(),
         chainId: adapter.getChainId(),
       },

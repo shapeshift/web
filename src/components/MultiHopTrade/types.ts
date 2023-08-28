@@ -1,7 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Asset } from 'lib/asset-service'
-import type { GetTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
+import type { GetTradeQuoteInput, SwapErrorRight } from 'lib/swapper/types'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 

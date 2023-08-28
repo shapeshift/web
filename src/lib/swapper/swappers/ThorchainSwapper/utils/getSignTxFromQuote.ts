@@ -6,7 +6,6 @@ import type {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import type {
   ThorEvmTradeQuote,
@@ -17,6 +16,7 @@ import type {
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import type { TradeQuote, UnsignedTx } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
@@ -43,7 +43,7 @@ export const getSignTxFromQuote = async ({
   xpub,
   supportsEIP1559,
   slippageTolerancePercentage,
-}: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
+}: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
   // on ChainId to define additional metadata for a chain-specific TradeQuote
   const { isStreaming, recommendedSlippage } = quote as ThorTradeQuote
@@ -107,7 +107,7 @@ export const getSignTxFromQuote = async ({
         buyAsset,
         from: from!,
         destinationAddress: receiveAddress,
-        quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
+        quote: quote as TradeQuote,
         affiliateBps,
         memo,
       })

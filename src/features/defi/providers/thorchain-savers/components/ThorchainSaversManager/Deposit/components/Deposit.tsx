@@ -30,8 +30,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { SwapErrorRight } from 'lib/swapper/api'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import type { SwapErrorRight } from 'lib/swapper/types'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,

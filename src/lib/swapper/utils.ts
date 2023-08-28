@@ -8,8 +8,26 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
-import type { SwapErrorRight } from './api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from './api'
+import type { SwapErrorRight } from './types'
+import { SwapErrorType, SwapperName } from './types'
+
+export const makeSwapErrorRight = ({
+  details,
+  cause,
+  code,
+  message,
+}: {
+  message: string
+  details?: unknown
+  cause?: unknown
+  code?: SwapErrorType
+}): SwapErrorRight => ({
+  name: 'SwapError',
+  message,
+  details,
+  cause,
+  code,
+})
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))

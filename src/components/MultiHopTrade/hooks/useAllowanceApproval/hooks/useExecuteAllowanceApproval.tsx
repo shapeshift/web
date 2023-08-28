@@ -5,7 +5,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuote } from 'lib/swapper/api'
+import type { TradeQuote } from 'lib/swapper/types'
 import { buildAndBroadcast, isEvmChainAdapter } from 'lib/utils/evm'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'

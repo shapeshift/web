@@ -3,8 +3,8 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { TradeExecution, TradeExecutionEvent } from 'lib/swapper/tradeExecution'
+import type { SwapperName, TradeQuote } from 'lib/swapper/types'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveStepOrDefault,
@@ -21,7 +21,7 @@ export const useTradeExecution = ({
   tradeQuote,
 }: {
   swapperName?: SwapperName
-  tradeQuote?: TradeQuote2
+  tradeQuote?: TradeQuote
 }) => {
   const dispatch = useAppDispatch()
 

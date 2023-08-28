@@ -1,10 +1,11 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { v4 as uuid } from 'uuid'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
@@ -15,7 +16,7 @@ import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,
@@ -69,6 +70,9 @@ export async function getTradeQuote(
     })
 
     return Ok({
+      id: uuid(),
+      receiveAddress,
+      affiliateBps,
       rate,
       estimatedExecutionTimeMs: undefined,
       steps: [

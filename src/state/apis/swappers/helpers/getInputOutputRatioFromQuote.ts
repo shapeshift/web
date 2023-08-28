@@ -1,8 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuote } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
@@ -66,54 +65,6 @@ const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuote): 
   return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate(state, quote, getFeeAssetUsdRate)
 }
 
-// NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".
-// TODO: we'll need a check to ensure any fees included here impact the final amount received in the
-// receive account
-const _getReceiveSideAmountsCryptoBaseUnit = ({
-  quote,
-  swapperName,
-}: {
-  quote: TradeQuote
-  swapperName: SwapperName
-}) => {
-  const firstStep = quote.steps[0]
-  const lastStep = quote.steps[quote.steps.length - 1]
-  const slippageDecimalPercentage =
-    quote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
-  const rate = quote.rate
-
-  const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
-  const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-  const sellAssetProtocolFee = firstStep.feeData.protocolFees[firstStep.sellAsset.assetId]
-  const buyAssetProtocolFee = lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]
-  const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(sellAssetProtocolFee?.amountCryptoBaseUnit)
-  const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
-    convertPrecision({
-      value: sellSideProtocolFeeCryptoBaseUnit,
-      inputExponent: firstStep.sellAsset.precision,
-      outputExponent: lastStep.buyAsset.precision,
-    }),
-  ).times(rate)
-  const buySideNetworkFeeCryptoBaseUnit = bn(0)
-  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
-
-  const netReceiveAmountCryptoBaseUnit =
-    lastStep.buyAmountAfterFeesCryptoBaseUnit !== undefined
-      ? lastStep.buyAmountAfterFeesCryptoBaseUnit
-      : buyAmountCryptoBaseUnit
-          .minus(slippageAmountCryptoBaseUnit)
-          .minus(buySideNetworkFeeCryptoBaseUnit)
-          .minus(buySideProtocolFeeCryptoBaseUnit)
-          .minus(sellSideProtocolFeeBuyAssetBaseUnit)
-
-  return {
-    netReceiveAmountCryptoBaseUnit,
-    buySideNetworkFeeCryptoBaseUnit,
-    buySideProtocolFeeCryptoBaseUnit,
-    slippageAmountCryptoBaseUnit,
-  }
-}
-
 const _convertCryptoBaseUnitToUsdPrecision = (
   state: ReduxState,
   asset: Asset,
@@ -139,7 +90,6 @@ const _convertCryptoBaseUnitToUsdPrecision = (
 export const getInputOutputRatioFromQuote = ({
   state,
   quote,
-  swapperName,
 }: {
   state: ReduxState
   quote: TradeQuote
@@ -147,13 +97,9 @@ export const getInputOutputRatioFromQuote = ({
 }): number => {
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
   const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
-  const { buyAsset } = quote.steps[quote.steps.length - 1]
-
-  const { netReceiveAmountCryptoBaseUnit, buySideNetworkFeeCryptoBaseUnit } =
-    _getReceiveSideAmountsCryptoBaseUnit({
-      quote,
-      swapperName,
-    })
+  const lastStep = quote.steps[quote.steps.length - 1]
+  const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
+  const buySideNetworkFeeCryptoBaseUnit = bn(0)
 
   const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
     state,

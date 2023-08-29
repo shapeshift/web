@@ -212,16 +212,9 @@ export const getThorTradeQuote = async (
             isStreaming,
             estimatedExecutionTimeMs,
           }): Promise<ThorTradeQuote> => {
-            /*
-             We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
-              We then add 1% to allow for market movement, which prevents failed/refunded trades.
-            */
-            const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
-              .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
-              .toFixed()
             const slippageBps = userSpecifiedSlippageTolerancePercentage
               ? convertDecimalPercentageToBasisPoints(userSpecifiedSlippageTolerancePercentage)
-              : recommendedSlippageBps
+              : estimatedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -304,16 +297,9 @@ export const getThorTradeQuote = async (
             isStreaming,
             estimatedExecutionTimeMs,
           }): Promise<ThorTradeQuote> => {
-            /*
-             We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
-              We then add 1% to allow for market movement, which prevents failed/refunded trades.
-            */
-            const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
-              .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
-              .toFixed()
             const slippageBps = userSpecifiedSlippageTolerancePercentage
               ? convertDecimalPercentageToBasisPoints(userSpecifiedSlippageTolerancePercentage)
-              : recommendedSlippageBps
+              : estimatedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,

@@ -7926,18 +7926,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:v1.50.5-alpha-20":
-  version: 1.50.5-alpha-20
-  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha-20"
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:v1.50.5-alpha.2":
+  version: 1.50.5-alpha.2
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha.2"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
     "@shapeshiftoss/hdwallet-core": 1.50.5-alpha.0
-    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.7
+    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.0
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: 2cce132864a9e3d74fc6a1f38c912d86eb5719e7ce7b335fae04ec8181cb60f1426ca24531057e10f4a03ccf837a43ce276bd4d6ce8eccebebda67a3d4b4287f
+  checksum: 988e4f59722fa326a9bb81cab103a15c5aaeec9e6432236c14f424a787b286b3a51450d5abee4dabda1714c22fd9fd9987aecf0fd9a1528f0bbd681a107d696a
   languageName: node
   linkType: hard
 
@@ -7970,7 +7970,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.7":
+"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.0":
   version: 1.0.7
   resolution: "@shapeshiftoss/metamask-snaps-adapter@npm:1.0.7"
   dependencies:
@@ -8178,7 +8178,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": v1.50.5-alpha-20
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": v1.50.5-alpha.2
     "@shapeshiftoss/hdwallet-walletconnect": ^1.50.4
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/metamask-snaps": ^1.0.0

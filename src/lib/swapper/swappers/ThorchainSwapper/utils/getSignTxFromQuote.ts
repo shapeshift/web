@@ -19,11 +19,8 @@ import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/
 import type { TradeQuote, UnsignedTx } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
-import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { addSlippageToMemo } from './addSlippageToMemo'
-import { getQuote } from './getQuote/getQuote'
 
 type GetSignTxFromQuoteArgs = {
   tradeQuote: TradeQuote
@@ -46,10 +43,9 @@ export const getSignTxFromQuote = async ({
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
   // on ChainId to define additional metadata for a chain-specific TradeQuote
-  const { isStreaming, recommendedSlippage } = quote as ThorTradeQuote
+  const { memo, recommendedSlippage } = quote as ThorTradeQuote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
-  const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()
 
   const {
     buyAsset,
@@ -83,18 +79,6 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
-      const maybeThornodeQuote = await getQuote({
-        sellAsset,
-        buyAssetId: buyAsset.assetId,
-        sellAmountCryptoBaseUnit,
-        receiveAddress,
-        affiliateBps,
-      })
-
-      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
-      const thorchainQuote = maybeThornodeQuote.unwrap()
-      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
-
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
       const maybeTxData = await getCosmosTxData({
@@ -118,18 +102,6 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      const maybeThornodeQuote = await getQuote({
-        sellAsset,
-        buyAssetId: buyAsset.assetId,
-        sellAmountCryptoBaseUnit,
-        receiveAddress,
-        affiliateBps,
-      })
-
-      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
-      const thorchainQuote = maybeThornodeQuote.unwrap()
-      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming, sellAsset.chainId)
-
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 

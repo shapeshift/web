@@ -41,7 +41,7 @@ export type ThorEvmTradeQuote = TradeQuote & {
   data: string
 }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
@@ -241,6 +241,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -335,6 +336,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -400,8 +402,16 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
+
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,

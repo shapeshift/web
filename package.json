@@ -104,7 +104,6 @@
     "@shapeshiftoss/hdwallet-shapeshift-multichain": "v1.50.5-alpha.2",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.50.4",
     "@shapeshiftoss/hdwallet-xdefi": "^1.50.4",
-    "@shapeshiftoss/metamask-snaps": "^1.0.0",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@sniptt/monads": "^0.5.10",

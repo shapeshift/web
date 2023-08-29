@@ -3,7 +3,6 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -62,10 +61,6 @@ export const getThorTradeQuote = async (
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
-  const userSpecifiedSlippageOrDefaultDecimalPercentage = convertDecimalPercentageToBasisPoints(
-    userSpecifiedSlippageTolerancePercentage ??
-      getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
-  ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
@@ -224,10 +219,9 @@ export const getThorTradeQuote = async (
             const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
               .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
               .toFixed()
-            const slippageBps =
-              convertDecimalPercentageToBasisPoints(
-                userSpecifiedSlippageOrDefaultDecimalPercentage,
-              ) ?? recommendedSlippageBps
+            const slippageBps = userSpecifiedSlippageTolerancePercentage
+              ? convertDecimalPercentageToBasisPoints(userSpecifiedSlippageTolerancePercentage)
+              : recommendedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -317,10 +311,9 @@ export const getThorTradeQuote = async (
             const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
               .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
               .toFixed()
-            const slippageBps =
-              convertDecimalPercentageToBasisPoints(
-                userSpecifiedSlippageOrDefaultDecimalPercentage,
-              ) ?? recommendedSlippageBps
+            const slippageBps = userSpecifiedSlippageTolerancePercentage
+              ? convertDecimalPercentageToBasisPoints(userSpecifiedSlippageTolerancePercentage)
+              : recommendedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,

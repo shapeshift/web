@@ -238,7 +238,8 @@ export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState,
     selectActiveQuote,
     selectActiveSwapperName,
     (activeQuote, activeSwapperName) =>
-      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+      activeQuote?.recommendedSlippageDecimalPercentage ??
+      getDefaultSlippagePercentageForSwapper(activeSwapperName),
   )
 
 export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(

@@ -33,7 +33,7 @@ export async function getTradeQuote(
     sendAddress,
     receiveAddress,
     accountNumber,
-    slippageTolerancePercentage,
+    userSpecifiedSlippageTolerancePercentage,
     supportsEIP1559,
     affiliateBps,
   } = input
@@ -77,7 +77,8 @@ export async function getTradeQuote(
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
+        userSpecifiedSlippageTolerancePercentage ??
+          getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
       ),
       exchanges: { deny: ['dodo'] },
       // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain

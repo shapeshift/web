@@ -5,6 +5,7 @@ import type { SwapSource } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 // TODO: read from https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
 export const RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN = bn('0.02')
+export const THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS = 100
 
 export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,

@@ -77,13 +77,13 @@ const isEqualExceptAffiliateBpsAndSlippage = (
   if (!isSkipToken(a) && b) {
     const {
       affiliateBps: _affiliateBps,
-      slippageTolerancePercentage: _slippageTolerancePercentage,
+      userSpecifiedSlippageTolerancePercentage: _slippageTolerancePercentage,
       ...aWithoutAffiliateBpsAndSlippage
     } = a
 
     const {
       affiliateBps: _updatedAffiliateBps,
-      slippageTolerancePercentage: _updatedSlippageTolerancePercentage,
+      userSpecifiedSlippageTolerancePercentage: _updatedSlippageTolerancePercentage,
       ...bWithoutAffiliateBpsAndSlippage
     } = b
 

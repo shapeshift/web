@@ -407,8 +407,10 @@ const FirstHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
-    [swapperName, tradeQuote.recommendedSlippage],
+    () =>
+      tradeQuote.recommendedSlippageDecimalPercentage ??
+      getDefaultSlippagePercentageForSwapper(swapperName),
+    [swapperName, tradeQuote.recommendedSlippageDecimalPercentage],
   )
 
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 0)
@@ -572,8 +574,10 @@ const SecondHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
-    [swapperName, tradeQuote.recommendedSlippage],
+    () =>
+      tradeQuote.recommendedSlippageDecimalPercentage ??
+      getDefaultSlippagePercentageForSwapper(swapperName),
+    [swapperName, tradeQuote.recommendedSlippageDecimalPercentage],
   )
 
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)

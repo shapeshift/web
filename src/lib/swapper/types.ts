@@ -49,7 +49,7 @@ type CommonTradeInput = {
   receiveAccountNumber?: number
   affiliateBps: string
   allowMultiHop: boolean
-  slippageTolerancePercentage?: string
+  userSpecifiedSlippageTolerancePercentage?: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -95,7 +95,7 @@ export type TradeQuoteStep = {
 }
 
 export type TradeQuote = {
-  recommendedSlippage?: string
+  recommendedSlippageDecimalPercentage?: string
   estimatedExecutionTimeMs: number | undefined
   id: string
   steps: TradeQuoteStep[]

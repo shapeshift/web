@@ -44,7 +44,7 @@ export const setupQuote = () => {
     affiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
-    slippageTolerancePercentage: DEFAULT_SLIPPAGE,
+    userSpecifiedSlippageTolerancePercentage: DEFAULT_SLIPPAGE,
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }

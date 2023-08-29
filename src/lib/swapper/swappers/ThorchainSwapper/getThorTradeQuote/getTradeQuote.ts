@@ -32,7 +32,7 @@ import {
   convertDecimalPercentageToBasisPoints,
 } from 'state/slices/tradeQuoteSlice/utils'
 
-import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
+import { THORCHAIN_STREAM_SWAP_SOURCE, THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
@@ -56,14 +56,15 @@ export const getThorTradeQuote = async (
     chainId,
     receiveAddress,
     affiliateBps,
-    slippageTolerancePercentage,
+    userSpecifiedSlippageTolerancePercentage,
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
-  const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+  const userSpecifiedSlippageOrDefaultDecimalPercentage = convertDecimalPercentageToBasisPoints(
+    userSpecifiedSlippageTolerancePercentage ??
+      getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
   ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -211,11 +212,22 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
+            slippageBps: estimatedSlippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
           }) => {
+            /*
+             We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
+              We then add 1% to allow for market movement, which prevents failed/refunded trades.
+            */
+            const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
+              .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
+              .toFixed()
+            const slippageBps =
+              convertDecimalPercentageToBasisPoints(
+                userSpecifiedSlippageOrDefaultDecimalPercentage,
+              ) ?? recommendedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -223,7 +235,7 @@ export const getThorTradeQuote = async (
 
             const updatedMemo = addSlippageToMemo(
               thornodeQuote,
-              inputSlippageBps,
+              slippageBps,
               isStreaming,
               sellAsset.chainId,
             )
@@ -245,7 +257,8 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              recommendedSlippage:
+                convertBasisPointsToDecimalPercentage(estimatedSlippageBps).toString(),
               rate,
               data,
               router,
@@ -292,11 +305,22 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
+            slippageBps: estimatedSlippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
           }) => {
+            /*
+             We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
+              We then add 1% to allow for market movement, which prevents failed/refunded trades.
+            */
+            const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
+              .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
+              .toFixed()
+            const slippageBps =
+              convertDecimalPercentageToBasisPoints(
+                userSpecifiedSlippageOrDefaultDecimalPercentage,
+              ) ?? recommendedSlippageBps
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -304,7 +328,7 @@ export const getThorTradeQuote = async (
 
             const updatedMemo = addSlippageToMemo(
               thornodeQuote,
-              inputSlippageBps,
+              slippageBps,
               isStreaming,
               sellAsset.chainId,
             )
@@ -339,7 +363,8 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              recommendedSlippage:
+                convertBasisPointsToDecimalPercentage(estimatedSlippageBps).toString(),
               rate,
               steps: [
                 {
@@ -384,11 +409,18 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           ({
             source,
-            slippageBps,
+            slippageBps: estimatedSlippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
           }) => {
+            /*
+             We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
+              We then add 1% to allow for market movement, which prevents failed/refunded trades.
+            */
+            const recommendedSlippageBps = bnOrZero(estimatedSlippageBps)
+              .plus(THORSWAP_ALLOWABLE_MARKET_MOVEMENT_BPS)
+              .toFixed()
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -406,7 +438,8 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              recommendedSlippageDecimalPercentage:
+                convertBasisPointsToDecimalPercentage(recommendedSlippageBps).toString(),
               rate,
               steps: [
                 {

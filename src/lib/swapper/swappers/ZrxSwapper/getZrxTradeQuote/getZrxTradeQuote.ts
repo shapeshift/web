@@ -33,7 +33,7 @@ export async function getZrxTradeQuote(
     affiliateBps,
     chainId,
     supportsEIP1559,
-    slippageTolerancePercentage,
+    userSpecifiedSlippageTolerancePercentage,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -58,7 +58,8 @@ export async function getZrxTradeQuote(
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
       slippagePercentage:
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Zrx),
+        userSpecifiedSlippageTolerancePercentage ??
+        getDefaultSlippagePercentageForSwapper(SwapperName.Zrx),
       feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },

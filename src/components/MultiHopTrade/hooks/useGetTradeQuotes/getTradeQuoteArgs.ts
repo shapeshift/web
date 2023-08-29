@@ -52,7 +52,7 @@ export const getTradeQuoteArgs = async ({
     accountNumber: sellAccountNumber,
     affiliateBps: affiliateBps ?? '0',
     allowMultiHop,
-    slippageTolerancePercentage,
+    userSpecifiedSlippageTolerancePercentage: slippageTolerancePercentage,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

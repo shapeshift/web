@@ -49,7 +49,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     affiliateBps: '0',
     isStreaming: false,
     rate: '144114.94366197183098591549',
-    recommendedSlippage: '0.0435',
+    recommendedSlippageDecimalPercentage: '0.0435',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     estimatedExecutionTimeMs: 600000,
@@ -82,7 +82,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     affiliateBps: '0',
     isStreaming: true,
     rate: '158199.45070422535211267606',
-    recommendedSlippage: '0.042',
+    recommendedSlippageDecimalPercentage: '0.042',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     estimatedExecutionTimeMs: 1600000,
@@ -169,7 +169,7 @@ describe('getTradeQuote', () => {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
-      slippageTolerancePercentage: '0.04357',
+      userSpecifiedSlippageTolerancePercentage: '0.04357',
     }
 
     const maybeTradeQuote = await getThorTradeQuote(input)

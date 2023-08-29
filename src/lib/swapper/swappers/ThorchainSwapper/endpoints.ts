@@ -60,7 +60,7 @@ export const thorchainApi: SwapperApi = {
       chainSpecific,
       ...fromOrXpub,
       supportsEIP1559,
-      slippageTolerancePercentage: slippageTolerancePercentageDecimal,
+      userSpecifiedSlippageTolerancePercentage: slippageTolerancePercentageDecimal,
     })
   },
 

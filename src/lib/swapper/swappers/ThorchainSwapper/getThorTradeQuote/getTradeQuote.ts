@@ -211,7 +211,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             /*
              We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
               We then add 1% to allow for market movement, which prevents failed/refunded trades.
@@ -251,7 +251,7 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage:
+              recommendedSlippageDecimalPercentage:
                 convertBasisPointsToDecimalPercentage(estimatedSlippageBps).toString(),
               rate,
               data,
@@ -303,7 +303,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             /*
              We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
               We then add 1% to allow for market movement, which prevents failed/refunded trades.
@@ -356,7 +356,7 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage:
+              recommendedSlippageDecimalPercentage:
                 convertBasisPointsToDecimalPercentage(estimatedSlippageBps).toString(),
               rate,
               steps: [
@@ -406,7 +406,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): ThorTradeQuote => {
             /*
              We start with the expected slippage amount, as given to us by the THORSwap API for the current quote.
               We then add 1% to allow for market movement, which prevents failed/refunded trades.

@@ -233,24 +233,17 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState, string> =
-  createSelector(
-    selectActiveQuote,
-    selectActiveSwapperName,
-    (activeQuote, activeSwapperName) =>
-      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
-  )
-
-export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
-  slippagePercentageDecimal => bn(slippagePercentageDecimal).times(100).toString(),
+export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectActiveSwapperName,
+  activeSwapperName =>
+    bn(getDefaultSlippagePercentageForSwapper(activeSwapperName)).times(100).toString(),
 )
 
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
+  selectActiveSwapperName,
   selectUserSlippagePercentageDecimal,
-  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
-    return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
+  (activeSwapperName, slippagePreferencePercentage) => {
+    return slippagePreferencePercentage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName)
   },
 )
 

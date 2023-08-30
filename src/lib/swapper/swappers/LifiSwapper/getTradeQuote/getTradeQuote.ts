@@ -4,7 +4,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
@@ -77,7 +77,8 @@ export async function getTradeQuote(
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
+        slippageTolerancePercentage ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
       exchanges: { deny: ['dodo'] },
       // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
@@ -152,7 +153,32 @@ export async function getTradeQuote(
               assets,
             })
 
-            const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+            const sellAssetProtocolFee = protocolFees[sellAsset.assetId]
+            const buyAssetProtocolFee = protocolFees[buyAsset.assetId]
+            const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(
+              sellAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+            const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+              convertPrecision({
+                value: sellSideProtocolFeeCryptoBaseUnit,
+                inputExponent: sellAsset.precision,
+                outputExponent: buyAsset.precision,
+              }),
+            ).times(estimateRate)
+            const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
+              buyAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+
+            const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
+              selectedLifiRoute.toAmount,
+            ).toPrecision()
+
+            // TODO: Add buySideNetworkFeeCryptoBaseUnit when we implement multihop
+            const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+              .plus(sellSideProtocolFeeBuyAssetBaseUnit)
+              .plus(buySideProtocolFeeCryptoBaseUnit)
+              .toString()
+
             const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
               assets,
               lifiStep,
@@ -169,7 +195,8 @@ export async function getTradeQuote(
             return {
               allowanceContract: lifiStep.estimate.approvalAddress,
               accountNumber,
-              buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+              buyAmountBeforeFeesCryptoBaseUnit,
+              buyAmountAfterFeesCryptoBaseUnit,
               buyAsset,
               intermediaryTransactionOutputs,
               feeData: {

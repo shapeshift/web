@@ -26,7 +26,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -407,7 +407,8 @@ const FirstHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
+    () =>
+      tradeQuote.recommendedSlippage ?? getDefaultSlippageDecimalPercentageForSwapper(swapperName),
     [swapperName, tradeQuote.recommendedSlippage],
   )
 
@@ -572,7 +573,8 @@ const SecondHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
+    () =>
+      tradeQuote.recommendedSlippage ?? getDefaultSlippageDecimalPercentageForSwapper(swapperName),
     [swapperName, tradeQuote.recommendedSlippage],
   )
 

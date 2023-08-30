@@ -12,7 +12,11 @@ import {
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = (
-  { memo: quotedMemo, expected_amount_out: expectedAmountOut }: ThornodeQuoteResponseSuccess,
+  {
+    memo: quotedMemo,
+    expected_amount_out: expectedAmountOut,
+    expected_amount_out_streaming: expectedAmountOutStreaming,
+  }: ThornodeQuoteResponseSuccess,
   slippageBps: BigNumber.Value,
   isStreaming: boolean,
   chainId: ChainId,
@@ -21,7 +25,7 @@ export const addSlippageToMemo = (
   const [prefix, pool, address, , affiliate, affiliateBps] = quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
-    expectedAmountOut,
+    isStreaming ? expectedAmountOutStreaming : expectedAmountOut,
     slippageBps,
     BigNumber.ROUND_DOWN,
   )

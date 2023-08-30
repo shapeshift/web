@@ -13,12 +13,15 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
+import assert from 'assert'
+import { getConfig } from 'config'
 import WAValidator from 'multicoin-address-validator'
 import { bn } from 'lib/bignumber/bignumber'
 import {
   LIMIT_PART_DELIMITER,
   MEMO_PART_DELIMITER,
   POOL_PART_DELIMITER,
+  THORCHAIN_AFFILIATE_FEE_BPS,
   THORCHAIN_AFFILIATE_NAME,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertUnreachable } from 'lib/utils'
@@ -94,9 +97,15 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
   }
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
-  const affiliateBpsNum = parseFloat(affiliateBps)
-  if (!bn(limit).isInteger() || bn(affiliateBpsNum).lt(0) || bn(affiliateBpsNum).gt(1000)) {
+  const affiliateBpsNum = bn(affiliateBps)
+  if (!bn(limit).isInteger() || affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
     throw Error(`affiliateBps ${affiliateBps} is not a number between 0 and 1000`)
+  }
+
+  const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
+
+  if (applyThorSwapAffiliateFees) {
+    assert(affiliateBpsNum.eq(THORCHAIN_AFFILIATE_FEE_BPS), 'incorrect affiliateBps')
   }
 
   const { chainNamespace } = fromChainId(chainId)

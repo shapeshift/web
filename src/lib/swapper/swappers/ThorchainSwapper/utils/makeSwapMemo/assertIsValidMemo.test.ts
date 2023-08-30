@@ -60,28 +60,21 @@ describe('assertIsValidMemo', () => {
   it('should assert memo is valid', () => {
     expect(() =>
       assertIsValidMemo(
-        's:BTC.BTC:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:420:ss:0',
+        's:BTC.BTC:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:420:ss:25',
         btcChainId,
       ),
     ).not.toThrow()
 
     expect(() =>
       assertIsValidMemo(
-        's:ETH.ETH:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:0',
+        's:ETH.ETH:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:25',
         btcChainId,
       ),
     ).not.toThrow()
 
     expect(() =>
       assertIsValidMemo(
-        's:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:0',
-        btcChainId,
-      ),
-    ).not.toThrow()
-
-    expect(() =>
-      assertIsValidMemo(
-        's:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:300',
+        's:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:25',
         btcChainId,
       ),
     ).not.toThrow()

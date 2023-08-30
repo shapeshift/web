@@ -27,7 +27,7 @@ import {
   selectSellAsset,
 } from 'state/slices/selectors'
 import {
-  getNetReceiveAmountCryptoPrecision,
+  getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -110,12 +110,11 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const totalReceiveAmountCryptoPrecision = useMemo(
     () =>
       quote
-        ? getNetReceiveAmountCryptoPrecision({
+        ? getBuyAmountAfterFeesCryptoPrecision({
             quote,
-            swapperName: quoteData.swapperName,
           })
         : '0',
-    [quote, quoteData.swapperName],
+    [quote],
   )
 
   const handleQuoteSelection = useCallback(() => {

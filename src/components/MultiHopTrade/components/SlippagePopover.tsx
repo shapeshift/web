@@ -25,7 +25,7 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectUserSlippagePercentage } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
-import { selectQuoteOrDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 enum SlippageType {
@@ -38,7 +38,7 @@ const maxSlippagePercentage = '30'
 const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 export const SlippagePopover: FC = () => {
-  const defaultSlippagePercentage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
+  const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)

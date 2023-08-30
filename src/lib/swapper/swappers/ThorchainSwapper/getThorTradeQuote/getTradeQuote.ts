@@ -36,10 +36,11 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote & {
-  router: string
-  data: string
-}
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    data: string
+  }
 
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote

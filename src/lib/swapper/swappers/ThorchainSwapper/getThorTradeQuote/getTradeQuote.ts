@@ -27,10 +27,7 @@ import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  convertBasisPointsToDecimalPercentage,
-  convertDecimalPercentageToBasisPoints,
-} from 'state/slices/tradeQuoteSlice/utils'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
@@ -130,7 +127,6 @@ export const getThorTradeQuote = async (
     {
       // regular swap
       source: SwapperName.Thorchain,
-      slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
       isStreaming: false,
       estimatedExecutionTimeMs:
@@ -143,7 +139,6 @@ export const getThorTradeQuote = async (
           {
             // streaming swap
             source: THORCHAIN_STREAM_SWAP_SOURCE,
-            slippageBps: thornodeQuote.streaming_slippage_bps,
             expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
             isStreaming: true,
             estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
@@ -213,11 +208,10 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -248,7 +242,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               data,
               router,
@@ -295,11 +288,10 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -343,7 +335,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [
                 {
@@ -388,11 +379,10 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           ({
             source,
-            slippageBps,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
@@ -418,7 +408,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [
                 {

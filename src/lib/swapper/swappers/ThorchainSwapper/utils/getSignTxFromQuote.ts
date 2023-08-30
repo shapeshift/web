@@ -43,9 +43,7 @@ export const getSignTxFromQuote = async ({
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
   // on ChainId to define additional metadata for a chain-specific TradeQuote
-  const { memo, recommendedSlippage } = quote as ThorTradeQuote
-
-  const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
+  const { memo } = quote as ThorTradeQuote
 
   const {
     buyAsset,
@@ -86,7 +84,7 @@ export const getSignTxFromQuote = async ({
         sellAdapter: cosmosSdkChainAdapter,
         sellAmountCryptoBaseUnit,
         sellAsset,
-        slippageTolerance,
+        slippageTolerance: slippageTolerancePercentage,
         chainId: sellAsset.chainId,
         buyAsset,
         from: from!,

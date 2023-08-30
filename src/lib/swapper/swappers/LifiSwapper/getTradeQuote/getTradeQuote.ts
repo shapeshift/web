@@ -4,7 +4,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
@@ -77,7 +77,8 @@ export async function getTradeQuote(
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
+        slippageTolerancePercentage ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
       exchanges: { deny: ['dodo'] },
       // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain

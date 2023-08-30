@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -233,24 +233,20 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState, string> =
-  createSelector(
-    selectActiveQuote,
-    selectActiveSwapperName,
-    (activeQuote, activeSwapperName) =>
-      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
-  )
-
-export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
-  slippagePercentageDecimal => bn(slippagePercentageDecimal).times(100).toString(),
+export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectActiveSwapperName,
+  activeSwapperName =>
+    bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)).times(100).toString(),
 )
 
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
+  selectActiveSwapperName,
   selectUserSlippagePercentageDecimal,
-  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
-    return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
+  (activeSwapperName, slippagePreferencePercentage) => {
+    return (
+      slippagePreferencePercentage ??
+      getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
+    )
   },
 )
 

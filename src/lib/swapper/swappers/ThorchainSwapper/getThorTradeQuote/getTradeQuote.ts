@@ -3,7 +3,7 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -36,12 +36,13 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote & {
-  router: string
-  data: string
-}
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    data: string
+  }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
@@ -63,7 +64,8 @@ export const getThorTradeQuote = async (
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+    slippageTolerancePercentage ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
   ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -241,6 +243,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -335,6 +338,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -400,8 +404,16 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
+
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,

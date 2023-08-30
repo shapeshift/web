@@ -80,7 +80,7 @@ export type AmountDisplayMeta = {
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
-  buyAmountAfterFeesCryptoBaseUnit?: string
+  buyAmountAfterFeesCryptoBaseUnit: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData
   rate: string

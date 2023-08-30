@@ -64,11 +64,11 @@ import {
   selectActiveQuote,
   selectActiveQuoteError,
   selectActiveSwapperName,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectNetReceiveAmountCryptoPrecision,
   selectQuoteDonationAmountUserCurrency,
-  selectReceiveBuyAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -110,8 +110,8 @@ export const TradeInput = memo(() => {
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
@@ -139,6 +139,7 @@ export const TradeInput = memo(() => {
     // WARNING: do not remove.
     // clear the confirmed quote on mount to prevent stale data affecting the selectors
     dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
+    dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
@@ -286,7 +287,7 @@ export const TradeInput = memo(() => {
                 protocolFees={totalProtocolFees}
                 shapeShiftFee={shapeShiftFee}
                 donationAmount={donationAmount}
-                slippage={slippageDecimal}
+                slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
               />
             ) : null}

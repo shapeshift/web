@@ -71,7 +71,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.LIFI,
     })
 
-    expect(ratio).toBe(0.5806430732969714)
+    expect(ratio).toBe(0.5835608776853983)
   })
 
   test('should return correct ratio for a CoW quote', () => {
@@ -84,7 +84,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.CowSwap,
     })
 
-    expect(ratio).toBe(0.6753421967591836)
+    expect(ratio).toBe(0.7796250166634718)
   })
 
   test('should return correct ratio for a THORSwap quote', () => {
@@ -97,7 +97,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.Thorchain,
     })
 
-    expect(ratio).toBe(0.6454036704419476)
+    expect(ratio).toBe(0.8330650727353319)
   })
 
   test('should return correct ratio for a 0x quote', () => {
@@ -110,7 +110,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.Zrx,
     })
 
-    expect(ratio).toBe(0.7499671179394174)
+    expect(ratio).toBe(0.7514700580555285)
   })
 
   test('should return correct ratio for a 1inch quote', () => {
@@ -123,6 +123,6 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.OneInch,
     })
 
-    expect(ratio).toBe(0.6491538483448477)
+    expect(ratio).toBe(0.6504547578605688)
   })
 })

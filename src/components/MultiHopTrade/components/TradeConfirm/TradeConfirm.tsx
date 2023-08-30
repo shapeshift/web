@@ -12,6 +12,7 @@ import {
   Flex,
   Heading,
   Link,
+  Progress,
   Skeleton,
   Stack,
   StackDivider,
@@ -30,6 +31,7 @@ import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useThorStreamingProgress } from 'components/MultiHopTrade/hooks/useThorStreamingProgress/useThorStreamingProgress'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
@@ -154,6 +156,19 @@ export const TradeConfirm = () => {
   } = useTradeExecution({ tradeQuote, swapperName })
 
   const txHash = buyTxHash ?? sellTxHash
+
+  const isThorStreamingSwap = useMemo(
+    // TEMP: monkey patch to preview UI changes
+    () => true, // tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
+    [],
+  )
+
+  const {
+    progressProps: thorStreamingSwapProgressProps,
+    attemptedSwaps,
+    totalSwaps,
+    failedSwaps,
+  } = useThorStreamingProgress(sellTxHash, isThorStreamingSwap)
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -464,6 +479,24 @@ export const TradeConfirm = () => {
               isSubmitting={isSubmitting}
               px={4}
             />
+            {isThorStreamingSwap && (
+              <Stack px={4}>
+                <RawText>
+                  {totalSwaps > 0
+                    ? `Streaming - ${attemptedSwaps} of ${totalSwaps} swaps processed`
+                    : 'Streaming...'}
+                </RawText>
+                {failedSwaps.length > 0 && (
+                  <Alert status='warning' size='sm'>
+                    <AlertIcon />
+                    <AlertDescription>
+                      <RawText>{`${failedSwaps.length} swaps failed - click here for details`}</RawText>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <Progress {...thorStreamingSwapProgressProps} />
+              </Stack>
+            )}
             <Stack px={4}>{sendReceiveSummary}</Stack>
             <Stack spacing={4}>
               {txLink && (

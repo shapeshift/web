@@ -1,10 +1,21 @@
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { numberToHex } from 'web3-utils'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { TradeExecution, TradeExecutionEvent } from 'lib/swapper/tradeExecution'
-import type { SwapperName, TradeQuote } from 'lib/swapper/types'
+import { TradeExecution } from 'lib/swapper/tradeExecution'
+import { TradeExecution2 } from 'lib/swapper/tradeExecution2'
+import type {
+  CosmosSdkTradeExecutionProps,
+  EvmTradeExecutionProps,
+  EvmTransactionRequest,
+  TradeExecutionBase,
+  TradeQuote,
+  UtxoTradeExecutionProps,
+} from 'lib/swapper/types'
+import { SwapperName, TradeExecutionEvent } from 'lib/swapper/types'
+import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveStepOrDefault,
@@ -65,7 +76,8 @@ export const useTradeExecution = ({
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
     return new Promise<void>(async (resolve, reject) => {
-      const execution = new TradeExecution()
+      const execution: TradeExecutionBase =
+        swapperName === SwapperName.OneInch ? new TradeExecution2() : new TradeExecution()
 
       execution.on(TradeExecutionEvent.Error, reject)
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
@@ -95,18 +107,59 @@ export const useTradeExecution = ({
       })
 
       // execute the trade and attach then cancel callback
-      cancelPollingRef.current = await execution.exec({
-        swapperName,
-        tradeQuote,
-        stepIndex: activeStepOrDefault,
-        accountMetadata,
-        quoteSellAssetAccountId: sellAssetAccountId,
-        quoteBuyAssetAccountId: buyAssetAccountId,
-        wallet,
-        supportsEIP1559,
-        slippageTolerancePercentageDecimal,
-        getState: store.getState,
-      })
+      if (execution.exec) {
+        const output = await execution.exec?.({
+          swapperName,
+          tradeQuote,
+          stepIndex: activeStepOrDefault,
+          accountMetadata,
+          quoteSellAssetAccountId: sellAssetAccountId,
+          quoteBuyAssetAccountId: buyAssetAccountId,
+          wallet,
+          supportsEIP1559,
+          slippageTolerancePercentageDecimal,
+          getState: store.getState,
+        })
+
+        cancelPollingRef.current = output?.cancelPolling
+      }
+
+      if (execution.exec2) {
+        const accountNumber = accountMetadata.bip44Params.accountNumber
+        const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
+        const adapter = assertGetEvmChainAdapter(chainId)
+        const from = await adapter.getAddress({ accountNumber, wallet })
+        const account = await adapter.getAccount(from)
+        const evm: EvmTradeExecutionProps = {
+          from,
+          nonce: numberToHex(account.chainSpecific.nonce),
+          signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
+            const { txToSign } = await adapter.buildCustomTx({
+              ...transactionRequest,
+              wallet,
+              accountNumber,
+            })
+            return await signAndBroadcast({ adapter, txToSign, wallet })
+          },
+        }
+
+        // TODO: implement these
+        const utxo: UtxoTradeExecutionProps = undefined as unknown as UtxoTradeExecutionProps
+        const cosmosSdk: CosmosSdkTradeExecutionProps =
+          undefined as unknown as CosmosSdkTradeExecutionProps
+
+        const output = await execution.exec2({
+          swapperName,
+          tradeQuote,
+          stepIndex: activeStepOrDefault,
+          slippageTolerancePercentageDecimal,
+          evm,
+          utxo,
+          cosmosSdk,
+        })
+
+        cancelPollingRef.current = output?.cancelPolling
+      }
     })
   }, [
     wallet,

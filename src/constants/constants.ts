@@ -3,12 +3,14 @@ import { assertUnreachable } from 'lib/utils'
 
 export const USDC_PRECISION = 6
 
-// Slippage defaults. Don't export these to ensure the getDefaultSlippagePercentageForSwapper helper function is used.
+// Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
 const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
 const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 
-export const getDefaultSlippagePercentageForSwapper = (swapperName?: SwapperName): string => {
+export const getDefaultSlippageDecimalPercentageForSwapper = (
+  swapperName?: SwapperName,
+): string => {
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
     case SwapperName.Thorchain:

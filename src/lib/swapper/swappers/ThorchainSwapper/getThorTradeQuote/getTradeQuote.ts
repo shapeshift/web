@@ -3,7 +3,7 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -63,7 +63,8 @@ export const getThorTradeQuote = async (
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+    slippageTolerancePercentage ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
   ).toString()
 
   const chainAdapterManager = getChainAdapterManager()

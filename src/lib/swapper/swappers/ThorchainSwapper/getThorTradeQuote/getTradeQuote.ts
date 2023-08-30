@@ -36,12 +36,13 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote & {
-  router: string
-  data: string
-}
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    data: string
+  }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
@@ -242,6 +243,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -336,6 +338,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -401,8 +404,16 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
+            const updatedMemo = addSlippageToMemo(
+              thornodeQuote,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
+            )
+
             return {
               id: uuid(),
+              memo: updatedMemo,
               receiveAddress,
               affiliateBps,
               isStreaming,

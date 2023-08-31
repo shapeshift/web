@@ -30,6 +30,7 @@ import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   convertBasisPointsToDecimalPercentage,
   convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
@@ -102,7 +103,7 @@ export const getThorTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const thornodeQuote = maybeQuote.unwrap()
-  const { fees } = thornodeQuote
+  const { fees, memo } = thornodeQuote
 
   const recommendedMinAmountInCryptoBaseUnit = thornodeQuote.recommended_min_amount_in
     ? convertPrecision({
@@ -126,12 +127,22 @@ export const getThorTradeQuote = async (
 
   const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
 
+  const expectedReceiveAmountAfterSlippageThorBaseUnit = subtractBasisPointAmount(
+    thornodeQuote.expected_amount_out,
+    thornodeQuote.slippage_bps,
+  )
+
+  const expectedReceiveAmountStreamingAfterSlippageThorBaseUnit = subtractBasisPointAmount(
+    thornodeQuote.expected_amount_out_streaming,
+    thornodeQuote.streaming_slippage_bps,
+  )
+
   const perRouteValues = [
     {
       // regular swap
       source: SwapperName.Thorchain,
       slippageBps: thornodeQuote.slippage_bps,
-      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
+      expectedAmountOutThorBaseUnit: expectedReceiveAmountAfterSlippageThorBaseUnit,
       isStreaming: false,
       estimatedExecutionTimeMs:
         1000 *
@@ -144,7 +155,7 @@ export const getThorTradeQuote = async (
             // streaming swap
             source: THORCHAIN_STREAM_SWAP_SOURCE,
             slippageBps: thornodeQuote.streaming_slippage_bps,
-            expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
+            expectedAmountOutThorBaseUnit: expectedReceiveAmountStreamingAfterSlippageThorBaseUnit,
             isStreaming: true,
             estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
               ? 1000 * thornodeQuote.total_swap_seconds
@@ -224,7 +235,8 @@ export const getThorTradeQuote = async (
             )
 
             const updatedMemo = addSlippageToMemo(
-              thornodeQuote,
+              expectedAmountOutThorBaseUnit,
+              memo,
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
@@ -306,7 +318,8 @@ export const getThorTradeQuote = async (
             )
 
             const updatedMemo = addSlippageToMemo(
-              thornodeQuote,
+              expectedAmountOutThorBaseUnit,
+              memo,
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
@@ -405,7 +418,8 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             const updatedMemo = addSlippageToMemo(
-              thornodeQuote,
+              expectedAmountOutThorBaseUnit,
+              memo,
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,

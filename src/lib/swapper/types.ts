@@ -334,5 +334,7 @@ export interface TradeExecutionBase {
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void
 
   exec?: (input: TradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
-  exec2?: (input: TradeExecutionInput2) => Promise<{ cancelPolling: () => void } | void>
+  execWalletAgnostic?: (
+    input: TradeExecutionInput2,
+  ) => Promise<{ cancelPolling: () => void } | void>
 }

@@ -76,6 +76,7 @@ export const useTradeExecution = ({
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
     return new Promise<void>(async (resolve, reject) => {
+      // TODO: remove old TradeExecution class when all swappers migrated to TradeExecution2
       const execution: TradeExecutionBase =
         swapperName === SwapperName.OneInch ? new TradeExecution2() : new TradeExecution()
 
@@ -124,7 +125,7 @@ export const useTradeExecution = ({
         cancelPollingRef.current = output?.cancelPolling
       }
 
-      if (execution.exec2) {
+      if (execution.execWalletAgnostic) {
         const accountNumber = accountMetadata.bip44Params.accountNumber
         const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
         const adapter = assertGetEvmChainAdapter(chainId)
@@ -148,7 +149,7 @@ export const useTradeExecution = ({
         const cosmosSdk: CosmosSdkTradeExecutionProps =
           undefined as unknown as CosmosSdkTradeExecutionProps
 
-        const output = await execution.exec2({
+        const output = await execution.execWalletAgnostic({
           swapperName,
           tradeQuote,
           stepIndex: activeStepOrDefault,

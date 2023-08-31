@@ -22,7 +22,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     this.emitter.on(eventName, callback)
   }
 
-  async exec2({
+  async execWalletAgnostic({
     swapperName,
     tradeQuote,
     stepIndex,

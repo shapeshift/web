@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import type { ThornodeQuoteResponseSuccess } from '../types'
 import {
   DEFAULT_STREAMING_INTERVAL,
   DEFAULT_STREAMING_NUM_SWAPS,
@@ -12,11 +11,8 @@ import {
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = (
-  {
-    memo: quotedMemo,
-    expected_amount_out: expectedAmountOut,
-    expected_amount_out_streaming: expectedAmountOutStreaming,
-  }: ThornodeQuoteResponseSuccess,
+  expectedAmountOutThorBaseUnit: string,
+  quotedMemo: string,
   slippageBps: BigNumber.Value,
   isStreaming: boolean,
   chainId: ChainId,
@@ -25,7 +21,7 @@ export const addSlippageToMemo = (
   const [prefix, pool, address, , affiliate, affiliateBps] = quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
-    isStreaming ? expectedAmountOutStreaming : expectedAmountOut,
+    expectedAmountOutThorBaseUnit,
     slippageBps,
     BigNumber.ROUND_DOWN,
   )

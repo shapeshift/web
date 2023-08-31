@@ -139,24 +139,24 @@ describe('getTradeQuote', () => {
           const mockThorQuote: { data: ThornodeQuoteResponseSuccess } = {
             data: {
               expected_amount_out: '10232161',
-              expected_amount_out_streaming: '11232161',
               expiry: '1681132269',
               fees: {
                 affiliate: '0',
                 asset: 'ETH.ETH',
+                liquidity: '533215927',
                 outbound: '1200000',
+                slippage_bps: 435,
+                total: '534055927',
+                total_bps: 348,
               },
               inbound_address: 'bc1qucjrczghvwl5d66klz6npv7tshkpwpzlw0zzj8',
               notes:
                 'First output should be to inbound_address, second output should be change back to self, third output should be OP_RETURN, limited to 80 bytes. Do not send below the dust threshold. Do not use exotic spend scripts, locks or address formats (P2WSH with Bech32 address format preferred).',
               outbound_delay_blocks: 575,
               outbound_delay_seconds: 6900,
-              slippage_bps: 435,
-              streaming_slippage_bps: 420,
               warning: 'Do not cache this response. Do not send funds after the expiry.',
               memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
               router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-              streaming_swap_seconds: 400,
               total_swap_seconds: 1600,
               inbound_confirmation_seconds: 600,
               recommended_min_amount_in: '1',

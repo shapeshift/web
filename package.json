@@ -101,7 +101,7 @@
     "@shapeshiftoss/hdwallet-metamask": "^1.50.4",
     "@shapeshiftoss/hdwallet-native": "^1.50.4",
     "@shapeshiftoss/hdwallet-native-vault": "^1.50.4",
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": "1.50.5-alpha.49",
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": "1.50.5-alpha.50",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.50.4",
     "@shapeshiftoss/hdwallet-xdefi": "^1.50.4",
     "@shapeshiftoss/types": "workspace:^",

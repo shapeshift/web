@@ -32,6 +32,7 @@ import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
+import { MetaMaskInstallSnap } from './MetaMask/components/InstallSnap'
 import { MetaMaskConfig } from './MetaMask/config'
 import { MobileCreate } from './MobileWallet/components/MobileCreate'
 import { MobileCreateTest } from './MobileWallet/components/MobileCreateTest'
@@ -145,6 +146,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...MetaMaskConfig,
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
+      { path: '/metamask/snap/install', component: MetaMaskInstallSnap },
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
   },

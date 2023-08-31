@@ -1,6 +1,8 @@
+import { getConfig } from 'config'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { RouteComponentProps } from 'react-router-dom'
+import { shapeShiftSnapInstalled } from 'utils/snaps'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -25,9 +27,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const snapId = getConfig().REACT_APP_SNAP_ID
 
   useEffect(() => {
     ;(async () => {
@@ -56,6 +58,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
         const isLocked = await wallet.isLocked()
 
+        const snapIsInstalled = await shapeShiftSnapInstalled(snapId)
+
         await wallet.initialize()
 
         dispatch({
@@ -65,7 +69,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        if (snapIsInstalled) {
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        } else {
+          history.push('/metamask/snap/install')
+        }
+        // if it is installed ask them if they would like to use it
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error(e)

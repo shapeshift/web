@@ -7599,9 +7599,9 @@ __metadata:
   linkType: hard
 
 "@scure/base@npm:^1.0.0, @scure/base@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "@scure/base@npm:1.1.2"
-  checksum: f666b09dbd62ecb5fe6d0e7a629c8a86a972a47dc4f4555ebbbd7b09782b10a5f894fed9c3b8c74fd683b1588c064df079a44e9f695c075ccd98c30a8d3e91f7
+  version: 1.1.3
+  resolution: "@scure/base@npm:1.1.3"
+  checksum: 1606ab8a4db898cb3a1ada16c15437c3bce4e25854fadc8eb03ae93cbbbac1ed90655af4b0be3da37e12056fef11c0374499f69b9e658c9e5b7b3e06353c630c
   languageName: node
   linkType: hard
 
@@ -7816,9 +7816,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:^1.50.5-alpha.53":
-  version: 1.50.5-alpha.53
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.5-alpha.53"
+"@shapeshiftoss/hdwallet-core@npm:^1.50.5-alpha.55":
+  version: 1.50.5-alpha.55
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.5-alpha.55"
   dependencies:
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     eip-712: ^1.0.0
@@ -7826,7 +7826,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: a2e205667a4a28ef3ecede9ba6c5038e40c37586e1ca849421920bef0eff464ac4286f67e2d08bb304c2171ba3cf6d77795f8f68789a45bd1efc58157e148bf5
+  checksum: fb8e7ea69ed3c44195acfac0603de122af71a39b439a5610280473e6d86dae9427ab49012dceecc802ae4c80d17cbeec1d3f080033564d00dde306f775c0f3d3
   languageName: node
   linkType: hard
 
@@ -7940,19 +7940,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:^1.50.5-alpha.54":
-  version: 1.50.5-alpha.54
-  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha.54"
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:^1.50.5-alpha.55":
+  version: 1.50.5-alpha.55
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha.55"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": ^1.50.5-alpha.53
-    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.0-alpha.15
-    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.15
+    "@shapeshiftoss/hdwallet-core": ^1.50.5-alpha.55
+    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.0-alpha.18
+    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.18
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: ad9a03ce12ba352ba71129ea85005cfa6ae339f904bd2c3cd0b340eb6d9c7aa1ab352f8be365dc90f54d942d068ee17d3c330c27fabd56ecced3a5fab849ce0a
+  checksum: 124aec982dac3b9a5cd6874b30cb947d286c83b84ae41bbbcd72617c20752a57187f2357dbea145dcc955dc82287e53eeeefdd7de9ee054a6f58b017bc962d17
   languageName: node
   linkType: hard
 
@@ -7985,42 +7985,42 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.0-alpha.15":
-  version: 1.0.0-alpha.15
-  resolution: "@shapeshiftoss/metamask-snaps-adapter@npm:1.0.0-alpha.15"
+"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.0-alpha.18":
+  version: 1.0.0-alpha.18
+  resolution: "@shapeshiftoss/metamask-snaps-adapter@npm:1.0.0-alpha.18"
   dependencies:
     "@ethersproject/providers": ^5.7.2
     "@metamask/detect-provider": ^2.0.0
     "@metamask/snaps-ui": 0.32.2
     "@shapeshiftoss/hdwallet-core": ^1.29.0
     "@shapeshiftoss/logger": ^1.1.3
-    "@shapeshiftoss/metamask-snaps": ^1.0.0-alpha.15
-    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.15
+    "@shapeshiftoss/metamask-snaps": ^1.0.0-alpha.18
+    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.18
   peerDependencies:
     "@shapeshiftoss/caip": "*"
     "@shapeshiftoss/types": "*"
     eslint-plugin-react: "*"
     eslint-plugin-react-hooks: "*"
     webpack: "*"
-  checksum: 7cda537cae268c20895f75fa2e937ae09efda80ab81c40b2ab3c15f76fc9ba19a3dc563ac8895d4c7cf85028dfe789738531898aa67af98429671e27a736e58e
+  checksum: 4e4f6f6124d5963511604d6beb153c25f22dd8e8c16d6054eb8c12f7a382c293ed8016ea9d51167cd84f09e2e6d8a4f908c48797b8b68854ddc0eb6a30dadc10
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-types@npm:^1.0.0-alpha.15":
-  version: 1.0.0-alpha.15
-  resolution: "@shapeshiftoss/metamask-snaps-types@npm:1.0.0-alpha.15"
+"@shapeshiftoss/metamask-snaps-types@npm:^1.0.0-alpha.18":
+  version: 1.0.0-alpha.18
+  resolution: "@shapeshiftoss/metamask-snaps-types@npm:1.0.0-alpha.18"
   dependencies:
     "@metamask/types": ^1.1.0
     "@shapeshiftoss/hdwallet-core": ^1.29.0
     "@shapeshiftoss/hdwallet-native": ^1.33.0
     "@shapeshiftoss/unchained-client": ^10.1.1
-  checksum: cdfc4c50aefbb59103df04c8d6ac244e7cb92d54161e118f6f7dc493df14e471c6649dec8bc445be4539f03e1805a5348b3081b491424a819bc4d85a58ee66a5
+  checksum: 57176b44a3b0973f5c2df45a428fec45f519bee01ea0eefd73c609bdc5bd4a8fe023e1bf01eac9d7fac188b33996ea9b79cb29b9289e002c0cfb49cf23b7f004
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps@npm:^1.0.0-alpha.15":
-  version: 1.0.0-alpha.15
-  resolution: "@shapeshiftoss/metamask-snaps@npm:1.0.0-alpha.15"
+"@shapeshiftoss/metamask-snaps@npm:^1.0.0-alpha.18":
+  version: 1.0.0-alpha.18
+  resolution: "@shapeshiftoss/metamask-snaps@npm:1.0.0-alpha.18"
   dependencies:
     "@ethersproject/providers": ^5.7.0
     "@metamask/detect-provider": ^2.0.0
@@ -8031,9 +8031,10 @@ __metadata:
     "@shapeshiftoss/hdwallet-core": ^1.34.0
     "@shapeshiftoss/hdwallet-native": ^1.34.0
     "@shapeshiftoss/logger": ^1.1.2
-    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.15
+    "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.18
     "@shapeshiftoss/types": ^8.3.0
     "@shapeshiftoss/unchained-client": 10.1.1
+    patch-package: ^6.2.2
   peerDependencies:
     "@babel/core": "*"
     "@metamask/eslint-config": "*"
@@ -8046,7 +8047,7 @@ __metadata:
     eslint-plugin-react: "*"
     eslint-plugin-react-hooks: "*"
     webpack: "*"
-  checksum: 961b7396a4a3d7ca1b732d18aaba3fea2bce8e18abcde3c71f967cbcbe8c05252572ec0d466cb61d57cd436767eaa40847adafcf0b36222279e337fbbc7fc7ea
+  checksum: 2dffaa3e291f0b7c0b9baa3bcf63c7c680be2097ea128464a1d6507de1a8f226ece0fdef0b22b63bb4d8838a6f3f165444bca25491f0e4c5a7d4c8a109e30806
   languageName: node
   linkType: hard
 
@@ -8149,7 +8150,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.54
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.55
     "@shapeshiftoss/hdwallet-walletconnect": ^1.50.4
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/types": "workspace:^"
@@ -13895,6 +13896,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ci-info@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ci-info@npm:2.0.0"
+  checksum: 3b374666a85ea3ca43fa49aa3a048d21c9b475c96eb13c133505d2324e7ae5efd6a454f41efe46a152269e9b6a00c9edbe63ec7fa1921957165aae16625acd67
+  languageName: node
+  linkType: hard
+
 "ci-info@npm:^3.1.1, ci-info@npm:^3.2.0":
   version: 3.2.0
   resolution: "ci-info@npm:3.2.0"
@@ -14869,6 +14877,19 @@ __metadata:
   dependencies:
     node-fetch: 2.6.7
   checksum: f6b8c6ee3ef993ace6277fd789c71b6acf1b504fd5f5c7128df4ef2f125a429e29cd62dc8c127523f04a5f2fa4771ed80e3f3d9695617f441425045f505cf3bb
+  languageName: node
+  linkType: hard
+
+"cross-spawn@npm:^6.0.5":
+  version: 6.0.5
+  resolution: "cross-spawn@npm:6.0.5"
+  dependencies:
+    nice-try: ^1.0.4
+    path-key: ^2.0.1
+    semver: ^5.5.0
+    shebang-command: ^1.2.0
+    which: ^1.2.9
+  checksum: f893bb0d96cd3d5751d04e67145bdddf25f99449531a72e82dcbbd42796bbc8268c1076c6b3ea51d4d455839902804b94bc45dfb37ecbb32ea8e54a6741c3ab9
   languageName: node
   linkType: hard
 
@@ -20051,6 +20072,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-ci@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "is-ci@npm:2.0.0"
+  dependencies:
+    ci-info: ^2.0.0
+  bin:
+    is-ci: bin.js
+  checksum: 77b869057510f3efa439bbb36e9be429d53b3f51abd4776eeea79ab3b221337fe1753d1e50058a9e2c650d38246108beffb15ccfd443929d77748d8c0cc90144
+  languageName: node
+  linkType: hard
+
 "is-ci@npm:^3.0.0":
   version: 3.0.0
   resolution: "is-ci@npm:3.0.0"
@@ -23253,6 +23285,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nice-try@npm:^1.0.4":
+  version: 1.0.5
+  resolution: "nice-try@npm:1.0.5"
+  checksum: 0b4af3b5bb5d86c289f7a026303d192a7eb4417231fe47245c460baeabae7277bcd8fd9c728fb6bd62c30b3e15cd6620373e2cf33353b095d8b403d3e8a15aff
+  languageName: node
+  linkType: hard
+
 "no-case@npm:^3.0.4":
   version: 3.0.4
   resolution: "no-case@npm:3.0.4"
@@ -24070,6 +24109,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"patch-package@npm:^6.2.2":
+  version: 6.5.1
+  resolution: "patch-package@npm:6.5.1"
+  dependencies:
+    "@yarnpkg/lockfile": ^1.1.0
+    chalk: ^4.1.2
+    cross-spawn: ^6.0.5
+    find-yarn-workspace-root: ^2.0.0
+    fs-extra: ^9.0.0
+    is-ci: ^2.0.0
+    klaw-sync: ^6.0.0
+    minimist: ^1.2.6
+    open: ^7.4.2
+    rimraf: ^2.6.3
+    semver: ^5.6.0
+    slash: ^2.0.0
+    tmp: ^0.0.33
+    yaml: ^1.10.2
+  bin:
+    patch-package: index.js
+  checksum: 8530ffa30f11136b527c6eddf6da48fa12856ee510a47edb1f9cdf8a025636adb82968f5fae778b5e04ce8c87915ebdf5911422b54add59a5a42e372a8f30eb2
+  languageName: node
+  linkType: hard
+
 "patch-package@npm:^8.0.0":
   version: 8.0.0
   resolution: "patch-package@npm:8.0.0"
@@ -24120,6 +24183,13 @@ __metadata:
   version: 1.0.1
   resolution: "path-is-absolute@npm:1.0.1"
   checksum: 060840f92cf8effa293bcc1bea81281bd7d363731d214cbe5c227df207c34cd727430f70c6037b5159c8a870b9157cba65e775446b0ab06fd5ecc7e54615a3b8
+  languageName: node
+  linkType: hard
+
+"path-key@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "path-key@npm:2.0.1"
+  checksum: f7ab0ad42fe3fb8c7f11d0c4f849871e28fbd8e1add65c370e422512fc5887097b9cf34d09c1747d45c942a8c1e26468d6356e2df3f740bf177ab8ca7301ebfd
   languageName: node
   linkType: hard
 
@@ -27387,7 +27457,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"semver@npm:2 || 3 || 4 || 5, semver@npm:^5.6.0":
+"semver@npm:2 || 3 || 4 || 5, semver@npm:^5.5.0, semver@npm:^5.6.0":
   version: 5.7.1
   resolution: "semver@npm:5.7.1"
   bin:
@@ -27641,12 +27711,28 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"shebang-command@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "shebang-command@npm:1.2.0"
+  dependencies:
+    shebang-regex: ^1.0.0
+  checksum: 9eed1750301e622961ba5d588af2212505e96770ec376a37ab678f965795e995ade7ed44910f5d3d3cb5e10165a1847f52d3348c64e146b8be922f7707958908
+  languageName: node
+  linkType: hard
+
 "shebang-command@npm:^2.0.0":
   version: 2.0.0
   resolution: "shebang-command@npm:2.0.0"
   dependencies:
     shebang-regex: ^3.0.0
   checksum: 6b52fe87271c12968f6a054e60f6bde5f0f3d2db483a1e5c3e12d657c488a15474121a1d55cd958f6df026a54374ec38a4a963988c213b7570e1d51575cea7fa
+  languageName: node
+  linkType: hard
+
+"shebang-regex@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "shebang-regex@npm:1.0.0"
+  checksum: 404c5a752cd40f94591dfd9346da40a735a05139dac890ffc229afba610854d8799aaa52f87f7e0c94c5007f2c6af55bdcaeb584b56691926c5eaf41dc8f1372
   languageName: node
   linkType: hard
 
@@ -31007,7 +31093,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"which@npm:^1.3.1":
+"which@npm:^1.2.9, which@npm:^1.3.1":
   version: 1.3.1
   resolution: "which@npm:1.3.1"
   dependencies:

@@ -18,28 +18,33 @@ export type ThornodePoolResponse = {
 }
 
 export type ThornodeQuoteResponseSuccess = {
-  recommended_min_amount_in: string | undefined
+  dust_threshold?: string
   expected_amount_out: string
-  expected_amount_out_streaming: string
   expiry: string
   fees: {
     affiliate: string
     asset: string
+    liquidity: string
     outbound: string
+    slippage_bps: number
+    total: string
+    total_bps: number
   }
   inbound_address: string
-  memo: string
+  inbound_confirmation_blocks?: number
+  inbound_confirmation_seconds?: number
+  max_streaming_quantity?: number
+  memo?: string
   notes: string
   outbound_delay_blocks: number
   outbound_delay_seconds: number
-  router: string
-  slippage_bps: number
-  streaming_slippage_bps: number
-  warning: string
-  streaming_swap_seconds: number | undefined
-  inbound_confirmation_seconds: number | undefined
+  recommended_min_amount_in?: string
+  router?: string
+  streaming_swap_blocks?: number
+  streaming_swap_seconds?: number
   // total number of seconds a swap is expected to take (inbound conf + streaming swap + outbound delay)
-  total_swap_seconds: number | undefined
+  total_swap_seconds?: number
+  warning: string
 }
 
 type ThornodeQuoteResponseError = { error: string }

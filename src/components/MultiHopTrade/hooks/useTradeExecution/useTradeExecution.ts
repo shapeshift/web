@@ -1,3 +1,6 @@
+import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,6 +11,7 @@ import { TradeExecution } from 'lib/swapper/tradeExecution'
 import { TradeExecution2 } from 'lib/swapper/tradeExecution2'
 import type {
   CosmosSdkTradeExecutionProps,
+  CowTradeExecutionProps,
   EvmTradeExecutionProps,
   EvmTransactionRequest,
   TradeExecutionBase,
@@ -26,6 +30,8 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../useAccountIds'
+
+const WALLET_AGNOSTIC_SWAPPERS = [SwapperName.OneInch, SwapperName.CowSwap]
 
 export const useTradeExecution = ({
   swapperName,
@@ -77,8 +83,9 @@ export const useTradeExecution = ({
 
     return new Promise<void>(async (resolve, reject) => {
       // TODO: remove old TradeExecution class when all swappers migrated to TradeExecution2
-      const execution: TradeExecutionBase =
-        swapperName === SwapperName.OneInch ? new TradeExecution2() : new TradeExecution()
+      const execution: TradeExecutionBase = WALLET_AGNOSTIC_SWAPPERS.includes(swapperName)
+        ? new TradeExecution2()
+        : new TradeExecution()
 
       execution.on(TradeExecutionEvent.Error, reject)
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
@@ -144,6 +151,23 @@ export const useTradeExecution = ({
           },
         }
 
+        const cow: CowTradeExecutionProps = {
+          from,
+          signMessage: async (message: Uint8Array) => {
+            const messageToSign: ETHSignMessage = {
+              addressNList: toAddressNList(accountMetadata.bip44Params),
+              message,
+            }
+
+            const signMessageInput: SignMessageInput<ETHSignMessage> = {
+              messageToSign,
+              wallet,
+            }
+
+            return await adapter.signMessage(signMessageInput)
+          },
+        }
+
         // TODO: implement these
         const utxo: UtxoTradeExecutionProps = undefined as unknown as UtxoTradeExecutionProps
         const cosmosSdk: CosmosSdkTradeExecutionProps =
@@ -155,6 +179,7 @@ export const useTradeExecution = ({
           stepIndex: activeStepOrDefault,
           slippageTolerancePercentageDecimal,
           evm,
+          cow,
           utxo,
           cosmosSdk,
         })

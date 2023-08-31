@@ -12,7 +12,7 @@ import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = (
   expectedAmountOutThorBaseUnit: string,
-  quotedMemo = '',
+  quotedMemo: string | undefined,
   slippageBps: BigNumber.Value,
   isStreaming: boolean,
   chainId: ChainId,

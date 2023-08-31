@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -481,20 +482,31 @@ export const TradeConfirm = () => {
             />
             {isThorStreamingSwap && (
               <Stack px={4}>
-                <RawText>
-                  {totalSwaps > 0
-                    ? `Streaming - ${attemptedSwaps} of ${totalSwaps} swaps processed`
-                    : 'Streaming...'}
-                </RawText>
+                <Row>
+                  <Row.Label>{translate('trade.streamStatus')}</Row.Label>
+                  <Row.Value>{`${attemptedSwaps} of ${totalSwaps}`}</Row.Value>
+                </Row>
+                <Row>
+                  <Progress
+                    width='full'
+                    borderRadius='full'
+                    size='sm'
+                    {...thorStreamingSwapProgressProps}
+                  />
+                </Row>
                 {failedSwaps.length > 0 && (
-                  <Alert status='warning' size='sm'>
-                    <AlertIcon />
-                    <AlertDescription>
-                      <RawText>{`${failedSwaps.length} swaps failed - click here for details`}</RawText>
-                    </AlertDescription>
-                  </Alert>
+                  <Row>
+                    <Row.Value display='flex' alignItems='center' gap={1} color='text.warning'>
+                      <WarningIcon />
+                      {translate('trade.swapsFailed', { failedSwaps: failedSwaps.length })}
+                    </Row.Value>
+                    <Row.Value>
+                      <Button variant='link' colorScheme='blue' fontSize='sm'>
+                        {translate('common.learnMore')}
+                      </Button>
+                    </Row.Value>
+                  </Row>
                 )}
-                <Progress {...thorStreamingSwapProgressProps} />
               </Stack>
             )}
             <Stack px={4}>{sendReceiveSummary}</Stack>

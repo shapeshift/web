@@ -94,11 +94,16 @@ export const useThorStreamingProgress = (
 
   const { quantity, count } = streamingSwapData
 
+  const isComplete = count === quantity
+
   return {
     progressProps: {
       min: 0,
       max: quantity,
       value: count,
+      hasStripe: true,
+      isAnimated: !isComplete,
+      colorScheme: isComplete ? 'green' : 'blue',
     },
     attemptedSwaps: count ?? 0,
     totalSwaps: quantity ?? 0,

@@ -52,13 +52,13 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     recommendedSlippage: '0.0435',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-    estimatedExecutionTimeMs: 600000,
+    estimatedExecutionTimeMs: 1600000,
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9360639:ss:0',
     steps: [
       {
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
-        buyAmountBeforeFeesCryptoBaseUnit: '109870619965000000',
+        buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
         buyAmountAfterFeesCryptoBaseUnit: '97870619965000000',
         feeData: {
           protocolFees: {
@@ -92,7 +92,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
       {
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
-        buyAmountBeforeFeesCryptoBaseUnit: '119604102380000000',
+        buyAmountBeforeFeesCryptoBaseUnit: '124321610000000000',
         buyAmountAfterFeesCryptoBaseUnit: '107604102380000000',
         feeData: {
           protocolFees: {
@@ -134,7 +134,7 @@ describe('getTradeQuote', () => {
               InboundAddressResponse[]
             >),
           )
-        default:
+        default: {
           // '/lcd/thorchain/quote/swap/<swapQueryParams>' fallthrough
           const mockThorQuote: { data: ThornodeQuoteResponseSuccess } = {
             data: {
@@ -157,12 +157,20 @@ describe('getTradeQuote', () => {
               warning: 'Do not cache this response. Do not send funds after the expiry.',
               memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
               router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+              streaming_swap_seconds: 400,
               total_swap_seconds: 1600,
               inbound_confirmation_seconds: 600,
               recommended_min_amount_in: '1',
             },
           }
+
+          if ((url as string).includes('streaming_interval')) {
+            mockThorQuote.data.expected_amount_out = '11232161'
+            mockThorQuote.data.fees.slippage_bps = 420
+          }
+
           return Promise.resolve(Ok(mockThorQuote))
+        }
       }
     })
 

@@ -41,6 +41,7 @@ export type ThornodeQuoteResponseSuccess = {
   recommended_min_amount_in?: string
   router?: string
   streaming_swap_blocks?: number
+  streaming_swap_seconds?: number
   // total number of seconds a swap is expected to take (inbound conf + streaming swap + outbound delay)
   total_swap_seconds?: number
   warning: string

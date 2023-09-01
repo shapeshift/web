@@ -1,45 +1,36 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import { ethers } from 'ethers'
 import { v4 as uuid } from 'uuid'
 import type {
+  CowSwapOrder,
+  CowTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedTxArgsCow,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
-import { assertGetEvmChainAdapter, createDefaultStatusResponse } from 'lib/utils/evm'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
-  CowSignTx,
   CowSwapGetTradesResponse,
   CowSwapGetTransactionsResponse,
   CowSwapQuoteResponse,
 } from './types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  COW_SWAP_SETTLEMENT_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
-import type { CowSwapOrder } from './utils/helpers/helpers'
-import {
-  domain,
-  getCowswapNetwork,
-  getNowPlusThirtyMinutesTimestamp,
-  hashOrder,
-} from './utils/helpers/helpers'
+import { getCowswapNetwork, getNowPlusThirtyMinutesTimestamp } from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
@@ -56,8 +47,13 @@ export const cowApi: SwapperApi = {
     })
   },
 
-  getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<CowSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
+  getUnsignedTxCow: async ({
+    from,
+    tradeQuote,
+    stepIndex,
+    chainId,
+  }: GetUnsignedTxArgsCow): Promise<CowTransactionRequest> => {
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
@@ -100,23 +96,7 @@ export const cowApi: SwapperApi = {
       quoteId: id,
     }
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-    const { chainReference } = fromChainId(sellAsset.chainId)
-    const signingDomain = Number(chainReference)
-
-    // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
-    // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
-    // For more info, check hashOrder method implementation
-    const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
-
-    const bip44Params = adapter.getBIP44Params({ accountNumber })
-
-    const messageToSign: ETHSignMessage = {
-      addressNList: toAddressNList(bip44Params),
-      message: ethers.utils.arrayify(orderDigest),
-    }
-
-    return { orderToSign, messageToSign }
+    return { chainId, orderToSign }
   },
 
   checkTradeStatus: async ({

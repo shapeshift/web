@@ -13,7 +13,7 @@ import type {
   TradeExecutionEventMap,
   TradeExecutionInput2,
 } from './types'
-import { TradeExecutionEvent } from './types'
+import { SwapperName, TradeExecutionEvent } from './types'
 
 export class TradeExecution2 implements TradeExecutionBase {
   private emitter = new EventEmitter()
@@ -28,6 +28,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     stepIndex,
     slippageTolerancePercentageDecimal,
     evm,
+    cow,
     utxo,
     cosmosSdk,
   }: TradeExecutionInput2) {
@@ -43,6 +44,25 @@ export class TradeExecution2 implements TradeExecutionBase {
       const { chainNamespace } = fromChainId(chainId)
 
       const sellTxHash = await (async () => {
+        if (swapperName === SwapperName.CowSwap) {
+          if (!swapper.getUnsignedTxCow) {
+            throw Error('missing implementation for getUnsignedTxCow')
+          }
+          if (!swapper.executeTradeCow) {
+            throw Error('missing implementation for executeTradeCow')
+          }
+
+          const unsignedTxResult = await swapper.getUnsignedTxCow({
+            tradeQuote,
+            chainId,
+            stepIndex,
+            slippageTolerancePercentageDecimal,
+            ...cow,
+          })
+
+          return await swapper.executeTradeCow(unsignedTxResult, cow)
+        }
+
         switch (chainNamespace) {
           case CHAIN_NAMESPACE.Utxo: {
             if (!swapper.getUnsignedTxUtxo) {

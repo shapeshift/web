@@ -151,6 +151,22 @@ export enum SwapErrorType {
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
+export type CowSwapOrder = {
+  sellToken: string
+  buyToken: string
+  sellAmount: string
+  buyAmount: string
+  validTo: number
+  appData: string
+  feeAmount: string
+  kind: string
+  partiallyFillable: boolean
+  receiver: string
+  sellTokenBalance: string
+  buyTokenBalance: string
+  quoteId: number
+}
+
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote
   chainId: ChainId
@@ -163,9 +179,12 @@ export type GetUnsignedTxArgs = {
 export type EvmTradeExecutionProps = {
   from: string
   nonce: string
-  // TODO: required for cowswap
-  // signMessage: (messageToSign: string) => Promise<string>
   signAndBroadcastTransaction: (transactionRequest: EvmTransactionRequest) => Promise<string>
+}
+
+export type CowTradeExecutionProps = {
+  from: string
+  signMessage: (messageToSign: Uint8Array) => Promise<string>
 }
 
 export type UtxoTradeExecutionProps = {
@@ -185,21 +204,10 @@ type CommonGetUnsignedTxArgs = {
   slippageTolerancePercentageDecimal: string
 }
 
-export type GetUnsignedTxArgsEvm = CommonGetUnsignedTxArgs &
-  EvmTradeExecutionProps & {
-    nonce: string
-    from: string
-  }
-
-export type GetUnsignedTxArgsUtxo = CommonGetUnsignedTxArgs &
-  UtxoTradeExecutionProps & {
-    xpub: string
-  }
-
-export type GetUnsignedTxArgsCosmosSdk = CommonGetUnsignedTxArgs &
-  CosmosSdkTradeExecutionProps & {
-    from: string
-  }
+export type GetUnsignedTxArgsEvm = CommonGetUnsignedTxArgs & EvmTradeExecutionProps
+export type GetUnsignedTxArgsCow = CommonGetUnsignedTxArgs & CowTradeExecutionProps
+export type GetUnsignedTxArgsUtxo = CommonGetUnsignedTxArgs & UtxoTradeExecutionProps
+export type GetUnsignedTxArgsCosmosSdk = CommonGetUnsignedTxArgs & CosmosSdkTradeExecutionProps
 
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
@@ -251,6 +259,11 @@ export type EvmTransactionRequest = {
   chainId: number
 } & EvmTransactionRequestGas
 
+export type CowTransactionRequest = {
+  chainId: ChainId
+  orderToSign: CowSwapOrder
+}
+
 export type Swapper = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
@@ -259,6 +272,10 @@ export type Swapper = {
   executeTradeEvm?: (
     txToSign: EvmTransactionRequest,
     callbacks: EvmTradeExecutionProps,
+  ) => Promise<string>
+  executeTradeCow?: (
+    txMetaToSign: CowTransactionRequest,
+    callbacks: CowTradeExecutionProps,
   ) => Promise<string>
   executeTradeUtxo?: (txToSign: BTCSignTx, callbacks: UtxoTradeExecutionProps) => Promise<string>
   executeTradeCosmosSdk?: (
@@ -275,6 +292,7 @@ export type SwapperApi = {
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedTxEvm?: (input: GetUnsignedTxArgsEvm) => Promise<EvmTransactionRequest>
+  getUnsignedTxCow?: (input: GetUnsignedTxArgsCow) => Promise<CowTransactionRequest>
   getUnsignedTxUtxo?: (input: GetUnsignedTxArgsUtxo) => Promise<BTCSignTx>
   getUnsignedTxCosmosSdk?: (input: GetUnsignedTxArgsCosmosSdk) => Promise<StdTx>
 }
@@ -302,6 +320,7 @@ export type TradeExecutionInput2 = {
   stepIndex: number
   slippageTolerancePercentageDecimal: string
   evm: EvmTradeExecutionProps
+  cow: CowTradeExecutionProps
   utxo: UtxoTradeExecutionProps
   cosmosSdk: CosmosSdkTradeExecutionProps
 }

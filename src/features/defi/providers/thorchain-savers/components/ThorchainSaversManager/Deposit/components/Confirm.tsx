@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   FeeData,
   FeeDataEstimate,
@@ -39,6 +39,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
+import { tokenOrUndefined } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -107,6 +108,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
   const feeMarketData = useAppSelector(state =>
     selectMarketDataById(state, feeAsset?.assetId ?? ''),
   )
@@ -232,7 +234,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         : memoUtf8,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
-      contractAddress: '',
+      contractAddress: tokenOrUndefined(fromAssetId(asset.assetId).assetReference),
     }
   }, [
     accountId,
@@ -272,7 +274,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!contextDispatch) return
-    if (!(accountId && assetId)) return
+    if (!(accountId && assetId && feeAsset)) return
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
     }
@@ -371,6 +373,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     contextDispatch,
     accountId,
     assetId,
+    feeAsset,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
     getSafeEstimatedFees,
@@ -678,7 +681,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 fontWeight='bold'
                 value={bnOrZero(protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .times(feeMarketData.price)
+                  .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto

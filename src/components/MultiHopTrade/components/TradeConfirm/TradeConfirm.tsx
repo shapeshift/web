@@ -484,7 +484,11 @@ export const TradeConfirm = () => {
               <Stack px={4}>
                 <Row>
                   <Row.Label>{translate('trade.streamStatus')}</Row.Label>
-                  <Row.Value>{`${attemptedSwaps} of ${totalSwaps}`}</Row.Value>
+                  <Row.Value>
+                    {totalSwaps > 0
+                      ? `${attemptedSwaps} of ${totalSwaps}`
+                      : translate('trade.fetchingStreamingSwapData')}
+                  </Row.Value>
                 </Row>
                 <Row>
                   <Progress

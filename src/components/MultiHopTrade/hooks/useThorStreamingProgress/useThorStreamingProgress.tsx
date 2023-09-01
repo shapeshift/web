@@ -1,7 +1,7 @@
 import type { ProgressProps } from '@chakra-ui/progress'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
@@ -22,8 +22,9 @@ type ThornodeStreamingSwapResponse = {
 export const getThorchainStreamingSwap = async (
   sellTxHash: string,
 ): Promise<ThornodeStreamingSwapResponse | undefined> => {
+  const thorTxHash = sellTxHash.replace(/^0x/, '')
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/swap/streaming/${sellTxHash}`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/swap/streaming/${thorTxHash}`,
   )
 
   if (!streamingSwapData) return
@@ -45,9 +46,9 @@ export const useThorStreamingProgress = (
   totalSwaps: number
   failedSwaps: FailedSwap[]
 } => {
-  const [streamingSwapData, setStreamingSwapData] = useState<
-    ThornodeStreamingSwapResponse | undefined
-  >()
+  // a ref is used to allow updating and reading state without creating a dependency cycle
+  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponse>()
+  const [streamingSwapData, setStreamingSwapData] = useState<ThornodeStreamingSwapResponse>()
   const { poll } = usePoll<ThornodeStreamingSwapResponse | undefined>()
 
   useEffect(() => {
@@ -60,7 +61,27 @@ export const useThorStreamingProgress = (
     poll({
       fn: async () => {
         const updatedStreamingSwapData = await getThorchainStreamingSwap(txHash)
-        if (!updatedStreamingSwapData || !updatedStreamingSwapData.quantity) return
+
+        // no payload at all - must be a failed request - return
+        if (!updatedStreamingSwapData) return
+
+        // no valid data received so far and no valid data to update - return
+        if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) return
+
+        // thornode returns a default empty response once the streaming is complete
+        // set the count to the quantity so UI can display completed status
+        if (streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+          const completedStreamingSwapData = {
+            ...streamingSwapDataRef.current,
+            count: streamingSwapDataRef.current.quantity,
+          }
+          streamingSwapDataRef.current = completedStreamingSwapData
+          setStreamingSwapData(completedStreamingSwapData)
+          return completedStreamingSwapData
+        }
+
+        // data to update - update
+        streamingSwapDataRef.current = updatedStreamingSwapData
         setStreamingSwapData(updatedStreamingSwapData)
         return updatedStreamingSwapData
       },

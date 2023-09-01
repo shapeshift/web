@@ -47,6 +47,7 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { SwapperName } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
@@ -159,9 +160,8 @@ export const TradeConfirm = () => {
   const txHash = buyTxHash ?? sellTxHash
 
   const isThorStreamingSwap = useMemo(
-    // TEMP: monkey patch to preview UI changes
-    () => true, // tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
-    [],
+    () => tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
+    [tradeQuoteStep?.source],
   )
 
   const {
@@ -500,11 +500,13 @@ export const TradeConfirm = () => {
                       <WarningIcon />
                       {translate('trade.swapsFailed', { failedSwaps: failedSwaps.length })}
                     </Row.Value>
-                    <Row.Value>
-                      <Button variant='link' colorScheme='blue' fontSize='sm'>
-                        {translate('common.learnMore')}
-                      </Button>
-                    </Row.Value>
+                    {/* TODO: provide details of streaming swap failures - needs details modal
+                      <Row.Value>
+                        <Button variant='link' colorScheme='blue' fontSize='sm'>
+                          {translate('common.learnMore')}
+                        </Button>
+                      </Row.Value>
+                    */}
                   </Row>
                 )}
               </Stack>

@@ -37,7 +37,7 @@ type FailedSwap = {
 }
 
 export const useThorStreamingProgress = (
-  _txHash: string | undefined,
+  txHash: string | undefined,
   isThorTrade: boolean,
 ): {
   progressProps: ProgressProps
@@ -49,9 +49,6 @@ export const useThorStreamingProgress = (
     ThornodeStreamingSwapResponse | undefined
   >()
   const { poll } = usePoll<ThornodeStreamingSwapResponse | undefined>()
-
-  // TEMP: monkey patch to preview UI changes
-  const txHash = '0D5F2FBF5C5319CA2A20C801882C58E0055E1383AE4414BBC3B60C87D2BAE578?height=12374271'
 
   useEffect(() => {
     // exit if not a thor trade

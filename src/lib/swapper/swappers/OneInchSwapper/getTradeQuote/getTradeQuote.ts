@@ -7,7 +7,10 @@ import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swap
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
-import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
+import {
+  addBasisPointAmount,
+  convertBasisPointsToPercentage,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
@@ -48,7 +51,13 @@ export async function getTradeQuote(
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
+
   const { data: quote } = maybeQuoteResponse.unwrap()
+  const { toTokenAmount: buyAmountAfterFeesCryptoBaseUnit } = quote
+  const buyAmountBeforeFeesCryptoBaseUnit = addBasisPointAmount(
+    buyAmountAfterFeesCryptoBaseUnit,
+    affiliateBps,
+  )
 
   const rate = getRate(quote).toString()
 
@@ -82,7 +91,8 @@ export async function getTradeQuote(
           buyAsset,
           sellAsset,
           accountNumber,
-          buyAmountBeforeFeesCryptoBaseUnit: quote.toTokenAmount,
+          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             protocolFees: {},

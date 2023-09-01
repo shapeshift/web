@@ -12,6 +12,7 @@ export const lifiQuote: TradeQuote = {
       allowanceContract: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE',
       accountNumber: 0,
       buyAmountBeforeFeesCryptoBaseUnit: '1.0269262412379365425e+21',
+      buyAmountAfterFeesCryptoBaseUnit: '1.0269262412379365425e+21',
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
@@ -58,7 +59,8 @@ export const thorQuote: TradeQuote = {
     {
       rate: '39.23942597524024759752',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
-      buyAmountBeforeFeesCryptoBaseUnit: '1013948034150000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '1043948034150000000000',
+      buyAmountAfterFeesCryptoBaseUnit: '1013948034150000000000',
       source: SwapperName.Thorchain,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -163,6 +165,7 @@ export const oneInchQuote: TradeQuote = {
       },
       accountNumber: 0,
       buyAmountBeforeFeesCryptoBaseUnit: '1032761224814295680395',
+      buyAmountAfterFeesCryptoBaseUnit: '1032761224814295680395',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       feeData: {
         protocolFees: {},
@@ -206,6 +209,7 @@ export const cowQuote: TradeQuote = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       buyAmountBeforeFeesCryptoBaseUnit: '1039167423885457658942',
+      buyAmountAfterFeesCryptoBaseUnit: '809167423885457658942',
       source: SwapperName.CowSwap,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -276,6 +280,7 @@ export const zrxQuote: TradeQuote = {
         protocolFees: {},
       },
       buyAmountBeforeFeesCryptoBaseUnit: '1032086674610991500000',
+      buyAmountAfterFeesCryptoBaseUnit: '1032086674610991500000',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       source: SwapperName.Zrx,
     },

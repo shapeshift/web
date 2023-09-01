@@ -17,13 +17,20 @@ type ZrxSwapSource = {
 
 export type ZrxCommonResponse = {
   price: string
+  grossPrice: string
   estimatedGas: string
   gas: string
   gasPrice: string
   buyAmount: string
+  grossBuyAmount: string
   sellAmount: string
+  grossSellAmount: string
   allowanceTarget: string
   sources: ZrxSwapSource[]
+  expectedSlippage: string
+  minimumProtocolFee: string
+  protocolFee: string
+  estimatedPriceImpact: string
 }
 
 export type ZrxPriceResponse = ZrxCommonResponse

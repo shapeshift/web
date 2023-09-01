@@ -1,7 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, EvmChainId, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -27,9 +28,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
+import { buildAndBroadcast, createBuildCustomTxInput } from 'lib/utils/evm'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectAssetById, selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectFeeAssetById,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
@@ -48,9 +55,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
 
   // user info
-  const { state: walletState } = useWallet()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
+  const chainAdapterManager = getChainAdapterManager()
+
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const assetId = toAssetId({
@@ -121,7 +136,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
 
   const handleApprove = useCallback(async () => {
-    if (!state?.deposit.cryptoAmount) return
+    if (!state?.deposit.cryptoAmount || accountNumber === undefined || !wallet) return
 
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
     // TODO(gomes): fetch and set state field for evm tokens only
@@ -153,18 +168,37 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     const thorContract = getOrCreateContractByType({
       address: router,
       type: ContractType.ThorRouter,
+      chainId: asset.chainId,
     })
 
-    await thorContract.depositWithExpiry(
+    const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
       quote.inbound_address,
-      poolId,
-      10000,
+      fromAssetId(assetId).assetReference,
+      10000, // TODO(gomes): actual amount, and handle unlimited/exact
       quote.memo,
       quote.expiry,
-    )
+    ])
 
-    console.log({ asset })
-  }, [asset, feeAsset?.assetId, state.deposit.cryptoAmount])
+    const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
+    const buildCustomTxInput = await createBuildCustomTxInput({
+      accountNumber,
+      adapter,
+      data,
+      value: '0',
+      to: router,
+      wallet,
+    })
+
+    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+  }, [
+    accountNumber,
+    asset,
+    assetId,
+    chainAdapterManager,
+    feeAsset?.assetId,
+    state?.deposit.cryptoAmount,
+    wallet,
+  ])
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
@@ -195,7 +229,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   return (
     <ReusableApprove
       asset={asset}
-      spenderName={DefiProvider.ShapeShift}
+      spenderName={DefiProvider.ThorchainSavers}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset.precision))

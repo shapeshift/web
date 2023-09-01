@@ -29,6 +29,7 @@ import { toBaseUnit } from 'lib/math'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome } from 'lib/utils'
 import { buildAndBroadcast, createBuildCustomTxInput } from 'lib/utils/evm'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -167,24 +168,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
     if (!poolId) throw new Error(`poolId not found for assetId ${asset.assetId}`)
 
-    const thorContract = getOrCreateContractByType({
-      address: router,
-      type: ContractType.ThorRouter,
-      chainId: asset.chainId,
+    const contract = getOrCreateContractByType({
+      address: fromAssetId(assetId).assetReference,
+      type: ContractType.ERC20,
     })
 
-    const amountCryptoThorBaseunit = toBaseUnit(
-      state.deposit.cryptoAmount,
-      THORCHAIN_FIXED_PRECISION,
-    )
-
-    const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-      quote.inbound_address,
-      fromAssetId(assetId).assetReference,
-      amountCryptoThorBaseunit,
-      quote.memo,
-      quote.expiry,
-    ])
+    const data = contract.interface.encodeFunctionData('approve', [router, MAX_ALLOWANCE])
 
     const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
     const buildCustomTxInput = await createBuildCustomTxInput({
@@ -192,11 +181,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       adapter,
       data,
       value: '0',
-      to: router,
+      to: fromAssetId(assetId).assetReference,
       wallet,
     })
 
     const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    console.log({ txid })
   }, [
     accountNumber,
     asset,

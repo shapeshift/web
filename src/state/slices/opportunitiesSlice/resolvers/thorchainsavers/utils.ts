@@ -43,6 +43,12 @@ export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
 
+const usdcEthereumAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const usdcAvalancheAssetId: AssetId =
+  'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
+export const usdtEthereumAssetId: AssetId =
+  'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
@@ -54,6 +60,8 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [avalancheAssetId]: '0',
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
+  [usdcEthereumAssetId]: '0',
+  [usdcAvalancheAssetId]: '0',
 }
 
 const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
@@ -64,6 +72,8 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   bchAssetId,
   ltcAssetId,
   dogeAssetId,
+  usdcEthereumAssetId,
+  usdcAvalancheAssetId,
 ]
 
 const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
@@ -230,9 +240,10 @@ export const getThorchainSaversWithdrawQuote = async ({
   return quoteData
 }
 
-export const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
+export const getMidgardPools = async (period?: string): Promise<MidgardPoolResponse[]> => {
+  const maybePeriodQueryParameter = period ? `?period=${period}` : ''
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+    `${getConfig().REACT_APP_MIDGARD_URL}/pools${maybePeriodQueryParameter}`,
   )
 
   if (!poolsData) return []

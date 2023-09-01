@@ -79,7 +79,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     })
   }
 
-  const midgardPools = await getMidgardPools()
+  const midgardPools = await getMidgardPools('7d')
 
   // It might be tempting to paralelize the two THOR requests - don't
   // Midgard is less reliable, so there's no point to continue the flow if this fails

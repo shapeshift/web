@@ -480,7 +480,7 @@ export const TradeConfirm = () => {
               isSubmitting={isSubmitting}
               px={4}
             />
-            {isThorStreamingSwap && (
+            {status !== TxStatus.Unknown && isThorStreamingSwap && (
               <Stack px={4}>
                 <Row>
                   <Row.Label>{translate('trade.streamStatus')}</Row.Label>

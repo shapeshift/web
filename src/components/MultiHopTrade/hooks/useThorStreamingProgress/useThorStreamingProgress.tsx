@@ -60,12 +60,12 @@ export const useThorStreamingProgress = (
     poll({
       fn: async () => {
         const updatedStreamingSwapData = await getThorchainStreamingSwap(txHash)
-        if (!updatedStreamingSwapData) return
+        if (!updatedStreamingSwapData || !updatedStreamingSwapData.quantity) return
         setStreamingSwapData(updatedStreamingSwapData)
         return updatedStreamingSwapData
       },
       validate: streamingSwapData => {
-        if (!streamingSwapData) return false
+        if (!streamingSwapData || !streamingSwapData.quantity) return false
         return streamingSwapData.count === streamingSwapData.quantity
       },
       interval: POLL_INTERVAL_MILLISECONDS,

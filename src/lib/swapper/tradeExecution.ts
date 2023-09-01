@@ -5,33 +5,16 @@ import { withFromOrXpub } from 'components/MultiHopTrade/hooks/useTradeExecution
 import { poll } from 'lib/poll/poll'
 
 import { swappers } from './constants'
-import type { TradeExecutionInput } from './types'
+import type {
+  SellTxHashArgs,
+  StatusArgs,
+  TradeExecutionBase,
+  TradeExecutionEventMap,
+  TradeExecutionInput,
+} from './types'
+import { TradeExecutionEvent } from './types'
 
-export enum TradeExecutionEvent {
-  SellTxHash = 'sellTxHash',
-  Status = 'status',
-  Success = 'success',
-  Fail = 'fail',
-  Error = 'error',
-}
-
-export type SellTxHashArgs = { stepIndex: number; sellTxHash: string }
-export type StatusArgs = {
-  stepIndex: number
-  status: TxStatus
-  message?: string
-  buyTxHash?: string
-}
-
-type TradeExecutionEventMap = {
-  [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
-  [TradeExecutionEvent.Status]: (args: StatusArgs) => void
-  [TradeExecutionEvent.Success]: (args: StatusArgs) => void
-  [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
-  [TradeExecutionEvent.Error]: (args: unknown) => void
-}
-
-export class TradeExecution {
+export class TradeExecution implements TradeExecutionBase {
   private emitter = new EventEmitter()
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
@@ -43,12 +26,9 @@ export class TradeExecution {
     tradeQuote,
     stepIndex,
     accountMetadata,
-    quoteSellAssetAccountId,
-    quoteBuyAssetAccountId,
     wallet,
     supportsEIP1559,
     slippageTolerancePercentageDecimal,
-    getState,
   }: TradeExecutionInput) {
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
@@ -58,6 +38,13 @@ export class TradeExecution {
       }
 
       const { swapper } = maybeSwapper
+
+      if (!swapper.getUnsignedTx) {
+        throw Error('missing implementation for getUnsignedTx')
+      }
+      if (!swapper.executeTrade) {
+        throw Error('missing implementation for executeTrade')
+      }
 
       const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 
@@ -93,9 +80,6 @@ export class TradeExecution {
             txHash: sellTxHash,
             chainId,
             stepIndex,
-            quoteSellAssetAccountId,
-            quoteBuyAssetAccountId,
-            getState,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }
@@ -113,7 +97,7 @@ export class TradeExecution {
         maxAttempts: Infinity,
       })
 
-      return cancelPolling
+      return { cancelPolling }
     } catch (e) {
       this.emitter.emit(TradeExecutionEvent.Error, e)
     }

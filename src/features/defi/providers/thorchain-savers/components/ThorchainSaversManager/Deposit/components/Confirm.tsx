@@ -52,6 +52,7 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectAssets,
+  selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -102,9 +103,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+  )
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const accountMetadata = useAppSelector(state =>
@@ -125,8 +130,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [accountId, asset?.assetId],
   )
 
-  const assetBalanceCryptoBaseUnit = useAppSelector(s =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId }),
+    [accountId, feeAsset?.assetId],
+  )
+
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -599,10 +609,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(assetBalanceCryptoBaseUnit)
+      bnOrZero(feeAssetBalanceCryptoBaseUnit)
         .minus(state?.deposit.estimatedGasCryptoPrecision ?? 0)
         .gte(0),
-    [assetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision],
+    [feeAssetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {
@@ -692,16 +702,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                  .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed()}
-                symbol={asset.symbol}
+                symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>
@@ -710,7 +720,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset.symbol }]} />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
         </Alert>
       )}
     </ReusableConfirm>

@@ -1,6 +1,6 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
@@ -32,6 +32,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import type { SwapErrorRight } from 'lib/swapper/types'
+import { getErc20Allowance } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -45,6 +46,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -71,6 +73,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
+  const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
+    null,
+  )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
@@ -86,6 +91,8 @@ export const Deposit: React.FC<DepositProps> = ({
     assetNamespace,
     assetReference,
   })
+
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const opportunityId = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
     [assetId, assetNamespace, assetReference, chainId],
@@ -221,7 +228,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(userAddress && opportunityData && contextDispatch)) return
+      if (!(userAddress && opportunityData && inputValues && accountId && contextDispatch)) return
       // set deposit state for future use
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
@@ -232,7 +239,22 @@ export const Deposit: React.FC<DepositProps> = ({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCryptoPrecision },
         })
-        onNext(DefiStep.Confirm)
+
+        const isApprovalRequired = await (async () => {
+          // Router contract address is only set in case we're depositting a token, not a native asset
+          if (!saversRouterContractAddress) return false
+          const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+            address: fromAssetId(assetId).assetReference,
+            spender: saversRouterContractAddress,
+            from: fromAccountId(accountId).account,
+            chainId: asset.chainId,
+          })
+          const { cryptoAmount } = inputValues
+
+          if (bnOrZero(cryptoAmount).gt(allowanceOnChainCryptoBaseUnit)) return true
+          return false
+        })()
+        onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
@@ -255,13 +277,17 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      assets,
       userAddress,
       opportunityData,
+      inputValues,
+      accountId,
       contextDispatch,
       getDepositGasEstimateCryptoPrecision,
       onNext,
       assetId,
+      assets,
+      saversRouterContractAddress,
+      asset.chainId,
       toast,
       translate,
     ],
@@ -371,7 +397,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   useEffect(() => {
     if (!opportunityData?.apy) return
-    if (!(accountId && inputValues && asset)) return
+    if (!(accountId && inputValues && asset && feeAsset)) return
     const { cryptoAmount } = inputValues
     const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
 
@@ -388,6 +414,22 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
+
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      // TODO(gomes): fetch and set state field for evm tokens only
+      const maybeInboundAddressData = await getInboundAddressDataForChain(
+        daemonUrl,
+        feeAsset?.assetId,
+      )
+      if (maybeInboundAddressData.isErr())
+        throw new Error(maybeInboundAddressData.unwrapErr().message)
+
+      const inboundAddressData = maybeInboundAddressData.unwrap()
+      console.log({ inboundAddressData })
+
+      // TODO(gomes): check for router, which *shouuld* be there anyway since we will check on asset, but safety doesn't hurt
+      setSaversRouterContractAddress(inboundAddressData.router!)
+
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit
       // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
@@ -412,7 +454,7 @@ export const Deposit: React.FC<DepositProps> = ({
     // cancel the previous debounce when inputValues changes to avoid race conditions
     // and always ensure the latest value is used
     return debounced.cancel
-  }, [accountId, asset, inputValues, opportunityData?.apy])
+  }, [accountId, asset, feeAsset, inputValues, opportunityData?.apy])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
     setInputValues({ fiatAmount, cryptoAmount })

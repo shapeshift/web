@@ -25,6 +25,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
@@ -171,10 +173,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       chainId: asset.chainId,
     })
 
+    const amountCryptoThorBaseunit = toBaseUnit(
+      state.deposit.cryptoAmount,
+      THORCHAIN_FIXED_PRECISION,
+    )
+
     const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
       quote.inbound_address,
       fromAssetId(assetId).assetReference,
-      10000, // TODO(gomes): actual amount, and handle unlimited/exact
+      amountCryptoThorBaseunit,
       quote.memo,
       quote.expiry,
     ])

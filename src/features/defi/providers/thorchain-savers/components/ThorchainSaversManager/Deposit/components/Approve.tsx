@@ -1,13 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -29,7 +28,6 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome } from 'lib/utils'
 import { buildAndBroadcast, createBuildCustomTxInput, getErc20Allowance } from 'lib/utils/evm'
-import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountNumberByAccountId,
@@ -55,7 +53,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     state: { wallet },
   } = useWallet()
 
-  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
@@ -77,58 +74,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const feeMarketData = useAppSelector(state =>
     selectMarketDataById(state, feeAsset?.assetId ?? ''),
-  )
-
-  const getDepositGasEstimateCryptoPrecision = useCallback(
-    async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(userAddress && assetReference && accountId)) return
-      try {
-        const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
-        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
-          asset,
-          amountCryptoBaseUnit,
-        })
-        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
-        const quote = maybeQuote.unwrap()
-
-        const chainAdapters = getChainAdapterManager()
-        const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
-        const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-          to: quote.inbound_address,
-          value: amountCryptoBaseUnit.toFixed(0),
-          chainSpecific: {
-            from: userAddress,
-          },
-          sendMax: Boolean(state?.deposit.sendMax),
-        }
-        const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
-
-        const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-        )
-        return bnOrZero(fastFeeCryptoPrecision).toString()
-      } catch (error) {
-        console.error(error)
-        toast({
-          position: 'top-right',
-          description: translate('common.somethingWentWrongBody'),
-          title: translate('common.somethingWentWrong'),
-          status: 'error',
-        })
-      }
-    },
-    [
-      userAddress,
-      assetReference,
-      accountId,
-      asset,
-      chainId,
-      state?.deposit.sendMax,
-      toast,
-      translate,
-    ],
   )
 
   const handleApprove = useCallback(async () => {
@@ -197,7 +142,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 60,
       })
 
-      const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(state.deposit)
       if (!estimatedGasCryptoPrecision) return
       dispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
@@ -224,11 +168,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assetId,
     chainAdapterManager,
     dispatch,
+    estimatedGasCryptoPrecision,
     feeAsset?.assetId,
-    getDepositGasEstimateCryptoPrecision,
     onNext,
     poll,
-    state?.deposit,
+    state?.deposit.cryptoAmount,
     toast,
     translate,
     wallet,
@@ -265,12 +209,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       asset={asset}
       spenderName={DefiProvider.ThorchainSavers}
       feeAsset={feeAsset}
-      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision)
-        .div(bn(10).pow(feeAsset.precision))
-        .toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
-        .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

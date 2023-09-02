@@ -1,10 +1,18 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
+import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  EvmChainAdapter,
+  GetFeeDataInput,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { getConfig } from 'config'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -25,6 +33,7 @@ import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -32,7 +41,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import type { SwapErrorRight } from 'lib/swapper/types'
-import { getErc20Allowance } from 'lib/utils/evm'
+import { getErc20Allowance, getFees } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -43,6 +52,7 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -91,6 +101,15 @@ export const Deposit: React.FC<DepositProps> = ({
     assetNamespace,
     assetReference,
   })
+
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const opportunityId = useMemo(
@@ -228,7 +247,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(userAddress && opportunityData && inputValues && accountId && contextDispatch)) return
+      if (
+        !(userAddress && opportunityData && inputValues && accountId && contextDispatch && feeAsset)
+      )
+        return
       // set deposit state for future use
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
@@ -256,6 +278,49 @@ export const Deposit: React.FC<DepositProps> = ({
           if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
           return false
         })()
+
+        const approvalFees = await (() => {
+          if (
+            !isApprovalRequired ||
+            !saversRouterContractAddress ||
+            accountNumber === undefined ||
+            !wallet
+          )
+            return undefined
+
+          const contract = getOrCreateContractByType({
+            address: fromAssetId(assetId).assetReference,
+            type: ContractType.ERC20,
+            chainId: asset.chainId,
+          })
+          if (!contract) return undefined
+
+          const data = contract.interface.encodeFunctionData('approve', [
+            saversRouterContractAddress,
+            MaxUint256,
+          ])
+
+          const chainAdapters = getChainAdapterManager()
+          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+
+          return getFees({
+            accountNumber,
+            adapter,
+            data,
+            to: fromAssetId(assetId).assetReference,
+            value: '0',
+            wallet,
+          })
+        })()
+        if (approvalFees)
+          contextDispatch({
+            type: ThorchainSaversDepositActionType.SET_APPROVE,
+            payload: {
+              estimatedGasCryptoPrecision: bnOrZero(approvalFees.networkFeeCryptoBaseUnit)
+                .div(bn(10).pow(feeAsset.precision))
+                .toString(),
+            },
+          })
         onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
         // TODO(gomes): don't continue to this branch and track DepositApprove in case of deposits
@@ -285,6 +350,7 @@ export const Deposit: React.FC<DepositProps> = ({
       inputValues,
       accountId,
       contextDispatch,
+      feeAsset,
       getDepositGasEstimateCryptoPrecision,
       onNext,
       assetId,
@@ -292,6 +358,9 @@ export const Deposit: React.FC<DepositProps> = ({
       saversRouterContractAddress,
       asset.chainId,
       asset.precision,
+      accountNumber,
+      wallet,
+      chainId,
       toast,
       translate,
     ],
@@ -429,7 +498,6 @@ export const Deposit: React.FC<DepositProps> = ({
         throw new Error(maybeInboundAddressData.unwrapErr().message)
 
       const inboundAddressData = maybeInboundAddressData.unwrap()
-      console.log({ inboundAddressData })
 
       // TODO(gomes): check for router, which *shouuld* be there anyway since we will check on asset, but safety doesn't hurt
       setSaversRouterContractAddress(inboundAddressData.router!)

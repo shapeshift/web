@@ -251,11 +251,14 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           const { cryptoAmount } = inputValues
 
-          if (bnOrZero(cryptoAmount).gt(allowanceOnChainCryptoBaseUnit)) return true
+          const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+
+          if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
           return false
         })()
         onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        // TODO(gomes): don't continue to this branch and track DepositApprove in case of deposits
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
           {
@@ -288,6 +291,7 @@ export const Deposit: React.FC<DepositProps> = ({
       assets,
       saversRouterContractAddress,
       asset.chainId,
+      asset.precision,
       toast,
       translate,
     ],

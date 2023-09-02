@@ -333,15 +333,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         chainId: asset.chainId,
       })
 
-      const amountCryptoThorBaseunit = toBaseUnit(
-        state.deposit.cryptoAmount,
-        THORCHAIN_FIXED_PRECISION,
-      )
-
       const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
         quote.inbound_address,
         fromAssetId(assetId).assetReference,
-        amountCryptoThorBaseunit, // TODO(gomes): handle unlimited/exact
+        amountCryptoBaseUnit.toString(), // TODO(gomes): handle unlimited/exact
         quote.memo,
         quote.expiry,
       ])

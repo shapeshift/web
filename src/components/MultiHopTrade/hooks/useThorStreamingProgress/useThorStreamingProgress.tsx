@@ -3,31 +3,23 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
-const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
-type ThornodeStreamingSwapResponse = {
-  tx_id?: string
-  interval?: number
-  quantity?: number
-  count?: number
-  last_height?: number
-  trade_target?: string
-  deposit?: string
-  in?: string
-  out?: string
-  failed_swaps?: number[]
-  failed_swap_reasons?: string[]
-}
+import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from './types'
+const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
 export const getThorchainStreamingSwap = async (
   sellTxHash: string,
-): Promise<ThornodeStreamingSwapResponse | undefined> => {
+): Promise<ThornodeStreamingSwapResponseSuccess | undefined> => {
   const thorTxHash = sellTxHash.replace(/^0x/, '')
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/swap/streaming/${thorTxHash}`,
   )
 
   if (!streamingSwapData) return
+  if ('error' in streamingSwapData) {
+    console.error('failed to fetch streaming swap data', streamingSwapData.error)
+    return
+  }
 
   return streamingSwapData
 }
@@ -39,21 +31,21 @@ type FailedSwap = {
 
 export const useThorStreamingProgress = (
   txHash: string | undefined,
-  isThorTrade: boolean,
+  isThorStreamingSwap: boolean,
 ): {
   progressProps: ProgressProps
-  attemptedSwaps: number
-  totalSwaps: number
+  attemptedSwapCount: number
+  totalSwapCount: number
   failedSwaps: FailedSwap[]
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
-  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponse>()
-  const [streamingSwapData, setStreamingSwapData] = useState<ThornodeStreamingSwapResponse>()
-  const { poll } = usePoll<ThornodeStreamingSwapResponse | undefined>()
+  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
+  const [streamingSwapData, setStreamingSwapData] = useState<ThornodeStreamingSwapResponseSuccess>()
+  const { poll } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
 
   useEffect(() => {
     // exit if not a thor trade
-    if (!isThorTrade) return
+    if (!isThorStreamingSwap) return
 
     // don't start polling until we have a tx
     if (!txHash) return
@@ -92,7 +84,7 @@ export const useThorStreamingProgress = (
       interval: POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [isThorTrade, poll, txHash])
+  }, [isThorStreamingSwap, poll, txHash])
 
   const failedSwaps = useMemo(() => {
     if (!streamingSwapData) return []
@@ -105,8 +97,8 @@ export const useThorStreamingProgress = (
       progressProps: {
         isIndeterminate: true,
       },
-      attemptedSwaps: 0,
-      totalSwaps: 0,
+      attemptedSwapCount: 0,
+      totalSwapCount: 0,
       failedSwaps,
     }
 
@@ -123,8 +115,8 @@ export const useThorStreamingProgress = (
       isAnimated: !isComplete,
       colorScheme: isComplete ? 'green' : 'blue',
     },
-    attemptedSwaps: count ?? 0,
-    totalSwaps: quantity ?? 0,
+    attemptedSwapCount: count ?? 0,
+    totalSwapCount: quantity ?? 0,
     failedSwaps,
   }
 }

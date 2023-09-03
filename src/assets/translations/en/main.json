@@ -678,7 +678,6 @@
     "viewTransaction": "View Transaction",
     "unlimited": "Unlimited",
     "streamStatus": "Stream Status",
-    "fetchingStreamingSwapData": "Loading...",
     "swapsFailed": "%{failedSwaps} swaps failed",
     "exact": "Exact",
     "expectedAmount": "Expected Amount",

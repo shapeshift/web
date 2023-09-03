@@ -165,9 +165,9 @@ export const TradeConfirm = () => {
   )
 
   const {
+    attemptedSwapCount,
     progressProps: thorStreamingSwapProgressProps,
-    attemptedSwaps,
-    totalSwaps,
+    totalSwapCount,
     failedSwaps,
   } = useThorStreamingProgress(sellTxHash, isThorStreamingSwap)
 
@@ -484,11 +484,9 @@ export const TradeConfirm = () => {
               <Stack px={4}>
                 <Row>
                   <Row.Label>{translate('trade.streamStatus')}</Row.Label>
-                  <Row.Value>
-                    {totalSwaps > 0
-                      ? `${attemptedSwaps} of ${totalSwaps}`
-                      : translate('trade.fetchingStreamingSwapData')}
-                  </Row.Value>
+                  {totalSwapCount > 0 && (
+                    <Row.Value>{`${attemptedSwapCount} of ${totalSwapCount}`}</Row.Value>
+                  )}
                 </Row>
                 <Row>
                   <Progress

@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Skeleton, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import dayjs from 'dayjs'
@@ -31,6 +31,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
+import { isToken } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -47,8 +48,10 @@ import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -117,13 +120,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+  )
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+
+  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
 
   // user info
   const { state: walletState } = useWallet()
@@ -134,6 +144,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
   const assetBalance = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, assetBalanceFilter),
+  )
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId }),
+    [accountId, feeAsset?.assetId],
+  )
+
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)

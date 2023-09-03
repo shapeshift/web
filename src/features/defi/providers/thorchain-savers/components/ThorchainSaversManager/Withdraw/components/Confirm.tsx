@@ -684,14 +684,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(networkFeeCryptoBaseUnit)
+                  value={bnOrZero(protocolFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .times(marketData.price)
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(networkFeeCryptoBaseUnit)
+                  value={bnOrZero(protocolFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .toFixed()}
                   symbol={asset.symbol}
@@ -711,17 +711,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(protocolFeeCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
-                    .times(marketData.price)
+                  value={bnOrZero(networkFeeCryptoBaseUnit)
+                    .div(bn(10).pow(feeAsset.precision))
+                    .times(feeMarketData.price)
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(protocolFeeCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
+                  value={bnOrZero(networkFeeCryptoBaseUnit)
+                    .div(bn(10).pow(feeAsset.precision))
                     .toFixed()}
-                  symbol={asset.symbol}
+                  symbol={feeAsset.symbol}
                 />
               </Skeleton>
             </Box>

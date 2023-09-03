@@ -37,7 +37,6 @@ export const thorchainApi: SwapperApi = {
     from,
     xpub,
     supportsEIP1559,
-    slippageTolerancePercentageDecimal,
   }): Promise<UnsignedTx> => {
     const { receiveAddress, affiliateBps } = tradeQuote
 
@@ -60,7 +59,6 @@ export const thorchainApi: SwapperApi = {
       chainSpecific,
       ...fromOrXpub,
       supportsEIP1559,
-      slippageTolerancePercentage: slippageTolerancePercentageDecimal,
     })
   },
 

@@ -53,7 +53,6 @@ export const thorQuote: TradeQuote = {
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
-  recommendedSlippage: '0.00001',
   estimatedExecutionTimeMs: undefined,
   steps: [
     {

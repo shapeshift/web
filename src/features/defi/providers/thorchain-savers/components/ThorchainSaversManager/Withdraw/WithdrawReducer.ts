@@ -6,6 +6,7 @@ export const initialState: ThorchainSaversWithdrawState = {
   opportunity: null,
   loading: false,
   approve: {},
+  isExactAllowance: false,
   withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -23,6 +24,10 @@ export const reducer = (
   action: ThorchainSaversWithdrawActions,
 ): ThorchainSaversWithdrawState => {
   switch (action.type) {
+    case ThorchainSaversWithdrawActionType.SET_IS_EXACT_ALLOWANCE:
+      return { ...state, isExactAllowance: action.payload }
+    case ThorchainSaversWithdrawActionType.SET_APPROVE:
+      return { ...state, approve: action.payload }
     case ThorchainSaversWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case ThorchainSaversWithdrawActionType.SET_WITHDRAW:

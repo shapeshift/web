@@ -215,7 +215,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       asset={asset}
       spenderName={DefiProvider.ThorchainSavers}
       feeAsset={feeAsset}
-      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset.precision))
+        .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))

@@ -327,6 +327,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
               estimatedGasCryptoBaseUnit: approvalFees.networkFeeCryptoBaseUnit,
             },
           })
+        console.log({ approvalFees, isApprovalRequired })
         onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
 
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })

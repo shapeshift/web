@@ -20,6 +20,7 @@ export type ThorchainSaversWithdrawState = {
   withdraw: ThorchainSaversWithdrawValues
   loading: boolean
   txid: string | null
+  isExactAllowance?: boolean
 }
 
 export enum ThorchainSaversWithdrawActionType {

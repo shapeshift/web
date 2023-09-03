@@ -125,6 +125,14 @@ const testSignedTx = '0xfakeSignedTxHash'
 
 const expectedTx = '0xfakeTxHash'
 
+jest.mock('config', () => {
+  return {
+    getConfig: () => ({
+      REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: false,
+    }),
+  }
+})
+
 describe.each([
   ['wallet does not support EIP-1559', false],
   ['wallet supports EIP-1559', true],

@@ -5,9 +5,9 @@ import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import type { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
@@ -169,8 +169,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address:
-              (action.payload.wallet as MetaMaskShapeShiftMultiChainHDWallet).ethAddress ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet).ethAddress ?? '',
           },
         },
       }

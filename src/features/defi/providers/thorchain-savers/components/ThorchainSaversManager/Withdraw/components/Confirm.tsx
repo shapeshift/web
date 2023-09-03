@@ -319,7 +319,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       !(
         accountId &&
         assetId &&
-        state?.withdraw?.estimatedGasCrypto &&
+        state?.withdraw?.estimatedGasCryptoBaseUnit &&
         opportunityData?.stakedAmountCryptoBaseUnit &&
         contextDispatch
       )
@@ -375,7 +375,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     assetId,
-    state?.withdraw?.estimatedGasCrypto,
+    state?.withdraw?.estimatedGasCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     opportunityData?.stakedAmountCryptoBaseUnit,
     opportunityData?.rewardsCryptoBaseUnit?.amounts,
@@ -620,10 +620,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const missingBalanceForGas = useMemo(
     () =>
       bnOrZero(assetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(bn(10).pow(asset.precision)))
+        .minus(
+          bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+        )
         .minus(bnOrZero(dustAmountCryptoBaseUnit).div(bn(10).pow(asset.precision)))
         .times(-1),
-    [assetBalance, state?.withdraw.estimatedGasCrypto, asset.precision, dustAmountCryptoBaseUnit],
+    [
+      assetBalance,
+      state?.withdraw.estimatedGasCryptoBaseUnit,
+      asset.precision,
+      dustAmountCryptoBaseUnit,
+    ],
   )
 
   const hasEnoughBalanceForGas = useMemo(() => missingBalanceForGas.lte(0), [missingBalanceForGas])

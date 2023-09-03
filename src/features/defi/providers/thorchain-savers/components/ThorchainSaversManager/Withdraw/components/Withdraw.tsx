@@ -262,7 +262,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         if (!estimatedGasCrypto) return
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
         })
 
         const isApprovalRequired = await (async () => {

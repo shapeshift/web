@@ -2,7 +2,7 @@ import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type ThorchainSaversWithdrawValues = WithdrawValues &

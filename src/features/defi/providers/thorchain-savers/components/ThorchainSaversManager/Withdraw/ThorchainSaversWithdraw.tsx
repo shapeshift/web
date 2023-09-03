@@ -26,6 +26,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
@@ -110,6 +111,11 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
           asset: asset.symbol,
         }),
         component: ownProps => <Withdraw {...ownProps} accountId={accountId} />,
+      },
+      [DefiStep.Approve]: {
+        label: translate('defi.steps.approve.title'),
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
+        props: {},
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

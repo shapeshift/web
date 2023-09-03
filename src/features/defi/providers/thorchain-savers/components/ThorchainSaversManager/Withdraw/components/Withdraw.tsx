@@ -324,9 +324,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           dispatch({
             type: ThorchainSaversWithdrawActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(approvalFees.networkFeeCryptoBaseUnit)
-                .div(bn(10).pow(feeAsset.precision))
-                .toString(),
+              estimatedGasCryptoBaseUnit: approvalFees.networkFeeCryptoBaseUnit,
             },
           })
         onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
@@ -353,13 +351,20 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
     },
     [
-      assets,
       userAddress,
       opportunityData,
+      accountId,
       dispatch,
       getWithdrawGasEstimate,
       onNext,
       assetId,
+      assets,
+      saversRouterContractAddress,
+      asset.chainId,
+      asset.precision,
+      accountNumber,
+      wallet,
+      chainId,
       toast,
       translate,
     ],

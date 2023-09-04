@@ -6,8 +6,8 @@ import type { Nominal } from '../utils'
 
 export type ChainId = Nominal<string, 'ChainId'>
 
-export type ChainNamespace = typeof CHAIN_NAMESPACE[keyof typeof CHAIN_NAMESPACE]
-export type ChainReference = typeof CHAIN_REFERENCE[keyof typeof CHAIN_REFERENCE]
+export type ChainNamespace = (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE]
+export type ChainReference = (typeof CHAIN_REFERENCE)[keyof typeof CHAIN_REFERENCE]
 
 type ToChainIdArgs = {
   chainNamespace: ChainNamespace

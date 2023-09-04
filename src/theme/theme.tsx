@@ -1,4 +1,4 @@
-import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
+import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'

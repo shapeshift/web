@@ -212,7 +212,9 @@ export const OpportunityRow: React.FC<
               lineHeight='shorter'
             />
             <Amount.Percent
-              value={bnOrZero(marketData[asset.assetId]?.changePercent24Hr).div(100).toString()}
+              value={bnOrZero(marketData[asset.assetId]?.changePercent24Hr)
+                .div(100)
+                .toString()}
               autoColor
               fontSize='xs'
               lineHeight='shorter'

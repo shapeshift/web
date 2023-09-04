@@ -30,6 +30,7 @@ describe('The Dashboard', () => {
     )
 
     // Test 'too-short` seed validation
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.getBySel('wallet-native-seed-input').click().type('too-short')
     cy.getBySel('wallet-native-seed-submit-button').click()
     cy.getBySel('wallet-native-seed-validation-message').contains(

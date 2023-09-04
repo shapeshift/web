@@ -12,7 +12,7 @@ const mockTx = (obj?: { parser?: string; method?: string }) =>
       },
       obj,
     ),
-  } as Tx)
+  }) as Tx
 
 describe('cosmosUtils', () => {
   describe('excludeTransaction', () => {

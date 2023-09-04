@@ -26,7 +26,7 @@ export const ZERION_CHAINS = [
   // 'xdai',
 ] as const
 
-export type ZerionChainId = typeof ZERION_CHAINS[number]
+export type ZerionChainId = (typeof ZERION_CHAINS)[number]
 
 export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   avalanche: avalancheChainId,

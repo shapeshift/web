@@ -16,12 +16,15 @@ export const getTransfersByType = (
   transfers: Transfer[],
   types: TransferType[],
 ): Record<TransferType, Transfer[]> =>
-  types.reduce((prev, type) => {
-    const transfersByType = transfers.filter(t => t.type === type)
-    if (!transfersByType.length) return prev
-    prev[type] = transfersByType
-    return prev
-  }, {} as Record<TransferType, Transfer[]>)
+  types.reduce(
+    (prev, type) => {
+      const transfersByType = transfers.filter(t => t.type === type)
+      if (!transfersByType.length) return prev
+      prev[type] = transfersByType
+      return prev
+    },
+    {} as Record<TransferType, Transfer[]>,
+  )
 
 type GetTradeFeesInput = {
   buy: Transfer

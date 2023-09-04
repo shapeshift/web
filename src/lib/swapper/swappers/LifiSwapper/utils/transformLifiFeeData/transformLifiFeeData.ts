@@ -28,28 +28,31 @@ export const transformLifiStepFeeData = ({
     feeCost => !(feeCost as { included?: boolean }).included,
   )
 
-  const protocolFees = allPayableFeeCosts.reduce<Record<AssetId, ProtocolFee>>((acc, feeCost) => {
-    const { amount: amountCryptoBaseUnit, token } = feeCost
-    const assetId = lifiTokenToAssetId(token)
-    const asset = assets[assetId]
-    if (!acc[assetId]) {
-      acc[assetId] = {
-        amountCryptoBaseUnit,
-        asset: {
-          chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
-          precision: asset?.precision ?? token.decimals,
-          symbol: asset?.symbol ?? token.symbol,
-          ...asset,
-        },
-        requiresBalance: true,
+  const protocolFees = allPayableFeeCosts.reduce<Record<AssetId, ProtocolFee>>(
+    (acc, feeCost) => {
+      const { amount: amountCryptoBaseUnit, token } = feeCost
+      const assetId = lifiTokenToAssetId(token)
+      const asset = assets[assetId]
+      if (!acc[assetId]) {
+        acc[assetId] = {
+          amountCryptoBaseUnit,
+          asset: {
+            chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
+            precision: asset?.precision ?? token.decimals,
+            symbol: asset?.symbol ?? token.symbol,
+            ...asset,
+          },
+          requiresBalance: true,
+        }
+      } else {
+        acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
+          .plus(amountCryptoBaseUnit)
+          .toString()
       }
-    } else {
-      acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
-        .plus(amountCryptoBaseUnit)
-        .toString()
-    }
-    return acc
-  }, {} as Record<AssetId, ProtocolFee>)
+      return acc
+    },
+    {} as Record<AssetId, ProtocolFee>,
+  )
 
   return protocolFees
 }

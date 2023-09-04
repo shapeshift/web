@@ -56,21 +56,24 @@ export const parseEthData = (data: CoinCapCoin[]) => {
       (explorer && explorer.startsWith('https://etherscan.io/token/0x')) || id === 'ethereum',
   )
 
-  return ethCoins.reduce((acc, { id, explorer }) => {
-    const chainNamespace = CHAIN_NAMESPACE.Evm
-    const chainReference = CHAIN_REFERENCE.EthereumMainnet
-    let assetReference: string = ASSET_REFERENCE.Ethereum
-    const assetNamespace = id === 'ethereum' ? 'slip44' : 'erc20'
-    if (id !== 'ethereum' && explorer) {
-      assetReference = explorer
-        .replace('https://etherscan.io/token/', '')
-        .split('#')[0]
-        .split('?')[0]
-    }
-    const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-    acc[assetId] = id
-    return acc
-  }, {} as Record<string, string>)
+  return ethCoins.reduce(
+    (acc, { id, explorer }) => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
+      let assetReference: string = ASSET_REFERENCE.Ethereum
+      const assetNamespace = id === 'ethereum' ? 'slip44' : 'erc20'
+      if (id !== 'ethereum' && explorer) {
+        assetReference = explorer
+          .replace('https://etherscan.io/token/', '')
+          .split('#')[0]
+          .split('?')[0]
+      }
+      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
+      acc[assetId] = id
+      return acc
+    },
+    {} as Record<string, string>,
+  )
 }
 
 export const parseData = (d: CoinCapCoin[]) => ({

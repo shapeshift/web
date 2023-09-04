@@ -381,9 +381,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               try {
                 const w = await getWallet(localWalletDeviceId)
                 if (w && w.mnemonic && w.label) {
-                  const localMobileWallet = await nativeAdapters?.[0]?.pairDevice(
-                    localWalletDeviceId,
-                  )
+                  const localMobileWallet =
+                    await nativeAdapters?.[0]?.pairDevice(localWalletDeviceId)
 
                   if (localMobileWallet) {
                     localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })

@@ -171,7 +171,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const getWithdrawGasEstimate = useCallback(
+  const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
     async (withdraw: WithdrawValues) => {
       if (
         !(
@@ -239,10 +239,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
           const fastFeeCryptoBaseUnit = fees.fast.txFee
 
-          const fastFeeCryptoPrecision = bnOrZero(
-            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
-          )
-          return bnOrZero(fastFeeCryptoPrecision).toString()
+          return bnOrZero(fastFeeCryptoBaseUnit).toString()
         }
 
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
@@ -260,11 +257,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           sendMax: false,
         }
         const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
-
-        const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-        )
-        return bnOrZero(fastFeeCryptoPrecision).toString()
+        return bnOrZero(fastFeeCryptoBaseUnit).toString()
       } catch (error) {
         console.error(error)
         toast({
@@ -290,7 +283,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       supportedEvmChainIds,
       saversRouterContractAddress,
       feeAsset.assetId,
-      feeAsset.precision,
       toast,
       translate,
     ],
@@ -317,11 +309,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
+        const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
+        if (!estimatedGasCryptoBaseUnit) return
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit },
         })
 
         const isApprovalRequired = await (async () => {
@@ -410,7 +402,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData,
       accountId,
       dispatch,
-      getWithdrawGasEstimate,
+      getWithdrawGasEstimateCryptoBaseUnit,
       onNext,
       assetId,
       assets,

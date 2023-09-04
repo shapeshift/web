@@ -60,6 +60,7 @@ import {
   selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -161,15 +162,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoPrecisionBalanceByFilter(s, assetBalanceFilter),
   )
 
-  // TODO(gomes): do we need this?
-  // const feeAssetBalanceFilter = useMemo(
-  // () => ({ assetId: feeAsset?.assetId, accountId }),
-  // [accountId, feeAsset?.assetId],
-  // )
-
-  // const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>
-  // selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
-  // )
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId }),
+    [accountId, feeAsset?.assetId],
+  )
+  //
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
+  )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
@@ -768,18 +768,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [onNext])
 
   const missingBalanceForGas = useMemo(() => {
-    if (isTokenWithdraw) return bn(0) // TODO
-
+    // Token withdraws aren't dust sends, they're actual contract calls
+    // Hence, the balance required for them is denominated in the native fee asset
+    if (isTokenWithdraw) {
+      return bnOrZero(feeAssetBalanceCryptoBaseUnit)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
+        .times(-1)
+    }
     return bnOrZero(assetBalance)
-      .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(asset.precision)))
-      .minus(bnOrZero(dustAmountCryptoBaseUnit).div(bn(10).pow(asset.precision)))
+      .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
+      .minus(bnOrZero(dustAmountCryptoBaseUnit))
       .times(-1)
   }, [
     isTokenWithdraw,
     assetBalance,
     state?.withdraw.estimatedGasCryptoBaseUnit,
-    asset.precision,
     dustAmountCryptoBaseUnit,
+    feeAssetBalanceCryptoBaseUnit,
   ])
 
   const hasEnoughBalanceForGas = useMemo(() => missingBalanceForGas.lte(0), [missingBalanceForGas])
@@ -876,33 +881,35 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Box>
           </Row.Value>
         </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
-              <Text translation='defi.modals.saversVaults.dustAmount' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Skeleton isLoaded={!quoteLoading}>
-                <Amount.Fiat
-                  fontWeight='bold'
-                  value={bnOrZero(dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
-                    .times(marketData.price)
-                    .toFixed(2)}
-                />
-                <Amount.Crypto
-                  color='text.subtle'
-                  value={bnOrZero(dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
-                    .toFixed()}
-                  symbol={asset.symbol}
-                />
-              </Skeleton>
-            </Box>
-          </Row.Value>
-        </Row>
+        {!isTokenWithdraw && (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
+                <Text translation='defi.modals.saversVaults.dustAmount' />
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Box textAlign='right'>
+                <Skeleton isLoaded={!quoteLoading}>
+                  <Amount.Fiat
+                    fontWeight='bold'
+                    value={bnOrZero(dustAmountCryptoBaseUnit)
+                      .div(bn(10).pow(asset.precision))
+                      .times(marketData.price)
+                      .toFixed(2)}
+                  />
+                  <Amount.Crypto
+                    color='text.subtle'
+                    value={bnOrZero(dustAmountCryptoBaseUnit)
+                      .div(bn(10).pow(asset.precision))
+                      .toFixed()}
+                    symbol={asset.symbol}
+                  />
+                </Skeleton>
+              </Box>
+            </Row.Value>
+          </Row>
+        )}
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />

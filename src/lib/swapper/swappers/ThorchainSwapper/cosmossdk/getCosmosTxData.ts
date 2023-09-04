@@ -19,7 +19,6 @@ type GetCosmosTxDataInput = {
   sellAmountCryptoBaseUnit: string
   sellAsset: Asset
   buyAsset: Asset
-  slippageTolerance: string
   from: string
   quote: TradeQuote
   chainId: ChainId

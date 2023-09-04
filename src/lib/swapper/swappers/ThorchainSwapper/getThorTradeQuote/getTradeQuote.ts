@@ -28,7 +28,6 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
-  convertBasisPointsToDecimalPercentage,
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
@@ -219,7 +218,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -249,9 +248,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(
-                quote.fees.slippage_bps,
-              ).toString(),
               rate,
               data,
               router,
@@ -302,7 +298,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -345,9 +341,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(
-                quote.fees.slippage_bps,
-              ).toString(),
               rate,
               steps: [
                 {
@@ -396,7 +389,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+          }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -421,9 +414,6 @@ export const getThorTradeQuote = async (
               affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(
-                quote.fees.slippage_bps,
-              ).toString(),
               rate,
               steps: [
                 {

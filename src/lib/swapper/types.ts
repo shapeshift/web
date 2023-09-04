@@ -96,7 +96,6 @@ export type TradeQuoteStep = {
 }
 
 export type TradeQuote = {
-  recommendedSlippage?: string
   estimatedExecutionTimeMs: number | undefined
   id: string
   steps: TradeQuoteStep[]

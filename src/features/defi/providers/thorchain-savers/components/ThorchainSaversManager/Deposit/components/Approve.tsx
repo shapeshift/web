@@ -13,7 +13,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -26,7 +26,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
-import { isSome } from 'lib/utils'
+import { isSome, isToken } from 'lib/utils'
 import { buildAndBroadcast, createBuildCustomTxInput, getErc20Allowance } from 'lib/utils/evm'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -61,6 +61,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
+    null,
+  )
+
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -72,9 +76,37 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
+  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+
   const feeMarketData = useAppSelector(state =>
     selectMarketDataById(state, feeAsset?.assetId ?? ''),
   )
+
+  useEffect(() => {
+    if (!(accountId && asset && feeAsset && state && dispatch && isTokenDeposit)) return
+
+    const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
+      bn(10).pow(asset.precision),
+    )
+
+    if (amountCryptoBaseUnit.isZero()) return
+    ;(async () => {
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const maybeInboundAddressData = await getInboundAddressDataForChain(
+        daemonUrl,
+        feeAsset?.assetId,
+      )
+      if (maybeInboundAddressData.isErr())
+        throw new Error(maybeInboundAddressData.unwrapErr().message)
+
+      const inboundAddressData = maybeInboundAddressData.unwrap()
+
+      const router = inboundAddressData.router
+      // Should always be defined for EVM tokens, and approves are for EVM tokens only (not native asset), but safety first
+      if (!router) throw new Error(`router not found for ChainId ${asset.chainId}`)
+      setSaversRouterContractAddress(router)
+    })()
+  }, [accountId, asset, dispatch, feeAsset, isTokenDeposit, state])
 
   const handleApprove = useCallback(async () => {
     if (
@@ -82,7 +114,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       accountNumber === undefined ||
       !wallet ||
       !accountId ||
-      !dispatch
+      !dispatch ||
+      !saversRouterContractAddress
     )
       return
 
@@ -102,9 +135,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         bn(10).pow(asset.precision),
       )
 
-      const inboundAddressData = maybeInboundAddressData.unwrap()
-      // Guaranteed to be defined for EVM chains, and approve are only for EVM chains
-      const router = inboundAddressData.router!
       const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
       if (!poolId) throw new Error(`poolId not found for assetId ${asset.assetId}`)
@@ -118,7 +148,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         ? amountCryptoBaseUnit.toFixed(0)
         : MAX_ALLOWANCE
 
-      const data = contract.interface.encodeFunctionData('approve', [router, amountToApprove])
+      const data = contract.interface.encodeFunctionData('approve', [
+        saversRouterContractAddress,
+        amountToApprove,
+      ])
 
       const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
       const buildCustomTxInput = await createBuildCustomTxInput({
@@ -135,7 +168,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         fn: () =>
           getErc20Allowance({
             address: fromAssetId(assetId).assetReference,
-            spender: router,
+            spender: saversRouterContractAddress,
             from: fromAccountId(accountId).account,
             chainId: asset.chainId,
           }),
@@ -176,6 +209,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     feeAsset?.assetId,
     onNext,
     poll,
+    saversRouterContractAddress,
     state?.deposit.cryptoAmount,
     state?.isExactAllowance,
     toast,
@@ -207,7 +241,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  if (!state || !dispatch) return null
+  if (!saversRouterContractAddress || !state || !dispatch) return null
 
   return (
     <ReusableApprove
@@ -226,7 +260,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
-      spenderContractAddress={'0x'} // TODO
+      spenderContractAddress={saversRouterContractAddress} // TODO
       onToggle={() =>
         dispatch({
           type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,

@@ -228,9 +228,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(state.deposit.networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed()}
-                symbol={asset.symbol}
+                symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>

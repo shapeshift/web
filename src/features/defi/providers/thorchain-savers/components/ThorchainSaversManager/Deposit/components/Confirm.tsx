@@ -380,7 +380,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
     })()
-  }, [getCustomTxFees, getSafeEstimatedFees, isTokenDeposit])
+  }, [
+    getCustomTxFees,
+    getSafeEstimatedFees,
+    isTokenDeposit,
+    // Due to the way the modals work, this useEffect would fire too early in case of approvals, and never re-fire after
+    // By adding this dependency, we ensure we get a network fee here
+    state?.deposit?.estimatedGasCryptoPrecision,
+  ])
 
   const getSendInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (isTokenDeposit) return

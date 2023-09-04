@@ -494,8 +494,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     feeAsset,
-    state.deposit.cryptoAmount,
-    state.deposit.sendMax,
+    state?.deposit.cryptoAmount,
+    state?.deposit.sendMax,
     getSafeEstimatedFees,
     asset,
     chainId,
@@ -509,7 +509,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!(accountId && assetId && state?.deposit?.estimatedGasCryptoPrecision)) return
 
     try {
-      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      const estimateFeesArgs = await getEstimateFeesArgs()
+      if (!estimateFeesArgs) return
+      const estimatedFees = await estimateFees(estimateFeesArgs)
       const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )

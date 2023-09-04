@@ -7,7 +7,6 @@ import type * as foxy from '../ethereum/parser/foxy'
 import type * as thor from '../ethereum/parser/thor'
 import type * as uniV2 from '../ethereum/parser/uniV2'
 import type * as weth from '../ethereum/parser/weth'
-import type * as yearn from '../ethereum/parser/yearn'
 import type * as erc20 from '../parser/erc20'
 import type * as nft from '../parser/nft'
 import type * as zrx from '../parser/zrx'
@@ -22,7 +21,6 @@ export type TxMetadata =
   | thor.TxMetadata
   | uniV2.TxMetadata
   | weth.TxMetadata
-  | yearn.TxMetadata
   | zrx.TxMetadata
   | nft.TxMetadata
 

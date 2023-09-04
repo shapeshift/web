@@ -53,40 +53,12 @@ describe('TransactionHistoryRow/utils', () => {
       expect(actual).toEqual(expected)
     })
 
-    it('can parse yearn parser revokes', () => {
-      const args = makeRestArgsTuple({
-        value: '0',
-        marketData: foxMarketData,
-        asset: foxAsset,
-        parser: 'yearn',
-      })
-
-      const actual = makeAmountOrDefault(...args)
-      const expected = 'transactionRow.parser.yearn.revoke'
-
-      expect(actual).toEqual(expected)
-    })
-
     it('can parse erc20 exact approvals', () => {
       const args = makeRestArgsTuple({
         value: '3000000000000000000',
         marketData: foxMarketData,
         asset: foxAsset,
         parser: 'erc20',
-      })
-
-      const actual = makeAmountOrDefault(...args)
-      const expected = '3 FOX'
-
-      expect(actual).toEqual(expected)
-    })
-
-    it('can parse yearn exact approvals', () => {
-      const args = makeRestArgsTuple({
-        value: '3000000000000000000',
-        marketData: foxMarketData,
-        asset: foxAsset,
-        parser: 'yearn',
       })
 
       const actual = makeAmountOrDefault(...args)
@@ -105,20 +77,6 @@ describe('TransactionHistoryRow/utils', () => {
 
       const actual = makeAmountOrDefault(...args)
       const expected = 'transactionRow.parser.erc20.infinite'
-
-      expect(actual).toEqual(expected)
-    })
-
-    it('can parse yearn infinite (max solidity uint256) approvals', () => {
-      const args = makeRestArgsTuple({
-        value: MaxUint256.toString(),
-        marketData: foxMarketData,
-        asset: foxAsset,
-        parser: 'yearn',
-      })
-
-      const actual = makeAmountOrDefault(...args)
-      const expected = 'transactionRow.parser.yearn.infinite'
 
       expect(actual).toEqual(expected)
     })

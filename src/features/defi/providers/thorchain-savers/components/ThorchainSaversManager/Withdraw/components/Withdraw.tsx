@@ -1,5 +1,5 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
-import { AddressZero, MaxUint256 } from '@ethersproject/constants'
+import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
@@ -36,7 +36,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { isToken } from 'lib/utils'
-import { createBuildCustomTxInput, getErc20Allowance, getFees } from 'lib/utils/evm'
+import { createBuildCustomTxInput } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -316,65 +316,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           payload: { estimatedGasCryptoBaseUnit },
         })
 
-        const isApprovalRequired = await (async () => {
-          // Router contract address is only set in case we're withdrawing a token, not a native asset
-          if (!saversRouterContractAddress) return false
-          const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-            address: fromAssetId(assetId).assetReference,
-            spender: saversRouterContractAddress,
-            from: fromAccountId(accountId).account,
-            chainId: asset.chainId,
-          })
-          const { cryptoAmount } = formValues
-
-          const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
-
-          if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
-          return false
-        })()
-
-        const approvalFees = await (() => {
-          if (
-            !isApprovalRequired ||
-            !saversRouterContractAddress ||
-            accountNumber === undefined ||
-            !wallet
-          )
-            return undefined
-
-          const contract = getOrCreateContractByType({
-            address: fromAssetId(assetId).assetReference,
-            type: ContractType.ERC20,
-            chainId: asset.chainId,
-          })
-          if (!contract) return undefined
-
-          const data = contract.interface.encodeFunctionData('approve', [
-            saversRouterContractAddress,
-            // For the sake of simulating the approval fees, we're setting the allowance to the max possible value
-            MaxUint256,
-          ])
-
-          const chainAdapters = getChainAdapterManager()
-          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
-
-          return getFees({
-            accountNumber,
-            adapter,
-            data,
-            to: fromAssetId(assetId).assetReference,
-            value: '0',
-            wallet,
-          })
-        })()
-        if (approvalFees)
-          dispatch({
-            type: ThorchainSaversWithdrawActionType.SET_APPROVE,
-            payload: {
-              estimatedGasCryptoBaseUnit: approvalFees.networkFeeCryptoBaseUnit,
-            },
-          })
-        onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
+        onNext(DefiStep.Confirm)
 
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
@@ -406,12 +348,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       onNext,
       assetId,
       assets,
-      saversRouterContractAddress,
-      asset.chainId,
-      asset.precision,
-      accountNumber,
-      wallet,
-      chainId,
       toast,
       translate,
     ],

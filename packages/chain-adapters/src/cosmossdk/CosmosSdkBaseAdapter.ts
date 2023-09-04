@@ -82,7 +82,7 @@ export const cosmosSdkChainIds = [
   KnownChainIds.ThorchainMainnet,
 ] as const
 
-export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
+export type CosmosSdkChainId = (typeof cosmosSdkChainIds)[number]
 
 export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
 

@@ -19,7 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const VALID_ENTROPY_NUMBERS = [128, 192, 256] as const
 export const VALID_ENTROPY = VALID_ENTROPY_NUMBERS.map(entropy => entropy.toString())
-export type Entropy = typeof VALID_ENTROPY[number]
+export type Entropy = (typeof VALID_ENTROPY)[number]
 
 export const sentenceLength = Object.freeze({
   TwelveWords: VALID_ENTROPY[0],

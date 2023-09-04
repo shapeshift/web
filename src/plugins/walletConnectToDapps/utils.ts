@@ -101,8 +101,8 @@ export const getWalletAccountFromEthParams = (
 ): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return (
-    accountIds.find(accountId =>
-      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    accountIds.find(
+      accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
     ) || ''
   )
 }
@@ -113,8 +113,8 @@ export const getWalletAccountFromCosmosParams = (
 ): AccountId => {
   const paramsString = params ? params.signerAddress : undefined
   return (
-    accountIds.find(accountId =>
-      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    accountIds.find(
+      accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
     ) || ''
   )
 }

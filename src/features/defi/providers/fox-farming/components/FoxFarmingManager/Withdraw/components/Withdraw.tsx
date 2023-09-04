@@ -176,7 +176,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent).toString()
-      const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
+      const fiatAmount = bnOrZero(opportunity?.fiatAmount)
+        .times(percent)
+        .toString()
       setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
       // exit if max button was clicked

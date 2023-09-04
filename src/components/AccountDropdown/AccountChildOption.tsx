@@ -1,7 +1,7 @@
 import {
-  type MenuItemOptionProps,
   forwardRef,
   MenuItemOption,
+  type MenuItemOptionProps,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'

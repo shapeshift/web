@@ -142,7 +142,9 @@ export const TransactionGenericRow = ({
   }, [fee])
 
   const fiatValue = useMemo(() => {
-    return bnOrZero(fee?.marketData?.price).times(cryptoValue).toString()
+    return bnOrZero(fee?.marketData?.price)
+      .times(cryptoValue)
+      .toString()
   }, [fee?.marketData?.price, cryptoValue])
 
   return (

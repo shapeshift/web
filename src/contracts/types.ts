@@ -16,11 +16,11 @@ export enum ContractType {
 }
 
 export type KnownContractByAddress<T extends KnownContractAddress> = ReturnType<
-  typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
+  (typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT)[T]['connect']
 >
 
 export type KnownContractByType<T extends ContractType> = ReturnType<
-  typeof CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[T]['connect']
+  (typeof CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT)[T]['connect']
 >
 
 export type KnownContractAddress =

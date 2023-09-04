@@ -8,7 +8,7 @@ export const oneInchSupportedChainIds = [
   KnownChainIds.GnosisMainnet,
 ] as const
 
-export type OneInchSupportedChainId = typeof oneInchSupportedChainIds[number]
+export type OneInchSupportedChainId = (typeof oneInchSupportedChainIds)[number]
 
 export type OneInchQuoteApiInput = {
   fromTokenAddress: string

@@ -71,7 +71,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const fiatAmount = useMemo(
-    () => bnOrZero(state?.withdraw.cryptoAmount).times(underlyingAssetMarketData.price).toString(),
+    () =>
+      bnOrZero(state?.withdraw.cryptoAmount)
+        .times(underlyingAssetMarketData.price)
+        .toString(),
     [state?.withdraw.cryptoAmount, underlyingAssetMarketData.price],
   )
 

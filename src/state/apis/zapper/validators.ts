@@ -277,7 +277,7 @@ export enum ZapperGroupId {
 }
 
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
-export type MediaFileType = typeof MEDIA_FILETYPE[number]
+export type MediaFileType = (typeof MEDIA_FILETYPE)[number]
 export type MediaType = 'video' | 'image'
 
 export const getMediaFileType = (mediaUrl: string | undefined): MediaFileType | undefined => {

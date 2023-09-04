@@ -21,24 +21,27 @@ import type { SwapErrorRight } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 
+import { THORCHAIN_OUTBOUND_FEE_RUNE } from '../../constants'
 import { thorService } from '../thorService'
 
-export const getQuote = async ({
-  sellAsset,
-  buyAssetId,
-  sellAmountCryptoBaseUnit,
-  receiveAddress,
-  streaming,
-  affiliateBps = '0',
-}: {
+type GetQuoteArgs = {
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
   streaming: boolean
-  affiliateBps: string
-}): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
+  affiliateBps: string | undefined
+}
+
+const _getQuote = async ({
+  sellAsset,
+  buyAssetId,
+  sellAmountCryptoBaseUnit,
+  receiveAddress,
+  streaming,
+  affiliateBps,
+}: GetQuoteArgs): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
@@ -100,4 +103,24 @@ export const getQuote = async ({
   } else {
     return Ok(data)
   }
+}
+
+export const getQuote = async (
+  input: GetQuoteArgs,
+): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
+  const initialQuoteResult = await _getQuote(input)
+
+  if (initialQuoteResult.isErr()) return initialQuoteResult
+
+  const initialQuote = initialQuoteResult.unwrap()
+
+  // refetch quote without affiliate fee if it's less than the thorchain outbound fee
+  if (
+    input.affiliateBps !== undefined &&
+    initialQuote.fees.affiliate < THORCHAIN_OUTBOUND_FEE_RUNE
+  ) {
+    return _getQuote({ ...input, affiliateBps: undefined })
+  }
+
+  return Ok(initialQuote)
 }

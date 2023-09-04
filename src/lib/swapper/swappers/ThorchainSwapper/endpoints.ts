@@ -23,15 +23,12 @@ import type {
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import { THORCHAIN_OUTBOUND_FEE_RUNE } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
 import { getInboundAddressDataForChain } from './utils/getInboundAddressDataForChain'
-
-// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
-const THORCHAIN_OUTBOUND_FEE_RUNE = '2000000'
 
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions

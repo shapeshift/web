@@ -3,7 +3,6 @@ import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSli
 import type {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   FOX_TOKEN_CONTRACT_ADDRESS,
-  THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
 import type {
@@ -30,7 +29,6 @@ export type KnownContractAddress =
   | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS
   | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
-  | typeof THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM
 
 export type DefinedContract = {
   contract: KnownContractByAddress<KnownContractAddress>

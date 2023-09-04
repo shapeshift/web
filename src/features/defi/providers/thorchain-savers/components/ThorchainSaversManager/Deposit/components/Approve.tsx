@@ -114,7 +114,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         type: ContractType.ERC20,
       })
 
-      const data = contract.interface.encodeFunctionData('approve', [router, MAX_ALLOWANCE])
+      const amountToApprove = state.isExactAllowance
+        ? amountCryptoBaseUnit.toFixed(0)
+        : MAX_ALLOWANCE
+
+      const data = contract.interface.encodeFunctionData('approve', [router, amountToApprove])
 
       const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
       const buildCustomTxInput = await createBuildCustomTxInput({
@@ -173,6 +177,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     onNext,
     poll,
     state?.deposit.cryptoAmount,
+    state?.isExactAllowance,
     toast,
     translate,
     wallet,
@@ -222,7 +227,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
       spenderContractAddress={'0x'} // TODO
-      onToggle={() => console.log('TODO')}
+      onToggle={() =>
+        dispatch({
+          type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,
+          payload: !state.isExactAllowance,
+        })
+      }
     />
   )
 }

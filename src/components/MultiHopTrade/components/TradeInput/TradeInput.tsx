@@ -139,6 +139,7 @@ export const TradeInput = memo(() => {
     // WARNING: do not remove.
     // clear the confirmed quote on mount to prevent stale data affecting the selectors
     dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
+    dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()

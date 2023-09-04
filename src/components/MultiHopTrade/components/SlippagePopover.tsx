@@ -56,10 +56,13 @@ export const SlippagePopover: FC = () => {
     if (userSlippagePercentage) {
       setSlippageType(SlippageType.Custom)
       setSlippageAmount(userSlippagePercentage)
-    } else setSlippageType(SlippageType.Auto)
-    // We only want this to run on mount, not to be reactive
+    } else {
+      setSlippageType(SlippageType.Auto)
+      setSlippageAmount(defaultSlippagePercentage)
+    }
+    // We only want this to run on mount, though not to be reactive to userSlippagePercentage
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [defaultSlippagePercentage])
 
   const handleChange = useCallback((value: string) => {
     if (bnOrZero(value).gt(maxSlippagePercentage)) {

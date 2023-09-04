@@ -1,7 +1,7 @@
 import type { AxiosStatic } from 'axios'
+import type { CowSwapOrder } from 'lib/swapper/types'
 
 import { DEFAULT_APP_DATA } from '../constants'
-import type { CowSwapOrder } from './helpers'
 import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 
 jest.mock('../cowService', () => {

@@ -1,30 +1,34 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
+import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper } from 'lib/swapper/types'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import type {
+  BuyAssetBySellIdInput,
+  CowTradeExecutionProps,
+  CowTransactionRequest,
+  Swapper,
+} from 'lib/swapper/types'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import type { CowSignTx } from './types'
-import { SIGNING_SCHEME } from './utils/constants'
+import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
 import { cowService } from './utils/cowService'
-import { getCowswapNetwork } from './utils/helpers/helpers'
+import { domain, getCowswapNetwork, hashOrder } from './utils/helpers/helpers'
 
 export const cowSwapper: Swapper = {
-  executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const { orderToSign, messageToSign } = txToSign as CowSignTx
+  executeTradeCow: async (
+    { chainId, orderToSign }: CowTransactionRequest,
+    { signMessage }: CowTradeExecutionProps,
+  ): Promise<string> => {
+    const { chainReference } = fromChainId(chainId)
+    const signingDomain = Number(chainReference)
 
-    const message: SignMessageInput<ETHSignMessage> = {
-      messageToSign,
-      wallet,
-    }
-
-    const signatureOrderDigest = await adapter.signMessage(message)
+    // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
+    // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
+    // For more info, check hashOrder method implementation
+    const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
+    const messageToSign = ethers.utils.arrayify(orderDigest)
+    const signatureOrderDigest = await signMessage(messageToSign)
 
     // Passing the signature through split/join to normalize the `v` byte.
     // Some wallets do not pad it with `27`, which causes a signature failure

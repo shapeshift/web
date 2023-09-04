@@ -1,6 +1,7 @@
+import type { StdTx } from '@keplr-wallet/types'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignedTx, BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
@@ -150,6 +151,22 @@ export enum SwapErrorType {
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
+export type CowSwapOrder = {
+  sellToken: string
+  buyToken: string
+  sellAmount: string
+  buyAmount: string
+  validTo: number
+  appData: string
+  feeAmount: string
+  kind: string
+  partiallyFillable: boolean
+  receiver: string
+  sellTokenBalance: string
+  buyTokenBalance: string
+  quoteId: number
+}
+
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote
   chainId: ChainId
@@ -158,6 +175,39 @@ export type GetUnsignedTxArgs = {
   supportsEIP1559: boolean
   slippageTolerancePercentageDecimal: string
 } & FromOrXpub
+
+export type EvmTradeExecutionProps = {
+  from: string
+  nonce: string
+  signAndBroadcastTransaction: (transactionRequest: EvmTransactionRequest) => Promise<string>
+}
+
+export type CowTradeExecutionProps = {
+  from: string
+  signMessage: (messageToSign: Uint8Array) => Promise<string>
+}
+
+export type UtxoTradeExecutionProps = {
+  xpub: string
+  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<BTCSignedTx>
+}
+
+export type CosmosSdkTradeExecutionProps = {
+  from: string
+  signAndBroadcastTransaction: (transactionRequest: StdTx) => Promise<string>
+}
+
+type CommonGetUnsignedTxArgs = {
+  tradeQuote: TradeQuote
+  chainId: ChainId
+  stepIndex: number
+  slippageTolerancePercentageDecimal: string
+}
+
+export type GetUnsignedTxArgsEvm = CommonGetUnsignedTxArgs & EvmTradeExecutionProps
+export type GetUnsignedTxArgsCow = CommonGetUnsignedTxArgs & CowTradeExecutionProps
+export type GetUnsignedTxArgsUtxo = CommonGetUnsignedTxArgs & UtxoTradeExecutionProps
+export type GetUnsignedTxArgsCosmosSdk = CommonGetUnsignedTxArgs & CosmosSdkTradeExecutionProps
 
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
@@ -170,24 +220,68 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
+export type ExecuteTradeArgs2 = {
+  txToSign: UnsignedTx
+  wallet: HDWallet
+  chainId: ChainId
+}
+
 export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
   stepIndex: number
-  quoteSellAssetAccountId?: AccountId
-  quoteBuyAssetAccountId?: AccountId
-  getState: () => ReduxState
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
+type EvmTransactionRequestGas =
+  | {
+      gasPrice: string
+      maxFeePerGas?: never
+      maxPriorityFeePerGas?: never
+    }
+  | {
+      gasPrice?: never
+      maxFeePerGas: string
+      maxPriorityFeePerGas: string
+    }
+
+export type EvmTransactionRequest = {
+  nonce: string
+  gasLimit: string
+  to: string
+  from: string
+  value: string
+  data: string
+  chainId: number
+} & EvmTransactionRequestGas
+
+export type CowTransactionRequest = {
+  chainId: ChainId
+  orderToSign: CowSwapOrder
+}
+
 export type Swapper = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
-  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+  executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+
+  executeTradeEvm?: (
+    txToSign: EvmTransactionRequest,
+    callbacks: EvmTradeExecutionProps,
+  ) => Promise<string>
+  executeTradeCow?: (
+    txMetaToSign: CowTransactionRequest,
+    callbacks: CowTradeExecutionProps,
+  ) => Promise<string>
+  executeTradeUtxo?: (txToSign: BTCSignTx, callbacks: UtxoTradeExecutionProps) => Promise<string>
+  executeTradeCosmosSdk?: (
+    txToSign: StdTx,
+    callbacks: CosmosSdkTradeExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -195,7 +289,12 @@ export type SwapperApi = {
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (input: GetTradeQuoteInput) => Promise<TradeQuoteResult>
-  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
+  getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
+
+  getUnsignedTxEvm?: (input: GetUnsignedTxArgsEvm) => Promise<EvmTransactionRequest>
+  getUnsignedTxCow?: (input: GetUnsignedTxArgsCow) => Promise<CowTransactionRequest>
+  getUnsignedTxUtxo?: (input: GetUnsignedTxArgsUtxo) => Promise<BTCSignTx>
+  getUnsignedTxCosmosSdk?: (input: GetUnsignedTxArgsCosmosSdk) => Promise<StdTx>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -213,4 +312,48 @@ export type TradeExecutionInput = {
   supportsEIP1559: boolean
   slippageTolerancePercentageDecimal: string
   getState: () => ReduxState
+}
+
+export type TradeExecutionInput2 = {
+  swapperName: SwapperName
+  tradeQuote: TradeQuote
+  stepIndex: number
+  slippageTolerancePercentageDecimal: string
+  evm: EvmTradeExecutionProps
+  cow: CowTradeExecutionProps
+  utxo: UtxoTradeExecutionProps
+  cosmosSdk: CosmosSdkTradeExecutionProps
+}
+
+export enum TradeExecutionEvent {
+  SellTxHash = 'sellTxHash',
+  Status = 'status',
+  Success = 'success',
+  Fail = 'fail',
+  Error = 'error',
+}
+
+export type SellTxHashArgs = { stepIndex: number; sellTxHash: string }
+export type StatusArgs = {
+  stepIndex: number
+  status: TxStatus
+  message?: string
+  buyTxHash?: string
+}
+
+export type TradeExecutionEventMap = {
+  [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
+  [TradeExecutionEvent.Status]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Success]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Error]: (args: unknown) => void
+}
+
+export interface TradeExecutionBase {
+  on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void
+
+  exec?: (input: TradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
+  execWalletAgnostic?: (
+    input: TradeExecutionInput2,
+  ) => Promise<{ cancelPolling: () => void } | void>
 }

@@ -109,7 +109,8 @@
     "feedbackAndSupport": "Feedback & Support",
     "getSupport": "Get Support",
     "viewMyWallet": "View My Wallet",
-    "submitFeatureRequest": "Submit a Feature Request"
+    "submitFeatureRequest": "Submit a Feature Request",
+    "learnMore": "Learn more"
   },
   "consentBanner": {
     "body": {
@@ -676,6 +677,8 @@
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "unlimited": "Unlimited",
+    "streamStatus": "Stream Status",
+    "swapsFailed": "%{failedSwaps} swaps failed",
     "exact": "Exact",
     "expectedAmount": "Expected Amount",
     "beforeFees": "Before Fees",

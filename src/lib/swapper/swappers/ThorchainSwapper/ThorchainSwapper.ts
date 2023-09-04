@@ -1,3 +1,4 @@
+import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
@@ -6,7 +7,7 @@ import type {
   UtxoChainAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
@@ -16,9 +17,15 @@ import {
 import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper } from 'lib/swapper/types'
+import type {
+  BuyAssetBySellIdInput,
+  CosmosSdkTradeExecutionProps,
+  ExecuteTradeArgs,
+  Swapper,
+  UtxoTradeExecutionProps,
+} from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
-import { executeEvmTrade } from 'lib/utils/evm'
+import { executeEvmTrade, executeEvmTrade2 } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
@@ -54,6 +61,22 @@ export const thorchainSwapper: Swapper = {
       default:
         assertUnreachable(chainNamespace)
     }
+  },
+
+  executeTradeEvm: executeEvmTrade2,
+
+  executeTradeCosmosSdk: async (
+    txToSign: StdSignDoc,
+    { signAndBroadcastTransaction }: CosmosSdkTradeExecutionProps,
+  ): Promise<string> => {
+    return await signAndBroadcastTransaction(txToSign)
+  },
+
+  executeTradeUtxo: async (
+    txToSign: BTCSignTx,
+    { signAndBroadcastTransaction }: UtxoTradeExecutionProps,
+  ): Promise<string> => {
+    return await signAndBroadcastTransaction(txToSign)
   },
 
   filterAssetIdsBySellable: async (): Promise<AssetId[]> => {

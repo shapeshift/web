@@ -57,6 +57,7 @@ export const getCosmosTxData = async (
     switch (true) {
       case fromThorAsset:
         return Ok(
+          // swapping from thor is a deposit tx
           (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
             from,
             accountNumber,

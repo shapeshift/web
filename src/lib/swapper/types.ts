@@ -1,9 +1,9 @@
-import type { StdTx } from '@keplr-wallet/types'
+import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignedTx, BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
@@ -176,37 +176,37 @@ export type GetUnsignedTxArgs = {
 } & FromOrXpub
 
 export type EvmTradeExecutionProps = {
-  from: string
-  nonce: string
   signAndBroadcastTransaction: (transactionRequest: EvmTransactionRequest) => Promise<string>
 }
 
 export type CowTradeExecutionProps = {
-  from: string
   signMessage: (messageToSign: Uint8Array) => Promise<string>
 }
 
 export type UtxoTradeExecutionProps = {
-  xpub: string
-  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<BTCSignedTx>
+  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<string>
 }
 
 export type CosmosSdkTradeExecutionProps = {
-  from: string
-  signAndBroadcastTransaction: (transactionRequest: StdTx) => Promise<string>
+  signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
-type CommonGetUnsignedTxArgs = {
+type EvmAccountMetadata = { from: string; nonce: string }
+type CowAccountMetadata = { from: string }
+type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
+type CosmosSdkAccountMetadata = { from: string }
+
+export type CommonGetUnsignedTxArgs = {
   tradeQuote: TradeQuote
   chainId: ChainId
   stepIndex: number
   slippageTolerancePercentageDecimal: string
 }
 
-export type GetUnsignedTxArgsEvm = CommonGetUnsignedTxArgs & EvmTradeExecutionProps
-export type GetUnsignedTxArgsCow = CommonGetUnsignedTxArgs & CowTradeExecutionProps
-export type GetUnsignedTxArgsUtxo = CommonGetUnsignedTxArgs & UtxoTradeExecutionProps
-export type GetUnsignedTxArgsCosmosSdk = CommonGetUnsignedTxArgs & CosmosSdkTradeExecutionProps
+export type GetUnsignedTxArgsEvm = CommonGetUnsignedTxArgs & EvmAccountMetadata
+export type GetUnsignedTxArgsCow = CommonGetUnsignedTxArgs & CowAccountMetadata
+export type GetUnsignedTxArgsUtxo = CommonGetUnsignedTxArgs & UtxoAccountMetadata
+export type GetUnsignedTxArgsCosmosSdk = CommonGetUnsignedTxArgs & CosmosSdkAccountMetadata
 
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
@@ -236,18 +236,6 @@ export type CheckTradeStatusInput = {
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
-type EvmTransactionRequestGas =
-  | {
-      gasPrice: string
-      maxFeePerGas?: never
-      maxPriorityFeePerGas?: never
-    }
-  | {
-      gasPrice?: never
-      maxFeePerGas: string
-      maxPriorityFeePerGas: string
-    }
-
 export type EvmTransactionRequest = {
   nonce: string
   gasLimit: string
@@ -256,7 +244,7 @@ export type EvmTransactionRequest = {
   value: string
   data: string
   chainId: number
-} & EvmTransactionRequestGas
+} & evm.ethereum.Fees
 
 export type CowTransactionRequest = {
   chainId: ChainId
@@ -278,7 +266,7 @@ export type Swapper = {
   ) => Promise<string>
   executeTradeUtxo?: (txToSign: BTCSignTx, callbacks: UtxoTradeExecutionProps) => Promise<string>
   executeTradeCosmosSdk?: (
-    txToSign: StdTx,
+    txToSign: StdSignDoc,
     callbacks: CosmosSdkTradeExecutionProps,
   ) => Promise<string>
 }
@@ -293,7 +281,7 @@ export type SwapperApi = {
   getUnsignedTxEvm?: (input: GetUnsignedTxArgsEvm) => Promise<EvmTransactionRequest>
   getUnsignedTxCow?: (input: GetUnsignedTxArgsCow) => Promise<CowTransactionRequest>
   getUnsignedTxUtxo?: (input: GetUnsignedTxArgsUtxo) => Promise<BTCSignTx>
-  getUnsignedTxCosmosSdk?: (input: GetUnsignedTxArgsCosmosSdk) => Promise<StdTx>
+  getUnsignedTxCosmosSdk?: (input: GetUnsignedTxArgsCosmosSdk) => Promise<StdSignDoc>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -313,16 +301,28 @@ export type TradeExecutionInput = {
   getState: () => ReduxState
 }
 
-export type TradeExecutionInput2 = {
+export type CommonTradeExecutionInput = {
   swapperName: SwapperName
   tradeQuote: TradeQuote
   stepIndex: number
   slippageTolerancePercentageDecimal: string
-  evm: EvmTradeExecutionProps
-  cow: CowTradeExecutionProps
-  utxo: UtxoTradeExecutionProps
-  cosmosSdk: CosmosSdkTradeExecutionProps
 }
+
+export type EvmTradeExecutionInput = CommonTradeExecutionInput &
+  EvmTradeExecutionProps &
+  EvmAccountMetadata
+
+export type CowTradeExecutionInput = CommonTradeExecutionInput &
+  CowTradeExecutionProps &
+  CowAccountMetadata
+
+export type UtxoTradeExecutionInput = CommonTradeExecutionInput &
+  UtxoTradeExecutionProps &
+  UtxoAccountMetadata
+
+export type CosmosSdkTradeExecutionInput = CommonTradeExecutionInput &
+  CosmosSdkTradeExecutionProps &
+  CosmosSdkAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
@@ -352,7 +352,10 @@ export interface TradeExecutionBase {
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void
 
   exec?: (input: TradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
-  execWalletAgnostic?: (
-    input: TradeExecutionInput2,
+  execEvm?: (input: EvmTradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
+  execCow?: (input: CowTradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
+  execUtxo?: (input: UtxoTradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
+  execCosmosSdk?: (
+    input: CosmosSdkTradeExecutionInput,
   ) => Promise<{ cancelPolling: () => void } | void>
 }

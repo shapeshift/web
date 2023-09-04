@@ -1,19 +1,44 @@
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
+import type { StdFee } from '@keplr-wallet/types'
+import { cosmosAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
+  CosmosSdkFeeData,
+  EvmTransactionRequest,
   GetTradeQuoteInput,
+  GetUnsignedTxArgsCosmosSdk,
+  GetUnsignedTxArgsEvm,
+  GetUnsignedTxArgsUtxo,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
-  UnsignedTx,
   UtxoFeeData,
 } from 'lib/swapper/types'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
+import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
-import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
+import { getInboundAddressDataForChain } from './utils/getInboundAddressDataForChain'
+
+// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
+// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
+const OUTBOUND_FEE = '2000000'
+
+const calculateFee = (fee: string): string => {
+  // 0.02 RUNE is automatically charged on outbound transactions
+  // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+  return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
+}
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
@@ -31,35 +56,137 @@ export const thorchainApi: SwapperApi = {
     })
   },
 
-  getUnsignedTx: async ({
-    accountMetadata,
-    tradeQuote,
+  getUnsignedTxEvm: async ({
+    chainId,
     from,
+    nonce,
+    tradeQuote,
+  }: GetUnsignedTxArgsEvm): Promise<EvmTransactionRequest> => {
+    // TODO: pull these from db using id so we don't have type zoo and casting hell
+    const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
+    const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
+
+    const value = isNativeEvmAsset(sellAsset.assetId)
+      ? sellAmountIncludingProtocolFeesCryptoBaseUnit
+      : '0'
+
+    const api = new evm.ethereum.V1Api(
+      new evm.ethereum.Configuration({
+        basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+      }),
+    )
+
+    const [{ gasLimit }, { average: gasFees }] = await Promise.all([
+      api.estimateGas({ data, from, to, value }),
+      api.getGasFees(),
+    ])
+
+    return {
+      chainId: Number(fromChainId(chainId).chainReference),
+      data,
+      from,
+      gasLimit,
+      nonce,
+      to,
+      value,
+      ...gasFees,
+    }
+  },
+
+  getUnsignedTxUtxo: async ({
+    tradeQuote,
+    chainId,
     xpub,
-    supportsEIP1559,
-  }): Promise<UnsignedTx> => {
-    const { receiveAddress, affiliateBps } = tradeQuote
+    accountType,
+  }: GetUnsignedTxArgsUtxo): Promise<BTCSignTx> => {
+    const utxoChainAdapter = assertGetUtxoChainAdapter(chainId)
 
-    const accountType = accountMetadata?.accountType
+    // TODO: pull these from db using id so we don't have type zoo and casting hell
+    const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
+      steps[0]
 
-    const chainSpecific =
-      accountType && xpub
-        ? {
-            xpub,
-            accountType,
-            satoshiPerByte: (tradeQuote.steps[0].feeData.chainSpecific as UtxoFeeData).satsPerByte,
-          }
-        : undefined
-
-    const fromOrXpub = from !== undefined ? { from } : { xpub }
-    return await getSignTxFromQuote({
-      tradeQuote,
-      receiveAddress,
-      affiliateBps,
-      chainSpecific,
-      ...fromOrXpub,
-      supportsEIP1559,
+    const { vault, opReturnData } = await getUtxoThorTxInfo({
+      sellAsset,
+      xpub,
+      memo,
     })
+
+    return utxoChainAdapter.buildSendApiTransaction({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      xpub: xpub!,
+      to: vault,
+      accountNumber,
+      chainSpecific: {
+        accountType,
+        opReturnData,
+        // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
+        satoshiPerByte: (feeData.chainSpecific as UtxoFeeData).satsPerByte,
+      },
+    })
+  },
+
+  getUnsignedTxCosmosSdk: async ({
+    tradeQuote,
+    chainId,
+    from,
+  }: GetUnsignedTxArgsCosmosSdk): Promise<StdSignDoc> => {
+    // TODO: pull these from db using id so we don't have type zoo and casting hell
+    const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
+
+    const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
+
+    const fee: StdFee = {
+      amount: [{ amount: calculateFee(feeData.networkFeeCryptoBaseUnit ?? '0'), denom: 'rune' }],
+      // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
+      gas: (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit,
+    }
+
+    const msg: AminoMsg = await (async () => {
+      if (fromThorAsset) {
+        // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
+        return {
+          type: 'thorchain/MsgDeposit',
+          value: {
+            coins: [{ asset: 'THOR.RUNE', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit }],
+            memo,
+            signer: from,
+          },
+        }
+      }
+
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
+      if (maybeGaiaAddressData.isErr()) throw maybeGaiaAddressData.unwrapErr()
+      const gaiaAddressData = maybeGaiaAddressData.unwrap()
+      const vault = gaiaAddressData.address
+
+      return {
+        type: 'thorchain/MsgSend',
+        value: {
+          amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'rune' }],
+          from_address: from,
+          to_address: vault,
+        },
+      }
+    })()
+
+    const api = new cosmossdk.thorchain.V1Api(
+      new cosmossdk.thorchain.Configuration({
+        basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
+      }),
+    )
+    const account = await api.getAccount({ pubkey: from })
+
+    return {
+      chain_id: fromChainId(chainId).chainReference,
+      account_number: account.accountNumber.toString(),
+      sequence: account.sequence.toString(),
+      fee,
+      msgs: [msg],
+      memo,
+    }
   },
 
   checkTradeStatus: async ({

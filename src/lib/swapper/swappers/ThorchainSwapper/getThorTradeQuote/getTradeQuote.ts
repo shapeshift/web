@@ -309,14 +309,11 @@ export const getThorTradeQuote = async (
               isStreaming,
               sellAsset.chainId,
             )
-            const maybeThorTxInfo = await getUtxoThorTxInfo({
+            const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo: updatedMemo,
             })
-            if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
-            const thorTxInfo = maybeThorTxInfo.unwrap()
-            const { vault, opReturnData, pubkey } = thorTxInfo
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
             const feeData = await getUtxoTxFees({

@@ -1,25 +1,17 @@
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
-import type { SwapErrorRight } from 'lib/swapper/types'
 
 type GetThorTxInfoArgs = {
   sellAsset: Asset
   xpub: string
   memo: string
 }
-type GetThorTxInfoReturn = Promise<
-  Result<
-    {
-      opReturnData: string
-      vault: string
-      pubkey: string
-    },
-    SwapErrorRight
-  >
->
+type GetThorTxInfoReturn = Promise<{
+  opReturnData: string
+  vault: string
+  pubkey: string
+}>
 
 export const getThorTxInfo = async ({
   sellAsset,
@@ -33,13 +25,13 @@ export const getThorTxInfo = async ({
     false,
   )
 
-  if (maybeInboundAddress.isErr()) return Err(maybeInboundAddress.unwrapErr())
+  if (maybeInboundAddress.isErr()) throw maybeInboundAddress.unwrapErr()
   const inboundAddress = maybeInboundAddress.unwrap()
   const vault = inboundAddress.address
 
-  return Ok({
+  return {
     opReturnData: memo,
     vault,
     pubkey: xpub,
-  })
+  }
 }

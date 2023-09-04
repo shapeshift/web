@@ -598,6 +598,7 @@
       },
       "swap": {
         "deposit": "Swap",
+        "streamingSwap": "Streaming Swap",
         "out": "Swap",
         "refund": "Refund",
         "outbound": "Outbound"

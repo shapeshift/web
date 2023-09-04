@@ -6,6 +6,13 @@ import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunitiesUserDataResolverInput,
+  OpportunityIdsResolverInput,
+  OpportunityMetadataResolverInput,
+  OpportunityUserDataResolverInput,
+} from './resolvers/types'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -251,4 +258,66 @@ export type TagDescription = {
   description?: string
   icon?: JSX.Element
   bullets?: string[]
+}
+
+// Mapping types
+
+export type MetadataResolverFunction = (
+  args: OpportunityMetadataResolverInput,
+) => Promise<{ data: GetOpportunityMetadataOutput }>
+
+export type OpportunitiesMetadataResolverFunction = (
+  args: OpportunitiesMetadataResolverInput,
+) => Promise<{ data: GetOpportunityMetadataOutput }>
+
+export type OpportunitiesUserDataResolverFunction = (
+  args: OpportunitiesUserDataResolverInput,
+) => Promise<{ data: GetOpportunityUserStakingDataOutput }>
+
+export type OpportunityIdsResolverFunction = (
+  args: OpportunityIdsResolverInput,
+) => Promise<{ data: GetOpportunityIdsOutput }>
+
+export type OpportunityUserDataResolverFunction = (
+  args: OpportunityUserDataResolverInput,
+) => Promise<{ data: GetOpportunityUserStakingDataOutput } | void>
+
+export type DefiTypeToMetadataResolver = {
+  [key in DefiType]?: MetadataResolverFunction
+}
+
+export type DefiTypeToOpportunitiesMetadataResolver = {
+  [key in DefiType]?: OpportunitiesMetadataResolverFunction
+}
+
+export type DefiTypeToOpportunitiesUserDataResolver = {
+  [key in DefiType]?: OpportunitiesUserDataResolverFunction
+}
+
+export type DefiTypeToOpportunityUserDataResolver = {
+  [key in DefiType]?: OpportunityUserDataResolverFunction
+}
+
+export type DefiTypeToOpportunityIdsResolver = {
+  [key in DefiType]?: OpportunityIdsResolverFunction
+}
+
+export type DefiProviderToMetadataResolver = {
+  [key in DefiProvider]?: DefiTypeToMetadataResolver
+}
+
+export type DefiProviderToOpportunitiesMetadataResolver = {
+  [key in DefiProvider]?: DefiTypeToOpportunitiesMetadataResolver
+}
+
+export type DefiProviderToOpportunitiesUserDataResolver = {
+  [key in DefiProvider]?: DefiTypeToOpportunitiesUserDataResolver
+}
+
+export type DefiProviderToOpportunityUserDataResolver = {
+  [key in DefiProvider]?: DefiTypeToOpportunityUserDataResolver
+}
+
+export type DefiProviderToOpportunityIdsResolver = {
+  [key in DefiProvider]?: DefiTypeToOpportunityIdsResolver
 }

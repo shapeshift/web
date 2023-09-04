@@ -3,7 +3,7 @@ import * as webcrypto from '@peculiar/webcrypto'
 import { decryptNativeWallet, getPasswordHash } from './login'
 
 describe('login', () => {
-  globalThis.crypto = new webcrypto.Crypto()
+  globalThis.crypto = new webcrypto.Crypto() as Crypto
 
   describe('password-hash', () => {
     it('should fail on getPasswordHash without email', async () => {

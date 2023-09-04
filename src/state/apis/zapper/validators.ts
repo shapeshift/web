@@ -154,6 +154,7 @@ type ZapperTokenBase = {
   tokens?: ZapperTokenBase[]
 }
 
+// @ts-ignore zod/myzod is drunk https://github.com/colinhacks/zod/issues/577
 const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
   z.object({
     type: z.literals('base-token', 'app-token'),
@@ -277,7 +278,7 @@ export enum ZapperGroupId {
 }
 
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
-export type MediaFileType = typeof MEDIA_FILETYPE[number]
+export type MediaFileType = (typeof MEDIA_FILETYPE)[number]
 export type MediaType = 'video' | 'image'
 
 export const getMediaFileType = (mediaUrl: string | undefined): MediaFileType | undefined => {

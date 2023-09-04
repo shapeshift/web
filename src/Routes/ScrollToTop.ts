@@ -7,7 +7,6 @@ export const ScrollToTop = () => {
     window.scrollTo({
       top: 0,
       left: 0,
-      // @ts-expect-error
       behavior: 'instant',
     })
   }, [pathname])

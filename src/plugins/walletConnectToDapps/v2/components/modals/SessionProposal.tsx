@@ -21,8 +21,9 @@ const allNamespacesSupported = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
   wallet: HDWallet | null,
 ): boolean =>
-  Object.values(requiredNamespaces).every(requiredNamespace =>
-    requiredNamespace.chains?.every(chainId => walletSupportsChain({ chainId, wallet })),
+  Object.values(requiredNamespaces).every(
+    requiredNamespace =>
+      requiredNamespace.chains?.every(chainId => walletSupportsChain({ chainId, wallet })),
   )
 
 const createApprovalNamespaces = (
@@ -80,13 +81,14 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   All namespaces require at least one account in the response payload
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#24-session-namespaces-must-contain-at-least-one-account-in-requested-chains
    */
-  const allNamespacesHaveAccounts = Object.values(requiredNamespaces).every(requiredNamespaces =>
-    requiredNamespaces.chains?.every(requiredChainId =>
-      selectedAccountIds.some(accountId => {
-        const { chainId: accountChainId } = fromAccountId(accountId)
-        return requiredChainId === accountChainId
-      }),
-    ),
+  const allNamespacesHaveAccounts = Object.values(requiredNamespaces).every(
+    requiredNamespaces =>
+      requiredNamespaces.chains?.every(requiredChainId =>
+        selectedAccountIds.some(accountId => {
+          const { chainId: accountChainId } = fromAccountId(accountId)
+          return requiredChainId === accountChainId
+        }),
+      ),
   )
 
   const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(

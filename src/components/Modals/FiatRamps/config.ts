@@ -71,7 +71,7 @@ export interface SupportedFiatRampConfig {
 }
 
 const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
-export type FiatRamp = typeof fiatRamps[number]
+export type FiatRamp = (typeof fiatRamps)[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {

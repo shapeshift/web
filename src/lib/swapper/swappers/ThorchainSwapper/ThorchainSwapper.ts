@@ -1,15 +1,8 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkChainAdapter,
-  SignTx,
-  UtxoChainAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,
@@ -20,49 +13,14 @@ import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorSer
 import type {
   BuyAssetBySellIdInput,
   CosmosSdkTradeExecutionProps,
-  ExecuteTradeArgs,
   Swapper,
   UtxoTradeExecutionProps,
 } from 'lib/swapper/types'
-import { assertUnreachable } from 'lib/utils'
-import { executeEvmTrade, executeEvmTrade2 } from 'lib/utils/evm'
+import { executeEvmTrade2 } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 export const thorchainSwapper: Swapper = {
-  executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
-    const { chainNamespace } = fromChainId(chainId)
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(chainId)
-
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Evm: {
-        return executeEvmTrade({ txToSign, wallet, chainId })
-      }
-
-      case CHAIN_NAMESPACE.CosmosSdk: {
-        const cosmosSdkChainAdapter = adapter as unknown as CosmosSdkChainAdapter
-        const signedTx = await cosmosSdkChainAdapter.signTransaction({
-          txToSign: txToSign as ThorchainSignTx,
-          wallet,
-        })
-        return cosmosSdkChainAdapter.broadcastTransaction(signedTx)
-      }
-
-      case CHAIN_NAMESPACE.Utxo: {
-        const utxoChainAdapter = adapter as unknown as UtxoChainAdapter
-        const signedTx = await utxoChainAdapter.signTransaction({
-          txToSign: txToSign as SignTx<UtxoChainId>,
-          wallet,
-        })
-        return utxoChainAdapter.broadcastTransaction(signedTx)
-      }
-
-      default:
-        assertUnreachable(chainNamespace)
-    }
-  },
-
   executeTradeEvm: executeEvmTrade2,
 
   executeTradeCosmosSdk: async (

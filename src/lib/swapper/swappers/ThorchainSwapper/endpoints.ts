@@ -31,12 +31,12 @@ import { getInboundAddressDataForChain } from './utils/getInboundAddressDataForC
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
-const OUTBOUND_FEE = '2000000'
+const THORCHAIN_OUTBOUND_FEE_RUNE = '2000000'
 
-const calculateFee = (fee: string): string => {
+const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
   // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(THORCHAIN_OUTBOUND_FEE_RUNE)
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
@@ -137,16 +137,19 @@ export const thorchainApi: SwapperApi = {
 
     const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
 
-    const fee: StdFee = {
-      amount: [{ amount: calculateFee(feeData.networkFeeCryptoBaseUnit ?? '0'), denom: 'rune' }],
-      // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
-      gas: (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit,
-    }
+    // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
+    const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit
+    const networkFee = feeData.networkFeeCryptoBaseUnit ?? '0'
 
-    const msg: AminoMsg = await (async () => {
+    const { fee, msg, account } = await (async () => {
       if (fromThorAsset) {
+        const fee: StdFee = {
+          amount: [{ amount: deductOutboundRuneFee(networkFee), denom: 'rune' }],
+          gas,
+        }
+
         // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
-        return {
+        const msg: AminoMsg = {
           type: 'thorchain/MsgDeposit',
           value: {
             coins: [{ asset: 'THOR.RUNE', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit }],
@@ -154,6 +157,21 @@ export const thorchainApi: SwapperApi = {
             signer: from,
           },
         }
+
+        const api = new cosmossdk.thorchain.V1Api(
+          new cosmossdk.thorchain.Configuration({
+            basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
+          }),
+        )
+
+        const account = await api.getAccount({ pubkey: from })
+
+        return { fee, msg, account }
+      }
+
+      const fee: StdFee = {
+        amount: [{ amount: networkFee, denom: 'uatom' }],
+        gas,
       }
 
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -162,22 +180,25 @@ export const thorchainApi: SwapperApi = {
       const gaiaAddressData = maybeGaiaAddressData.unwrap()
       const vault = gaiaAddressData.address
 
-      return {
-        type: 'thorchain/MsgSend',
+      const msg: AminoMsg = {
+        type: 'cosmos-sdk/MsgSend',
         value: {
-          amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'rune' }],
+          amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'uatom' }],
           from_address: from,
           to_address: vault,
         },
       }
-    })()
 
-    const api = new cosmossdk.thorchain.V1Api(
-      new cosmossdk.thorchain.Configuration({
-        basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
-      }),
-    )
-    const account = await api.getAccount({ pubkey: from })
+      const api = new cosmossdk.cosmos.V1Api(
+        new cosmossdk.cosmos.Configuration({
+          basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+        }),
+      )
+
+      const account = await api.getAccount({ pubkey: from })
+
+      return { fee, msg, account }
+    })()
 
     return {
       chain_id: fromChainId(chainId).chainReference,

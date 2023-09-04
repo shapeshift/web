@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Skeleton, Stack, useToast } from '@chakra-ui/react'
+import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -359,8 +360,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
         quote.inbound_address,
-        fromAssetId(assetId).assetReference,
-        amountCryptoBaseUnit.toFixed(0), // TODO(gomes): handle unlimited/exact
+        // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
+        // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
+        AddressZero,
+        amountCryptoBaseUnit.toFixed(0),
         quote.memo,
         quote.expiry,
       ])

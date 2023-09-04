@@ -154,9 +154,9 @@ type ZapperTokenBase = {
   tokens?: ZapperTokenBase[]
 }
 
+// @ts-ignore zod/myzod is drunk https://github.com/colinhacks/zod/issues/577
 const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
   z.object({
-    // @ts-ignore zod/myzod is drunk https://github.com/colinhacks/zod/issues/577
     type: z.literals('base-token', 'app-token'),
     network: SupportedZapperNetworks,
     address: z.string(),

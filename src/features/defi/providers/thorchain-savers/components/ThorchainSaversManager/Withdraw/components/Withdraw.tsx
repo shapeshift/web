@@ -1,5 +1,5 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
-import { MaxUint256 } from '@ethersproject/constants'
+import { AddressZero, MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
@@ -36,7 +36,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { isToken } from 'lib/utils'
-import { getErc20Allowance, getFees } from 'lib/utils/evm'
+import { createBuildCustomTxInput, getErc20Allowance, getFees } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -179,7 +179,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           assetReference &&
           accountId &&
           opportunityData?.stakedAmountCryptoBaseUnit &&
-          dustAmountCryptoBaseUnit
+          wallet &&
+          accountNumber !== undefined
         )
       )
         return
@@ -194,7 +195,56 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+
         const chainAdapters = getChainAdapterManager()
+
+        if (isTokenWithdraw) {
+          if (!saversRouterContractAddress)
+            throw new Error(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
+
+          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+          const thorContract = getOrCreateContractByType({
+            address: saversRouterContractAddress,
+            type: ContractType.ThorRouter,
+            chainId: asset.chainId,
+          })
+
+          const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+            quote.inbound_address,
+            // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
+            // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
+            AddressZero,
+            amountCryptoBaseUnit.toFixed(0),
+            quote.memo,
+            quote.expiry,
+          ])
+
+          const customTxInput = await createBuildCustomTxInput({
+            accountNumber,
+            adapter,
+            data,
+            value: '0',
+            to: saversRouterContractAddress,
+            wallet,
+          })
+
+          const fees = await adapter.getFeeData({
+            to: customTxInput.to,
+            value: customTxInput.value,
+            chainSpecific: {
+              from: fromAccountId(accountId).account,
+              data: customTxInput.data,
+            },
+          })
+
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
+
+          const fastFeeCryptoPrecision = bnOrZero(
+            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+          )
+          return bnOrZero(fastFeeCryptoPrecision).toString()
+        }
+
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -230,11 +280,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       assetReference,
       accountId,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      opportunityData?.rewardsCryptoBaseUnit,
-      dustAmountCryptoBaseUnit,
+      opportunityData?.rewardsCryptoBaseUnit?.amounts,
+      wallet,
+      accountNumber,
       asset,
+      isTokenWithdraw,
       chainId,
+      dustAmountCryptoBaseUnit,
       supportedEvmChainIds,
+      saversRouterContractAddress,
+      feeAsset.assetId,
+      feeAsset.precision,
       toast,
       translate,
     ],

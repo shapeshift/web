@@ -19,7 +19,7 @@ import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
 const isStreamingSwapMemo = (memo: string): boolean => {
-  const regex = /^=:.*:\d+\/\d+\/\d+:ss:\d+$/
+  const regex = /:\d+\/\d+\/\d+:/
   return regex.test(memo)
 }
 

@@ -394,6 +394,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // Estimated fees tend to produce too low fees on e.g Dogecoin
       // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
       const estimatedFees = await getSafeEstimatedFees()
+      if (!estimatedFees) return
       setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
       contextDispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,

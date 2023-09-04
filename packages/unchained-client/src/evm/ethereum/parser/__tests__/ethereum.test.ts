@@ -8,12 +8,10 @@ import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
 import {
   FOXY_STAKING_CONTRACT,
-  SHAPE_SHIFT_ROUTER_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V3,
   WETH_CONTRACT_MAINNET,
 } from '../constants'
 import { TransactionParser, ZRX_ETHEREUM_PROXY_CONTRACT } from '../index'
-import { YEARN_VAULTS_URL } from '../yearn'
 import erc721 from './mockData/erc721'
 import erc1155 from './mockData/erc1155'
 import ethSelfSend from './mockData/ethSelfSend'
@@ -35,15 +33,12 @@ import {
   foxToken,
   foxyToken,
   kishuToken,
-  linkToken,
-  linkYearnVault,
   maticToken,
   tribeToken,
   uniToken,
   uniV2Token,
   usdcToken,
   usdtToken,
-  yvUsdcToken,
 } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import uniAddLiquidity from './mockData/uniAddLiquidity'
@@ -51,10 +46,6 @@ import uniApprove from './mockData/uniApprove'
 import uniRemoveLiquidity from './mockData/uniRemoveLiquidity'
 import wethDeposit from './mockData/wethDeposit'
 import wethWithdraw from './mockData/wethWithdraw'
-import yearnApproval from './mockData/yearnApproval'
-import yearnDeposit from './mockData/yearnDeposit'
-import yearnDepositShapeShiftRouter from './mockData/yearnDepositShapeShiftRouter'
-import yearnWithdrawal from './mockData/yearnWithdrawal'
 import zrxTradeBondToUni from './mockData/zrxTradeBondToUni'
 import zrxTradeEthToMatic from './mockData/zrxTradeEthToMatic'
 import zrxTradeTetherToKishu from './mockData/zrxTradeTetherToKishu'
@@ -64,18 +55,8 @@ jest.mock('axios')
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
-mockedAxios.get.mockImplementation(url => {
-  switch (url) {
-    case YEARN_VAULTS_URL:
-      return Promise.resolve({
-        data: [
-          { address: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2' },
-          { address: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9' },
-        ],
-      })
-    default:
-      return Promise.resolve({ data: undefined })
-  }
+mockedAxios.get.mockImplementation(() => {
+  return Promise.resolve({ data: undefined })
 })
 
 const mockedApi = jest.mocked(new V1Api())
@@ -1380,179 +1361,6 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(actual).toEqual(expected)
-    })
-  })
-
-  describe('yearn', () => {
-    it('should parse approval', async () => {
-      const { tx } = yearnApproval
-      const address = '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4'
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        blockHash: tx.blockHash,
-        address,
-        chainId: 'eip155:1',
-        confirmations: tx.confirmations,
-        data: {
-          assetId: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
-          method: 'approve',
-          parser: 'yearn',
-          value: '392318858461667547739736838950479151006397215279002157055',
-        },
-        status: TxStatus.Confirmed,
-        fee: {
-          value: '4519526097650998',
-          assetId: 'eip155:1/slip44:60',
-        },
-        transfers: [],
-      }
-
-      const actual = await txParser.parse(tx, address)
-      expect(actual).toEqual(expected)
-    })
-
-    it('should parse Yearn deposit to ShapeShift router', async () => {
-      const { tx } = yearnDepositShapeShiftRouter
-      const address = '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4'
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        blockHash: tx.blockHash,
-        address,
-        chainId: 'eip155:1',
-        confirmations: tx.confirmations,
-        data: {
-          method: 'deposit',
-          parser: 'yearn',
-        },
-        status: TxStatus.Confirmed,
-        fee: {
-          value: '18139009291874667',
-          assetId: 'eip155:1/slip44:60',
-        },
-        transfers: [
-          {
-            type: TransferType.Send,
-            from: address,
-            to: SHAPE_SHIFT_ROUTER_CONTRACT,
-            assetId: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
-            totalValue: '999961394864662132',
-            components: [{ value: '999961394864662132' }],
-            token: linkToken,
-          },
-          {
-            type: TransferType.Receive,
-            from: '0x0000000000000000000000000000000000000000',
-            to: address,
-            assetId: 'eip155:1/erc20:0x671a912c10bba0cfa74cfc2d6fba9ba1ed9530b2',
-            totalValue: '987002304279657611',
-            components: [{ value: '987002304279657611' }],
-            token: linkYearnVault,
-          },
-        ],
-      }
-
-      const actual = await txParser.parse(tx, address)
-      expect(actual).toEqual(expected)
-    })
-
-    it('should parse withdrawal', async () => {
-      const { tx } = yearnWithdrawal
-      const address = '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4'
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        blockHash: tx.blockHash,
-        address,
-        chainId: 'eip155:1',
-        confirmations: tx.confirmations,
-        data: {
-          method: 'withdraw',
-          parser: 'yearn',
-        },
-        status: TxStatus.Confirmed,
-        fee: {
-          value: '19460274119661600',
-          assetId: 'eip155:1/slip44:60',
-        },
-        transfers: [
-          {
-            type: TransferType.Send,
-            from: address,
-            to: '0x0000000000000000000000000000000000000000',
-            assetId: 'eip155:1/erc20:0x671a912c10bba0cfa74cfc2d6fba9ba1ed9530b2',
-            totalValue: '493501152139828806',
-            components: [{ value: '493501152139828806' }],
-            token: linkYearnVault,
-          },
-          {
-            type: TransferType.Receive,
-            from: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
-            to: address,
-            assetId: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
-            totalValue: '500482168225493862',
-            components: [{ value: '500482168225493862' }],
-            token: linkToken,
-          },
-        ],
-      }
-
-      const actual = await txParser.parse(tx, address)
-      expect(actual).toEqual(expected)
-    })
-
-    it('should parse Yearn deposit', async () => {
-      const { tx } = yearnDeposit
-      const address = '0x934be745172066EDF795ffc5EA9F28f19b440c63'
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        blockHash: tx.blockHash,
-        address,
-        chainId: 'eip155:1',
-        confirmations: tx.confirmations,
-        data: {
-          method: 'deposit',
-          parser: 'yearn',
-        },
-        status: TxStatus.Confirmed,
-        fee: {
-          value: '9099683709794574',
-          assetId: 'eip155:1/slip44:60',
-        },
-        transfers: [
-          {
-            type: TransferType.Receive,
-            to: address,
-            from: '0x0000000000000000000000000000000000000000',
-            assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-            totalValue: '9178352',
-            components: [{ value: '9178352' }],
-            token: yvUsdcToken,
-          },
-          {
-            type: TransferType.Send,
-            to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
-            from: address,
-            assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            totalValue: '10000000',
-            components: [{ value: '10000000' }],
-            token: usdcToken,
-          },
-        ],
-      }
-
-      const actual = await txParser.parse(tx, address)
       expect(actual).toEqual(expected)
     })
   })

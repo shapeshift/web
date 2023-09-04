@@ -6,9 +6,9 @@ export enum LanguageTypeEnum {
   /** українська */
   uk = 'uk',
   /** हिंदी */
-  hi = 'hi',
+  // hi = 'hi',
   /** 日本語 */
-  jp = 'jp',
+  // jp = 'jp',
   /** Deutsch */
   de = 'de',
   /** русский */
@@ -20,13 +20,13 @@ export enum LanguageTypeEnum {
   /** Français */
   fr = 'fr',
   /** 한국어 */
-  ko = 'ko',
+  // ko = 'ko',
   /** Türkçe */
   tr = 'tr',
   /** Bahasa Indonesia */
-  id = 'id',
+  // id = 'id',
   /** Tiếng Việt */
-  vi = 'vi',
+  // vi = 'vi',
   /** Italiano */
-  it = 'it',
+  // it = 'it',
 }

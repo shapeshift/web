@@ -78,6 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onNext,
 }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
+  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -189,6 +190,30 @@ export const Deposit: React.FC<DepositProps> = ({
   const toast = useToast()
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+
+  useEffect(() => {
+    if (!inputValues || !accountId)
+      return // Router contract address is only set in case we're depositting a token, not a native asset
+    ;(async () => {
+      const isApprovalRequired = await (async () => {
+        if (!saversRouterContractAddress) return false
+        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+          address: fromAssetId(assetId).assetReference,
+          spender: saversRouterContractAddress,
+          from: fromAccountId(accountId).account,
+          chainId: asset.chainId,
+        })
+        const { cryptoAmount } = inputValues
+
+        const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+
+        if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
+        return false
+      })()
+      setIsApprovalRequired(isApprovalRequired)
+    })()
+  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, saversRouterContractAddress])
+
   const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (
@@ -217,7 +242,9 @@ export const Deposit: React.FC<DepositProps> = ({
 
         const chainAdapters = getChainAdapterManager()
 
-        if (isTokenDeposit) {
+        // We can only estimate the gas at this stage if allowance is already granted
+        // Else, the Tx simulation will fail
+        if (isTokenDeposit && !isApprovalRequired) {
           const thorContract = getOrCreateContractByType({
             address: saversRouterContractAddress!,
             type: ContractType.ThorRouter,
@@ -301,6 +328,7 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       asset,
       isTokenDeposit,
+      isApprovalRequired,
       chainId,
       supportedEvmChainIds,
       state?.deposit.sendMax,
@@ -327,23 +355,6 @@ export const Deposit: React.FC<DepositProps> = ({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCryptoPrecision },
         })
-
-        const isApprovalRequired = await (async () => {
-          // Router contract address is only set in case we're depositting a token, not a native asset
-          if (!saversRouterContractAddress) return false
-          const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-            address: fromAssetId(assetId).assetReference,
-            spender: saversRouterContractAddress,
-            from: fromAccountId(accountId).account,
-            chainId: asset.chainId,
-          })
-          const { cryptoAmount } = inputValues
-
-          const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
-
-          if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
-          return false
-        })()
 
         const approvalFees = await (() => {
           if (
@@ -419,13 +430,13 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       getDepositGasEstimateCryptoPrecision,
       onNext,
+      isApprovalRequired,
       assetId,
       assets,
       saversRouterContractAddress,
-      asset.chainId,
-      asset.precision,
       accountNumber,
       wallet,
+      asset.chainId,
       chainId,
       toast,
       translate,

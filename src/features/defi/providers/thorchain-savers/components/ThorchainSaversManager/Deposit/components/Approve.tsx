@@ -28,6 +28,7 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome, isToken } from 'lib/utils'
 import { buildAndBroadcast, createBuildCustomTxInput, getErc20Allowance } from 'lib/utils/evm'
+import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountNumberByAccountId,
@@ -179,10 +180,58 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 60,
       })
 
-      if (!estimatedGasCryptoPrecision) return
+      const estimatedDepositGasCryptoPrecision = await (async () => {
+        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+          asset,
+          amountCryptoBaseUnit,
+        })
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
+        const thorContract = getOrCreateContractByType({
+          address: saversRouterContractAddress!,
+          type: ContractType.ThorRouter,
+          chainId: asset.chainId,
+        })
+
+        const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+          quote.inbound_address,
+          fromAssetId(assetId).assetReference,
+          amountCryptoBaseUnit.toString(),
+          quote.memo,
+          quote.expiry,
+        ])
+
+        const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
+
+        const customTxInput = await createBuildCustomTxInput({
+          accountNumber,
+          adapter,
+          data,
+          value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
+          to: saversRouterContractAddress!,
+          wallet,
+        })
+
+        const fees = await adapter.getFeeData({
+          to: customTxInput.to,
+          value: customTxInput.value,
+          chainSpecific: {
+            from: fromAccountId(accountId).account,
+            data: customTxInput.data,
+          },
+        })
+
+        const fastFeeCryptoBaseUnit = fees.fast.txFee
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+        )
+
+        return fastFeeCryptoPrecision.toString()
+      })()
+
       dispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCryptoPrecision },
+        payload: { estimatedGasCryptoPrecision: estimatedDepositGasCryptoPrecision },
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
@@ -199,14 +248,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     accountNumber,
-    asset.assetId,
-    asset.chainId,
-    asset.precision,
+    asset,
     assetId,
     chainAdapterManager,
     dispatch,
-    estimatedGasCryptoPrecision,
     feeAsset?.assetId,
+    feeAsset.precision,
     onNext,
     poll,
     saversRouterContractAddress,

@@ -194,10 +194,13 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
         const rewards = data.rewards.map<ValidatorReward>(validatorReward => ({
           validator: transformValidator(validatorReward.validator),
-          rewards: validatorReward.rewards.map<Reward>(reward => ({
-            assetId: this.assetId,
-            amount: reward.amount,
-          })),
+          rewards: validatorReward.rewards
+            // We only support same-denom rewards for now
+            .filter(reward => reward.denom === this.denom)
+            .map<Reward>(reward => ({
+              assetId: this.assetId,
+              amount: reward.amount,
+            })),
         }))
 
         const assets = data.assets.map<CosmosSDKToken>(asset => ({

@@ -41,7 +41,8 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import type { SwapErrorRight } from 'lib/swapper/types'
-import { getErc20Allowance, getFees } from 'lib/utils/evm'
+import { isToken } from 'lib/utils'
+import { createBuildCustomTxInput, getErc20Allowance, getFees } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -101,6 +102,8 @@ export const Deposit: React.FC<DepositProps> = ({
     assetNamespace,
     assetReference,
   })
+
+  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -188,11 +191,23 @@ export const Deposit: React.FC<DepositProps> = ({
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
   const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(userAddress && assetReference && accountId && opportunityData)) return
+      if (
+        !(
+          userAddress &&
+          assetReference &&
+          accountId &&
+          opportunityData &&
+          accountNumber !== undefined &&
+          wallet &&
+          feeAsset
+        )
+      )
+        return
       try {
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
+
         const maybeQuote = await getMaybeThorchainSaversDepositQuote({
           asset,
           amountCryptoBaseUnit,
@@ -201,6 +216,51 @@ export const Deposit: React.FC<DepositProps> = ({
         const quote = maybeQuote.unwrap()
 
         const chainAdapters = getChainAdapterManager()
+
+        if (isTokenDeposit) {
+          const thorContract = getOrCreateContractByType({
+            address: saversRouterContractAddress!,
+            type: ContractType.ThorRouter,
+            chainId: asset.chainId,
+          })
+
+          const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+            quote.inbound_address,
+            fromAssetId(assetId).assetReference,
+            amountCryptoBaseUnit.toString(),
+            quote.memo,
+            quote.expiry,
+          ])
+
+          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+
+          const customTxInput = await createBuildCustomTxInput({
+            accountNumber,
+            adapter,
+            data,
+            value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
+            to: saversRouterContractAddress!,
+            wallet,
+          })
+
+          const fees = await adapter.getFeeData({
+            to: customTxInput.to,
+            value: customTxInput.value,
+            chainSpecific: {
+              from: fromAccountId(accountId).account,
+              data: customTxInput.data,
+            },
+          })
+
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
+
+          const fastFeeCryptoPrecision = bnOrZero(
+            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+          )
+
+          return fastFeeCryptoPrecision.toString()
+        }
+
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -236,10 +296,16 @@ export const Deposit: React.FC<DepositProps> = ({
       assetReference,
       accountId,
       opportunityData,
+      accountNumber,
+      wallet,
+      feeAsset,
       asset,
+      isTokenDeposit,
       chainId,
       supportedEvmChainIds,
       state?.deposit.sendMax,
+      saversRouterContractAddress,
+      assetId,
       toast,
       translate,
     ],

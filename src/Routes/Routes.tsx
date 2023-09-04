@@ -32,9 +32,10 @@ export const Routes = memo(() => {
   })
 
   useEffect(() => {
-    if (lang && LanguageTypeEnum[lang as LanguageTypeEnum] && selectedLocale !== lang) {
+    const selectedLocalteExists = selectedLocale in LanguageTypeEnum ?? {}
+    if (lang && selectedLocalteExists && selectedLocale !== lang) {
       dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
-    } else if (!LanguageTypeEnum[selectedLocale as LanguageTypeEnum]) {
+    } else if (!selectedLocalteExists) {
       // Set default language if locale in settings is not supported
       dispatch(preferences.actions.setSelectedLocale({ locale: 'en' }))
     }

@@ -18,7 +18,9 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
-const isStreamingSwapMemo = (memo: string): boolean => {
+const isStreamingSwapMemo = (memo: string | undefined): boolean => {
+  if (!memo) return false
+
   const regex = /:\d+\/\d+\/\d+:/
   return regex.test(memo)
 }
@@ -33,7 +35,7 @@ export const TransactionMethod = ({
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
-  const memo = (txDetails.tx.data as { memo: string }).memo // TxMetadata typing is broken
+  const memo = 'memo' in txMetadata ? txMetadata.memo : undefined
   const isStreamingSwap = useMemo(() => isStreamingSwapMemo(memo), [memo])
   const { method, parser } = txMetadata
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])

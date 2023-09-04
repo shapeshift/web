@@ -35,6 +35,7 @@ import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { isToken } from 'lib/utils'
 import { getErc20Allowance, getFees } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
@@ -130,6 +131,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee Asset not found for AssetId ${assetId}`)
+
+  const isTokenWithdraw = isToken(fromAssetId(assetId).assetReference)
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
@@ -266,7 +269,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         const isApprovalRequired = await (async () => {
-          // Router contract address is only set in case we're depositting a token, not a native asset
+          // Router contract address is only set in case we're withdrawing a token, not a native asset
           if (!saversRouterContractAddress) return false
           const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
             address: fromAssetId(assetId).assetReference,
@@ -277,11 +280,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           const { cryptoAmount } = formValues
 
           const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
-
-          console.log({
-            cryptoAmountBaseUnit: cryptoAmountBaseUnit.toString(),
-            allowanceOnChainCryptoBaseUnit,
-          })
 
           if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
           return false
@@ -305,6 +303,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
           const data = contract.interface.encodeFunctionData('approve', [
             saversRouterContractAddress,
+            // For the sake of simulating the approval fees, we're setting the allowance to the max possible value
             MaxUint256,
           ])
 
@@ -327,7 +326,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
               estimatedGasCryptoBaseUnit: approvalFees.networkFeeCryptoBaseUnit,
             },
           })
-        console.log({ approvalFees, isApprovalRequired })
         onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
 
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
@@ -470,41 +468,51 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)
-      const withdrawBps = getWithdrawBps({
-        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
-        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-      })
 
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-      const { dust_amount, slippage_bps } = quote
-      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+      try {
+        const withdrawBps = getWithdrawBps({
+          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+          stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
+          rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+        })
 
-      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
-      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
-      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const { dust_amount, slippage_bps } = quote
+        const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
-      setDustAmountCryptoBaseUnit(
-        bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-          asset.precision,
-        ),
-      )
+        // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+        const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
+        setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      // TODO(gomes): fetch and set state field for evm tokens only
-      const maybeInboundAddressData = await getInboundAddressDataForChain(
-        daemonUrl,
-        feeAsset?.assetId,
-      )
-      if (maybeInboundAddressData.isErr())
-        throw new Error(maybeInboundAddressData.unwrapErr().message)
+        setDustAmountCryptoBaseUnit(
+          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
+            asset.precision,
+          ),
+        )
 
-      const inboundAddressData = maybeInboundAddressData.unwrap()
+        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
-      // TODO(gomes): check for router, which *shouuld* be there anyway since we will check on asset, but safety doesn't hurt
-      setSaversRouterContractAddress(inboundAddressData.router!)
+        if (isTokenWithdraw) {
+          const maybeInboundAddressData = await getInboundAddressDataForChain(
+            daemonUrl,
+            feeAsset.assetId,
+          )
+          if (maybeInboundAddressData.isErr())
+            throw new Error(maybeInboundAddressData.unwrapErr().message)
 
-      setQuoteLoading(false)
+          const inboundAddressData = maybeInboundAddressData.unwrap()
+
+          // router should always be defined for token withdraws, but safety never hurts
+          if (!inboundAddressData.router)
+            throw new Error(`No router address found for chainId ${feeAsset.chainId}`)
+
+          setSaversRouterContractAddress(inboundAddressData.router!)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setQuoteLoading(false)
+      }
     })
 
     debounced()
@@ -515,8 +523,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
-    feeAsset?.assetId,
+    feeAsset.assetId,
+    feeAsset.chainId,
     inputValues,
+    isTokenWithdraw,
     opportunityData?.apy,
     opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,

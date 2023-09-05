@@ -33,7 +33,7 @@ export const foxEthStakingContractAddresses = [
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
 ] as const
 
-export type FoxEthStakingContractAddress = typeof foxEthStakingContractAddresses[number]
+export type FoxEthStakingContractAddress = (typeof foxEthStakingContractAddresses)[number]
 
 const isFoxEthStakingContractAddress = (
   address: FoxEthStakingContractAddress | string,

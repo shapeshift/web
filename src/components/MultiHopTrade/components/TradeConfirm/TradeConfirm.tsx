@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -12,6 +13,7 @@ import {
   Flex,
   Heading,
   Link,
+  Progress,
   Skeleton,
   Stack,
   StackDivider,
@@ -30,6 +32,7 @@ import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useThorStreamingProgress } from 'components/MultiHopTrade/hooks/useThorStreamingProgress/useThorStreamingProgress'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
@@ -44,6 +47,7 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { SwapperName } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
@@ -154,6 +158,18 @@ export const TradeConfirm = () => {
   } = useTradeExecution({ tradeQuote, swapperName })
 
   const txHash = buyTxHash ?? sellTxHash
+
+  const isThorStreamingSwap = useMemo(
+    () => tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
+    [tradeQuoteStep?.source],
+  )
+
+  const {
+    attemptedSwapCount,
+    progressProps: thorStreamingSwapProgressProps,
+    totalSwapCount,
+    failedSwaps,
+  } = useThorStreamingProgress(sellTxHash, isThorStreamingSwap)
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -464,6 +480,39 @@ export const TradeConfirm = () => {
               isSubmitting={isSubmitting}
               px={4}
             />
+            {status !== TxStatus.Unknown && isThorStreamingSwap && (
+              <Stack px={4}>
+                <Row>
+                  <Row.Label>{translate('trade.streamStatus')}</Row.Label>
+                  {totalSwapCount > 0 && (
+                    <Row.Value>{`${attemptedSwapCount} of ${totalSwapCount}`}</Row.Value>
+                  )}
+                </Row>
+                <Row>
+                  <Progress
+                    width='full'
+                    borderRadius='full'
+                    size='sm'
+                    {...thorStreamingSwapProgressProps}
+                  />
+                </Row>
+                {failedSwaps.length > 0 && (
+                  <Row>
+                    <Row.Value display='flex' alignItems='center' gap={1} color='text.warning'>
+                      <WarningIcon />
+                      {translate('trade.swapsFailed', { failedSwaps: failedSwaps.length })}
+                    </Row.Value>
+                    {/* TODO: provide details of streaming swap failures - needs details modal
+                      <Row.Value>
+                        <Button variant='link' colorScheme='blue' fontSize='sm'>
+                          {translate('common.learnMore')}
+                        </Button>
+                      </Row.Value>
+                    */}
+                  </Row>
+                )}
+              </Stack>
+            )}
             <Stack px={4}>{sendReceiveSummary}</Stack>
             <Stack spacing={4}>
               {txLink && (

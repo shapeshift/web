@@ -88,7 +88,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const fiatAmount = useMemo(
-    () => bnOrZero(state?.withdraw.cryptoAmount).times(assetMarketData.price).toString(),
+    () =>
+      bnOrZero(state?.withdraw.cryptoAmount)
+        .times(assetMarketData.price)
+        .toString(),
     [assetMarketData.price, state?.withdraw.cryptoAmount],
   )
 
@@ -144,7 +147,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice)
+            .times(`1e+${asset?.precision}`)
+            .toString(),
         },
         value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toFixed(0),
         action: StakingAction.Unstake,

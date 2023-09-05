@@ -12,11 +12,13 @@ import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = (
   expectedAmountOutThorBaseUnit: string,
-  quotedMemo: string,
+  quotedMemo: string | undefined,
   slippageBps: BigNumber.Value,
   isStreaming: boolean,
   chainId: ChainId,
 ) => {
+  if (!quotedMemo) throw new Error('no memo provided')
+
   // the missing element is the original limit with (optional, missing) streaming parameters
   const [prefix, pool, address, , affiliate, affiliateBps] = quotedMemo.split(MEMO_PART_DELIMITER)
 

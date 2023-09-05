@@ -1,16 +1,17 @@
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import type {
+  EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedTxArgsEvm,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
-import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
+import { checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchOneInchSwap } from './utils/fetchOneInchSwap'
@@ -31,18 +32,18 @@ export const oneInchApi: SwapperApi = {
     })
   },
 
-  getUnsignedTx: async ({
+  getUnsignedTxEvm: async ({
+    chainId,
     from,
+    nonce,
     slippageTolerancePercentageDecimal,
-    tradeQuote,
     stepIndex,
-  }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
+    tradeQuote,
+  }: GetUnsignedTxArgsEvm): Promise<EvmTransactionRequest> => {
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
 
     const { receiveAddress, affiliateBps } = tradeQuote
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
     const {
       tx: { value, to, gasPrice, gas, data },
@@ -55,20 +56,16 @@ export const oneInchApi: SwapperApi = {
       maximumSlippageDecimalPercentage: slippageTolerancePercentageDecimal,
     })
 
-    const buildSendApiTxInput = {
-      value,
+    return {
+      chainId: Number(fromChainId(chainId).chainReference),
+      data,
+      from,
+      gasLimit: gas,
+      gasPrice,
+      nonce,
       to,
-      from: from!,
-      chainSpecific: {
-        gasPrice,
-        gasLimit: gas,
-        maxFeePerGas: undefined,
-        maxPriorityFeePerGas: undefined,
-        data,
-      },
-      accountNumber,
+      value,
     }
-    return adapter.buildSendApiTransaction(buildSendApiTxInput)
   },
 
   checkTradeStatus: checkEvmSwapStatus,

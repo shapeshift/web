@@ -184,7 +184,9 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
 
           const cryptoBalancePrecision = bnOrZero(cur.cryptoAmountBaseUnit).div(
-            bnOrZero(10).pow(asset?.precision).toString(),
+            bnOrZero(10)
+              .pow(asset?.precision)
+              .toString(),
           )
           acc[assetId].fiatAmount = bnOrZero(acc[assetId].fiatAmount)
             .plus(bnOrZero(amountFiat))
@@ -402,29 +404,32 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
-    const isActiveStakingByFilter = filtered.reduce<Record<string, boolean>>((acc, cur) => {
-      const { provider } = cur
+    const isActiveStakingByFilter = filtered.reduce<Record<string, boolean>>(
+      (acc, cur) => {
+        const { provider } = cur
 
-      if (chainId && chainId !== cur.chainId) return acc
+        if (chainId && chainId !== cur.chainId) return acc
 
-      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
-        maybeStakingOpportunity: cur,
-        marketData,
-        assets,
-      })
+        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
+          maybeStakingOpportunity: cur,
+          marketData,
+          assets,
+        })
 
-      const isActiveOpportunityByFilter =
-        (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-        (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-        (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+        const isActiveOpportunityByFilter =
+          (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
+          (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
 
-      if (isActiveOpportunityByFilter) {
-        acc[provider] = true
+        if (isActiveOpportunityByFilter) {
+          acc[provider] = true
+          return acc
+        }
+
         return acc
-      }
-
-      return acc
-    }, {} as Record<DefiProvider, boolean>)
+      },
+      {} as Record<DefiProvider, boolean>,
+    )
 
     const byProvider = filtered.reduce<Record<string, AggregatedOpportunitiesByProviderReturn>>(
       (acc, cur) => {

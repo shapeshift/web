@@ -125,7 +125,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
         boxShadow: 'dark-lg',
         borderRadius: 'xl',
         mb: { base: -14, md: 0 },
-      } as const),
+      }) as const,
     [],
   )
 

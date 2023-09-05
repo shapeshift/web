@@ -389,7 +389,7 @@ export const Deposit: React.FC<DepositProps> = ({
             wallet,
           })
         })()
-        if (approvalFees)
+        if (approvalFees) {
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_APPROVE,
             payload: {
@@ -398,9 +398,11 @@ export const Deposit: React.FC<DepositProps> = ({
                 .toString(),
             },
           })
-        onNext(isApprovalRequired ? DefiStep.Approve : DefiStep.Confirm)
-        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        // TODO(gomes): don't continue to this branch and track DepositApprove in case of deposits
+
+          onNext(DefiStep.Approve)
+          return
+        }
+        onNext(DefiStep.Confirm)
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
           {
@@ -418,6 +420,8 @@ export const Deposit: React.FC<DepositProps> = ({
           title: translate('common.somethingWentWrong'),
           status: 'error',
         })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      } finally {
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       }
     },
@@ -565,19 +569,23 @@ export const Deposit: React.FC<DepositProps> = ({
       const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
 
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      // TODO(gomes): fetch and set state field for evm tokens only
-      const maybeInboundAddressData = await getInboundAddressDataForChain(
-        daemonUrl,
-        feeAsset?.assetId,
-      )
-      if (maybeInboundAddressData.isErr())
-        throw new Error(maybeInboundAddressData.unwrapErr().message)
+      if (isTokenDeposit) {
+        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+        // TODO(gomes): fetch and set state field for evm tokens only
+        const maybeInboundAddressData = await getInboundAddressDataForChain(
+          daemonUrl,
+          feeAsset.assetId,
+        )
+        if (maybeInboundAddressData.isErr())
+          throw new Error(maybeInboundAddressData.unwrapErr().message)
 
-      const inboundAddressData = maybeInboundAddressData.unwrap()
+        const inboundAddressData = maybeInboundAddressData.unwrap()
 
-      // TODO(gomes): check for router, which *shouuld* be there anyway since we will check on asset, but safety doesn't hurt
-      setSaversRouterContractAddress(inboundAddressData.router!)
+        // This should never happen as THOR *should* return us a router for EVM chains native assets' inbound addresses
+        if (!inboundAddressData.router)
+          throw new Error(`No router address found for feeAsset ${feeAsset.assetId}`)
+        setSaversRouterContractAddress(inboundAddressData.router!)
+      }
 
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit
@@ -603,7 +611,7 @@ export const Deposit: React.FC<DepositProps> = ({
     // cancel the previous debounce when inputValues changes to avoid race conditions
     // and always ensure the latest value is used
     return debounced.cancel
-  }, [accountId, asset, feeAsset, inputValues, opportunityData?.apy])
+  }, [accountId, asset, feeAsset, inputValues, isTokenDeposit, opportunityData?.apy])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
     setInputValues({ fiatAmount, cryptoAmount })

@@ -324,7 +324,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
         quote.inbound_address,
         fromAssetId(assetId).assetReference,
-        amountCryptoBaseUnit.toString(), // TODO(gomes): handle unlimited/exact
+        amountCryptoBaseUnit.toString(),
         quote.memo,
         quote.expiry,
       ])
@@ -717,7 +717,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
     } catch (error) {
       console.error(error)
-      // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

@@ -23,6 +23,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -30,9 +32,12 @@ import { isSome, isToken } from 'lib/utils'
 import { buildAndBroadcast, createBuildCustomTxInput, getErc20Allowance } from 'lib/utils/evm'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -71,11 +76,28 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assetNamespace,
     assetReference,
   })
+  const assets = useAppSelector(selectAssets)
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
+  )
+
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(accountId ?? '', opportunityId),
+    }),
+    [accountId, opportunityId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
 
   const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
 
@@ -116,7 +138,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       !wallet ||
       !accountId ||
       !dispatch ||
-      !saversRouterContractAddress
+      !saversRouterContractAddress ||
+      !opportunityData
     )
       return
 
@@ -232,6 +255,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: { estimatedGasCryptoPrecision: estimatedDepositGasCryptoPrecision },
       })
+
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
+
       onNext(DefiStep.Confirm)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
@@ -249,14 +283,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     accountNumber,
     asset,
     assetId,
+    assets,
     chainAdapterManager,
     dispatch,
     feeAsset?.assetId,
     feeAsset.precision,
     onNext,
+    opportunityData,
     poll,
     saversRouterContractAddress,
     state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     state?.isExactAllowance,
     toast,
     translate,

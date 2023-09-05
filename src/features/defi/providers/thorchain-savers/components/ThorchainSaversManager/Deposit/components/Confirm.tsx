@@ -374,19 +374,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [accountId, chainAdapter, getCustomTxInput, wallet])
 
   useEffect(() => {
+    if (!contextDispatch) return
     ;(async () => {
       const estimatedFees = await (isTokenDeposit ? getCustomTxFees() : getSafeEstimatedFees())
       if (!estimatedFees) return
 
       setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
     })()
   }, [
+    contextDispatch,
     getCustomTxFees,
     getSafeEstimatedFees,
     isTokenDeposit,
-    // Due to the way the modals work, this useEffect would fire too early in case of approvals, and never re-fire after
-    // By adding this dependency, we ensure we get a network fee here
-    state?.deposit?.estimatedGasCryptoPrecision,
+    state?.deposit.estimatedGasCryptoPrecision,
   ])
 
   const getSendInput: () => Promise<SendInput | undefined> = useCallback(async () => {

@@ -4,14 +4,12 @@ import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { TradeExecution } from 'lib/swapper/tradeExecution'
 import { TradeExecution2 } from 'lib/swapper/tradeExecution2'
-import type { EvmTransactionRequest, TradeExecutionBase, TradeQuote } from 'lib/swapper/types'
+import type { EvmTransactionRequest, TradeQuote } from 'lib/swapper/types'
 import { SwapperName, TradeExecutionEvent } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -24,17 +22,9 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../useAccountIds'
-
-const WALLET_AGNOSTIC_SWAPPERS = [
-  SwapperName.OneInch,
-  SwapperName.CowSwap,
-  SwapperName.Thorchain,
-  SwapperName.LIFI,
-  SwapperName.Zrx,
-]
 
 export const useTradeExecution = ({
   swapperName,
@@ -74,20 +64,15 @@ export const useTradeExecution = ({
     return cancelPollingRef.current
   }, [])
 
-  const executeTrade = useCallback(async () => {
+  const executeTrade = useCallback(() => {
     if (!wallet) throw Error('missing wallet')
     if (!accountMetadata) throw Error('missing accountMetadata')
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-
     return new Promise<void>(async (resolve, reject) => {
-      // TODO: remove old TradeExecution class when all swappers migrated to TradeExecution2
-      const execution: TradeExecutionBase = WALLET_AGNOSTIC_SWAPPERS.includes(swapperName)
-        ? new TradeExecution2()
-        : new TradeExecution()
+      const execution: TradeExecution2 = new TradeExecution2()
 
       execution.on(TradeExecutionEvent.Error, reject)
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
@@ -115,22 +100,6 @@ export const useTradeExecution = ({
       execution.on(TradeExecutionEvent.Fail, cause => {
         reject(new Error('Transaction failed', { cause }))
       })
-
-      // execute the trade and attach then cancel callback
-      if (execution.exec) {
-        const output = await execution.exec?.({
-          swapperName,
-          tradeQuote,
-          stepIndex: activeStepOrDefault,
-          accountMetadata,
-          wallet,
-          supportsEIP1559,
-          slippageTolerancePercentageDecimal,
-          getState: store.getState,
-        })
-
-        cancelPollingRef.current = output?.cancelPolling
-      }
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber

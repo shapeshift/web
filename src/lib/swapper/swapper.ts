@@ -12,8 +12,6 @@ import type {
   TradeQuote,
 } from './types'
 
-export { TradeExecution } from './tradeExecution'
-
 export const getTradeQuotes = async (
   getTradeQuoteInput: GetTradeQuoteInput,
   enabledSwappers: SwapperName[],

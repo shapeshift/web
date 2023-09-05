@@ -356,9 +356,8 @@ export type TradeExecutionEventMap = {
   [TradeExecutionEvent.Error]: (args: unknown) => void
 }
 
-export interface TradeExecutionBase {
+export interface TradeExecution {
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void
-  exec?: (input: TradeExecutionInput) => Promise<{ cancelPolling: () => void } | void>
 
   execEvmTransaction?: (
     input: EvmTransactionExecutionInput,

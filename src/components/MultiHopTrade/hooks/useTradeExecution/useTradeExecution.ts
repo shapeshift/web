@@ -33,6 +33,7 @@ const WALLET_AGNOSTIC_SWAPPERS = [
   SwapperName.CowSwap,
   SwapperName.Thorchain,
   SwapperName.LIFI,
+  SwapperName.Zrx,
 ]
 
 export const useTradeExecution = ({

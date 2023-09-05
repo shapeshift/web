@@ -4,7 +4,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
@@ -24,7 +24,7 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 
 export async function getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<{ tradeQuote: TradeQuote; zrxQuoteResponse: ZrxQuoteResponse }, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -48,8 +48,9 @@ export async function getZrxTradeQuote(
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
   const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
 
-  // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
-  const maybeZrxPriceResponse = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
+  // fetching a quote (not pricing) to cache and execute on confirmation
+  // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
+  const maybeZrxPriceResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
@@ -66,7 +67,7 @@ export async function getZrxTradeQuote(
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const { data } = maybeZrxPriceResponse.unwrap()
+  const { data: zrxQuoteResponse } = maybeZrxPriceResponse.unwrap()
 
   const {
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
@@ -74,7 +75,7 @@ export async function getZrxTradeQuote(
     price,
     allowanceTarget,
     gas,
-  } = data
+  } = zrxQuoteResponse
 
   const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
   const rate = useSellAmount ? price : bn(1).div(price).toString()
@@ -93,28 +94,31 @@ export async function getZrxTradeQuote(
     })
 
     return Ok({
-      id: uuid(),
-      estimatedExecutionTimeMs: undefined,
-      receiveAddress,
-      affiliateBps,
-      rate,
-      steps: [
-        {
-          allowanceContract: allowanceTarget,
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          rate,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit,
+      tradeQuote: {
+        id: uuid(),
+        estimatedExecutionTimeMs: undefined,
+        receiveAddress,
+        affiliateBps,
+        rate,
+        steps: [
+          {
+            allowanceContract: allowanceTarget,
+            buyAsset,
+            sellAsset,
+            accountNumber,
+            rate,
+            feeData: {
+              protocolFees: {},
+              networkFeeCryptoBaseUnit,
+            },
+            buyAmountBeforeFeesCryptoBaseUnit,
+            buyAmountAfterFeesCryptoBaseUnit,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            source: SwapperName.Zrx,
           },
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          source: SwapperName.Zrx,
-        },
-      ],
+        ],
+      },
+      zrxQuoteResponse,
     })
   } catch (err) {
     return Err(

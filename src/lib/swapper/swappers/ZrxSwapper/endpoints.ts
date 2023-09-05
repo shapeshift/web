@@ -1,21 +1,21 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import type {
+  EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
-import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
+import { checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchZrxQuote } from './utils/fetchZrxQuote'
+import type { ZrxQuoteResponse } from './types'
 
-const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
+const tradeQuoteMetadata: Map<string, ZrxQuoteResponse> = new Map()
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
@@ -23,57 +23,34 @@ export const zrxApi: SwapperApi = {
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInput)
 
-    return tradeQuoteResult.map(tradeQuote => {
+    return tradeQuoteResult.map(({ tradeQuote, zrxQuoteResponse }) => {
       const id = uuid()
-      const firstHop = tradeQuote.steps[0]
-      tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, zrxQuoteResponse)
 
       return [tradeQuote]
     })
   },
 
-  getUnsignedTx: async ({
+  getUnsignedEvmTransaction: ({
+    chainId,
     from,
     tradeQuote,
-    stepIndex,
-    slippageTolerancePercentageDecimal,
-  }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
-      tradeQuote.steps[stepIndex]
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    const zrxQuoteResponse = tradeQuoteMetadata.get(tradeQuote.id)
 
-    const { receiveAddress, affiliateBps } = tradeQuote
+    if (!zrxQuoteResponse) throw Error(`missing zrxQuoteResponse for quoteId ${tradeQuote.id}`)
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+    const { value, to, gasPrice, gas, data } = zrxQuoteResponse
 
-    // TODO: we should cache the quote in getTradeQuote and use that so we aren't altering amounts when executing the trade
-    const maybeZrxQuote = await fetchZrxQuote({
-      buyAsset,
-      sellAsset,
-      receiveAddress,
-      slippageTolerancePercentageDecimal,
-      affiliateBps,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    })
-
-    if (maybeZrxQuote.isErr()) throw maybeZrxQuote.unwrapErr()
-    const { data: zrxQuote } = maybeZrxQuote.unwrap()
-
-    const { value, to, gasPrice, gas, data } = zrxQuote
-
-    const buildSendApiTxInput = {
-      value: value.toString(),
+    return Promise.resolve({
       to,
-      from: from!,
-      chainSpecific: {
-        gasPrice: gasPrice.toString(),
-        gasLimit: gas.toString(),
-        maxFeePerGas: undefined,
-        maxPriorityFeePerGas: undefined,
-        data: data.toString(),
-      },
-      accountNumber,
-    }
-    return adapter.buildSendApiTransaction(buildSendApiTxInput)
+      from,
+      value,
+      data,
+      chainId: Number(fromChainId(chainId).chainReference),
+      gasLimit: gas,
+      gasPrice,
+    })
   },
 
   checkTradeStatus: checkEvmSwapStatus,

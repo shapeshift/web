@@ -5,18 +5,18 @@ import { poll } from 'lib/poll/poll'
 
 import { swappers } from './constants'
 import type {
-  CommonGetUnsignedTxArgs,
+  CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
-  CosmosSdkTradeExecutionInput,
-  CowTradeExecutionInput,
-  EvmTradeExecutionInput,
+  CosmosSdkTransactionExecutionInput,
+  EvmMessageExecutionInput,
+  EvmTransactionExecutionInput,
   SellTxHashArgs,
   StatusArgs,
   Swapper,
   SwapperApi,
   TradeExecutionBase,
   TradeExecutionEventMap,
-  UtxoTradeExecutionInput,
+  UtxoTransactionExecutionInput,
 } from './types'
 import { TradeExecutionEvent } from './types'
 
@@ -36,7 +36,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     }: CommonTradeExecutionInput,
     buildSignBroadcast: (
       swapper: Swapper & SwapperApi,
-      args: CommonGetUnsignedTxArgs,
+      args: CommonGetUnsignedTransactionArgs,
     ) => Promise<string>,
   ) {
     try {
@@ -89,7 +89,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     }
   }
 
-  async execEvm({
+  async execEvmTransaction({
     swapperName,
     tradeQuote,
     stepIndex,
@@ -97,7 +97,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     from,
     nonce,
     signAndBroadcastTransaction,
-  }: EvmTradeExecutionInput) {
+  }: EvmTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -105,16 +105,16 @@ export class TradeExecution2 implements TradeExecutionBase {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTxArgs,
+      }: CommonGetUnsignedTransactionArgs,
     ) => {
-      if (!swapper.getUnsignedTxEvm) {
-        throw Error('missing implementation for getUnsignedTxEvm')
+      if (!swapper.getUnsignedEvmTransaction) {
+        throw Error('missing implementation for getUnsignedEvmTransaction')
       }
-      if (!swapper.executeTradeEvm) {
-        throw Error('missing implementation for executeTradeEvm')
+      if (!swapper.executeEvmTransaction) {
+        throw Error('missing implementation for executeEvmTransaction')
       }
 
-      const unsignedTxResult = await swapper.getUnsignedTxEvm({
+      const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
         tradeQuote,
         chainId,
         stepIndex,
@@ -123,7 +123,7 @@ export class TradeExecution2 implements TradeExecutionBase {
         nonce,
       })
 
-      return await swapper.executeTradeEvm(unsignedTxResult, { signAndBroadcastTransaction })
+      return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
     }
 
     return await this._execWalletAgnostic(
@@ -137,14 +137,14 @@ export class TradeExecution2 implements TradeExecutionBase {
     )
   }
 
-  async execCow({
+  async execEvmMessage({
     swapperName,
     tradeQuote,
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
     signMessage,
-  }: CowTradeExecutionInput) {
+  }: EvmMessageExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -152,16 +152,16 @@ export class TradeExecution2 implements TradeExecutionBase {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTxArgs,
+      }: CommonGetUnsignedTransactionArgs,
     ) => {
-      if (!swapper.getUnsignedTxCow) {
-        throw Error('missing implementation for getUnsignedTxCow')
+      if (!swapper.getUnsignedEvmMessage) {
+        throw Error('missing implementation for getUnsignedEvmMessage')
       }
-      if (!swapper.executeTradeCow) {
-        throw Error('missing implementation for executeTradeCow')
+      if (!swapper.executeEvmMessage) {
+        throw Error('missing implementation for executeEvmMessage')
       }
 
-      const unsignedTxResult = await swapper.getUnsignedTxCow({
+      const unsignedTxResult = await swapper.getUnsignedEvmMessage({
         tradeQuote,
         chainId,
         stepIndex,
@@ -169,7 +169,7 @@ export class TradeExecution2 implements TradeExecutionBase {
         from,
       })
 
-      return await swapper.executeTradeCow(unsignedTxResult, { signMessage })
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
     }
 
     return await this._execWalletAgnostic(
@@ -183,7 +183,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     )
   }
 
-  async execUtxo({
+  async execUtxoTransaction({
     swapperName,
     tradeQuote,
     stepIndex,
@@ -191,7 +191,7 @@ export class TradeExecution2 implements TradeExecutionBase {
     xpub,
     accountType,
     signAndBroadcastTransaction,
-  }: UtxoTradeExecutionInput) {
+  }: UtxoTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -199,16 +199,16 @@ export class TradeExecution2 implements TradeExecutionBase {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTxArgs,
+      }: CommonGetUnsignedTransactionArgs,
     ) => {
-      if (!swapper.getUnsignedTxUtxo) {
-        throw Error('missing implementation for getUnsignedTxUtxo')
+      if (!swapper.getUnsignedUtxoTransaction) {
+        throw Error('missing implementation for getUnsignedUtxoTransaction')
       }
-      if (!swapper.executeTradeUtxo) {
-        throw Error('missing implementation for executeTradeUtxo')
+      if (!swapper.executeUtxoTransaction) {
+        throw Error('missing implementation for executeUtxoTransaction')
       }
 
-      const unsignedTxResult = await swapper.getUnsignedTxUtxo({
+      const unsignedTxResult = await swapper.getUnsignedUtxoTransaction({
         tradeQuote,
         chainId,
         stepIndex,
@@ -217,7 +217,7 @@ export class TradeExecution2 implements TradeExecutionBase {
         accountType,
       })
 
-      return await swapper.executeTradeUtxo(unsignedTxResult, { signAndBroadcastTransaction })
+      return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
     }
 
     return await this._execWalletAgnostic(
@@ -231,14 +231,14 @@ export class TradeExecution2 implements TradeExecutionBase {
     )
   }
 
-  async execCosmosSdk({
+  async execCosmosSdkTransaction({
     swapperName,
     tradeQuote,
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
     signAndBroadcastTransaction,
-  }: CosmosSdkTradeExecutionInput) {
+  }: CosmosSdkTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -246,16 +246,16 @@ export class TradeExecution2 implements TradeExecutionBase {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTxArgs,
+      }: CommonGetUnsignedTransactionArgs,
     ) => {
-      if (!swapper.getUnsignedTxCosmosSdk) {
-        throw Error('missing implementation for getUnsignedTxCosmosSdk')
+      if (!swapper.getUnsignedCosmosSdkTransaction) {
+        throw Error('missing implementation for getUnsignedCosmosSdkTransaction')
       }
-      if (!swapper.executeTradeCosmosSdk) {
-        throw Error('missing implementation for executeTradeCosmosSdk')
+      if (!swapper.executeCosmosSdkTransaction) {
+        throw Error('missing implementation for executeCosmosSdkTransaction')
       }
 
-      const unsignedTxResult = await swapper.getUnsignedTxCosmosSdk({
+      const unsignedTxResult = await swapper.getUnsignedCosmosSdkTransaction({
         tradeQuote,
         chainId,
         stepIndex,
@@ -263,7 +263,7 @@ export class TradeExecution2 implements TradeExecutionBase {
         from,
       })
 
-      return await swapper.executeTradeCosmosSdk(unsignedTxResult, {
+      return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

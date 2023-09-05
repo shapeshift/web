@@ -18,7 +18,7 @@ import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
-  EvmTradeExecutionProps,
+  EvmTransactionExecutionProps,
   EvmTransactionRequest,
   ExecuteTradeArgs,
 } from 'lib/swapper/types'
@@ -232,7 +232,7 @@ export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs)
 
 export const executeEvmTrade2 = (
   txToSign: EvmTransactionRequest,
-  callbacks: EvmTradeExecutionProps,
+  callbacks: EvmTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
 }

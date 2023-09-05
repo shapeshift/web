@@ -12,9 +12,9 @@ import type {
   CosmosSdkFeeData,
   EvmTransactionRequest,
   GetTradeQuoteInput,
-  GetUnsignedTxArgsCosmosSdk,
-  GetUnsignedTxArgsEvm,
-  GetUnsignedTxArgsUtxo,
+  GetUnsignedCosmosSdkTransactionArgs,
+  GetUnsignedEvmTransactionArgs,
+  GetUnsignedUtxoTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
@@ -56,12 +56,12 @@ export const thorchainApi: SwapperApi = {
     })
   },
 
-  getUnsignedTxEvm: async ({
+  getUnsignedEvmTransaction: async ({
     chainId,
     from,
     nonce,
     tradeQuote,
-  }: GetUnsignedTxArgsEvm): Promise<EvmTransactionRequest> => {
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
@@ -106,12 +106,12 @@ export const thorchainApi: SwapperApi = {
     }
   },
 
-  getUnsignedTxUtxo: async ({
+  getUnsignedUtxoTransaction: async ({
     tradeQuote,
     chainId,
     xpub,
     accountType,
-  }: GetUnsignedTxArgsUtxo): Promise<BTCSignTx> => {
+  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
     const utxoChainAdapter = assertGetUtxoChainAdapter(chainId)
 
     // TODO: pull these from db using id so we don't have type zoo and casting hell
@@ -139,11 +139,11 @@ export const thorchainApi: SwapperApi = {
     })
   },
 
-  getUnsignedTxCosmosSdk: async ({
+  getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
     chainId,
     from,
-  }: GetUnsignedTxArgsCosmosSdk): Promise<StdSignDoc> => {
+  }: GetUnsignedCosmosSdkTransactionArgs): Promise<StdSignDoc> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]

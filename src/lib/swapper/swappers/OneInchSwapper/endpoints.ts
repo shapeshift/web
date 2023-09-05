@@ -6,7 +6,7 @@ import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgsEvm,
+  GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
@@ -32,14 +32,14 @@ export const oneInchApi: SwapperApi = {
     })
   },
 
-  getUnsignedTxEvm: async ({
+  getUnsignedEvmTransaction: async ({
     chainId,
     from,
     nonce,
     slippageTolerancePercentageDecimal,
     stepIndex,
     tradeQuote,
-  }: GetUnsignedTxArgsEvm): Promise<EvmTransactionRequest> => {
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
 

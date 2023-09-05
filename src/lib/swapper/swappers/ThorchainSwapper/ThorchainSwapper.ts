@@ -12,27 +12,27 @@ import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type {
   BuyAssetBySellIdInput,
-  CosmosSdkTradeExecutionProps,
+  CosmosSdkTransactionExecutionProps,
   Swapper,
-  UtxoTradeExecutionProps,
+  UtxoTransactionExecutionProps,
 } from 'lib/swapper/types'
 import { executeEvmTrade2 } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 export const thorchainSwapper: Swapper = {
-  executeTradeEvm: executeEvmTrade2,
+  executeEvmTransaction: executeEvmTrade2,
 
-  executeTradeCosmosSdk: async (
+  executeCosmosSdkTransaction: async (
     txToSign: StdSignDoc,
-    { signAndBroadcastTransaction }: CosmosSdkTradeExecutionProps,
+    { signAndBroadcastTransaction }: CosmosSdkTransactionExecutionProps,
   ): Promise<string> => {
     return await signAndBroadcastTransaction(txToSign)
   },
 
-  executeTradeUtxo: async (
+  executeUtxoTransaction: async (
     txToSign: BTCSignTx,
-    { signAndBroadcastTransaction }: UtxoTradeExecutionProps,
+    { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
     return await signAndBroadcastTransaction(txToSign)
   },

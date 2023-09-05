@@ -135,10 +135,10 @@ export const useTradeExecution = ({
       const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
 
       if (swapperName === SwapperName.CowSwap) {
-        if (!execution.execCow) throw Error('Missing swapper implementation')
+        if (!execution.execEvmMessage) throw Error('Missing swapper implementation')
         const adapter = assertGetEvmChainAdapter(chainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
-        const output = await execution.execCow({
+        const output = await execution.execEvmMessage({
           swapperName,
           tradeQuote,
           stepIndex: activeStepOrDefault,
@@ -167,11 +167,11 @@ export const useTradeExecution = ({
 
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          if (!execution.execEvm) throw Error('Missing swapper implementation')
+          if (!execution.execEvmTransaction) throw Error('Missing swapper implementation')
           const adapter = assertGetEvmChainAdapter(chainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const account = await adapter.getAccount(from)
-          const output = await execution.execEvm({
+          const output = await execution.execEvmTransaction({
             swapperName,
             tradeQuote,
             stepIndex: activeStepOrDefault,
@@ -191,11 +191,11 @@ export const useTradeExecution = ({
           return
         }
         case CHAIN_NAMESPACE.Utxo: {
-          if (!execution.execUtxo) throw Error('Missing swapper implementation')
+          if (!execution.execUtxoTransaction) throw Error('Missing swapper implementation')
           if (accountType === undefined) throw Error('Missing UTXO account type')
           const adapter = assertGetUtxoChainAdapter(chainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const output = await execution.execUtxo({
+          const output = await execution.execUtxoTransaction({
             swapperName,
             tradeQuote,
             stepIndex: activeStepOrDefault,
@@ -214,10 +214,10 @@ export const useTradeExecution = ({
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
-          if (!execution.execCosmosSdk) throw Error('Missing swapper implementation')
+          if (!execution.execCosmosSdkTransaction) throw Error('Missing swapper implementation')
           const adapter = assertGetCosmosSdkChainAdapter(chainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
-          const output = await execution.execCosmosSdk({
+          const output = await execution.execCosmosSdkTransaction({
             swapperName,
             tradeQuote,
             stepIndex: activeStepOrDefault,

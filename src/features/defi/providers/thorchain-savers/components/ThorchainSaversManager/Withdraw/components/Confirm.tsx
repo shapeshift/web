@@ -61,7 +61,6 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -158,8 +157,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
     [accountId, asset?.assetId],
   )
-  const assetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, assetBalanceFilter),
+  const assetBalanceBaseUnit = useAppSelector(s =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
   )
 
   const feeAssetBalanceFilter = useMemo(
@@ -775,13 +774,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
         .times(-1)
     }
-    return bnOrZero(assetBalance)
+    return bnOrZero(assetBalanceBaseUnit)
       .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
       .minus(bnOrZero(dustAmountCryptoBaseUnit))
       .times(-1)
   }, [
     isTokenWithdraw,
-    assetBalance,
+    assetBalanceBaseUnit,
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
     feeAssetBalanceCryptoBaseUnit,

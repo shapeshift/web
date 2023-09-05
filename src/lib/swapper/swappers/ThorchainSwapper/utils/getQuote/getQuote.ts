@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
-import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
   ThornodeQuoteResponse,
@@ -21,7 +21,6 @@ import type { SwapErrorRight } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 
-import { THORCHAIN_OUTBOUND_FEE_RUNE } from '../../constants'
 import { thorService } from '../thorService'
 
 type GetQuoteArgs = {
@@ -31,7 +30,7 @@ type GetQuoteArgs = {
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
   streaming: boolean
-  affiliateBps: string | undefined
+  affiliateBps: string
 }
 
 const _getQuote = async ({
@@ -116,10 +115,10 @@ export const getQuote = async (
 
   // refetch quote without affiliate fee if it's less than the thorchain outbound fee
   if (
-    input.affiliateBps !== undefined &&
-    initialQuote.fees.affiliate < THORCHAIN_OUTBOUND_FEE_RUNE
+    bnOrZero(input.affiliateBps).gt(0) &&
+    bnOrZero(initialQuote.fees.affiliate).lte(initialQuote.fees.outbound)
   ) {
-    return _getQuote({ ...input, affiliateBps: undefined })
+    return _getQuote({ ...input, affiliateBps: '0' })
   }
 
   return Ok(initialQuote)

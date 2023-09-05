@@ -124,7 +124,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
     try {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      // TODO(gomes): fetch and set state field for evm tokens only
       const maybeInboundAddressData = await getInboundAddressDataForChain(
         daemonUrl,
         feeAsset?.assetId,
@@ -307,7 +306,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
-      spenderContractAddress={saversRouterContractAddress} // TODO
+      spenderContractAddress={saversRouterContractAddress}
       onToggle={() =>
         dispatch({
           type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,

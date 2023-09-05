@@ -47,6 +47,7 @@ import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -357,12 +358,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         chainId: asset.chainId,
       })
 
+      // i.e 10 Gwei for EVM chains
+      // This function call is super dumb, and the param we pass as `amount` isn't actually the amount we intend to withdraw
+      // In addition to being used as the `memo` positional param, it is also the value of ETH to be sent with the Tx to actually trigger a withdraw
+      const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+
       const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
         quote.inbound_address,
         // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
         // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
         AddressZero,
-        amountCryptoBaseUnit.toFixed(0),
+        amount,
         quote.memo,
         quote.expiry,
       ])
@@ -371,7 +377,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         accountNumber,
         adapter,
         data,
-        value: '0',
+        value: amount,
         to: router,
         wallet,
       })

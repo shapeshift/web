@@ -105,7 +105,11 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
   const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
   if (applyThorSwapAffiliateFees) {
-    assert(affiliateBpsNum.eq(THORCHAIN_AFFILIATE_FEE_BPS), 'incorrect affiliateBps')
+    // the affiliate fee can be 0 when the fee is below the outbound fee
+    assert(
+      affiliateBpsNum.eq(0) || affiliateBpsNum.eq(THORCHAIN_AFFILIATE_FEE_BPS),
+      'incorrect affiliateBps',
+    )
   }
 
   const { chainNamespace } = fromChainId(chainId)

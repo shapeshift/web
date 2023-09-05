@@ -1,15 +1,15 @@
 import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import { AssetService } from 'lib/asset-service'
 import type {
+  EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
@@ -19,8 +19,8 @@ import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getLifi } from './utils/getLifi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
-import { getUnsignedTx } from './utils/getUnsignedTx/getUnsignedTx'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()
 
@@ -68,21 +68,58 @@ export const lifiApi: SwapperApi = {
     )
   },
 
-  getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
+  getUnsignedEvmTransaction: async ({
+    chainId,
+    from,
+    stepIndex,
+    tradeQuote,
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
+
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
-    const { accountNumber, sellAsset } = tradeQuote.steps[stepIndex]
+    const lifiStep = lifiRoute.steps[stepIndex]
 
-    const unsignedTx = await getUnsignedTx({
-      lifiStep: lifiRoute.steps[stepIndex],
-      accountNumber,
-      sellAsset,
-      // discriminated union between from or xpub in GetUnsignedTxArgs, but since Li.Fi only deals with EVMs, from is always going to be defined
-      from: from!,
-    })
+    const lifi = getLifi()
+    const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
 
-    return unsignedTx
+    if (!transactionRequest) {
+      throw Error('undefined transactionRequest')
+    }
+
+    const { gasLimit, gasPrice, to, value, data, maxFeePerGas, maxPriorityFeePerGas } =
+      transactionRequest
+
+    // checking values individually to keep type checker happy
+    if (
+      to === undefined ||
+      value === undefined ||
+      data === undefined ||
+      gasLimit === undefined ||
+      gasPrice === undefined
+    ) {
+      const undefinedRequiredValues = [to, value, data, gasLimit, gasPrice].filter(
+        value => value === undefined,
+      )
+
+      throw Error('undefined required values in transactionRequest', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
+
+    return {
+      to,
+      from,
+      value: value.toString(),
+      data: data.toString(),
+      chainId: Number(fromChainId(chainId).chainReference),
+      gasLimit: gasLimit.toString(),
+      gasPrice: gasPrice.toString(),
+      maxFeePerGas: maxFeePerGas?.toString(),
+      maxPriorityFeePerGas: maxPriorityFeePerGas?.toString(),
+    }
   },
 
   checkTradeStatus: async ({

@@ -355,20 +355,3 @@ export type TradeExecutionEventMap = {
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
   [TradeExecutionEvent.Error]: (args: unknown) => void
 }
-
-export interface TradeExecution {
-  on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void
-
-  execEvmTransaction?: (
-    input: EvmTransactionExecutionInput,
-  ) => Promise<{ cancelPolling: () => void } | void>
-  execEvmMessage?: (
-    input: EvmMessageExecutionInput,
-  ) => Promise<{ cancelPolling: () => void } | void>
-  execUtxoTransaction?: (
-    input: UtxoTransactionExecutionInput,
-  ) => Promise<{ cancelPolling: () => void } | void>
-  execCosmosSdkTransaction?: (
-    input: CosmosSdkTransactionExecutionInput,
-  ) => Promise<{ cancelPolling: () => void } | void>
-}

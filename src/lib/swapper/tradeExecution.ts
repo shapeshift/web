@@ -14,13 +14,12 @@ import type {
   StatusArgs,
   Swapper,
   SwapperApi,
-  TradeExecution,
   TradeExecutionEventMap,
   UtxoTransactionExecutionInput,
 } from './types'
 import { TradeExecutionEvent } from './types'
 
-export class TradeExecution2 implements TradeExecution {
+export class TradeExecution {
   private emitter = new EventEmitter()
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {

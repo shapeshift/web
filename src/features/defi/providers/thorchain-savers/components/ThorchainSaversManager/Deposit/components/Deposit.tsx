@@ -571,7 +571,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
       if (isTokenDeposit) {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        // TODO(gomes): fetch and set state field for evm tokens only
         const maybeInboundAddressData = await getInboundAddressDataForChain(
           daemonUrl,
           feeAsset.assetId,

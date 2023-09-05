@@ -70,11 +70,24 @@ export const thorchainApi: SwapperApi = {
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
       : '0'
 
-    const api = new evm.ethereum.V1Api(
-      new evm.ethereum.Configuration({
-        basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-      }),
-    )
+    const api = (() => {
+      switch (chainId) {
+        case KnownChainIds.EthereumMainnet:
+          return new evm.ethereum.V1Api(
+            new evm.ethereum.Configuration({
+              basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+            }),
+          )
+        case KnownChainIds.AvalancheMainnet:
+          return new evm.avalanche.V1Api(
+            new evm.avalanche.Configuration({
+              basePath: getConfig().REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
+            }),
+          )
+        default:
+          throw Error(`Unsupported chainId '${chainId}'`)
+      }
+    })()
 
     const [{ gasLimit }, { average: gasFees }] = await Promise.all([
       api.estimateGas({ data, from, to, value }),

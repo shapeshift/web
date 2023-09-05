@@ -35,7 +35,6 @@ export const oneInchApi: SwapperApi = {
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
-    nonce,
     slippageTolerancePercentageDecimal,
     stepIndex,
     tradeQuote,
@@ -62,7 +61,6 @@ export const oneInchApi: SwapperApi = {
       from,
       gasLimit: gas,
       gasPrice,
-      nonce,
       to,
       value,
     }

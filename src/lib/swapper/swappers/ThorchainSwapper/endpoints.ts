@@ -1,6 +1,6 @@
 import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -59,7 +59,6 @@ export const thorchainApi: SwapperApi = {
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
-    nonce,
     tradeQuote,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
@@ -99,7 +98,6 @@ export const thorchainApi: SwapperApi = {
       data,
       from,
       gasLimit,
-      nonce,
       to,
       value,
       ...gasFees,
@@ -148,69 +146,75 @@ export const thorchainApi: SwapperApi = {
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
 
-    const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
-
     // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit
     const networkFee = feeData.networkFeeCryptoBaseUnit ?? '0'
 
     const { fee, msg, account } = await (async () => {
-      if (fromThorAsset) {
-        const fee: StdFee = {
-          amount: [{ amount: deductOutboundRuneFee(networkFee), denom: 'rune' }],
-          gas,
+      switch (sellAsset.assetId) {
+        case thorchainAssetId: {
+          const fee: StdFee = {
+            amount: [{ amount: deductOutboundRuneFee(networkFee), denom: 'rune' }],
+            gas,
+          }
+
+          // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
+          const msg: AminoMsg = {
+            type: 'thorchain/MsgDeposit',
+            value: {
+              coins: [
+                { asset: 'THOR.RUNE', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit },
+              ],
+              memo,
+              signer: from,
+            },
+          }
+
+          const api = new cosmossdk.thorchain.V1Api(
+            new cosmossdk.thorchain.Configuration({
+              basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
+            }),
+          )
+
+          const account = await api.getAccount({ pubkey: from })
+
+          return { fee, msg, account }
+        }
+        case cosmosAssetId: {
+          const fee: StdFee = {
+            amount: [{ amount: networkFee, denom: 'uatom' }],
+            gas,
+          }
+
+          const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+          const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
+          if (maybeGaiaAddressData.isErr()) throw maybeGaiaAddressData.unwrapErr()
+          const gaiaAddressData = maybeGaiaAddressData.unwrap()
+          const vault = gaiaAddressData.address
+
+          const msg: AminoMsg = {
+            type: 'cosmos-sdk/MsgSend',
+            value: {
+              amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'uatom' }],
+              from_address: from,
+              to_address: vault,
+            },
+          }
+
+          const api = new cosmossdk.cosmos.V1Api(
+            new cosmossdk.cosmos.Configuration({
+              basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+            }),
+          )
+
+          const account = await api.getAccount({ pubkey: from })
+
+          return { fee, msg, account }
         }
 
-        // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
-        const msg: AminoMsg = {
-          type: 'thorchain/MsgDeposit',
-          value: {
-            coins: [{ asset: 'THOR.RUNE', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit }],
-            memo,
-            signer: from,
-          },
-        }
-
-        const api = new cosmossdk.thorchain.V1Api(
-          new cosmossdk.thorchain.Configuration({
-            basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
-          }),
-        )
-
-        const account = await api.getAccount({ pubkey: from })
-
-        return { fee, msg, account }
+        default:
+          throw Error(`Unsupported sellAsset.assetId '${sellAsset.assetId}'`)
       }
-
-      const fee: StdFee = {
-        amount: [{ amount: networkFee, denom: 'uatom' }],
-        gas,
-      }
-
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
-      if (maybeGaiaAddressData.isErr()) throw maybeGaiaAddressData.unwrapErr()
-      const gaiaAddressData = maybeGaiaAddressData.unwrap()
-      const vault = gaiaAddressData.address
-
-      const msg: AminoMsg = {
-        type: 'cosmos-sdk/MsgSend',
-        value: {
-          amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'uatom' }],
-          from_address: from,
-          to_address: vault,
-        },
-      }
-
-      const api = new cosmossdk.cosmos.V1Api(
-        new cosmossdk.cosmos.Configuration({
-          basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
-        }),
-      )
-
-      const account = await api.getAccount({ pubkey: from })
-
-      return { fee, msg, account }
     })()
 
     return {

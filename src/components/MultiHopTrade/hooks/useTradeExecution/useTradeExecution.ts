@@ -7,7 +7,6 @@ import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { numberToHex } from 'web3-utils'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
@@ -170,14 +169,12 @@ export const useTradeExecution = ({
           if (!execution.execEvmTransaction) throw Error('Missing swapper implementation')
           const adapter = assertGetEvmChainAdapter(chainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
-          const account = await adapter.getAccount(from)
           const output = await execution.execEvmTransaction({
             swapperName,
             tradeQuote,
             stepIndex: activeStepOrDefault,
             slippageTolerancePercentageDecimal,
             from,
-            nonce: numberToHex(account.chainSpecific.nonce),
             signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
               const { txToSign } = await adapter.buildCustomTx({
                 ...transactionRequest,

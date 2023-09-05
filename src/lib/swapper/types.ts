@@ -191,7 +191,7 @@ export type CosmosSdkTransactionExecutionProps = {
   signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
-type EvmAccountMetadata = { from: string; nonce?: string }
+type EvmAccountMetadata = { from: string }
 type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -237,7 +237,6 @@ export type CheckTradeStatusInput = {
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
-  nonce?: string
   gasLimit: string
   to: string
   from: string

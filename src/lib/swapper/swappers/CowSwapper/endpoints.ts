@@ -9,7 +9,7 @@ import type {
   EvmMessageToSign,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgsCow,
+  GetUnsignedEvmMessageArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
@@ -52,7 +52,7 @@ export const cowApi: SwapperApi = {
     tradeQuote,
     stepIndex,
     chainId,
-  }: GetUnsignedTxArgsCow): Promise<EvmMessageToSign> => {
+  }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote

@@ -95,7 +95,6 @@ export class TradeExecution2 implements TradeExecutionBase {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
-    nonce,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
     const buildSignBroadcast = async (
@@ -120,7 +119,6 @@ export class TradeExecution2 implements TradeExecutionBase {
         stepIndex,
         slippageTolerancePercentageDecimal,
         from,
-        nonce,
       })
 
       return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })

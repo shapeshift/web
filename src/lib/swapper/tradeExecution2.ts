@@ -1,19 +1,24 @@
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import EventEmitter from 'events'
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
 import { poll } from 'lib/poll/poll'
-import { assertUnreachable } from 'lib/utils'
 
 import { swappers } from './constants'
 import type {
+  CommonGetUnsignedTransactionArgs,
+  CommonTradeExecutionInput,
+  CosmosSdkTransactionExecutionInput,
+  EvmMessageExecutionInput,
+  EvmTransactionExecutionInput,
   SellTxHashArgs,
   StatusArgs,
+  Swapper,
+  SwapperApi,
   TradeExecutionBase,
   TradeExecutionEventMap,
-  TradeExecutionInput2,
+  UtxoTransactionExecutionInput,
 } from './types'
-import { SwapperName, TradeExecutionEvent } from './types'
+import { TradeExecutionEvent } from './types'
 
 export class TradeExecution2 implements TradeExecutionBase {
   private emitter = new EventEmitter()
@@ -22,16 +27,18 @@ export class TradeExecution2 implements TradeExecutionBase {
     this.emitter.on(eventName, callback)
   }
 
-  async execWalletAgnostic({
-    swapperName,
-    tradeQuote,
-    stepIndex,
-    slippageTolerancePercentageDecimal,
-    evm,
-    cow,
-    utxo,
-    cosmosSdk,
-  }: TradeExecutionInput2) {
+  private async _execWalletAgnostic(
+    {
+      swapperName,
+      tradeQuote,
+      stepIndex,
+      slippageTolerancePercentageDecimal,
+    }: CommonTradeExecutionInput,
+    buildSignBroadcast: (
+      swapper: Swapper & SwapperApi,
+      args: CommonGetUnsignedTransactionArgs,
+    ) => Promise<string>,
+  ) {
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
 
@@ -41,90 +48,12 @@ export class TradeExecution2 implements TradeExecutionBase {
 
       const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 
-      const { chainNamespace } = fromChainId(chainId)
-
-      const sellTxHash = await (async () => {
-        if (swapperName === SwapperName.CowSwap) {
-          if (!swapper.getUnsignedTxCow) {
-            throw Error('missing implementation for getUnsignedTxCow')
-          }
-          if (!swapper.executeTradeCow) {
-            throw Error('missing implementation for executeTradeCow')
-          }
-
-          const unsignedTxResult = await swapper.getUnsignedTxCow({
-            tradeQuote,
-            chainId,
-            stepIndex,
-            slippageTolerancePercentageDecimal,
-            ...cow,
-          })
-
-          return await swapper.executeTradeCow(unsignedTxResult, cow)
-        }
-
-        switch (chainNamespace) {
-          case CHAIN_NAMESPACE.Utxo: {
-            if (!swapper.getUnsignedTxUtxo) {
-              throw Error('missing implementation for getUnsignedTxUtxo')
-            }
-            if (!swapper.executeTradeUtxo) {
-              throw Error('missing implementation for executeTradeUtxo')
-            }
-
-            const unsignedTxResult = await swapper.getUnsignedTxUtxo({
-              tradeQuote,
-              chainId,
-              stepIndex,
-              slippageTolerancePercentageDecimal,
-              ...utxo,
-            })
-
-            return await swapper.executeTradeUtxo(unsignedTxResult, utxo)
-          }
-
-          case CHAIN_NAMESPACE.Evm: {
-            if (!swapper.getUnsignedTxEvm) {
-              throw Error('missing implementation for getUnsignedTxEvm')
-            }
-            if (!swapper.executeTradeEvm) {
-              throw Error('missing implementation for executeTradeEvm')
-            }
-
-            const unsignedTxResult = await swapper.getUnsignedTxEvm({
-              tradeQuote,
-              chainId,
-              stepIndex,
-              slippageTolerancePercentageDecimal,
-              ...evm,
-            })
-
-            return await swapper.executeTradeEvm(unsignedTxResult, evm)
-          }
-
-          case CHAIN_NAMESPACE.CosmosSdk: {
-            if (!swapper.getUnsignedTxCosmosSdk) {
-              throw Error('missing implementation for getUnsignedTxCosmosSdk')
-            }
-            if (!swapper.executeTradeCosmosSdk) {
-              throw Error('missing implementation for executeTradeCosmosSdk')
-            }
-
-            const unsignedTxResult = await swapper.getUnsignedTxCosmosSdk({
-              tradeQuote,
-              chainId,
-              stepIndex,
-              slippageTolerancePercentageDecimal,
-              ...cosmosSdk,
-            })
-
-            return await swapper.executeTradeCosmosSdk(unsignedTxResult, cosmosSdk)
-          }
-
-          default:
-            assertUnreachable(chainNamespace)
-        }
-      })()
+      const sellTxHash = await buildSignBroadcast(swapper, {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      })
 
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
       this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs)
@@ -155,7 +84,196 @@ export class TradeExecution2 implements TradeExecutionBase {
 
       return { cancelPolling }
     } catch (e) {
+      console.log(e)
       this.emitter.emit(TradeExecutionEvent.Error, e)
     }
+  }
+
+  async execEvmTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: EvmTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedEvmTransaction) {
+        throw Error('missing implementation for getUnsignedEvmTransaction')
+      }
+      if (!swapper.executeEvmTransaction) {
+        throw Error('missing implementation for executeEvmTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execEvmMessage({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signMessage,
+  }: EvmMessageExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedEvmMessage) {
+        throw Error('missing implementation for getUnsignedEvmMessage')
+      }
+      if (!swapper.executeEvmMessage) {
+        throw Error('missing implementation for executeEvmMessage')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedEvmMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execUtxoTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    xpub,
+    accountType,
+    signAndBroadcastTransaction,
+  }: UtxoTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedUtxoTransaction) {
+        throw Error('missing implementation for getUnsignedUtxoTransaction')
+      }
+      if (!swapper.executeUtxoTransaction) {
+        throw Error('missing implementation for executeUtxoTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedUtxoTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        xpub,
+        accountType,
+      })
+
+      return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execCosmosSdkTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: CosmosSdkTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedCosmosSdkTransaction) {
+        throw Error('missing implementation for getUnsignedCosmosSdkTransaction')
+      }
+      if (!swapper.executeCosmosSdkTransaction) {
+        throw Error('missing implementation for executeCosmosSdkTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedCosmosSdkTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
   }
 }

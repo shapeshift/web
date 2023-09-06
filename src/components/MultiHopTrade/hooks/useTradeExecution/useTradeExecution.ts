@@ -47,7 +47,7 @@ export const useTradeExecution = ({
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
 
-  const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
+  const { sellAssetAccountId } = useAccountIds()
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
@@ -74,7 +74,6 @@ export const useTradeExecution = ({
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
-    if (!buyAssetAccountId) throw Error('missing buyAssetAccountId')
 
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
@@ -118,8 +117,6 @@ export const useTradeExecution = ({
           tradeQuote,
           stepIndex: activeStepOrDefault,
           accountMetadata,
-          quoteSellAssetAccountId: sellAssetAccountId,
-          quoteBuyAssetAccountId: buyAssetAccountId,
           wallet,
           supportsEIP1559,
           slippageTolerancePercentageDecimal,
@@ -256,7 +253,6 @@ export const useTradeExecution = ({
     tradeQuote,
     swapperName,
     sellAssetAccountId,
-    buyAssetAccountId,
     activeStepOrDefault,
     slippageTolerancePercentageDecimal,
     dispatch,

@@ -8,7 +8,7 @@ export const zrxSupportedChainIds = [
   KnownChainIds.PolygonMainnet,
 ] as const
 
-export type ZrxSupportedChainId = typeof zrxSupportedChainIds[number]
+export type ZrxSupportedChainId = (typeof zrxSupportedChainIds)[number]
 
 type ZrxSwapSource = {
   name: string

@@ -480,7 +480,9 @@ export const zapper = createApi({
                   } as unknown as ReadOnlyOpportunityType['rewardsCryptoBaseUnit']
 
                   const fiatAmount = bnOrZero(asset.balanceUSD).toString()
-                  const apy = bnOrZero(asset.dataProps?.apy).div(100).toString()
+                  const apy = bnOrZero(asset.dataProps?.apy)
+                    .div(100)
+                    .toString()
                   const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
                   const icon = asset.displayProps?.images?.[0] ?? ''
                   const name = asset.displayProps?.label ?? ''

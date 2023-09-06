@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapErrorRight } from 'lib/swapper/types'
+import type { CowSwapOrder, SwapErrorRight } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 
@@ -35,22 +35,6 @@ export const ORDER_TYPE_FIELDS = [
  * EIP-712 typed data type definitions.
  */
 export declare type TypedDataTypes = Record<string, TypedDataField[]>
-
-export type CowSwapOrder = {
-  sellToken: string
-  buyToken: string
-  sellAmount: string
-  buyAmount: string
-  validTo: number
-  appData: string
-  feeAmount: string
-  kind: string
-  partiallyFillable: boolean
-  receiver: string
-  sellTokenBalance: string
-  buyTokenBalance: string
-  quoteId: number
-}
 
 export type CowSwapQuoteApiInputBase = {
   appData: string

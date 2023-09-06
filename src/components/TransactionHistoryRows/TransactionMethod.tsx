@@ -18,6 +18,13 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
+const isStreamingSwapMemo = (memo: string | undefined): boolean => {
+  if (!memo) return false
+
+  const regex = /:\d+\/\d+\/\d+:/
+  return regex.test(memo)
+}
+
 export const TransactionMethod = ({
   txDetails,
   showDateAndGuide,
@@ -28,6 +35,9 @@ export const TransactionMethod = ({
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
+  const memo = 'memo' in txMetadata ? txMetadata.memo : undefined
+  const isStreamingSwap = useMemo(() => isStreamingSwapMemo(memo), [memo])
+  const { method, parser } = txMetadata
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
   const asset = useAppSelector(state =>
@@ -41,10 +51,18 @@ export const TransactionMethod = ({
 
   const title = useMemo(() => {
     const symbol = asset?.symbol
-    const titlePrefix = txMetadata.parser
-      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
-      : 'transactionRow.unknown'
-    switch (txMetadata.method) {
+    const titlePrefix = (() => {
+      switch (true) {
+        case isStreamingSwap:
+          return 'transactionRow.parser.swap.streamingSwap'
+        case method !== undefined && parser !== undefined:
+          return `transactionRow.parser.${parser}.${method}`
+        default:
+          return 'transactionRow.unknown'
+      }
+    })()
+
+    switch (method) {
       case 'approve':
       case 'revoke':
         // add symbol if available
@@ -52,10 +70,10 @@ export const TransactionMethod = ({
       default:
         return translate(titlePrefix)
     }
-  }, [asset?.symbol, txMetadata.parser, txMetadata.method, translate])
+  }, [asset?.symbol, method, isStreamingSwap, parser, translate])
 
   const type = useMemo(() => {
-    switch (txMetadata.method) {
+    switch (method) {
       case Method.AddLiquidityEth:
       case Method.BeginRedelegate:
       case Method.Delegate:
@@ -88,7 +106,7 @@ export const TransactionMethod = ({
         return ''
       }
     }
-  }, [transfersByType, txMetadata.method])
+  }, [transfersByType, method])
 
   return (
     <>

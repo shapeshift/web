@@ -350,7 +350,9 @@ export const PairDepositWithAllocation = ({
           assetSymbol={`${asset0.symbol}-${asset1.symbol}`}
           cryptoAmount={shareOutAmount.value}
           errors={cryptoError1 || fiatError1}
-          fiatAmount={bnOrZero(fiatAmount1?.value).plus(bnOrZero(fiatAmount1?.value)).toString()}
+          fiatAmount={bnOrZero(fiatAmount1?.value)
+            .plus(bnOrZero(fiatAmount1?.value))
+            .toString()}
           icons={icons}
           isReadOnly={true}
           onAccountIdChange={handleAccountIdChange}

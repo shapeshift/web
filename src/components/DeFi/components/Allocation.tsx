@@ -17,8 +17,8 @@ import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import {
-  type AccountDropdownProps,
   AccountDropdown,
+  type AccountDropdownProps,
 } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'

@@ -28,7 +28,6 @@ type GetSignTxFromQuoteArgs = {
   affiliateBps?: string
   chainSpecific?: utxo.BuildTxInput
   supportsEIP1559: boolean
-  slippageTolerancePercentage: string
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export const getSignTxFromQuote = async ({
@@ -39,13 +38,10 @@ export const getSignTxFromQuote = async ({
   from,
   xpub,
   supportsEIP1559,
-  slippageTolerancePercentage,
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
   // on ChainId to define additional metadata for a chain-specific TradeQuote
-  const { memo, recommendedSlippage } = quote as ThorTradeQuote
-
-  const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
+  const { memo } = quote as ThorTradeQuote
 
   const {
     buyAsset,
@@ -86,7 +82,6 @@ export const getSignTxFromQuote = async ({
         sellAdapter: cosmosSdkChainAdapter,
         sellAmountCryptoBaseUnit,
         sellAsset,
-        slippageTolerance,
         chainId: sellAsset.chainId,
         buyAsset,
         from: from!,

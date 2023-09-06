@@ -48,7 +48,7 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 
   // While we're at it, also calculate IPFS CIDs for everything.
   // The typings here are imprecise; sha256.digest() never returns a Promise.
-  const digest = sha256.digest(data) as Awaited<ReturnType<typeof sha256['digest']>>
+  const digest = sha256.digest(data) as Awaited<ReturnType<(typeof sha256)['digest']>>
   const cid = CID.create(1, raw.code, digest).toString()
   process.env[`REACT_APP_CID_${mungedName}`] = cid
 }

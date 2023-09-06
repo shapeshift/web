@@ -39,69 +39,79 @@ import {
   uniV2LpOpportunitiesMetadataResolver,
   uniV2LpUserDataResolver,
 } from './resolvers/uniV2'
+import type {
+  DefiProviderToMetadataResolver,
+  DefiProviderToOpportunitiesMetadataResolver,
+  DefiProviderToOpportunitiesUserDataResolver,
+  DefiProviderToOpportunityIdsResolver,
+  DefiProviderToOpportunityUserDataResolver,
+} from './types'
 import { DefiProvider, DefiType } from './types'
 
-export const DefiProviderToMetadataResolverByDeFiType = {
+export const DefiProviderToMetadataResolverByDeFiType: DefiProviderToMetadataResolver = {
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingMetadataResolver,
   },
 }
 
-export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
-  [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: uniV2LpOpportunitiesMetadataResolver,
-  },
-  [`${DefiProvider.Idle}`]: {
-    [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
-  },
-  [`${DefiProvider.CosmosSdk}`]: {
-    [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
-  },
-  [`${DefiProvider.ThorchainSavers}`]: {
-    [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
-  },
-  [`${DefiProvider.ShapeShift}`]: {
-    [`${DefiType.Staking}`]: foxyStakingOpportunitiesMetadataResolver,
-  },
-}
+export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProviderToOpportunitiesMetadataResolver =
+  {
+    [`${DefiProvider.UniV2}`]: {
+      [`${DefiType.LiquidityPool}`]: uniV2LpOpportunitiesMetadataResolver,
+    },
+    [`${DefiProvider.Idle}`]: {
+      [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
+    },
+    [`${DefiProvider.CosmosSdk}`]: {
+      [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
+    },
+    [`${DefiProvider.ThorchainSavers}`]: {
+      [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
+    },
+    [`${DefiProvider.ShapeShift}`]: {
+      [`${DefiType.Staking}`]: foxyStakingOpportunitiesMetadataResolver,
+    },
+  }
 
-export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
-  [`${DefiProvider.Idle}`]: {
-    [`${DefiType.Staking}`]: idleStakingOpportunitiesUserDataResolver,
-  },
-  [`${DefiProvider.ShapeShift}`]: {
-    [`${DefiType.Staking}`]: foxyStakingOpportunitiesUserDataResolver,
-  },
-  [`${DefiProvider.ThorchainSavers}`]: {
-    [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
-  },
-  [`${DefiProvider.CosmosSdk}`]: {
-    [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
-  },
-}
+export const DefiProviderToOpportunitiesUserDataResolverByDeFiType: DefiProviderToOpportunitiesUserDataResolver =
+  {
+    [`${DefiProvider.Idle}`]: {
+      [`${DefiType.Staking}`]: idleStakingOpportunitiesUserDataResolver,
+    },
+    [`${DefiProvider.ShapeShift}`]: {
+      [`${DefiType.Staking}`]: foxyStakingOpportunitiesUserDataResolver,
+    },
+    [`${DefiProvider.ThorchainSavers}`]: {
+      [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
+    },
+    [`${DefiProvider.CosmosSdk}`]: {
+      [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
+    },
+  }
 
-export const DefiProviderToOpportunityIdsResolverByDeFiType = {
-  [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: uniV2LpLpOpportunityIdsResolver,
-  },
-  [`${DefiProvider.EthFoxStaking}`]: {
-    [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
-  },
-  [`${DefiProvider.Idle}`]: {
-    [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
-  },
-  [`${DefiProvider.ThorchainSavers}`]: {
-    [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
-  },
-  [`${DefiProvider.ShapeShift}`]: {
-    [`${DefiType.Staking}`]: foxyStakingOpportunityIdsResolver,
-  },
-  [`${DefiProvider.CosmosSdk}`]: {
-    [`${DefiType.Staking}`]: cosmosSdkOpportunityIdsResolver,
-  },
-}
+export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOpportunityIdsResolver =
+  {
+    [`${DefiProvider.UniV2}`]: {
+      [`${DefiType.LiquidityPool}`]: uniV2LpLpOpportunityIdsResolver,
+    },
+    [`${DefiProvider.EthFoxStaking}`]: {
+      [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
+    },
+    [`${DefiProvider.Idle}`]: {
+      [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
+    },
+    [`${DefiProvider.ThorchainSavers}`]: {
+      [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
+    },
+    [`${DefiProvider.ShapeShift}`]: {
+      [`${DefiType.Staking}`]: foxyStakingOpportunityIdsResolver,
+    },
+    [`${DefiProvider.CosmosSdk}`]: {
+      [`${DefiType.Staking}`]: cosmosSdkOpportunityIdsResolver,
+    },
+  }
 
-export const DefiProviderToUserDataResolverByDeFiType = {
+export const DefiProviderToUserDataResolverByDeFiType: DefiProviderToOpportunityUserDataResolver = {
   [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: uniV2LpUserDataResolver,
   },

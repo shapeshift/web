@@ -54,7 +54,7 @@ export const utxoChainIds = [
   KnownChainIds.LitecoinMainnet,
 ] as const
 
-export type UtxoChainId = typeof utxoChainIds[number]
+export type UtxoChainId = (typeof utxoChainIds)[number]
 
 export type UtxoChainAdapter =
   | bitcoin.ChainAdapter

@@ -38,7 +38,6 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
 
         // We do not want to throw for all ChainIds and script types, if one fails
         if (!pubkeys?.[0]?.xpub || typeof pubkeys?.[0]?.xpub !== 'string') continue
-        // if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
 
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         if (!pubkey) continue

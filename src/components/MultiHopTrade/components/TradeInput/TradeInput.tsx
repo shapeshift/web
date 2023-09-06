@@ -243,7 +243,7 @@ export const TradeInput = memo(() => {
   )
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (activeSwapperName === SwapperName.Thorchain && activeQuote) {
+    if (applyThorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain && activeQuote) {
       return {
         shapeShiftFee: {
           amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
@@ -254,7 +254,7 @@ export const TradeInput = memo(() => {
     }
 
     return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
-  }, [activeSwapperName, activeQuote, quoteAffiliateFeeFiatPrecision])
+  }, [applyThorSwapAffiliateFees, activeSwapperName, activeQuote, quoteAffiliateFeeFiatPrecision])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (

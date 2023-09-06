@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'

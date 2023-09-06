@@ -1,6 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads/build'
-import { v4 as uuid } from 'uuid'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
@@ -24,8 +23,7 @@ export const zrxApi: SwapperApi = {
     const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(({ tradeQuote, zrxQuoteResponse }) => {
-      const id = uuid()
-      tradeQuoteMetadata.set(id, zrxQuoteResponse)
+      tradeQuoteMetadata.set(tradeQuote.id, zrxQuoteResponse)
 
       return [tradeQuote]
     })

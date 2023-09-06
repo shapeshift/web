@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
-import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
   ThornodeQuoteResponse,
@@ -23,14 +23,7 @@ import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/ut
 
 import { thorService } from '../thorService'
 
-export const getQuote = async ({
-  sellAsset,
-  buyAssetId,
-  sellAmountCryptoBaseUnit,
-  receiveAddress,
-  streaming,
-  affiliateBps = '0',
-}: {
+type GetQuoteArgs = {
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
@@ -38,7 +31,16 @@ export const getQuote = async ({
   receiveAddress: string | undefined
   streaming: boolean
   affiliateBps: string
-}): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
+}
+
+const _getQuote = async ({
+  sellAsset,
+  buyAssetId,
+  sellAmountCryptoBaseUnit,
+  receiveAddress,
+  streaming,
+  affiliateBps,
+}: GetQuoteArgs): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
@@ -100,4 +102,24 @@ export const getQuote = async ({
   } else {
     return Ok(data)
   }
+}
+
+export const getQuote = async (
+  input: GetQuoteArgs,
+): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
+  const initialQuoteResult = await _getQuote(input)
+
+  if (initialQuoteResult.isErr()) return initialQuoteResult
+
+  const initialQuote = initialQuoteResult.unwrap()
+
+  // refetch quote without affiliate fee if it's less than the thorchain outbound fee
+  if (
+    bnOrZero(input.affiliateBps).gt(0) &&
+    bnOrZero(initialQuote.fees.affiliate).lte(initialQuote.fees.outbound)
+  ) {
+    return _getQuote({ ...input, affiliateBps: '0' })
+  }
+
+  return Ok(initialQuote)
 }

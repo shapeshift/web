@@ -7,7 +7,7 @@ import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/f
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export const oneInchSwapper: Swapper = {
-  executeTradeEvm: executeEvmTrade2,
+  executeEvmTransaction: executeEvmTrade2,
 
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve(filterEvmAssetIdsBySellable(assets).map(asset => asset.assetId))

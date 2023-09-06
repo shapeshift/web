@@ -57,7 +57,7 @@ export const getThorTradeQuote = async (
     accountNumber,
     chainId,
     receiveAddress,
-    affiliateBps,
+    affiliateBps: requestedAffiliateBps,
     slippageTolerancePercentage,
   } = input
 
@@ -100,7 +100,7 @@ export const getThorTradeQuote = async (
     sellAmountCryptoBaseUnit,
     receiveAddress,
     streaming: false,
-    affiliateBps,
+    affiliateBps: requestedAffiliateBps,
   })
 
   const maybeStreamingSwapQuote = thorSwapStreamingSwaps
@@ -110,7 +110,7 @@ export const getThorTradeQuote = async (
         sellAmountCryptoBaseUnit,
         receiveAddress,
         streaming: true,
-        affiliateBps,
+        affiliateBps: requestedAffiliateBps,
       })
     : undefined
 
@@ -152,6 +152,7 @@ export const getThorTradeQuote = async (
       quote.fees.slippage_bps,
     ),
     isStreaming,
+    affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
     estimatedExecutionTimeMs: quote.total_swap_seconds
       ? 1000 * quote.total_swap_seconds
       : undefined,
@@ -159,9 +160,12 @@ export const getThorTradeQuote = async (
 
   const perRouteValues = [getRouteValues(swapQuote, false)]
 
-  streamingSwapQuote &&
-    swapQuote.expected_amount_out !== streamingSwapQuote.expected_amount_out &&
+  if (
+    streamingSwapQuote &&
+    swapQuote.expected_amount_out !== streamingSwapQuote.expected_amount_out
+  ) {
     perRouteValues.push(getRouteValues(streamingSwapQuote, true))
+  }
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
     const THOR_PRECISION = 8
@@ -218,6 +222,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
+            affiliateBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -298,6 +303,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
+            affiliateBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -309,14 +315,11 @@ export const getThorTradeQuote = async (
               isStreaming,
               sellAsset.chainId,
             )
-            const maybeThorTxInfo = await getUtxoThorTxInfo({
+            const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo: updatedMemo,
             })
-            if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
-            const thorTxInfo = maybeThorTxInfo.unwrap()
-            const { vault, opReturnData, pubkey } = thorTxInfo
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
             const feeData = await getUtxoTxFees({
@@ -389,6 +392,7 @@ export const getThorTradeQuote = async (
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
+            affiliateBps,
           }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)

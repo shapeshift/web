@@ -21,12 +21,12 @@ const AccountHeader = () => {
   } = useWallet()
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
-  const isSnapsEnabled = useFeatureFlag('Snaps')
+  const isSnapFeatureEnabled = useFeatureFlag('Snaps')
 
   useEffect(() => {
     if (!wallet) return
-    setIsMultiAccountWallet(isSnapsEnabled || wallet.supportsBip44Accounts())
-  }, [isSnapsEnabled, wallet])
+    setIsMultiAccountWallet(isSnapFeatureEnabled || wallet.supportsBip44Accounts())
+  }, [isSnapFeatureEnabled, wallet])
 
   const { open } = useModal('addAccount')
 

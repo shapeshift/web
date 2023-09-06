@@ -7,8 +7,8 @@ export const SnapsButton = () => {
     enableShapeShiftSnap()
   }
 
-  const isSnapsEnabled = useFeatureFlag('Snaps')
-  if (!isSnapsEnabled) return null
+  const isSnapFeatureEnabled = useFeatureFlag('Snaps')
+  if (!isSnapFeatureEnabled) return null
   return (
     <Button onClick={handleClick} colorScheme='blue'>
       Oh snap

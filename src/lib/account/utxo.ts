@@ -36,8 +36,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
           },
         ])
 
-        // TODO(gomes): hdwallet snaps is borked and can't get UTXOs, this is commented so we don't crash all
-        // Unrug UTXOs and uncomment me.
+        // We do not want to throw for all ChainIds and script types, if one fails
         if (!pubkeys?.[0]?.xpub || typeof pubkeys?.[0]?.xpub !== 'string') continue
         // if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
 

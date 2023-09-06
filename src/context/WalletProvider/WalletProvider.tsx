@@ -9,6 +9,10 @@ import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
+import {
+  metaMaskFlaskSupported,
+  shapeShiftSnapInstalled,
+} from '@shapeshiftoss/metamask-snaps-adapter'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
@@ -17,7 +21,6 @@ import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { metaMaskFlaskSupported, shapeShiftSnapInstalled } from 'utils/snaps'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'

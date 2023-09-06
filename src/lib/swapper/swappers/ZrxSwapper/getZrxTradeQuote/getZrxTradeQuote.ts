@@ -57,7 +57,7 @@ export async function getZrxTradeQuote(
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
-      skipValidation: true,
+      skipValidation: false,
       slippagePercentage:
         slippageTolerancePercentage ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),

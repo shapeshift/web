@@ -22,13 +22,13 @@ type Provider = Omit<ExternalProvider, 'request'> & {
 
 export const shapeShiftSnapInstalled = async (snapId: string): Promise<boolean> => {
   const provider = (await detectEthereumProvider()) as Provider
-  if (provider === undefined) {
-    throw new Error('Could not get MetaMask provider')
-  }
-  if (provider.request === undefined) {
-    throw new Error('MetaMask provider does not define a .request() method')
-  }
   try {
+    if (provider === undefined) {
+      throw new Error('Could not get MetaMask provider')
+    }
+    if (provider.request === undefined) {
+      throw new Error('MetaMask provider does not define a .request() method')
+    }
     const ret = await provider.request({
       method: 'wallet_getSnaps',
     })

@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -80,6 +81,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
+  const isSnapInstalled = useIsSnapInstalled()
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -157,7 +159,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         })
       }
     })()
-  }, [dispatch, wallet, supportedChains])
+  }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

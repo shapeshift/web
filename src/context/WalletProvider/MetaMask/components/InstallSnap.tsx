@@ -1,7 +1,8 @@
 import { Button, Heading, Stack } from '@chakra-ui/react'
+import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { getConfig } from 'config'
 import { useEffect } from 'react'
-import { enableShapeShiftSnap, shapeShiftSnapInstalled } from 'utils/snaps'
+import { enableShapeShiftSnap } from 'utils/snaps'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 

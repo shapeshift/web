@@ -3,11 +3,11 @@ import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
-import { shapeShiftSnapInstalled } from 'utils/snaps'
 import type { Modals } from 'context/ModalProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -18,7 +18,8 @@ import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
-jest.mock('utils/snaps', () => ({
+jest.mock('@shapeshiftoss/metamask-snaps-adapter', () => ({
+  ...jest.requireActual('@shapeshiftoss/metamask-snaps-adapter'),
   shapeShiftSnapInstalled: jest.fn(),
 }))
 

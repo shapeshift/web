@@ -14,9 +14,7 @@ describe('createLifiChainMap', () => {
       id: NaN, // an invalid chain id
     }
 
-    expect(() => createLifiChainMap([bogusLifiEvmChain])).toThrowError(
-      '[createLifiChainMap] invalid chainId',
-    )
+    expect(() => createLifiChainMap([bogusLifiEvmChain])).toThrowError('invalid chainId')
   })
 
   it('can create a map of LifiChainKey indexed by ChainId', () => {

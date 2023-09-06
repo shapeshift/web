@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -30,6 +30,7 @@ import { bnOrZero } from '../utils/bignumber'
 import type { cosmos, thorchain } from './'
 import type {
   BuildTransactionInput,
+  CosmosSDKToken,
   Delegation,
   Redelegation,
   RedelegationEntry,
@@ -81,7 +82,7 @@ export const cosmosSdkChainIds = [
   KnownChainIds.ThorchainMainnet,
 ] as const
 
-export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
+export type CosmosSdkChainId = (typeof cosmosSdkChainIds)[number]
 
 export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
 
@@ -193,13 +194,21 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
         const rewards = data.rewards.map<ValidatorReward>(validatorReward => ({
           validator: transformValidator(validatorReward.validator),
-          rewards: validatorReward.rewards.map<Reward>(reward => ({
-            assetId: this.assetId,
-            amount: reward.amount,
-          })),
+          rewards: validatorReward.rewards
+            // We only support same-denom rewards for now
+            .filter(reward => reward.denom === this.denom)
+            .map<Reward>(reward => ({
+              assetId: this.assetId,
+              amount: reward.amount,
+            })),
         }))
 
-        return { ...data, delegations, redelegations, undelegations, rewards, assets: [] }
+        const assets = data.assets.map<CosmosSDKToken>(asset => ({
+          amount: asset.amount,
+          assetId: generateAssetIdFromCosmosSdkDenom(asset.denom, this.getFeeAssetId()),
+        }))
+
+        return { ...data, delegations, redelegations, undelegations, rewards, assets }
       })()
 
       return {

@@ -1,71 +1,59 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import { ethers } from 'ethers'
 import { v4 as uuid } from 'uuid'
 import type {
+  CowSwapOrder,
+  EvmMessageToSign,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedEvmMessageArgs,
   SwapErrorRight,
-  Swapper2Api,
-  TradeQuote2,
-} from 'lib/swapper/api'
-import { assertGetEvmChainAdapter, createDefaultStatusResponse } from 'lib/utils/evm'
+  SwapperApi,
+  TradeQuote,
+} from 'lib/swapper/types'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
-  CowSignTx,
   CowSwapGetTradesResponse,
   CowSwapGetTransactionsResponse,
   CowSwapQuoteResponse,
 } from './types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  COW_SWAP_SETTLEMENT_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
-import type { CowSwapOrder } from './utils/helpers/helpers'
-import {
-  domain,
-  getCowswapNetwork,
-  getNowPlusThirtyMinutesTimestamp,
-  hashOrder,
-} from './utils/helpers/helpers'
+import { getCowswapNetwork, getNowPlusThirtyMinutesTimestamp } from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
-export const cowApi: Swapper2Api = {
+export const cowApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
-    const { receiveAddress } = input
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
-      return [
-        {
-          id,
-          receiveAddress,
-          affiliateBps: undefined,
-          ...tradeQuote,
-        },
-      ]
+      return [tradeQuote]
     })
   },
 
-  getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<CowSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
+  getUnsignedEvmMessage: async ({
+    from,
+    tradeQuote,
+    stepIndex,
+    chainId,
+  }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
@@ -108,23 +96,7 @@ export const cowApi: Swapper2Api = {
       quoteId: id,
     }
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-    const { chainReference } = fromChainId(sellAsset.chainId)
-    const signingDomain = Number(chainReference)
-
-    // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
-    // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
-    // For more info, check hashOrder method implementation
-    const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
-
-    const bip44Params = adapter.getBIP44Params({ accountNumber })
-
-    const messageToSign: ETHSignMessage = {
-      addressNList: toAddressNList(bip44Params),
-      message: ethers.utils.arrayify(orderDigest),
-    }
-
-    return { orderToSign, messageToSign }
+    return { chainId, orderToSign }
   },
 
   checkTradeStatus: async ({

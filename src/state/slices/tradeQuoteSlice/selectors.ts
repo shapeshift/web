@@ -1,13 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
-import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
@@ -16,9 +15,9 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectUserSlippagePercentageDecimal } from 'state/slices/swappersSlice/selectors'
 import {
+  getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
-  getNetReceiveAmountCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
   getTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/helpers'
@@ -36,7 +35,7 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
   tradeQuote => tradeQuote.activeStep ?? 0,
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
 export const selectActiveQuoteIndex: Selector<ReduxState, number> = createSelector(
@@ -66,7 +65,7 @@ export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | und
     },
   )
 
-export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,
     selectConfirmedQuote,
@@ -122,9 +121,9 @@ export const selectHopTotalNetworkFeeFiatPrecision: Selector<ReduxState, string 
         : undefined,
   )
 
-export const selectNetReceiveAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, selectActiveSwapperName, (quote, swapperName) =>
-    quote && swapperName ? getNetReceiveAmountCryptoPrecision({ quote, swapperName }) : undefined,
+export const selectBuyAmountAfterFeesCryptoPrecision: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, selectActiveSwapperName, quote =>
+    quote ? getBuyAmountAfterFeesCryptoPrecision({ quote }) : undefined,
   )
 
 export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
@@ -139,10 +138,10 @@ export const selectTotalProtocolFeeByAsset: Selector<
   quote ? getTotalProtocolFeeByAsset(quote) : undefined,
 )
 
-export const selectFirstHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
+export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[0] : undefined))
 
-export const selectLastHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
+export const selectLastHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote =>
     quote ? quote.steps[quote.steps.length - 1] : undefined,
   )
@@ -234,24 +233,20 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState, string> =
-  createSelector(
-    selectActiveQuote,
-    selectActiveSwapperName,
-    (activeQuote, activeSwapperName) =>
-      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
-  )
-
-export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
-  slippagePercentageDecimal => bn(slippagePercentageDecimal).times(100).toString(),
+export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectActiveSwapperName,
+  activeSwapperName =>
+    bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)).times(100).toString(),
 )
 
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
-  selectQuoteOrDefaultSlippagePercentageDecimal,
+  selectActiveSwapperName,
   selectUserSlippagePercentageDecimal,
-  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
-    return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
+  (activeSwapperName, slippagePreferencePercentage) => {
+    return (
+      slippagePreferencePercentage ??
+      getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
+    )
   },
 )
 
@@ -344,12 +339,12 @@ export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLa
   )
 })
 
-export const selectReceiveBuyAmountUserCurrency = createSelector(
-  selectNetReceiveAmountCryptoPrecision,
+export const selectBuyAmountAfterFeesUserCurrency = createSelector(
+  selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAssetUserCurrencyRate,
-  (netReceiveAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!netReceiveAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(netReceiveAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
+  (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 
@@ -394,7 +389,7 @@ export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, str
       if (activeQuote?.affiliateBps === undefined) return undefined
       else {
         const affiliatePercentage = convertBasisPointsToDecimalPercentage(
-          DEFAULT_SWAPPER_DONATION_BPS,
+          activeQuote.affiliateBps ?? '0',
         )
         // The donation amount is a percentage of the sell amount
         return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()

@@ -17,7 +17,11 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ExecuteTradeArgs } from 'lib/swapper/api'
+import type {
+  EvmTransactionExecutionProps,
+  EvmTransactionRequest,
+  ExecuteTradeArgs,
+} from 'lib/swapper/types'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -224,6 +228,13 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
 export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
   const adapter = assertGetEvmChainAdapter(chainId)
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
+}
+
+export const executeEvmTrade2 = (
+  txToSign: EvmTransactionRequest,
+  callbacks: EvmTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({

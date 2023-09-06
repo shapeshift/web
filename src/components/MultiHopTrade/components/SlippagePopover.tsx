@@ -25,7 +25,7 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectUserSlippagePercentage } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
-import { selectQuoteOrDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 enum SlippageType {
@@ -38,7 +38,7 @@ const maxSlippagePercentage = '30'
 const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 export const SlippagePopover: FC = () => {
-  const defaultSlippagePercentage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
+  const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
@@ -56,10 +56,13 @@ export const SlippagePopover: FC = () => {
     if (userSlippagePercentage) {
       setSlippageType(SlippageType.Custom)
       setSlippageAmount(userSlippagePercentage)
-    } else setSlippageType(SlippageType.Auto)
-    // We only want this to run on mount, not to be reactive
+    } else {
+      setSlippageType(SlippageType.Auto)
+      setSlippageAmount(defaultSlippagePercentage)
+    }
+    // We only want this to run on mount, though not to be reactive to userSlippagePercentage
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [defaultSlippagePercentage])
 
   const handleChange = useCallback((value: string) => {
     if (bnOrZero(value).gt(maxSlippagePercentage)) {

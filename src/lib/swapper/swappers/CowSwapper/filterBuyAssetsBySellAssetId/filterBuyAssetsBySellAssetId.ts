@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
+import type { BuyAssetBySellIdInput } from 'lib/swapper/types'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { COWSWAP_UNSUPPORTED_ASSETS } from '../utils/blacklist'

@@ -1,7 +1,4 @@
-import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-
-import type { CowSwapOrder } from './utils/helpers/helpers'
 
 export type CowSwapQuoteResponse = {
   quote: {
@@ -35,5 +32,3 @@ export type CowSwapGetTradesResponse = {
 export type CowSwapGetTransactionsResponse = {
   status: 'presignaturePending' | 'open' | 'fulfilled' | 'cancelled' | 'expired'
 }[]
-
-export type CowSignTx = { orderToSign: CowSwapOrder; messageToSign: ETHSignMessage }

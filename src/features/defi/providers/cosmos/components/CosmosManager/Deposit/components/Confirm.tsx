@@ -128,7 +128,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice)
+            .times(`1e+${asset?.precision}`)
+            .toString(),
         },
         value: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toFixed(0),
         action: StakingAction.Stake,

@@ -26,7 +26,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -43,7 +43,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { SwapperName, TradeQuote } from 'lib/swapper/types'
 import { assertUnreachable, isSome } from 'lib/utils'
 import { selectFeeAssetById, selectTradeExecutionStatus } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
@@ -407,8 +407,8 @@ const FirstHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
-    [swapperName, tradeQuote.recommendedSlippage],
+    () => getDefaultSlippageDecimalPercentageForSwapper(swapperName),
+    [swapperName],
   )
 
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 0)
@@ -572,8 +572,8 @@ const SecondHop = ({
   ])
 
   const slippageDecimalPercentage = useMemo(
-    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
-    [swapperName, tradeQuote.recommendedSlippage],
+    () => getDefaultSlippageDecimalPercentageForSwapper(swapperName),
+    [swapperName],
   )
 
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)

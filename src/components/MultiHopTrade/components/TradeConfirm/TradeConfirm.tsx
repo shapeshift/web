@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -12,6 +13,7 @@ import {
   Flex,
   Heading,
   Link,
+  Progress,
   Skeleton,
   Stack,
   StackDivider,
@@ -24,11 +26,13 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useThorStreamingProgress } from 'components/MultiHopTrade/hooks/useThorStreamingProgress/useThorStreamingProgress'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
@@ -43,13 +47,16 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/api'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import { SwapperName } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
@@ -57,9 +64,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectNetReceiveAmountCryptoPrecision,
   selectQuoteDonationAmountUserCurrency,
-  selectReceiveBuyAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -127,9 +132,9 @@ export const TradeConfirm = () => {
   const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const netBuyAmountUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
+  const netBuyAmountUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
@@ -139,7 +144,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const quoteAffiliateFee = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -153,6 +158,18 @@ export const TradeConfirm = () => {
   } = useTradeExecution({ tradeQuote, swapperName })
 
   const txHash = buyTxHash ?? sellTxHash
+
+  const isThorStreamingSwap = useMemo(
+    () => tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
+    [tradeQuoteStep?.source],
+  )
+
+  const {
+    attemptedSwapCount,
+    progressProps: thorStreamingSwapProgressProps,
+    totalSwapCount,
+    failedSwaps,
+  } = useThorStreamingProgress(sellTxHash, isThorStreamingSwap)
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -180,12 +197,18 @@ export const TradeConfirm = () => {
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (swapperName === SwapperName.Thorchain) {
-      return { shapeShiftFee: quoteAffiliateFee, donationAmount: undefined }
+    if (swapperName === SwapperName.Thorchain && tradeQuote) {
+      return {
+        shapeShiftFee: {
+          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
+          amountBps: tradeQuote.affiliateBps ?? '0',
+        },
+        donationAmount: undefined,
+      }
     }
 
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFee }
-  }, [swapperName, quoteAffiliateFee])
+    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
+  }, [swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -356,7 +379,7 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
-          slippage={slippageDecimal}
+          slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
@@ -374,11 +397,11 @@ export const TradeConfirm = () => {
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
+      shapeShiftFee,
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
       donationAmount,
-      shapeShiftFee,
     ],
   )
 
@@ -457,6 +480,39 @@ export const TradeConfirm = () => {
               isSubmitting={isSubmitting}
               px={4}
             />
+            {status !== TxStatus.Unknown && isThorStreamingSwap && (
+              <Stack px={4}>
+                <Row>
+                  <Row.Label>{translate('trade.streamStatus')}</Row.Label>
+                  {totalSwapCount > 0 && (
+                    <Row.Value>{`${attemptedSwapCount} of ${totalSwapCount}`}</Row.Value>
+                  )}
+                </Row>
+                <Row>
+                  <Progress
+                    width='full'
+                    borderRadius='full'
+                    size='sm'
+                    {...thorStreamingSwapProgressProps}
+                  />
+                </Row>
+                {failedSwaps.length > 0 && (
+                  <Row>
+                    <Row.Value display='flex' alignItems='center' gap={1} color='text.warning'>
+                      <WarningIcon />
+                      {translate('trade.swapsFailed', { failedSwaps: failedSwaps.length })}
+                    </Row.Value>
+                    {/* TODO: provide details of streaming swap failures - needs details modal
+                      <Row.Value>
+                        <Button variant='link' colorScheme='blue' fontSize='sm'>
+                          {translate('common.learnMore')}
+                        </Button>
+                      </Row.Value>
+                    */}
+                  </Row>
+                )}
+              </Stack>
+            )}
             <Stack px={4}>{sendReceiveSummary}</Stack>
             <Stack spacing={4}>
               {txLink && (
@@ -518,9 +574,11 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     <Row.Label>
-                      <RawText fontWeight='semibold' color={alertColor}>
-                        {maybeManualReceiveAddress}
-                      </RawText>
+                      <MiddleEllipsis
+                        value={maybeManualReceiveAddress}
+                        fontWeight='semibold'
+                        color={alertColor}
+                      />
                     </Row.Label>
                   </Row.Value>
                 </Row>

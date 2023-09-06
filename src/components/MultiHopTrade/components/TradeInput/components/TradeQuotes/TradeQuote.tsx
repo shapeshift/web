@@ -1,5 +1,14 @@
-import { Card, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Card,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  Stack,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import prettyMilliseconds from 'pretty-ms'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -8,7 +17,7 @@ import { quoteStatusTranslation } from 'components/MultiHopTrade/components/Trad
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectAssets,
@@ -18,7 +27,7 @@ import {
   selectSellAsset,
 } from 'state/slices/selectors'
 import {
-  getNetReceiveAmountCryptoPrecision,
+  getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -26,51 +35,48 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
-type TradeQuoteLoadedProps = {
+type TradeQuoteProps = {
   isActive: boolean
   isBest: boolean
   quoteData: ApiQuote
   bestBuyAmountBeforeFeesCryptoBaseUnit: string
+  isLoading: boolean
 }
 
-/*
- TODO: Add loading skeleton - the below is an implementation for when trade quotes had separate loading states.
- They are now unified.
- */
-// const TradeQuoteLoading = () => {
-//   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-//   return (
-//     <Stack
-//       borderWidth={1}
-//       cursor='not-allowed'
-//       borderColor={borderColor}
-//       borderRadius='xl'
-//       flexDir='column'
-//       spacing={2}
-//       width='full'
-//       px={4}
-//       py={2}
-//       fontSize='sm'
-//     >
-//       <Flex justifyContent='space-between'>
-//         <Stack direction='row' spacing={2}>
-//           <Skeleton height='20px' width='50px' />
-//           <Skeleton height='20px' width='50px' />
-//         </Stack>
-//         <Skeleton height='20px' width='80px' />
-//       </Flex>
-//       <Flex justifyContent='space-between'>
-//         <Stack direction='row' alignItems='center'>
-//           <SkeletonCircle height='24px' width='24px' />
-//           <Skeleton height='21px' width='50px' />
-//         </Stack>
-//         <Skeleton height='20px' width='100px' />
-//       </Flex>
-//     </Stack>
-//   )
-// }
+const TradeQuoteLoading = () => {
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  return (
+    <Stack
+      borderWidth={1}
+      cursor='not-allowed'
+      borderColor={borderColor}
+      borderRadius='xl'
+      flexDir='column'
+      spacing={2}
+      width='full'
+      px={4}
+      py={2}
+      fontSize='sm'
+    >
+      <Flex justifyContent='space-between'>
+        <Stack direction='row' spacing={2}>
+          <Skeleton height='20px' width='50px' />
+          <Skeleton height='20px' width='50px' />
+        </Stack>
+        <Skeleton height='20px' width='80px' />
+      </Flex>
+      <Flex justifyContent='space-between'>
+        <Stack direction='row' alignItems='center'>
+          <SkeletonCircle height='24px' width='24px' />
+          <Skeleton height='21px' width='50px' />
+        </Stack>
+        <Skeleton height='20px' width='100px' />
+      </Flex>
+    </Stack>
+  )
+}
 
-export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
+export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isActive,
   isBest,
   quoteData,
@@ -104,12 +110,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const totalReceiveAmountCryptoPrecision = useMemo(
     () =>
       quote
-        ? getNetReceiveAmountCryptoPrecision({
+        ? getBuyAmountAfterFeesCryptoPrecision({
             quote,
-            swapperName: quoteData.swapperName,
           })
         : '0',
-    [quote, quoteData.swapperName],
+    [quote],
   )
 
   const handleQuoteSelection = useCallback(() => {
@@ -271,4 +276,5 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   ) : null
 }
 
-export const TradeQuote: React.FC<TradeQuoteLoadedProps> = props => <TradeQuoteLoaded {...props} />
+export const TradeQuote: FC<TradeQuoteProps> = props =>
+  props.isLoading ? <TradeQuoteLoading /> : <TradeQuoteLoaded {...props} />

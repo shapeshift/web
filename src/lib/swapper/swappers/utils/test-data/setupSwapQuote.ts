@@ -1,21 +1,25 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 
 import { DEFAULT_SLIPPAGE } from '../constants'
 
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
-  const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  const tradeQuote: TradeQuote = {
+    id: 'foobar',
+    receiveAddress: '0x1234',
+    affiliateBps: undefined,
     rate: '1',
     estimatedExecutionTimeMs: undefined,
     steps: [
       {
         allowanceContract: 'allowanceContractAddress',
         buyAmountBeforeFeesCryptoBaseUnit: '',
+        buyAmountAfterFeesCryptoBaseUnit: '',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
         sellAsset,
         buyAsset,

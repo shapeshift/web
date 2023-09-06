@@ -3,53 +3,48 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
+import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
+import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
+import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
-  SwapSource,
   TradeQuote,
-} from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
-import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
-import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
-import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
+} from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
-  convertBasisPointsToDecimalPercentage,
   convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
+import type { ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
-export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
-  router: string
-  data: string
-}
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    data: string
+  }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
-type ThorTradeQuoteBase =
-  | TradeQuote<ThorCosmosSdkSupportedChainId>
-  | TradeQuote<ThorUtxoSupportedChainId>
-  | ThorEvmTradeQuote
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
+type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (
@@ -62,15 +57,16 @@ export const getThorTradeQuote = async (
     accountNumber,
     chainId,
     receiveAddress,
-    affiliateBps,
+    affiliateBps: requestedAffiliateBps,
     slippageTolerancePercentage,
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
-
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+    slippageTolerancePercentage ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
   ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -96,22 +92,38 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const maybeQuote = await getQuote({
+  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+
+  const maybeSwapQuote = await getQuote({
     sellAsset,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     receiveAddress,
-    affiliateBps,
+    streaming: false,
+    affiliateBps: requestedAffiliateBps,
   })
 
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  const maybeStreamingSwapQuote = thorSwapStreamingSwaps
+    ? await getQuote({
+        sellAsset,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit,
+        receiveAddress,
+        streaming: true,
+        affiliateBps: requestedAffiliateBps,
+      })
+    : undefined
 
-  const thornodeQuote = maybeQuote.unwrap()
-  const { fees } = thornodeQuote
+  if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
+  if (maybeStreamingSwapQuote?.isErr()) return Err(maybeStreamingSwapQuote.unwrapErr())
 
-  const recommendedMinAmountInCryptoBaseUnit = thornodeQuote.recommended_min_amount_in
+  const swapQuote = maybeSwapQuote.unwrap()
+  const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
+
+  // recommended_min_amount_in should be the same value for both types of swaps
+  const recommendedMinAmountInCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
-        value: thornodeQuote.recommended_min_amount_in,
+        value: swapQuote.recommended_min_amount_in,
         inputExponent: THORCHAIN_FIXED_PRECISION,
         outputExponent: sellAsset.precision,
       })
@@ -129,35 +141,31 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
+  const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
+    source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,
+    quote,
+    // expected receive amount after slippage (no affiliate_fee or liquidity_fee taken out of this value)
+    // TODO: slippage is currently being applied on expected_amount_out which is emit_asset - outbound_fee,
+    //       should slippage actually be applied on emit_asset?
+    expectedAmountOutThorBaseUnit: subtractBasisPointAmount(
+      quote.expected_amount_out,
+      quote.fees.slippage_bps,
+    ),
+    isStreaming,
+    affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
+    estimatedExecutionTimeMs: quote.total_swap_seconds
+      ? 1000 * quote.total_swap_seconds
+      : undefined,
+  })
 
-  const perRouteValues = [
-    {
-      // regular swap
-      source: SwapperName.Thorchain,
-      slippageBps: thornodeQuote.slippage_bps,
-      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
-      isStreaming: false,
-      estimatedExecutionTimeMs:
-        1000 *
-        (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
-    },
-    ...(thorSwapStreamingSwaps &&
-    thornodeQuote.expected_amount_out !== thornodeQuote.expected_amount_out_streaming
-      ? [
-          {
-            // streaming swap
-            source: `${SwapperName.Thorchain} • Streaming` as SwapSource,
-            slippageBps: thornodeQuote.streaming_slippage_bps,
-            expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
-            isStreaming: true,
-            estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
-              ? 1000 * thornodeQuote.total_swap_seconds
-              : undefined,
-          },
-        ]
-      : []),
-  ]
+  const perRouteValues = [getRouteValues(swapQuote, false)]
+
+  if (
+    streamingSwapQuote &&
+    swapQuote.expected_amount_out !== streamingSwapQuote.expected_amount_out
+  ) {
+    perRouteValues.push(getRouteValues(streamingSwapQuote, true))
+  }
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
     const THOR_PRECISION = 8
@@ -171,21 +179,13 @@ export const getThorTradeQuote = async (
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
   }
 
-  const getRouteBuyAmount = (expectedAmountOutThorBaseUnit: string) => {
-    // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
-    // Add back the outbound fees
-    const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
-      .plus(fees.outbound)
-      .plus(fees.affiliate)
-
-    return toBaseUnit(
-      fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
-      buyAsset.precision,
-    )
+  const getRouteBuyAmount = (quote: ThornodeQuoteResponseSuccess) => {
+    const emitAsset = bn(quote.expected_amount_out).plus(quote.fees.outbound)
+    return toBaseUnit(fromBaseUnit(emitAsset, THORCHAIN_FIXED_PRECISION), buyAsset.precision)
   }
 
-  const protocolFees = (() => {
-    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
+  const getProtocolFees = (quote: ThornodeQuoteResponseSuccess) => {
+    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(quote.fees.outbound)
 
     const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
       value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
@@ -204,7 +204,7 @@ export const getThorTradeQuote = async (
     }
 
     return protocolFees
-  })()
+  }
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
@@ -218,18 +218,18 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
+            quote,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+            affiliateBps,
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
-              expectedAmountOutThorBaseUnit,
-            )
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
             const updatedMemo = addSlippageToMemo(
-              thornodeQuote,
+              expectedAmountOutThorBaseUnit,
+              quote.memo,
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
@@ -240,10 +240,19 @@ export const getThorTradeQuote = async (
               memo: updatedMemo,
             })
 
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
             return {
+              id: uuid(),
+              memo: updatedMemo,
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               data,
               router,
@@ -252,6 +261,7 @@ export const getThorTradeQuote = async (
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,
@@ -259,7 +269,7 @@ export const getThorTradeQuote = async (
                   allowanceContract: router,
                   feeData: {
                     networkFeeCryptoBaseUnit,
-                    protocolFees,
+                    protocolFees: getProtocolFees(quote),
                   },
                 },
               ],
@@ -289,30 +299,27 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           async ({
             source,
-            slippageBps,
+            quote,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+            affiliateBps,
+          }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
-              expectedAmountOutThorBaseUnit,
-            )
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
             const updatedMemo = addSlippageToMemo(
-              thornodeQuote,
+              expectedAmountOutThorBaseUnit,
+              quote.memo,
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
             )
-            const maybeThorTxInfo = await getUtxoThorTxInfo({
+            const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
               memo: updatedMemo,
             })
-            if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
-            const thorTxInfo = maybeThorTxInfo.unwrap()
-            const { vault, opReturnData, pubkey } = thorTxInfo
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
             const feeData = await getUtxoTxFees({
@@ -321,19 +328,29 @@ export const getThorTradeQuote = async (
               opReturnData,
               pubkey,
               sellAdapter,
-              protocolFees,
+              protocolFees: getProtocolFees(quote),
             })
 
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
             return {
+              id: uuid(),
+              memo: updatedMemo,
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [
                 {
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,
@@ -371,25 +388,43 @@ export const getThorTradeQuote = async (
         perRouteValues.map(
           ({
             source,
-            slippageBps,
+            quote,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
-          }) => {
+            affiliateBps,
+          }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
+
+            const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
+              value: expectedAmountOutThorBaseUnit,
+              inputExponent: THORCHAIN_FIXED_PRECISION,
+              outputExponent: buyAsset.precision,
+            }).toFixed()
+
+            const updatedMemo = addSlippageToMemo(
               expectedAmountOutThorBaseUnit,
+              quote.memo,
+              inputSlippageBps,
+              isStreaming,
+              sellAsset.chainId,
             )
+
             return {
+              id: uuid(),
+              memo: updatedMemo,
+              receiveAddress,
+              affiliateBps,
               isStreaming,
               estimatedExecutionTimeMs,
-              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [
                 {
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
+                  buyAmountAfterFeesCryptoBaseUnit,
                   source,
                   buyAsset,
                   sellAsset,
@@ -397,7 +432,7 @@ export const getThorTradeQuote = async (
                   allowanceContract: '0x0', // not applicable to cosmos
                   feeData: {
                     networkFeeCryptoBaseUnit: feeData.fast.txFee,
-                    protocolFees,
+                    protocolFees: getProtocolFees(quote),
                     chainSpecific: {
                       estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit,
                     },

@@ -33,7 +33,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
-import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
+import type { SwapperName, TradeQuote } from 'lib/swapper/types'
 import { selectUserCurrencyRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import {
   selectActiveSwapperName,
@@ -50,7 +50,7 @@ const ApprovalInner = ({
   tradeQuoteStep,
 }: {
   swapperName: SwapperName
-  tradeQuoteStep: TradeQuote2['steps'][number]
+  tradeQuoteStep: TradeQuote['steps'][number]
 }) => {
   const history = useHistory()
   const translate = useTranslate()

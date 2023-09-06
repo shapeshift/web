@@ -1,9 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
+import type { ProtocolFee, TradeQuote } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -14,7 +13,7 @@ import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 import { store } from 'state/store'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
-  tradeQuoteStep: TradeQuote2['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
 ): BigNumber | undefined => {
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep?.sellAsset.assetId)
@@ -35,56 +34,8 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   return networkFeeFiatPrecision
 }
 
-// TODO: this logic is duplicated - consolidate it ASAP
-// NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".
-// TODO: we'll need a check to ensure any fees included here impact the final amount received in the
-// receive account
-const _getReceiveSideAmountsCryptoBaseUnit = ({
-  quote,
-  swapperName,
-}: {
-  quote: TradeQuote2
-  swapperName: SwapperName
-}) => {
-  const lastStep = quote.steps[quote.steps.length - 1]
-  const firstStep = quote.steps[0]
-  const rate = lastStep.rate
-  const slippageDecimalPercentage =
-    quote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
-
-  const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
-  const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-
-  const buySideNetworkFeeCryptoBaseUnit = bn(0)
-
-  const sellAssetProtocolFee = firstStep.feeData.protocolFees[firstStep.sellAsset.assetId]
-  const buyAssetProtocolFee = lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]
-  const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(sellAssetProtocolFee?.amountCryptoBaseUnit)
-  const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
-    convertPrecision({
-      value: sellSideProtocolFeeCryptoBaseUnit,
-      inputExponent: firstStep.sellAsset.precision,
-      outputExponent: lastStep.buyAsset.precision,
-    }),
-  ).times(rate)
-  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
-
-  const netReceiveAmountCryptoBaseUnit = buyAmountCryptoBaseUnit
-    .minus(slippageAmountCryptoBaseUnit)
-    .minus(buySideNetworkFeeCryptoBaseUnit)
-    .minus(buySideProtocolFeeCryptoBaseUnit)
-    .minus(sellSideProtocolFeeBuyAssetBaseUnit)
-
-  return {
-    netReceiveAmountCryptoBaseUnit,
-    buySideNetworkFeeCryptoBaseUnit,
-    buySideProtocolFeeCryptoBaseUnit,
-    slippageAmountCryptoBaseUnit,
-  }
-}
-
 const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
-  quote: TradeQuote2,
+  quote: TradeQuote,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
@@ -96,7 +47,7 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   }, bn(0))
 
 export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote2['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number],
 ): string => {
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
   const cryptoMarketDataById = selectCryptoMarketData(store.getState())
@@ -109,7 +60,7 @@ export const getHopTotalProtocolFeesFiatPrecision = (
 }
 
 export const getHopTotalNetworkFeeFiatPrecision = (
-  tradeQuoteStep: TradeQuote2['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number],
 ): string | undefined => {
   const state = store.getState()
   const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
@@ -125,22 +76,11 @@ export const getHopTotalNetworkFeeFiatPrecision = (
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
  * @param quote The trade quote
- * @param swapperName The swapper name
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
-export const getNetReceiveAmountCryptoPrecision = ({
-  quote,
-  swapperName,
-}: {
-  quote: TradeQuote2
-  swapperName: SwapperName
-}) => {
+export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
-
-  const { netReceiveAmountCryptoBaseUnit } = _getReceiveSideAmountsCryptoBaseUnit({
-    quote,
-    swapperName,
-  })
+  const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
   const netReceiveAmountCryptoPrecision = fromBaseUnit(
     netReceiveAmountCryptoBaseUnit,
@@ -155,7 +95,7 @@ export const getNetReceiveAmountCryptoPrecision = ({
  * @param quote The trade quote
  * @returns The total network fee across all hops in fiat precision
  */
-export const getTotalNetworkFeeUserCurrencyPrecision = (quote: TradeQuote2) => {
+export const getTotalNetworkFeeUserCurrencyPrecision = (quote: TradeQuote) => {
   const state = store.getState()
   const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
     selectMarketDataByFilter(state, {
@@ -169,7 +109,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (quote: TradeQuote2) => {
 }
 
 // TODO(woodenfurniture): this assumes `requiresBalance` is the same for steps for a given asset
-export const getTotalProtocolFeeByAsset = (quote: TradeQuote2): Record<AssetId, ProtocolFee> =>
+export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
   quote.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
     return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
       (innerAcc, [assetId, protocolFee]) => {

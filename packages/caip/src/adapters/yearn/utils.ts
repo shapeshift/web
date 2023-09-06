@@ -37,19 +37,22 @@ export const parseEthData = (data: (Token | Vault)[]) => {
   const chainNamespace = CHAIN_NAMESPACE.Evm
   const chainReference = CHAIN_REFERENCE.EthereumMainnet
 
-  return data.reduce((acc, datum) => {
-    const { address } = datum
-    const id = address
-    const assetReference = toLower(address)
-    const assetId = toAssetId({
-      chainNamespace,
-      chainReference,
-      assetNamespace,
-      assetReference,
-    })
-    acc[assetId] = id
-    return acc
-  }, {} as Record<string, string>)
+  return data.reduce(
+    (acc, datum) => {
+      const { address } = datum
+      const id = address
+      const assetReference = toLower(address)
+      const assetId = toAssetId({
+        chainNamespace,
+        chainReference,
+        assetNamespace,
+        assetReference,
+      })
+      acc[assetId] = id
+      return acc
+    },
+    {} as Record<string, string>,
+  )
 }
 
 export const parseData = (d: (Token | Vault)[]) => {

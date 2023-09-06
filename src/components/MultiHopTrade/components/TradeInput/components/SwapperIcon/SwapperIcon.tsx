@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 
 import ZrxIcon from './0x-icon.png'

@@ -23,7 +23,7 @@ export const assertIsCleanRepo = async () => {
 }
 
 const releaseType = ['Regular', 'Hotfix'] as const
-type ReleaseType = typeof releaseType[number]
+type ReleaseType = (typeof releaseType)[number]
 
 const inquireReleaseType = async (): Promise<ReleaseType> => {
   const questions: inquirer.QuestionCollection<{ releaseType: ReleaseType }> = [

@@ -4,9 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
-import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -25,11 +23,13 @@ import {
   isNativeEvmAsset,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
-): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -85,7 +85,10 @@ export async function getCowSwapTradeQuote(
 
   const { data } = maybeQuoteResponse.unwrap()
 
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
+  const {
+    feeAmount: feeAmountInSellTokenCryptoBaseUnit,
+    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+  } = data.quote
 
   const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
     buyAsset,
@@ -93,8 +96,10 @@ export async function getCowSwapTradeQuote(
     response: data,
   })
 
-  const quote: TradeQuote<CowChainId> = {
+  const quote: TradeQuote = {
     id: data.id.toString(),
+    receiveAddress,
+    affiliateBps: undefined,
     rate,
     estimatedExecutionTimeMs: undefined,
     steps: [
@@ -113,6 +118,7 @@ export async function getCowSwapTradeQuote(
         },
         sellAmountIncludingProtocolFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
         buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
         source: SwapperName.CowSwap,
         buyAsset,
         sellAsset,

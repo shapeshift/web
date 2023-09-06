@@ -360,7 +360,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
     ],
     txid: '0xcfea9955795ed8de3f82e8ed0db7256cd08a36390b3a21c17ff2b6dd1f9e8f79',
-    data: { method: 'deposit', parser: 'yearn' },
+    data: { method: 'deposit', parser: 'swap' },
   }
 
   // Converted yvAAVE tx: yvUNI -> UNI
@@ -391,72 +391,10 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
     ],
     txid: '0xe77a8da0d8a7c613305ccdbf818396bcbda801f1d5b239d441e1386e841f3270',
-    data: { method: 'withdraw', parser: 'yearn' },
+    data: { method: 'withdraw', parser: 'swap' },
   }
 
-  // yearn withdraw usdc
-  const yearnWithdrawUsdc: Tx = {
-    address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-    blockHash: '0xb6ac9ffa9c0c272fcf2af42e15f86b874b6fb61f13ca74a4dab13032d434d492',
-    blockHeight: 13730260,
-    blockTime: 1638488447,
-    chainId: ethChainId,
-    confirmations: 729180,
-    fee: { assetId: ethAssetId, value: '5898012646352596' },
-    status: TxStatus.Confirmed,
-    trade: undefined,
-    transfers: [
-      {
-        assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-        from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-        to: AddressZero,
-        type: TransferType.Send,
-        value: '1000000',
-      },
-      {
-        assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        from: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
-        to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-        type: TransferType.Receive,
-        value: '1089520',
-      },
-    ],
-    txid: '0xc9bdf77c7c82f28c34af2ef98b38e75cf201d44af69f245a8e43c497b570620e',
-    data: { method: 'withdraw', parser: 'yearn' },
-  }
-
-  // Doesn't use ShapeShift router
-  const yearnDirect: Tx = {
-    address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-    blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
-    blockHeight: 13730189,
-    blockTime: 1638487560,
-    chainId: ethChainId,
-    confirmations: 729251,
-    fee: { assetId: ethAssetId, value: '9099683709794574' },
-    status: TxStatus.Confirmed,
-    trade: undefined,
-    transfers: [
-      {
-        assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-        from: AddressZero,
-        to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-        type: TransferType.Receive,
-        value: '9178352',
-      },
-      {
-        assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-        to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
-        type: TransferType.Send,
-        value: '10000000',
-      },
-    ],
-    txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083',
-    data: { method: 'deposit', parser: 'yearn' },
-  }
-
-  return [deposit, withdraw, yearnWithdrawUsdc, yearnDirect]
+  return [deposit, withdraw]
 }
 
 /**

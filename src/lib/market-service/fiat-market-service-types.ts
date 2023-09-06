@@ -29,7 +29,7 @@ export const SupportedFiatCurrenciesList = Object.freeze([
   'IDR',
 ] as const)
 
-export type SupportedFiatCurrencies = typeof SupportedFiatCurrenciesList[number]
+export type SupportedFiatCurrencies = (typeof SupportedFiatCurrenciesList)[number]
 
 export type FiatMarketDataArgs = {
   symbol: SupportedFiatCurrencies

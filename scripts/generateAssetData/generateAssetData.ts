@@ -17,6 +17,7 @@ import type { Asset, AssetsById } from 'lib/asset-service'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
@@ -26,6 +27,7 @@ import { filterOutBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
+  const cosmosAssets = await cosmos.getAssets()
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
@@ -41,6 +43,7 @@ const generateAssetData = async () => {
     atom,
     thorchain,
     ...ethAssets,
+    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

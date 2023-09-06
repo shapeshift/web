@@ -2,25 +2,26 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
+  input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
@@ -34,7 +35,7 @@ export async function getTradeQuote(
     accountNumber,
     slippageTolerancePercentage,
     supportsEIP1559,
-    wallet,
+    affiliateBps,
   } = input
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -76,13 +77,15 @@ export async function getTradeQuote(
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.LIFI),
+        slippageTolerancePercentage ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
       exchanges: { deny: ['dodo'] },
       // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
       // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
       // use the `allowSwitchChain` param above when implemented
       allowSwitchChain: false,
+      fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   }
 
@@ -150,18 +153,41 @@ export async function getTradeQuote(
               assets,
             })
 
-            const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+            const sellAssetProtocolFee = protocolFees[sellAsset.assetId]
+            const buyAssetProtocolFee = protocolFees[buyAsset.assetId]
+            const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(
+              sellAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+            const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+              convertPrecision({
+                value: sellSideProtocolFeeCryptoBaseUnit,
+                inputExponent: sellAsset.precision,
+                outputExponent: buyAsset.precision,
+              }),
+            ).times(estimateRate)
+            const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
+              buyAssetProtocolFee?.amountCryptoBaseUnit,
+            )
+
+            const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
+              selectedLifiRoute.toAmount,
+            ).toPrecision()
+
+            // TODO: Add buySideNetworkFeeCryptoBaseUnit when we implement multihop
+            const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+              .plus(sellSideProtocolFeeBuyAssetBaseUnit)
+              .plus(buySideProtocolFeeCryptoBaseUnit)
+              .toString()
+
             const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
               assets,
               lifiStep,
             )
 
             const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-              accountNumber,
               chainId,
               lifiStep,
               supportsEIP1559,
-              wallet,
             })
 
             const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
@@ -169,7 +195,8 @@ export async function getTradeQuote(
             return {
               allowanceContract: lifiStep.estimate.approvalAddress,
               accountNumber,
-              buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+              buyAmountBeforeFeesCryptoBaseUnit,
+              buyAmountAfterFeesCryptoBaseUnit,
               buyAsset,
               intermediaryTransactionOutputs,
               feeData: {
@@ -201,6 +228,9 @@ export async function getTradeQuote(
         )
 
         return {
+          id: selectedLifiRoute.id,
+          receiveAddress,
+          affiliateBps,
           steps,
           rate: netRate,
           estimatedExecutionTimeMs,

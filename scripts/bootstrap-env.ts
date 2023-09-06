@@ -11,7 +11,7 @@ import flow from 'lodash/flow'
  * - the release environment uses the app configuration
  */
 const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private', 'e2e'] as const
-type Environment = typeof VALID_ENVIRONMENTS[number]
+type Environment = (typeof VALID_ENVIRONMENTS)[number]
 
 const VALID_BRANCHES = [
   'develop',
@@ -26,7 +26,7 @@ const VALID_BRANCHES = [
   'cafe',
   'arkeo',
 ] as const
-type Branch = typeof VALID_BRANCHES[number]
+type Branch = (typeof VALID_BRANCHES)[number]
 
 /**
  * the keys of this object are mapped to subdomains in cloudflare

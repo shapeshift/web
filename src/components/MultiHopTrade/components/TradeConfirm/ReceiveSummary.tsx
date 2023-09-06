@@ -12,15 +12,19 @@ import { type FC, memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { type RowProps, Row } from 'components/Row/Row'
+import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -30,8 +34,11 @@ type ReceiveSummaryProps = {
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
-  shapeShiftFee?: string
-  slippage: string
+  shapeShiftFee?: {
+    amountFiatPrecision: string
+    amountBps: string
+  }
+  slippageDecimalPercentage: string
   swapperName: string
   donationAmount?: string
 } & RowProps
@@ -45,7 +52,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     amountBeforeFeesCryptoPrecision,
     protocolFees,
     shapeShiftFee,
-    slippage,
+    slippageDecimalPercentage,
     swapperName,
     isLoading,
     donationAmount,
@@ -58,7 +65,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
-    const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+    const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
@@ -96,6 +103,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       () => intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0,
       [intermediaryTransactionOutputsParsed],
     )
+
+    const amountAfterSlippage = useMemo(() => {
+      const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
+      return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
+    }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
 
     return (
       <>
@@ -184,15 +196,18 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row>
             )}
             <Row>
-              <Row.Label>
+              <Row.Label display='flex'>
                 <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
+                {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
+                  <RawText>&nbsp;{` (${shapeShiftFee.amountBps} bps)`}</RawText>
+                )}
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  {shapeShiftFee && shapeShiftFee !== '0' ? (
-                    <Amount.Fiat value={shapeShiftFee} />
+                  {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
+                    <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
                   ) : (
-                    <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
                   )}
                 </Skeleton>
               </Row.Value>
@@ -201,7 +216,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.donation')}>
                   <Row.Label>
-                    <Text translation={'trade.donation'} />
+                    <Text translation='trade.donation' />
                   </Row.Label>
                 </HelperTooltip>
                 <Row.Value>
@@ -225,10 +240,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <Row.Value whiteSpace='nowrap'>
                   <Stack spacing={0} alignItems='flex-end'>
                     <Skeleton isLoaded={!isLoading}>
-                      <Amount.Crypto
-                        value={isAmountPositive ? amountCryptoPrecision : '0'}
-                        symbol={symbol}
-                      />
+                      <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
                     </Skeleton>
                     {isAmountPositive &&
                       hasIntermediaryTransactionOutputs &&

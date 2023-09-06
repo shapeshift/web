@@ -1,7 +1,7 @@
-import type { TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import type { TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 
-export const lifiQuote: TradeQuote2 = {
+export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
   rate: '51.34579860391078801712',
   affiliateBps: undefined,
@@ -12,6 +12,7 @@ export const lifiQuote: TradeQuote2 = {
       allowanceContract: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE',
       accountNumber: 0,
       buyAmountBeforeFeesCryptoBaseUnit: '1.0269262412379365425e+21',
+      buyAmountAfterFeesCryptoBaseUnit: '1.0269262412379365425e+21',
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
@@ -47,18 +48,18 @@ export const lifiQuote: TradeQuote2 = {
   ],
 }
 
-export const thorQuote: TradeQuote2 = {
+export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
-  recommendedSlippage: '0.00001',
   estimatedExecutionTimeMs: undefined,
   steps: [
     {
       rate: '39.23942597524024759752',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
-      buyAmountBeforeFeesCryptoBaseUnit: '1013948034150000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '1043948034150000000000',
+      buyAmountAfterFeesCryptoBaseUnit: '1013948034150000000000',
       source: SwapperName.Thorchain,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -127,7 +128,7 @@ export const thorQuote: TradeQuote2 = {
   ],
 }
 
-export const oneInchQuote: TradeQuote2 = {
+export const oneInchQuote: TradeQuote = {
   id: '89654b4f-c90b-4578-bb9f-7c93e7ad227d',
   rate: '51.63754486526613135844',
   affiliateBps: undefined,
@@ -163,6 +164,7 @@ export const oneInchQuote: TradeQuote2 = {
       },
       accountNumber: 0,
       buyAmountBeforeFeesCryptoBaseUnit: '1032761224814295680395',
+      buyAmountAfterFeesCryptoBaseUnit: '1032761224814295680395',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       feeData: {
         protocolFees: {},
@@ -173,7 +175,7 @@ export const oneInchQuote: TradeQuote2 = {
   ],
 }
 
-export const cowQuote: TradeQuote2 = {
+export const cowQuote: TradeQuote = {
   id: '220858750',
   rate: '51.86127422365727736757',
   affiliateBps: undefined,
@@ -206,6 +208,7 @@ export const cowQuote: TradeQuote2 = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       buyAmountBeforeFeesCryptoBaseUnit: '1039167423885457658942',
+      buyAmountAfterFeesCryptoBaseUnit: '809167423885457658942',
       source: SwapperName.CowSwap,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -236,7 +239,7 @@ export const cowQuote: TradeQuote2 = {
   ],
 }
 
-export const zrxQuote: TradeQuote2 = {
+export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
   rate: '51.603817692372651273',
   affiliateBps: undefined,
@@ -276,10 +279,11 @@ export const zrxQuote: TradeQuote2 = {
         protocolFees: {},
       },
       buyAmountBeforeFeesCryptoBaseUnit: '1032086674610991500000',
+      buyAmountAfterFeesCryptoBaseUnit: '1032086674610991500000',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       source: SwapperName.Zrx,
     },
   ],
 }
 
-export const quotes: TradeQuote2[] = [lifiQuote, thorQuote, zrxQuote, cowQuote, oneInchQuote]
+export const quotes: TradeQuote[] = [lifiQuote, thorQuote, zrxQuote, cowQuote, oneInchQuote]

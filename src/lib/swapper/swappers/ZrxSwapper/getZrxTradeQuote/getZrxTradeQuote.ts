@@ -1,11 +1,10 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
+import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
@@ -17,12 +16,15 @@ import {
   getAdapter,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
-export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
+export async function getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -56,7 +58,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
       slippagePercentage:
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Zrx),
+        slippageTolerancePercentage ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
       feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
@@ -65,10 +68,16 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const { data } = maybeZrxPriceResponse.unwrap()
 
-  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
-  const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
+  const {
+    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+    grossBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
+    price,
+    allowanceTarget,
+    gas,
+  } = data
 
-  const buyAmountCryptoBaseUnit = data.buyAmount
+  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
+  const rate = useSellAmount ? price : bn(1).div(price).toString()
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
@@ -79,15 +88,19 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       supportsEIP1559,
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
-      gasLimit: bnOrZero(data.gas).times(1.2).toFixed(),
+      gasLimit: bnOrZero(gas).times(1.2).toFixed(),
       l1GasLimit: OPTIMISM_L1_SWAP_GAS_LIMIT,
     })
 
     return Ok({
+      id: uuid(),
+      estimatedExecutionTimeMs: undefined,
+      receiveAddress,
+      affiliateBps,
       rate,
       steps: [
         {
-          allowanceContract: data.allowanceTarget,
+          allowanceContract: allowanceTarget,
           buyAsset,
           sellAsset,
           accountNumber,
@@ -96,12 +109,13 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
             protocolFees: {},
             networkFeeCryptoBaseUnit,
           },
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Zrx,
         },
       ],
-    } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs
+    })
   } catch (err) {
     return Err(
       makeSwapErrorRight({

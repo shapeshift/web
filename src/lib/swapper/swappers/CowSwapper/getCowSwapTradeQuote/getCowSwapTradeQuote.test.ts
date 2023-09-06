@@ -2,8 +2,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
-import { SwapperName } from '../../../api'
+import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
+import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -86,8 +86,10 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   validTo: 1656797787,
 }
 
-const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
+  receiveAddress: '0x0000000000000000000000000000000000000000',
+  affiliateBps: undefined,
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -106,6 +108,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // 14924 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
@@ -114,8 +117,10 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ],
 }
 
-const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
+  receiveAddress: '0x0000000000000000000000000000000000000000',
+  affiliateBps: undefined,
   rate: '0.00004995640398295996',
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -134,6 +139,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '49956403982959960',
+      buyAmountAfterFeesCryptoBaseUnit: '46868859830863283',
       source: SwapperName.CowSwap,
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
@@ -142,8 +148,10 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ],
 }
 
-const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
+const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
+  receiveAddress: '0x0000000000000000000000000000000000000000',
+  affiliateBps: undefined,
   rate: '1.0003121775396440882',
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -162,6 +170,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       buyAmountBeforeFeesCryptoBaseUnit: '21006555728332525852',
+      buyAmountAfterFeesCryptoBaseUnit: '21005367357465608755',
       source: SwapperName.CowSwap,
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
@@ -170,8 +179,10 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
   ],
 }
 
-const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
+  receiveAddress: '0x0000000000000000000000000000000000000000',
+  affiliateBps: undefined,
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   estimatedExecutionTimeMs: undefined,
   steps: [
@@ -190,6 +201,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
       buyAmountBeforeFeesCryptoBaseUnit: '166441655297153832879', // 166 FOX
+      buyAmountAfterFeesCryptoBaseUnit: '145018118182475950905', // 145 FOX
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,

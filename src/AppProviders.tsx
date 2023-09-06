@@ -55,12 +55,12 @@ export function AppProviders({ children }: ProvidersProps) {
                 <ScrollToTop />
                 <BrowserRouterProvider>
                   <I18nProvider>
-                    <ModalProvider>
-                      <WalletProvider>
-                        <WalletConnectBridgeProvider>
-                          <WalletConnectV2Provider>
-                            <KeepKeyProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                    <WalletProvider>
+                      <WalletConnectBridgeProvider>
+                        <WalletConnectV2Provider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                              <ModalProvider>
                                 <TransactionsProvider>
                                   <AppProvider>
                                     <FoxEthProvider>
@@ -68,12 +68,12 @@ export function AppProviders({ children }: ProvidersProps) {
                                     </FoxEthProvider>
                                   </AppProvider>
                                 </TransactionsProvider>
-                              </ErrorBoundary>
-                            </KeepKeyProvider>
-                          </WalletConnectV2Provider>
-                        </WalletConnectBridgeProvider>
-                      </WalletProvider>
-                    </ModalProvider>
+                              </ModalProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectV2Provider>
+                      </WalletConnectBridgeProvider>
+                    </WalletProvider>
                   </I18nProvider>
                 </BrowserRouterProvider>
               </HashRouter>

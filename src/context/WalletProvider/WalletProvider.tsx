@@ -9,10 +9,6 @@ import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
-import {
-  metaMaskFlaskSupported,
-  shapeShiftSnapInstalled,
-} from '@shapeshiftoss/metamask-snaps-adapter'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
@@ -27,7 +23,6 @@ import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/use
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { useModal } from 'hooks/useModal/useModal'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -683,26 +678,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
           if (KeyManager.MetaMask === walletType) {
-            ;(async () => {
-              const showSnapsModal = store.getState().preferences.showSnapsModal
-              if (!showSnapsModal) return
-
-              const localWalletType = getLocalWalletType()
-              if (localWalletType !== KeyManager.MetaMask) return
-
-              const isSnapsEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
-              if (!isSnapsEnabled) return
-
-              const isMetamaskFlask = await metaMaskFlaskSupported()
-              if (!isMetamaskFlask) return
-
-              const isSnapInstalled = await shapeShiftSnapInstalled(getConfig().REACT_APP_SNAP_ID)
-              if (isSnapInstalled) return
-
-              if (snaps.isOpen) return
-
-              snaps.open({})
-            })()
             return (await detectEthereumProvider()) as MetaMaskLikeProvider
           }
           if (walletType === KeyManager.XDefi) {
@@ -753,8 +728,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       await onProviderChange(localWalletType)
     })()
   }, [state.wallet, onProviderChange])
-
-  const snaps = useModal('snaps')
 
   useEffect(() => {
     if (state.keyring) {

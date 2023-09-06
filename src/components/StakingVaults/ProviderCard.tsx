@@ -53,6 +53,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownStakingOpportunities = stakingOpportunities.filter(
     e =>
       staking.includes(e.id as OpportunityId) &&
+      // TODO(gomes): await this, this will now break
       walletSupportsChain({ chainId: e.chainId, wallet }),
   )
 
@@ -61,6 +62,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownLpOpportunities = lpOpportunities.filter(
     e =>
       lp.includes(e.assetId as OpportunityId) &&
+      // TODO(gomes): await this, this will now break
       walletSupportsChain({ chainId: e.chainId, wallet }),
   )
 

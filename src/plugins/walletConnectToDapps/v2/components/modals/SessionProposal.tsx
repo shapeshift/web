@@ -23,6 +23,7 @@ const allNamespacesSupported = (
 ): boolean =>
   Object.values(requiredNamespaces).every(
     requiredNamespace =>
+      // TODO(gomes): fix this
       requiredNamespace.chains?.every(chainId => walletSupportsChain({ chainId, wallet })),
   )
 

@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/types'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
@@ -28,11 +28,10 @@ export const useInsufficientBalanceProtocolFeeMeta = () => {
 
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const walletSupportsBuyAssetChain =
-    lastHopBuyAsset &&
-    walletSupportsChain({
-      chainId: lastHopBuyAsset.chainId,
+    useWalletSupportsChain({
+      chainId: lastHopBuyAsset?.chainId ?? '',
       wallet,
-    })
+    }) && lastHopBuyAsset
 
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
 

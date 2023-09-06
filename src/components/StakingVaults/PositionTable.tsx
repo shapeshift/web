@@ -91,6 +91,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const filteredPositions = useMemo(
     () =>
       positions.filter(position =>
+        // TODO(gomes): await this, this will now break
         walletSupportsChain({ chainId: fromAssetId(position.assetId).chainId, wallet }),
       ),
     [positions, wallet],

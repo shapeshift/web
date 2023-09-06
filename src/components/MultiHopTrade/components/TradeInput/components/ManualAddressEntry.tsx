@@ -9,7 +9,7 @@ import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
@@ -31,7 +31,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
-  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
+  const walletSupportsBuyAssetChain = useWalletSupportsChain({ chainId: buyAssetChainId, wallet })
   const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
 
   const chainAdapterManager = getChainAdapterManager()

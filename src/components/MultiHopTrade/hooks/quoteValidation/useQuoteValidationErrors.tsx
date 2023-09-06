@@ -5,7 +5,7 @@ import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingA
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
@@ -45,17 +45,15 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const quotes = useAppSelector(selectSwappersApiTradeQuotes)
 
   const walletSupportsSellAssetChain =
-    firstHopSellAsset &&
-    walletSupportsChain({
-      chainId: firstHopSellAsset.chainId,
+    useWalletSupportsChain({
+      chainId: firstHopSellAsset?.chainId ?? '',
       wallet,
-    })
+    }) && firstHopSellAsset
   const walletSupportsBuyAssetChain =
-    lastHopBuyAsset &&
-    walletSupportsChain({
-      chainId: lastHopBuyAsset.chainId,
+    useWalletSupportsChain({
+      chainId: lastHopBuyAsset?.chainId ?? '',
       wallet,
-    })
+    }) && lastHopBuyAsset
 
   const hasSufficientSellAssetBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(
     bnOrZero(sellAmountCryptoBaseUnit),

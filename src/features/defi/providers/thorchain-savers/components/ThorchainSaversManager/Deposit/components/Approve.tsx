@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -19,6 +18,7 @@ import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
@@ -54,7 +54,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const history = useHistory()
   const translate = useTranslate()
-  const toast = useToast()
+  const { showErrorToast } = useErrorHandler()
   const {
     state: { wallet },
   } = useWallet()
@@ -265,13 +265,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Confirm)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
-      console.error(error)
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
+      showErrorToast(error)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
@@ -288,11 +282,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     opportunityData,
     poll,
     saversRouterContractAddress,
+    showErrorToast,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     state?.isExactAllowance,
-    toast,
-    translate,
     wallet,
   ])
 

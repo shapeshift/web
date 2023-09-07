@@ -83,7 +83,7 @@ export class TradeExecution {
 
       return { cancelPolling }
     } catch (e) {
-      console.log(e)
+      console.error(e)
       this.emitter.emit(TradeExecutionEvent.Error, e)
     }
   }

@@ -101,6 +101,7 @@ export const mockStore: ReduxState = {
     showWelcomeModal: false,
     showConsentBanner: true,
     showSnapsModal: true,
+    snapInstalled: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

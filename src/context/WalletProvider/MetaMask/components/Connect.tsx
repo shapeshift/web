@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -7,6 +8,7 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
@@ -27,6 +29,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isSnapInstalled = useIsSnapInstalled()
+  const showSnapModal = useSelector(selectShowSnapsModal)
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -67,7 +70,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        if (isSnapInstalled === true) {
+        if (isSnapInstalled === true && !showSnapModal) {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         } else {
           history.push('/metamask/snap/install')

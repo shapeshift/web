@@ -3,7 +3,6 @@ import {
   Checkbox,
   Heading,
   HStack,
-  Image,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -13,6 +12,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { enableShapeShiftSnap } from 'utils/snaps'
+import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -46,6 +46,16 @@ export const SnapContent = () => {
     store.dispatch(preferences.actions.setShowSnapssModal(value))
   }, [])
 
+  const renderChains = useMemo(() => {
+    return (
+      <HStack px={6} spacing={4} justify='center' mt='4' wrap='wrap'>
+        {allNativeAssets.map(asset => (
+          <AssetIcon key={asset.assetId} src={asset.icon} size='sm' />
+        ))}
+      </HStack>
+    )
+  }, [allNativeAssets])
+
   if (!isSnapsEnabled) return null
 
   if (isInstalling) {
@@ -74,9 +84,7 @@ export const SnapContent = () => {
         <Text>{translate('walletProvider.metaMaskSnap.subtitle')}</Text>
 
         <HStack px={6} spacing={4} justify='center' mt='4' wrap='wrap'>
-          {allNativeAssets.map(asset => (
-            <Image src={asset.icon} alt='Icon 1' boxSize='30px' />
-          ))}
+          {renderChains}
         </HStack>
       </ModalBody>
       <ModalFooter justifyContent='space-between' mt={4}>

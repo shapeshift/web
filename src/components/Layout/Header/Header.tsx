@@ -8,6 +8,8 @@ import {
   HStack,
   IconButton,
   useDisclosure,
+  usePrevious,
+  useToast,
 } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
@@ -17,8 +19,10 @@ import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
+import { selectPortfolioLoadingStatus, selectShowSnapsModal } from 'state/slices/selectors'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -32,6 +36,10 @@ import { SideNavContent } from './SideNavContent'
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
+  const snapModal = useModal('snaps')
+  const isSnapInstalled = useIsSnapInstalled()
+  const previousSnapInstall = usePrevious(isSnapInstalled)
+  const showSnapModal = useSelector(selectShowSnapsModal)
 
   const history = useHistory()
   const {
@@ -42,6 +50,7 @@ export const Header = memo(() => {
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
+  const toast = useToast()
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
@@ -73,6 +82,18 @@ export const Header = memo(() => {
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
+
+  useEffect(() => {
+    if (previousSnapInstall === true && isSnapInstalled === false) {
+      // they uninstalled the snap
+      toast({ status: 'success', title: 'Snap Uninstalled', position: 'bottom' })
+      snapModal.open({})
+    }
+    if (previousSnapInstall === false && isSnapInstalled === true) {
+      // they installed the snap
+      toast({ status: 'success', title: 'Snap Installed', position: 'bottom' })
+    }
+  }, [isSnapInstalled, previousSnapInstall, showSnapModal, snapModal, toast])
 
   return (
     <>

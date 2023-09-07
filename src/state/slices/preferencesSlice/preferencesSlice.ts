@@ -67,6 +67,7 @@ export type Preferences = {
   showWelcomeModal: boolean
   showConsentBanner: boolean
   showSnapsModal: boolean
+  snapInstalled: boolean
 }
 
 const initialState: Preferences = {
@@ -115,6 +116,7 @@ const initialState: Preferences = {
   showWelcomeModal: false,
   showConsentBanner: true,
   showSnapsModal: true,
+  snapInstalled: false,
 }
 
 export const preferences = createSlice({
@@ -150,6 +152,9 @@ export const preferences = createSlice({
     },
     setShowSnapssModal(state, { payload }: { payload: boolean }) {
       state.showSnapsModal = payload
+    },
+    setSnapInstalled(state, { payload }: { payload: boolean }) {
+      state.snapInstalled = payload
     },
   },
 })

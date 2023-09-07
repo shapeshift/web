@@ -43,9 +43,7 @@ export const getThresholdedAffiliateBps = async ({
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
   // get pool data for the sell asset
-  const poolResult = await thorService.get<MidgardPoolResponse>(
-    `${midgardUrl}/v2/pool/${sellPoolId}`,
-  )
+  const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
 

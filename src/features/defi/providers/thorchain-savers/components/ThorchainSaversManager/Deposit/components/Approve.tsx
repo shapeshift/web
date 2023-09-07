@@ -296,6 +296,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     wallet,
   ])
 
+  const onExactAllowanceToggle = useCallback(() => {
+    if (!dispatch) return
+
+    dispatch({
+      type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,
+      payload: !state?.isExactAllowance,
+    })
+  }, [dispatch, state?.isExactAllowance])
+
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
@@ -340,12 +349,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
       spenderContractAddress={saversRouterContractAddress}
-      onToggle={() =>
-        dispatch({
-          type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,
-          payload: !state.isExactAllowance,
-        })
-      }
+      onToggle={onExactAllowanceToggle}
     />
   )
 }

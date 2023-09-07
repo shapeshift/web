@@ -108,11 +108,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!(accountId && asset && feeAsset && state && dispatch && isTokenDeposit)) return
 
-    const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
-      bn(10).pow(asset.precision),
-    )
-
-    if (amountCryptoBaseUnit.isZero()) return
+    if (bnOrZero(state.deposit.cryptoAmount).isZero()) return
     ;(async () => {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const maybeInboundAddressData = await getInboundAddressDataForChain(

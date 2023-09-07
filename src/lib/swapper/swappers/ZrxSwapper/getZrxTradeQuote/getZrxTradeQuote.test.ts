@@ -1,11 +1,9 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type { SwapErrorRight } from 'lib/swapper/types'
 
-import { BTC, FOX_MAINNET } from '../../utils/test-data/assets'
+import { BTC } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
@@ -60,9 +58,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
-  ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
-    mockOk('https://api.0x.org/'),
-  )
+  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
@@ -144,12 +140,8 @@ describe('getZrxTradeQuote', () => {
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
-      code: 'UNSUPPORTED_PAIR',
-      details: {
-        buyAsset: BTC,
-        sellAsset: FOX_MAINNET,
-      },
-      message: `[Zrx: assertValidTrade] - both assets must be on chainId eip155:1`,
+      code: 'UNSUPPORTED_CHAIN',
+      message: 'unsupported chainId',
       name: 'SwapError',
     })
   })
@@ -169,7 +161,7 @@ describe('getZrxTradeQuote', () => {
       details: {
         chainId: 'bip122:000000000019d6689c085ae165831e93',
       },
-      message: '[Zrx: assertValidTrade] - unsupported chainId',
+      message: 'unsupported chainId',
       name: 'SwapError',
     })
   })

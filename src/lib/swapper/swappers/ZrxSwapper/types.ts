@@ -15,7 +15,7 @@ type ZrxSwapSource = {
   proportion: string
 }
 
-export type ZrxCommonResponse = {
+export type ZrxPriceResponse = {
   price: string
   grossPrice: string
   estimatedGas: string
@@ -33,9 +33,7 @@ export type ZrxCommonResponse = {
   estimatedPriceImpact: string
 }
 
-export type ZrxPriceResponse = ZrxCommonResponse
-
-export type ZrxQuoteResponse = ZrxCommonResponse & {
+export type ZrxQuoteResponse = ZrxPriceResponse & {
   to: string
   data: string
   value: string

@@ -9,30 +9,26 @@ import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
+import { assertUnreachable } from 'lib/utils'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
 
-export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRight> => {
+export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
-      return Ok('https://api.0x.org/')
+      return 'https://api.0x.org/'
     case KnownChainIds.AvalancheMainnet:
-      return Ok('https://avalanche.api.0x.org/')
+      return 'https://avalanche.api.0x.org/'
     case KnownChainIds.OptimismMainnet:
-      return Ok('https://optimism.api.0x.org/')
+      return 'https://optimism.api.0x.org/'
     case KnownChainIds.BnbSmartChainMainnet:
-      return Ok('https://bsc.api.0x.org/')
+      return 'https://bsc.api.0x.org/'
     case KnownChainIds.PolygonMainnet:
-      return Ok('https://polygon.api.0x.org/')
+      return 'https://polygon.api.0x.org/'
     default:
-      return Err(
-        makeSwapErrorRight({
-          message: `baseUrlFromChainId] - Unsupported chainId: ${chainId}`,
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-        }),
-      )
+      assertUnreachable(chainId)
   }
 }
 
@@ -42,45 +38,8 @@ export const assetToToken = (asset: Asset): string => {
   return assetNamespace === 'slip44' ? asset.symbol : assetReference
 }
 
-export const assertValidTrade = ({
-  buyAsset,
-  sellAsset,
-  receiveAddress,
-}: {
-  buyAsset: Asset
-  sellAsset: Asset
-  receiveAddress?: string
-}): Result<boolean, SwapErrorRight> => {
-  if (!zrxSupportedChainIds.includes(sellAsset.chainId as ZrxSupportedChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[Zrx: assertValidTrade] - unsupported chainId`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
-
-  if (sellAsset.chainId !== buyAsset.chainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[Zrx: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[Zrx: assertValidTrade] - receive address is required',
-        code: SwapErrorType.MISSING_INPUT,
-      }),
-    )
-  }
-
-  return Ok(true)
+export const isSupportedChainId = (chainId: ChainId): chainId is ZrxSupportedChainId => {
+  return zrxSupportedChainIds.includes(chainId as ZrxSupportedChainId)
 }
 
 export const getAdapter = (

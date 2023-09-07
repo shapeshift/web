@@ -1266,12 +1266,16 @@
       }
     },
     "metaMaskSnap": {
-      "title": "Multichain support is now available for Metamask!",
-      "subtitle": "Add the ShapeShift Snap on Metamask to send, receive and trade with the following chains:",
+      "title": "Multichain support is now available for MetaMask!",
+      "subtitle": "Add the Multichain Snap on Metamask to view balances, send, receive and trade with the following chains:",
       "multiChainSnap": "Multichain Snap",
       "active": "Active",
       "notActive": "Not Active",
-      "addSnap": "Add Snap"
+      "addSnap": "Add Snap",
+      "uninstall": {
+        "title": "You have removed Multichain support from MetaMask!",
+        "subtitle": "Re-add the Multichain Snap on MetaMask to view balances, send, receive and trade with the following chains:"
+      }
     },
     "coinbase": {
       "errors": {

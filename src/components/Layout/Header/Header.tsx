@@ -98,7 +98,7 @@ export const Header = memo(() => {
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
-      snapModal.open({})
+      snapModal.open({ isRemoved: true })
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
       // they installed the snap

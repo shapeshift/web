@@ -6,7 +6,11 @@ import { useModal } from 'hooks/useModal/useModal'
 
 import { SnapContent } from './SnapContent'
 
-export const Snaps = () => {
+export type SnapsModalProps = {
+  isRemoved?: boolean
+}
+
+export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { close, isOpen } = useModal('snaps')
   const isSnapsEnabled = useFeatureFlag('Snaps')
   const isSnapInstalled = useIsSnapInstalled()
@@ -26,7 +30,7 @@ export const Snaps = () => {
       <ModalOverlay />
       <ModalContent minW='450px'>
         <ModalCloseButton />
-        <SnapContent />
+        <SnapContent isRemoved={isRemoved} />
       </ModalContent>
     </Modal>
   )

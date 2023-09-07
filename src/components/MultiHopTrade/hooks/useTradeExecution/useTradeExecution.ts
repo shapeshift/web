@@ -28,7 +28,12 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../useAccountIds'
 
-const WALLET_AGNOSTIC_SWAPPERS = [SwapperName.OneInch, SwapperName.CowSwap, SwapperName.Thorchain]
+const WALLET_AGNOSTIC_SWAPPERS = [
+  SwapperName.OneInch,
+  SwapperName.CowSwap,
+  SwapperName.Thorchain,
+  SwapperName.LIFI,
+]
 
 export const useTradeExecution = ({
   swapperName,

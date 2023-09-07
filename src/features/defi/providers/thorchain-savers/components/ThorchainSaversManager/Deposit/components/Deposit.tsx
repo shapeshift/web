@@ -2,12 +2,7 @@ import { Skeleton, useToast } from '@chakra-ui/react'
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  EvmChainAdapter,
-  GetFeeDataInput,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { getConfig } from 'config'
@@ -42,7 +37,12 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import type { SwapErrorRight } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
-import { createBuildCustomTxInput, getErc20Allowance, getFees } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  createBuildCustomTxInput,
+  getErc20Allowance,
+  getFees,
+} from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -259,7 +259,7 @@ export const Deposit: React.FC<DepositProps> = ({
             quote.expiry,
           ])
 
-          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+          const adapter = assertGetEvmChainAdapter(chainId)
 
           const customTxInput = await createBuildCustomTxInput({
             accountNumber,
@@ -377,8 +377,7 @@ export const Deposit: React.FC<DepositProps> = ({
             MaxUint256,
           ])
 
-          const chainAdapters = getChainAdapterManager()
-          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+          const adapter = assertGetEvmChainAdapter(chainId)
 
           return getFees({
             accountNumber,

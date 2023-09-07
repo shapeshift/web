@@ -2,12 +2,7 @@ import { Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  EvmChainAdapter,
-  GetFeeDataInput,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -36,7 +31,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { isToken } from 'lib/utils'
-import { createBuildCustomTxInput } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -202,7 +197,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           if (!saversRouterContractAddress)
             throw new Error(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
-          const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+          const adapter = assertGetEvmChainAdapter(chainId)
           const thorContract = getOrCreateContractByType({
             address: saversRouterContractAddress,
             type: ContractType.ThorRouter,

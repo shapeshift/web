@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -16,7 +15,6 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
@@ -29,7 +27,12 @@ import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwa
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome, isToken } from 'lib/utils'
-import { buildAndBroadcast, createBuildCustomTxInput, getErc20Allowance } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getErc20Allowance,
+} from 'lib/utils/evm'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -63,8 +66,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
   )
-  const chainAdapterManager = getChainAdapterManager()
-
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
@@ -172,7 +173,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         amountToApprove,
       ])
 
-      const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
+      const adapter = assertGetEvmChainAdapter(chainId)
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,
         adapter,
@@ -219,7 +220,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           quote.expiry,
         ])
 
-        const adapter = chainAdapterManager.get(asset.chainId) as unknown as EvmChainAdapter
+        const adapter = assertGetEvmChainAdapter(chainId)
 
         const customTxInput = await createBuildCustomTxInput({
           accountNumber,
@@ -274,7 +275,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     asset,
     assetId,
     assets,
-    chainAdapterManager,
+    chainId,
     dispatch,
     feeAsset?.assetId,
     feeAsset.precision,

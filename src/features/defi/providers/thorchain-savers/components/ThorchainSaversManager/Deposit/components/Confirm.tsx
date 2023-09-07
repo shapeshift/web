@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
-  EvmChainAdapter,
   FeeData,
   FeeDataEstimate,
   UtxoBaseAdapter,
@@ -46,7 +45,11 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { SwapperName } from 'lib/swapper/types'
 import { isToken, tokenOrUndefined } from 'lib/utils'
-import { buildAndBroadcast, createBuildCustomTxInput } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from 'lib/utils/evm'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -294,8 +297,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
 
     try {
-      const chainAdapters = getChainAdapterManager()
-      const adapter = chainAdapters.get(chainId) as unknown as EvmChainAdapter
+      const adapter = assertGetEvmChainAdapter(chainId)
 
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
@@ -357,7 +359,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const getCustomTxFees = useCallback(async () => {
     if (!wallet || !accountId) return
 
-    const adapter = chainAdapter as unknown as EvmChainAdapter
+    const adapter = assertGetEvmChainAdapter(chainId)
     const customTxInput = await getCustomTxInput()
     if (!customTxInput) return undefined
 
@@ -371,7 +373,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })
 
     return fees
-  }, [accountId, chainAdapter, getCustomTxInput, wallet])
+  }, [accountId, chainId, getCustomTxInput, wallet])
 
   useEffect(() => {
     if (!contextDispatch) return
@@ -566,11 +568,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const buildCustomTxInput = await getCustomTxInput()
     if (!buildCustomTxInput) return
 
-    const adapter = chainAdapter as unknown as EvmChainAdapter
+    const adapter = assertGetEvmChainAdapter(chainId)
 
     const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
     return txid
-  }, [wallet, chainAdapter, getCustomTxInput])
+  }, [wallet, getCustomTxInput, chainId])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return

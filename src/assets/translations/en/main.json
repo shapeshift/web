@@ -1268,10 +1268,10 @@
     "metaMaskSnap": {
       "title": "Multi-Chain support is now available for Metamask!",
       "subtitle": "Add the ShapeShift Snap on Metamask to send, receive and trade with the following chains:",
-      "addSnap": "Add Snap",
       "multiChainSnap": "Multichain Snap",
       "active": "Active",
-      "notActive": "Not Active"
+      "notActive": "Not Active",
+      "addSnap": "Add Snap"
     },
     "coinbase": {
       "errors": {

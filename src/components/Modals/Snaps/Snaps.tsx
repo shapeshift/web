@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Heading,
@@ -8,8 +9,6 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Text,
 } from '@chakra-ui/react'
@@ -61,31 +60,34 @@ export const Snaps = () => {
   return (
     <Modal isOpen={isOpen} onClose={() => handleDismiss(shouldAskAgain)} isCentered size='sm'>
       <ModalOverlay />
-      <ModalContent minW='450px'>
+      <ModalContent minW='500px'>
         <ModalCloseButton />
-        <ModalHeader textAlign='center'>
-          <Heading as='h3'>{translate('walletProvider.metaMaskSnap.title')}</Heading>
-        </ModalHeader>
-        <ModalBody textAlign='center'>
-          <Text>{translate('walletProvider.metaMaskSnap.subtitle')}</Text>
+        <ModalBody>
+          <Box mx='auto' p='5' borderRadius='md' boxShadow='md'>
+            <Heading mt='4'>{translate('walletProvider.metaMaskSnap.title')}</Heading>
 
-          <HStack px={6} spacing={4} justify='center' mt='4' wrap='wrap'>
-            {allNativeAssets.map(asset => (
-              <Image src={asset.icon} alt='Icon 1' boxSize='30px' />
-            ))}
-          </HStack>
+            <Text mt='2'>{translate('walletProvider.metaMaskSnap.subtitle')}</Text>
+
+            <HStack spacing={4} justify='center' mt='4' wrap='wrap'>
+              {allNativeAssets.map(asset => (
+                <Image src={asset.icon} alt='Icon 1' boxSize='30px' />
+              ))}
+            </HStack>
+
+            <HStack mt='5' justify='space-between'>
+              <Checkbox onChange={toggleShouldAskAgain}>Don't ask again</Checkbox>
+
+              <HStack spacing={2}>
+                <Button variant='ghost' onClick={() => handleDismiss(shouldAskAgain)}>
+                  {translate('common.close')}
+                </Button>
+                <Button colorScheme='blue' onClick={handleAddSnap}>
+                  {translate('walletProvider.metaMaskSnap.addSnap')}
+                </Button>
+              </HStack>
+            </HStack>
+          </Box>
         </ModalBody>
-        <ModalFooter justifyContent='space-between'>
-          <Checkbox onChange={toggleShouldAskAgain}>Don't ask again</Checkbox>
-          <HStack spacing={2}>
-            <Button variant='ghost' onClick={() => handleDismiss(shouldAskAgain)}>
-              {translate('common.close')}
-            </Button>
-            <Button colorScheme='blue' onClick={handleAddSnap}>
-              {translate('walletProvider.metaMaskSnap.addSnap')}
-            </Button>
-          </HStack>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   )

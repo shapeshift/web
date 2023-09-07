@@ -233,6 +233,7 @@ export const getThorTradeQuote = async (
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
+              affiliateBps,
             )
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
@@ -314,6 +315,7 @@ export const getThorTradeQuote = async (
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
+              affiliateBps,
             )
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
@@ -409,6 +411,7 @@ export const getThorTradeQuote = async (
               inputSlippageBps,
               isStreaming,
               sellAsset.chainId,
+              affiliateBps,
             )
 
             return {

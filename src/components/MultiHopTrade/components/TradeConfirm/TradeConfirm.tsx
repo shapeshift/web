@@ -40,6 +40,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -82,6 +83,7 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
+  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -197,7 +199,7 @@ export const TradeConfirm = () => {
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (swapperName === SwapperName.Thorchain && tradeQuote) {
+    if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
       return {
         shapeShiftFee: {
           amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
@@ -208,7 +210,7 @@ export const TradeConfirm = () => {
     }
 
     return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
-  }, [swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
+  }, [applyThorSwapAffiliateFees, swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return

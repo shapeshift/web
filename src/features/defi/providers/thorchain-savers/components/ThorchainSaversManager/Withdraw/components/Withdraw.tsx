@@ -183,9 +183,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       )
         return
       try {
-        const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
+        const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
+
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
           stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
@@ -212,7 +211,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
             // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
             AddressZero,
-            amountCryptoBaseUnit.toFixed(0),
+            amountCryptoBaseUnit,
             quote.memo,
             quote.expiry,
           ])
@@ -373,13 +372,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
       const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const valueCryptoPrecision = bnOrZero(value)
-      const valueCryptoBaseUnit = bn(value).times(bn(10).pow(asset.precision))
+      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
 
       const hasValidBalance =
         balanceCryptoPrecision.gt(0) &&
         valueCryptoPrecision.gt(0) &&
         balanceCryptoPrecision.gte(valueCryptoPrecision)
-      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
+      const isBelowWithdrawThreshold = bn(valueCryptoBaseUnit)
+        .minus(outboundFeeCryptoBaseUnit)
+        .lt(0)
 
       if (isBelowWithdrawThreshold) {
         const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
@@ -444,9 +445,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!(accountId && inputValues && asset && opportunityData?.stakedAmountCryptoBaseUnit)) return
     const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
-    if (amountCryptoBaseUnit.isZero()) return
+    if (bn(amountCryptoBaseUnit).isZero()) return
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)

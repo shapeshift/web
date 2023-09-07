@@ -186,11 +186,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit) return
         setQuoteLoading(true)
 
-        const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
-
-        if (amountCryptoBaseUnit.isZero()) return
+        const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+        if (bn(amountCryptoBaseUnit).isZero()) return
 
         const amountCryptoThorBaseUnit = toThorBaseUnit({
           valueCryptoBaseUnit: amountCryptoBaseUnit,
@@ -269,9 +266,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
         throw new Error('accountId is undefined')
 
-      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
 
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
@@ -331,9 +326,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       const adapter = assertGetEvmChainAdapter(chainId)
 
-      const amountCryptoBaseUnit = bnOrZero(state.withdraw.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit,
@@ -468,10 +461,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
 
-      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
-
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
       const bps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
@@ -535,10 +525,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
 
-      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
-
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,

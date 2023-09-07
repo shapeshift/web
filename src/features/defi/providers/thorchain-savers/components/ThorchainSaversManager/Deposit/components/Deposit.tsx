@@ -208,9 +208,9 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         const { cryptoAmount } = inputValues
 
-        const cryptoAmountBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+        const cryptoAmountBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
-        if (cryptoAmountBaseUnit.gt(allowanceOnChainCryptoBaseUnit)) return true
+        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
         return false
       })()
       setIsApprovalRequired(isApprovalRequired)
@@ -455,7 +455,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
+      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
         bn(outboundFeeCryptoBaseUnit).gt(0) &&
@@ -555,9 +555,9 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!opportunityData?.apy) return
     if (!(accountId && inputValues && asset && feeAsset)) return
     const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
-    if (amountCryptoBaseUnit.isZero()) return
+    if (bn(amountCryptoBaseUnit).isZero()) return
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)

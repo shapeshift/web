@@ -21,6 +21,7 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
@@ -132,9 +133,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (maybeInboundAddressData.isErr())
         throw new Error(maybeInboundAddressData.unwrapErr().message)
 
-      const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
 
       const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
@@ -145,9 +144,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         type: ContractType.ERC20,
       })
 
-      const amountToApprove = state.isExactAllowance
-        ? amountCryptoBaseUnit.toFixed(0)
-        : MAX_ALLOWANCE
+      const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
 
       const data = contract.interface.encodeFunctionData('approve', [
         saversRouterContractAddress,
@@ -196,7 +193,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
           quote.inbound_address,
           fromAssetId(assetId).assetReference,
-          amountCryptoBaseUnit.toFixed(0),
+          amountCryptoBaseUnit,
           quote.memo,
           quote.expiry,
         ])

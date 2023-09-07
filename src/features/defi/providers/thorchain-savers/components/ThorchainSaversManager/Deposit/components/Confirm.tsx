@@ -418,9 +418,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
 
-      const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
+
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()
@@ -450,11 +449,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           },
         })
 
-        const cryptoAmountBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
+        const cryptoAmountBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
 
-        const needsFeeDeduction = cryptoAmountBaseUnit
+        const needsFeeDeduction = bn(cryptoAmountBaseUnit)
           .plus(fastFeesBaseUnit)
           .gte(assetBalanceCryptoBaseUnit)
 
@@ -520,9 +517,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const estimateFeesArgs = await getEstimateFeesArgs()
       if (!estimateFeesArgs) return
       const estimatedFees = await estimateFees(estimateFeesArgs)
-      const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()

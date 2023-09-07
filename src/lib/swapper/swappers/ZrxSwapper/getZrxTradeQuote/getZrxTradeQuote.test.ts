@@ -3,7 +3,7 @@ import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
-import { BTC, FOX_MAINNET } from '../../utils/test-data/assets'
+import { BTC } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'

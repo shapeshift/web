@@ -42,9 +42,10 @@ export const useRouterContractAddress = ({
   }, [assetId])
 
   useEffect(() => {
+    if (skip) return
+
     const { chainId } = fromAssetId(assetId)
     if (!isEvmChainId(chainId)) return
-    if (skip) return
 
     fetchRouterContractAddress()
   }, [skip, fetchRouterContractAddress, assetId])

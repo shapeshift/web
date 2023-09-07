@@ -22,7 +22,13 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioLoadingStatus, selectShowSnapsModal } from 'state/slices/selectors'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  selectPortfolioLoadingStatus,
+  selectShowSnapsModal,
+  selectWalletId,
+} from 'state/slices/selectors'
+import { useAppDispatch } from 'state/store'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -46,6 +52,7 @@ export const Header = memo(() => {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
+  const appDispatch = useAppDispatch()
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
@@ -83,17 +90,30 @@ export const Header = memo(() => {
     [dispatch],
   )
 
+  const currentWalletId = useSelector(selectWalletId)
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
       toast({ status: 'success', title: 'Snap Uninstalled', position: 'bottom' })
+      const walletId = currentWalletId
+      if (!walletId) return
+      appDispatch(portfolio.actions.clearWalletMetadata(walletId))
       snapModal.open({})
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
       // they installed the snap
       toast({ status: 'success', title: 'Snap Installed', position: 'bottom' })
     }
-  }, [isSnapInstalled, previousSnapInstall, showSnapModal, snapModal, toast])
+  }, [
+    appDispatch,
+    currentWalletId,
+    dispatch,
+    isSnapInstalled,
+    previousSnapInstall,
+    showSnapModal,
+    snapModal,
+    toast,
+  ])
 
   return (
     <>

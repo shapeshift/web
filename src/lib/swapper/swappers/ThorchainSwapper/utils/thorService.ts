@@ -8,8 +8,8 @@ const cachedUrls = [
   '/lcd/thorchain/pools',
   '/lcd/thorchain/inbound_addresses',
   '/lcd/thorchain/pool/',
-  '/v2/pools',
-  '/v2/pool/',
+  '/pools',
+  '/pool/',
 ]
 const cache = createCache(maxAge, cachedUrls)
 

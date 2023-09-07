@@ -113,10 +113,13 @@ export const getQuote = async (
 
   const initialQuote = initialQuoteResult.unwrap()
 
+  // add a buffer to the outbound fee to account for market shifts between quote and execution
+  const affiliateFeeThreshold = bnOrZero(initialQuote.fees.outbound).times(1.2)
+
   // refetch quote without affiliate fee if it's less than the thorchain outbound fee
   if (
     bnOrZero(input.affiliateBps).gt(0) &&
-    bnOrZero(initialQuote.fees.affiliate).lte(initialQuote.fees.outbound)
+    bnOrZero(initialQuote.fees.affiliate).lte(affiliateFeeThreshold)
   ) {
     return _getQuote({ ...input, affiliateBps: '0' })
   }

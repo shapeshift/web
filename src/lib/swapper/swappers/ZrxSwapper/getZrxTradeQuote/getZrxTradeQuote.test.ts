@@ -1,9 +1,7 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type { SwapErrorRight } from 'lib/swapper/types'
 
 import { BTC, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -60,9 +58,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
-  ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
-    mockOk('https://api.0x.org/'),
-  )
+  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
@@ -77,11 +73,11 @@ describe('getZrxTradeQuote', () => {
 
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
-    expect(quote.tradeQuote.steps[0].feeData).toStrictEqual({
+    expect(quote.steps[0].feeData).toStrictEqual({
       protocolFees: {},
       networkFeeCryptoBaseUnit: '94843800000000000',
     })
-    expect(quote.tradeQuote.steps[0].rate).toBe('100')
+    expect(quote.steps[0].rate).toBe('100')
   })
 
   it('bubbles up the zrxService Err from a bad zrx response', async () => {
@@ -126,7 +122,7 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.tradeQuote.steps[0].feeData).toStrictEqual({
+    expect(quote?.steps[0].feeData).toStrictEqual({
       protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     })

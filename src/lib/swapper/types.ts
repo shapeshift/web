@@ -104,6 +104,7 @@ export type TradeQuote = {
   receiveAccountNumber?: number
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   isStreaming?: boolean
+  slippageTolerancePercentage?: string
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

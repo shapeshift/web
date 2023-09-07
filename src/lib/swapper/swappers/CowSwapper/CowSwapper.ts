@@ -4,8 +4,8 @@ import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
 import type {
   BuyAssetBySellIdInput,
-  CowTradeExecutionProps,
-  CowTransactionRequest,
+  EvmMessageExecutionProps,
+  EvmMessageToSign,
   Swapper,
 } from 'lib/swapper/types'
 
@@ -16,9 +16,9 @@ import { cowService } from './utils/cowService'
 import { domain, getCowswapNetwork, hashOrder } from './utils/helpers/helpers'
 
 export const cowSwapper: Swapper = {
-  executeTradeCow: async (
-    { chainId, orderToSign }: CowTransactionRequest,
-    { signMessage }: CowTradeExecutionProps,
+  executeEvmMessage: async (
+    { chainId, orderToSign }: EvmMessageToSign,
+    { signMessage }: EvmMessageExecutionProps,
   ): Promise<string> => {
     const { chainReference } = fromChainId(chainId)
     const signingDomain = Number(chainReference)

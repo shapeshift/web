@@ -1,14 +1,8 @@
+import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkChainAdapter,
-  SignTx,
-  UtxoChainAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,
@@ -16,44 +10,31 @@ import {
 import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper } from 'lib/swapper/types'
-import { assertUnreachable } from 'lib/utils'
-import { executeEvmTrade } from 'lib/utils/evm'
+import type {
+  BuyAssetBySellIdInput,
+  CosmosSdkTransactionExecutionProps,
+  Swapper,
+  UtxoTransactionExecutionProps,
+} from 'lib/swapper/types'
+import { executeEvmTransaction } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 export const thorchainSwapper: Swapper = {
-  executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
-    const { chainNamespace } = fromChainId(chainId)
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(chainId)
+  executeEvmTransaction,
 
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Evm: {
-        return executeEvmTrade({ txToSign, wallet, chainId })
-      }
+  executeCosmosSdkTransaction: async (
+    txToSign: StdSignDoc,
+    { signAndBroadcastTransaction }: CosmosSdkTransactionExecutionProps,
+  ): Promise<string> => {
+    return await signAndBroadcastTransaction(txToSign)
+  },
 
-      case CHAIN_NAMESPACE.CosmosSdk: {
-        const cosmosSdkChainAdapter = adapter as unknown as CosmosSdkChainAdapter
-        const signedTx = await cosmosSdkChainAdapter.signTransaction({
-          txToSign: txToSign as ThorchainSignTx,
-          wallet,
-        })
-        return cosmosSdkChainAdapter.broadcastTransaction(signedTx)
-      }
-
-      case CHAIN_NAMESPACE.Utxo: {
-        const utxoChainAdapter = adapter as unknown as UtxoChainAdapter
-        const signedTx = await utxoChainAdapter.signTransaction({
-          txToSign: txToSign as SignTx<UtxoChainId>,
-          wallet,
-        })
-        return utxoChainAdapter.broadcastTransaction(signedTx)
-      }
-
-      default:
-        assertUnreachable(chainNamespace)
-    }
+  executeUtxoTransaction: async (
+    txToSign: BTCSignTx,
+    { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
+  ): Promise<string> => {
+    return await signAndBroadcastTransaction(txToSign)
   },
 
   filterAssetIdsBySellable: async (): Promise<AssetId[]> => {

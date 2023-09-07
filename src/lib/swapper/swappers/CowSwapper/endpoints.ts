@@ -6,10 +6,10 @@ import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import type {
   CowSwapOrder,
-  CowTransactionRequest,
+  EvmMessageToSign,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgsCow,
+  GetUnsignedEvmMessageArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
@@ -47,12 +47,12 @@ export const cowApi: SwapperApi = {
     })
   },
 
-  getUnsignedTxCow: async ({
+  getUnsignedEvmMessage: async ({
     from,
     tradeQuote,
     stepIndex,
     chainId,
-  }: GetUnsignedTxArgsCow): Promise<CowTransactionRequest> => {
+  }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote

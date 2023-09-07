@@ -29,3 +29,7 @@ export const buySupportedChainIds: Record<ThorChainId, boolean> = {
 }
 
 export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Streaming`
+
+// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
+// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
+export const THORCHAIN_OUTBOUND_FEE_RUNE = '2000000'

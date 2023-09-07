@@ -214,7 +214,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
           quote.inbound_address,
           fromAssetId(assetId).assetReference,
-          amountCryptoBaseUnit.toString(),
+          amountCryptoBaseUnit.toFixed(0),
           quote.memo,
           quote.expiry,
         ])

@@ -14,14 +14,12 @@ import {
 } from '@shapeshiftoss/caip'
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
-import { getConfig } from 'config'
 import WAValidator from 'multicoin-address-validator'
 import { bn } from 'lib/bignumber/bignumber'
 import {
   LIMIT_PART_DELIMITER,
   MEMO_PART_DELIMITER,
   POOL_PART_DELIMITER,
-  THORCHAIN_AFFILIATE_FEE_BPS,
   THORCHAIN_AFFILIATE_NAME,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertUnreachable } from 'lib/utils'
@@ -64,8 +62,9 @@ export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: st
   }
 }
 
-export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
-  const [, pool, address, limitComponent, affiliate, affiliateBps] = memo.split(MEMO_PART_DELIMITER)
+export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: string): void => {
+  const [, pool, address, limitComponent, affiliate, memoAffiliateBps] =
+    memo.split(MEMO_PART_DELIMITER)
 
   const buyAssetChainId = thorChainAssetToChainId.get(pool.split(POOL_PART_DELIMITER)[0])
   const isAddressValid = buyAssetChainId
@@ -78,12 +77,14 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
 
   const [limit, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
 
-  if (streamingNumSwaps && !bn(streamingNumSwaps).isInteger()) {
-    throw Error(`streamingNumSwaps ${streamingNumSwaps} is not a valid number`)
+  const isStreamingSwap = streamingNumSwaps || streamingNumBlocks
+
+  if (isStreamingSwap && !/^\d+$/.test(streamingNumSwaps)) {
+    throw Error(`streamingNumSwaps '${streamingNumSwaps}' is not a valid number`)
   }
 
-  if (streamingNumBlocks && !bn(streamingNumBlocks).isInteger()) {
-    throw Error(`streamingNumBlocks ${streamingNumBlocks} is not a valid number`)
+  if (isStreamingSwap && !/^\d+$/.test(streamingNumBlocks)) {
+    throw Error(`streamingNumBlocks '${streamingNumBlocks}' is not a valid number`)
   }
 
   // Check if limit is a valid number
@@ -97,20 +98,12 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId): void => {
   }
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
-  const affiliateBpsNum = bn(affiliateBps)
+  const affiliateBpsNum = bn(memoAffiliateBps)
   if (!bn(limit).isInteger() || affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
-    throw Error(`affiliateBps ${affiliateBps} is not a number between 0 and 1000`)
+    throw Error(`affiliateBps ${memoAffiliateBps} is not a number between 0 and 1000`)
   }
 
-  const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
-
-  if (applyThorSwapAffiliateFees) {
-    // the affiliate fee can be 0 when the fee is below the outbound fee
-    assert(
-      affiliateBpsNum.eq(0) || affiliateBpsNum.eq(THORCHAIN_AFFILIATE_FEE_BPS),
-      'incorrect affiliateBps',
-    )
-  }
+  assert(affiliateBpsNum.eq(affiliateBps), 'incorrect affiliateBps')
 
   const { chainNamespace } = fromChainId(chainId)
 

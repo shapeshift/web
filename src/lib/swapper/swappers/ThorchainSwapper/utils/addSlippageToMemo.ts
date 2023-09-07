@@ -16,11 +16,13 @@ export const addSlippageToMemo = (
   slippageBps: BigNumber.Value,
   isStreaming: boolean,
   chainId: ChainId,
+  affiliateBps: string,
 ) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
   // the missing element is the original limit with (optional, missing) streaming parameters
-  const [prefix, pool, address, , affiliate, affiliateBps] = quotedMemo.split(MEMO_PART_DELIMITER)
+  const [prefix, pool, address, , affiliate, memoAffiliateBps] =
+    quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
     expectedAmountOutThorBaseUnit,
@@ -34,10 +36,10 @@ export const addSlippageToMemo = (
       )
     : [limitWithManualSlippage]
 
-  const memo = [prefix, pool, address, updatedLimitComponent, affiliate, affiliateBps].join(
+  const memo = [prefix, pool, address, updatedLimitComponent, affiliate, memoAffiliateBps].join(
     MEMO_PART_DELIMITER,
   )
 
-  assertIsValidMemo(memo, chainId)
+  assertIsValidMemo(memo, chainId, affiliateBps)
   return memo
 }

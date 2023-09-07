@@ -230,7 +230,7 @@ export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs)
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }
 
-export const executeEvmTrade2 = (
+export const executeEvmTransaction = (
   txToSign: EvmTransactionRequest,
   callbacks: EvmTransactionExecutionProps,
 ) => {

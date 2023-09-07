@@ -16,12 +16,12 @@ import type {
   Swapper,
   UtxoTransactionExecutionProps,
 } from 'lib/swapper/types'
-import { executeEvmTrade2 } from 'lib/utils/evm'
+import { executeEvmTransaction } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 export const thorchainSwapper: Swapper = {
-  executeEvmTransaction: executeEvmTrade2,
+  executeEvmTransaction,
 
   executeCosmosSdkTransaction: async (
     txToSign: StdSignDoc,

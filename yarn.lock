@@ -1025,11 +1025,11 @@ __metadata:
   linkType: hard
 
 "@babel/parser@npm:^7.22.15":
-  version: 7.22.15
-  resolution: "@babel/parser@npm:7.22.15"
+  version: 7.22.16
+  resolution: "@babel/parser@npm:7.22.16"
   bin:
     parser: ./bin/babel-parser.js
-  checksum: 7431c1ab445cf2b6e8acb2d7acc60d9d7c25728c7649ae16732590834002786bea10b54ab1936ae0784b0e7d080efe9fd4bf17c4534b6eb36d09c75a85253ef9
+  checksum: 944c756b5bdeb07b9fec16ecef6b3c61aff9d4c4b924abadcf01afa1840a740b8e2357ae00482b5b37daad6d2bfd848c947f27ad65138d687b6fdc924bc59edd
   languageName: node
   linkType: hard
 
@@ -7825,19 +7825,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:^1.50.5-alpha.63":
-  version: 1.50.5-alpha.63
-  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha.63"
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:^1.50.5-alpha.64":
+  version: 1.50.5-alpha.64
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.50.5-alpha.64"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
     "@shapeshiftoss/hdwallet-core": ^1.50.5-alpha.62
-    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.0-alpha.24
+    "@shapeshiftoss/metamask-snaps-adapter": ^1.0.0-alpha.25
     "@shapeshiftoss/metamask-snaps-types": ^1.0.0-alpha.22
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: cf9e986a9ce95d23f35483762f43a59bc7942d1cdd76c6f7a72912d3c3883b07818324bbacf7609a6e80c79c0f04f3a295b7fa6b00d5d0ba2c688b88406a6eb3
+  checksum: 912675c8a23b380352ba72cec1dd275251d98f719c00959023a0f6c85b97a03fba1dea8ca5dd422807fbc09739110dd5e3b2117f3f247deb23124ee4b7b918cb
   languageName: node
   linkType: hard
 
@@ -7870,9 +7870,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.0-alpha.24":
-  version: 1.0.0-alpha.24
-  resolution: "@shapeshiftoss/metamask-snaps-adapter@npm:1.0.0-alpha.24"
+"@shapeshiftoss/metamask-snaps-adapter@npm:^1.0.0-alpha.25":
+  version: 1.0.0-alpha.25
+  resolution: "@shapeshiftoss/metamask-snaps-adapter@npm:1.0.0-alpha.25"
   dependencies:
     "@ethersproject/providers": ^5.7.2
     "@metamask/detect-provider": ^2.0.0
@@ -7888,7 +7888,7 @@ __metadata:
     eslint-plugin-react: "*"
     eslint-plugin-react-hooks: "*"
     webpack: "*"
-  checksum: ce572ce61b6b565fb59a3c1b88a63c6a99b3796a463a4c46fa1382ce2d28679e90e883031fd6b5468a87dfc26131a787f2b3701bb770a5c1166766194c949e88
+  checksum: 84369974e055a7a136df7b86ce4efa88770ed36989ea3c804acc7ba875e9e0bff0274cb99fb2be0dbedb833a9a4ab8a7005c26340810bea77b199d6e20af6681
   languageName: node
   linkType: hard
 
@@ -8037,7 +8037,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.63
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.64
     "@shapeshiftoss/hdwallet-walletconnect": ^1.50.4
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/types": "workspace:^"

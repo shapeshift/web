@@ -318,7 +318,7 @@ export const makeDaysToBreakEven = ({
   apy,
 }: {
   expectedAmountOutThorBaseUnit: string
-  amountCryptoBaseUnit: BigNumber
+  amountCryptoBaseUnit: BigNumber.Value
   asset: Asset
   apy: string
 }) => {

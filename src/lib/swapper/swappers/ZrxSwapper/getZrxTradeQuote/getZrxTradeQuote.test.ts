@@ -140,12 +140,8 @@ describe('getZrxTradeQuote', () => {
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
-      code: 'UNSUPPORTED_PAIR',
-      details: {
-        buyAsset: BTC,
-        sellAsset: FOX_MAINNET,
-      },
-      message: `[Zrx: assertValidTrade] - both assets must be on chainId eip155:1`,
+      code: 'UNSUPPORTED_CHAIN',
+      message: 'unsupported chainId',
       name: 'SwapError',
     })
   })
@@ -165,7 +161,7 @@ describe('getZrxTradeQuote', () => {
       details: {
         chainId: 'bip122:000000000019d6689c085ae165831e93',
       },
-      message: '[Zrx: assertValidTrade] - unsupported chainId',
+      message: 'unsupported chainId',
       name: 'SwapError',
     })
   })

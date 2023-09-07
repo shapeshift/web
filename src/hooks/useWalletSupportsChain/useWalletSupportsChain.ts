@@ -26,26 +26,23 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
-import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
-import { getConfig } from 'config'
-import { useEffect, useState } from 'react'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 
-type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
+type UseWalletSupportsChainArgs = {
+  isSnapInstalled: boolean | null
+  chainId: ChainId
+  wallet: HDWallet | null
+}
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean | null
-type UseWalletSupportsChainAsync = (args: UseWalletSupportsChainArgs) => Promise<boolean>
 
 // use outside react
-export const walletSupportsChain: UseWalletSupportsChainAsync = async ({ chainId, wallet }) => {
+export const walletSupportsChain: UseWalletSupportsChain = ({
+  chainId,
+  wallet,
+  isSnapInstalled,
+}) => {
   if (!wallet) return false
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-  // We might be in a state where the wallet adapter is MetaMaskShapeShiftMultiChainHDWallet, but the actual underlying either
-  // - doesn't support snaps (as snaps are currently only in Flask canary build at the time of writing) or
-  // - supports snaps, but the snaps isn't installed
-  // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
-  // programatically depending on whether the snaps is installed or not, but in the meantime, this will make things happy
-  const snapId = getConfig().REACT_APP_SNAP_ID
-  const isSnapInstalled = await shapeShiftSnapInstalled(snapId)
-  // If this evaluates to false, the wallet feature detection will be short circuit
   const skipWalletFeatureDetection =
     !isMetaMaskMultichainWallet || (isMetaMaskMultichainWallet && isSnapInstalled)
   switch (chainId) {
@@ -77,14 +74,13 @@ export const walletSupportsChain: UseWalletSupportsChainAsync = async ({ chainId
 }
 
 export const useWalletSupportsChain: UseWalletSupportsChain = args => {
-  const [supported, setSupported] = useState<boolean | null>(null)
+  // We might be in a state where the wallet adapter is MetaMaskShapeShiftMultiChainHDWallet, but the actual underlying either
+  // - doesn't support snaps (as snaps are currently only in Flask canary build at the time of writing) or
+  // - supports snaps, but the snaps isn't installed
+  // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
+  // programatically depending on whether the snaps is installed or not, but in the meantime, this will make things happy
+  // If this evaluates to false, the wallet feature detection will be short circuit
+  const isSnapInstalled = useIsSnapInstalled()
 
-  useEffect(() => {
-    ;(async () => {
-      const result = await walletSupportsChain(args)
-      setSupported(result)
-    })()
-  }, [args])
-
-  return supported
+  return walletSupportsChain({ ...args, isSnapInstalled })
 }

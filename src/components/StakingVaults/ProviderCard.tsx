@@ -15,6 +15,7 @@ import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDet
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type {
@@ -50,11 +51,12 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
+  const isSnapInstalled = useIsSnapInstalled()
+
   const filteredDownStakingOpportunities = stakingOpportunities.filter(
     e =>
       staking.includes(e.id as OpportunityId) &&
-      // TODO(gomes): await this, this will now break
-      walletSupportsChain({ chainId: e.chainId, wallet }),
+      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
   )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
@@ -62,8 +64,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownLpOpportunities = lpOpportunities.filter(
     e =>
       lp.includes(e.assetId as OpportunityId) &&
-      // TODO(gomes): await this, this will now break
-      walletSupportsChain({ chainId: e.chainId, wallet }),
+      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
   )
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null

@@ -106,13 +106,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      const chainIds = await Array.from(supportedChains).reduce<Promise<ChainId[]>>(
-        async (acc, chainId) => {
-          const isChainSupported = await walletSupportsChain({ chainId, wallet })
-          if (isChainSupported) return Promise.resolve([...(await acc), chainId])
-          return acc
-        },
-        Promise.resolve([]),
+      const chainIds = Array.from(supportedChains).filter(chainId =>
+        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
       )
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {

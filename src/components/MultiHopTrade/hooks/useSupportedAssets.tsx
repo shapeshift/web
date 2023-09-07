@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo, useState } from 'react'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { Asset } from 'lib/asset-service'
@@ -23,19 +24,20 @@ export const useSupportedAssets = () => {
   const [supportedBuyAssets, setSupportedBuyAssets] = useState<Asset[]>([])
   const [supportedBuyAssetsIds, setSupportedBuyAssetsIds] = useState<Set<AssetId>>(new Set())
 
+  const isSnapInstalled = useIsSnapInstalled()
   useEffect(() => {
     ;(async () => {
       const assetIds = await getSupportedSellAssetIds(enabledSwappers)
       const filteredAssetIds = new Set<AssetId>()
       assetIds.forEach(async assetId => {
         const chainId = fromAssetId(assetId).chainId
-        if (await walletSupportsChain({ chainId, wallet })) {
+        if (await walletSupportsChain({ chainId, wallet, isSnapInstalled })) {
           filteredAssetIds.add(assetId)
         }
       })
       setSupportedSellAssetIds(filteredAssetIds)
     })()
-  }, [enabledSwappers, sortedAssets, wallet])
+  }, [enabledSwappers, isSnapInstalled, sortedAssets, wallet])
 
   useEffect(() => {
     ;(async () => {

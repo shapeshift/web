@@ -1,5 +1,27 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+export type MidgardPoolResponse = {
+  annualPercentageRate: string
+  asset: string
+  assetDepth: string
+  assetPrice: string
+  assetPriceUSD: string
+  liquidityUnits: string
+  nativeDecimal: string
+  poolAPY: string
+  runeDepth: string
+  saversAPR: string
+  saversDepth: string
+  saversUnits: string
+  status: string
+  synthSupply: string
+  synthUnits: string
+  totalCollateral: string
+  totalDebtTor: string
+  units: string
+  volume24h: string
+}
+
 export type ThornodePoolResponse = {
   LP_units: string
   asset: string

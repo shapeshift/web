@@ -6,6 +6,7 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'
 import type { MidgardPoolResponse } from '../../types'
 import { THORCHAIN_FIXED_PRECISION } from '../constants'
+import { isRune } from '../isRune/isRune'
 import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../thorService'
 
@@ -39,16 +40,22 @@ export const getThresholdedAffiliateBps = async ({
   affiliateBps: string
   sellAmountCryptoBaseUnit: string
 }) => {
-  const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-  const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
+  const outboundFeeSellAssetThorUnit = await (async () => {
+    if (isRune(sellAsset.assetId)) return THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT
 
-  // get pool data for the sell asset
-  const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${sellPoolId}`)
-  if (poolResult.isErr()) throw poolResult.unwrapErr()
-  const pool = poolResult.unwrap().data
+    const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+    const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
-  // calculate the rune outbound fee denominated in the sell asset, in thor units
-  const outboundFeeSellAssetThorUnit = getOutboundFeeInSellAssetThorBaseUnit(pool.assetPrice)
+    // get pool data for the sell asset
+    const poolResult = await thorService.get<MidgardPoolResponse>(
+      `${midgardUrl}/pool/${sellPoolId}`,
+    )
+    if (poolResult.isErr()) throw poolResult.unwrapErr()
+    const pool = poolResult.unwrap().data
+
+    // calculate the rune outbound fee denominated in the sell asset, in thor units
+    return getOutboundFeeInSellAssetThorBaseUnit(pool.assetPrice)
+  })()
 
   // calculate the expected affiliate fee, in thor units
   const expectedAffiliateFeeSellAssetThorUnit = getExpectedAffiliateFeeSellAssetThorUnit(

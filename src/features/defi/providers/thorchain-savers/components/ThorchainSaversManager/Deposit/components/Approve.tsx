@@ -11,7 +11,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -25,6 +25,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome, isToken } from 'lib/utils'
 import {
@@ -68,9 +69,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
-    null,
-  )
 
   const assetId = toAssetId({
     chainId,
@@ -106,27 +104,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     selectMarketDataById(state, feeAsset?.assetId ?? ''),
   )
 
-  useEffect(() => {
-    if (!(accountId && asset && feeAsset && state && dispatch && isTokenDeposit)) return
-
-    if (bnOrZero(state.deposit.cryptoAmount).isZero()) return
-    ;(async () => {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const maybeInboundAddressData = await getInboundAddressDataForChain(
-        daemonUrl,
-        feeAsset?.assetId,
-      )
-      if (maybeInboundAddressData.isErr())
-        throw new Error(maybeInboundAddressData.unwrapErr().message)
-
-      const inboundAddressData = maybeInboundAddressData.unwrap()
-
-      const router = inboundAddressData.router
-      // Should always be defined for EVM tokens, and approves are for EVM tokens only (not native asset), but safety first
-      if (!router) throw new Error(`router not found for ChainId ${asset.chainId}`)
-      setSaversRouterContractAddress(router)
-    })()
-  }, [accountId, asset, dispatch, feeAsset, isTokenDeposit, state])
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenDeposit || !feeAsset?.assetId,
+  })
 
   const handleApprove = useCallback(async () => {
     if (

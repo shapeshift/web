@@ -30,6 +30,7 @@ import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import {
@@ -59,9 +60,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
-    null,
-  )
-  const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
     null,
   )
   const [inputValues, setInputValues] = useState<{
@@ -165,6 +163,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [asset.precision, assetId])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenWithdraw || !feeAsset?.assetId,
+  })
 
   const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
     async (withdraw: WithdrawValues) => {
@@ -468,25 +471,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             asset.precision,
           ),
         )
-
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-
-        if (isTokenWithdraw) {
-          const maybeInboundAddressData = await getInboundAddressDataForChain(
-            daemonUrl,
-            feeAsset.assetId,
-          )
-          if (maybeInboundAddressData.isErr())
-            throw new Error(maybeInboundAddressData.unwrapErr().message)
-
-          const inboundAddressData = maybeInboundAddressData.unwrap()
-
-          // router should always be defined for token withdraws, but safety never hurts
-          if (!inboundAddressData.router)
-            throw new Error(`No router address found for chainId ${feeAsset.chainId}`)
-
-          setSaversRouterContractAddress(inboundAddressData.router!)
-        }
       } catch (e) {
         console.error(e)
       } finally {

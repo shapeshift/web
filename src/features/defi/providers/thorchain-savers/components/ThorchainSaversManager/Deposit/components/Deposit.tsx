@@ -35,6 +35,7 @@ import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import type { SwapErrorRight } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
 import {
@@ -83,9 +84,6 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
-    null,
-  )
-  const [saversRouterContractAddress, setSaversRouterContractAddress] = useState<string | null>(
     null,
   )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
@@ -190,6 +188,11 @@ export const Deposit: React.FC<DepositProps> = ({
   const toast = useToast()
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenDeposit || !feeAsset?.assetId,
+  })
 
   useEffect(() => {
     if (!inputValues || !accountId)
@@ -567,23 +570,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
-
-      if (isTokenDeposit) {
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        const maybeInboundAddressData = await getInboundAddressDataForChain(
-          daemonUrl,
-          feeAsset.assetId,
-        )
-        if (maybeInboundAddressData.isErr())
-          throw new Error(maybeInboundAddressData.unwrapErr().message)
-
-        const inboundAddressData = maybeInboundAddressData.unwrap()
-
-        // This should never happen as THOR *should* return us a router for EVM chains native assets' inbound addresses
-        if (!inboundAddressData.router)
-          throw new Error(`No router address found for feeAsset ${feeAsset.assetId}`)
-        setSaversRouterContractAddress(inboundAddressData.router!)
-      }
 
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit

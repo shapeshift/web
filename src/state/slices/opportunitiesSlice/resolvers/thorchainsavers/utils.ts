@@ -27,6 +27,8 @@ import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
+  MidgardPoolPeriod,
+  MidgardPoolRequest,
   MidgardPoolResponse,
   ThorchainSaverPositionResponse,
   ThorchainSaversDepositQuoteResponse,
@@ -240,10 +242,13 @@ export const getThorchainSaversWithdrawQuote = async ({
   return quoteData
 }
 
-export const getMidgardPools = async (period?: string): Promise<MidgardPoolResponse[]> => {
-  const maybePeriodQueryParameter = period ? `?period=${period}` : ''
+export const getMidgardPools = async (
+  period?: MidgardPoolPeriod,
+): Promise<MidgardPoolResponse[]> => {
+  const maybePeriodQueryParameter: MidgardPoolRequest = period ? { period } : {}
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pools${maybePeriodQueryParameter}`,
+    `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+    { params: maybePeriodQueryParameter },
   )
 
   if (!poolsData) return []

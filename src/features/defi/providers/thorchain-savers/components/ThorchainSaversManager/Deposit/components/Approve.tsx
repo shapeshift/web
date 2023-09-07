@@ -99,7 +99,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+  const isTokenDeposit = isToken(assetReference)
 
   const feeMarketData = useAppSelector(state =>
     selectMarketDataById(state, feeAsset?.assetId ?? ''),

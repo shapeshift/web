@@ -10,8 +10,8 @@ import { isRune } from '../isRune/isRune'
 import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../thorService'
 
-export const getOutboundFeeInSellAssetThorBaseUnit = (assetPricePrecision: string) => {
-  return bn(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT).dividedBy(assetPricePrecision)
+export const getOutboundFeeInSellAssetThorBaseUnit = (runePerAsset: string) => {
+  return bn(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT).dividedBy(runePerAsset)
 }
 
 export const getExpectedAffiliateFeeSellAssetThorUnit = (

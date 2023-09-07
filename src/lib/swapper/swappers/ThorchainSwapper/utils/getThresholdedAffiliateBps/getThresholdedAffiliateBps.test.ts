@@ -22,10 +22,10 @@ jest.mock('../thorService', () => {
 })
 
 describe('getOutboundFeeInSellAssetThorBaseUnit', () => {
-  it('should return 0.2 rune denominated in the target asset, in thor units', () => {
+  it('should return 0.02 rune denominated in the target asset, in thor units', () => {
     const assetPricePrecision = '4.00000' // 1 token is 4x as valuable as 1 rune
     expect(getOutboundFeeInSellAssetThorBaseUnit(assetPricePrecision).toNumber()).toEqual(
-      Number(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT) / 4,
+      Number(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT) / 4, // .005 of the sell asset in THOR base unit
     )
   })
 })
@@ -42,7 +42,7 @@ describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
       affiliateBps,
     )
 
-    const expectation = bn('100000000').times(0.0035).toFixed(0)
+    const expectation = bn('100000000').times('0.0035').toFixed(0)
 
     expect(result.toFixed(0)).toEqual(expectation)
   })

@@ -26,7 +26,6 @@ import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
-import { SnapsButton } from './NavBar/SnapsButton'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -141,7 +140,6 @@ export const Header = memo(() => {
               )}
               <Notifications />
               <ChainMenu display={{ base: 'none', md: 'block' }} />
-              <SnapsButton />
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

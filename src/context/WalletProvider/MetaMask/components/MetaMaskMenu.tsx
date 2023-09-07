@@ -1,10 +1,12 @@
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { enableShapeShiftSnap } from 'utils/snaps'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 
 export const MetaMaskMenu = () => {
   const isSnapInstalled = useIsSnapInstalled()
+  const translate = useTranslate()
 
   const handleClick = useCallback(() => {
     if (isSnapInstalled === false) {
@@ -14,11 +16,11 @@ export const MetaMaskMenu = () => {
 
   const renderSnapStatus = useMemo(() => {
     if (isSnapInstalled === true) {
-      return <Tag colorScheme='green'>Active</Tag>
+      return <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
     } else {
-      return <Tag>Not Active</Tag>
+      return <Tag>{translate('walletProvider.metaMaskSnap.notActive')}</Tag>
     }
-  }, [isSnapInstalled])
+  }, [isSnapInstalled, translate])
 
   return (
     <>
@@ -28,7 +30,7 @@ export const MetaMaskMenu = () => {
         onClick={handleClick}
         isDisabled={isSnapInstalled === true}
       >
-        Multichain Snap
+        {translate('walletProvider.metaMaskSnap.multiChainSnap')}
         <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>
       </MenuItem>
     </>

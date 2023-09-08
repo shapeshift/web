@@ -1,12 +1,12 @@
 import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import type { EmptyOverviewAsset } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 
 type FoxFarmingEmptyProps = {
-  assets: EmptyOverviewAsset[]
+  assets: Asset[]
   apy: string | undefined
   onClick?: () => void
   opportunityName: string
@@ -41,8 +41,8 @@ export const FoxFarmingEmpty = ({
             </Skeleton>
           </CText>
         </Stack>
-        <Text color='gray.500' translation='defi.modals.foxFarmingOverview.body' />
-        <Text color='gray.500' translation='defi.modals.foxFarmingOverview.rewards' />
+        <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.body' />
+        <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.rewards' />
       </EmptyOverview>
     </DefiModalContent>
   )

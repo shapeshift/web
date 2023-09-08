@@ -7,33 +7,38 @@ import {
   ModalOverlay,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
+import type { Asset } from 'lib/asset-service'
 import { breakpoints } from 'theme/theme'
 
-interface AssetSearchModalProps extends AssetSearchProps {
-  onClick: Required<AssetSearchProps>['onClick']
+export type AssetSearchModalProps = AssetSearchProps & {
   title?: string
+  onClick: Required<AssetSearchProps>['onClick']
 }
 
-export const AssetSearchModal: FC<AssetSearchModalProps> = ({
+type AssetSearchModalBaseProps = AssetSearchModalProps & {
+  isOpen: boolean
+  close: () => void
+}
+
+export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onClick,
-  filterBy,
+  close,
+  isOpen,
+  assets,
   disableUnsupported,
   title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
-  const {
-    assetSearch: { close, isOpen },
-  } = useModal()
+
   const handleClick = useCallback(
     (asset: Asset) => {
       onClick(asset)
@@ -54,7 +59,7 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
         <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
           <AssetSearch
             onClick={handleClick}
-            filterBy={filterBy}
+            assets={assets}
             disableUnsupported={disableUnsupported}
           />
         </ModalBody>
@@ -62,3 +67,20 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
     </Modal>
   )
 }
+
+// multiple instances to prevent rerenders opening the modal in different parts of the app
+
+export const AssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
+  const assetSearch = useModal('assetSearch')
+  return <AssetSearchModalBase {...props} {...assetSearch} />
+})
+
+export const SellAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
+  const sellAssetSearch = useModal('sellAssetSearch')
+  return <AssetSearchModalBase {...props} {...sellAssetSearch} />
+})
+
+export const BuyAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
+  const buyAssetSearch = useModal('buyAssetSearch')
+  return <AssetSearchModalBase {...props} {...buyAssetSearch} />
+})

@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
@@ -22,7 +22,7 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
       <ModalOverlay />
       <ModalContent
         width='full'
-        borderRadius={{ base: 0, md: 'xl' }}
+        borderRadius={{ base: 0, md: '2xl' }}
         minWidth={{ base: '100%', md: '500px' }}
         maxWidth={{ base: 'full', md: '500px' }}
       >

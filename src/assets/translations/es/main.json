@@ -6,13 +6,22 @@
     "error": "Error",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "loadMore": "Cargar más",
+    "saveChanges": "Guardar cambios",
+    "new": "Nueva",
     "continue": "Continuar",
+    "reward": "Recompensa",
+    "claimable": "Reclamable",
     "approve": "Aprobar",
     "confirm": "Confirmar",
+    "activity": "Actividad",
     "reject": "Rechazar",
     "connected": "Conectado",
+    "allocation": "Asignación",
+    "value": "Valor",
     "created": "Creado %{date}",
     "noResultsFound": "No se han encontrado resultados.",
+    "noResultsBody": "No resultados para %{searchQuery}. Intente de nuevo.",
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
@@ -41,7 +50,7 @@
     "or": "ó",
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
-    "accountError": "Error al cargar cuentas para %{erroredAccountNames}.",
+    "accountError": "Temporalmente no se puede obtener datos para las cadenas:",
     "degradedState": "La aplicación está en un estado degradado",
     "degradedInfo": "No se pueden obtener los datos de algunas cuentas.",
     "success": "Éxito",
@@ -76,6 +85,7 @@
     "txId": "ID Tx",
     "selectAsset": "Seleccione un Activo",
     "switchNetwork": "Cambiar Red",
+    "selectNetwork": "Seleccione red",
     "unsupportedNetwork": "Red No Soportada",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
@@ -84,7 +94,32 @@
     "pageNotFound": "La página que buscas no se encuentra",
     "buySell": "Comprar/Vender",
     "all": "Todo",
-    "viewAll": "Ver todo"
+    "viewAll": "Ver todo",
+    "slippage": "Deslizamiento",
+    "best": "Mejor",
+    "alternative": "Alternativa",
+    "validator": "el validador %{name}",
+    "needAsset": "¿Necesita %{asset}?",
+    "buyNow": "Comprar ahora",
+    "manage": "Administre",
+    "selectedAccount": "Cuenta Seleccionada",
+    "allChains": "Todas las cadenas",
+    "wallet": "Billetera",
+    "action": "Acción",
+    "feedbackAndSupport": "Comentarios y soporte",
+    "getSupport": "Obtener Soporte",
+    "viewMyWallet": "Ver mi Billetera",
+    "submitFeatureRequest": "Solicitar una función"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita",
+      "2": "private.shapeshift.com",
+      "3": "si no quieres que te rastreen de forma anónima. Vea nuestra",
+      "4": "Política de Privacidad",
+      "5": "para más detalles."
+    },
+    "cta": "Entiendo"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -101,7 +136,7 @@
     "cta": {
       "title": {
         "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
-        "second": "Rastree su cripto en 8 cadenas"
+        "second": "Rastree su cripto en %{chainCount} cadenas"
       }
     },
     "availableAssets": "Activos Disponibles"
@@ -162,6 +197,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "Rampa de entrada",
+    "coinbase": "Coinbase",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -191,7 +227,6 @@
     "defiUniverse": "Universo DeFi",
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
     "body2": "Bienvenido al nuevo ShapeShift. 100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
-    "betaSunset": "Beta ha sido descontinuada, Más información",
     "header": "Conecte una billetera para comenzar",
     "cta": "Conectar Billetera",
     "viewADemo": "Ver un Demo"
@@ -201,7 +236,8 @@
       "triggerButton": "Conectar billetera",
       "switchWallet": "Cambiar Proveedor de Billetera",
       "disconnect": "Desconectar",
-      "disconnected": "(Desconectado)"
+      "disconnected": "(Desconectado)",
+      "connecting": "Conectando..."
     }
   },
   "defi": {
@@ -267,6 +303,7 @@
       },
       "overview": {
         "underlyingTokens": "Tokens Subyacentes",
+        "underlyingToken": "Token Subyacente",
         "availableRewards": "Recompensas disponibles",
         "about": "Acerca de",
         "tvl": "TVL",
@@ -288,17 +325,31 @@
       "saversVaults": {
         "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
         "vaultCap": "Límite de bóveda",
-        "vaultCapTooltip": "Algo sobre los límites de bóveda",
+        "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
         "haltedTitle": "Los depositos estan temporalmente detenidos.",
         "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
-        "estimatedFee": "Comisión estimada",
+        "protocolFee": "Tarifa de Protocolo",
         "fee": "Comisión",
-        "estimatedFeeTooltip": "Comisión por transferir fondos desde una cadena de bloques de  capa 1",
         "dustAmount": "Cantidad de polvo",
         "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
         "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
         "sendDust": "Send Dust",
-        "addressToSendTo": "Dirección de envío"
+        "addressToSendTo": "Dirección de envío",
+        "introducingSaversVaults": "Presentamos Bóvedas Savers",
+        "risksBody": {
+          "1": "Refiere a",
+          "2": "Este artículo",
+          "3": "por los riesgos de las Bovedas Savers."
+        },
+        "understand": "Entiendo",
+        "days": "%{amount} días",
+        "day": "%{amount} día",
+        "timeToBreakEven": {
+          "title": "Tiempo para evitar pérdidas",
+          "tooltip": "Tiempo estimado para cubrir tarifas de depósito y ganancias."
+        },
+        "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
+        "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes"
       }
     },
     "memoNote": {
@@ -316,6 +367,7 @@
     "validatorMoniker": "Validador de %{moniker}",
     "stakedAmount": "Monto en Stake",
     "unstakeFrom": "Unstake desde",
+    "underlyingAsset": "Activo Subyacente",
     "gasFee": "Tarifa de Gas",
     "provider": "Proveedor",
     "currentTvl": "TVL actual",
@@ -347,16 +399,21 @@
     "apr": "APR",
     "ended": "Finalizado",
     "balance": "Balance",
-    "defi": "DeFi",
     "startEarning": "Empezar a ganar",
     "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
+    "rewardsBalance": "Balance Recompensas",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
     "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
+    "myPositions": "Mis Posiciones",
+    "myPositionsBody": "Sus posiciones activas aparecerán aquí.",
+    "myRewards": "Mis Recompensas",
+    "myRewardsBody": "Sus posiciones activas con recompensas reclamables aparecerán aquí.",
+    "viewAllPositions": "Ver Todas las Posiciones",
     "liquidityPools": "Pools de liquidez",
     "stakingVaults": "Staking & Bóvedas",
     "farming": "Farming",
@@ -365,10 +422,15 @@
     "farmingBalance": "Balance de Farming",
     "liquidityPoolBalance": "Balance Pool de Liquídez",
     "poolValue": "Valor de Pool",
-    "currentValue": "Valor Actual",
-    "currentAPY": "APY Actual",
-    "currentAPR": "APR Actual",
     "yearn": "Yearn Finance",
+    "totalValue": "Valor Total",
+    "byAsset": "Por Activo",
+    "byProvider": "Por Proveedor",
+    "claimableRewards": "Recompensas reclamables",
+    "reawrds": "Recompensas",
+    "stakingPosition": "Posición Staking",
+    "liquidityPool": "Pool de Liquidez",
+    "noActivePositions": "Sin Posiciones Activas",
     "emptyEarn": "Las oportunidades para Ganar recompensas aparecerán aquí.",
     "empty": {
       "farming": {
@@ -426,13 +488,15 @@
   },
   "navBar": {
     "home": "Inicio",
+    "activity": "Actividad",
+    "myWallet": "Mi billetera",
     "dashboard": "Tablero de mandos",
+    "dashboardShort": "Panel",
     "assets": "Activos",
     "assetDetails": "Detalles de activos",
     "accounts": "Cuentas",
     "accountAsset": "Activo de la cuenta",
     "accountDetails": "Detalles de la Cuenta",
-    "earn": "Gane",
     "defi": "DeFi",
     "transactionHistory": "Historial de Transacciones",
     "overview": "Resúmenes",
@@ -445,8 +509,14 @@
     "clickToConnect": "Haga clic para conectar una billetera",
     "wallet": "Billetera",
     "explore": "Explore",
-    "trade": "Intercambie",
-    "buyCrypto": "Comprar/Vender Cripto"
+    "rewards": "Recompensas",
+    "trade": "Intercambie/Bridge",
+    "tradeShort": "Intercambie",
+    "buyCrypto": "Comprar/Vender Cripto",
+    "buyCryptoShort": "Comprar/Vender",
+    "arkeo": "Airdrop Arkeo ",
+    "foxMissions": "Misiones FOX",
+    "foxMissionsShort": "Misiones"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -470,15 +540,21 @@
       "weth": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
+        "revokeSymbol": "Revocar aprobación %{symbol}",
+        "amountUnavailable": "No disponible",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
+        "revokeSymbol": "Revocar aprobación %{symbol}",
         "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -499,8 +575,19 @@
       },
       "erc20": {
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
-        "infinite": "Infinito ∞"
+        "revokeSymbol": "Revocar aprobación %{symbol}",
+        "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible"
+      },
+      "bep20": {
+        "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
+        "revoke": "Revocar",
+        "revokeSymbol": "Revocar Autorización %{symbol} ",
+        "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible"
       },
       "staking": {
         "delegate": "Delegar",
@@ -519,7 +606,10 @@
         "recv_packet": "Recibido"
       },
       "lp": {
-        "deposit": "Añadir Liquidez"
+        "deposit": "Añadir Liquidez",
+        "withdraw": "Remover Liquidez",
+        "join_pool": "Unirse al Pool",
+        "exit_pool": "Salir del Pool"
       }
     },
     "unknown": "Transacción"
@@ -544,20 +634,39 @@
   "trade": {
     "trade": "Intercambiar",
     "allowance": "Tolerancia",
+    "slippageInfo": "Su transacción se revertirá si el precio cambia desfavorablemente más de porcentaje.",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
     "noRateAvailable": "No hay tarifa disponible.",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "tradeFrom": "Intercambia desde",
+    "priceImpact": "Impacto en precio",
+    "slippage": {
+      "maxSlippage": "Deslizamiento Máx",
+      "auto": "Auto",
+      "custom": "Personalizado",
+      "warning": "Altas tolerancias en deslizamiento resultaran en intercambios desfavorables.",
+      "lowSlippage": "Deslizamiento debajo de 0,05% resulta en transacción fallida."
+    },
+    "from": "De",
+    "to": "A",
+    "on": "en",
+    "youPay": "Tu pagas",
+    "payWith": "Pagar con",
+    "youGet": "Obtiene",
     "tradeTo": "Intercambia a",
+    "availableRoutes": "Rutas disponibles",
     "minerFee": "Tarifa de minero",
+    "donation": "Donación ShapeShift",
     "protocolFee": "Tarifa de protocolo",
     "protocol": "Protocolo",
     "tradeFeeSource": "Tarifa de %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
+    "tradeAnyway": "Comerciar de todos modos",
+    "pending": "Intercambio Pendiente",
     "complete": "Intercambio Completado",
     "approveAsset": "Aprobar la interacción con %{symbol}",
     "needPermission": "Necesitamos su permiso para usar su %{symbol}",
@@ -575,15 +684,24 @@
     "slowSwapTitle": "%{protocol} intercambiar",
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "updatingQuote": "Actualizando cotización...",
-    "intoRUNETitle": "Intercambiando a RUNE",
-    "intoRUNEBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir RUNE no está disponible temporalmente",
+    "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
+    "manualReceiveAddress": "Dirección de Recepción",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
+      "priceImpact": "Un intercambio de este tamaño puede tener un alto impacto en el precio dada la liquidez actual en el pool. Puede haber una gran diferencia entre la cantidad de su token y lo que recibirá",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
+      "donation": "Ayude a ShapeShift mantenerse en funcionamiento.",
       "protocol": "Este es el protocolo donde se enruta su intercambio.",
+      "protocolLifi": "Este es el protocolo donde se enruta su comercio. LI.FI ejecuta una serie de transacciones intermediarias para obtener la mejor combinación general de precio, seguridad y velocidad.",
       "protocolFee": "Esta es la tarifa cobrada por el protocolo seleccionado para procesar, No es una tarifa cobrada por ShapeShift",
-      "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉"
+      "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉",
+      "manualReceiveAddress": "Esta es la dirección que recibirá los fondos. Se introdujo manualmente, asegúrese que sea correcta."
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Monto de venta insuficiente"
+      }
     },
     "errors": {
       "title": "Algo salió mal",
@@ -593,6 +711,7 @@
       "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
+      "amountTooSmallUnknownMinimum": "Cantidad demasiado baja",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
@@ -601,13 +720,16 @@
       "broadcastFailed": "Ocurrió un error al transmitir la transacción",
       "insufficientFundsForLimit": "Fondos insuficientes. El monto mínimo de operación para este par es %{minLimit}",
       "insufficientFundsForAmount": "Fondos insuficientes. Tu %{symbol} el saldo es menor que la cantidad seleccionada",
+      "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
       "invalidTradePair": "Par comercial no válido: %{sellAssetName} y %{buyAssetName}",
       "invalidTradePairBtnText": "Par de intercambio no válido",
+      "unsupportedTradePair": "Par No Compatible",
       "noLiquidityError": "No hay suficiente liquidez disponible",
       "overMaxSlippage": "Este comercio daría como resultado más de %{slippagePercentage}% deslizamiento. Intercambie una cantidad menor por un mejor precio",
       "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
       "dexTradeFailed": "Comercio fallido, Tokens regresados",
       "quoteFailed": "Se produjo un error al obtener una cotización para su operación.",
+      "quoteExpired": "Cotización caducada, intente de nuevo.",
       "failedQuoteExecuted": "No se puede ejecutar una cotización fallida",
       "sellAssetRequired": "No se puede ejecutar una cotización sin un activo para vender",
       "sellAmountRequired": "No se puede ejecutar una cotización sin una cantidad para vender",
@@ -627,15 +749,26 @@
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Intercambios detenidos temporalmente en esta ruta",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
       },
       "generalError": "Ha ocurrido un error comercial",
-      "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
+      "quoteError": "Ocurrió un error al obtener cotización",
+      "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas",
+      "noQuotesAvailable": "No hay cotizaciones disponibles para operar"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
-    "recentTrades": "Operaciones Recientes"
+    "recentTrades": "Operaciones Recientes",
+    "lifiWarning": "Esta operación se enruta a través de LI.FI, el cual ejecuta operaciones intermediarias para realizar un intercambio. Si un paso falla, recibirá el token del último paso exitoso en la secuencia.",
+    "or": "o",
+    "onChainName": "en %{chainName}",
+    "unknownGas": "(desconocido)",
+    "receiveAddress": "Dirección de recepción",
+    "receiveAddressDescription": "No dirección %{chainName} en billetera conectada. Introduzca manualmente para continuar",
+    "addressPlaceholder": "Dirección %{chainName}",
+    "priceImpactWarning": "Debido al tamaño de la operación en relación a la liquidez disponible, el impacto de precio esperado es %{priceImpactPercentage}%. ¿Estás seguro quieres operar?"
   },
   "modals": {
     "popup": {
@@ -763,6 +896,7 @@
       "tokenAddress": "A Dirección",
       "addressInput": "A dirección, ENS o Yat",
       "scanQrCode": "Escanear código QR",
+      "qrCode": "Código QR",
       "permissionsButton": "Intentar nuevamente",
       "sent": "%{asset} enviado",
       "errorTitle": "Tu envío de %{asset} falló",
@@ -770,12 +904,14 @@
         "generic": "Ocurrió un error.",
         "notEnoughNativeToken": "No hay suficiente %{asset} para cubrir gas",
         "transactionRejected": "El usuario ha rechazado la transacción.",
-        "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador."
+        "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador.",
+        "qrDangerousEthUrl": "Los códigos QR contienen una dirección no compatible. Pegue la dirección manualmente."
       },
       "confirm": {
         "sendAsset": "Enviar %{asset}",
         "send": "Enviar",
         "sendTo": "Enviar A",
+        "customNonce": "Nonce personalizado",
         "sendFrom": "Enviar Desde",
         "edit": "Editar",
         "total": "Total",
@@ -814,6 +950,10 @@
       "blockExplorer": "Explorador"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Su Asignación",
+        "fractionDescription": "% del pool"
+      },
       "amountToDeposit": "Cantidad a depositar",
       "depositInto": "Deposite en %{opportunity}",
       "estimatedReturns": "Rendimientos anuales estimados*",
@@ -872,14 +1012,15 @@
       }
     },
     "approve": {
-      "header": "Permita que el enrutador ShapeShift DAO gaste su %{asset}",
-      "routerName": "Enrutador ShapeShift DAO",
+      "header": "Permita que %{spenderName} use su %{asset}",
+      "shapeshiftRouterName": "Enrutador ShapeShift DAO",
       "body": "Necesitamos su permiso para usar su %{asset}",
       "learnMore": "¿Por qué necesito hacer esto?",
       "depositFee": "Habrá una tarifa de gas por separado para depositar.",
       "estimatedGas": "Tarifa Estimada de Gas",
       "confirm": "Confirmar",
-      "reject": "Rechazar"
+      "reject": "Rechazar",
+      "approved": "Aprobada"
     },
     "confirm": {
       "withdraw": {
@@ -907,6 +1048,7 @@
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
+      "missingFundsForGas": "No hay suficientes fondos, necesita %{cryptoAmountHuman} %{assetSymbol} más para completar la transacción",
       "preFooter": "Las Recompensas se acumulan automáticamente",
       "signBroadcast": "Firmar y Transmitir",
       "cancel": "Cancelar"
@@ -933,6 +1075,8 @@
       "loadingText": "Emparejando Billetera"
     },
     "settings": {
+      "clearCache": "Limpiar cache",
+      "clearCacheTooltip": "Borrar caché y recargar app",
       "settings": "Ajustes",
       "currency": "Divisa",
       "clearWalletAccountData": "Eliminar todas las cuentas y los datos de la billetera",
@@ -1100,8 +1244,7 @@
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
         "connectFailure": "No se puede conectar la billetera MetaMask",
-        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?",
-        "tallyInstalledAndSetToDefault": "Hemos detectado que tiene Tally Ho instalado y configurado como Predeterminado. Si prefiere usar MetaMask en su lugar, cambie la configuración en Tally Ho y actualice la página."
+        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?"
       },
       "connect": {
         "header": "Emparejar MetaMask",
@@ -1118,42 +1261,20 @@
         "button": "Abrir"
       }
     },
-    "tallyHo": {
+    "coinbase": {
       "errors": {
-        "unknown": "Ocurrió un error inesperado al comunicarse con Tally Ho",
-        "connectFailure": "No se puede conectar la Billetera Tally Ho",
-        "network": "Tally Ho no está configurado para Ethereum Mainnet",
-        "multipleWallets": "El proveedor de Ethereum detectado no es Tally Ho. ¿Tienes varias carteras instaladas?",
-        "tallyNotInstalledOrSetToDefault": "Hemos detectado que Tally Ho no está instalado o no está configurado como predeterminado. Si desea utilizar Tally Ho, instálelo o configúrelo como su billetera predeterminada y actualice la página."
+        "unknown": "Ocurrió un error inesperado al comunicarse con Coinbase",
+        "connectFailure": "No se puede conectar con billetera Coinbase",
+        "multipleWallets": "El proveedor de Ethereum detectado no es Coinbase. ¿Tienes varias carteras instaladas?"
       },
       "connect": {
-        "header": "Emparejar Tally",
-        "body": "Haga clic en Emparejar e inicie sesión en Tally Ho desde la ventana emergente",
+        "header": "Emparejar Coinbase",
+        "body": "Haga clic en Emparejar e inicie sesión Coinbase en la ventana",
         "button": "Emparejar"
       },
       "failure": {
-        "header": "Error",
-        "body": "No se puede conectar la billetera Tally Ho"
-      },
-      "redirect": {
-        "header": "Abrir en la aplicación Tally Ho",
-        "body": "Haga clic para abrir el panel ShapeShift en Tally Ho",
-        "button": "Abrir"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Ocurrió un error inesperado al comunicarse con Portis",
-        "connectFailure": "No se puede conectar la billetera Portis"
-      },
-      "connect": {
-        "header": "Emparejar Portis",
-        "body": "Haga clic en Emparejar y luego seleccione Portis en la ventana emergente",
-        "button": "Emparejar"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "No se puede conectar la billetera Portis"
+        "header": "No se puede conectar la billetera Coinbase",
+        "body": "No se puede conectar con billetera Coinbase"
       }
     },
     "walletConnect": {
@@ -1206,37 +1327,37 @@
       },
       "import": {
         "header": "Importa tu billetera",
-        "body": "Ingrese su frase de recuperación secreta para importar una billetera existente",
+        "body": "Escriba o pegue su frase de recuperación secreta en minúsculas, sin comas ni números y con un solo espacio entre cada palabra.",
         "button": "Siguiente",
-        "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita las comas, los retornos o cualquier carácter adicional.",
-        "secretRecoveryPhraseRequired": "Se requiere una Frase de Recuperación Secreta",
-        "secretRecoveryPhraseTooShort": "La Frase de Recuperación Secreta es demasiado corta"
+        "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita comas, retornos o carácter adicional.",
+        "secretRecoveryPhraseRequired": "Frase de Recuperación Secreta requerida",
+        "secretRecoveryPhraseTooShort": "Frase de Recuperación Secreta demasiado corta"
       },
       "password": {
         "header": "Crear una nueva contraseña",
-        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así es como accederá a su billetera.",
+        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así accederá a su billetera.",
         "warning": "Nota: si olvida su contraseña, ShapeShift no puede ayudarlo a recuperarla.",
         "button": "Siguiente",
-        "connect": "Conectarse a otra billetera"
+        "connect": "Conectar otra billetera"
       },
       "create": {
         "header": "Tu Frase Secreta de Recuperación",
-        "body": "Escriba estas 12 palabras y guárdelas de forma segura fuera de línea. Esta frase de 12 palabras se usa para recuperar las claves privadas de su billetera.",
+        "body": "Escriba estas 12 palabras y guárdelas fuera de línea. Esta frase de 12 palabras se usa para recuperar sus claves privadas.",
         "button": "Siguiente",
         "hideWords": "Ocultar Palabras",
         "showWords": "Mostrar Palabras"
       },
       "start": {
         "header": "Billetera ShapeShift",
-        "body": "Puede tener múltiples billeteras ShapeShift. Puede cargar una billetera, importar una billetera desde una Frase de recuperación secreta o crear una nueva billetera.",
-        "import": "Importar una billetera",
-        "create": "Crear una nueva billetera",
-        "load": "Carteras guardadas"
+        "body": "Puede tener múltiples billeteras ShapeShift. Puede cargar, crear o importar usando una Frase de recuperación secreta.",
+        "import": "Importar billetera",
+        "create": "Crear billetera nueva",
+        "load": "Billeteras guardadas"
       },
       "success": {
-        "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, haga clic en 'Permitir'.",
-        "header": "Monedero Conectado",
-        "success": "Ahora puede cerrar esta ventana o se cerrará automáticamente en breve",
+        "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
+        "header": "Billetera Conectado",
+        "success": "Puede cerrar esta ventana o se cerrará automáticamente",
         "error": "Hubo un error al conectar tu billetera"
       },
       "testPhrase": {
@@ -1296,13 +1417,40 @@
         "captchaRequired": "Se requiere captcha",
         "tooManyAttempts": "Demasiados intentos. Por favor intente mas tarde.",
         "invalidLogin": "Ingreso invalido",
-        "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
+        "noWallet": "No se encuentra la billetera ShapeShift para su sesión. Si cree que es un error, comuníquese con el soporte ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",
         "twoFactorAuthentication": "Autenticación de dos factores",
         "twoFactorPlaceholder": "Código de 6 dígitos",
         "twoFactorRequired": "Se requiere 2FA",
         "invalidTwoFactor": "El código de 6 dígitos no es válido",
         "twoFactorDescription": "La autenticación de dos factores está habilitada para su cuenta. Ingrese el código de su aplicación de autenticación."
+      },
+      "onboarding": {
+        "skip": "Saltar",
+        "shapeshiftWallet": "Billetera ShapeShift",
+        "selfCustody": {
+          "title": "Su Billetera ShapeShift es auto-custodia",
+          "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",
+          "body": "Una billetera de autocustodia significa que es de su propiedad y solo usted tiene acceso a sus fondos. Su frase de recuperación secreta es su clave para acceder. Nadie puede bloquear acceso a sus fondos.",
+          "cta": "Siguiente"
+        },
+        "multiChain": {
+          "title": "Se admiten varias cadenas simultáneamente",
+          "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
+          "body": "Al agregar una nueva cadena a ShapeShift, su billetera ShapeShift la admitirá automáticamente.",
+          "cta": "Siguiente"
+        },
+        "easyToUse": {
+          "title": "¡Es fácil de usar!",
+          "subTitle": "Su Billetera ShapeShift puede:",
+          "trackBalance": "Seguir sus saldos",
+          "sendReceive": "Enviar/recibir cripto",
+          "buyCrypto": "Comprar cripto",
+          "tradeAssets": "Intercambiar activos",
+          "earnYield": "Obtener rendimiento de sus activos inactivos",
+          "cta": "Comprar Cripto",
+          "secondaryCta": "Ir a mi tablero"
+        }
       }
     },
     "selectModal": {
@@ -1310,6 +1458,22 @@
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
       "footer": "¿No tienes billetera?",
       "create": "Crea una"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Conexiones Guardadas",
+        "create": "Conectar nueva billetera"
+      },
+      "load": {
+        "header": "Conexiones Guardadas",
+        "confirmForget": "¿Estás seguro que quieres olvidar %{connection}?",
+        "error": {
+          "delete": "No se puede eliminar tu billetera, lo siento.",
+          "noWallet": "No hay billeteras guardadas",
+          "pair": "No se puede emparejar billetera"
+        }
+      }
     }
   },
   "graph": {
@@ -1365,7 +1529,9 @@
         "sell": "Vender",
         "trade": "Intercambiar"
       },
+      "equity": "Equidad",
       "accountTokens": "Tokens de la Cuenta",
+      "relatedAssets": "Activos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",
       "hideTokens": "Ocultar Tokens (%{amount})",
       "underlyingAssets": "Activos Subyacentes",
@@ -1497,6 +1663,11 @@
         "title": "✨ ¡Obtén recompensas FOX y más! ✨",
         "body": "Gana recompensas FOX completando tareas en DappBack",
         "cta": "Iniciar DappBack"
+      },
+      "bondProtocol": {
+        "title": "Compre FOX con descuento!",
+        "body": "Compre FOX con descuento en BondProtocol",
+        "cta": "Iniciar BondProtocol"
       }
     },
     "analytics": {
@@ -1522,9 +1693,12 @@
         "menu": {
           "disconnect": "Desconectar",
           "address": "Dirección",
+          "addresses": "Direcciones",
           "connected": "Conectado",
           "network": "Red",
-          "unsupportedNetwork": "Red no soportada"
+          "networks": "Redes",
+          "unsupportedNetwork": "Red no soportada",
+          "expiry": "Sesión expirada"
         }
       },
       "modal": {
@@ -1538,7 +1712,16 @@
           "confirm": "Confirmar",
           "reject": "Rechazar",
           "messageData": "Datos del mensaje",
-          "domain": "Dominio"
+          "domain": "Dominio",
+          "memo": "Memo",
+          "messages": "Mensajes",
+          "noMessages": "No mensajes",
+          "sequence": "Secuencia",
+          "accountNumber": "Número de cuenta",
+          "chainId": "ID Cadena",
+          "authInfo": "Info Aut",
+          "body": "Cuerpo",
+          "comingSoon": "Muy pronto"
         },
         "sendTransaction": {
           "sendingFrom": "Enviar desde",
@@ -1575,7 +1758,20 @@
           "howTo": "¿Cómo conectar a una dApp?",
           "linkPlaceholder": "Código QR o enlace de conexión",
           "connect": "Conectar",
-          "connectionError": "No se puede conectar al URI proporcionado."
+          "connectionError": "No se puede conectar al URI proporcionado.",
+          "invalidUri": "URI no válido",
+          "v1UriUnsupported": "WalletConnect V1 URI no habilitado",
+          "v2UriUnsupported": "WalletConnect V2 URI no habilitado"
+        },
+        "sessionProposal": {
+          "dAppInfo": "Info dApp",
+          "permissions": "Permisos",
+          "accountSelection": "Elige cuentas",
+          "unsupportedChain": "Cadena no admitida en la sesión propuesta.",
+          "methods": "Métodos",
+          "events": "Eventos",
+          "selectedAccounts": "Cuentas seleccionadas",
+          "permissionMessage": "Seleccione al menos una cuenta por cadena."
         }
       },
       "registry": {
@@ -1600,7 +1796,16 @@
       "banner": {
         "title": "Consigue un Yat",
         "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
-      }
+      },
+      "modal": {
+        "title": "Yat vinculado con éxito"
+      },
+      "linkedYat": "Yat vinculado",
+      "yatConnected": "Yat conectado!",
+      "usdcAddress": "Dirección Yat USDC",
+      "ethAddress": "Dirección Yat ETH",
+      "noAddressFound": "No %{symbol} dirección encontrada",
+      "viewInApp": "Ver en la App Móvil ShapeShift"
     }
   },
   "gasInput": {
@@ -1625,17 +1830,74 @@
     "custom": "Personalizar"
   },
   "idle": {
+    "emptyTitle": "Gane %{apy}% en su %{asset} con Idle Finance",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Estrategia Senior Mejor Rendimiento",
+          "body": "Las bóvedas Senior son para configurar y olvidar,  automáticamente enrutaran fuentes de riesgo conservador proporcionando el APY más alto"
+        },
+        "page-2": {
+          "title": "Estrategia Senior Mejor Rendimiento",
+          "bullets": {
+            "one": "Automatización y optimización de rendimiento en Aave, Compound y múltiples Senior Tranches",
+            "two": "Reciba rendimientos máximos sin verificar constantemente tarifas y gastar gas en cada transferencia"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Estrategia Junior Mejor Rendimiento",
+          "body": "Las bóvedas Junior Mejor Rendimiento son estrategias de configuración y olvido, enrutan automáticamente a tramos junior proporcionando APY aumentados y maximizados"
+        },
+        "page-2": {
+          "title": "Estrategias Junior Mejor Rendimiento:",
+          "bullets": {
+            "one": "Automatización y optimización en rendimiento a través de múltiples Junior Tranches, proporcionando rendimientos mejorados ",
+            "two": "Reciba ganancias maximizadas sin verificar constantemente tarifas y gastar gas en cada transferencia"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Estrategia Senior Tranche",
+          "body": "Disfrute rendimientos DeFi con protección integrada. Los Tramos Senior ofrecen cobertura completa, dado por su contraparte Junior."
+        },
+        "page-2": {
+          "title": "Estrategias Senior Tranche"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Estrategia Junior Tranche",
+          "body": "Disfrute rendimientos mejorados DeFi. Tramos Junior proporcionan rendimientos apalancados, compensados por su contraparte senior por correr más riesgo."
+        },
+        "page-2": {
+          "title": "Estrategias Junior Tranche:"
+        }
+      },
+      "monitorSystem": "Use el seguimiento Idle Finance para encontrar asignaciones con mejor rendimiento y desencadenar reequilibrio",
+      "offerHighReturn": "Reciba ganancias maximizadas sin verificar constantemente tarifas y gastar gas en cada transferencia",
+      "leverageYield": "Rendimiento de apalancamiento utilizando fondos Senior",
+      "higherRisk": "Mayor exposición a riesgo al proteger tramos Senior",
+      "minRisk": "Exposición al riesgo minimizada",
+      "builtInCoverage": "Cobertura integrada para recompensas de tasa variable",
+      "noLockingPeriod": "Sin período de bloqueo o epochs",
+      "autoReinvest": "Tokens acumulados de Reinversión",
+      "fundsCoveredJunior": "Fondos cubiertos por Tramos Junior",
+      "automation": "Automatización y optimización de rendimiento en Aave, Compound y múltiples Senior Tranches"
+    },
     "bestYield": {
       "title": "¿Cual es el mejor rendimiento?",
       "body": "Maximice automáticamente el rendimiento a través de múltiples protocolos DeFi probados en batalla. La estrategia del Mejor-Rendimiento optimiza la generación de rendimiento socializando los costos del gas, automatizando la generación de rendimiento mediante el desplazamiento algorítmico de capital a medida que surgen nuevas oportunidades de rendimiento."
     },
     "seniorTranche": {
       "title": "¿Qué es un Tramo Senior?",
-      "body": "Disfrute de los rendimientos DeFi a través de múltiples protocolos mientras mantiene protegido su depósito. Los Tramos Senior ofrecen protección incorporada sobre los fondos y proporcionan cobertura de espectro completo gracias a su contraparte Junior."
+      "body": "Disfrute rendimientos DeFi con protección integrada. Tramos Senior ofrecen cobertura completa, por su contraparte Junior."
     },
     "juniorTranche": {
       "title": "¿Que es un Tramo Junior?",
-      "body": "Disfrute de rendimientos mejorados en múltiples protocolos DeFi: los tramos junior logran un rendimiento apalancado, ya que son compensados ​​por proporcionar capital de primera pérdida a su contraparte senior."
+      "body": "Disfrute rendimientos mejorados DeFi. Tramos Junior proporcionan rendimientos apalancados, compensados por su contraparte senior por correr más riesgo."
     }
   },
   "promo": {
@@ -1643,6 +1905,142 @@
       "title": "Compra cripto sin KYC",
       "body": "Compra hasta $1,000 con Apple Pay",
       "cta": "Compra ahora"
+    },
+    "savers": {
+      "title": "Obtenga recompensas por su %{asset}",
+      "body": "Stake en bóvedas Savers de THORChain. Sin plazo fijo.",
+      "cta": "Depositar Ahora"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "¿Qué es Arkeo?",
+      "bodyParts": {
+        "1": "El año pasado, junto a",
+        "2": "Coinbase Cloud",
+        "3": "ShapeShift incubó un proyecto llamado Arkeo. ¡El lanzamiento de Mainnet está a la vuelta de la esquina!",
+        "4": "Arkeo se creó para ser un back-end descentralizado para todos los datos de los nodos. Las app que utilizan Arkeo se beneficiarán en una mayor velocidad de desarrollo, resistencia a censura y",
+        "5": "coeficiente nakamoto",
+        "6": "mientras reduce la dependencia en fuentes de datos centralizadas."
+      }
+    },
+    "whoQualifies": {
+      "title": "¿Quién califica para el Arkeo Airdrop?",
+      "body": "Hay varias formas para calificar al airdrop usando ShapeShift dApp. La instantánea está rodando, ¡todavía estás a tiempo de calificar!"
+    },
+    "staking": {
+      "title": "%{asset} Stakers",
+      "body": "Gane hasta %{apy} APR en su %{asset} inactivo y califique para el airdrop Arkeo. ADEMÁS, si stake  a %{provider}, se aplicará un multiplicador 2x a su saldo cuando se calcule el monto de su airdrop de Arkeo.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Proveedores",
+      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al pool Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX token LP FOX/ETH calificará para el airdrop Arkeo.",
+      "cta": "Depositar Liquidez"
+    },
+    "foxTokenHolders": {
+      "title": "Titulares FOX Tokens",
+      "body": "Hodling tokens FOX. Más grande su bolsa, mayor su Airdrop Arkeo.",
+      "cta": "Intercambiar por FOX",
+      "secondary": "Comprar FOX"
+    },
+    "foxFarmers": {
+      "title": "Farmers FOX/ETH LP",
+      "body": "Gane hasta %{apy} APR por Stake sus tokens LP ETH/FOX en FOX Farm. ADEMÁS, el FOX en los tokens LP ETH/FOX Farm V5 califica para el Airdrop Arkeo.",
+      "cta": "Stake LP FOX/ETH"
+    },
+    "foxyTokenHolders": {
+      "title": "Titulares Tokens FOXy",
+      "body": "Gane hasta %{apy} APR en su FOX inactivo con FOX Yieldy (FOXy). Además su FOXy en su billetera será tratado igual que FOX y calificará para el airdrop de Arkeo.",
+      "cta": "Stake Tokens FOX"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LPs",
+      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al grupo Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX subyacente en los tokens LP FOX/ETH califica para el Airdrop Arkeo.",
+      "cta": "Depositar Liquidez"
+    },
+    "stakeAtom": {
+      "title": "Stake ATOM",
+      "body": "Gane hasta %{apr} APR en su ATOM inactivo. ADEMÁS, cualquier ATOM en Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop.",
+      "cta": "Stake ATOM"
+    },
+    "footer": {
+      "title": "También hay otras formas de calificar, fuera de ShapeShift dApp. Para obtener una lista completa, consulte la propuesta de gobernanza.",
+      "cta": "Consulta la propuesta de gobernanza",
+      "disclaimer": {
+        "body": "* Solo calificarán las billeteras de auto-custodia. Los tokens retenidos o stake en intercambios centralizados no califican. ¿Necesitas una billetera?",
+        "cta": "Crea una"
+      }
+    }
+  },
+  "nft": {
+    "customizeFoxatar": "Personalizar FOXatar",
+    "setAsAvatar": "Establecer Avatar",
+    "floorPrice": "Precio Base",
+    "lastPrice": "Ultimo Precio",
+    "overview": "Visión general",
+    "properties": "Propiedades",
+    "collection": "Colección",
+    "tokenId": "ID Token",
+    "address": "Dirección",
+    "chain": "Cadena",
+    "standard": "Standard",
+    "description": "Descripción",
+    "details": "Detalles",
+    "attributes": "Atributos",
+    "aboutCollection": "Acerca de %{nombreColección}",
+    "emptyTitle": "¿Dónde fueron mis NFT?",
+    "emptyBody": "No se preocupe, estamos en búsqueda de más NFT sorprendentes. Mientras tanto, sea libre de mirar este espacio blanco y reflexionar sobre el significado de la existencia."
+  },
+  "missions": {
+    "subtitle": "Misiones FOX",
+    "missionEnded": "Misión terminada",
+    "viewMission": "Ver Misión",
+    "comingSoon": "Muy pronto",
+    "activeMissions": "Misiones Activas",
+    "endedMissions": "Misiones finalizadas",
+    "title": {
+      "1": "Libere el universo descentralizado y",
+      "2": "Coseche recompensas"
+    },
+    "body": "Embárquese en misiones, gane recompensas y amplíe su conocimiento del ecosistema ShapeShift en constante expansión",
+    "ends": "Finaliza",
+    "ongoing": "Misión en curso",
+    "optimism": {
+      "title": "Gane hasta 19.5 OP",
+      "subtitle": "Explore Optimism",
+      "cta": "Inicie Misión"
+    },
+    "foxatar": {
+      "title": "Obten un NFT gratis y personalizable",
+      "subtitle": "Acuñe un FOXatar",
+      "cta": "Inicie Misión"
+    },
+    "foxArmy": {
+      "subtitle": "Únete al Ejército FOX",
+      "title": "20,000 FOX recompensas",
+      "cta": "Inicie Misión"
+    },
+    "yat": {
+      "subtitle": "Juega Yat Fantasy",
+      "title": "3000 USDC en premios",
+      "cta": "Inicie Misión"
+    },
+    "getListed": {
+      "subtitle": "Tu proyecto aquí",
+      "title": "Lanza una misión para tu proyecto",
+      "cta": "Enviar proyecto"
+    },
+    "foxRewards": {
+      "subtitle": "Compre, venda, intercambie, gane y más",
+      "title": "Gane FOX",
+      "cta": "Iniciar Misión"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Establecer Avatar",
+      "restoreDefault": "Restaurar predeterminado"
     }
   }
 }

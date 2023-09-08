@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
@@ -7,24 +16,28 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
-  underlyingAssetIds,
-  assetId,
-  opportunityName,
-  apy,
-  tvl,
-  icons,
-  provider,
-  type,
-  chainId,
-  contractAddress,
-  rewardAddress,
-  version,
-}) => {
+export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity => {
+  const {
+    underlyingAssetIds,
+    assetId,
+    opportunityName,
+    apy,
+    icons,
+    provider,
+    type,
+    chainId,
+    contractAddress,
+    rewardAddress,
+    version,
+  } = opportunity
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
@@ -36,8 +49,21 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     ))
   }, [underlyingAssetIds])
 
+  const assets = useAppSelector(selectAssets)
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetName = asset?.name ?? ''
+  const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })
+
   const handleClick = useCallback(() => {
-    const assetReference = fromAssetId(assetId).assetReference
+    const { assetNamespace, assetReference } = fromAssetId(assetId)
+    trackOpportunityEvent(
+      MixPanelEvents.ClickOpportunity,
+      {
+        opportunity,
+        element: 'Featured Card',
+      },
+      assets,
+    )
 
     history.push({
       pathname: location.pathname,
@@ -46,13 +72,28 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
         provider,
         chainId,
         contractAddress,
+        assetNamespace,
         assetReference,
         rewardId: rewardAddress,
         modal: 'overview',
       }),
       state: { background: location },
     })
-  }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress, type])
+  }, [
+    assetId,
+    assets,
+    chainId,
+    contractAddress,
+    history,
+    location,
+    opportunity,
+    provider,
+    rewardAddress,
+    type,
+  ])
+
+  const subText = [provider as string]
+  if (version) subText.push(version)
   return (
     <Card
       position='relative'
@@ -72,28 +113,23 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       <Box filter='blur(30px)' opacity='0.2' position='absolute' left='-10%' top='-10%'>
         {backgroundIcons}
       </Box>
-      <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
+      <CardHeader display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
         <Tag mt={2} textTransform='capitalize'>
-          {provider}
+          {providerDisplayName}
         </Tag>
-      </Card.Header>
-      <Card.Body py={0}>
+      </CardHeader>
+      <CardBody py={0}>
         <RawText fontWeight='bold' textShadow={textShadow}>
           {opportunityName}
         </RawText>
-        {version && (
-          <RawText fontSize='sm' color='gray.500'>
-            {version}
-          </RawText>
-        )}
-      </Card.Body>
-      <Card.Footer display='flex' flexDir='column' mt='auto'>
+
+        <RawText fontSize='sm' color='text.subtle'>
+          {subText.join(' • ')}
+        </RawText>
+      </CardBody>
+      <CardFooter display='flex' flexDir='column' mt='auto'>
         <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
-        <Flex fontSize='sm' gap={1} color='gray.500'>
-          <Text translation='defi.currentTvl' />
-          <Amount.Fiat value={tvl} fontWeight='bold' />
-        </Flex>
         <Button
           mt={4}
           variant='ghost-filled'
@@ -103,7 +139,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
         >
           {translate('defi.startEarning')}
         </Button>
-      </Card.Footer>
+      </CardFooter>
     </Card>
   )
 }

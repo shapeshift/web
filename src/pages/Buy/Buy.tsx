@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -15,6 +14,8 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
+import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
@@ -32,8 +33,9 @@ export const Buy = () => {
     state: { isConnected, isDemoWallet },
   } = useWallet()
   const translate = useTranslate()
-
   useFetchFiatAssetMarketData()
+
+  const chainCount = useAppSelector(selectFiatRampChainCount)
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -81,10 +83,10 @@ export const Buy = () => {
                 />
               </Heading>
               <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
-              <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
+              <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
-              <Card mx={{ base: -4, md: 0 }}>
+              <Card bg='background.surface.base' mx={{ base: -4, md: 0 }}>
                 <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>
@@ -106,7 +108,11 @@ export const Buy = () => {
               >
                 <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
                   {translate('buyPage.cta.title.first')}{' '}
-                  <Text as='span' color='white' translation='buyPage.cta.title.second' />
+                  <Text
+                    as='span'
+                    color='white'
+                    translation={['buyPage.cta.title.second', { chainCount }]}
+                  />
                 </Heading>
                 <Button
                   size='lg'

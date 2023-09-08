@@ -1,4 +1,3 @@
-import type { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import React, { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -7,7 +6,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import type { LocationState } from '../../NativeWallet/types'
@@ -22,10 +20,6 @@ export interface WalletConnectSetupProps
   > {
   dispatch: React.Dispatch<ActionTypes>
 }
-
-const moduleLogger = logger.child({
-  namespace: ['WalletConnect', 'Components', 'Connect'],
-})
 
 /**
  * WalletConnect Connect component
@@ -64,9 +58,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       })
 
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
-        const wallet = (await state.adapters
-          .get(KeyManager.WalletConnect)
-          ?.pairDevice()) as WalletConnectHDWallet
+        const wallet = await state.adapters.get(KeyManager.WalletConnect)?.[0]?.pairDevice()
 
         if (!wallet) {
           throw new WalletNotFoundError()
@@ -77,7 +69,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.WalletConnect },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.WalletConnect, deviceId)
@@ -85,11 +77,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       }
     } catch (e: unknown) {
       if (e instanceof WalletNotFoundError) {
-        moduleLogger.error(
-          e,
-          { fn: 'pairDevice' },
-          'WalletConnect Connect: There was an error initializing the wallet',
-        )
+        console.error(e)
         setErrorLoading(translate(e.message))
       } else {
         history.push('/walletconnect/failure')

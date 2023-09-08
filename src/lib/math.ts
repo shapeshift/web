@@ -3,15 +3,24 @@ import BigNumber from 'bignumber.js'
 import type { BN } from './bignumber/bignumber'
 import { bn, bnOrZero } from './bignumber/bignumber'
 
+// Converts from base unit to a precision/ish number
+// - If no displayDecimals are provided, it will use the full precision of the number being converted
+// - If displayDecimals are provided, it will use that precision, to return e.g a human, precision, or number stripped to any arbitrary decimal places
+// and use the ROUND_DOWN rounding mode
 export const fromBaseUnit = (
   value: BigNumber.Value,
-  decimals: number,
-  displayDecimals = 6,
+  precision: number,
+  displayDecimals?: number,
 ): string => {
-  return bnOrZero(value)
-    .div(`1e+${decimals}`)
-    .decimalPlaces(displayDecimals, BigNumber.ROUND_DOWN)
-    .toString()
+  const precisionNumber = bnOrZero(value).div(bn(10).pow(precision))
+
+  if (typeof displayDecimals === 'number') {
+    return precisionNumber
+      .decimalPlaces(displayDecimals, BigNumber.ROUND_DOWN)
+      .toFixed(displayDecimals)
+  }
+
+  return precisionNumber.toFixed()
 }
 
 export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {

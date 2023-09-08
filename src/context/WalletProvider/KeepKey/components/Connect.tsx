@@ -14,12 +14,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-
-const moduleLogger = logger.child({ namespace: ['Connect'] })
+import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
 const translateError = (event: Event) => {
   let t: string
@@ -53,29 +51,36 @@ export const KeepKeyConnect = () => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
-      // if keepkey is connected to another tab, it does not get added to state.adapters.
-      setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
-      return
-    }
-    if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
-      const wallet = await state.adapters
-        .get(KeyManager.KeepKey)
-        ?.pairDevice()
-        .catch(err => {
-          if (err.name === 'ConflictingApp') {
-            setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+    if (state.adapters) {
+      const adapters = state.adapters.get(KeyManager.KeepKey)
+      if (!adapters) return
+      const wallet = await (async () => {
+        try {
+          const sdk = await setupKeepKeySDK()
+          const wallet = await adapters[0]?.pairDevice(sdk)
+          if (!wallet) {
+            setErrorLoading('walletProvider.errors.walletNotFound')
             return
           }
-          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          return
-        })
-      if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        return
-      }
-
+          return wallet
+        } catch (e) {
+          const wallet = await adapters[1]?.pairDevice().catch(err => {
+            if (err.name === 'ConflictingApp') {
+              setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+              return
+            }
+            console.error(e)
+            setErrorLoading('walletProvider.errors.walletNotFound')
+            return
+          })
+          if (!wallet) {
+            setErrorLoading('walletProvider.errors.walletNotFound')
+            return
+          }
+          return wallet
+        }
+      })()
+      if (!wallet) return
       const { name, icon } = KeepKeyConfig
       try {
         const deviceId = await wallet.getDeviceID()
@@ -93,7 +98,14 @@ export const KeepKeyConnect = () => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId, meta: { label } },
+          payload: {
+            wallet,
+            name,
+            icon,
+            deviceId,
+            meta: { label },
+            connectedType: KeyManager.KeepKey,
+          },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
@@ -104,7 +116,7 @@ export const KeepKeyConnect = () => {
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        moduleLogger.error(e, 'KeepKey Connect: There was an error initializing the wallet')
+        console.error(e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
     }
@@ -117,8 +129,8 @@ export const KeepKeyConnect = () => {
         <Text translation={'walletProvider.keepKey.connect.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
-        <Button width='full' colorScheme='blue' onClick={pairDevice} disabled={loading}>
+        <Text mb={4} color='text.subtle' translation={'walletProvider.keepKey.connect.body'} />
+        <Button width='full' colorScheme='blue' onClick={pairDevice} isDisabled={loading}>
           {loading ? (
             <CircularProgress size='5' />
           ) : (

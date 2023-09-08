@@ -8,7 +8,7 @@ export type TextPropTypes = TextProps & {
 }
 
 export const RawText = forwardRef<TextProps, 'p'>((props, ref) => {
-  return <CText ref={ref} {...props} />
+  return <CText sx={{ fontFeatureSettings: `'zero' on, 'ss01' on` }} ref={ref} {...props} />
 })
 
 export const Text = forwardRef<TextPropTypes, 'p'>((props, ref) => {

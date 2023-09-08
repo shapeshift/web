@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -39,7 +40,7 @@ export const EnterPassword = () => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   const handleShowClick = () => setShowPw(!showPw)
@@ -60,6 +61,7 @@ export const EnterPassword = () => {
           name,
           icon,
           deviceId,
+          connectedType: KeyManager.Native,
           meta: { label: vault.meta.get('name') as string },
         },
       })
@@ -112,7 +114,7 @@ export const EnterPassword = () => {
             </Box>
           </Button>
         ) : (
-          <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
+          <Text mb={6} color='text.subtle' translation={'modals.shapeShift.password.body'} />
         )}
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.password)} mb={6}>
@@ -150,6 +152,7 @@ export const EnterPassword = () => {
             width='full'
             type='submit'
             isLoading={isSubmitting}
+            isDisabled={!isValid}
             data-test='wallet-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />
@@ -157,7 +160,7 @@ export const EnterPassword = () => {
         </form>
         {state.isLoadingLocalWallet && (
           <Flex direction={['column', 'row']} mt={4} justifyContent='center' alignItems='center'>
-            <Text mb={[3]} color='gray.500' translation={'common.or'} />
+            <Text mb={[3]} color='text.subtle' translation={'common.or'} />
             <Button
               variant='link'
               mb={[3]}

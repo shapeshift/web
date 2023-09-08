@@ -1,14 +1,13 @@
 import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
-import { DiscordIcon } from 'components/Icons/Discord'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
-import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
@@ -19,16 +18,25 @@ type HeaderContentProps = {
   onClose?: () => void
 } & FlexProps
 
-export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
+export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { settings } = useModal()
-  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
+  const settings = useModal('settings')
+  const feedbackSupport = useModal('feedbackSupport')
+  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isWalletConnectToDappsEnabled =
+    isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
-  const handleClick = (onClick?: () => void) => {
+  const handleClickSettings = useCallback(() => {
+    settings.open({})
     onClose && onClose()
-    onClick && onClick()
-  }
+  }, [onClose, settings])
+
+  const handleClickSupport = useCallback(() => {
+    feedbackSupport.open({})
+    onClose && onClose()
+  }, [onClose, feedbackSupport])
 
   return (
     <Flex
@@ -50,11 +58,11 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             aria-label='Close Nav'
             variant='ghost'
             icon={<CloseIcon boxSize={3} />}
-            onClick={() => handleClick()}
+            onClick={onClose}
           />
           <Flex gap={2}>
             <Flex width='full'>
-              <UserMenu onClick={() => handleClick()} />
+              <UserMenu onClick={onClose} />
             </Flex>
             <ChainMenu />
           </Flex>
@@ -63,43 +71,27 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
               <WalletConnectToDappsHeaderButton />
             </Box>
           )}
-          <Box width='full'>
-            <AssetSearch assetListAsDropdown formProps={{ px: 0, mb: 0 }} />
-          </Box>
         </Flex>
       )}
 
-      <NavBar isCompact={isCompact} mt={6} onClick={() => handleClick()} />
+      <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
       <Stack width='full' mt={6} spacing={0}>
         <MainNavLink
           isCompact={isCompact}
           size='sm'
-          onClick={() => handleClick(() => settings.open({}))}
+          onClick={handleClickSettings}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
         />
         <MainNavLink
           isCompact={isCompact}
-          as={Link}
-          isExternal
           size='sm'
-          href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
-          label={translate('common.joinDiscord')}
-          leftIcon={<DiscordIcon />}
-          data-test='navigation-join-discord-button'
-        />
-        <MainNavLink
+          onClick={handleClickSupport}
+          label={translate('common.feedbackAndSupport')}
           leftIcon={<ChatIcon />}
-          isCompact={isCompact}
-          as={Link}
-          size='sm'
-          onClick={() => handleClick()}
-          label={translate('common.submitFeedback')}
-          isExternal
-          href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
         />
       </Stack>
     </Flex>
   )
-}
+})

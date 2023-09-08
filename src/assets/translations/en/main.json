@@ -6,13 +6,22 @@
     "error": "Error",
     "cancel": "Cancel",
     "close": "Close",
+    "loadMore": "Load More",
+    "saveChanges": "Save Changes",
+    "new": "New",
     "continue": "Continue",
+    "reward": "Reward",
+    "claimable": "Claimable",
     "approve": "Approve",
     "confirm": "Confirm",
+    "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
+    "allocation": "Allocation",
+    "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
+    "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
@@ -41,7 +50,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
-    "accountError": "Temporarily unable to fetch data for the following chains: %{erroredAccountNames}.",
+    "accountError": "Temporarily unable to fetch data for the following chains:",
     "degradedState": "The App is in a degraded state",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
@@ -76,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
+    "selectNetwork": "Select a network",
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
@@ -84,7 +94,33 @@
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "slippage": "Slippage",
+    "best": "Best",
+    "alternative": "Alternative",
+    "validator": "the %{name} Validator",
+    "needAsset": "Need some %{asset}?",
+    "buyNow": "Buy Now",
+    "manage": "Manage",
+    "selectedAccount": "Selected Account",
+    "allChains": "All Chains",
+    "wallet": "Wallet",
+    "action": "Action",
+    "feedbackAndSupport": "Feedback & Support",
+    "getSupport": "Get Support",
+    "viewMyWallet": "View My Wallet",
+    "submitFeatureRequest": "Submit a Feature Request",
+    "learnMore": "Learn more"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit",
+      "2": "private.shapeshift.com",
+      "3": "if you don't want to be anonymously tracked. See our",
+      "4": "Privacy Policy",
+      "5": "for more details."
+    },
+    "cta": "Got It"
   },
   "errorPage": {
     "title": "Oops!",
@@ -101,7 +137,7 @@
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
-        "second": "track your crypto across 8 chains"
+        "second": "track your crypto across %{chainCount} chains"
       }
     },
     "availableAssets": "Available Assets"
@@ -192,7 +228,6 @@
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
-    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -202,7 +237,8 @@
       "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet Provider",
       "disconnect": "Disconnect",
-      "disconnected": "(Disconnected)"
+      "disconnected": "(Disconnected)",
+      "connecting": "Connecting..."
     }
   },
   "defi": {
@@ -268,6 +304,7 @@
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
+        "underlyingToken": "Underlying Token",
         "availableRewards": "Available Rewards",
         "about": "About",
         "tvl": "TVL",
@@ -289,17 +326,29 @@
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
         "vaultCap": "Vault Cap",
-        "vaultCapTooltip": "Something about vault caps",
+        "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedTitle": "Deposits are temporarily halted.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
-        "estimatedFee": "Estimated Fee",
+        "protocolFee": "Protocol Fee",
         "fee": "Fee",
-        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
         "dustAmount": "Dust Amount",
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
         "sendDust": "Send Dust",
         "addressToSendTo": "Address to Send To",
+        "introducingSaversVaults": "Introducing Savers Vaults",
+        "risksBody": {
+          "1": "Refer to",
+          "2": "this article",
+          "3": "for risks involved with savers vaults."
+        },
+        "understand": "I understand",
+        "days": "%{amount} days",
+        "day": "%{amount} day",
+        "timeToBreakEven": {
+          "title": "Time to break even",
+          "tooltip": "Estimated time to cover deposit fees and earnings."
+        },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
       }
@@ -319,6 +368,7 @@
     "validatorMoniker": "%{moniker} Validator",
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
+    "underlyingAsset": "Underlying Asset",
     "gasFee": "Gas Fee",
     "provider": "Provider",
     "currentTvl": "Current TVL",
@@ -350,16 +400,21 @@
     "apr": "APR",
     "ended": "Ended",
     "balance": "Balance",
-    "defi": "DeFi",
     "startEarning": "Start Earning",
     "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
+    "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
+    "myPositions": "My Positions",
+    "myPositionsBody": "Your active positions will appear here.",
+    "myRewards": "My Rewards",
+    "myRewardsBody": "Your active positions with claimable rewards will appear here.",
+    "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
@@ -368,10 +423,15 @@
     "farmingBalance": "Farming Balance",
     "liquidityPoolBalance": "Liquidity Pool Balance",
     "poolValue": "Pool Value",
-    "currentValue": "Current Value",
-    "currentAPY": "Current APY",
-    "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Total Value",
+    "byAsset": "By Asset",
+    "byProvider": "By Provider",
+    "claimableRewards": "Claimable Rewards",
+    "reawrds": "Rewards",
+    "stakingPosition": "Staking Position",
+    "liquidityPool": "Liquidity Pool",
+    "noActivePositions": "No Active Positions",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {
@@ -429,13 +489,15 @@
   },
   "navBar": {
     "home": "Home",
+    "activity": "Activity",
+    "myWallet": "My Wallet",
     "dashboard": "Dashboard",
+    "dashboardShort": "Dashboard",
     "assets": "Assets",
     "assetDetails": "Asset Details",
     "accounts": "Accounts",
     "accountAsset": "Account Asset",
     "accountDetails": "Account Details",
-    "earn": "Earn",
     "defi": "DeFi",
     "transactionHistory": "Transaction History",
     "overview": "Overview",
@@ -448,8 +510,14 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade",
-    "buyCrypto": "Buy/Sell Crypto"
+    "rewards": "Rewards",
+    "trade": "Trade/Bridge",
+    "tradeShort": "Trade",
+    "buyCrypto": "Buy/Sell Crypto",
+    "buyCryptoShort": "Buy/Sell",
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Missions",
+    "foxMissionsShort": "Missions"
   },
   "transactionRow": {
     "send": "Sent",
@@ -473,15 +541,21 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
         "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -502,8 +576,19 @@
       },
       "erc20": {
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
-        "infinite": "Infinite ∞"
+        "revokeSymbol": "Revoke %{symbol} approval",
+        "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable"
+      },
+      "bep20": {
+        "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
+        "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
+        "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable"
       },
       "staking": {
         "delegate": "Delegate",
@@ -513,6 +598,7 @@
       },
       "swap": {
         "deposit": "Swap",
+        "streamingSwap": "Streaming Swap",
         "out": "Swap",
         "refund": "Refund",
         "outbound": "Outbound"
@@ -522,7 +608,10 @@
         "recv_packet": "Received"
       },
       "lp": {
-        "deposit": "Add Liquidity"
+        "deposit": "Add Liquidity",
+        "withdraw": "Remove Liquidity",
+        "join_pool": "Join Pool",
+        "exit_pool": "Exit Pool"
       }
     },
     "unknown": "Transaction"
@@ -547,20 +636,39 @@
   "trade": {
     "trade": "Trade",
     "allowance": "Allowance",
+    "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
+    "priceImpact": "Price Impact",
+    "slippage": {
+      "maxSlippage": "Max Slippage",
+      "auto": "Auto",
+      "custom": "Custom",
+      "warning": "High slippage tolerances can result in unfavorable trades.",
+      "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
+    },
+    "from": "From",
+    "to": "To",
+    "on": "on",
+    "youPay": "You Pay",
+    "payWith": "Pay With",
+    "youGet": "You Get",
     "tradeTo": "Trade to",
+    "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
+    "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
+    "tradeAnyway": "Trade Anyway",
+    "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
     "needPermission": "needs your permission to use your %{symbol}",
@@ -570,6 +678,8 @@
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "unlimited": "Unlimited",
+    "streamStatus": "Stream Status",
+    "swapsFailed": "%{failedSwaps} swaps failed",
     "exact": "Exact",
     "expectedAmount": "Expected Amount",
     "beforeFees": "Before Fees",
@@ -578,15 +688,24 @@
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "updatingQuote": "Updating quote...",
-    "intoRUNETitle": "Trading into RUNE",
-    "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
+    "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
+    "manualReceiveAddress": "Receive address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
+      "priceImpact": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
+      "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
-      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
+      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
+      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct."
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Insufficient sell amount"
+      }
     },
     "errors": {
       "title": "Something went wrong",
@@ -596,6 +715,7 @@
       "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallUnknownMinimum": "Amount too low",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
@@ -604,8 +724,10 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
       "invalidTradePairBtnText": "Invalid Trade Pair",
+      "unsupportedTradePair": "Unsupported Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -631,15 +753,26 @@
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
       "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
       "generalError": "A trade error has occurred",
-      "tradeFailed": "Trade failed. Assets returned minus gas fee"
+      "quoteError": "An error occurred getting a quote",
+      "tradeFailed": "Trade failed. Assets returned minus gas fee",
+      "noQuotesAvailable": "No quotes available for this trade"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
-    "recentTrades": "Recent Trades"
+    "recentTrades": "Recent Trades",
+    "lifiWarning": "This trade routes via LI.FI, which executes a series of intermediary trades to perform a swap. If any steps fail you'll receive the token for the last successful step in the sequence.",
+    "or": "or",
+    "onChainName": "on %{chainName}",
+    "unknownGas": "(unknown)",
+    "receiveAddress": "Receive Address",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter address to continue.",
+    "addressPlaceholder": "%{chainName} address",
+    "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?"
   },
   "modals": {
     "popup": {
@@ -767,6 +900,7 @@
       "tokenAddress": "To Address",
       "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
+      "qrCode": "QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
@@ -774,12 +908,14 @@
         "generic": "An error occurred.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
-        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
+        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings.",
+        "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "customNonce": "Custom Nonce",
         "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
@@ -818,6 +954,10 @@
       "blockExplorer": "Explorer"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Your Allocation",
+        "fractionDescription": "% of pool"
+      },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",
@@ -876,14 +1016,15 @@
       }
     },
     "approve": {
-      "header": "Allow ShapeShift DAO Router to use your %{asset}",
-      "routerName": "ShapeShift DAO Router",
+      "header": "Allow %{spenderName} to use your %{asset}",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be a separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
-      "reject": "Reject"
+      "reject": "Reject",
+      "approved": "Approved"
     },
     "confirm": {
       "withdraw": {
@@ -911,6 +1052,7 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
+      "missingFundsForGas": "Not enough funds, you need %{cryptoAmountHuman} %{assetSymbol} more to complete transaction",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
@@ -937,6 +1079,8 @@
       "loadingText": "Pairing Wallet"
     },
     "settings": {
+      "clearCache": "Clear cache",
+      "clearCacheTooltip": "Clear cache and reload app",
       "settings": "Settings",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",
@@ -1104,8 +1248,7 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
-        "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -1122,42 +1265,20 @@
         "button": "Open"
       }
     },
-    "tallyHo": {
+    "coinbase": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with Tally Ho",
-        "connectFailure": "Unable to connect Tally Ho wallet",
-        "network": "Tally Ho isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
-        "tallyNotInstalledOrSetToDefault": "We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+        "unknown": "An unexpected error occurred communicating with Coinbase",
+        "connectFailure": "Unable to connect Coinbase wallet",
+        "multipleWallets": "Detected Ethereum provider is not Coinbase. Do you have multiple wallets installed?"
       },
       "connect": {
-        "header": "Pair Tally",
-        "body": "Click Pair and login to Tally Ho from the popup window",
+        "header": "Pair Coinbase",
+        "body": "Click Pair and login to Coinbase from the popup window",
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
-        "body": "Unable to connect Tally Ho wallet"
-      },
-      "redirect": {
-        "header": "Open in Tally Ho App",
-        "body": "Click to open ShapeShift dashboard in Tally Ho",
-        "button": "Open"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with Portis",
-        "connectFailure": "Unable to connect Portis wallet"
-      },
-      "connect": {
-        "header": "Pair Portis",
-        "body": "Click Pair then select Portis from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "Unable to connect Portis wallet"
+        "header": "Unable to connect Coinbase wallet",
+        "body": "Unable to connect Coinbase wallet"
       }
     },
     "walletConnect": {
@@ -1210,7 +1331,7 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "body": "Type or paste your Secret Recovery Phrase in all lower case with no commas or numbers and a single space between each word.",
         "button": "Next",
         "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
         "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
@@ -1300,13 +1421,40 @@
         "captchaRequired": "Captcha is required",
         "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
-        "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
+        "noWallet": "Could not find a ShapeShift Wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
         "decryptionError": "Something went wrong decrypting your wallet.",
         "twoFactorAuthentication": "Two-Factor Authentication",
         "twoFactorPlaceholder": "6-digit code",
         "twoFactorRequired": "2FA is required",
         "invalidTwoFactor": "6-digit code is invalid",
         "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
+      },
+      "onboarding": {
+        "skip": "Skip",
+        "shapeshiftWallet": "ShapeShift Wallet",
+        "selfCustody": {
+          "title": "Your ShapeShift Wallet is Self-Custody",
+          "subTitle": "You hold the keys and you're the only one who can access it.",
+          "body": "A self-custody wallet means that you own it, and only you have access to your funds. Your secret recovery phrase is your key to accessing it. Nobody can block you from accessing your funds.",
+          "cta": "Next"
+        },
+        "multiChain": {
+          "title": "Multiple chains are supported simultaneously",
+          "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
+          "body": "When a new chain is added on ShapeShift, your ShapeShift Wallet will automatically support it.",
+          "cta": "Next"
+        },
+        "easyToUse": {
+          "title": "It's easy to use!",
+          "subTitle": "With ShapeShift Wallet you can:",
+          "trackBalance": "Track your balances",
+          "sendReceive": "Send/receive crypto",
+          "buyCrypto": "Buy crypto",
+          "tradeAssets": "Trade assets",
+          "earnYield": "Earn yield on your idle assets",
+          "cta": "Buy Crypto",
+          "secondaryCta": "Go to my dashboard"
+        }
       }
     },
     "selectModal": {
@@ -1314,6 +1462,22 @@
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
       "create": "Create one"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Saved connections",
+        "create": "Connect new wallet"
+      },
+      "load": {
+        "header": "Saved Connections",
+        "confirmForget": "Are you sure you want to forget %{connection}?",
+        "error": {
+          "delete": "Unable to delete your wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        }
+      }
     }
   },
   "graph": {
@@ -1369,7 +1533,9 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "equity": "Equity",
       "accountTokens": "Account Tokens",
+      "relatedAssets": "Related Assets",
       "showTokens": "Show Tokens (%{amount})",
       "hideTokens": "Hide Tokens (%{amount})",
       "underlyingAssets": "Underlying Assets",
@@ -1501,6 +1667,11 @@
         "title": "✨ Get FOX rewards + more! ✨",
         "body": "Earn FOX rewards by completing tasks on DappBack",
         "cta": "Launch DappBack"
+      },
+      "bondProtocol": {
+        "title": "Buy FOX at a Discount!",
+        "body": "Buy FOX at a discount with BondProtocol",
+        "cta": "Launch BondProtocol"
       }
     },
     "analytics": {
@@ -1526,9 +1697,12 @@
         "menu": {
           "disconnect": "Disconnect",
           "address": "Address",
+          "addresses": "Addresses",
           "connected": "Connected",
           "network": "Network",
-          "unsupportedNetwork": "Unsupported Network"
+          "networks": "Networks",
+          "unsupportedNetwork": "Unsupported Network",
+          "expiry": "Session expiry"
         }
       },
       "modal": {
@@ -1542,7 +1716,16 @@
           "confirm": "Confirm",
           "reject": "Reject",
           "messageData": "Message data",
-          "domain": "Domain"
+          "domain": "Domain",
+          "memo": "Memo",
+          "messages": "Messages",
+          "noMessages": "No messages",
+          "sequence": "Sequence",
+          "accountNumber": "Account number",
+          "chainId": "Chain ID",
+          "authInfo": "Auth info",
+          "body": "Body",
+          "comingSoon": "Coming soon"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",
@@ -1579,7 +1762,20 @@
           "howTo": "How to connect to a dApp?",
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
-          "connectionError": "Can't connect to provided URI."
+          "connectionError": "Can't connect to provided URI.",
+          "invalidUri": "Invalid URI",
+          "v1UriUnsupported": "WalletConnect V1 URI not enabled",
+          "v2UriUnsupported": "WalletConnect V2 URI not enabled"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Info",
+          "permissions": "Permissions",
+          "accountSelection": "Choose accounts",
+          "unsupportedChain": "Unsupported chain namespace in session proposal.",
+          "methods": "Methods",
+          "events": "Events",
+          "selectedAccounts": "Selected Accounts",
+          "permissionMessage": "Please select at least one account per chain."
         }
       },
       "registry": {
@@ -1604,7 +1800,16 @@
       "banner": {
         "title": "Get a Yat",
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
-      }
+      },
+      "modal": {
+        "title": "Successfully linked Yat"
+      },
+      "linkedYat": "Linked Yat",
+      "yatConnected": "Yat Connected!",
+      "usdcAddress": "Yat USDC address",
+      "ethAddress": "Yat ETH address",
+      "noAddressFound": "No %{symbol} address found",
+      "viewInApp": "View in ShapeShift Mobile App"
     }
   },
   "gasInput": {
@@ -1629,17 +1834,74 @@
     "custom": "Custom"
   },
   "idle": {
+    "emptyTitle": "Earn %{apy}% on your %{asset} with Idle Finance",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Senior Best Yield Strategy",
+          "body": "Senior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple, conservative-risk yield sources to always provide the highest APY"
+        },
+        "page-2": {
+          "title": "Senior Best Yield strategies:",
+          "bullets": {
+            "one": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches",
+            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Strategy",
+          "body": "Junior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple Junior Tranches to always provide boosted, maximized APYs"
+        },
+        "page-2": {
+          "title": "Junior Best Yield strategies:",
+          "bullets": {
+            "one": "Automation and optimization of the yield generation across multiple Junior Tranches, providing boosted yields by design",
+            "two": "Offer maximized returns without the user constantly constantly checking rates and burning gas on every transfer"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranche Strategy",
+          "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
+        },
+        "page-2": {
+          "title": "Senior Tranche strategies:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranche Strategy",
+          "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
+        },
+        "page-2": {
+          "title": "Junior Tranche strategies:"
+        }
+      },
+      "monitorSystem": "Utilize Idle finance's monitoring system to find better-performing allocations and trigger a rebalance",
+      "offerHighReturn": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer",
+      "leverageYield": "Leverage yield using Senior tranches funds",
+      "higherRisk": "Higher risk exposure by protecting senior tranches",
+      "minRisk": "Minimized risk exposure",
+      "builtInCoverage": "Built-in coverage for variable rate rewards",
+      "noLockingPeriod": "No locking period or epochs",
+      "autoReinvest": "Auto-Reinvest accrued tokens",
+      "fundsCoveredJunior": "Funds covered by Junior Tranches",
+      "automation": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches"
+    },
     "bestYield": {
       "title": "What is Best Yield?",
       "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
     },
     "seniorTranche": {
       "title": "What is a Senior Tranche?",
-      "body": "Enjoy DeFi yields across multiple protocols while keeping your deposit protected. Senior Tranches offer built-in protection on funds and provide full-spectrum coverage thanks to their Junior counterparty."
-    }, 
+      "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
+    },
     "juniorTranche": {
       "title": "What is a Junior Tranche?",
-      "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
+      "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
     }
   },
   "promo": {
@@ -1647,6 +1909,142 @@
       "title": "Buy Crypto with NO KYC",
       "body": "Purchase up to $1,000 with Apple Pay",
       "cta": "Buy Now"
+    },
+    "savers": {
+      "title": "Earn rewards on your %{asset}",
+      "body": "Stake to THORChain savers vault. No lock-up time.",
+      "cta": "Deposit Now"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "What is Arkeo?",
+      "bodyParts": {
+        "1": "Last year, alongside",
+        "2": "Coinbase Cloud",
+        "3": "ShapeShift incubated a project called Arkeo. Mainnet launch is just around the corner!",
+        "4": "Arkeo was created to be a decentralized back-end for all node data. Applications that use Arkeo will benefit from increased development velocity, censorship-resistance and",
+        "5": "nakamoto coefficient",
+        "6": "while reducing reliance on centralized data sources."
+      }
+    },
+    "whoQualifies": {
+      "title": "Who qualifies for the Arkeo Airdrop?",
+      "body": "There are a number of ways you can qualify for the airdrop using the ShapeShift dApp. The snapshot is rolling, you still have time to qualify!"
+    },
+    "staking": {
+      "title": "%{asset} Stakers",
+      "body": "Earn up to %{apy} APR on your idle %{asset} and qualify for the Arkeo airdrop. PLUS if you stake to %{provider}, a 2x multiplier will be applied to your staked balance when your Arkeo airdrop amount is calculated.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Providers",
+      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
+      "cta": "Deposit Liquidity"
+    },
+    "foxTokenHolders": {
+      "title": "FOX Token Holders",
+      "body": "Hodling FOX tokens. The larger your bag, the larger your Arkeo airdrop.",
+      "cta": "Trade for FOX",
+      "secondary": "Buy FOX"
+    },
+    "foxFarmers": {
+      "title": "FOX/ETH LP Farmers",
+      "body": "Earn up to %{apy} APR for staking your ETH/FOX LP tokens in the FOX Farm. PLUS the underlying FOX in the ETH/FOX LP tokens you stake in Round 5 of the FOX Farm will qualify for the Arkeo airdrop.",
+      "cta": "Stake FOX/ETH LP"
+    },
+    "foxyTokenHolders": {
+      "title": "FOXy Token Holders",
+      "body": "Earn up to %{apy} APR on your idle FOX with FOX Yieldy (FOXy). PLUS FOXy held in your wallet will be treated the same as FOX and will qualify for the Arkeo airdrop.",
+      "cta": "Stake FOX Tokens"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LPs",
+      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
+      "cta": "Deposit Liquidity"
+    },
+    "stakeAtom": {
+      "title": "Stake ATOM",
+      "body": "Earn up to %{apr} APR on your idle ATOM. PLUS any ATOM you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification.",
+      "cta": "Stake ATOM"
+    },
+    "footer": {
+      "title": "There are other ways you can qualify too, outside of the ShapeShift dApp. For a complete list, check out the governance proposal.",
+      "cta": "Check out the governance proposal",
+      "disclaimer": {
+        "body": "* Self-custody wallets only will qualify. Tokens held or staked in a wallet via a centralized exchange do not qualify. Need a wallet?",
+        "cta": "Create one"
+      }
+    }
+  },
+  "nft": {
+    "customizeFoxatar": "Customize FOXatar",
+    "setAsAvatar": "Set as Avatar",
+    "floorPrice": "Floor Price",
+    "lastPrice": "Last Price",
+    "overview": "Overview",
+    "properties": "Properties",
+    "collection": "Collection",
+    "tokenId": "Token ID",
+    "address": "Address",
+    "chain": "Chain",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Details",
+    "attributes": "Attributes",
+    "aboutCollection": "About %{collectionName}",
+    "emptyTitle": "Where did all the NFTs go?",
+    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
+  },
+  "missions": {
+    "subtitle": "FOX Missions",
+    "missionEnded": "Mission Ended",
+    "viewMission": "View Mission",
+    "comingSoon": "Coming Soon",
+    "activeMissions": "Active Missions",
+    "endedMissions": "Ended Missions",
+    "title": {
+      "1": "Unleash the Decentralized Universe and",
+      "2": "Reap Rewards"
+    },
+    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
+    "ends": "Ends",
+    "ongoing": "Ongoing Mission",
+    "optimism": {
+      "title": "Earn up to 19.5 OP",
+      "subtitle": "Explore Optimism",
+      "cta": "Start Mission"
+    },
+    "foxatar": {
+      "title": "Get a Free & Customizable NFT",
+      "subtitle": "Mint a FOXatar",
+      "cta": "Start Mission"
+    },
+    "foxArmy": {
+      "subtitle": "Join the FOX Army",
+      "title": "20,000 FOX Pool",
+      "cta": "Start Mission"
+    },
+    "yat": {
+      "subtitle": "Play Yat Fantasy",
+      "title": "3,000 USDC Prize Pool",
+      "cta": "Start Mission"
+    },
+    "getListed": {
+      "subtitle": "Your Project Here",
+      "title": "Launch a Mission for Your Project",
+      "cta": "Submit Project"
+    },
+    "foxRewards": {
+      "subtitle": "Buy, sell, trade, earn, and more",
+      "title": "Earn FOX",
+      "cta": "Start Mission"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Set a New Avatar",
+      "restoreDefault": "Restore default"
     }
   }
 }

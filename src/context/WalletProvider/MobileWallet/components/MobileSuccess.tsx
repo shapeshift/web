@@ -10,15 +10,15 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from 'state/store'
 
-import { MobileConfig, mobileLogger } from '../config'
+import { MobileConfig } from '../config'
 import type { MobileSetupProps } from '../types'
 
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileSuccess'],
-})
-
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
+  const appDispatch = useAppDispatch()
+  const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const { state, dispatch } = useWallet()
   const { vault } = location.state
@@ -26,10 +26,10 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   useEffect(() => {
     ;(async () => {
       if (!vault) return
-      const adapter = state.adapters?.get(KeyManager.Native)!
+      const adapters = state.adapters?.get(KeyManager.Native)!
       try {
         const deviceId = vault.id ?? ''
-        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapters[0].pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
 
         if (mnemonic) {
@@ -44,15 +44,17 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
               icon,
               deviceId,
               meta: { label: walletLabel },
+              connectedType: KeyManager.Mobile,
             },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           setLocalNativeWalletName(walletLabel)
+          appDispatch(setWelcomeModal({ show: true }))
           return setIsSuccessful(true)
         }
       } catch (e) {
-        moduleLogger.error(e, { vault }, 'Error pairing device')
+        console.log(e)
       }
 
       setIsSuccessful(false)
@@ -62,7 +64,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       // Make sure the component is completely unmounted before we revoke the mnemonic
       setTimeout(() => vault?.revoke(), 500)
     }
-  }, [dispatch, setIsSuccessful, state.adapters, vault])
+  }, [appDispatch, dispatch, setIsSuccessful, setWelcomeModal, state.adapters, vault])
 
   return (
     <>
@@ -70,7 +72,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
         <Text translation={'walletProvider.shapeShift.success.header'} />
       </ModalHeader>
       <ModalBody>
-        <Box color='gray.500'>
+        <Box color='text.subtle'>
           {isSuccessful === true ? (
             <Text translation={'walletProvider.shapeShift.success.success'} />
           ) : isSuccessful === false ? (

@@ -18,10 +18,8 @@ import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { logger } from 'lib/logger'
 
 import type { NativeSetupProps, NativeWalletValues } from '../types'
-const moduleLogger = logger.child({ namespace: ['NativePassword'] })
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -38,7 +36,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       vault.meta.set('name', values.name)
       history.push('/native/success', { vault })
     } catch (e) {
-      moduleLogger.error(e, 'WalletProvider:NativeWallet:Password - Error setting password')
+      console.error(e)
       setError('password', {
         type: 'manual',
         message: translate('modal.shapeShift.password.error.invalid'),
@@ -65,7 +63,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.password.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.password.body'} />
         <Alert
           mb={4}
           status='warning'
@@ -116,6 +114,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
                   size='sm'
+                  tabIndex={-1}
                   onClick={handleShowPwClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
@@ -146,6 +145,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   )}
                   h='1.75rem'
                   size='sm'
+                  tabIndex={-1}
                   onClick={handleShowConfirmPwClick}
                   icon={!showConfirmPw ? <FaEye /> : <FaEyeSlash />}
                 />

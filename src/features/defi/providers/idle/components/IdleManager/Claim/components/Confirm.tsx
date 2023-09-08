@@ -9,7 +9,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +20,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { isSome } from 'lib/utils'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -30,21 +33,22 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
-
-const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
@@ -63,12 +67,15 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectSelectedCurrencyMarketDataSortedByMarketCap(state),
+  )
 
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -107,7 +114,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   useEffect(() => {
@@ -128,7 +135,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
         dispatch({ type: IdleClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
       } catch (error) {
-        moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
+        console.error(error)
       }
     })()
   }, [userAddress, dispatch, assetId, idleInvestor])
@@ -137,25 +144,44 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     if (!opportunityData?.rewardAssetIds?.length) return false
 
     return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+      bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[i]).gt(0),
     )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
+
+  const claimAmounts: ClaimAmount[] = useMemo(() => {
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return []
+
+    return opportunityData?.rewardsCryptoBaseUnit.amounts
+      .map((amount, i) => {
+        if (!opportunityData?.rewardAssetIds?.[i]) return undefined
+        const amountCryptoHuman = bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
+          .toNumber()
+        const fiatAmount = bnOrZero(amountCryptoHuman)
+          .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
+          .toNumber()
+        const token = {
+          assetId: opportunityData.rewardAssetIds[i],
+          amountCryptoHuman,
+          fiatAmount,
+        }
+        return token
+      })
+      .filter(isSome)
+  }, [assets, marketData, opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const claimableAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return null
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
-      if (!opportunityData?.rewardAssetIds?.[i]) return null
-
+    return claimAmounts?.map(rewardAsset => {
+      if (!rewardAsset?.assetId) return null
       const token = {
-        assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount)
-          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
-          .toNumber(),
+        assetId: rewardAsset.assetId,
+        amount: rewardAsset.amountCryptoHuman,
       }
-      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+      return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
-  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [claimAmounts, opportunityData?.rewardsCryptoBaseUnit?.amounts.length])
 
   const handleCancel = useCallback(() => {
     history.push({
@@ -175,6 +201,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         .gte(0)
     )
   }, [state.claim, feeAssetBalance, feeAsset])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   const handleConfirm = useCallback(async () => {
     if (!(dispatch && chainAdapter)) return
@@ -203,8 +235,17 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: claimAmounts.map(rewardAsset => rewardAsset?.fiatAmount),
+          cryptoAmounts: claimAmounts,
+        },
+        assets,
+      )
     } catch (error) {
-      moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
+      console.error(error)
     } finally {
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
     }
@@ -215,9 +256,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference,
     walletState.wallet,
     opportunityData,
-    idleInvestor,
     bip44Params,
+    idleInvestor,
     onNext,
+    claimAmounts,
+    assets,
   ])
 
   if (!state || !dispatch) return null
@@ -262,7 +305,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.claim.estimatedGasCrypto)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

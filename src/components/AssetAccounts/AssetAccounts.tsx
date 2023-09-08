@@ -1,7 +1,6 @@
-import { Grid, Stack } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Grid, Heading, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -21,12 +20,10 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   if ((accountIds && accountIds.length === 0) || accountId) return null
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
-          {translate('assets.assetDetails.assetAccounts.assetAllocation')}
-        </Card.Heading>
-      </Card.Header>
-      <Card.Body pt={0}>
+      <CardHeader>
+        <Heading as='h5'>{translate('assets.assetDetails.assetAccounts.assetAllocation')}</Heading>
+      </CardHeader>
+      <CardBody pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           <Grid
             templateColumns={{
@@ -40,23 +37,23 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
             fontSize='sm'
             lineHeight='shorter'
           >
-            <Text translation='assets.assetDetails.assetAccounts.account' color='gray.500' />
+            <Text translation='assets.assetDetails.assetAccounts.account' color='text.subtle' />
             <Text
               translation='assets.assetDetails.assetAccounts.allocation'
-              color='gray.500'
+              color='text.subtle'
               textAlign='right'
               display={{ base: 'none', lg: 'block' }}
             />
             <Text
               translation='assets.assetDetails.assetAccounts.amount'
               display={{ base: 'none', md: 'block', lg: 'block' }}
-              color='gray.500'
+              color='text.subtle'
               textAlign='right'
             />
             <Text
               translation='assets.assetDetails.assetAccounts.value'
               textAlign='right'
-              color='gray.500'
+              color='text.subtle'
             />
           </Grid>
           {accountIds.map(accountId => (
@@ -68,7 +65,7 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
             />
           ))}
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

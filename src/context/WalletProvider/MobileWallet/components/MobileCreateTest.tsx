@@ -8,7 +8,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
-import { mobileLogger } from '../config'
 import { addWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
@@ -25,10 +24,6 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileCreateTest'],
-})
-
 export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
@@ -41,13 +36,10 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
   const { vault } = location.state
 
   const shuffleMnemonic = useCallback(() => {
-    moduleLogger.info('shuffleMnemonic')
     if (testCount >= TEST_COUNT_REQUIRED || !vault) return
     try {
       const words = vault.getWords() ?? []
-      moduleLogger.info({ words }, 'words')
       let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
-      moduleLogger.info({ randomWords, shuffledNumbers }, 'randomWords')
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]
@@ -69,7 +61,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         ),
       )
     } catch (e) {
-      moduleLogger.error(e, 'shuffleMnemonic')
+      console.log(e)
       setError('walletProvider.shapeShift.create.error')
     }
   }, [revoker, shuffledNumbers, testCount, vault])
@@ -111,7 +103,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         <RawText>
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
@@ -124,7 +116,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
           </Tag>{' '}
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>

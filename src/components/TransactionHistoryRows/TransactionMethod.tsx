@@ -2,7 +2,6 @@ import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -19,6 +18,13 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
+const isStreamingSwapMemo = (memo: string | undefined): boolean => {
+  if (!memo) return false
+
+  const regex = /:\d+\/\d+\/\d+:/
+  return regex.test(memo)
+}
+
 export const TransactionMethod = ({
   txDetails,
   showDateAndGuide,
@@ -29,6 +35,9 @@ export const TransactionMethod = ({
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
+  const memo = 'memo' in txMetadata ? txMetadata.memo : undefined
+  const isStreamingSwap = useMemo(() => isStreamingSwapMemo(memo), [memo])
+  const { method, parser } = txMetadata
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
   const asset = useAppSelector(state =>
@@ -40,59 +49,64 @@ export const TransactionMethod = ({
     [txDetails.transfers],
   )
 
-  const titlePrefix = translate(
-    txMetadata.parser
-      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
-      : 'transactionRow.unknown',
-  )
-
   const title = useMemo(() => {
     const symbol = asset?.symbol
+    const titlePrefix = (() => {
+      switch (true) {
+        case isStreamingSwap:
+          return 'transactionRow.parser.swap.streamingSwap'
+        case method !== undefined && parser !== undefined:
+          return `transactionRow.parser.${parser}.${method}`
+        default:
+          return 'transactionRow.unknown'
+      }
+    })()
 
-    switch (txMetadata.method) {
+    switch (method) {
       case 'approve':
-        return `${titlePrefix} ${symbol}`
       case 'revoke':
-        return `${titlePrefix} ${symbol} approval`
+        // add symbol if available
+        return symbol ? translate(`${titlePrefix}Symbol`, { symbol }) : translate(titlePrefix)
       default:
-        return titlePrefix
+        return translate(titlePrefix)
     }
-  }, [asset?.symbol, titlePrefix, txMetadata.method])
+  }, [asset?.symbol, method, isStreamingSwap, parser, translate])
 
   const type = useMemo(() => {
-    switch (txMetadata.method) {
-      case Method.Deposit:
+    switch (method) {
       case Method.AddLiquidityEth:
-      case Method.TransferOut:
-      case Method.Stake:
-      case Method.Delegate:
       case Method.BeginRedelegate:
+      case Method.Delegate:
+      case Method.Deposit:
+      case Method.JoinPool:
+      case Method.Stake:
       case Method.Transfer:
+      case Method.TransferOut:
         return TransferType.Send
-      case Method.Withdraw:
-      case Method.RemoveLiquidityEth:
-      case Method.Unstake:
-      case Method.InstantUnstake:
+      case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
       case Method.Exit:
-      case Method.Outbound:
+      case Method.ExitPool:
+      case Method.InstantUnstake:
       case Method.Out:
-      case Method.Refund:
-      case Method.BeginUnbonding:
-      case Method.WithdrawDelegatorReward:
+      case Method.Outbound:
       case Method.RecvPacket:
+      case Method.Refund:
+      case Method.RemoveLiquidityEth:
+      case Method.Unstake:
+      case Method.Withdraw:
+      case Method.WithdrawDelegatorReward:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:
         return Method.Approve
       default: {
-        logger.warn(`unhandled method: ${txMetadata.method}`)
         const transferTypes = Object.keys(transfersByType)
         if (transferTypes.length === 1) return transferTypes[0] // known single direction
         return ''
       }
     }
-  }, [transfersByType, txMetadata.method])
+  }, [transfersByType, method])
 
   return (
     <>
@@ -112,7 +126,7 @@ export const TransactionMethod = ({
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
           {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
             txMetadataWithAssetId?.assetId &&

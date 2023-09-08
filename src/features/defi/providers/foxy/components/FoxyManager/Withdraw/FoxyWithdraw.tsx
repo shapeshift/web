@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { ethers } from 'ethers'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -8,7 +9,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
@@ -22,7 +22,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
@@ -38,19 +38,15 @@ import { FoxyWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyWithdraw'],
-})
-
 export const FoxyWithdraw: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
   accountId: AccountId | undefined
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetReference: contractAddress } = query
+  const { assetReference: foxyStakingContractAddress } = query
   const { feeAssetId, underlyingAsset, underlyingAssetId, stakingAsset } = useFoxyQuery()
 
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
@@ -68,15 +64,22 @@ export const FoxyWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && api && bip44Params)) return
-        const { accountNumber } = bip44Params
-        const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
-        ])
+        if (
+          !(
+            walletState.wallet &&
+            foxyStakingContractAddress &&
+            chainAdapter &&
+            foxyApi &&
+            bip44Params
+          )
+        )
+          return
+        const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(
+          ethers.utils.getAddress(foxyStakingContractAddress),
+        )
         // Get foxy fee for instant sends
-        const foxyFeePercentage = await api.instantUnstakeFee({
-          contractAddress,
+        const foxyFeePercentage = await foxyApi.instantUnstakeFee({
+          contractAddress: foxyStakingContractAddress,
         })
 
         dispatch({
@@ -84,19 +87,15 @@ export const FoxyWithdraw: React.FC<{
           payload: bnOrZero(foxyFeePercentage).toString(),
         })
         dispatch({
-          type: FoxyWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
-        })
-        dispatch({
           type: FoxyWithdrawActionType.SET_OPPORTUNITY,
           payload: foxyOpportunity,
         })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxyWithdraw error:')
+        console.error(error)
       }
     })()
-  }, [api, bip44Params, chainAdapter, contractAddress, walletState.wallet])
+  }, [foxyApi, bip44Params, chainAdapter, foxyStakingContractAddress, walletState.wallet])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -112,7 +111,7 @@ export const FoxyWithdraw: React.FC<{
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: ownProps => <Approve {...ownProps} accountId={accountId} />,
-        props: { contractAddress },
+        props: { contractAddress: foxyStakingContractAddress },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -120,10 +119,10 @@ export const FoxyWithdraw: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, contractAddress, translate, stakingAsset.symbol])
+  }, [accountId, handleAccountIdChange, foxyStakingContractAddress, translate, stakingAsset.symbol])
 
   const handleBack = () => {
     history.push({

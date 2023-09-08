@@ -1,7 +1,15 @@
-import { Button } from '@chakra-ui/button'
-import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
-import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import {
+  Box,
+  Button,
+  Divider,
+  Icon,
+  Link,
+  Stack,
+  Switch,
+  Text as CText,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import isUndefined from 'lodash/isUndefined'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -11,22 +19,25 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 
 import { PairIcons } from './PairIcons'
 
 type ApproveProps = {
   asset: Asset
+  spenderName: string
   disabled?: boolean
   providerIcon?: string
   icons?: string[]
   feeAsset: Asset
-  cryptoEstimatedGasFee: string
+  estimatedGasFeeCryptoPrecision: string
   fiatEstimatedGasFee: string
   isExactAllowance?: boolean
+  isApproved?: boolean
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
-  contractAddress: string
+  spenderContractAddress: string
   preFooter?: React.ReactNode
   onToggle?(): void
   onConfirm(): Promise<void>
@@ -35,12 +46,14 @@ type ApproveProps = {
 
 export const Approve = ({
   asset,
-  contractAddress,
-  cryptoEstimatedGasFee,
+  spenderContractAddress,
+  spenderName,
+  estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,
   fiatEstimatedGasFee,
   icons,
+  isApproved,
   isExactAllowance,
   learnMoreLink,
   loading,
@@ -78,7 +91,7 @@ export const Approve = ({
           direction='row'
           alignItems='center'
           justifyContent='center'
-          color='gray.500'
+          color='text.subtle'
           pt={6}
         >
           {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
@@ -90,15 +103,18 @@ export const Approve = ({
           )}
         </Stack>
         <Stack>
-          <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
-          <CText color='gray.500'>
+          <Text
+            fontWeight='bold'
+            translation={['modals.approve.header', { asset: asset.name, spenderName }]}
+          />
+          <CText color='text.subtle'>
             <Link
-              href={`${asset.explorerAddressLink}${contractAddress}`}
+              href={`${asset.explorerAddressLink}${spenderContractAddress}`}
               color='blue.500'
               me={1}
               isExternal
             >
-              {translate('modals.approve.routerName')}
+              {spenderName}
             </Link>
             {translate('modals.approve.body', { asset: asset.name })}
           </CText>
@@ -111,22 +127,22 @@ export const Approve = ({
         {!isUndefined(isExactAllowance) && (
           <Row justifyContent='space-between'>
             <Row.Label display='flex' alignItems='center'>
-              <Text color='gray.500' translation='trade.allowance' />
+              <Text color='text.subtle' translation='trade.allowance' />
               <Tooltip label={translate('trade.allowanceTooltip')}>
                 <Box ml={1}>
-                  <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                  <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                 </Box>
               </Tooltip>
             </Row.Label>
             <Row.Value textAlign='right' display='flex' alignItems='center'>
               <Text
-                color={isExactAllowance ? 'gray.500' : 'white'}
+                color={isExactAllowance ? 'text.subtle' : 'white'}
                 translation='trade.unlimited'
                 fontWeight='bold'
               />
               <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onToggle} />
               <Text
-                color={isExactAllowance ? 'white' : 'gray.500'}
+                color={isExactAllowance ? 'white' : 'text.subtle'}
                 translation='trade.exact'
                 fontWeight='bold'
               />
@@ -136,15 +152,15 @@ export const Approve = ({
         <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
-            disabled={disabled || loading}
+            disabled={isApproved || disabled || loading}
             size='lg'
-            colorScheme='blue'
+            colorScheme={isApproved ? 'green' : 'blue'}
             width='full'
             data-test='defi-modal-approve-button'
             isLoading={loading}
             loadingText={loadingText}
           >
-            {translate('modals.approve.confirm')}
+            {translate(!isApproved ? 'common.approve' : 'modals.approve.approved')}
           </Button>
           <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
             {translate('modals.approve.reject')}
@@ -159,8 +175,8 @@ export const Approve = ({
             <Box textAlign='right'>
               <Amount.Fiat value={fiatEstimatedGasFee} />
               <Amount.Crypto
-                color='gray.500'
-                value={cryptoEstimatedGasFee}
+                color='text.subtle'
+                value={estimatedGasFeeCryptoPrecision}
                 symbol={feeAsset.symbol}
               />
             </Box>

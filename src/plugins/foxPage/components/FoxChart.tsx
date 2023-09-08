@@ -1,14 +1,23 @@
-import { Box, Stat, StatArrow, StatNumber, Text } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import {
+  Box,
+  Card,
+  CardBody,
+  CardFooter,
+  Stat,
+  StatArrow,
+  StatNumber,
+  Text,
+} from '@chakra-ui/react'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { selectChartTimeframe, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type FoxChartProps = {
@@ -16,7 +25,9 @@ type FoxChartProps = {
 }
 
 export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const [percentChange, setPercentChange] = useState(0)
   const {
     number: { toFiat },
@@ -28,9 +39,9 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
 
   return (
     <Card>
-      <Card.Body pb={2}>
+      <CardBody pb={2}>
         <Box textAlign='center'>
-          <Text color='gray.500' fontWeight='semibold'>
+          <Text color='text.subtle' fontWeight='semibold'>
             {translate('plugins.foxPage.currentPrice')}
           </Text>
           <Box fontSize='4xl' lineHeight={1} mb={2}>
@@ -53,7 +64,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
             </StatNumber>
           </Stat>
         </Box>
-      </Card.Body>
+      </CardBody>
       <PriceChart
         assetId={assetId}
         setPercentChange={setPercentChange}
@@ -62,9 +73,9 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
         chartHeight='200px'
         width='100%'
       />
-      <Card.Footer>
+      <CardFooter>
         <TimeControls
-          onChange={setTimeframe}
+          onChange={handleTimeframeChange}
           defaultTime={timeframe}
           buttonGroupProps={{
             display: 'flex',
@@ -72,7 +83,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
             justifyContent: 'space-between',
           }}
         />
-      </Card.Footer>
+      </CardFooter>
     </Card>
   )
 }

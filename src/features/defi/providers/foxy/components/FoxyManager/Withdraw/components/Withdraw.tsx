@@ -9,7 +9,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -18,11 +17,11 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,15 +33,13 @@ export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
 
-const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
-
 export const Withdraw: React.FC<
   StepComponentProps & {
     accountId: AccountId | undefined
     onAccountIdChange: AccountDropdownProps['onChange']
   }
 > = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -66,7 +63,9 @@ export const Withdraw: React.FC<
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+  )
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
@@ -96,23 +95,25 @@ export const Withdraw: React.FC<
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
-      if (!(accountAddress && dispatch && rewardId && api && bip44Params)) return
+      if (!(accountAddress && dispatch && rewardId && foxyApi && bip44Params)) return
 
-      const getApproveGasEstimate = async () => {
+      const getApproveGasEstimateCryptoBaseUnit = async () => {
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            api.estimateApproveGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              userAddress: accountAddress,
-            }),
-            api.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateApproveFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            userAddress: accountAddress,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -122,29 +123,28 @@ export const Withdraw: React.FC<
         }
       }
 
-      const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
+      const getWithdrawGasEstimateCryptoBaseUnit = async (withdraw: FoxyWithdrawValues) => {
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            api.estimateWithdrawGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              amountDesired: bnOrZero(
-                bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-              ).decimalPlaces(0),
-              userAddress: accountAddress,
-              type: withdraw.withdrawType,
-              bip44Params,
-            }),
-            api.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateWithdrawFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            amountDesired: bnOrZero(
+              bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
+            ).decimalPlaces(0),
+            userAddress: accountAddress,
+            type: withdraw.withdrawType,
+            bip44Params,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getWithdrawGasEstimate', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')
           toast({
@@ -169,7 +169,7 @@ export const Withdraw: React.FC<
       })
       try {
         // Check is approval is required for user address
-        const _allowance = await api.allowance({
+        const _allowance = await foxyApi.allowance({
           tokenContractAddress: rewardId,
           contractAddress,
           userAddress: accountAddress,
@@ -177,13 +177,13 @@ export const Withdraw: React.FC<
 
         const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
 
-        // Skip approval step if user allowance is greater than or equal requested deposit amount
+        // Skip approval step if user allowance is greater than or equal requested withdraw amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxyWithdrawActionType.SET_WITHDRAW,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Confirm)
           dispatch({
@@ -191,11 +191,11 @@ export const Withdraw: React.FC<
             payload: false,
           })
         } else {
-          const estimatedGasCrypto = await getApproveGasEstimate()
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getApproveGasEstimateCryptoBaseUnit()
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxyWithdrawActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Approve)
           dispatch({
@@ -204,7 +204,7 @@ export const Withdraw: React.FC<
           })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        console.error(error)
         dispatch({
           type: FoxyWithdrawActionType.SET_LOADING,
           payload: false,
@@ -218,7 +218,7 @@ export const Withdraw: React.FC<
       }
     },
     [
-      api,
+      foxyApi,
       asset.precision,
       bip44Params,
       contractAddress,

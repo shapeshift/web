@@ -10,8 +10,45 @@ import flow from 'lodash/flow'
  * - dev is the local environment. .env.local automatically gets picked up by dotenv
  * - the release environment uses the app configuration
  */
-const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private'] as const
-type Environment = typeof VALID_ENVIRONMENTS[number]
+const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private', 'e2e'] as const
+type Environment = (typeof VALID_ENVIRONMENTS)[number]
+
+const VALID_BRANCHES = [
+  'develop',
+  'release',
+  'main',
+  'private',
+  'yeet',
+  'beard',
+  'juice',
+  'wood',
+  'gome',
+  'cafe',
+  'arkeo',
+] as const
+type Branch = (typeof VALID_BRANCHES)[number]
+
+/**
+ * the keys of this object are mapped to subdomains in cloudflare
+ * e.g. yeet.shapeshift.com
+ * the values of this object are the names of the .env files
+ * e.g. .env.develop
+ */
+const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
+  // environments for individual devs
+  beard: 'develop',
+  juice: 'develop',
+  wood: 'develop',
+  gome: 'develop',
+  cafe: 'develop',
+  arkeo: 'develop',
+  yeet: 'develop', // free for all
+  develop: 'develop',
+  release: 'app', // for operations testing production releases
+  // production environments
+  main: 'app',
+  private: 'private',
+}
 
 const getSerializedEnvVars = (environment: Environment) => {
   console.log(`Using environment variables for ${environment} environment`)
@@ -27,12 +64,46 @@ const getSerializedEnvVars = (environment: Environment) => {
     .join('\n')
 }
 
+/**
+ * note for future maintainers - the intent of this script, is to map a given arg to a config environment.
+ *
+ * the arg can be
+ * - a whitelisted branch name (in CI)
+ * - an environment name
+ * - empty, and the script will try to infer the environment from the branch name
+ *
+ * e.g.
+ * - `yarn env app` will load the .env.app file and write out a .env file
+ * - `yarn env` will try and read the branch name from process.env and map it to an environment
+ *
+ * this script can be called one of two ways
+ * without args - `yarn env` in CI in GitHub Actions - where we inject process.env.CURRENT_BRANCH_NAME
+ * see cloudflare.yml for more details
+ * we have develop | main | release | private | yeet branches configured
+ * and these branches map to the environments in BRANCH_TO_ENVIRONMENT above
+ *
+ * or `yarn env dev` and we're running locally and we use the radical dev config
+ *
+ */
 const getSpecifiedEnvironment = (): Environment => {
   const args = process.argv.slice(2)
-  assert(args.length === 1, 'yarn env must be called with exactly one environment argument')
-  const specifiedEnvironment = args[0] as Environment
-  assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), 'invalid environment')
-  return specifiedEnvironment
+  const branch = process.env.CURRENT_BRANCH_NAME // set by cloudflare.yml
+
+  // we're in a CI environment - we called the script as `yarn env` and hope the branch is set
+  if (branch) {
+    assert(VALID_BRANCHES.includes(branch as Branch), `invalid branch: ${branch}`)
+    const targetEnvironment = BRANCH_TO_ENVIRONMENT[branch as Branch]
+    assert(Boolean(targetEnvironment))
+    console.log(`Using branch ${branch} to determine environment ${targetEnvironment}`)
+    return targetEnvironment
+  } else {
+    const specifiedEnvironment = args[0] as Environment
+    assert(
+      VALID_ENVIRONMENTS.includes(specifiedEnvironment),
+      `invalid environment: ${specifiedEnvironment}`,
+    )
+    return specifiedEnvironment
+  }
 }
 
 const exportDotEnvFile = (serializedEnvVars: string) => {

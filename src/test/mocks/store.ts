@@ -1,5 +1,8 @@
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -23,12 +26,17 @@ export const mockStore: ReduxState = {
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
-  validatorDataApi: mockApiFactory('validatorDataApi' as const),
+  zapperApi: mockApiFactory('zapperApi' as const),
+  nftApi: mockApiFactory('nftApi' as const),
+  covalentApi: mockApiFactory('covalentApi' as const),
+  zapper: mockApiFactory('zapper' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
+  swappersApi: mockApiFactory('swappersApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  zerionApi: mockApiFactory('zerionApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -49,30 +57,48 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
+      Jaypegz: false,
       Optimism: false,
-      OptimismZrx: false,
-      OsmosisSend: false,
-      OsmosisStaking: false,
-      OsmosisLP: false,
-      OsmosisSwap: false,
+      Polygon: false,
+      Gnosis: false,
+      BnbSmartChain: false,
+      ZrxSwap: false,
       ThorSwap: false,
-      Pendo: false,
+      ThorSwapStreamingSwaps: false,
+      ThorSwapAffiliateFees: false,
+      Cowswap: false,
+      CowswapGnosis: false,
       IdleFinance: false,
       Axelar: false,
       Yat: false,
       WalletConnectToDapps: false,
-      DashboardBreakdown: false,
+      WalletConnectToDappsV2: false,
       Wherever: false,
-      FiatPopup: false,
-      EligibleEarn: false,
       SaversVaults: false,
       Yearn: false,
+      DefiDashboard: false,
+      ArkeoAirdrop: false,
+      TradeRates: false,
+      Mixpanel: false,
+      LifiSwap: false,
+      FoxBondCTA: false,
+      DynamicLpAssets: false,
+      ReadOnlyAssets: false,
+      OneInch: false,
+      CovalentJaypegs: false,
+      Chatwoot: false,
+      CoinbaseWallet: false,
+      AdvancedSlippage: false,
+      WalletConnectV2: false,
+      CustomSendNonce: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    currencyFormat: CurrencyFormats.DotDecimal,
+    currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
+    chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
+    showConsentBanner: true,
     // the following object is required by redux-persist
     _persist: {
       version: 0,
@@ -107,10 +133,6 @@ export const mockStore: ReduxState = {
       byId: {},
     },
   },
-  validatorData: {
-    byValidator: {},
-    validatorIds: [],
-  },
   opportunities: {
     lp: {
       byAccountId: {},
@@ -126,5 +148,33 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+  },
+  nft: {
+    selectedNftAvatarByWalletId: {},
+    nfts: {
+      byId: {},
+      ids: [],
+    },
+    collections: {
+      byId: {},
+      ids: [],
+    },
+  },
+  swappers: {
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAssetAccountId: undefined,
+    buyAssetAccountId: undefined,
+    sellAmountCryptoPrecision: '0',
+    tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
+    willDonate: true,
+    manualReceiveAddress: undefined,
+    manualReceiveAddressIsValidating: false,
+    slippagePreferencePercentage: undefined,
+  },
+  tradeQuoteSlice: {
+    activeQuoteIndex: undefined,
+    confirmedQuote: undefined,
+    activeStep: undefined,
   },
 }

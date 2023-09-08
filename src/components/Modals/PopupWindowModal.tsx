@@ -25,7 +25,7 @@ function popupCenterWindow(url: string, windowName: string, w: number, h: number
   )
 }
 
-type PopupWindowModalProps = {
+export type PopupWindowModalProps = {
   url: string
   title: string
   width?: number
@@ -38,7 +38,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   width = 482,
   height = 660,
 }) => {
-  const { popup } = useModal()
+  const popup = useModal('popup')
   const translate = useTranslate()
   const { close: onClose, isOpen } = popup
   const [popupWindow, setPopupWindow] = useState<Window | null | void>(null)

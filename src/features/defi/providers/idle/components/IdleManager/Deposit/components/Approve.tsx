@@ -1,9 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ssRouterContractAddress } from '@shapeshiftoss/investor-idle'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -12,20 +10,25 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-import { poll } from 'lib/poll/poll'
+import { ssRouterContractAddress } from 'lib/investor/investor-idle/constants/router-contract'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -36,12 +39,11 @@ import { DepositContext } from '../DepositContext'
 
 type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
-
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -50,8 +52,9 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -65,13 +68,21 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
+  const estimatedGasCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
+    [estimatedGasCryptoBaseUnit, feeAsset?.precision],
+  )
+
   // user info
   const { state: walletState } = useWallet()
 
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && opportunity && assetReference && idleInvestor && underlyingAsset)) return
       try {
@@ -89,10 +100,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -135,24 +143,33 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       const address = userAddress
       await poll({
         fn: () => idleOpportunity.allowance(address),
-        validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
+        validate: (result: BigNumber) => {
+          const allowance = result.div(bn(10).pow(underlyingAsset?.precision))
           return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
-      if (!estimatedGasCrypto) return
+      const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(state.deposit)
+      if (!estimatedGasCryptoBaseUnit) return
       dispatch({
         type: IdleDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit },
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity,
+          cryptoAmounts: [],
+          fiatAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -172,9 +189,11 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     chainAdapter,
     underlyingAsset,
     idleInvestor,
-    getDepositGasEstimate,
+    poll,
+    getDepositGasEstimateCryptoBaseUnit,
     state?.deposit,
     onNext,
+    assets,
     toast,
     translate,
   ])
@@ -182,13 +201,13 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, estimatedGasCryptoBaseUnit, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -197,34 +216,35 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  if (!state || !dispatch || !estimatedGasCrypto) return null
+  if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null
 
   return (
     <ReusableApprove
       asset={asset}
+      spenderName={translate('modals.approve.shapeshiftRouterName')}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approveOnWallet')}
+      loadingText={translate('common.approve')}
       preFooter={preFooter}
       providerIcon={underlyingAsset?.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={ssRouterContractAddress}
+      spenderContractAddress={ssRouterContractAddress}
     />
   )
 }

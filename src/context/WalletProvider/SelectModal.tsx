@@ -8,6 +8,7 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { getConfig } from 'config'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
@@ -27,7 +28,6 @@ export const SelectModal = () => {
 
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
   const greenColor = useColorModeValue('green.500', 'green.200')
-  const activeBg = useColorModeValue('gray.200', 'gray.900')
 
   return (
     <>
@@ -35,14 +35,21 @@ export const SelectModal = () => {
         <Text translation={'walletProvider.selectModal.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.body'} />
+        <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
         <Grid mb={6} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }} gridGap={4}>
           {adapters &&
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(walletType => {
               const option = SUPPORTED_WALLETS[walletType]
-              // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
+              // some wallets (e.g. keepkey) do not exist on mobile
+
+              const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET
+              if (walletType === KeyManager.Coinbase && !isCoinbaseEnabled) return null
+
+              const isWalletConnectV2Enabled = getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2
+              if (walletType === KeyManager.WalletConnectV2 && !isWalletConnectV2Enabled)
+                return null
 
               const isSupported = (() => {
                 if (isMobileApp) {
@@ -74,14 +81,13 @@ export const SelectModal = () => {
                   size='md'
                   py={8}
                   isActive={activeWallet}
-                  _active={{ bg: activeBg }}
                   justifyContent='space-between'
                   onClick={() => connect(walletType)}
                   data-test={`connect-wallet-${walletType}-button`}
                 >
                   <Flex alignItems='flex-start' flexDir='column'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>
-                    {<Text fontSize='xs' color='gray.500' translation={walletSubText} />}
+                    {<Text fontSize='xs' color='text.subtle' translation={walletSubText} />}
                   </Flex>
                   <Center width='25%'>
                     {activeWallet ? (
@@ -97,7 +103,7 @@ export const SelectModal = () => {
         <Flex direction={['column', 'row']} mt={2} justifyContent='center' alignItems='center'>
           <Text
             mb={[3]}
-            color='gray.500'
+            color='text.subtle'
             translation={walletInfo?.name ? 'common.or' : 'walletProvider.selectModal.footer'}
           />
           <Button

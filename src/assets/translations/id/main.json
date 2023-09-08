@@ -212,7 +212,6 @@
     "apy": "APY",
     "apr": "APR",
     "balance": "Saldo",
-    "defi": "DeFi",
     "defiBody": "Jelajahi dunia peluang DeFi yang terus berkembang.",
     "netWorth": "Kekayaan Bersih",
     "walletBalance": "Saldo Dompet",
@@ -227,9 +226,6 @@
     "farmingBalance": "Saldo Farming",
     "liquidityPoolBalance": "Saldo Pool Likuiditas",
     "poolValue": " Nilai Pool",
-    "currentValue": "Nilai saat Ini",
-    "currentAPY": "APY saat ini",
-    "currentAPR": "APR saat ini",
     "yearn": "Yearn Finance",
     "emptyEarn": "Dapatkan peluang akan muncul di sini.",
     "empty": {
@@ -270,7 +266,6 @@
     "accounts": "Akun",
     "accountAsset": "Aset Akun",
     "accountDetails": "Detail akun",
-    "earn": "Hasilkan",
     "defi": "DeFi",
     "transactionHistory": "Sejarah Transaksi",
     "overview": "Ringkasan ",
@@ -520,8 +515,7 @@
       }
     },
     "approve": {
-      "header": "Izinkan ShapeShift DAO Router untuk menghabiskan %{asset}",
-      "routerName": "ShapeShift DAO Router",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "Kami membutuhkan izin Anda untuk menggunakan %{asset}",
       "learnMore": "Mengapa saya perlu melakukan ini??",
       "depositFee": "Akan ada biaya gas terpisah untuk deposit.",
@@ -717,21 +711,6 @@
         "button": "Buka"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan Portis",
-        "connectFailure": "Tidak dapat menghubungkan dompet Portis"
-      },
-      "connect": {
-        "header": "Pasangkan Portis",
-        "body": "Klik Pasangkan lalu pilih Portis dari jendela popup",
-        "button": "Pasangkan"
-      },
-      "failure": {
-        "header": "Kesalahan",
-        "body": "Tidak dapat menghubungkan dompet Portis"
-      }
-    },
     "shapeShift": {
       "load": {
         "error": {
@@ -746,7 +725,6 @@
       },
       "import": {
         "header": "Impor dompet Anda",
-        "body": "Masukkan Frase Pemulihan Rahasia Anda untuk mengimpor dompet yang ada",
         "button": "Selanjutnya",
         "secretRecoveryPhraseError": "Masukkan Frase Pemulihan Rahasia Anda dengan satu spasi di antara kata-kata. Hilangkan koma, pengembalian, atau karakter tambahan apa pun.",
         "secretRecoveryPhraseRequired": "Frase Pemulihan Rahasia diperlukan",

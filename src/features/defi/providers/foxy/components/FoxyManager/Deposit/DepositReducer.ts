@@ -1,6 +1,6 @@
-import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
 import { FoxyDepositActionType } from './DepositCommon'
@@ -12,14 +12,13 @@ export const initialState: FoxyDepositState = {
     stakingToken: '',
     provider: '',
     chain: KnownChainIds.EthereumMainnet,
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     expired: false,
     version: '',
     rewardToken: '',
     tvl: bn(0),
     apy: '',
   },
-  userAddress: null,
   loading: false,
   approve: {},
   pricePerShare: '',
@@ -28,7 +27,7 @@ export const initialState: FoxyDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoBaseUnit: '',
   },
   isExactAllowance: false,
 }
@@ -41,8 +40,6 @@ export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => 
       return { ...state, approve: action.payload }
     case FoxyDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case FoxyDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxyDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxyDepositActionType.SET_TXID:

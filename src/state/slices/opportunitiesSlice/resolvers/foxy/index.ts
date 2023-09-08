@@ -1,14 +1,13 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import dayjs from 'dayjs'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectBIP44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -18,6 +17,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -25,10 +25,10 @@ import type {
 } from '../types'
 
 export const foxyStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  const opportunities = await getFoxyApi().getFoxyOpportunities()
+  const allOpportunities = await getFoxyApi().getFoxyOpportunities()
 
   const foxyApr = await reduxApi.dispatch(foxyApi.endpoints.getFoxyApr.initiate())
 
@@ -37,7 +37,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
-  for (const opportunity of opportunities) {
+  for (const opportunity of allOpportunities) {
     // FOXY Token
     const rewardTokenAssetId = toAssetId({
       chainId: ethChainId,
@@ -50,6 +50,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       assetNamespace: 'erc20',
       assetReference: opportunity.stakingToken,
     })
+    // FOXy staking contract
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'erc20',
       assetReference: opportunity.contractAddress,
@@ -73,19 +74,24 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
+      id: opportunityId,
       provider: DefiProvider.ShapeShift as const,
       tvl,
       type: DefiType.Staking as const,
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
-      underlyingAssetRatiosBaseUnit: ['1'],
+      underlyingAssetRatiosBaseUnit: [
+        bn(1).times(bn(10).pow(underlyingAsset.precision)).toString(),
+      ],
       name: underlyingAsset.symbol,
+      rewardAssetIds: [],
+      isClaimableRewards: true,
     }
   }
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
@@ -96,14 +102,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    return {
-      data: {
-        byId: {},
-      },
-    }
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
@@ -113,7 +111,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: foxyAssetId }
-    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, foxyAssetId)
     if (!asset) continue
@@ -126,24 +124,39 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-    if (bnOrZero(balance).eq(0)) {
-      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        stakedAmountCryptoBaseUnit: '0',
-        rewardsAmountsCryptoBaseUnit: [],
-      }
-      continue
-    }
-
     const opportunities = await foxyInvestor.getFoxyOpportunities()
 
+    // investor-foxy is architected around many FOXy addresses/opportunity, but akchually there's only one
     if (!opportunities[0]) continue
 
-    //FOXy is a rebasing token so there aren't rewards to claim
+    const opportunity = opportunities[0]
+
+    // FOXy is a rebasing token so there aren't rewards in the sense of rewards claim
+    // These technically exist and are effectively accrued, but we're unable to derive them
     const rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
 
+    const bip44Params = selectBIP44ParamsByAccountId(state, { accountId })
+
+    if (!bip44Params) continue
+
+    const withdrawInfo = await foxyInvestor.getWithdrawInfo({
+      contractAddress: opportunity.contractAddress,
+      userAddress: fromAccountId(accountId).account,
+      bip44Params,
+    })
+
+    const undelegations = [
+      {
+        completionTime: dayjs(withdrawInfo.releaseTime).unix(),
+        undelegationAmountCryptoBaseUnit: bnOrZero(withdrawInfo.amount).toFixed(),
+      },
+    ]
+
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      userStakingId,
       stakedAmountCryptoBaseUnit: balance,
-      rewardsAmountsCryptoBaseUnit,
+      rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: true },
+      undelegations,
     }
   }
 

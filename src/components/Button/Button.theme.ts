@@ -17,6 +17,7 @@ export const ButtonStyle: ComponentStyleConfig = {
         width: '1rem',
         height: '1rem',
       },
+      lineHeight: '12px',
     },
     'sm-multiline': {
       svg: {
@@ -61,18 +62,17 @@ export const ButtonStyle: ComponentStyleConfig = {
     solid: (props: StyleFunctionProps) => {
       const { colorScheme: c } = props
       if (c === 'gray') {
-        const bg = mode('gray.100', 'gray.700')(props)
         return {
-          bg,
+          bg: 'background.button.secondary.base',
           _hover: {
-            bg: mode('gray.200', 'gray.600')(props),
+            bg: 'background.button.secondary.hover',
             textDecoration: 'none',
             _disabled: {
-              bg,
+              bg: 'background.button.secondary.base',
             },
           },
-          _active: { bg: mode('gray.300', 'whiteAlpha.400')(props) },
-          _checked: { bg: mode('gray.300', 'whiteAlpha.400')(props) },
+          _active: { bg: 'background.button.secondary.pressed' },
+          _checked: { bg: 'background.button.secondary.pressed' },
         }
       }
       return {
@@ -112,16 +112,16 @@ export const ButtonStyle: ComponentStyleConfig = {
       const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
       if (c === 'gray') {
         return {
-          color: 'gray.500',
+          color: 'text.subtle',
           _hover: {
             color: mode('inherit', 'whiteAlpha.800')(props),
-            bg: mode('gray.100', 'gray.750')(props),
+            bg: 'background.button.secondary.base',
           },
           _active: {
-            bg: mode('gray.200', 'gray.700')(props),
+            bg: 'background.button.secondary.pressed',
             color: mode('gray.800', 'white')(props),
             _checked: {
-              bg: mode('gray.200', 'gray.700')(props),
+              bg: 'background.button.secondary.pressed',
             },
           },
         }
@@ -151,7 +151,7 @@ export const ButtonStyle: ComponentStyleConfig = {
         bg,
         borderColor,
         transition: 'color fill border-color 0.5s ease-in-out',
-        color: 'gray.500',
+        color: 'text.subtle',
         _active: {
           borderColor: `${c}.500`,
           color: mode('black', 'white')(props),
@@ -190,17 +190,20 @@ export const ButtonStyle: ComponentStyleConfig = {
       const { colorScheme: c } = props
       return {
         py: 4,
-        px: 2,
+        px: 0,
         height: 'auto',
         lineHeight: 'normal',
         verticalAlign: 'baseline',
         borderBottomWidth: '2px',
-        marginBottom: '-1px;',
+        marginBottom: {
+          base: 0,
+          md: '-1px',
+        },
         borderColor: 'transparent',
         borderRadius: 0,
-        color: 'gray.500',
+        color: 'text.subtle',
         _hover: {
-          borderColor: 'gray.500',
+          borderColor: 'border.bold',
         },
         _active: {
           color: mode(`${c}.500`, `${c}.200`)(props),
@@ -223,7 +226,7 @@ export const ButtonStyle: ComponentStyleConfig = {
       const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
       if (c === 'gray') {
         return {
-          color: 'gray.500',
+          color: 'text.subtle',
           height: '48px',
           _hover: {
             color: mode('inherit', 'whiteAlpha.800')(props),

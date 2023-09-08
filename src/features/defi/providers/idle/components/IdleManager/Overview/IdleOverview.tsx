@@ -1,6 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Tag } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
@@ -11,20 +10,25 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -32,23 +36,13 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedLocale,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const defaultMenu: DefiButtonProps[] = [
-  {
-    label: 'common.deposit',
-    icon: <ArrowUpIcon />,
-    action: DefiAction.Deposit,
-  },
-  {
-    label: 'common.withdraw',
-    icon: <ArrowDownIcon />,
-    action: DefiAction.Withdraw,
-  },
-]
+import { IdleEmpty } from './IdleEmpty'
 
 const idleTagDescriptions: Record<IdleTag, TagDescription> = {
   [IdleTag.BestYield]: {
@@ -77,6 +71,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
@@ -99,7 +94,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
   const cryptoAmountAvailable = useMemo(
@@ -141,6 +136,23 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const defaultMenu: DefiButtonProps[] = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+        isDisabled: Boolean(!opportunityData?.active),
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+    ],
+    [opportunityData?.active],
+  )
+
   const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds?.[0],
     [opportunityData?.underlyingAssetIds],
@@ -151,15 +163,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const underlyingAssets: AssetWithBalance[] = useMemo(
-    () => [
-      {
-        ...underlyingAsset,
-        cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
-        allocationPercentage: '1',
-      },
-    ],
-    [cryptoAmountAvailable, underlyingAsset],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -169,9 +174,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
 
   const rewardAssets: AssetWithBalance[] = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return []
 
-    return opportunityData!.rewardsAmountsCryptoBaseUnit
+    return opportunityData!.rewardsCryptoBaseUnit.amounts
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
@@ -192,13 +197,13 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     if (!opportunityData?.rewardAssetIds?.length) return false
 
     return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+      bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[i]).gt(0),
     )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!(contractAddress && idleInvestor && opportunityData)) return defaultMenu
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return defaultMenu
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return defaultMenu
 
     return [
       ...defaultMenu,
@@ -212,7 +217,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         toolTip: translate('defi.modals.overview.noWithdrawals'),
       },
     ]
-  }, [contractAddress, idleInvestor, opportunityData, hasClaimBalance, translate])
+  }, [contractAddress, idleInvestor, opportunityData, defaultMenu, hasClaimBalance, translate])
 
   const renderTags = useMemo(() => {
     return opportunityData?.tags?.map(tag => {
@@ -221,7 +226,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         return (
           <Flex flexDir='column' px={8} py={4} key={tag}>
             <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
-            <Text color='gray.500' translation={tagDetails.description} />
+            {tagDetails.description && (
+              <Text color='text.subtle' translation={tagDetails.description} />
+            )}
           </Flex>
         )
       } else return <Tag key={tag}>{tag}</Tag>
@@ -236,7 +243,18 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     )
   }
 
-  if (!underlyingAssets || !opportunityData) return null
+  if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
+
+  if (fiatAmountAvailable.eq(0) && !hideEmptyState) {
+    return (
+      <IdleEmpty
+        tags={opportunityData.tags as IdleTag[]}
+        apy={opportunityData.apy}
+        assetId={underlyingAssetId ?? ''}
+        onClick={() => setHideEmptyState(true)}
+      />
+    )
+  }
 
   return (
     <Overview
@@ -245,8 +263,11 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       asset={vaultAsset}
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={underlyingAssets}
-      provider='Idle Finance'
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: vaultAsset.name,
+      })}
       description={{
         description: underlyingAsset.description,
         isLoaded: !descriptionQuery.isLoading,

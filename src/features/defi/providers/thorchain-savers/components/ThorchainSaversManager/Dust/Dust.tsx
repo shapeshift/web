@@ -17,6 +17,8 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { Address } from 'components/TransactionHistoryRows/TransactionDetails/Address'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 type DustProps = {
   accountId: AccountId | undefined
@@ -25,6 +27,7 @@ type DustProps = {
 
 export const Dust: React.FC<DustProps> = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = useCallback(() => {
@@ -38,6 +41,7 @@ export const Dust: React.FC<DustProps> = () => {
   }, [history, location.pathname, query])
 
   const handleConfirm = useCallback(() => {
+    mixpanel?.track(MixPanelEvents.DustConfirm)
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -45,7 +49,7 @@ export const Dust: React.FC<DustProps> = () => {
         modal: DefiAction.Withdraw,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [history, location.pathname, mixpanel, query])
 
   return (
     <Flex
@@ -81,7 +85,7 @@ export const Dust: React.FC<DustProps> = () => {
             <Amount.Crypto fontSize='3xl' value='0.01' symbol='BTC' />
           </Row.Value>
           <Row.Label>
-            <Amount.Fiat fontSize='2xl' value='5.00' color='gray.500' prefix='≈' />
+            <Amount.Fiat fontSize='2xl' value='5.00' color='text.subtle' prefix='≈' />
           </Row.Label>
         </Row>
         <Summary bg='transparent' borderWidth={0} px={8} py={6} divider={<></>}>
@@ -92,11 +96,11 @@ export const Dust: React.FC<DustProps> = () => {
             </Row.Value>
           </Row>
           <Row variant='gutter' px={0}>
-            <Row.Label>{translate('defi.modals.saversVaults.estimatedFee')}</Row.Label>
+            <Row.Label>{translate('defi.modals.saversVaults.protocolFee')}</Row.Label>
             <Row.Value>
               <Box textAlign='right'>
                 <Amount.Fiat fontWeight='bold' value='0' />
-                <Amount.Crypto color='gray.500' value='0' symbol='BTC' />
+                <Amount.Crypto color='text.subtle' value='0' symbol='BTC' />
               </Box>
             </Row.Value>
           </Row>

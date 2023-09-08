@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import type { Asset } from 'lib/asset-service'
 import { getTxBaseUrl } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
@@ -12,7 +12,7 @@ import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
   selectFeeAssetByChainId,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -26,27 +26,29 @@ export type TxType = unchained.TransferType | unchained.TradeType | 'method' | '
 // Adding a new supported method?
 // Also update transactionRow.parser translations and TransactionMethod.tsx
 export enum Method {
-  Deposit = 'deposit',
-  Approve = 'approve',
-  Revoke = 'revoke',
-  Withdraw = 'withdraw',
   AddLiquidityEth = 'addLiquidityETH',
-  RemoveLiquidityEth = 'removeLiquidityETH',
-  TransferOut = 'transferOut',
-  Stake = 'stake',
-  Unstake = 'unstake',
-  InstantUnstake = 'instantUnstake',
-  ClaimWithdraw = 'claimWithdraw',
-  Exit = 'exit',
-  Delegate = 'delegate',
-  BeginUnbonding = 'begin_unbonding',
+  Approve = 'approve',
   BeginRedelegate = 'begin_redelegate',
-  WithdrawDelegatorReward = 'withdraw_delegator_reward',
-  Outbound = 'outbound',
-  Refund = 'refund',
+  BeginUnbonding = 'begin_unbonding',
+  ClaimWithdraw = 'claimWithdraw',
+  Delegate = 'delegate',
+  Deposit = 'deposit',
+  Exit = 'exit',
+  ExitPool = 'exit_pool',
+  InstantUnstake = 'instantUnstake',
+  JoinPool = 'join_pool',
   Out = 'out',
-  Transfer = 'transfer',
+  Outbound = 'outbound',
   RecvPacket = 'recv_packet',
+  Refund = 'refund',
+  RemoveLiquidityEth = 'removeLiquidityETH',
+  Revoke = 'revoke',
+  Stake = 'stake',
+  Transfer = 'transfer',
+  TransferOut = 'transferOut',
+  Unstake = 'unstake',
+  Withdraw = 'withdraw',
+  WithdrawDelegatorReward = 'withdraw_delegator_reward',
 }
 
 export interface TxDetails {
@@ -68,29 +70,33 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
 }
 
 export const getTransfers = (
-  transfers: TxTransfer[],
+  tx: Tx,
   assets: AssetsById,
   marketData: Record<AssetId, MarketData | undefined>,
 ): Transfer[] => {
-  return transfers.reduce<Transfer[]>((prev, transfer) => {
+  return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = assets[transfer.assetId]
-    return asset
-      ? [
-          ...prev,
-          { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
-        ]
-      : prev
+
+    if (asset) {
+      prev.push({
+        ...transfer,
+        asset,
+        marketData: marketData[transfer.assetId] ?? defaultMarketData,
+      })
+    } else {
+      prev.push({ ...transfer, asset: defaultAsset, marketData: defaultMarketData })
+    }
+
+    return prev
   }, [])
 }
 
 export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
-  const transfers = useMemo(
-    () => getTransfers(tx.transfers, assets, marketData),
-    [tx.transfers, assets, marketData],
-  )
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+
+  const transfers = useMemo(() => getTransfers(tx, assets, marketData), [tx, assets, marketData])
 
   const fee = useMemo(() => {
     if (!tx.fee) return

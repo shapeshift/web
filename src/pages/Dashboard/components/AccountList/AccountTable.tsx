@@ -1,6 +1,6 @@
 import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
 import { range } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
@@ -15,7 +15,7 @@ import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices
 
 type RowProps = Row<AccountRowData>
 
-export const AccountTable = () => {
+export const AccountTable = memo(() => {
   const loading = useSelector(selectPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const textColor = useColorModeValue('black', 'white')
@@ -84,7 +84,7 @@ export const AccountTable = () => {
         accessor: 'allocation',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: number }) => (
-          <Amount.Percent fontWeight='medium' textColor='gray.500' value={value * 0.01} />
+          <Amount.Percent fontWeight='medium' textColor='text.subtle' value={value * 0.01} />
         ),
         sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
@@ -119,6 +119,7 @@ export const AccountTable = () => {
       data={rowData}
       initialState={{ sortBy: [{ id: 'balance', desc: true }] }}
       onRowClick={handleRowClick}
+      variant='clickable'
     />
   )
-}
+})

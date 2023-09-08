@@ -1,0 +1,20 @@
+{
+  "name": "@shapeshiftoss/types",
+  "version": "8.6.0",
+  "description": "Common types shared across packages",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch"
+  }
+}

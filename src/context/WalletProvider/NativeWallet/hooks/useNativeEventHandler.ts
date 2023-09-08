@@ -5,18 +5,12 @@ import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
-import { logger } from 'lib/logger'
 
-const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
-
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
-
-export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
-  const { keyring, modal } = state
+export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
+  const { keyring, modal, modalType } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
-      moduleLogger.info({ e }, 'Event')
       const deviceId = e[0]
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
@@ -31,10 +25,16 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           break
         default:
           // If there wasn't an enum value, then we'll check the message type
-          moduleLogger.info({ e }, 'Native Wallet Unknown Event')
+          break
       }
     }
 
+    /*
+      Ideally we'd only listen to these events if modalType is KeyManager.Native or KeyManager.Mobile.
+      Unfortunately, state.adapters is set in the React event loop via a useEffect, and so is null on initial load.
+      This prevents SET_CONNECTOR_TYPE from being dispatched on the first WalletProvider.load() cycle, which means we'd
+      miss the NativeEvents.MNEMONIC_REQUIRED event.
+     */
     if (keyring) {
       keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.on(['Native', '*', NativeEvents.READY], handleEvent)
@@ -43,5 +43,5 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
       keyring.off(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.off(['Native', '*', NativeEvents.READY], handleEvent)
     }
-  }, [dispatch, keyring, modal])
+  }, [modalType, dispatch, keyring, modal])
 }

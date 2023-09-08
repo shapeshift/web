@@ -1,6 +1,8 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Card,
+  Flex,
   Heading,
   Image,
   Input,
@@ -13,11 +15,12 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
@@ -45,16 +48,31 @@ export const DappRegistryGrid: FC = () => {
     [search],
   )
 
+  const handleClick = useCallback((dapp: string) => {
+    getMixPanel()?.track(MixPanelEvents.ClickdApp, { dapp })
+  }, [])
+
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 
   return (
-    <Box>
-      <Stack direction='row' alignItems='center' mb={4}>
+    <Box px={{ base: 4, xl: 0 }}>
+      <Flex
+        justifyContent='space-between'
+        flexDir={{ base: 'column', md: 'row' }}
+        alignItems={{ base: 'flex-start', md: 'center' }}
+        mb={4}
+        gap={2}
+      >
         <Heading flex={1} fontSize='2xl'>
           <Text translation='plugins.walletConnectToDapps.registry.availableDapps' />
         </Heading>
-        <Box>
-          <InputGroup>
+        <Flex
+          gap={2}
+          flex={1}
+          width={{ base: 'full', md: 'auto' }}
+          flexDir={{ base: 'column', sm: 'row' }}
+        >
+          <InputGroup flex={1}>
             <InputLeftElement pointerEvents='none'>
               <SearchIcon color='gray.700' />
             </InputLeftElement>
@@ -67,9 +85,10 @@ export const DappRegistryGrid: FC = () => {
               variant='filled'
             />
           </InputGroup>
-        </Box>
-        <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
-      </Stack>
+
+          <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
+        </Flex>
+      </Flex>
       {!!filteredListings.length ? (
         <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
           {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
@@ -77,7 +96,7 @@ export const DappRegistryGrid: FC = () => {
               key={listing.id}
               href={listing.homepage}
               isExternal
-              data-test={`dapp-button-${listing.name.toLowerCase().split(' ').join('-')}`}
+              onClick={() => handleClick(listing.name)}
             >
               <Box
                 borderRadius='lg'
@@ -118,12 +137,12 @@ export const DappRegistryGrid: FC = () => {
             borderWidth={0}
             mb={4}
           >
-            <SearchIcon color='gray.500' fontSize='xl' />{' '}
+            <SearchIcon color='text.subtle' fontSize='xl' />{' '}
           </Card>
           <Text translation='common.noResultsFound' fontWeight='medium' fontSize='lg' />
           <Text
             translation='plugins.walletConnectToDapps.registry.emptyStateDescription'
-            color='gray.500'
+            color='text.subtle'
           />
         </VStack>
       )}

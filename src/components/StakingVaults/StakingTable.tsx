@@ -1,6 +1,4 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -8,6 +6,10 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+import { store } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -42,6 +44,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
               opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
+              isExternal={row.original.isReadOnly}
             />
           </Skeleton>
         ),
@@ -51,13 +54,22 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: translate('defi.provider'),
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
-              {value}
-            </Tag>
-          </Skeleton>
-        ),
+        Cell: ({ value, row }: { value: string; row: RowProps }) => {
+          const assets = store.getState().assets.byId
+          const asset = assets[row.original.assetId]
+          const assetName = asset?.name ?? ''
+          const providerDisplayName = makeDefiProviderDisplayName({
+            provider: value,
+            assetName,
+          })
+          return (
+            <Skeleton isLoaded={row.original.isLoaded}>
+              <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+                {providerDisplayName}
+              </Tag>
+            </Skeleton>
+          )
+        },
       },
       {
         Header: translate('defi.type'),
@@ -103,7 +115,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'fiatAmount',
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            {bnOrZero(value).gt(0) ? (
+            {!bnOrZero(value).isZero() ? (
               <Amount.Fiat
                 value={value}
                 color={row.original.expired ? 'yellow.500' : 'green.500'}
@@ -124,11 +136,6 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
   )
 
   return (
-    <ReactTable
-      data={data}
-      columns={columns}
-      onRowClick={handleRowClick}
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
-    />
+    <ReactTable data={data} columns={columns} onRowClick={handleRowClick} variant='clickable' />
   )
 }

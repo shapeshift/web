@@ -6,22 +6,19 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
-import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
 import { clearLocalWallet } from './local-wallet'
 import { SelectModal } from './SelectModal'
-const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()
@@ -35,7 +32,7 @@ export const WalletViewsSwitch = () => {
       modal,
       showBackButton,
       initialRoute,
-      type,
+      modalType,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -45,7 +42,7 @@ export const WalletViewsSwitch = () => {
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
-      moduleLogger.error(e)
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -84,11 +81,6 @@ export const WalletViewsSwitch = () => {
     await cancelWalletRequests()
   }
 
-  const onContinue = useCallback(() => {
-    // Without this check we'll fire again once a KeepKey initializes and ask the user to select a wallet again
-    if (!initialRoute || initialRoute === '/') history.push('/select')
-  }, [history, initialRoute])
-
   useEffect(() => {
     if (initialRoute) {
       history.push(initialRoute)
@@ -100,8 +92,8 @@ export const WalletViewsSwitch = () => {
    */
   const walletRoutesList = useMemo(
     () =>
-      type
-        ? SUPPORTED_WALLETS[type].routes.map(route => {
+      modalType
+        ? SUPPORTED_WALLETS[modalType].routes.map(route => {
             const Component = route.component
             return !Component ? null : (
               <Route
@@ -113,7 +105,7 @@ export const WalletViewsSwitch = () => {
             )
           })
         : [],
-    [type],
+    [modalType],
   )
 
   return (
@@ -145,8 +137,7 @@ export const WalletViewsSwitch = () => {
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {walletRoutesList}
-                <Route path={'/select'} children={() => <SelectModal />} />
-                <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
+                <Route path={'/'} children={() => <SelectModal />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

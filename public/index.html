@@ -12,7 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" integrity="%REACT_APP_SRI_FAVICON_SVG%" crossorigin="anonymous" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no,viewport-fit=cover" />
     <meta property="og:title" content="ShapeShift DAO">
-    <meta property="og:image" content="%PUBLIC_URL%/ss-thumb.jpg">
+    <meta property="og:image" content="%REACT_APP_ABSOLUTE_URL_PREFIX%/ss-thumb.jpg">
     <meta property="og:type" content="website" />
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
@@ -21,6 +21,8 @@
       name="description"
       content="ShapeShift DAO | Your Web3 & DeFi Portal"
     />
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -49,7 +51,7 @@
       The build step will place the bundled scripts into the <body> tag.
 
       To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+      To create a production bundle, use `npm run build:web` or `yarn build:web`.
     -->
   </body>
 </html>

@@ -1,12 +1,22 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
-import { useEnsName } from 'wagmi'
+import type { Address } from 'viem'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -15,13 +25,14 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { viemClient } from 'lib/viem-client'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
   return (
-    <MenuGroup title={translate('common.noWallet')} ml={3} color='gray.500'>
+    <MenuGroup title={translate('common.noWallet')} ml={3} color='text.subtle'>
       <MenuItem onClick={onClick} alignItems='center' justifyContent='space-between'>
         {translate('common.connectWallet')}
         <ChevronDownIcon />
@@ -33,7 +44,7 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'connectedType'>
 
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
@@ -43,7 +54,7 @@ export const WalletConnected = (props: WalletConnectedProps) => {
         walletInfo={props.walletInfo}
         onDisconnect={props.onDisconnect}
         onSwitchProvider={props.onSwitchProvider}
-        type={props.type}
+        connectedType={props.connectedType}
       />
     </MemoryRouter>
   )
@@ -66,43 +77,39 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.200', 'gray.800')
+  const [ensName, setEnsName] = useState<string | null>('')
 
-  const {
-    data: ensName,
-    isSuccess: isEnsNameLoaded,
-    isLoading: isEnsNameLoading,
-  } = useEnsName({
-    address: walletInfo?.meta?.address,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-  })
+  useEffect(() => {
+    if (!walletInfo?.meta?.address) return
+    viemClient.getEnsName({ address: walletInfo.meta.address as Address }).then(setEnsName)
+  }, [walletInfo?.meta?.address])
 
   useEffect(() => {
     setWalletLabel('')
     setShouldShorten(true)
-    if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
+    if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
     // Wallet has a native label, we don't care about ENS name here
     if (!walletInfo?.meta?.address && walletInfo.meta.label) {
       setShouldShorten(false)
       return setWalletLabel(walletInfo.meta.label)
     }
 
-    // ENS successfully fetched. Set ENS name as label
-    if (isEnsNameLoaded && ensName) {
+    // ENS is registered for address and is successfully fetched. Set ENS name as label
+    if (ensName) {
       setShouldShorten(false)
       return setWalletLabel(ensName!)
     }
 
     // No label or ENS name, set regular wallet address as label
     return setWalletLabel(walletInfo?.meta?.address ?? '')
-  }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
+  }, [ensName, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
-    <Button
+    <MenuButton
+      as={Button}
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
-      variant='outline'
-      isLoading={isLoadingLocalWallet}
+      rightIcon={<ChevronDownIcon />}
       leftIcon={
         <HStack>
           {!(isConnected || isDemoWallet) && (
@@ -128,7 +135,7 @@ const WalletButton: FC<WalletButtonProps> = ({
           <RawText>{walletInfo?.name}</RawText>
         )}
       </Flex>
-    </Button>
+    </MenuButton>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
@@ -138,28 +145,24 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, type, isLocked } = state
+  const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
+    state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
+  }, [dispatch, onClick])
   return (
     <ButtonGroup width='full'>
-      <WalletButton
-        onConnect={handleConnect}
-        walletInfo={walletInfo}
-        isConnected={isConnected}
-        isDemoWallet={isDemoWallet}
-        isLoadingLocalWallet={state.isLoadingLocalWallet}
-      />
-      <Menu>
-        <MenuButton
-          as={IconButton}
-          aria-label='Open wallet dropdown menu'
-          icon={<ChevronDownIcon />}
+      <Menu autoSelect={false}>
+        <WalletButton
+          onConnect={handleConnect}
+          walletInfo={walletInfo}
+          isConnected={isConnected}
+          isDemoWallet={isDemoWallet}
+          isLoadingLocalWallet={isLoadingLocalWallet}
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList
@@ -169,13 +172,13 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
-          {hasWallet ? (
+          {hasWallet || isLoadingLocalWallet ? (
             <WalletConnected
               isConnected={isConnected || isDemoWallet}
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}
-              type={type}
+              connectedType={connectedType}
             />
           ) : (
             <NoWallet onClick={handleConnect} />

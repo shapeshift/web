@@ -1,4 +1,4 @@
-import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
+import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
@@ -23,10 +23,12 @@ import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
 import { TagStyle as Tag } from 'components/Tag/Tag.theme'
+import { TextStyle as Text } from 'components/Text/text.theme'
 import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
 import { TooltipStyle as Tooltip } from 'components/Tooltip/Tooltip.theme'
 
 import { colors } from './colors'
+import { semanticTokens } from './semanticTokens'
 
 export const breakpoints = {
   sm: '480px',
@@ -34,14 +36,16 @@ export const breakpoints = {
   lg: '992px',
   xl: '1280px',
   '2xl': '1440px',
+  '3xl': '2200px',
 }
 
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
-      backgroundColor: mode('gray.50', 'gray.800')(props),
+      backgroundColor: 'background.surface.base',
       backgroundSize: 'cover',
-      fontFeatureSettings: "'zero'",
+      fontFeatureSettings: `'zero' on`,
+      overflowX: 'hidden',
     },
     html: {
       scrollBehavior: 'smooth',
@@ -93,6 +97,7 @@ const styles = {
       flexDirection: 'column',
       alignItems: 'stretch',
     },
+    '--shapeshift-header-bg': mode('white', 'blackAlpha.100')(props),
   }),
 }
 
@@ -126,6 +131,7 @@ export const theme = extendTheme({
     Row,
     Drawer,
     Divider,
+    Text,
     Textarea,
     Tooltip,
     Table,
@@ -139,6 +145,7 @@ export const theme = extendTheme({
     container: {
       '2xl': '1440px',
       '3xl': '1600px',
+      '4xl': '1955px',
     },
   },
   shadows: {
@@ -146,5 +153,6 @@ export const theme = extendTheme({
     'outline-inset': '0 0 0 3px rgba(66, 153, 225, 0.6) inset',
     right: '3px 0px 2px rgba(0,0,0,.5), 5px 0 10px rgba(0,0,0,.2)',
   },
+  semanticTokens,
   config,
 })

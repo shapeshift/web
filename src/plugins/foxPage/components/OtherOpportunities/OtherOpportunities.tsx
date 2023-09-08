@@ -1,8 +1,6 @@
-import { Flex } from '@chakra-ui/layout'
-import { Accordion } from '@chakra-ui/react'
+import { Accordion, Card, CardHeader, Flex } from '@chakra-ui/react'
 import type { OpportunitiesBucket } from 'plugins/foxPage/FoxCommon'
 import { useMemo } from 'react'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
 import { FoxOtherOpportunityPanel } from './FoxOtherOpportunityPanel'
@@ -37,12 +35,12 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
 
   return (
     <Card display='block' width='full' borderRadius={8}>
-      <Card.Header pb={0} mb={4}>
+      <CardHeader pb={0} mb={4}>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <Text translation={title} fontWeight='bold' color='inherit' />
         </Flex>
-        <Text translation={description} color='gray.500' />
-      </Card.Header>
+        <Text translation={description} color='text.subtle' />
+      </CardHeader>
       <Accordion defaultIndex={[0]} allowToggle allowMultiple>
         {renderRows}
       </Accordion>

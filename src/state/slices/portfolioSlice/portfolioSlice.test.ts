@@ -23,16 +23,18 @@ import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
-import { selectPortfolioCryptoHumanBalanceByFilter } from '../common-selectors'
+import {
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalancesByAccountId,
+} from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  selectHighestFiatBalanceAccountByAssetId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
-  selectPortfolioFiatBalanceByFilter,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -237,7 +239,12 @@ describe('portfolioSlice', () => {
         const { ethAccount, ethAccount2, btcAccount, ethAccountId, ethAccount2Id, btcAccountId } =
           mockEthAndBtcAccounts()
 
-        store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+        store.dispatch(
+          portfolioSlice.actions.setWalletMeta({
+            walletId: 'fakeWalletId',
+            walletName: 'fakeWalletName',
+          }),
+        )
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
             [ethAccountId]: { bip44Params },
@@ -266,7 +273,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
         const state = store.getState()
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
@@ -282,7 +289,12 @@ describe('portfolioSlice', () => {
         const { ethAccount, ethAccount2, btcAccount, ethAccountId, ethAccount2Id, btcAccountId } =
           mockEthAndBtcAccounts()
 
-        store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+        store.dispatch(
+          portfolioSlice.actions.setWalletMeta({
+            walletId: 'fakeWalletId',
+            walletName: 'fakeWalletName',
+          }),
+        )
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
             [ethAccountId]: { bip44Params },
@@ -310,7 +322,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
         const state = store.getState()
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
@@ -322,14 +334,19 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioFiatAccountBalance', () => {
+    describe('selectPortfolioUserCurrencyBalancesByAccountId', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000000000000000000' },
         ethAccount2Obj: { balance: '200000000000000000' },
       })
 
-      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },
@@ -360,7 +377,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
         const state = store.getState()
 
         const returnValue = {
@@ -375,8 +392,8 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
 
       it('returns 0 when no market data is available', () => {
@@ -395,17 +412,22 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
     })
 
-    describe('selectHighestFiatBalanceAccountByAssetId', () => {
+    describe('selectHighestUserCurrencyBalanceAccountByAssetId', () => {
       const store = createStore()
       const { btcAccount, btcAccount2, btcAccount3, btcAccountId, btcAccount2Id, btcAccount3Id } =
         mockEthAndBtcAccounts()
 
-      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [btcAccountId]: { bip44Params },
@@ -432,11 +454,11 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
 
       it('can select highest value account by assetId', () => {
         const state = store.getState()
-        const highestValueAccount = selectHighestFiatBalanceAccountByAssetId(state, {
+        const highestValueAccount = selectHighestUserCurrencyBalanceAccountByAssetId(state, {
           assetId: btcAssetId,
         })
 
@@ -453,7 +475,12 @@ describe('portfolioSlice', () => {
         ethAccount2Obj: { balance: '200000000000000000' },
       })
 
-      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
       // dispatch portfolio data
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -483,18 +510,18 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
         const expected = '1200.01'
-        const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '30.00'
-        const result = selectPortfolioFiatBalanceByFilter(state, {
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, {
           accountId: ethAccountId,
           assetId: foxAssetId,
         })
@@ -502,7 +529,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioCryptoHumanBalanceByFilter', () => {
+    describe('selectPortfolioCryptoPrecisionBalanceByFilter', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
@@ -514,7 +541,12 @@ describe('portfolioSlice', () => {
         },
       })
 
-      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },
@@ -544,18 +576,18 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
         const expected = '1.200009'
-        const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '0.2001'
-        const result = selectPortfolioCryptoHumanBalanceByFilter(state, {
+        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
           accountId: ethAccount2Id,
           assetId: foxAssetId,
         })
@@ -578,7 +610,12 @@ describe('portfolioSlice', () => {
         },
       })
 
-      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },
@@ -610,7 +647,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
       const state = store.getState()
 
       it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
@@ -657,7 +694,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
       const state = store.getState()
 
       it('should return correct portfolio rows in case of 100% allocation on one asset', () => {

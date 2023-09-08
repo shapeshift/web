@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "noEmit": false,
+    "module": "commonjs",
+  },
+  "include": [],
+  "exclude": [],
+  "references": [
+    { "path": "./packages/caip" },
+    { "path": "./packages/chain-adapters" },
+    { "path": "./packages/errors" },
+    { "path": "./packages/types" },
+    { "path": "./packages/unchained-client" },
+  ]
+}

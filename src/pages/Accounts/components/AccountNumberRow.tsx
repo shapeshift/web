@@ -35,7 +35,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
-  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -77,12 +77,12 @@ type AccountBasedChainEntriesProps = {
   accountId: AccountId
 }
 const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ accountId }) => {
-  const accountAssetBalancesSortedFiat = useSelector(
-    selectPortfolioAccountsFiatBalancesIncludingStaking,
+  const accountAssetBalancesSortedUserCurrency = useSelector(
+    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   )
   const assetIds = useMemo(
-    () => Object.keys(accountAssetBalancesSortedFiat[accountId] ?? {}),
-    [accountAssetBalancesSortedFiat, accountId],
+    () => Object.keys(accountAssetBalancesSortedUserCurrency[accountId] ?? {}),
+    [accountAssetBalancesSortedUserCurrency, accountId],
   )
   return useMemo(
     () => (
@@ -163,7 +163,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
               {title}
             </RawText>
-            <RawText fontSize='sm' color='gray.500'>
+            <RawText fontSize='sm' color='text.subtle'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
           </Stack>
@@ -183,7 +183,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <MenuList>
               <MenuGroup
                 title={translate('accounts.accountNumber', { accountNumber })}
-                color='gray.500'
+                color='text.subtle'
               >
                 <MenuItem
                   icon={<RiWindow2Line />}

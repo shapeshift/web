@@ -1,4 +1,4 @@
-import type { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
+import type { PinInputFieldProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -22,8 +22,6 @@ import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvid
 import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['RecoverySentenceEntry'] })
 
 const minInputLength = 3
 const maxInputLength = 4
@@ -191,7 +189,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
             await handleWordSubmit()
             break
           default:
-            moduleLogger.error('Invalid input')
+            console.error(e)
         }
       }
     },
@@ -231,7 +229,11 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <Text translation={'modals.keepKey.recoverySentenceEntry.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.recoverySentenceEntry.body'} mb={4} />
+        <Text
+          color='text.subtle'
+          translation={'modals.keepKey.recoverySentenceEntry.body'}
+          mb={4}
+        />
         <AwaitKeepKey
           translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'
           onCancel={handleCancel}
@@ -280,7 +282,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               type='submit'
               onClick={handleWordSubmit}
               mb={3}
-              disabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
+              isDisabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
             >
               <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
             </Button>

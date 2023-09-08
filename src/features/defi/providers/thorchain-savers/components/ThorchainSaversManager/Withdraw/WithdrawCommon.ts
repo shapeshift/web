@@ -2,30 +2,31 @@ import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type ThorchainSaversWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
     dustAmountCryptoBaseUnit: string
-    withdrawFeeCryptoBaseUnit: string
+    networkFeeCryptoBaseUnit: string
+    protocolFeeCryptoBaseUnit: string
     maybeFromUTXOAccountAddress: string
   }
 
 export type ThorchainSaversWithdrawState = {
   opportunity: StakingEarnOpportunityType | null
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: ThorchainSaversWithdrawValues
   loading: boolean
   txid: string | null
+  isExactAllowance?: boolean
 }
 
 export enum ThorchainSaversWithdrawActionType {
+  SET_APPROVE = 'SET_APPROVE',
+  SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -37,14 +38,19 @@ type SetOpportunityAction = {
   payload: StakingEarnOpportunityType
 }
 
+type SetApprove = {
+  type: ThorchainSaversWithdrawActionType.SET_APPROVE
+  payload: EstimatedGas
+}
+
+type SetIsExactAllowance = {
+  type: ThorchainSaversWithdrawActionType.SET_IS_EXACT_ALLOWANCE
+  payload: boolean
+}
+
 type SetWithdraw = {
   type: ThorchainSaversWithdrawActionType.SET_WITHDRAW
   payload: Partial<ThorchainSaversWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: ThorchainSaversWithdrawActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -60,6 +66,7 @@ type SetTxid = {
 export type ThorchainSaversWithdrawActions =
   | SetOpportunityAction
   | SetWithdraw
-  | SetUserAddress
   | SetLoading
   | SetTxid
+  | SetApprove
+  | SetIsExactAllowance

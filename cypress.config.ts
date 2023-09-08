@@ -27,6 +27,7 @@ export default defineConfig({
       'rawcdn.githack.com',
       'api.coingecko.com',
       'cache.yearn.finance',
+      'li.quest',
     ],
     testPublicKey: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
     testSeed: 'attract alcohol strike orphan decline flush option goat path offer sense know',

@@ -1,32 +1,49 @@
-import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ssRouterContractAddress } from '@shapeshiftoss/investor-yearn'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { getConfig } from 'config'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-import { poll } from 'lib/poll/poll'
-import { isSome } from 'lib/utils'
+import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import { isSome, isToken } from 'lib/utils'
 import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getErc20Allowance,
+} from 'lib/utils/evm'
+import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAccountNumberByAccountId,
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeeAssetById,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,163 +51,242 @@ import { useAppSelector } from 'state/store'
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type YearnApprovalProps = StepComponentProps & { accountId: AccountId | undefined }
+type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
-const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
-
-export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => {
-  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
+export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
+  const history = useHistory()
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const opportunity = state?.opportunity
-  const chainAdapter = getChainAdapterManager().get(chainId)
+  const { showErrorToast } = useErrorHandler()
+  const {
+    state: { wallet },
+  } = useWallet()
 
-  const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const feeAssetId = chainAdapter?.getFeeAssetId()
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
   )
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetNamespace, assetReference } = query
+
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+  const assets = useAppSelector(selectAssets)
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
-
-  // user info
-  const { state: walletState } = useWallet()
-
-  // notify
-  const toast = useToast()
-
-  const getDepositGasEstimate = useCallback(
-    async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(userAddress && opportunity && assetReference && yearnInvestor && underlyingAsset))
-        return
-      try {
-        const yearnOpportunity = await yearnInvestor.findByOpportunityId(opportunity.assetId)
-        if (!yearnOpportunity) throw new Error('No opportunity')
-        const preparedTx = await yearnOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount)
-            .times(bn(10).pow(underlyingAsset?.precision))
-            .integerValue(),
-          address: userAddress,
-        })
-        // TODO: Figure out a better way for the safety factor
-        return bnOrZero(preparedTx.gasPrice)
-          .times(preparedTx.estimatedGas)
-          .integerValue()
-          .toString()
-      } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
-          'Error getting deposit gas estimate',
-        )
-        toast({
-          position: 'top-right',
-          description: translate('common.somethingWentWrongBody'),
-          title: translate('common.somethingWentWrong'),
-          status: 'error',
-        })
-      }
-    },
-    [userAddress, opportunity, assetReference, yearnInvestor, underlyingAsset, toast, translate],
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
   )
+
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(accountId ?? '', opportunityId),
+    }),
+    [accountId, opportunityId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const isTokenDeposit = isToken(assetReference)
+
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+  )
+
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenDeposit || !feeAsset?.assetId,
+  })
 
   const handleApprove = useCallback(async () => {
     if (
-      !(
-        dispatch &&
-        bip44Params &&
-        assetReference &&
-        userAddress &&
-        walletState.wallet &&
-        supportsETH(walletState.wallet) &&
-        opportunity &&
-        chainAdapter &&
-        underlyingAsset
-      )
+      !state?.deposit.cryptoAmount ||
+      accountNumber === undefined ||
+      !wallet ||
+      !accountId ||
+      !dispatch ||
+      !saversRouterContractAddress ||
+      !opportunityData
     )
       return
 
+    dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+
     try {
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
-      const yearnOpportunity = await yearnInvestor.findByOpportunityId(opportunity.assetId ?? '')
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const tx = await yearnOpportunity.prepareApprove(userAddress)
-      await yearnOpportunity.signAndBroadcast({
-        wallet: walletState.wallet,
-        tx,
-        // TODO: allow user to choose fee priority
-        feePriority: undefined,
-        bip44Params,
-      })
-      const address = userAddress
-      await poll({
-        fn: () => yearnOpportunity.allowance(address),
-        validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
-          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
-        },
-        interval: 15000,
-        maxAttempts: 30,
-      })
-      // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
-      if (!estimatedGasCrypto) return
-      dispatch({
-        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const maybeInboundAddressData = await getInboundAddressDataForChain(
+        daemonUrl,
+        feeAsset?.assetId,
+      )
+      if (maybeInboundAddressData.isErr())
+        throw new Error(maybeInboundAddressData.unwrapErr().message)
+
+      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
+
+      const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
+
+      if (!poolId) throw new Error(`poolId not found for assetId ${asset.assetId}`)
+
+      const contract = getOrCreateContractByType({
+        address: fromAssetId(assetId).assetReference,
+        type: ContractType.ERC20,
       })
 
-      onNext(DefiStep.Confirm)
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
-      toast({
-        position: 'top-right',
-        description: translate('common.transactionFailedBody'),
-        title: translate('common.transactionFailed'),
-        status: 'error',
+      const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
+
+      const data = contract.interface.encodeFunctionData('approve', [
+        saversRouterContractAddress,
+        amountToApprove,
+      ])
+
+      const adapter = assertGetEvmChainAdapter(chainId)
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber,
+        adapter,
+        data,
+        value: '0',
+        to: fromAssetId(assetId).assetReference,
+        wallet,
       })
-    } finally {
+
+      await buildAndBroadcast({ adapter, buildCustomTxInput })
+      await poll({
+        fn: () =>
+          getErc20Allowance({
+            address: fromAssetId(assetId).assetReference,
+            spender: saversRouterContractAddress,
+            from: fromAccountId(accountId).account,
+            chainId: asset.chainId,
+          }),
+        validate: (allowanceCryptoBaseUnit: string) => {
+          return bnOrZero(allowanceCryptoBaseUnit).gte(amountCryptoBaseUnit)
+        },
+        interval: 15000,
+        maxAttempts: 60,
+      })
+
+      const estimatedDepositGasCryptoPrecision = await (async () => {
+        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+          asset,
+          amountCryptoBaseUnit,
+        })
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
+        const thorContract = getOrCreateContractByType({
+          address: saversRouterContractAddress!,
+          type: ContractType.ThorRouter,
+          chainId: asset.chainId,
+        })
+
+        const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+          quote.inbound_address,
+          fromAssetId(assetId).assetReference,
+          amountCryptoBaseUnit,
+          quote.memo,
+          quote.expiry,
+        ])
+
+        const adapter = assertGetEvmChainAdapter(chainId)
+
+        const customTxInput = await createBuildCustomTxInput({
+          accountNumber,
+          adapter,
+          data,
+          value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
+          to: saversRouterContractAddress!,
+          wallet,
+        })
+
+        const fees = await adapter.getFeeData({
+          to: customTxInput.to,
+          value: customTxInput.value,
+          chainSpecific: {
+            from: fromAccountId(accountId).account,
+            data: customTxInput.data,
+          },
+        })
+
+        const fastFeeCryptoBaseUnit = fees.fast.txFee
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+        )
+
+        return fastFeeCryptoPrecision.toString()
+      })()
+
+      dispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: { estimatedGasCryptoPrecision: estimatedDepositGasCryptoPrecision },
+      })
+
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
+
+      onNext(DefiStep.Confirm)
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+    } catch (error) {
+      showErrorToast(error)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
+    accountId,
+    accountNumber,
+    asset,
+    assetId,
+    assets,
+    chainId,
     dispatch,
-    bip44Params,
-    assetReference,
-    userAddress,
-    walletState.wallet,
-    opportunity,
-    chainAdapter,
-    underlyingAsset,
-    yearnInvestor,
-    getDepositGasEstimate,
-    state?.deposit,
+    feeAsset?.assetId,
+    feeAsset.precision,
     onNext,
-    toast,
-    translate,
+    opportunityData,
+    poll,
+    saversRouterContractAddress,
+    showErrorToast,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.isExactAllowance,
+    wallet,
   ])
+
+  const onExactAllowanceToggle = useCallback(() => {
+    if (!dispatch) return
+
+    dispatch({
+      type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE,
+      payload: !state?.isExactAllowance,
+    })
+  }, [dispatch, state?.isExactAllowance])
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -199,34 +295,33 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  if (!state || !dispatch || !estimatedGasCrypto) return null
+  if (!saversRouterContractAddress || !state || !dispatch) return null
 
   return (
     <ReusableApprove
       asset={asset}
+      spenderName={DefiProvider.ThorchainSavers}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(bn(10).pow(feeAsset?.precision))
-        .toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(bn(10).pow(feeAsset?.precision))
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approveOnWallet')}
-      preFooter={preFooter}
-      providerIcon={underlyingAsset?.icon}
+      loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      preFooter={preFooter}
+      isExactAllowance={state.isExactAllowance}
+      onCancel={() => history.push('/')}
       onConfirm={handleApprove}
-      contractAddress={ssRouterContractAddress}
+      spenderContractAddress={saversRouterContractAddress}
+      onToggle={onExactAllowanceToggle}
     />
   )
 }

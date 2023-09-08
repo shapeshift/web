@@ -25,22 +25,23 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -54,6 +55,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const wallet = useWallet().state.wallet
 
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
+  const validatorId = toValidatorId({ chainId, account: contractAddress })
+
+  const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
+
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -68,8 +76,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   })
 
   const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
-
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace,
@@ -77,6 +86,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  const fiatAmount = useMemo(
+    () =>
+      bnOrZero(state?.withdraw.cryptoAmount)
+        .times(assetMarketData.price)
+        .toString(),
+    [assetMarketData.price, state?.withdraw.cryptoAmount],
+  )
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
@@ -100,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -114,8 +131,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         dispatch &&
         gasLimit &&
         gasPrice &&
-        state?.userAddress &&
-        walletState?.wallet
+        state?.withdraw &&
+        walletState?.wallet &&
+        opportunityMetadata
       )
     )
       return
@@ -129,9 +147,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice)
+            .times(`1e+${asset?.precision}`)
+            .toString(),
         },
-        value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toFixed(0),
         action: StakingAction.Unstake,
       })
 
@@ -148,31 +168,48 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
       dispatch({ type: CosmosWithdrawActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: opportunityMetadata,
+          fiatAmounts: [fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     }
   }, [
     asset,
+    assetId,
+    assets,
     bip44Params,
     contractAddress,
     dispatch,
+    fiatAmount,
     gasLimit,
     gasPrice,
     handleStakingAction,
     onNext,
+    opportunityMetadata,
     state?.loading,
-    state?.userAddress,
-    state?.withdraw.cryptoAmount,
+    state?.withdraw,
     walletState?.wallet,
   ])
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .gte(0)
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      getMixPanel()?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas])
 
   if (!state || !dispatch) return null
-
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
 
   return (
     <ReusableConfirm
@@ -223,7 +260,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

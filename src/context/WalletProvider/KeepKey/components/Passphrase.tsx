@@ -41,7 +41,7 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
         <Text translation={'modals.keepKey.passphrase.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.passphrase.body'} />
+        <Text color='text.subtle' translation={'modals.keepKey.passphrase.body'} />
         <Input
           type='password'
           ref={inputRef}
@@ -59,7 +59,13 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
             </AlertDescription>
           </Alert>
         )}
-        <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
+        <Button
+          width='full'
+          size='lg'
+          colorScheme='blue'
+          onClick={handleSubmit}
+          isDisabled={loading}
+        >
           <Text translation={'modals.keepKey.passphrase.button'} />
         </Button>
       </ModalBody>

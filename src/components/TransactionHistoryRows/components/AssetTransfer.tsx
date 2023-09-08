@@ -38,8 +38,9 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
       textAlign={index === 0 ? 'left' : 'right'}
     >
       <AssetIcon
+        src={transfer.asset.icon}
         assetId={transfer.asset?.assetId}
-        boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+        size={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
       />
       <Box flex={1}>
         <Amount.Crypto
@@ -50,7 +51,7 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
           maximumFractionDigits={4}
         />
         {transfer.marketData.price && (
-          <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatAmount} />
+          <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={fiatAmount} />
         )}
       </Box>
     </Stack>

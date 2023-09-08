@@ -1,3 +1,5 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
   HStack,
@@ -8,14 +10,14 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
-import { useState } from 'react'
+import { isValidElement, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -23,14 +25,15 @@ import { AssetTeaser } from './AssetTeaser'
 
 type AssetCellProps = {
   assetId: AssetId
-  subText?: string
+  subText?: string | JSX.Element
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
+  isExternal?: boolean
   version?: string
-}
+} & StackProps
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
   if (showAssetSymbol && postFix) {
@@ -56,7 +59,9 @@ export const AssetCell = ({
   postFix,
   icons,
   opportunityName,
+  isExternal,
   version,
+  ...rest
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -69,7 +74,7 @@ export const AssetCell = ({
   const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='defi-earn-asset-row'>
+    <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>
@@ -82,15 +87,15 @@ export const AssetCell = ({
       )}
       <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
-          {icons ? (
+          {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
             <AssetIcon assetId={asset.assetId} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
-          <Stack spacing={0} flex={1}>
-            <HStack>
+          <Stack spacing={0} flex={1} alignItems='flex-start' width='full'>
+            <HStack alignItems='center' width='full'>
               <Box
                 position='relative'
                 overflow='hidden'
@@ -114,16 +119,19 @@ export const AssetCell = ({
                   display='block'
                   maxWidth='100%'
                   color={linkColor}
+                  fontSize={{ base: 'sm', md: 'md' }}
                 >
                   {rowTitle}
                 </RawText>
               </Box>
+              {isExternal && <ExternalLinkIcon boxSize={3} />}
             </HStack>
-            {subText && (
-              <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
+            {typeof subText === 'string' && (
+              <RawText fontSize='sm' color='text.subtle' lineHeight='shorter'>
                 {subText}
               </RawText>
             )}
+            {isValidElement(subText) && subText}
             {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>

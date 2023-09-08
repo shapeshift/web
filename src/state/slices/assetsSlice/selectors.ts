@@ -1,36 +1,28 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type {
-  AssetId,
-  AssetReference,
-  ChainId,
-  ChainNamespace,
-  ChainReference,
-} from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
-  fromAssetId,
-  fromChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
-import cloneDeep from 'lodash/cloneDeep'
-import sortBy from 'lodash/sortBy'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
-import { isSome } from 'lib/utils'
+import type { Asset } from 'lib/asset-service'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
+import { selectCryptoMarketDataIds } from '../marketDataSlice/selectors'
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
+import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  // TODO(0xdef1cafe): make this return type AssetId | undefined and fix the 600+ type errors
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+
+export const selectAssetByFilter = createCachedSelector(
+  (state: ReduxState) => state.assets.byId,
+  selectAssetIdParamFromFilter,
+  (byId, assetId) => byId[assetId ?? ''] || undefined,
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
 export const selectAssetNameById = createSelector(
   selectAssetById,
@@ -43,23 +35,27 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
+// not deep equal output selector for perf reasons - hashing more expensive than selecting
+export const selectNonNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
+  assetIds.filter(assetId => !isNft(assetId)),
+)
+
+// not deep equal output selector for perf reasons - hashing more expensive than selecting
+export const selectNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
+  assetIds.filter(assetId => isNft(assetId)),
+)
+
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
+  selectCryptoMarketDataIds,
   selectAssets,
-  selectCryptoMarketDataIdsSortedByMarketCap,
-  (assetsByIdOriginal, sortedMarketDataIds): Asset[] => {
-    const assetById = cloneDeep(assetsByIdOriginal)
-    // we only prefetch market data for some
-    // and want this to be fairly performant so do some mutatey things
-    // market data ids are already sorted by market cap
-    const sortedWithMarketCap = sortedMarketDataIds.reduce<Asset[]>((acc, cur) => {
-      const asset = assetById[cur]
-      if (!asset) return acc
-      acc.push(asset)
-      delete assetById[cur]
+  (marketDataAssetIds, assets): Asset[] => {
+    const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
+      const asset = assets[assetId]
+      if (asset) acc.push(asset)
       return acc
     }, [])
-    const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap].filter(isSome)
+
+    return sortedAssets
   },
 )
 
@@ -75,80 +71,29 @@ export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
     }, []),
 )
 
-// @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
-const chainIdFeeAssetReferenceMap = (
-  chainNamespace: ChainNamespace,
-  chainReference: ChainReference,
-): AssetReference => {
-  return (() => {
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Utxo:
-        switch (chainReference) {
-          case CHAIN_REFERENCE.BitcoinMainnet:
-            return ASSET_REFERENCE.Bitcoin
-          case CHAIN_REFERENCE.BitcoinCashMainnet:
-            return ASSET_REFERENCE.BitcoinCash
-          case CHAIN_REFERENCE.DogecoinMainnet:
-            return ASSET_REFERENCE.Dogecoin
-          case CHAIN_REFERENCE.LitecoinMainnet:
-            return ASSET_REFERENCE.Litecoin
-          default:
-            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
-        }
-      case CHAIN_NAMESPACE.Evm:
-        switch (chainReference) {
-          case CHAIN_REFERENCE.AvalancheCChain:
-            return ASSET_REFERENCE.AvalancheC
-          case CHAIN_REFERENCE.EthereumMainnet:
-            return ASSET_REFERENCE.Ethereum
-          case CHAIN_REFERENCE.OptimismMainnet:
-            return ASSET_REFERENCE.Optimism
-          default:
-            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
-        }
-      case CHAIN_NAMESPACE.CosmosSdk:
-        switch (chainReference) {
-          case CHAIN_REFERENCE.CosmosHubMainnet:
-            return ASSET_REFERENCE.Cosmos
-          case CHAIN_REFERENCE.OsmosisMainnet:
-            return ASSET_REFERENCE.Osmosis
-          case CHAIN_REFERENCE.ThorchainMainnet:
-            return ASSET_REFERENCE.Thorchain
-          default:
-            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
-        }
-      default:
-        throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
-    }
-  })()
-}
-
 export const selectFeeAssetByChainId = createCachedSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
-  (assetsById, chainId): Asset | undefined => {
-    if (!chainId) return undefined
-    const { chainNamespace, chainReference } = fromChainId(chainId)
-    const feeAssetId = toAssetId({
-      chainId,
-      assetNamespace: 'slip44',
-      assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
-    })
-    return assetsById[feeAssetId]
-  },
+  (assetsById, chainId): Asset | undefined => getFeeAssetByChainId(assetsById, chainId),
 )((_state: ReduxState, chainId) => chainId ?? 'chainId')
 
 export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  (assetsById, assetId): Asset | undefined => {
-    const { chainNamespace, chainReference } = fromAssetId(assetId)
-    const feeAssetId = toAssetId({
-      chainNamespace,
-      chainReference,
-      assetNamespace: 'slip44',
-      assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
+  (assetsById, assetId): Asset | undefined => getFeeAssetByAssetId(assetsById, assetId),
+)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId') as (
+  state: ReduxState,
+  assetId: AssetId,
+) => ReturnType<typeof getFeeAssetByAssetId>
+
+export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  selectSearchQueryFromFilter,
+  (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
+    if (!searchQuery) return sortedAssets
+    return matchSorter(sortedAssets, searchQuery ?? '', {
+      keys: ['name', 'symbol', 'assetId'],
+      threshold: matchSorter.rankings.MATCHES,
     })
-    return assetsById[feeAssetId]
   },
-)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')
+)

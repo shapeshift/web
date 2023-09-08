@@ -1,7 +1,7 @@
 import {
-  type MenuItemOptionProps,
   forwardRef,
   MenuItemOption,
+  type MenuItemOptionProps,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -25,7 +25,7 @@ export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
           </RawText>
           <Amount.Crypto
             whiteSpace='nowrap'
-            color='gray.500'
+            color='text.subtle'
             fontWeight='medium'
             value={cryptoBalance}
             symbol={symbol}

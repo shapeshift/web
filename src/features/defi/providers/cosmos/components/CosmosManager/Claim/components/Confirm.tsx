@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -21,9 +21,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -31,10 +33,6 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'Claim', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 
@@ -49,10 +47,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
-  const claimAmount = bnOrZero(opportunity?.rewards).toString()
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   // Asset Info
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunity.assetId ?? ''),
+  )
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -61,11 +64,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const claimAmount = bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]).toString()
+  const claimFiatAmount = useMemo(
+    () => bnOrZero(claimAmount).times(assetMarketData.price).toString(),
+    [assetMarketData.price, claimAmount],
+  )
+
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const toast = useToast()
 
   const { handleStakingAction } = useStakingAction()
+
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   useEffect(() => {
     ;(async () => {
@@ -77,7 +88,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         dispatch({ type: CosmosClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'ClaimConfirm error')
+        console.error(error)
       }
     })()
   }, [
@@ -91,20 +102,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dispatch,
   ])
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   const handleConfirm = useCallback(async () => {
-    if (
-      !(
-        asset &&
-        walletState.wallet &&
-        contractAddress &&
-        state?.userAddress &&
-        dispatch &&
-        bip44Params
-      )
-    )
+    if (!(asset && walletState.wallet && contractAddress && userAddress && dispatch && bip44Params))
       return
     dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: true })
 
@@ -124,8 +123,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity,
+          fiatAmounts: [claimFiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: claimAmount }],
+        },
+        assets,
+      )
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -137,17 +145,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     asset,
+    assets,
     bip44Params,
     claimAmount,
+    claimFiatAmount,
     contractAddress,
     dispatch,
-    feeMarketData?.price,
+    feeMarketData.price,
     handleStakingAction,
     onNext,
-    state?.userAddress,
+    opportunity,
     toast,
     translate,
-    walletState?.wallet,
+    userAddress,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch || !asset) return null
@@ -155,7 +166,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   return (
     <>
       <Stack alignItems='center' justifyContent='center' py={8}>
-        <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
+        <Text color='text.subtle' translation='defi.modals.claim.claimAmount' />
         <Stack direction='row' alignItems='center' justifyContent='center'>
           <AssetIcon boxSize='10' src={asset.icon} />
           <Amount.Crypto
@@ -172,13 +183,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Text translation='defi.modals.claim.claimToAddress' />
           </Row.Label>
           <Row.Value>
-            <Skeleton minWidth='100px' isLoaded={!!state.userAddress && !!accountId}>
-              <Link
-                isExternal
-                color='blue.500'
-                href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
-              >
-                {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
+            <Skeleton minWidth='100px' isLoaded={!!userAddress && !!accountId}>
+              <Link isExternal color='blue.500' href={`${asset.explorerAddressLink}${userAddress}`}>
+                {userAddress && <MiddleEllipsis value={accountId ?? userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>
@@ -204,7 +211,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     .toFixed(2)}
                 />
                 <Amount.Crypto
-                  color='gray.500'
+                  color='text.subtle'
                   value={bnOrZero(state.claim.estimatedGasCrypto)
                     .div(`1e+${feeAsset.precision}`)
                     .toFixed(5)}

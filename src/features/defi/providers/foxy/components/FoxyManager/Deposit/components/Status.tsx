@@ -16,7 +16,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { DepositContext } from '../DepositContext'
 
@@ -28,7 +28,7 @@ export const Status = () => {
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack
@@ -105,21 +105,21 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
+                    ? state.deposit.estimatedGasCryptoBaseUnit
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
+                    ? state.deposit.estimatedGasCryptoBaseUnit
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}
                 symbol='ETH'
               />

@@ -12,8 +12,8 @@ export * from './marketDataSlice/selectors'
 export * from './portfolioSlice/selectors'
 export * from './preferencesSlice/selectors'
 export * from './txHistorySlice/selectors'
-export * from './validatorDataSlice/selectors'
 export * from './opportunitiesSlice/selectors'
+export * from './swappersSlice/selectors'
 
 /**
  * some selectors span multiple business logic domains, e.g. portfolio and opportunities

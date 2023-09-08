@@ -1,12 +1,16 @@
-import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { Card, CardBody, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { memo, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectClaimableRewards,
+  selectEarnBalancesUserCurrencyAmountFull,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StatCardProps = {
@@ -29,46 +33,65 @@ const BreakdownCard: React.FC<StatCardProps> = ({
   const hoverBg = useColorModeValue('gray.100', 'gray.750')
   return (
     <Card flex={1} cursor='pointer' onClick={onClick} _hover={{ bg: hoverBg }}>
-      <Card.Body display='flex' gap={4} alignItems='center'>
+      <CardBody display='flex' gap={4} alignItems='center'>
         <CircularProgress
           isIndeterminate={isLoading}
           value={percentage}
           color={color ? color : 'blue.500'}
         />
         <Flex direction='column'>
-          <Text color='gray.500' fontWeight='medium' translation={label} />
+          <Text color='text.subtle' fontWeight='medium' translation={label} />
           <Skeleton isLoaded={!isLoading}>
             <Amount.Fiat fontWeight='bold' fontSize='xl' value={value} />
           </Skeleton>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }
 
-export const PortfolioBreakdown = () => {
+export const PortfolioBreakdown = memo(() => {
   const history = useHistory()
-  //FOXY, OSMO, COSMO, Yarn Vaults
-  const balances = useEarnBalances()
-  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const walletBalanceWithoutEarn = bn(netWorth).minus(bn(balances.totalEarningBalance))
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
+  )
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
+  const netWorth = useMemo(
+    () =>
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
+        .toFixed(),
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
+  )
+
+  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+  // *don't* show these if the DefiDashboard feature flag is enabled
+  if (isDefiDashboardEnabled) return null
+
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard
-        value={walletBalanceWithoutEarn.toString()}
-        percentage={walletBalanceWithoutEarn.div(netWorth).times(100).toNumber()}
+        value={portfolioTotalUserCurrencyBalance}
+        percentage={bnOrZero(portfolioTotalUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.walletBalance'
         onClick={() => history.push('/accounts')}
-        isLoading={balances.loading}
       />
       <BreakdownCard
-        value={balances.totalEarningBalance}
-        percentage={bnOrZero(balances.totalEarningBalance).div(netWorth).times(100).toNumber()}
+        value={earnUserCurrencyBalance}
+        percentage={bnOrZero(earnUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
-        onClick={() => history.push('/defi')}
-        isLoading={balances.loading}
+        onClick={() => history.push('/earn')}
       />
     </Flex>
   )
-}
+})

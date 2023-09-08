@@ -29,7 +29,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick
         isActive={isActive}
         aria-label={feeAsset.name}
         onClick={e => onClick(e)(chainId)}
-        icon={<AssetIcon size='sm' asset={feeAsset} />}
+        icon={<AssetIcon size='sm' showNetworkIcon assetId={feeAssetId} />}
       />
     </Tooltip>
   )

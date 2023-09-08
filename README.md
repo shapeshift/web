@@ -13,10 +13,9 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 - [Helpful Docs](#helpful-docs)
 - [Resources](#resources)
-- [Dependencies](#dependencies)
+- [Requirements](#requirements)
 - [Developer Onboarding](#developer-onboarding)
 - [Commands](#commands)
-- [Linking local dependencies](#linking)
 - [Debugging](#debugging)
 
 ## Helpful Docs
@@ -34,12 +33,10 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 - [shapeshift](https://shapeshift.com/developer-portal)
 
-## Dependencies
-- [hdwallet](https://github.com/shapeshift/hdwallet)
-- [lib](https://github.com/shapeshift/lib)
-- [unchained](https://github.com/shapeshift/unchained)
-- [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (optional; must be installed manually)
+## Requirements
 
+- [Node.js](https://nodejs.org/). Use a node version manager like `nvm` or check `.nvmrc` for the version.
+- [OpenJDK](https://openjdk.java.net/install/). Required for [openapi-generator-cli](https://openapi-generator.tech/docs/installation/) to generate API clients from OpenAPI specs.
 
 ## Debugging
 
@@ -47,30 +44,46 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-If you are using Linux and MacOS it works out of the box following these steps:
+If you are using Linux and macOS it works out of the box following these steps:
 
 1. Clone the repo
 
-2. (optional) Make sure you're using the right Node.js version.
+    > On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required. Make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings.
+    >
+    > Please do not ask our Engineering team for further help with WSL.
 
-  ```sh
-  nvm use
-  ```
+2. Make sure you are using the right Node.js version. This can optionally be done using a version manager like `nvm`:
 
-3. Install Dependencies:
+    ```sh
+    nvm use
+    ```
 
-  ```sh
-  # This is short for `yarn install`; be sure to use `yarn install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
-  yarn
-  ```
+3. Install [OpenJDK](https://openjdk.java.net/install/).
 
-4. Run `yarn env dev` to generate a `.env` file
+    > On MacOS if you have [installed](https://openapi-generator.tech/docs/installation/) `openapi-generator-cli`, it will be installed automatically.
 
-> ⚠️ On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required but **WE DO NOT SUPPORT THIS ENVIRONMENT, SO USE IT AT YOUR OWN RISK**.
->
-> If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
->
-> **Please do NOT ask our Engineering team for further help with WSL.**
+4. Install Dependencies:
+
+    ```sh
+    yarn
+    ```
+
+    > This is short for `yarn install` ; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+5. Build Packages:
+
+    ```sh
+    yarn build:packages
+    ```
+
+6. Run `yarn env dev` to generate a `.env` file.
+
+7. Other recommended configurations:
+
+    To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running:
+
+    ```sh
+    git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+    ```
 
 ### Commands
 
@@ -82,7 +95,7 @@ yarn dev
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> You will also see any lint errors in the console.
+> You will also see any lint errors in the console.  
 
 <br/>
 
@@ -103,6 +116,7 @@ To start Cypress E2E testing with GUI:
 ```sh
 yarn test:cypress
 ```
+
 or, to start it in headless mode:
 
 ```sh
@@ -114,7 +128,7 @@ yarn test:cypress:headless
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-yarn build
+yarn build:web
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -124,35 +138,6 @@ yarn build
 > Your app is ready to be deployed!
 >
 > See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-<br/>
-
-To run the component documentation:
-
-```sh
-yarn storybook
-```
-
-> It opens [http://localhost:6006](http://localhost:6006) to view it in the browser.
-
-### Linking
-
-If you're developing locally in this `web` repository, and need to make changes affecting packages in `lib`
-or `unchained` (backend), use the following steps to link packages locally for developing.
-If your changes only touch `web` these steps are unnecessary.
-
-**Initial, one-off setup:**
-
-1. Clone the `lib` repo, `cd` into it, and run `yarn build`
-1. From `lib`, run `yarn link`
-1. Clone `unchained`, `cd` into it, and run `yarn build`
-1. From `unchained`, `cd packages/client` and `yarn link`, then do the same from `packages/parser`
-
-**When working in `web`, and using local changes in `lib` or `unchained`:**
-
-1. Run `yarn link-packages` in `web` to use local versions of `lib` and `unchained` - now your `web`'s chain-adapters have a symlink to your `lib`'s.
-1. `yarn show-linked-packages` will show what's currently linked
-1. Once you're done developing locally, run `yarn unlink-packages` to use published upstream versions
 
 ## Developer Onboarding
 

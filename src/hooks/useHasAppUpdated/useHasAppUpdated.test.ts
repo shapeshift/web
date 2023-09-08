@@ -27,17 +27,7 @@ describe('useHasAppUpdated', () => {
       })
     })
 
-    it('should return false when env.json/asset-manifest.json is not updated', async () => {
-      mockAxios.get.mockImplementation(() => {
-        return Promise.resolve({ data: {} })
-      })
-
-      const { result } = renderHook(() => useHasAppUpdated())
-      await act(() => void 0)
-      expect(result.current).toBe(false)
-    })
-
-    it('should return true when env.json is updated', async () => {
+    it('should return true when metadata.json is updated', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -45,40 +35,21 @@ describe('useHasAppUpdated', () => {
       const { result } = renderHook(() => useHasAppUpdated())
 
       mockAxios.get.mockImplementationOnce((url: string) => {
-        if (url.includes('env.json')) return Promise.resolve({ data: { change: true } })
+        if (url.includes('metadata.json')) return Promise.resolve({ data: { change: true } })
         else return Promise.resolve({ data: {} })
       })
 
-      await act(() => {
-        jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
-      })
-      /** without the `await` of previous act
-       * await waitFor(() => expect(result.current).toBe(false))
-       * will pass the test too.
-       */
       await waitFor(() => expect(result.current).toBe(true))
     })
 
-    it('should return true when asset-manifest.json is updated', async () => {
+    it('should return false when metadata.json is not updated', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
       const { result } = renderHook(() => useHasAppUpdated())
 
-      mockAxios.get.mockImplementationOnce((url: string) => {
-        if (url.includes('asset-manifest.json')) return Promise.resolve({ data: { change: true } })
-        else return Promise.resolve({ data: {} })
-      })
-
-      await act(() => {
-        jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
-      })
-      /** without the `await` of previous act
-       * await waitFor(() => expect(result.current).toBe(false))
-       * will pass the test too.
-       */
-      await waitFor(() => expect(result.current).toBe(true))
+      await waitFor(() => expect(result.current).toBe(false))
     })
 
     it('should return false when axios fails', async () => {
@@ -90,12 +61,6 @@ describe('useHasAppUpdated', () => {
 
       mockAxios.get.mockImplementationOnce(() => {
         return Promise.reject({ error: {} })
-      })
-
-      // without the `await` keyword, following line will throw this warning:
-      // an update to TestComponent inside a test was not wrapped in act(...).
-      await act(() => {
-        jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
       })
 
       await waitFor(() => expect(result.current).toBe(false))
@@ -103,15 +68,6 @@ describe('useHasAppUpdated', () => {
   })
 
   describe('localhost', () => {
-    it('should return false when env.json/asset-manifest.json is not updated', async () => {
-      mockAxios.get.mockImplementation(() => {
-        return Promise.resolve({ data: {} })
-      })
-
-      const { result } = renderHook(() => useHasAppUpdated())
-      await waitFor(() => expect(result.current).toBe(false))
-    })
-
     beforeEach(() => {
       jest.spyOn(window, 'location', 'get').mockReturnValue({
         ...window.location,
@@ -119,60 +75,43 @@ describe('useHasAppUpdated', () => {
       })
     })
 
-    it('should return false when env.json updated', async () => {
+    it('should return false for localhost', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
       const { result } = renderHook(() => useHasAppUpdated())
 
+      expect(mockAxios.get.mock.calls.length).toEqual(0)
+
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
       })
 
+      expect(mockAxios.get.mock.calls.length).toEqual(0)
+
       mockAxios.get.mockImplementationOnce((url: string) => {
-        if (url.includes('env.json')) return Promise.resolve({ data: { change: true } })
+        if (url.includes('metadata.json')) return Promise.resolve({ data: { change: true } })
         else return Promise.resolve({ data: {} })
       })
 
       await waitFor(() => expect(result.current).toBe(false))
+      expect(mockAxios.get.mock.calls.length).toEqual(0)
     })
 
-    it('should return false when asset-manifest.json is updated', async () => {
+    it('should not make network requests on localhost', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
-      })
-
-      const { result } = renderHook(() => useHasAppUpdated())
-
-      act(() => {
-        jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
-      })
-
-      mockAxios.get.mockImplementationOnce((url: string) => {
-        if (url.includes('asset-manifest.json')) return Promise.resolve({ data: { change: true } })
-        else return Promise.resolve({ data: {} })
-      })
-
-      await waitFor(() => expect(result.current).toBe(false))
-    })
-
-    it('should return false when axios fails', async () => {
-      mockAxios.get.mockImplementation(() => {
-        return Promise.resolve({ data: {} })
-      })
-
-      const { result } = renderHook(useHasAppUpdated)
-
-      mockAxios.get.mockImplementationOnce(() => {
-        return Promise.reject({ error: {} })
       })
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
       })
 
-      await waitFor(() => expect(result.current).toBe(false))
+      mockAxios.get.mockImplementationOnce(() => Promise.resolve({ data: {} }))
+
+      await waitFor(() => undefined)
+      expect(mockAxios.get.mock.calls.length).toEqual(0)
     })
   })
 })

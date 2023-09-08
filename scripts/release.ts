@@ -23,7 +23,7 @@ export const assertIsCleanRepo = async () => {
 }
 
 const releaseType = ['Regular', 'Hotfix'] as const
-type ReleaseType = typeof releaseType[number]
+type ReleaseType = (typeof releaseType)[number]
 
 const inquireReleaseType = async (): Promise<ReleaseType> => {
   const questions: inquirer.QuestionCollection<{ releaseType: ReleaseType }> = [
@@ -60,7 +60,7 @@ const createDraftPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('minor')
-  const title = `chore: release ${nextVersion} [DO NOT MERGE]`
+  const title = `chore: release ${nextVersion}`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
   await pify(exec)(command)
@@ -111,7 +111,7 @@ const doRegularRelease = async () => {
   exit()
 }
 
-const doHotfixRelease = async () => {
+const doHotfixRelease = () => {
   exit(chalk.yellow('Unimplemented. PRs welcome!'))
   // TODO(0xdef1cafe): implement hotfix release
   // 1. ask if we want to merge currently checked out branch to main
@@ -137,13 +137,21 @@ const assertGhInstalled = async () => {
   }
 }
 
+const assertGhAuth = async () => {
+  try {
+    await pify(exec)('gh auth status') // will throw if gh not authenticated
+  } catch (e) {
+    exit(chalk.red((e as Error).message))
+  }
+}
+
 const isReleaseInProgress = async (): Promise<boolean> => {
   const { total } = await getCommits('release')
   return Boolean(total)
 }
 
 const createRelease = async () => {
-  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
+  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : doHotfixRelease()
 }
 
 const mergeRelease = async () => {
@@ -166,6 +174,14 @@ const mergeRelease = async () => {
   await git().tag(['-a', nextVersion, '-m', nextVersion])
   console.log(chalk.green('Pushing main...'))
   await git().push(['origin', 'main', '--tags'])
+  /**
+   * we want private to track main, as Cloudflare builds with different env vars
+   * based off the branch name, and there's in sufficient information with a single branch name.
+   */
+  console.log(chalk.green('Resetting private to main...'))
+  await git().checkout(['-B', 'private'])
+  console.log(chalk.green('Pushing private...'))
+  await git().push(['--force', 'origin', 'private', '--tags'])
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
@@ -180,6 +196,7 @@ const mergeRelease = async () => {
 const main = async () => {
   await assertIsCleanRepo()
   await assertGhInstalled()
+  await assertGhAuth()
   ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 

@@ -1,9 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button } from '@chakra-ui/react'
-import { SkeletonCircle, SkeletonText } from '@chakra-ui/skeleton'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import { Button, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import type { Asset } from 'lib/asset-service'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
@@ -38,7 +37,7 @@ export const AccountCard = ({
       textAlign='left'
       leftIcon={
         <SkeletonCircle isLoaded={isLoaded} boxSize='40px'>
-          <AssetIcon asset={asset} boxSize='40px' />
+          <AssetIcon assetId={asset.assetId} boxSize='40px' />
         </SkeletonCircle>
       }
       rightIcon={<ChevronRightIcon boxSize={6} />}
@@ -51,7 +50,7 @@ export const AccountCard = ({
 
         {showCrypto ? (
           <Amount.Crypto
-            color='gray.500'
+            color='text.subtle'
             lineHeight='1'
             maximumFractionDigits={6}
             symbol={asset.symbol}
@@ -63,7 +62,7 @@ export const AccountCard = ({
           <Amount.Fiat
             value={fiatAmountAvailable}
             lineHeight='1'
-            color='gray.500'
+            color='text.subtle'
             suffix={translate('common.available')}
             data-test='account-card-fiat-label'
           />

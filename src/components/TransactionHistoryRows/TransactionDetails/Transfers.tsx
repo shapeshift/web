@@ -1,12 +1,12 @@
 import { Stack, Tag } from '@chakra-ui/react'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { Text } from 'components/Text'
+import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import { TransferColumn } from './TransferColumn'
 
 type TransfersProps = {
   compactMode?: boolean
-  transfers: TxTransfer[]
+  transfers: Transfer[]
 }
 
 export const Transfers = ({ compactMode, transfers }: TransfersProps) => {
@@ -23,7 +23,7 @@ export const Transfers = ({ compactMode, transfers }: TransfersProps) => {
         direction='row'
         justifyContent={{ base: 'space-between', md: compactMode ? 'space-between' : 'flex-start' }}
       >
-        <Text color='gray.500' fontWeight='medium' translation='transactionHistory.transfers' />
+        <Text color='text.subtle' fontWeight='medium' translation='transactionHistory.transfers' />
         <Tag size='sm'>{transfers.length}</Tag>
       </Stack>
       {transfers.map((transfer, i) => {

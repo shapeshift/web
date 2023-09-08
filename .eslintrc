@@ -1,20 +1,25 @@
 {
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "react-app",
     "react-app/jest",
     "plugin:jsx-a11y/recommended",
     "prettier"
   ],
+  "ignorePatterns": [
+    "build",
+    "dist",
+    "coverage",
+    "generated",
+    "node_modules"
+  ],
   "plugins": [
     "jest",
     "prettier",
-    "simple-import-sort",
-    "@shapeshiftoss/logger"
+    "simple-import-sort"
   ],
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "sourceType": "module",
-    "project": "./tsconfig.json"
+    "sourceType": "module"
   },
   "env": {
     "browser": true,
@@ -73,8 +78,22 @@
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-handler-names": "error",
-    "@shapeshiftoss/logger/no-native-console": "error",
     "require-await": "error",
     "import/no-duplicates": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    },
+    {
+      "files": ["**/__tests__/mockData/*.ts"],
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 import { cspMerge, cspToEntries, entriesToCsp, serializeCsp } from './util'
 
 describe('cspToEntries', () => {
-  it('works', async () => {
+  it('works', () => {
     expect(cspToEntries({})).toMatchObject([])
     expect(
       cspToEntries({
@@ -17,7 +17,7 @@ describe('cspToEntries', () => {
 })
 
 describe('entriesToCsp', () => {
-  it('works', async () => {
+  it('works', () => {
     expect(entriesToCsp([])).toMatchObject({})
     expect(
       entriesToCsp([
@@ -33,7 +33,7 @@ describe('entriesToCsp', () => {
 })
 
 describe('cspMerge', () => {
-  it('handles the degenerate case', async () => {
+  it('handles the degenerate case', () => {
     expect(cspMerge()).toMatchObject({})
     expect(
       cspMerge({
@@ -43,7 +43,7 @@ describe('cspMerge', () => {
       foo: ['bar'],
     })
   })
-  it('merges component CSPs with different directives', async () => {
+  it('merges component CSPs with different directives', () => {
     expect(
       cspMerge(
         {
@@ -58,7 +58,7 @@ describe('cspMerge', () => {
       baz: ['bash'],
     })
   })
-  it('merges identical directives of component CSPs', async () => {
+  it('merges identical directives of component CSPs', () => {
     expect(
       cspMerge(
         {
@@ -74,7 +74,7 @@ describe('cspMerge', () => {
       baz: ['bash'],
     })
   })
-  it("omits the 'none' source if is directive isn't empty", async () => {
+  it("omits the 'none' source if is directive isn't empty", () => {
     expect(
       cspMerge(
         {
@@ -112,7 +112,7 @@ describe('cspMerge', () => {
       foo: ["'none'"],
     })
   })
-  it('removes empty directives', async () => {
+  it('removes empty directives', () => {
     expect(
       cspMerge(
         {
@@ -124,7 +124,7 @@ describe('cspMerge', () => {
       ),
     ).toMatchObject({})
   })
-  it('sorts directives and elements', async () => {
+  it('sorts directives and elements', () => {
     expect(
       JSON.stringify(
         cspMerge(
@@ -144,7 +144,7 @@ describe('cspMerge', () => {
 })
 
 describe('serializeCsp', () => {
-  it('works', async () => {
+  it('works', () => {
     expect(
       serializeCsp({
         foo: ['bar', 'baz'],

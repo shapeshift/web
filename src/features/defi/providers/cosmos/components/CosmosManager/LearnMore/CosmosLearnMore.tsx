@@ -1,6 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Flex } from '@chakra-ui/layout'
-import { Button, IconButton } from '@chakra-ui/react'
+import { Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import type {
@@ -121,7 +120,7 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
                         translation={[body, { assetName, unbondingDays }]}
-                        color='gray.500'
+                        color='text.subtle'
                         fontWeight='semibold'
                         fontSize='15px'
                       />

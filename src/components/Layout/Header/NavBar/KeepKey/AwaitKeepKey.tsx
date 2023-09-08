@@ -1,5 +1,5 @@
 import { InfoIcon } from '@chakra-ui/icons'
-import type { FlexProps } from '@chakra-ui/layout'
+import type { FlexProps } from '@chakra-ui/react'
 import { Box, Button, Divider, Flex, useColorModeValue } from '@chakra-ui/react'
 import type Polyglot from 'node-polyglot'
 import React from 'react'

@@ -6,13 +6,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { MetaMaskConfig } from '../config'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
@@ -45,14 +43,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
-    //Handles UX issues caused by MM and Tally Ho both being injected.
-    if (state.provider.isTally) {
-      setErrorLoading('walletProvider.metaMask.errors.tallyInstalledAndSetToDefault')
-      throw new Error('Tally Ho wallet installed and set as default')
-    }
-
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
-      const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()
+      const wallet = await state.adapters.get(KeyManager.MetaMask)?.[0].pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')
@@ -68,7 +60,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.MetaMask },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
@@ -76,7 +68,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          moduleLogger.error(e, 'MetaMask Connect: There was an error initializing the wallet')
+          console.error(e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.metaMask.errors.unknown')

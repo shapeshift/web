@@ -2,13 +2,18 @@
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 
 import type { ReduxState } from './reducer'
-import type { LpId, StakingId, UserStakingId } from './slices/opportunitiesSlice/types'
-import type { PubKey } from './slices/validatorDataSlice/validatorDataSlice'
+import type {
+  DefiProvider,
+  DefiType,
+  LpId,
+  StakingId,
+  UserStakingId,
+  ValidatorId,
+} from './slices/opportunitiesSlice/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
@@ -24,7 +29,7 @@ type ParamFilter = Partial<{
   contractAddress: string
   assetId: AssetId
   accountId: AccountId
-  validatorAddress: PubKey // TODO(0xdef1cafe): change this to an AccountId that represents the chainId:validatorAddress
+  validatorId: ValidatorId
   accountNumber: number
   chainId: ChainId
   userStakingId: UserStakingId
@@ -34,6 +39,10 @@ type ParamFilter = Partial<{
   defiProvider: DefiProvider
   defiType: DefiType
   queryStatus: QueryStatus
+  endpointName: string
+  includeEarnBalances: boolean
+  includeRewardsBalances: boolean
+  searchQuery: string
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -48,16 +57,19 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
       `${param}-${filter?.[param]}` ?? param,
   )
 
-export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
-export const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
-export const selectFiatRampActionFromFilter = selectParamFromFilter('fiatRampAction')
+export const selectValidatorIdParamFromFilter = selectParamFromFilter('validatorId')
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
+export const selectEndpointNameParamFromFilter = selectParamFromFilter('endpointName')
+export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
+export const selectIncludeRewardsBalancesParamFromFilter =
+  selectParamFromFilter('includeRewardsBalances')
+export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')

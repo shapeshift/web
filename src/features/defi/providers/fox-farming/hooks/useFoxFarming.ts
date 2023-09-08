@@ -1,30 +1,27 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
+import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils'
+import { buildAndBroadcast, createBuildCustomTxInput, getFees } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import {
-  foxEthLpAssetId,
-  foxEthLpContractAddress,
-  uniswapV2Router02ContractAddress,
-} from 'state/slices/opportunitiesSlice/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
 type UseFoxFarmingOptions = {
   skip?: boolean
 }
+
+const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
+
 /**
  * useFoxFarming hook
  * @param contractAddress farming contract address, since there could be multiple contracts
@@ -35,7 +32,6 @@ export const useFoxFarming = (
   { skip }: UseFoxFarmingOptions = {},
 ) => {
   const { farmingAccountId } = useFoxEth()
-  const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
@@ -46,121 +42,52 @@ export const useFoxFarming = (
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
 
   const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as ethereum.ChainAdapter
-
-  const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
-    [skip],
-  )
+  const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as
+    | ethereum.ChainAdapter
+    | undefined
 
   const foxFarmingContract = useMemo(
-    () => (skip ? null : getOrCreateContract(contractAddress)),
-    [contractAddress, skip],
-  )
-
-  const uniV2LPContract = useMemo(
-    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
-    [skip],
+    () => getOrCreateContractByAddress(contractAddress),
+    [contractAddress],
   )
 
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
-        if (
-          skip ||
-          !farmingAccountId ||
-          !isValidAccountNumber(accountNumber) ||
-          !foxFarmingContract ||
-          !wallet
-        )
-          return
-        if (!adapter)
-          throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
+        if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+
+        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
         const data = foxFarmingContract.interface.encodeFunctionData('stake', [
-          bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+          toBaseUnit(lpAmount, lpAsset.precision),
         ])
-        const adapterType = adapter.getChainId()
-        const estimatedFees = await adapter.getFeeData({
+
+        const buildCustomTxInput = await createBuildCustomTxInput({
+          accountNumber,
+          adapter,
+          data,
           to: contractAddress,
           value: '0',
-          chainSpecific: {
-            contractData: data,
-            from: fromAccountId(farmingAccountId).account,
-          },
+          wallet,
         })
-        const result = await (async () => {
-          if (supportedEvmChainIds.includes(adapterType)) {
-            if (!supportsETH(wallet))
-              throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
-            const fees = estimatedFees.average as FeeData<EvmChainId>
-            const {
-              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
-            } = fees
-            const shouldUseEIP1559Fees =
-              (await wallet.ethSupportsEIP1559()) &&
-              maxFeePerGas !== undefined &&
-              maxPriorityFeePerGas !== undefined
-            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-              throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
-            }
-            return await adapter.buildCustomTx({
-              to: contractAddress,
-              value: '0x00',
-              wallet,
-              data,
-              gasLimit,
-              accountNumber,
-              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-            })
-          } else {
-            throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
-          }
-        })()
-        const txToSign = result.txToSign
 
-        const broadcastTXID = await (async () => {
-          if (wallet.supportsOfflineSigning()) {
-            const signedTx = await adapter.signTransaction({
-              txToSign,
-              wallet,
-            })
-            return adapter.broadcastTransaction(signedTx)
-          } else if (wallet.supportsBroadcast()) {
-            /**
-             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-             * Check and see if it exists; if so, call and make sure a txhash is returned
-             */
-            if (!adapter.signAndBroadcastTransaction) {
-              throw new Error('signAndBroadcastTransaction undefined for wallet')
-            }
-            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          } else {
-            throw new Error('Bad hdwallet config')
-          }
-        })()
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
-        if (!broadcastTXID) {
-          throw new Error('Broadcast failed')
-        }
-        return broadcastTXID
-      } catch (error) {
-        moduleLogger.warn(error, 'useFoxFarming:stake error')
+        return txid
+      } catch (err) {
+        console.error(err)
       }
     },
     [
       adapter,
-      farmingAccountId,
       accountNumber,
       contractAddress,
       ethAsset.chainId,
       foxFarmingContract,
       lpAsset.precision,
-      supportedEvmChainIds,
       skip,
       wallet,
     ],
@@ -169,324 +96,187 @@ export const useFoxFarming = (
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
       try {
-        if (
-          skip ||
-          !farmingAccountId ||
-          !isValidAccountNumber(accountNumber) ||
-          !foxFarmingContract ||
-          !wallet
-        )
-          return
-        const chainAdapterManager = getChainAdapterManager()
-        const adapter = chainAdapterManager.get(
-          ethAsset.chainId,
-        ) as unknown as ethereum.ChainAdapter
-        if (!adapter)
-          throw new Error(`foxFarmingUnstake: no adapter available for ${ethAsset.chainId}`)
+        if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+
+        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
         const data = isExiting
           ? foxFarmingContract.interface.encodeFunctionData('exit')
           : foxFarmingContract.interface.encodeFunctionData('withdraw', [
-              bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+              toBaseUnit(lpAmount, lpAsset.precision),
             ])
-        const adapterType = adapter.getChainId()
-        const estimatedFees = await adapter.getFeeData({
+
+        const buildCustomTxInput = await createBuildCustomTxInput({
+          accountNumber,
+          adapter,
+          data,
           to: contractAddress,
           value: '0',
-          chainSpecific: {
-            contractData: data,
-            from: fromAccountId(farmingAccountId).account,
-          },
+          wallet,
         })
-        const result = await (async () => {
-          if (supportedEvmChainIds.includes(adapterType)) {
-            if (!supportsETH(wallet))
-              throw new Error(`unstakeEthFoxLp: wallet does not support ethereum`)
-            const fees = estimatedFees.average as FeeData<EvmChainId>
-            const {
-              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
-            } = fees
-            const shouldUseEIP1559Fees =
-              (await wallet.ethSupportsEIP1559()) &&
-              maxFeePerGas !== undefined &&
-              maxPriorityFeePerGas !== undefined
-            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-              throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
-            }
-            return await adapter.buildCustomTx({
-              to: contractAddress,
-              value: '0x00',
-              wallet,
-              data,
-              gasLimit,
-              accountNumber,
-              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-            })
-          } else {
-            throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
-          }
-        })()
-        const txToSign = result.txToSign
 
-        const broadcastTXID = await (async () => {
-          if (wallet.supportsOfflineSigning()) {
-            const signedTx = await adapter.signTransaction({
-              txToSign,
-              wallet,
-            })
-            return adapter.broadcastTransaction(signedTx)
-          } else if (wallet.supportsBroadcast()) {
-            /**
-             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-             * Check and see if it exists; if so, call and make sure a txhash is returned
-             */
-            if (!adapter.signAndBroadcastTransaction) {
-              throw new Error('signAndBroadcastTransaction undefined for wallet')
-            }
-            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          } else {
-            throw new Error('Bad hdwallet config')
-          }
-        })()
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
-        if (!broadcastTXID) {
-          throw new Error('Broadcast failed')
-        }
-        return broadcastTXID
-      } catch (error) {
-        moduleLogger.warn(error, 'useFoxFarming:unstake error')
+        return txid
+      } catch (err) {
+        console.error(err)
       }
     },
     [
-      farmingAccountId,
+      adapter,
       accountNumber,
       contractAddress,
       ethAsset.chainId,
       foxFarmingContract,
       lpAsset.precision,
-      supportedEvmChainIds,
       wallet,
       skip,
     ],
   )
 
   const allowance = useCallback(async () => {
-    if (skip || !farmingAccountId || !uniV2LPContract) return
+    if (skip || !farmingAccountId) return
+
     const userAddress = fromAccountId(farmingAccountId).account
     const _allowance = await uniV2LPContract.allowance(userAddress, contractAddress)
+
     return _allowance.toString()
-  }, [farmingAccountId, contractAddress, uniV2LPContract, skip])
+  }, [farmingAccountId, contractAddress, skip])
 
-  const getApproveGasData = useCallback(async () => {
-    if (adapter && farmingAccountId && uniV2LPContract) {
-      const data = uniV2LPContract.interface.encodeFunctionData('approve', [
-        contractAddress,
-        MaxUint256,
-      ])
-      const farmingAccountAddress = fromAccountId(farmingAccountId).account
-      const fees = await adapter.getFeeData({
-        to: uniV2LPContract.address,
-        value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: farmingAccountAddress,
-          contractAddress: uniV2LPContract.address,
-        },
-      })
-      return fees
-    }
-  }, [adapter, farmingAccountId, contractAddress, uniV2LPContract])
+  const getApproveFees = useCallback(() => {
+    if (!adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
-  const getStakeGasData = useCallback(
-    async (lpAmount: string) => {
-      if (skip || !farmingAccountId || !uniswapRouterContract) return
-      const data = foxFarmingContract!.interface.encodeFunctionData('stake', [
-        bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-      ])
-      const farmingAccountAddress = fromAccountId(farmingAccountId).account
-      const estimatedFees = await adapter.getFeeData({
-        to: contractAddress,
-        value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: farmingAccountAddress,
-        },
-      })
-      return estimatedFees
-    },
-    [
-      adapter,
-      farmingAccountId,
-      contractAddress,
-      foxFarmingContract,
-      lpAsset.precision,
-      uniswapRouterContract,
-      skip,
-    ],
-  )
-
-  const getUnstakeGasData = useCallback(
-    async (lpAmount: string, isExiting: boolean) => {
-      if (skip || !farmingAccountId || !uniswapRouterContract) return
-      const data = isExiting
-        ? foxFarmingContract!.interface.encodeFunctionData('exit')
-        : foxFarmingContract!.interface.encodeFunctionData('withdraw', [
-            bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-          ])
-      const farmingAccountAddress = fromAccountId(farmingAccountId).account
-      const estimatedFees = await adapter.getFeeData({
-        to: contractAddress,
-        value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: farmingAccountAddress,
-        },
-      })
-      return estimatedFees
-    },
-    [
-      adapter,
-      farmingAccountId,
-      contractAddress,
-      foxFarmingContract,
-      lpAsset.precision,
-      uniswapRouterContract,
-      skip,
-    ],
-  )
-
-  const approve = useCallback(async () => {
-    if (!wallet || !isValidAccountNumber(accountNumber) || !uniV2LPContract) return
     const data = uniV2LPContract.interface.encodeFunctionData('approve', [
       contractAddress,
       MaxUint256,
     ])
-    const gasData = await getApproveGasData()
-    if (!gasData) return
-    const fees = gasData.average as FeeData<EvmChainId>
-    const {
-      chainSpecific: { gasPrice, gasLimit },
-    } = fees
-    if (gasPrice === undefined) {
-      throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
-    }
-    const result = await adapter.buildCustomTx({
-      to: uniV2LPContract.address,
-      value: '0x00',
-      wallet,
-      data,
-      gasLimit,
+
+    return getFees({
       accountNumber,
-      gasPrice,
+      adapter,
+      data,
+      to: uniV2LPContract.address,
+      value: '0',
+      wallet,
     })
-    const txToSign = result.txToSign
+  }, [adapter, accountNumber, contractAddress, wallet])
 
-    const broadcastTXID = await (async () => {
-      if (wallet.supportsOfflineSigning()) {
-        const signedTx = await adapter.signTransaction({
-          txToSign,
-          wallet,
-        })
-        return adapter.broadcastTransaction(signedTx)
-      } else if (wallet.supportsBroadcast()) {
-        /**
-         * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-         * Check and see if it exists; if so, call and make sure a txhash is returned
-         */
-        if (!adapter.signAndBroadcastTransaction) {
-          throw new Error('signAndBroadcastTransaction undefined for wallet')
-        }
-        return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-      } else {
-        throw new Error('Bad hdwallet config')
-      }
-    })()
-    return broadcastTXID
-  }, [accountNumber, adapter, contractAddress, getApproveGasData, uniV2LPContract, wallet])
+  const getStakeFees = useCallback(
+    (lpAmount: string) => {
+      if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
-  const getClaimGasData = useCallback(
-    async (userAddress: string) => {
-      if (!foxFarmingContract || !userAddress) return
-      const data = foxFarmingContract.interface.encodeFunctionData('getReward')
-      const estimatedFees = await adapter.getFeeData({
+      const data = foxFarmingContract.interface.encodeFunctionData('stake', [
+        toBaseUnit(lpAmount, lpAsset.precision),
+      ])
+
+      return getFees({
+        accountNumber,
+        adapter,
+        data,
         to: contractAddress,
         value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: userAddress,
-        },
+        wallet,
       })
-      return estimatedFees
     },
-    [adapter, contractAddress, foxFarmingContract],
+    [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, skip, wallet],
   )
 
-  const claimRewards = useCallback(async () => {
-    if (
-      skip ||
-      !wallet ||
-      !isValidAccountNumber(accountNumber) ||
-      !foxFarmingContract ||
-      !farmingAccountId
-    )
-      return
-    const data = foxFarmingContract.interface.encodeFunctionData('getReward')
-    const farmingAccountAddress = fromAccountId(farmingAccountId).account
-    const estimatedFees = await adapter.getFeeData({
-      to: contractAddress,
-      value: '0',
-      chainSpecific: {
-        contractData: data,
-        from: farmingAccountAddress,
+  const getUnstakeFees = useCallback(
+    (lpAmount: string, isExiting: boolean) => {
+      if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
+
+      const data = isExiting
+        ? foxFarmingContract.interface.encodeFunctionData('exit')
+        : foxFarmingContract.interface.encodeFunctionData('withdraw', [
+            toBaseUnit(lpAmount, lpAsset.precision),
+          ])
+
+      return getFees({
+        accountNumber,
+        adapter,
+        data,
+        to: contractAddress,
+        value: '0',
+        wallet,
+      })
+    },
+    [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, skip, wallet],
+  )
+
+  const getClaimFees = useCallback(
+    async (userAddress: string) => {
+      if (!adapter || !userAddress || !wallet) return
+
+      const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+
+      return getFees({
+        adapter,
+        data,
+        from: userAddress,
+        to: contractAddress,
+        value: '0',
+        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+      })
+    },
+    [adapter, contractAddress, foxFarmingContract, wallet],
+  )
+
+  const approve = useCallback(async () => {
+    if (!wallet || !isValidAccountNumber(accountNumber)) return
+
+    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
+    const data = uniV2LPContract.interface.encodeFunctionData('approve', [
+      contractAddress,
+      MaxUint256,
+    ])
+
+    const fees = await getApproveFees()
+    if (!fees) return
+
+    const txid = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput: {
+        accountNumber,
+        to: uniV2LPContract.address,
+        value: '0',
+        data,
+        wallet,
+        ...fees,
       },
     })
-    const fees = estimatedFees.average as FeeData<EvmChainId>
-    const {
-      chainSpecific: { gasPrice, gasLimit },
-    } = fees
-    if (gasPrice === undefined) {
-      throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
-    }
-    const result = await adapter.buildCustomTx({
-      to: contractAddress,
-      value: '0x00',
-      wallet,
-      data,
-      gasLimit,
-      accountNumber,
-      gasPrice,
-    })
-    const txToSign = result.txToSign
 
-    const broadcastTXID = await (async () => {
-      if (wallet.supportsOfflineSigning()) {
-        const signedTx = await adapter.signTransaction({
-          txToSign,
-          wallet,
-        })
-        return adapter.broadcastTransaction(signedTx)
-      } else if (wallet.supportsBroadcast()) {
-        /**
-         * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-         * Check and see if it exists; if so, call and make sure a txhash is returned
-         */
-        if (!adapter.signAndBroadcastTransaction) {
-          throw new Error('signAndBroadcastTransaction undefined for wallet')
-        }
-        return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-      } else {
-        throw new Error('Bad hdwallet config')
-      }
-    })()
-    return broadcastTXID
-  }, [accountNumber, adapter, farmingAccountId, contractAddress, foxFarmingContract, skip, wallet])
+    return txid
+  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, getApproveFees, wallet])
+
+  const claimRewards = useCallback(async () => {
+    if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+
+    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
+    const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+
+    const buildCustomTxInput = await createBuildCustomTxInput({
+      accountNumber,
+      adapter,
+      data,
+      to: contractAddress,
+      value: '0',
+      wallet,
+    })
+
+    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+
+    return txid
+  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, foxFarmingContract, skip, wallet])
 
   return {
     allowance,
     approve,
-    getApproveGasData,
-    getStakeGasData,
-    getClaimGasData,
-    getUnstakeGasData,
+    getApproveFees,
+    getStakeFees,
+    getClaimFees,
+    getUnstakeFees,
     stake,
     unstake,
     claimRewards,

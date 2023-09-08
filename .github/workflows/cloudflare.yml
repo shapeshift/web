@@ -1,0 +1,65 @@
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    env:
+      # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
+      PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    # https://github.com/actions/runner/issues/409#issuecomment-752775072
+    # Github Actions DSL expression fuckery to make a ternary
+    # syntax is if condition && true || false
+    # i.e. if it's a pull request, use the head ref, otherwise use the ref name
+    # so ultimately we only run this workflow against the whitelisted branches
+    if: contains(fromJSON('["develop", "release", "yeet", "main", "private", "beard", "juice", "wood", "gome", "cafe", "arkeo"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
+    runs-on: size-bertha
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Environment (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        # github actions run in the context of a special magical merge commit between the head of the PR
+        # and the base branch. this means that the commit hash is not the same as the head of the PR.
+        # we have to conditionally grab the head of the PR and truncate it to 7 characters.
+        # in a `pull_request`` event trigger, base_ref is target branch name, head_ref is current
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "CURRENT_BRANCH_NAME=${{ github.head_ref }}" >> ${GITHUB_ENV}
+        # in a `pull` event trigger, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
+        # of the branch and we can use that directly.
+        # ref_name is the name of the branch, e.g. develop, main, etc.
+      - name: Setup Environment (Push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+      - name: Debug GitHub Context
+        env: { CONTENT : "${{ toJson(github) }}" }
+        run: "echo $CONTENT"
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Yarn Install
+        run: yarn install --immutable
+      - name: Build Packages
+        run: yarn build:packages
+      - name: Build Web
+        run: yarn env && yarn build:web
+      # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
+      # passing more params directly to wrangler to control commit hash and message
+      # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
+      - name: Deploy
+        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.CURRENT_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.CURRENT_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"

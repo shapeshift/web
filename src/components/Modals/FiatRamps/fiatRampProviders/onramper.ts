@@ -3,31 +3,25 @@ import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
-import { logger } from 'lib/logger'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
-})
-
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
-type OnRamperGatewaysResponse = {
-  gateways: GatewayItem[]
-}
-
-type Currency = {
-  code: string
+type Crypto = {
   id: string
-  network?: string
-  displayName?: string
+  code: string
+  name: string
+  symbol: string
+  network: string
+  icon: string
 }
 
-type GatewayItem = {
-  identifier: string
-  cryptoCurrencies: Currency[]
+type OnRamperGatewaysResponse = {
+  message: {
+    crypto: Crypto[]
+  }
 }
 
 const getGatewayData = async () => {
@@ -35,14 +29,14 @@ const getGatewayData = async () => {
     const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
     const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
     return (
-      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}gateways?includeIcons=true`, {
+      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}supported`, {
         headers: {
-          Authorization: `Basic ${apiKey}`,
+          Authorization: apiKey,
         },
       })
     ).data
   } catch (e) {
-    moduleLogger.error(e, 'Failed to fetch assets')
+    console.error(e)
   }
 }
 
@@ -142,15 +136,15 @@ export const getOnRamperAssets = async (): Promise<AssetId[]> => {
   return convertOnRamperDataToFiatRampAsset(data)
 }
 
-const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] =>
-  Array.from(
+const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] => {
+  return Array.from(
     new Set(
-      response.gateways
-        .flatMap(gateway => gateway.cryptoCurrencies)
-        .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
+      response.message.crypto
+        .map(currency => adapters.onRamperTokenIdToAssetId(currency.id))
         .filter((assetId): assetId is AssetId => Boolean(assetId)),
     ),
   )
+}
 
 export const createOnRamperUrl = ({
   action,
@@ -183,7 +177,7 @@ export const createOnRamperUrl = ({
   }
   params.set('language', language)
 
-  params.set('darkMode', mode === 'dark' ? 'true' : 'false')
+  params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)
 
   return `${baseUrl.toString()}?${params.toString()}`

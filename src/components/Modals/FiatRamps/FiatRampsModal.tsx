@@ -1,5 +1,4 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { useModal } from 'hooks/useModal/useModal'
@@ -7,7 +6,7 @@ import { breakpoints } from 'theme/theme'
 
 import type { FiatRampAction } from './FiatRampsCommon'
 
-type FiatRampsModalProps = {
+export type FiatRampsModalProps = {
   assetId: AssetId
   accountId?: AccountId
   fiatRampAction: FiatRampAction
@@ -18,8 +17,7 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
   assetId,
   accountId,
 }) => {
-  const { fiatRamps } = useModal()
-  const { close, isOpen } = fiatRamps
+  const { close, isOpen } = useModal('fiatRamps')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   return (

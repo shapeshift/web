@@ -8,6 +8,9 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 
+import { CoinbaseConnect } from './Coinbase/components/Connect'
+import { CoinbaseFailure } from './Coinbase/components/Failure'
+import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyDisconnect } from './KeepKey/components/Disconnect'
@@ -53,28 +56,28 @@ import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
-import { PortisConnect } from './Portis/components/Connect'
-import { PortisFailure } from './Portis/components/Failure'
-import { PortisConfig } from './Portis/config'
 import { KeepKeyRoutes } from './routes'
-import { TallyHoConnect } from './TallyHo/components/Connect'
-import { TallyHoFailure } from './TallyHo/components/Failure'
-import { TallyHoConfig } from './TallyHo/config'
 import { WalletConnectConnect } from './WalletConnect/components/Connect'
 import { WalletConnectFailure } from './WalletConnect/components/Failure'
 import { WalletConnectConfig } from './WalletConnect/config'
+import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
+import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
+import { WalletConnectV2Start } from './WalletConnectV2/components/Start'
+import { WalletConnectV2Config } from './WalletConnectV2/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
-  adapter: any
+  adapters: any[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
+  description?: string
   routes: RouteProps[]
   connectedWalletMenuRoutes?: RouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
+  connectedMenuComponent?: React.ComponentType<any>
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
@@ -93,8 +96,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       // WalletProvider.create looks for the first path that ends in "create"
       { path: '/mobile/legacy/create', component: MobileLegacyCreate },
     ],
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+    connectedMenuComponent: NativeMenu,
   },
   [KeyManager.Native]: {
     ...NativeConfig,
@@ -111,8 +113,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/legacy/login', component: NativeLegacyLogin },
       { path: '/native/legacy/login/success', component: NativeLegacySuccess },
     ],
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+    connectedMenuComponent: NativeMenu,
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
@@ -147,25 +148,18 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
   },
-  [KeyManager.Portis]: {
-    ...PortisConfig,
-    routes: [
-      { path: '/portis/connect', component: PortisConnect },
-      { path: '/portis/failure', component: PortisFailure },
-    ],
-  },
-  [KeyManager.TallyHo]: {
-    ...TallyHoConfig,
-    routes: [
-      { path: '/tallyho/connect', component: TallyHoConnect },
-      { path: '/tallyho/failure', component: TallyHoFailure },
-    ],
-  },
   [KeyManager.XDefi]: {
     ...XDEFIConfig,
     routes: [
       { path: '/xdefi/connect', component: XDEFIConnect },
       { path: '/xdefi/failure', component: XDEFIFailure },
+    ],
+  },
+  [KeyManager.Coinbase]: {
+    ...CoinbaseConfig,
+    routes: [
+      { path: '/coinbase/connect', component: CoinbaseConnect },
+      { path: '/coinbase/failure', component: CoinbaseFailure },
     ],
   },
   [KeyManager.Demo]: {
@@ -184,6 +178,14 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/keplr/connect', component: KeplrConnect },
       { path: '/keplr/failure', component: KeplrFailure },
+    ],
+  },
+  [KeyManager.WalletConnectV2]: {
+    ...WalletConnectV2Config,
+    routes: [
+      { path: '/walletconnectv2/connect', component: WalletConnectV2Start },
+      { path: '/walletconnectv2/load', component: WalletConnectV2Load },
+      { path: '/walletconnectv2/create', component: WalletConnectV2Create },
     ],
   },
 }

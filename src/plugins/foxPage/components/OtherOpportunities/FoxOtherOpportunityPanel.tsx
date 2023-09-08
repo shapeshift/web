@@ -1,14 +1,16 @@
-import { Badge, Box, Flex } from '@chakra-ui/layout'
 import {
   AccordionButton,
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Badge,
+  Box,
+  Flex,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { ExternalOpportunity, OpportunityTypes } from '../../FoxCommon'
 import { FoxOtherOpportunityPanelRow } from './FoxOtherOpportunityPanelRow'
@@ -50,7 +52,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
           >
             {opportunities.length}
           </Badge>
-          <AccordionIcon color='gray.500' />
+          <AccordionIcon color='text.subtle' />
         </Flex>
       </AccordionButton>
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>

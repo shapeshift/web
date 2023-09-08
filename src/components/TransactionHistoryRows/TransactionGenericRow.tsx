@@ -30,7 +30,7 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
   if (isLargerThanSm) {
     columns = '1fr 2fr'
-    dateFormat = 'hh:mm A'
+    dateFormat = 'LT'
   }
   if (isLargerThanMd) {
     columns = '1fr 2fr'
@@ -130,13 +130,21 @@ export const TransactionGenericRow = ({
     })
   }, [compactMode, transfersByType])
 
+  const isNft = useMemo(() => {
+    return Object.values(transfersByType)
+      .flat()
+      .some(transfer => !!transfer.id)
+  }, [transfersByType])
+
   const cryptoValue = useMemo(() => {
     if (!fee) return '0'
     return fromBaseUnit(fee.value, fee.asset.precision)
   }, [fee])
 
   const fiatValue = useMemo(() => {
-    return bnOrZero(fee?.marketData?.price).times(cryptoValue).toString()
+    return bnOrZero(fee?.marketData?.price)
+      .times(cryptoValue)
+      .toString()
   }, [fee?.marketData?.price, cryptoValue])
 
   return (
@@ -193,6 +201,17 @@ export const TransactionGenericRow = ({
                     IBC
                   </Tag>
                 )}
+                {isNft && (
+                  <Tag
+                    size='sm'
+                    colorScheme='blue'
+                    variant='subtle'
+                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
+                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                  >
+                    NFT
+                  </Tag>
+                )}
               </Flex>
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>
@@ -211,7 +230,7 @@ export const TransactionGenericRow = ({
             }}
             fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
             divider={
-              <Box border={0} color='gray.500' fontSize='sm'>
+              <Box border={0} color='text.subtle' fontSize='sm'>
                 <FaArrowRight />
               </Box>
             }
@@ -231,7 +250,7 @@ export const TransactionGenericRow = ({
                     symbol={fee.asset.symbol}
                     maximumFractionDigits={6}
                   />
-                  <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatValue} />
+                  <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={fiatValue} />
                 </Box>
               </Flex>
             )}

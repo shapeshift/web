@@ -6,12 +6,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { XDEFIConfig } from '../config'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface XDEFISetupProps
   extends RouteComponentProps<
@@ -42,7 +40,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
-        const wallet = (await state.adapters.get(KeyManager.XDefi)?.pairDevice()) as
+        const wallet = (await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()) as
           | XDEFIHDWallet
           | undefined
         if (!wallet) {
@@ -62,14 +60,14 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.XDefi },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.XDefi, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          moduleLogger.error(e, 'XDEFI Connect: There was an error initializing the wallet')
+          console.error(e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.xdefi.errors.unknown')

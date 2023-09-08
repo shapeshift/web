@@ -5,11 +5,9 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface KeplrSetupProps
   extends RouteComponentProps<
@@ -31,7 +29,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
     setError(null)
     setLoading(true)
     if (state.adapters && state.adapters?.has(KeyManager.Keplr)) {
-      const wallet = await state.adapters.get(KeyManager.Keplr)?.pairDevice()
+      const wallet = await state.adapters.get(KeyManager.Keplr)?.[0].pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-keplr::pairDevice returned null or undefined')
@@ -50,7 +48,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Keplr },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)
@@ -64,7 +62,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         window.addEventListener('keplr_keystorechange', resetState)
       } catch (e: any) {
-        moduleLogger.error(e, 'Keplr: There was an error initializing the wallet')
+        console.error(e)
         setErrorLoading(e?.message || 'walletProvider.keplr.errors.unknown')
         history.push('/keplr/failure')
       }

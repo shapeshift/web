@@ -8,3 +8,11 @@ a19b440bd20285cf4ae1928cd31a449c08c8a1d1
 47c64e5d7ce4d4702dacac14e61e949aac5415b7
 # chore: add import/no-duplicates rule (#3287)
 67806f1058fd76904ecbcf734d9f2df72f8ce9aa
+# chore: add trailing comma lint rule (#975)
+505516c23b582ff1cd2d684b6c84a117157e3423
+# chore: add array-type lint rule (#1017)
+cfd28ee08c22be19069c5b88d025deb5fc699cef
+# chore: monorail choo choo (#4208)
+1e3429b18e91bf61f235c59c46c2134626e44012
+# fix: lint after tsc and lint packages update (#5212)
+1bd800e608297b5bff9275cd33bacc33b2e2e31a

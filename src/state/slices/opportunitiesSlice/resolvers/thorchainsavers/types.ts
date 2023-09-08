@@ -1,6 +1,4 @@
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-
-import type { OpportunityMetadataBase } from '../../types'
+import type { DefiProvider, DefiType, OpportunityMetadataBase } from '../../types'
 
 export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   provider: DefiProvider.ThorchainSavers
@@ -9,6 +7,23 @@ export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   isFull: boolean
 }
 
+type MidgardPoolStatus = 'available' | 'staged' | 'suspended'
+export type MidgardPoolPeriod =
+  | '1h'
+  | '24h'
+  | '7d'
+  | '14d'
+  | '30d'
+  | '90d'
+  | '100d'
+  | '180d'
+  | '365d'
+  | 'all'
+
+export type MidgardPoolRequest = {
+  status?: MidgardPoolStatus
+  period?: MidgardPoolPeriod
+}
 export type MidgardPoolResponse = {
   annualPercentageRate: string
   asset: string

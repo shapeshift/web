@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Flex, Image, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import bannerImg from 'assets/dapps-banner.png'
 import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
@@ -13,15 +13,15 @@ export const ExplorationBanner: FC = () => {
   } = useWallet()
   return (
     <Box
-      borderWidth={1}
+      borderWidth={{ base: 0, md: 1 }}
       borderColor={useColorModeValue('blackAlpha.50', 'gray.750')}
       borderRadius='lg'
+      bgImage={{ base: 'none', lg: bannerImg }}
+      backgroundRepeat='no-repeat'
+      backgroundPosition='right center'
     >
-      <Stack direction='row' spacing={4}>
-        <Flex flex={1}>
-          <Image objectFit='cover' boxSize='100%' src={bannerImg} />
-        </Flex>
-        <Stack flex={2} alignSelf='center' spacing={4} p={8}>
+      <Flex direction='row' gap={4}>
+        <Stack ml={0} width='full' alignSelf='center' spacing={4} p={{ base: 4, md: 8 }}>
           <Avatar
             bg='gray.700'
             icon={
@@ -37,7 +37,7 @@ export const ExplorationBanner: FC = () => {
             />
             <Text
               translation='plugins.walletConnectToDapps.registry.banner.subtitle'
-              color='gray.500'
+              color='text.subtle'
             />
           </Box>
 
@@ -55,7 +55,7 @@ export const ExplorationBanner: FC = () => {
               as={Link}
               colorScheme='blue'
               size='sm'
-              variant='ghost'
+              variant='link'
               href='https://shapeshift.zendesk.com/hc/en-us/articles/10316252789645'
               isExternal
             >
@@ -63,7 +63,7 @@ export const ExplorationBanner: FC = () => {
             </Button>
           </Stack>
         </Stack>
-      </Stack>
+      </Flex>
     </Box>
   )
 }

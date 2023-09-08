@@ -1,5 +1,4 @@
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -18,6 +17,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -142,7 +142,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData || !opportunityData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -154,7 +154,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          title={translate('modals.deposit.depositInto', { opportunity: opportunityData.name })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

@@ -2,16 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'MtPelerin'],
-})
 
 type MtPelerinResponse = {
   [identifier: string]: {
@@ -45,7 +40,7 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
       const { data } = await axios.get<MtPelerinResponse>(url)
       return data
     } catch (e) {
-      moduleLogger.error(e, 'Failed to fetch assets')
+      console.error(e)
     }
   })()
 
@@ -60,10 +55,13 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
 export const createMtPelerinUrl = ({
   action,
   assetId,
+  fiatCurrency,
   options: { mode, language },
 }: CreateUrlProps): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
+  const mtPelerinFiatCurrency =
+    getMtPelerinFiatCurrencies().find(currency => currency === fiatCurrency) ?? 'EUR'
   /**
    * url usage:
    *   https://developers.mtpelerin.com/integration-guides/web-integration
@@ -86,12 +84,12 @@ export const createMtPelerinUrl = ({
     // Default sell tab source currency
     params.set('ssc', mtPelerinSymbol)
     // Default sell tab destination currency
-    params.set('sdc', 'EUR')
+    params.set('sdc', mtPelerinFiatCurrency)
   } else {
     // Default buy tab destination currency
     params.set('bdc', mtPelerinSymbol)
     // Default buy tab source currency
-    params.set('bsc', 'EUR')
+    params.set('bsc', mtPelerinFiatCurrency)
   }
   const network = adapters.getMtPelerinNetFromAssetId(assetId)
   if (!network) throw new Error('Network not supported by MtPelerin')

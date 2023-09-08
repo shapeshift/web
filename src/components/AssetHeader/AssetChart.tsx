@@ -4,7 +4,10 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Card,
+  CardHeader,
   Flex,
+  Heading,
   Skeleton,
   Stack,
   Stat,
@@ -15,31 +18,32 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
-import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
+import { useIsBalanceChartDataUnavailable } from 'hooks/useBalanceChartData/utils'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import {
   selectAssetById,
+  selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
-  selectPortfolioStakingCryptoHumanBalanceByFilter,
+  selectUserCurrencyBalanceIncludingStakingByFilter,
+  selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
+  selectUserStakingOpportunitiesAggregatedByFilterUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useIsBalanceChartDataUnavailable } from '../../hooks/useBalanceChartData/utils'
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
 
 enum View {
@@ -59,7 +63,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const assetIds = useMemo(() => [assetId].filter(isSome), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -69,27 +75,32 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const defaultView = accountId && !isBalanceChartDataUnavailable ? View.Balance : View.Price
   const [view, setView] = useState(defaultView)
 
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
+  const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const userCurrencyBalance = useAppSelector(s =>
+    selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+  )
   const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+  )
+  const stakingBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit(state, opportunitiesFilter),
   )
 
-  const stakingFiatBalance = useAppSelector(s =>
-    selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
+  const stakingBalanceUserCurrency = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterUserCurrency(state, opportunitiesFilter),
   )
 
   useEffect(() => {
     if (isBalanceChartDataUnavailable) return
-    if (bnOrZero(fiatBalance).eq(0)) return
+    if (bnOrZero(userCurrencyBalance).eq(0)) return
     setView(View.Balance)
-  }, [fiatBalance, isBalanceChartDataUnavailable])
+  }, [userCurrencyBalance, isBalanceChartDataUnavailable])
 
   return (
-    <Card>
-      <Card.Header>
+    <Card variant='outline'>
+      <CardHeader>
         <Flex
           justifyContent={{ base: 'center', md: 'space-between' }}
           width='full'
@@ -109,20 +120,20 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           </Skeleton>
 
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
-            <TimeControls onChange={setTimeframe} defaultTime={timeframe} />
+            <TimeControls onChange={handleTimeframeChange} defaultTime={timeframe} />
           </Skeleton>
         </Flex>
         <Box width='full' alignItems='center' display='flex' flexDir='column' mt={6}>
-          <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
+          <Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : toFiat(fiatBalance)}
+                value={view === View.Price ? assetPrice : toFiat(userCurrencyBalance)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}
               />
             </Skeleton>
-          </Card.Heading>
+          </Heading>
           <StatGroup>
             <Stat size='sm' display='flex' flex='initial' mr={2}>
               <Skeleton isLoaded={isLoaded}>
@@ -137,14 +148,14 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Skeleton>
             </Stat>
             {view === View.Balance && (
-              <Stat size='sm' color='gray.500'>
+              <Stat size='sm' color='text.subtle'>
                 <Skeleton isLoaded={isLoaded}>
                   <StatNumber>{`${cryptoHumanBalance} ${asset?.symbol ?? ''}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(stakingFiatBalance).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingBalanceUserCurrency).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -161,7 +172,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
-                    value={stakingFiatBalance}
+                    value={stakingBalanceCryptoBaseUnit
+                      .div(bn(10).pow(asset?.precision ?? 1))
+                      .toFixed()}
                     symbol={asset?.symbol ?? ''}
                     suffix={translate('defi.staked')}
                   />
@@ -172,7 +185,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             </Flex>
           )}
         </Box>
-      </Card.Header>
+      </CardHeader>
       {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart
@@ -196,7 +209,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
       )}
       <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
         <TimeControls
-          onChange={setTimeframe}
+          onChange={handleTimeframeChange}
           defaultTime={timeframe}
           buttonGroupProps={{
             display: 'flex',

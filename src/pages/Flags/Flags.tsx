@@ -1,22 +1,29 @@
-import { Alert } from '@chakra-ui/alert'
-import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Heading,
+  HStack,
+  Stack,
+  StackDivider,
+} from '@chakra-ui/react'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
-import { logger } from 'lib/logger'
-import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import type { AppDispatch } from 'state/store'
 import { clearState, useAppSelector } from 'state/store'
 
+import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
-
-const moduleLogger = logger.child({ namespace: ['Flags'] })
 
 const FlagHeader = () => {
   return (
@@ -48,7 +55,7 @@ export const Flags = () => {
       setError(null)
       history.push('/')
     } catch (e) {
-      moduleLogger.error(e, 'handleReset: ')
+      console.error(e)
       setError(String((e as Error)?.message))
     }
   }
@@ -58,7 +65,7 @@ export const Flags = () => {
       dispatch(slices.preferences.actions.clearFeatureFlags())
       setError(null)
     } catch (e) {
-      moduleLogger.error(e, 'handleResetPreferences: ')
+      console.error(e)
       setError(String((e as Error)?.message))
     }
   }
@@ -67,29 +74,28 @@ export const Flags = () => {
     <Main titleComponent={<FlagHeader />}>
       <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
         <Card flex={1}>
-          <Card.Header>
-            <RawText color='gray.500'>
+          <CardHeader>
+            <RawText color='text.subtle'>
               Turn on and off flags by toggling the switch then press "Apply" to reset the
               application.
             </RawText>
-          </Card.Header>
-          <Card.Body>
+          </CardHeader>
+          <CardBody>
             <Stack divider={<StackDivider />}>
               {Object.keys(featureFlags).map((flag, idx) => (
                 <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
               ))}
             </Stack>
-          </Card.Body>
-          <Card.Footer>
+          </CardBody>
+          <CardFooter>
             <HStack my={4} width='full'>
               <Button onClick={handleApply} colorScheme='blue'>
                 Apply
               </Button>
               <Button onClick={handleResetPreferences}>Reset Flags to Default</Button>
             </HStack>
-          </Card.Footer>
+          </CardFooter>
         </Card>
-
         <Debugging />
       </Stack>
       {error && (

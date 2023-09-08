@@ -16,8 +16,11 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
@@ -34,6 +37,7 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
+  const assets = useAppSelector(selectAssets)
   const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
 
   // TODO: We need to get the fee asset from the Opportunity
@@ -50,7 +54,9 @@ export const Status = () => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+
+  const opportunity = state?.opportunity
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
@@ -64,19 +70,41 @@ export const Status = () => {
         type: IdleDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          usedGasFeeCryptoBaseUnit: confirmedTransaction.fee?.value,
         },
       })
     }
   }, [confirmedTransaction, dispatch])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.deposit.txStatus === 'success' && opportunity) {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    assetId,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+    assets,
+  ])
 
   if (!state) return null
 
@@ -150,19 +178,19 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
+                    ? state.deposit.estimatedGasCryptoBaseUnit
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
+                    ? state.deposit.estimatedGasCryptoBaseUnit
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

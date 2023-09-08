@@ -1,5 +1,4 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { ModalCloseButton } from '@chakra-ui/modal'
 import {
   Alert,
   AlertDescription,
@@ -8,6 +7,7 @@ import {
   Code,
   IconButton,
   ModalBody,
+  ModalCloseButton,
   ModalFooter,
   ModalHeader,
   Tag,
@@ -24,14 +24,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { Revocable, revocable } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from 'hooks/useModal/useModal'
-import { logger } from 'lib/logger'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'Native', 'BackupNativePassphrase'],
-})
 
 export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
@@ -44,11 +39,9 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     revealedOnce.current = true
     setRevealed(!revealed)
   }
-  const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+  const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
+  const preventClose = backupNativePassphraseProps?.preventClose
+
   const alertColor = useColorModeValue('blue.500', 'blue.200')
 
   useUnmountEffect(() => {
@@ -80,7 +73,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         ) ?? null
       )
     } catch (e) {
-      moduleLogger.error(e, 'failed to get Secret Recovery Phrase')
+      console.error(e)
     }
 
     return null
@@ -120,7 +113,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
       {!preventClose && <ModalCloseButton />}
       <ModalBody>
         <Text
-          color='gray.500'
+          color='text.subtle'
           translation={'modals.shapeShift.backupPassphrase.info.description'}
           mb={6}
         />
@@ -139,7 +132,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

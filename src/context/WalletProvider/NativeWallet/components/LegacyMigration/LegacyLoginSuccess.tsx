@@ -35,7 +35,7 @@ export const LegacyLoginSuccess: React.FC<LegacyLoginSuccessProps> = ({ onContin
           mb={4}
         />
         <Text
-          color='gray.500'
+          color='text.subtle'
           mb={4}
           translation={'walletProvider.shapeShift.legacy.importInformations'}
         />

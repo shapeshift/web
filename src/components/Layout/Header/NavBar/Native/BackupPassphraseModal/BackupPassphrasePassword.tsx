@@ -24,15 +24,12 @@ import { RawText, Text } from 'components/Text'
 import type { NativeWalletValues } from 'context/WalletProvider/NativeWallet/types'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
-const moduleLogger = logger.child({ namespace: ['BackupPassphrasePassword'] })
-
 /**
- * This component only works for NATIVE wallets encrypted using hdwallet Vault
+ * This component only works for ShapeShift wallets encrypted using hdwallet Vault
  */
 export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const { revocableWallet } = props
@@ -40,11 +37,9 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const history = useHistory()
   const { state } = useWallet()
   const { walletInfo } = state
-  const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+
+  const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
+  const preventClose = backupNativePassphraseProps?.preventClose
 
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -63,7 +58,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
       vault.seal()
       history.push(BackupPassphraseRoutes.Info)
     } catch (e) {
-      moduleLogger.error(e, { fn: 'BackupPassphrasePassword:onSubmit' }, 'Invalid password')
+      console.error(e)
       setError(
         'password',
         {

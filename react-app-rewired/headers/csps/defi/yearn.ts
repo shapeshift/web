@@ -2,8 +2,7 @@ import type { Csp } from '../../types'
 
 export const csp: Csp = {
   'connect-src': [
-    // @shapeshiftoss/asset-service@1.10.0: https://github.com/shapeshift/lib/blob/636c6c9460ac5ae4d1189165eddd3a105406e0ef/packages/asset-service/src/generateAssetData/ethTokens/extendErc20.ts#L45
-    // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/yearn/yearn.ts#L30
+    // lib/market-service/src/yearn/yearn.ts
     'https://api.yearn.finance',
     // @yfi/sdk@1.0.28 https://github.com/yearn/yearn-sdk/blob/master/src/context.ts#L73
     'https://cache.yearn.finance/v1/chains/',
@@ -22,7 +21,7 @@ export const csp: Csp = {
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/assets.ts#L13
     'https://api.github.com/repos/yearn/yearn-assets/',
     // Fetching directly from ydaemon since yfi/sdk is broken upstream
-    'https://ydaemon.yearn.finance/api/1/vaults/all'
+    'https://ydaemon.yearn.finance/api/1/vaults/all',
   ],
   'img-src': [
     'https://rawcdn.githack.com/yearn/yearn-assets/',

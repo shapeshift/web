@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -9,7 +8,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -17,27 +15,29 @@ import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Deposit'] })
-
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
-} & StepComponentProps
+}
 
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
@@ -50,6 +50,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
+  const assets = useAppSelector(selectAssets)
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -89,17 +90,17 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && assetReference && idleInvestor && accountId && opportunityData)) return
       try {
@@ -115,10 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -150,10 +148,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .integerValue()
         .toString()
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getApproveEstimate', error },
-        'Error getting deposit approval gas estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -180,26 +175,35 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: IdleDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
+          trackOpportunityEvent(
+            MixPanelEvents.DepositContinue,
+            {
+              opportunity: opportunityData,
+              fiatAmounts: [formValues.fiatAmount],
+              cryptoAmounts: [{ amountCryptoHuman: formValues.cryptoAmount, assetId }],
+            },
+            assets,
+          )
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
           dispatch({
             type: IdleDepositActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -215,11 +219,13 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       idleInvestor,
       asset.precision,
-      getDepositGasEstimate,
+      getDepositGasEstimateCryptoBaseUnit,
       onNext,
+      assetId,
       getApproveGasEstimate,
       toast,
       translate,
+      assets,
     ],
   )
 

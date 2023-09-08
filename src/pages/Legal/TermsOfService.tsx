@@ -112,17 +112,17 @@ export const TermsOfService = () => {
               decision as to which one is right for you.
             </RawText>
             <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
-              <RawText as='strong'>The ShapeShift Native Wallet:</RawText> Similar to the Platform,
-              the ShapeShift native wallet (&quot;
-              <RawText as='strong'>Native Wallet</RawText>&quot;) was originally designed and
+              <RawText as='strong'>The ShapeShift Wallet:</RawText> Similar to the Platform, the
+              ShapeShift wallet (&quot;
+              <RawText as='strong'>ShapeShift Wallet</RawText>&quot;) was originally designed and
               operated by ShapeShift AG and has since had its codebase open-sourced. The code can be
               reviewed{' '}
               <Link href='https://github.com/shapeshift/hdwallet'>
                 <RawText as='strong'>here</RawText>
               </Link>
-              . All references to the Platform in these terms also include the Native Wallet,
-              meaning that the Native Wallet is provided for free, on an as-is basis, should be used
-              at your own risk, and that the disclaimer of warranties below applies.
+              . All references to the Platform in these terms also include the ShapeShift Wallet,
+              meaning that the ShapeShift Wallet is provided for free, on an as-is basis, should be
+              used at your own risk, and that the disclaimer of warranties below applies.
             </RawText>
             <RawText as='dt'>
               <RawText as='strong'>The Dashboard:</RawText> Through our Platform's dashboard

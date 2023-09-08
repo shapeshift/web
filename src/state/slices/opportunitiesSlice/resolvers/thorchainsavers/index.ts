@@ -1,9 +1,9 @@
-import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { adapters, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -14,7 +14,8 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
-import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import { DefiProvider, DefiType } from '../../types'
+import { serializeUserStakingId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -37,7 +38,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   }
 
   const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
-    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentPool.asset)
+    const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (
       bnOrZero(currentPool.savers_depth).gt(0) &&
@@ -57,7 +58,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
 export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityIds,
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -71,12 +72,12 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
   }
 
-  const midgardPools = await getMidgardPools()
+  const midgardPools = await getMidgardPools('7d')
 
   // It might be tempting to paralelize the two THOR requests - don't
   // Midgard is less reliable, so there's no point to continue the flow if this fails
@@ -93,7 +94,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of thorchainPools) {
-    const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
+    const assetId = poolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
     const opportunityId = assetId as StakingId
@@ -113,7 +114,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
     const tvl = fromThorBaseUnit(thorchainPool.synth_supply).times(marketData.price).toFixed()
-    const saversMaxSupplyFiat = fromThorBaseUnit(
+    const saversMaxSupplyUserCurrency = fromThorBaseUnit(
       bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
     )
       .times(marketData.price)
@@ -123,6 +124,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
+      id: opportunityId,
       provider: DefiProvider.ThorchainSavers,
       tvl,
       type: DefiType.Staking,
@@ -132,81 +134,84 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
       name: `${underlyingAsset.symbol} Vault`,
-      saversMaxSupplyFiat,
+      saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
+      isClaimableRewards: false,
     }
   }
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
+  opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
+  const data = {
+    byId: stakingOpportunitiesUserDataByUserStakingId,
+    type: defiType,
+  }
 
   try {
-    const stakingOpportunityId = accountIdToFeeAssetId(accountId)
+    for (const stakingOpportunityId of opportunityIds) {
+      const asset = selectAssetById(state, stakingOpportunityId)
+      if (!asset)
+        throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
-    if (!stakingOpportunityId)
-      throw new Error(`Cannot get stakingOpportunityId for accountId: ${accountId}`)
+      const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
 
-    const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset)
-      throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
+      const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-      assetReference: fromAssetId(stakingOpportunityId).assetReference,
-      chainId: fromAssetId(stakingOpportunityId).chainId,
-    }
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+      if (!allPositions.length)
+        throw new Error(
+          `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
+        )
 
-    const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
+      const accountPosition = await getThorchainSaversPosition({
+        accountId,
+        assetId: stakingOpportunityId,
+      })
 
-    if (!allPositions.length)
-      throw new Error(
-        `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
-      )
+      // No position on that pool - either it was never staked in, or fully withdrawn
+      if (!accountPosition) {
+        stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+          userStakingId,
+          stakedAmountCryptoBaseUnit: '0',
+          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+        }
+        continue
+      }
 
-    const accountPosition = await getThorchainSaversPosition({
-      accountId,
-      assetId: stakingOpportunityId,
-    })
+      const { asset_deposit_value, asset_redeem_value } = accountPosition
 
-    const { asset_deposit_value, asset_redeem_value } = accountPosition
+      const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
+        bn(10).pow(asset.precision),
+      ) // to actual asset precision base unit
 
-    const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
-      bn(10).pow(asset.precision),
-    ) // to actual asset precision base unit
+      const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
+        bn(10).pow(asset.precision),
+      ) // to actual asset precision base unit
 
-    const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
-      bn(10).pow(asset.precision),
-    ) // to actual asset precision base unit
+      const rewardsAmountsCryptoBaseUnit: [string] = [
+        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
+      ]
 
-    const rewardsAmountsCryptoBaseUnit: [string] = [
-      stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
-    ]
-
-    stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
-      rewardsAmountsCryptoBaseUnit,
-    }
-
-    const data = {
-      byId: stakingOpportunitiesUserDataByUserStakingId,
-      type: opportunityType,
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
+        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
+        rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
+      }
     }
 
     return Promise.resolve({ data })
@@ -214,7 +219,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     return Promise.resolve({
       data: {
         byId: stakingOpportunitiesUserDataByUserStakingId,
-        type: opportunityType,
+        type: defiType,
       },
     })
   }

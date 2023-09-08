@@ -18,12 +18,11 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,10 +33,6 @@ import { Withdraw } from './components/Withdraw'
 import { CosmosWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosWithdraw'],
-})
 
 type CosmosWithdrawProps = {
   accountId: AccountId | undefined
@@ -50,21 +45,15 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
 
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
-  })
-  const underlyingAssetId = toAssetId({
-    // TODO: Underlying asset is the same as the staked asset for now, handle multiple denoms
-    chainId,
-    assetNamespace,
     assetReference,
   })
+  const underlyingAssetId = assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
 
@@ -84,40 +73,36 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ) ?? {},
-    [opportunities, contractAddress],
-  ) as unknown as MergedActiveStakingOpportunity // TODO: remove casting
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
-    if (!bip44Params) return
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
+    try {
+      if (!(walletState.wallet && validatorAddress && chainAdapter)) return
 
-        dispatch({
-          type: CosmosWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
-        })
-        dispatch({
-          type: CosmosWithdrawActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosWithdraw error')
-      }
-    })()
-  }, [bip44Params, cosmosOpportunity, chainAdapter, contractAddress, walletState.wallet])
+      dispatch({
+        type: CosmosWithdrawActionType.SET_OPPORTUNITY,
+        payload: { ...earnOpportunityData },
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      console.error(error)
+    }
+  }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -136,7 +121,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, translate, underlyingAsset?.symbol])
@@ -151,7 +136,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     })
   }
 
-  if (!cosmosOpportunity?.isLoaded || !asset || !marketData || !feeMarketData)
+  if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

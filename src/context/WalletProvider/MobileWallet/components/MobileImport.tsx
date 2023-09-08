@@ -13,22 +13,13 @@ import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { mobileLogger } from '../config'
 import { addWallet } from '../mobileMessageHandlers'
 
 type FormValues = { mnemonic: string; name: string }
 
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileImport'],
-})
-
 export const MobileImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FormValues) => {
     try {
-      moduleLogger.trace(
-        { name: values.name, mnemonicLength: values.mnemonic.length },
-        'Import a wallet',
-      )
       // Save the wallet in the mobile app
       const vault = await addWallet({
         mnemonic: values.mnemonic.toLowerCase().trim(),
@@ -36,7 +27,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
       })
       history.push('/mobile/success', { vault })
     } catch (e) {
-      moduleLogger.error(e, 'Error importing a wallet')
+      console.log(e)
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
   }
@@ -56,7 +47,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
+        <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea

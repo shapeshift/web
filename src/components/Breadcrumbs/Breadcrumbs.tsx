@@ -40,14 +40,16 @@ const GetAssetName = (props: {
 }) => {
   const {
     match: {
-      params: { chainId, assetSubId, assetId: assetIdParam, poolId },
+      params: { chainId, assetSubId, assetId: assetIdParam, nftId },
     },
   } = props
 
   const assetId: string = (() => {
     if (assetIdParam) return decodeURIComponent(assetIdParam)
-    // If we have a poolId it's an Osmosis pool asset
-    if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
+
+    // add nft segment and nftId attribute for nft assets
+    if (nftId) return `${chainId}/${assetSubId}/${nftId}`
+
     return `${chainId}/${assetSubId}`
   })()
 
@@ -57,11 +59,11 @@ const GetAssetName = (props: {
 
 const routes: BreadcrumbsRoute[] = [
   {
-    path: '/accounts/:accountId',
+    path: '/dashboard/accounts/:accountId',
     breadcrumb: GetAccountName,
     routes: [
-      { path: '/accounts/:accountId/transactions' },
-      { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
+      { path: '/dashboard/accounts/:accountId/transactions' },
+      { path: '/dashboard/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
   {
@@ -80,11 +82,8 @@ const options: Options = {
   excludePaths: [
     '/assets/:chainId',
     '/trade/:chainId',
-    // If it's an Osmosis pool asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
-    '/assets/:chainId/ibc:gamm',
-    '/assets/:chainId/ibc:gamm/pool',
-    '/trade/:chainId/ibc:gamm',
-    '/trade/:chainId/ibc:gamm/pool',
+    // Making /assets/<nftAssetId>/transactions happy
+    '/assets/:chainId/:assetSubId',
   ],
 }
 
@@ -93,7 +92,7 @@ export const Breadcrumbs = withBreadcrumbs(
   options,
 )(({ breadcrumbs }: { breadcrumbs: any[] }) => {
   return (
-    <Breadcrumb fontWeight='medium' fontSize='sm' color='gray.500'>
+    <Breadcrumb fontWeight='medium' fontSize='sm' color='text.subtle'>
       {breadcrumbs.map(
         ({ breadcrumb, match }: { breadcrumb: ReactNode; match: { url: string } }) => {
           return (

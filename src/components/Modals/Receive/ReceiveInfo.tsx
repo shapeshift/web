@@ -2,6 +2,8 @@ import { ArrowBackIcon, CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Circle,
   Flex,
   HStack,
@@ -18,21 +20,21 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { useEnsName } from 'wagmi'
+import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
+import { viemClient } from 'lib/viem-client'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,7 +48,7 @@ type ReceivePropsType = {
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
-  const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
+  const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const chainAdapterManager = getChainAdapterManager()
@@ -61,14 +63,6 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
-
-  const { data: ensName, isSuccess: isEnsNameLoaded } = useEnsName({
-    address: receiveAddress,
-    enabled: asset.chainId === KnownChainIds.EthereumMainnet,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-  })
-
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
@@ -84,21 +78,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       })
       setReceiveAddress(selectedAccountAddress)
     })()
-  }, [
-    setReceiveAddress,
-    setEnsReceiveAddress,
-    accountType,
-    asset,
-    wallet,
-    chainAdapter,
-    bip44Params,
-  ])
+  }, [setReceiveAddress, setEnsName, accountType, asset, wallet, chainAdapter, bip44Params])
 
   useEffect(() => {
-    if (isEnsNameLoaded && ensName) {
-      setEnsReceiveAddress(ensName)
-    }
-  }, [ensName, isEnsNameLoaded])
+    if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return
+    viemClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
+  }, [asset.chainId, receiveAddress])
 
   const handleVerify = async () => {
     if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
@@ -175,7 +160,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     'modals.receive.onlySend',
                     { asset: name, symbol: symbol.toUpperCase() },
                   ]}
-                  color='gray.500'
+                  color='text.subtle'
                   textAlign='center'
                 />
               </SkeletonText>
@@ -187,9 +172,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
             />
             <Flex justifyContent='center'>
-              {ensReceiveAddress && (
-                <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
-                  {ensReceiveAddress}
+              {ensName && (
+                <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
+                  {ensName}
                 </Tag>
               )}
             </Flex>
@@ -205,14 +190,14 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               bg='white'
               boxShadow='lg'
             >
-              <Card.Body display='inline-block' textAlign='center' p={6}>
+              <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress}>
                     <Flex
-                      color='gray.500'
+                      color='text.subtle'
                       alignItems='center'
                       justifyContent='center'
                       fontSize='sm'
@@ -228,7 +213,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     </Flex>
                   </Skeleton>
                 </LightMode>
-              </Card.Body>
+              </CardBody>
             </Card>
           </ModalBody>
           <ModalFooter flexDir='column'>
@@ -236,21 +221,26 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               <Button
                 onClick={handleCopyClick}
                 padding={2}
-                color='gray.500'
+                color='text.subtle'
                 flexDir='column'
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
                 _hover={{ textDecoration: 'none', color: hoverColor }}
               >
-                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
+                <Circle
+                  bg='background.button.secondary.base'
+                  mb={2}
+                  size='40px'
+                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                >
                   <CopyIcon />
                 </Circle>
                 <Text translation='modals.receive.copy' />
               </Button>
               {!(wallet.getVendor() === 'Native') ? (
                 <Button
-                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.subtle'}
                   flexDir='column'
                   role='group'
                   variant='link'
@@ -259,10 +249,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                   onClick={handleVerify}
                 >
                   <Circle
-                    bg={bg}
+                    bg='background.button.secondary.base'
                     mb={2}
                     size='40px'
-                    _groupHover={{ bg: 'blue.500', color: 'white' }}
+                    _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
                   >
                     {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
@@ -278,14 +268,19 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 href={`${asset?.explorerAddressLink}${receiveAddress}`}
                 isExternal
                 padding={2}
-                color='gray.500'
+                color='text.subtle'
                 flexDir='column'
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
                 _hover={{ textDecoration: 'none', color: hoverColor }}
               >
-                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
+                <Circle
+                  bg='background.button.secondary.base'
+                  mb={2}
+                  size='40px'
+                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                >
                   <ExternalLinkIcon />
                 </Circle>
                 <Text translation='modals.receive.blockExplorer' />

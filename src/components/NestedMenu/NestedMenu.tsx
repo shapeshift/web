@@ -1,6 +1,4 @@
-import { Button } from '@chakra-ui/button'
-import { Box, Container, HStack } from '@chakra-ui/layout'
-import { useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Container, HStack, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, NavLink, useLocation, useParams } from 'react-router-dom'
@@ -52,7 +50,7 @@ const Menu = ({ routes, level }: MenuProps) => {
   if (!routeList?.length) return null
   return (
     <Box borderBottom='1px' borderColor={borderColor} bg={bg} data-level={level}>
-      <Container maxW='container.xl'>
+      <Container maxW='container.xl' px={{ base: 4, xl: 8 }}>
         <HStack>{routeList}</HStack>
       </Container>
     </Box>

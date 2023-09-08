@@ -1,14 +1,11 @@
-import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
+import { Button, Input, ModalBody, ModalHeader, useToast } from '@chakra-ui/react'
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
-const moduleLogger = logger.child({ namespace: ['Label'] })
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
@@ -29,8 +26,8 @@ export const KeepKeyLabel = () => {
     const resetMessage: ResetDevice = { label: label ?? '', pin: true }
     setDeviceState({ awaitingDeviceInteraction: true })
     await wallet?.reset(resetMessage).catch(async e => {
+      console.error(e)
       await wallet?.cancel()
-      moduleLogger.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message?.message ?? translate('common.somethingWentWrong'),
@@ -51,7 +48,7 @@ export const KeepKeyLabel = () => {
         <Text translation={'modals.keepKey.label.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.label.body'} mb={4} />
+        <Text color='text.subtle' translation={'modals.keepKey.label.body'} mb={4} />
         <Input
           type='text'
           value={label}
@@ -67,7 +64,7 @@ export const KeepKeyLabel = () => {
           size='lg'
           colorScheme='blue'
           onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
-          disabled={loading}
+          isDisabled={loading}
           mb={3}
         >
           <Text

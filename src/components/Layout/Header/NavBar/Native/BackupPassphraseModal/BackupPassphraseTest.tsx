@@ -51,11 +51,8 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   const [revoker] = useState(new (Revocable(class {}))())
   const [, setError] = useState<string | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
-  const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+  const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
+  const preventClose = backupNativePassphraseProps?.preventClose
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
   const shuffleMnemonic = useCallback(() => {
@@ -137,7 +134,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
         <RawText>
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
@@ -150,7 +147,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
           </Tag>{' '}
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>
@@ -162,8 +159,6 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
                   key={index}
                   flexGrow={4}
                   flexBasis='auto'
-                  variant='ghost-filled'
-                  colorScheme='blue'
                   onClick={() => handleClick(index)}
                 >
                   {word}
@@ -180,7 +175,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
               transform='translate(-50%, -50%)'
               left='50%'
               position='absolute'
-              color='gray.500'
+              color='text.subtle'
             />
           </Box>
           <Checkbox mb={4} spacing={4} onChange={onCheckBoxClick} isChecked={hasAlreadySaved}>

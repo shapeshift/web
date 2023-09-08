@@ -1,6 +1,6 @@
-import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 import { FoxyWithdrawActionType } from './WithdrawCommon'
@@ -12,14 +12,13 @@ export const initialState: FoxyWithdrawState = {
     stakingToken: '',
     provider: '',
     chain: KnownChainIds.EthereumMainnet,
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     expired: false,
     version: '',
     rewardToken: '',
     tvl: bn(0),
     apy: '',
   },
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -27,7 +26,7 @@ export const initialState: FoxyWithdrawState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoBaseUnit: '',
     withdrawType: WithdrawType.DELAYED,
   },
   foxyFeePercentage: '',
@@ -41,8 +40,6 @@ export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) =
       return { ...state, approve: action.payload }
     case FoxyWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case FoxyWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxyWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxyWithdrawActionType.SET_TXID:

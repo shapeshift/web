@@ -1,15 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import merge from 'lodash/merge'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
-} from '@shapeshiftoss/market-service'
-import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
-import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
-import merge from 'lodash/merge'
-import { logger } from 'lib/logger'
+} from 'lib/market-service'
+import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from 'lib/market-service'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
 import type {
@@ -18,8 +18,7 @@ import type {
 } from 'state/slices/marketDataSlice/types'
 
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
-
-const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
+import type { MarketDataById } from './types'
 
 const initialState: MarketDataState = {
   crypto: {
@@ -34,10 +33,13 @@ const initialState: MarketDataState = {
   },
 }
 
-// TODO: remove this once single and multi sided delegation abstraction is implemented
-// since foxEthLpAsset market data is monkey-patched, requesting its price history
-// will return an empty array which overrides the patch.
-const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
+const shouldIgnoreAsset = (assetId: AssetId | string): boolean => {
+  // TODO: remove this once single and multi sided delegation abstraction is implemented
+  // since foxEthLpAsset market data is monkey-patched, requesting its price history
+  // will return an empty array which overrides the patch.
+  const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
+  return ignoreAssetIds.includes(assetId)
+}
 
 export const defaultMarketData: MarketData = {
   price: '0',
@@ -46,32 +48,58 @@ export const defaultMarketData: MarketData = {
   changePercent24Hr: 0,
 }
 
+type CryptoPriceHistoryPayload = { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs }
+
 export const marketData = createSlice({
   name: 'marketData',
   initialState,
   reducers: {
     clear: () => initialState,
-    setCryptoMarketData: (state, { payload }) => {
-      state.crypto.byId = { ...state.crypto.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(payload)]))
-      state.crypto.ids = ids // upsert unique
+    setCryptoMarketData: {
+      reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
+        state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
+        state.crypto.ids = Object.keys(state.crypto.byId).sort((assetIdA, assetIdB) => {
+          const marketDataA = state.crypto.byId[assetIdA]
+          const marketDataB = state.crypto.byId[assetIdB]
+          if (!marketDataA || !marketDataB) return 0
+          const marketCapA = bnOrZero(marketDataA.marketCap)
+          const marketCapB = bnOrZero(marketDataB.marketCap)
+
+          return marketCapB.comparedTo(marketCapA)
+        })
+
+        // Rebuilds state.crypto.byId with the ordered index we just built above
+        state.crypto.byId = state.crypto.ids.reduce<Partial<Record<AssetId, MarketData>>>(
+          (acc, assetId) => {
+            acc[assetId] = state.crypto.byId[assetId]
+            return acc
+          },
+          {},
+        )
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<MarketDataById<AssetId>>(),
     },
-    setCryptoPriceHistory: (
-      state,
-      { payload }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
-    ) => {
-      const { args, data } = payload
-      const { assetId, timeframe } = args
-      const incoming = {
-        crypto: {
-          priceHistory: {
-            [timeframe]: {
-              [assetId]: data,
+    setCryptoPriceHistory: {
+      reducer: (state, { payload }: { payload: CryptoPriceHistoryPayload }) => {
+        const { args } = payload
+        const { assetId, timeframe } = args
+        const incoming = {
+          crypto: {
+            priceHistory: {
+              [timeframe]: {
+                [assetId]: payload.data,
+              },
             },
           },
-        },
-      }
-      merge(state, incoming)
+        }
+        merge(state, incoming)
+      },
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<CryptoPriceHistoryPayload>(),
     },
     setFiatMarketData: (
       state,
@@ -133,11 +161,12 @@ export const marketApi = createApi({
           return { error }
         }
       },
+      keepUnusedDataFor: 5, // Invalidate cached asset market data after 5 seconds.
     }),
     findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
-        if (ignoreAssetIds.includes(assetId)) return { data: [] }
+        if (shouldIgnoreAsset(assetId)) return { data: [] }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,
@@ -164,8 +193,8 @@ export const marketApi = createApi({
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
           return { data }
         } catch (e) {
+          console.error(e)
           const err = `findByFiatSymbol: no market data for ${symbol}`
-          moduleLogger.error(e, err)
           // set dummy data on error
           const data = { [symbol]: [] }
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
@@ -198,5 +227,9 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery, useFindByFiatSymbolQuery, useFindPriceHistoryByFiatSymbolQuery } =
-  marketApi
+export const {
+  useFindByAssetIdQuery,
+  useFindAllQuery,
+  useFindByFiatSymbolQuery,
+  useFindPriceHistoryByFiatSymbolQuery,
+} = marketApi

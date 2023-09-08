@@ -1,20 +1,10 @@
 import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
+import type { DefiProvider } from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
-export enum DefiType {
-  LiquidityPool = 'lp',
-  Vault = 'vault',
-  Staking = 'staking',
-  TokenStaking = 'token_staking',
-}
-
-export enum DefiProvider {
-  Idle = 'idle',
-  Yearn = 'yearn',
-  ShapeShift = 'ShapeShift',
-  FoxFarming = 'ShapeShift Farming',
-  Cosmos = 'Cosmos',
-  Osmosis = 'Osmosis',
-  ThorchainSavers = 'THORChain Savers',
+export const DefiTypeDisplayName = {
+  [DefiType.LiquidityPool]: 'LP',
+  [DefiType.Staking]: 'Staking',
 }
 
 export enum DefiAction {
@@ -40,6 +30,7 @@ export type DefiParams = {
 }
 
 export type DefiQueryParams = {
+  accountId?: AccountId
   defaultAccountId?: AccountId
   chainId: ChainId
   highestBalanceAccountAddress?: string

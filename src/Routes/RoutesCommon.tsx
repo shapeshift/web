@@ -1,42 +1,65 @@
 import { getConfig } from 'config'
-import { FaCreditCard, FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
-import { IoSwapVertical } from 'react-icons/io5'
-import { AccountsIcon } from 'components/Icons/Accounts'
+import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { FoxIcon } from 'components/Icons/FoxIcon'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { Account } from 'pages/Accounts/Account'
-import { Accounts } from 'pages/Accounts/Accounts'
-import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
-import { AccountTokenTxHistory } from 'pages/Accounts/AccountToken/AccountTokenTxHistory'
-import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
-import { Farming } from 'pages/Defi/views/Farming'
-import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
-import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
-import { Recovery } from 'pages/Recovery/Recovery'
-import { Waterman } from 'pages/Recovery/Waterman'
+import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
 
+/**
+ * WARNING: whenever routes that contain user addresses are edited here, we need
+ * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
+ * the corresponding parsed routes in lib/mixpanel/helpers.ts
+ *
+ * THIS IS CRITICAL FOR MIXPANEL TO NOT COLLECT USER ADDRESSES
+ */
+
 export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
-    label: 'navBar.dashboard',
+    label: 'navBar.myWallet',
+    shortLabel: 'navBar.dashboardShort',
     icon: <DashboardIcon />,
     main: Dashboard,
     category: RouteCategory.Wallet,
+    mobileNav: true,
+    priority: 0,
+    routes: [
+      {
+        path: '/transaction-history',
+        label: 'navBar.transactionHistory',
+        icon: <TxHistoryIcon />,
+        main: TransactionHistory,
+        category: RouteCategory.Wallet,
+      },
+    ],
+  },
+  {
+    path: '/assets/:chainId/:assetSubId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
+  },
+  {
+    path: '/assets/:chainId/:assetSubId/:nftId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
   },
   {
     path: '/assets',
@@ -56,107 +79,18 @@ export const routes: NestedRoute[] = [
           label: 'navBar.overview',
           main: Asset,
         },
-        {
-          path: '/transactions',
-          label: 'navBar.transactions',
-          main: AssetTxHistory,
-        },
       ],
     })),
   },
   {
-    path: '/accounts',
-    label: 'navBar.accounts',
-    main: Accounts,
-    icon: <AccountsIcon />,
-    category: RouteCategory.Wallet,
-    routes: [
-      {
-        path: '/:accountId',
-        label: 'Account Details',
-        main: null,
-        hide: true,
-        routes: [
-          {
-            path: '/',
-            label: 'navBar.overview',
-            main: Account,
-          },
-          {
-            path: '/transactions',
-            label: 'navBar.transactions',
-            main: AccountTxHistory,
-          },
-          {
-            path: '/:assetId',
-            label: 'navBar.overview',
-            main: null,
-            hide: true,
-            routes: [
-              {
-                path: '/',
-                main: AccountToken,
-                label: 'navBar.overview',
-              },
-              {
-                path: '/transactions',
-                main: AccountTokenTxHistory,
-                label: 'navBar.transactions',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    path: '/defi',
-    label: 'navBar.defi',
-    icon: <DefiIcon />,
-    main: null,
-    category: RouteCategory.Explore,
-    routes: [
-      {
-        path: '/',
-        label: 'defi.overview',
-        main: Overview,
-        icon: <FaTable />,
-      },
-      {
-        path: '/liquidity-pools',
-        label: 'defi.liquidityPools',
-        main: LiquidityPools,
-        icon: <FaWater />,
-        disable: true,
-      },
-      {
-        path: '/earn',
-        label: 'defi.earn',
-        main: StakingVaults,
-        icon: <FaLock />,
-      },
-      {
-        path: '/farming',
-        label: 'defi.farming',
-        main: Farming,
-        icon: <FaTractor />,
-        disable: true,
-      },
-    ],
-  },
-  {
-    path: '/transaction-history',
-    label: 'navBar.transactionHistory',
-    icon: <TxHistoryIcon />,
-    main: TransactionHistory,
-    category: RouteCategory.Wallet,
-  },
-  {
     path: '/trade',
     label: 'navBar.trade',
-    icon: <IoSwapVertical />,
+    shortLabel: 'navBar.tradeShort',
+    icon: <SwapIcon />,
+    mobileNav: true,
+    priority: 2,
     main: Trade,
-    category: RouteCategory.Explore,
+    category: RouteCategory.Wallet,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Trade Asset',
       path: assetIdPath,
@@ -165,16 +99,37 @@ export const routes: NestedRoute[] = [
     })),
   },
   {
+    path: '/earn',
+    label: 'navBar.defi',
+    icon: <DefiIcon />,
+    main: StakingVaults,
+    category: RouteCategory.Wallet,
+    mobileNav: true,
+    priority: 3,
+  },
+  {
     path: '/buy-crypto',
     label: 'navBar.buyCrypto',
+    shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
+    mobileNav: true,
+    priority: 4,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',
       path: assetIdPath,
       main: Buy,
     })),
+  },
+  {
+    path: '/missions',
+    label: 'navBar.foxMissions',
+    shortLabel: 'navBar.foxMissionsShort',
+    icon: <FoxIcon />,
+    main: Missions,
+    category: RouteCategory.Explore,
+    isNew: true,
   },
   {
     path: '/flags',
@@ -184,18 +139,5 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
-  },
-  {
-    path: '/recovery',
-    label: 'Recovery',
-    hide: true,
-    main: Recovery,
-  },
-  {
-    // a temporary route specifically for an affected user with stuck funds
-    path: '/waterman',
-    label: 'Waterman',
-    hide: true,
-    main: Waterman,
   },
 ]

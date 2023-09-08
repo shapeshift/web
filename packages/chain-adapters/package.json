@@ -1,0 +1,32 @@
+{
+  "name": "@shapeshiftoss/chain-adapters",
+  "version": "11.2.2",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch"
+  },
+  "dependencies": {
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/unchained-client": "workspace:^",
+    "bech32": "^2.0.0",
+    "bitcoinjs-lib": "^5.2.0",
+    "coinselect": "^3.1.13",
+    "multicoin-address-validator": "^0.5.12",
+    "web3-utils": "1.7.4"
+  },
+  "devDependencies": {
+    "@types/multicoin-address-validator": "^0.5.0"
+  }
+}

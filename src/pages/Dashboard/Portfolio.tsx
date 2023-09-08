@@ -1,6 +1,10 @@
 import {
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Flex,
+  Heading,
   Skeleton,
   Stack,
   Stat,
@@ -9,32 +13,56 @@ import {
   Switch,
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
-import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
+  selectChartTimeframe,
+  selectClaimableRewards,
+  selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceWithStakingData,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
 
-export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
+export const Portfolio = memo(() => {
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
+
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const totalBalance = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
+  )
+  const totalBalance = useMemo(
+    () =>
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
+        .toFixed(),
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
+  )
 
   const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading
@@ -44,14 +72,15 @@ export const Portfolio = () => {
 
   return (
     <Stack spacing={6} width='full'>
-      <Card variant='footer-stub'>
-        <Card.Header
+      <Card variant='outline'>
+        <CardHeader
           display='flex'
           justifyContent={{ base: 'center', md: 'space-between' }}
           alignItems='center'
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
+          borderBottomWidth={0}
         >
           <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
             <Text translation='dashboard.portfolio.totalChart' />
@@ -59,20 +88,20 @@ export const Portfolio = () => {
             <Text translation='dashboard.portfolio.rainbowChart' />
           </Button>
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
-            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
+            <TimeControls defaultTime={timeframe} onChange={handleTimeframeChange} />
           </Skeleton>
-        </Card.Header>
+        </CardHeader>
         <Flex flexDir='column' justifyContent='center' alignItems='center'>
-          <Card.Heading as='div' color='gray.500'>
+          <Heading as='div' color='text.subtle'>
             <Skeleton isLoaded={isLoaded}>
               <Text translation='defi.netWorth' />
             </Skeleton>
-          </Card.Heading>
-          <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+          </Heading>
+          <Heading as='h2' fontSize='4xl' lineHeight='1'>
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat value={totalBalance} />
             </Skeleton>
-          </Card.Heading>
+          </Heading>
           {isFinite(percentChange) && (
             <Skeleton mt={2} isLoaded={!!percentChange}>
               <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
@@ -92,7 +121,7 @@ export const Portfolio = () => {
         />
         <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
           <TimeControls
-            onChange={setTimeframe}
+            onChange={handleTimeframeChange}
             defaultTime={timeframe}
             buttonGroupProps={{
               display: 'flex',
@@ -106,17 +135,16 @@ export const Portfolio = () => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
-      <Card>
-        <Card.Header>
-          <Card.Heading>
+      <Card variant='outline'>
+        <CardHeader>
+          <Heading as='h5'>
             <Text translation='dashboard.portfolio.yourAssets' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body px={2} pt={0}>
+          </Heading>
+        </CardHeader>
+        <CardBody px={{ base: 2, md: 2 }} pt={0} pb={0}>
           <AccountTable />
-        </Card.Body>
+        </CardBody>
       </Card>
     </Stack>
   )
-}
+})

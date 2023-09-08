@@ -1,4 +1,4 @@
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum TxStatus {
   PENDING = 'pending',
@@ -8,13 +8,11 @@ export enum TxStatus {
 
 type CosmosClaimValues = {
   estimatedGasCrypto?: string
-  usedGasFee?: string
   txStatus: TxStatus
 }
 
 export type CosmosClaimState = {
-  opportunity: MergedActiveStakingOpportunity
-  userAddress: string | null
+  opportunity: StakingEarnOpportunityType
   claim: CosmosClaimValues
   loading: boolean
   txid: string | null
@@ -22,7 +20,6 @@ export type CosmosClaimState = {
 
 export enum CosmosClaimActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_CLAIM = 'SET_CLAIM',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -30,17 +27,12 @@ export enum CosmosClaimActionType {
 
 type SetCosmosOpportunitiesAction = {
   type: CosmosClaimActionType.SET_OPPORTUNITY
-  payload: Partial<MergedActiveStakingOpportunity> | null
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetClaim = {
   type: CosmosClaimActionType.SET_CLAIM
   payload: Partial<CosmosClaimValues>
-}
-
-type SetUserAddress = {
-  type: CosmosClaimActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -53,9 +45,4 @@ type SetTxid = {
   payload: string | null
 }
 
-export type CosmosClaimActions =
-  | SetCosmosOpportunitiesAction
-  | SetClaim
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type CosmosClaimActions = SetCosmosOpportunitiesAction | SetClaim | SetLoading | SetTxid

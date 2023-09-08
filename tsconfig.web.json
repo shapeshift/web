@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "baseUrl": "src",
+    "allowJs": true,
+    "jsx": "react-jsx",
+  },
+  "include": ["src/**/*", "src/**/*.json", "cypress"],
+  "exclude": []
+}

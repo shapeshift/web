@@ -18,19 +18,21 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['CosmosDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -46,20 +48,31 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
   const assetNamespace = 'slip44'
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+
+  const validatorId = toValidatorId({ chainId, account: contractAddress })
+
+  const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
+
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const opportunity = useMemo(() => state?.cosmosOpportunity, [state])
+  const apy = useMemo(() => state?.apy ?? '', [state])
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+  )
 
   // notify
   const toast = useToast()
@@ -78,7 +91,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!accountId) return
       const estimatedFees = await estimateFees({
         cryptoAmount: cryptoAmountAvailable.toString(),
-        asset,
+        assetId,
         to: '',
         sendMax: true,
         accountId,
@@ -97,25 +110,22 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset, cryptoAmountAvailable, marketData.price],
+    [accountId, asset.precision, assetId, cryptoAmountAvailable, marketData.price],
   )
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress)) return
+      if (!(state && dispatch && opportunityMetadata)) return
 
       const getStakingGasEstimate = async () => {
-        if (!state.userAddress || !assetReference) return
+        if (!assetReference) return
 
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
         try {
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getStakingGasEstimate', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -137,8 +147,17 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.DepositContinue,
+          {
+            opportunity: opportunityMetadata,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -148,7 +167,19 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
       }
     },
-    [asset, assetReference, dispatch, marketData.price, onNext, state, toast, translate],
+    [
+      asset,
+      assetId,
+      assetReference,
+      assets,
+      dispatch,
+      marketData.price,
+      onNext,
+      opportunityMetadata,
+      state,
+      toast,
+      translate,
+    ],
   )
 
   if (!state || !dispatch) return null
@@ -178,7 +209,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       isLoading={state.loading}
-      apy={String(opportunity?.apr)}
+      apy={apy}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

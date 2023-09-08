@@ -1,10 +1,13 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Stack } from '@chakra-ui/layout'
 import {
+  Box,
   Button,
+  Card,
+  CardBody,
   Link,
   Skeleton,
   SkeletonText,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -15,20 +18,21 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEqual from 'lodash/isEqual'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { TradeCard } from 'pages/Dashboard/TradeCard'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -60,7 +64,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
-  const { receive } = useModal()
+  const receive = useModal('receive')
 
   const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
 
@@ -107,15 +111,15 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
 
   return (
     <Card display='block' borderRadius={8}>
-      <Card.Body p={0}>
+      <CardBody p={0}>
         <Tabs isFitted>
           <TabList>
-            <Tab py={4} color='gray.500' fontWeight='semibold'>
+            <Tab py={4} color='text.subtle' fontWeight='semibold'>
               {translate('plugins.foxPage.getAsset', {
                 assetSymbol: asset.symbol,
               })}
             </Tab>
-            <Tab py={4} color='gray.500' fontWeight='semibold'>
+            <Tab py={4} color='text.subtle' fontWeight='semibold'>
               {translate('plugins.foxPage.trade')}
             </Tab>
           </TabList>
@@ -125,7 +129,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                 <AssetIcon src={asset.icon} boxSize='16' />
               </Box>
               <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
-                <CText color='gray.500' mb={6}>
+                <CText color='text.subtle' mb={6}>
                   {trimmedDescription}
                 </CText>
               </SkeletonText>
@@ -147,6 +151,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
                     href={BuyFoxCoinbaseUrl}
+                    onClick={() =>
+                      getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' })
+                    }
                     isExternal
                   >
                     <CText>
@@ -164,11 +171,11 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>
-              {isFoxAsset && <TradeCard defaultBuyAssetId={assetId} />}
+              {isFoxAsset ? <MultiHopTrade defaultBuyAssetId={assetId} /> : null}
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
                   <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
-                    <CText color='gray.500' mt={6} mb={6}>
+                    <CText color='text.subtle' mt={6} mb={6}>
                       {translate('plugins.foxPage.tradingUnavailable', {
                         assetSymbol: asset.symbol,
                       })}
@@ -194,7 +201,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

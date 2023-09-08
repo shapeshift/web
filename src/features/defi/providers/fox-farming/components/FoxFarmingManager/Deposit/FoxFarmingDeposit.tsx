@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -18,7 +18,6 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { logger } from 'lib/logger'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -31,13 +30,8 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { FoxFarmingDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingDeposit'],
-})
 
 type FoxFarmingDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -51,9 +45,8 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { assetNamespace, chainId, contractAddress, assetReference } = query
 
-  const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -62,12 +55,12 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const foxFarmingOpportunityFilter = useMemo(
     () => ({
       stakingId: toOpportunityId({
-        assetNamespace: 'erc20',
+        assetNamespace,
         assetReference: contractAddress,
-        chainId: ethChainId,
+        chainId,
       }),
     }),
-    [contractAddress],
+    [assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
@@ -78,18 +71,9 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     ;(() => {
       try {
         if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
-
-        dispatch({
-          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
-          payload: fromAccountId(farmingAccountId).account,
-        })
-        dispatch({
-          type: FoxFarmingDepositActionType.SET_OPPORTUNITY,
-          payload: foxFarmingOpportunity,
-        })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingDeposit error')
+        console.error(error)
       }
     })()
   }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])

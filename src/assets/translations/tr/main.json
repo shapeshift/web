@@ -6,13 +6,22 @@
     "error": "Hata",
     "cancel": "İptal",
     "close": "Kapat",
+    "loadMore": "Daha fazla",
+    "saveChanges": "Değişiklikleri Kaydet",
+    "new": "Yeni",
     "continue": "Devam et",
+    "reward": "Ödül",
+    "claimable": "Toplanabilir",
     "approve": "Onayla",
     "confirm": "Onaylayın",
+    "activity": "Aktivite",
     "reject": "İptal",
     "connected": "Bağlandı",
+    "allocation": "Dağılım",
+    "value": "Değer",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
+    "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
     "insufficientFunds": "Yetersiz bakiye",
     "estimatedGas": "Tahmini Gaz Ücreti",
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
@@ -41,7 +50,7 @@
     "or": "veya",
     "somethingWentWrong": "Bir şeyler ters gitti",
     "somethingWentWrongBody": "Bir şeyler ters gitti",
-    "accountError": "Bu ağ için veriler gösterilemiyor: %{erroredAccountNames}.",
+    "accountError": "Aşağıdaki zincirler için veriler geçici olarak getirilemiyor:",
     "degradedState": "Uygulama bozulmuş",
     "degradedInfo": "Bazı hesaplar için veri gösterilemiyor.",
     "success": "Başarılı",
@@ -76,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Bir Varlık Seç",
     "switchNetwork": "Ağ Değiştir",
+    "selectNetwork": "Bir ağ seçin",
     "unsupportedNetwork": "Desteklenmeyen Ağ",
     "chartUnavailable": "%{unavailableAssetNames} için bakiye tablosu verileri geçici olarak kullanılamıyor.",
     "search": "Ara",
@@ -84,7 +94,32 @@
     "pageNotFound": "Aradığınız sayfa bulunamadı",
     "buySell": "Al/Sat",
     "all": "Hepsi",
-    "viewAll": "Hepsini Gör"
+    "viewAll": "Hepsini Gör",
+    "slippage": "Kayma",
+    "best": "En iyi",
+    "alternative": "Alternatif",
+    "validator": "%{name} Doğrulayıcı",
+    "needAsset": "%{asset}'e mi ihtiyacınız var?",
+    "buyNow": "Şimdi al",
+    "manage": "Yönet",
+    "selectedAccount": "Bir Hesap Seçin",
+    "allChains": "Tüm Zincirler",
+    "wallet": "Cüzdan",
+    "action": "Aksiyon",
+    "feedbackAndSupport": "Geribildirim ve Destek",
+    "getSupport": "Destek Al",
+    "viewMyWallet": "Cüzdanımı Görüntüle",
+    "submitFeatureRequest": "Özellik Talebi Gönderin"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz. ",
+      "2": "private.shapeshift.com",
+      "3": "Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için",
+      "4": "Gizlilik Politikamıza",
+      "5": "göz atın."
+    },
+    "cta": "Anladım"
   },
   "errorPage": {
     "title": "Hata!",
@@ -101,7 +136,7 @@
     "cta": {
       "title": {
         "first": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve",
-        "second": "Kripto paranızı 8 farklı ağda takip edebilirsiniz"
+        "second": "Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz"
       }
     },
     "availableAssets": "Kullanılabilir Varlıklar"
@@ -162,6 +197,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Çok yakında ...",
     "buy": "Satın Al",
     "sell": "Sat",
@@ -191,7 +227,6 @@
     "defiUniverse": "Keşfedin",
     "body": "%100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
-    "betaSunset": "Beta kullanımdan kaldırıldı, Daha Fazlasını Öğrenin",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
     "cta": "Cüzdanı Bağla",
     "viewADemo": "Demo Görüntüle"
@@ -201,7 +236,8 @@
       "triggerButton": "Cüzdanı Bağla",
       "switchWallet": "Cüzdan Sağlayıcıyı Değiştir",
       "disconnect": "Bağlantıyı kes",
-      "disconnected": "(Bağlantı kesildi)"
+      "disconnected": "(Bağlantı kesildi)",
+      "connecting": "Bağlanıyor..."
     }
   },
   "defi": {
@@ -267,6 +303,7 @@
       },
       "overview": {
         "underlyingTokens": "Temel Jetonlar",
+        "underlyingToken": "Temel Belirteç",
         "availableRewards": "Kullanılabilir Ödüller",
         "about": "Hakkında",
         "tvl": "TVL",
@@ -286,19 +323,33 @@
         "claimYour": " %{opportunity} Talep Edin"
       },
       "saversVaults": {
-        "description": "THORChain Birikim Kasaları aracılığıyla %{varlığınız} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
+        "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
-        "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
+        "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
-        "estimatedFee": "Tahmini Ücret",
+        "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",
-        "estimatedFeeTooltip": "Katman 1 blok zincirinden fon transfer ücreti",
         "dustAmount": "Toz Bakiye",
         "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
         "sendDustBody": "Para çekebilmek için bu adrese biraz toz göndermeniz gerekiyor.",
         "sendDust": "Toz Gönder",
-        "addressToSendTo": "Gönderilecek Adres"
+        "addressToSendTo": "Gönderilecek Adres",
+        "introducingSaversVaults": "Saver Vaults Giriş",
+        "risksBody": {
+          "1": "Saver Vaults ile ilgili riskler için",
+          "2": "bu makaleye",
+          "3": "bakın."
+        },
+        "understand": "Anladım",
+        "days": "%{amount} günler",
+        "day": "%{amount} gün",
+        "timeToBreakEven": {
+          "title": "Eşitiliği bozma",
+          "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
+        },
+        "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
       }
     },
     "memoNote": {
@@ -316,6 +367,7 @@
     "validatorMoniker": "%{moniker} Doğrulayıcı",
     "stakedAmount": "Stake Edilmiş Miktar",
     "unstakeFrom": "Şuradan Stake'i kaldır:",
+    "underlyingAsset": "Temel Varlık",
     "gasFee": "Gas Ücreti",
     "provider": "Sağlayıcı",
     "currentTvl": "Mevcut TVL",
@@ -347,16 +399,21 @@
     "apr": "APR",
     "ended": "Bitti",
     "balance": "Bakiye",
-    "defi": "DeFi",
     "startEarning": "Kazanmaya başla",
     "eligibleOpportunities": "Uygun Fırsatlar",
     "defiBody": "Büyüyen evrende DeFi fırsatlarını keşfedin.",
     "netWorth": "Net Değer",
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
+    "rewardsBalance": "Ödül Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
+    "myPositions": "Pozisyonlarım",
+    "myPositionsBody": "Aktif pozisyonlarınız burada görünecektir.",
+    "myRewards": "Ödüllerim",
+    "myRewardsBody": "Talep edilebilir ödüllere sahip aktif pozisyonlarınız burada görünecektir.",
+    "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "stakingVaults": "Staking ve Kasalar",
     "farming": "Çiftçilik",
@@ -365,10 +422,15 @@
     "farmingBalance": "Çiftçilik Bakiyesi",
     "liquidityPoolBalance": "Likidite Havuzu Bakiyesi",
     "poolValue": "Havuz Değeri",
-    "currentValue": "Mevcut Değer",
-    "currentAPY": "Mevcut APY",
-    "currentAPR": "Mevcut APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Toplam Değer",
+    "byAsset": "Varlığa Göre",
+    "byProvider": "Sağlayıcıya Göre",
+    "claimableRewards": "Talep Edilebilir Ödüller",
+    "reawrds": "Ödüller",
+    "stakingPosition": "Staking Pozisyonu",
+    "liquidityPool": "Likidite Havuzu",
+    "noActivePositions": "Aktif Pozisyon Yok",
     "emptyEarn": "Kazanç fırsatları burada görünecektir.",
     "empty": {
       "farming": {
@@ -426,13 +488,15 @@
   },
   "navBar": {
     "home": "Ana Sayfa",
+    "activity": "Aktivite",
+    "myWallet": "Cüzdanım",
     "dashboard": "Gösterge Paneli",
+    "dashboardShort": "Panel",
     "assets": "Varlıklar",
     "assetDetails": "Varlık Ayrıntıları",
     "accounts": "Hesaplar",
     "accountAsset": "Hesap Varlıkları",
     "accountDetails": "Hesap Detayları",
-    "earn": "Kazanç",
     "defi": "DeFi",
     "transactionHistory": "İşlem Geçmişi",
     "overview": "Genel Bakış",
@@ -445,8 +509,14 @@
     "clickToConnect": "Cüzdan bağlamak için tıklayın",
     "wallet": "Cüzdan",
     "explore": "Keşfet",
-    "trade": "Takas",
-    "buyCrypto": "Kripto Al/Sat"
+    "rewards": "Ödüller",
+    "trade": "Takas/Köprü",
+    "tradeShort": "Takas",
+    "buyCrypto": "Kripto Al/Sat",
+    "buyCryptoShort": "Al/Sat",
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Görevleri",
+    "foxMissionsShort": "Görevler"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -470,15 +540,21 @@
       "weth": {
         "deposit": "Depozit",
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
+        "revokeSymbol": "%{symbol} Onayını iptal et",
+        "amountUnavailable": "Kullanım dışı",
         "withdraw": "Çek",
         "receive": "Al"
       },
       "yearn": {
         "deposit": "Depozit",
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
+        "revokeSymbol": "%{symbol} Onayını iptal et",
         "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanım dışı",
         "withdraw": "Çek",
         "receive": "Al"
       },
@@ -499,8 +575,19 @@
       },
       "erc20": {
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
-        "infinite": "Sonsuz ∞"
+        "revokeSymbol": "%{symbol} Onayını iptal et",
+        "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanım dışı"
+      },
+      "bep20": {
+        "approve": "Onayla",
+        "approveSymbol": "Onayla %{symbol}",
+        "revoke": "İptal",
+        "revokeSymbol": "%{symbol} onayını iptal edin",
+        "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanılamıyor"
       },
       "staking": {
         "delegate": "Yetki",
@@ -519,7 +606,10 @@
         "recv_packet": "Alınan"
       },
       "lp": {
-        "deposit": "Likidite Ekle"
+        "deposit": "Likidite Ekle",
+        "withdraw": "Likiditeyi Kaldır",
+        "join_pool": "Havuza Katılın",
+        "exit_pool": "Havuzdan Çık"
       }
     },
     "unknown": "İşlem"
@@ -544,20 +634,39 @@
   "trade": {
     "trade": "Takas",
     "allowance": "Ödenek",
+    "slippageInfo": "Fiyat bu orandan daha fazla olumsuz yönde değişirse işleminiz geri alınır.",
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
     "noRateAvailable": "Uygun Oran Yok.",
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
+    "priceImpact": "Fiyat Etkisi",
+    "slippage": {
+      "maxSlippage": "Maks. Kayma",
+      "auto": "Otomatik",
+      "custom": "Özel",
+      "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
+      "lowSlippage": "0,05%'in altındaki kaymalar işlemin başarısız olmasına neden olur."
+    },
+    "from": "'dan",
+    "to": "'a",
+    "on": "üstünde",
+    "youPay": "Öde",
+    "payWith": "İle Öde",
+    "youGet": "Al",
     "tradeTo": "Buraya Takasla",
+    "availableRoutes": "Mevcut Rotalar",
     "minerFee": "Madenci Ücreti",
+    "donation": "ShapeShift Bağışı",
     "protocolFee": "Protokol Ücreti",
     "protocol": "Protokol",
     "tradeFeeSource": "%{tradeFeeSource} Ücret",
     "gasFeeExceedsTradeAmountThreshold": "Gaz ücreti, ticaret tutarının %{percentage}%'sini aşıyor",
     "confirmDetails": "Ayrıntıları Onaylayın",
     "confirmAndTrade": "Onaylayın ve Takas Yapın",
+    "tradeAnyway": "Yine de Takasla",
+    "pending": "İşlem Beklemede",
     "complete": "Takas Tamamlandı",
     "approveAsset": "%{symbol} ile etkileşimi onaylayın",
     "needPermission": "%{symbol} kullanımınız için izniniz gerekiyor",
@@ -575,15 +684,24 @@
     "slowSwapTitle": "%{protocol} Takas",
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "updatingQuote": "Alıntı güncelleniyor...",
-    "intoRUNETitle": "RUNE ile ticaret",
-    "intoRUNEBody": "Bu ticarete devam edebilirsiniz, ancak RUNE almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "manualReceiveAddress": "Alıcı adresi",
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
+      "priceImpact": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın yüksek bir fiyat etkisi olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
+      "donation": "ShapeShift'i desteklemeye yardımcı olun ve bizi çalışır durumda tutun.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
+      "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
-      "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉"
+      "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉",
+      "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun."
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Yetersiz satış tutarı"
+      }
     },
     "errors": {
       "title": "Bir şeyler ters gitti",
@@ -593,6 +711,7 @@
       "buyAssetMiddleSentence": "varlık satın al",
       "notEnoughEth": "Bu işlemdeki gaz ücreti için yeterli ETH yok.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallUnknownMinimum": "Tutar çok düşük",
       "sellAmountDoesNotCoverFee": "Ücretten daha düşük satış tutarı",
       "negativeMax": "Bu işlemde madenci ücreti için yeterli para yok. Tahmini madenci ücreti %{estimatedMinerFee}",
       "invalidMax": "Geçersiz Tutar. Bu çift için maksimum ticaret miktarı %{maxLimit}'tir.",
@@ -601,13 +720,16 @@
       "broadcastFailed": "İşlem yayınlanırken bir hata oluştu",
       "insufficientFundsForLimit": "Yetersiz bakiye. Bu çift için minimum işlem tutarı %{minLimit}",
       "insufficientFundsForAmount": "Yetersiz bakiye. %{symbol} bakiyeniz seçilen miktardan az",
+      "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "invalidTradePair": "Geçersiz işlem çifti: %{sellAssetName} ve %{buyAssetName}",
       "invalidTradePairBtnText": "Geçersiz İşlem Çifti",
+      "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
       "noLiquidityError": "Kullanılabilir likidite mevcut değil",
       "overMaxSlippage": "Bu ticaret, %{slippagePercentage}% üzerinde kaymaya neden olur. Lütfen daha iyi bir fiyat için, daha düşük bir miktar işlem yapın",
       "balanceToLow": "Bakiye çok düşük. Bu çift için minimum işlem tutarı %{minLimit}",
       "dexTradeFailed": "İşlem Başarısız Oldu, Jetonlar İade Edildi",
       "quoteFailed": "İşleminiz için fiyat teklifi alınırken bir hata oluştu.",
+      "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
       "failedQuoteExecuted": "Başarısız bir fiyat teklifi yürütülemez",
       "sellAssetRequired": "Satılacak bir varlık olmadan fiyat teklifi yürütülemez",
       "sellAmountRequired": "Satılacak bir miktar olmadan fiyat teklifi yürütülemez",
@@ -627,15 +749,26 @@
       "assetNotSupportedByWallet": "%{assetSymbol}, cüzdan tarafından desteklenmiyor",
       "noReceiveAddress": "%{assetSymbol} için alım adresi yok",
       "tradingNotActive": "İşlemler %{assetSymbol} için geçici olarak durduruldu",
+      "tradingNotActiveNoAssetSymbol": "Bu rota için takas geçici olarak durduruldu",
       "signing": {
         "failed": "İşlem imzalanırken bir hata oluştu",
         "required": "İmzalanmış bir işlem gerekli"
       },
       "generalError": "Bir işlem hatası oluştu",
-      "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi"
+      "quoteError": "Fiyat teklifi alınırken bir hata oluştu",
+      "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
+      "noQuotesAvailable": "Bu işlem için teklif yok"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
-    "recentTrades": "Son İşlemler"
+    "recentTrades": "Son İşlemler",
+    "lifiWarning": "Bu ticaret, bir takas gerçekleştirmek için bir dizi aracı işlemi yürüten LI.FI aracılığıyla yönlendirilir. Herhangi bir adım başarısız olursa, dizideki son başarılı adımın belirtecini alırsınız.",
+    "or": "veya",
+    "onChainName": "%{chainName} üzerinde",
+    "unknownGas": "(Bilinmeyen)",
+    "receiveAddress": "Alıcı Adresi",
+    "receiveAddressDescription": "Bağlı cüzdandan hiçbir %{chainName} adresi bulunamadı. Devam etmek için adresi manuel olarak girin.",
+    "addressPlaceholder": "%{chainName} adresi",
+    "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?"
   },
   "modals": {
     "popup": {
@@ -763,6 +896,7 @@
       "tokenAddress": "Adrese",
       "addressInput": "Adrese, ENS veya Yat'a",
       "scanQrCode": "QR Kodunu Tara",
+      "qrCode": "QR Kod",
       "permissionsButton": "Tekrar deneyin",
       "sent": "%{asset} gönderildi",
       "errorTitle": "%{asset} gönderiminiz başarısız oldu",
@@ -770,12 +904,14 @@
         "generic": "Bir hata oluştu.",
         "notEnoughNativeToken": "Gazı kapatmak için yeterli %{asset} yok",
         "transactionRejected": "Kullanıcı işlemi reddetti",
-        "qrPermissions": "Bu özelliğin çalışması için kamera erişim izinlerine ihtiyacı var. Lütfen tarayıcı ayarlarınızı değiştirin."
+        "qrPermissions": "Bu özelliğin çalışması için kamera erişim izinlerine ihtiyacı var. Lütfen tarayıcı ayarlarınızı değiştirin.",
+        "qrDangerousEthUrl": "Bir sözleşme adresi içeren QR kodları desteklenmez. Lütfen hedef adresi manuel olarak yapıştırın."
       },
       "confirm": {
         "sendAsset": "%{asset} gönder",
         "send": "Gönder",
         "sendTo": "Send To",
+        "customNonce": "Özel Nonce",
         "sendFrom": "Send From",
         "edit": "Düzenle",
         "total": "Toplam",
@@ -814,6 +950,10 @@
       "blockExplorer": "Tarayıcı"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Havuz",
+        "fractionDescription": "% dağılımınız"
+      },
       "amountToDeposit": "Yatırılacak Tutar",
       "depositInto": "%{opportunity} İçine Para Yatırma",
       "estimatedReturns": "Tahmini Yıllık Getiri*",
@@ -872,14 +1012,15 @@
       }
     },
     "approve": {
-      "header": "ShapeShift DAO Router'ın %{asset} varlığınızı kullanmasına izin verin",
-      "routerName": "ShapeShift DAO Yönlendirici",
+      "header": "%{spenderName}'ın %{asset} öğenizi kullanmasına izin verin",
+      "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
       "depositFee": "Yatırmak için ayrı bir gaz ücreti gerekecektir.",
       "estimatedGas": "Tahmini Gaz Ücreti",
       "confirm": "Doğrula",
-      "reject": "Reddet"
+      "reject": "Reddet",
+      "approved": "Onaylandı"
     },
     "confirm": {
       "withdraw": {
@@ -907,6 +1048,7 @@
       "estimatedReturns": "Tahmini Yıllık Getiri*",
       "estimatedGas": "Tahmini Gaz Ücreti",
       "notEnoughGas": "Gazı kapatmak için yeterli %{assetSymbol} yok",
+      "missingFundsForGas": "Yeterli bakiye yok, işlemi tamamlamak için %{cryptoAmountHuman} %{assetSymbol} daha gerekiyor",
       "preFooter": "Ödüller otomatik olarak tahakkuk eder",
       "signBroadcast": "İmzala ve Yayınla",
       "cancel": "İptal"
@@ -933,6 +1075,8 @@
       "loadingText": "Cüzdan Eşleştirme"
     },
     "settings": {
+      "clearCache": "Önbelleği temizle",
+      "clearCacheTooltip": "Önbelleği temizle ve uygulamayı yeniden yükle",
       "settings": "Ayarlar",
       "currency": "Para birimi",
       "clearWalletAccountData": "Tüm hesapları ve cüzdan verilerini silin",
@@ -1100,8 +1244,7 @@
       "errors": {
         "unknown": "MetaMask ile iletişim kurulurken beklenmeyen bir hata oluştu",
         "connectFailure": "MetaMask cüzdanına bağlanılamıyor",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı MetaMask değil. Yüklü birden fazla cüzdanınız var mı?",
-        "tallyInstalledAndSetToDefault": "Tally Ho'nun kurulu olduğunu ve Varsayılan olarak ayarlandığını tespit ettik. Bunun yerine MetaMask kullanmayı tercih ederseniz, lütfen Tally Ho'daki ayarları değiştirin ve sayfayı yenileyin."
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı MetaMask değil. Yüklü birden fazla cüzdanınız var mı?"
       },
       "connect": {
         "header": "MetaMask'la Eşleştir",
@@ -1118,42 +1261,20 @@
         "button": "Aç"
       }
     },
-    "tallyHo": {
+    "coinbase": {
       "errors": {
-        "unknown": "Tally Ho ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "Tally Ho cüzdanına bağlanılamıyor",
-        "network": "Tally Ho, Ethereum Mainnet'e ayarlı değil",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı Tally Ho değil. Yüklü birden fazla cüzdanınız var mı?",
-        "tallyNotInstalledOrSetToDefault": "Tally Ho'nun yüklenmediğini veya varsayılan olarak ayarlanmadığını tespit ettik. Tally Ho'yu kullanmak istiyorsanız, lütfen kurun veya varsayılan cüzdanınız olarak ayarlayın ve sayfayı yenileyin."
+        "unknown": "Coinbase ile iletişim kurulurken beklenmeyen bir hata oluştu",
+        "connectFailure": "Coinbase cüzdanına bağlanılamıyor",
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı Coinbase değil. Yüklü birden fazla cüzdanınız var mı?"
       },
       "connect": {
-        "header": "Tally ile Eşle",
-        "body": "Eşleştir'e tıklayın ve açılır pencereden Tally Ho'da oturum açın",
-        "button": "Eşle"
+        "header": "Coinbase'i Eşleştir",
+        "body": "Eşleştir'e tıklayın ve açılan pencereden Coinbase'e giriş yapın",
+        "button": "Eşleştir"
       },
       "failure": {
-        "header": "Hata",
-        "body": "Tally Ho cüzdanına bağlanılamıyor"
-      },
-      "redirect": {
-        "header": "Tally Ho Uygulamasında Aç",
-        "body": "Tally Ho'da ShapeShift kontrol panelini açmak için tıklayın",
-        "button": "Aç"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Portis ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "Portis cüzdanına bağlanılamıyor"
-      },
-      "connect": {
-        "header": "Portis'le Eşle",
-        "body": "Eşleştir'e tıklayın ve açılan pencereden Portis'i seçin",
-        "button": "Eşle"
-      },
-      "failure": {
-        "header": "Hata",
-        "body": "Portis cüzdanına bağlanılamıyor"
+        "header": "Coinbase cüzdanına bağlanılamıyor",
+        "body": "Coinbase cüzdanına bağlanılamıyor"
       }
     },
     "walletConnect": {
@@ -1206,7 +1327,7 @@
       },
       "import": {
         "header": "Cüzdanınızı içe aktarın",
-        "body": "Mevcut bir cüzdanı içe aktarmak için Gizli Kurtarma İfadenizi girin",
+        "body": "Gizli Kurtarma Cümlenizi tamamen küçük harflerle, virgül veya sayı olmadan ve her kelimenin arasına tek boşluk bırakarak yazın veya yapıştırın.",
         "button": "Sonraki",
         "secretRecoveryPhraseError": "Kelimeler arasında tek bir boşluk bırakarak Gizli Kurtarma İfadenizi girin. Virgülleri, dönüşleri veya ek karakterleri atlayın.",
         "secretRecoveryPhraseRequired": "Gizli Kurtarma İfadesi gereklidir",
@@ -1296,13 +1417,40 @@
         "captchaRequired": "Güvenlik kodu gerekli",
         "tooManyAttempts": "Çok fazla denendi. Lütfen daha sonra tekrar deneyiniz.",
         "invalidLogin": "Geçersiz giriş",
-        "noWallet": "Oturum açmanız için bir ShapeShift Native cüzdanı bulunamadı. Bu mesajın hatalı olduğunu düşünüyorsanız, lütfen ShapeShift desteği ile iletişime geçin.",
+        "noWallet": "Oturum açmanız için bir ShapeShift cüzdanı bulunamadı. Bu mesajın hatalı olduğunu düşünüyorsanız, lütfen ShapeShift desteği ile iletişime geçin.",
         "decryptionError": "Cüzdanınızın şifresi çözülürken bir sorun oluştu.",
         "twoFactorAuthentication": "İki Faktörlü Kimlik Doğrulama",
         "twoFactorPlaceholder": "6 haneli kod",
         "twoFactorRequired": "2FA gerekli",
         "invalidTwoFactor": "6 haneli kod geçersiz",
         "twoFactorDescription": "Hesabınız için iki faktörlü kimlik doğrulama etkinleştirildi. Lütfen kimlik doğrulama uygulamanızdan gelen kodu girin."
+      },
+      "onboarding": {
+        "skip": "Geç",
+        "shapeshiftWallet": "ShapeShift Cüzdanı",
+        "selfCustody": {
+          "title": "ShapeShift Cüzdanınız kişisel velayettir",
+          "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
+          "body": "Kişisel velayet cüzdanı, ona sahip olduğunuz ve paranıza yalnızca sizin erişebileceğiniz anlamına gelir. Gizli kurtarma ifadeniz, ona erişmenin anahtarıdır. Paranıza erişmenizi kimse engelleyemez.",
+          "cta": "Sonraki"
+        },
+        "multiChain": {
+          "title": "Aynı anda birden çok zincir desteklenir",
+          "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
+          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Cüzdanınız bunu otomatik olarak destekleyecektir.",
+          "cta": "Sonraki"
+        },
+        "easyToUse": {
+          "title": "Kullanımı kolay!",
+          "subTitle": "ShapeShift Cüzdan ile şunları yapabilirsiniz:",
+          "trackBalance": "Bakiyenizi takip edin",
+          "sendReceive": "Kripto gönder/al",
+          "buyCrypto": "Kripto Satın Al",
+          "tradeAssets": "Takas varlıkları",
+          "earnYield": "Boştaki varlıklarınızdan getiri elde edin",
+          "cta": "Kripto Satın Al",
+          "secondaryCta": "Kontrol Panelime Git"
+        }
       }
     },
     "selectModal": {
@@ -1310,6 +1458,22 @@
       "body": "Bir cüzdan bağlayarak, ShapeShift'in Hizmet Şartlarını kabul etmiş ve ShapeShift sorumluluk reddini okuyup anladığınızı kabul etmiş olursunuz.",
       "footer": "Cüzdanınız yok mu?",
       "create": "Bir tane yaratın"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Kayıtlı bağlantılar",
+        "create": "Yeni cüzdan bağla"
+      },
+      "load": {
+        "header": "Kayıtlı Bağlantılar",
+        "confirmForget": "%{connection}'ı unutmak istediğinizden emin misiniz?",
+        "error": {
+          "delete": "Cüzdanınız silinemiyor, üzgünüz.",
+          "noWallet": "Kayıtlı cüzdanınız yok",
+          "pair": "Cüzdanınız eşleştirilemiyor"
+        }
+      }
     }
   },
   "graph": {
@@ -1365,7 +1529,9 @@
         "sell": "Sat",
         "trade": "Takas"
       },
+      "equity": "Özsermaye",
       "accountTokens": "Hesap Jetonları",
+      "relatedAssets": "İlgili Varlıklar",
       "showTokens": "Jetonları Göster (%{amount})",
       "hideTokens": "Jetonları Gizle (%{amount})",
       "underlyingAssets": "Temel Varlıklar",
@@ -1462,7 +1628,7 @@
       "buyAssetOnCoinbase": "Coinbase'de %{assetSymbol} satın alın",
       "totalFoxValue": "Toplam FOX Değeri",
       "foxToken": "ShapeShift %{assetSymbol} Jetonu",
-      "foxDescription": "2019'dan bu yana, şekil değiştiren FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
+      "foxDescription": "2019'dan bu yana, ShapeShift FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
       "getAsset": "%{assetSymbol} alın",
       "trade": "Takas",
       "receive": "Al",
@@ -1497,6 +1663,11 @@
         "title": "✨ FOX ödüllerini ve daha fazlasını alın! ✨",
         "body": "DappBack'teki görevleri tamamlayarak FOX ödülleri kazanın",
         "cta": "DappBack'i Başlatın"
+      },
+      "bondProtocol": {
+        "title": "FOX'u İndirimli Satın Alın!",
+        "body": "BondProtocol ile FOX'u indirimli satın alın",
+        "cta": "BondProtocol'ü Başlat"
       }
     },
     "analytics": {
@@ -1522,9 +1693,12 @@
         "menu": {
           "disconnect": "Bağlantıyı Kes",
           "address": "Adres",
+          "addresses": "Adresler",
           "connected": "Bağlı",
           "network": "Ağ",
-          "unsupportedNetwork": "Desteklenmeyen Ağ"
+          "networks": "Ağlar",
+          "unsupportedNetwork": "Desteklenmeyen Ağ",
+          "expiry": "Oturumun Sona Ermesi"
         }
       },
       "modal": {
@@ -1538,7 +1712,16 @@
           "confirm": "Onayla",
           "reject": "Reddet",
           "messageData": "Mesaj verileri",
-          "domain": "Domain"
+          "domain": "Domain",
+          "memo": "Memo",
+          "messages": "Mesajlar",
+          "noMessages": "Mesaj yok",
+          "sequence": "Sıra",
+          "accountNumber": "Hesap numarası",
+          "chainId": "Zincir ID",
+          "authInfo": "Yetki bilgisi",
+          "body": "Mesaj",
+          "comingSoon": "Çok yakında"
         },
         "sendTransaction": {
           "sendingFrom": "Gönderen",
@@ -1575,7 +1758,20 @@
           "howTo": "Bir dApp'e nasıl bağlanılır?",
           "linkPlaceholder": "QR kod veya bağlantı link'i",
           "connect": "Bağlan",
-          "connectionError": "Sağlanan URI'ye bağlanılamıyor."
+          "connectionError": "Sağlanan URI'ye bağlanılamıyor.",
+          "invalidUri": "Geçersiz URI",
+          "v1UriUnsupported": "WalletConnect V1 URI etkin değil",
+          "v2UriUnsupported": "WalletConnect V2 URI etkin değil"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Bilgisi",
+          "permissions": "İzinler",
+          "accountSelection": "Hesapları seçin",
+          "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
+          "methods": "Yöntemler",
+          "events": "Etkinlikler",
+          "selectedAccounts": "Bir Hesap Seçin",
+          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin."
         }
       },
       "registry": {
@@ -1600,7 +1796,16 @@
       "banner": {
         "title": "Yat Alın",
         "description": "Yat'ınız evrensel emoji kullanıcı adınız, web sitesi URL'niz, ödeme adresiniz ve daha fazlasıdır."
-      }
+      },
+      "modal": {
+        "title": "Yat başarıyla bağlandı"
+      },
+      "linkedYat": "Yat bağla",
+      "yatConnected": "Yat Bağlandı!",
+      "usdcAddress": "Yat USDC adresi",
+      "ethAddress": "Yat ETH adresi",
+      "noAddressFound": "%{symbol} adresi bulunamadı",
+      "viewInApp": "ShapeShift Mobil Uygulamasında Görüntüle"
     }
   },
   "gasInput": {
@@ -1625,17 +1830,74 @@
     "custom": "Özel"
   },
   "idle": {
+    "emptyTitle": "Idle Finance ile %{asset} varlığınızdan %{apy}% kazanın",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Senior Best Yield Stratejisi",
+          "body": "Senior Best Yield kasaları, her zaman en yüksek APY'yi sağlamak için fonları birden fazla, ihtiyatlı riskli getiri kaynağı arasında otomatik olarak yönlendiren ayarla ve unut stratejileridir."
+        },
+        "page-2": {
+          "title": "Senior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Stratejisi",
+          "body": "Junior Best Yield kasaları, her zaman artırılmış, maksimize edilmiş APY'ler sağlamak için fonları otomatik olarak birden fazla Junior Tranches arasında yönlendiren ayarla ve unut stratejileridir."
+        },
+        "page-2": {
+          "title": "Junior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranche Stratejisi",
+          "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
+        },
+        "page-2": {
+          "title": "Senior Tranche stratejileri:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranche Stratejisi",
+          "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
+        },
+        "page-2": {
+          "title": "Junior Tranche Stratejileri:"
+        }
+      },
+      "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
+      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur",
+      "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
+      "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
+      "minRisk": "En aza indirilmiş risk ",
+      "builtInCoverage": "Değişken oranlı ödüller için yerleşik kapsam",
+      "noLockingPeriod": "Kilitleme dönemi veya dönemleri yok",
+      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar",
+      "fundsCoveredJunior": "Junior Tranch'ların kapsadığı fonlar",
+      "automation": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu"
+    },
     "bestYield": {
       "title": "En İyi Getiri Nedir?",
       "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
     },
     "seniorTranche": {
       "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatınızı korurken birden fazla protokolde DeFi getirilerinin keyfini çıkarın. Senior Tranche, fonlar üzerinde yerleşik koruma sunar ve Junior muhatabı sayesinde tam spektrumlu teminat sağlar."
+      "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
     },
     "juniorTranche": {
       "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Birden fazla DeFi protokolünde artırılmış getirilerin keyfini çıkarın: Junior Tranche, Senior muhatabına ilk kayıp sermayesini sağlamaları karşılığında tazmin edildikleri için kaldıraçlı getiri elde eder."
+      "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
     }
   },
   "promo": {
@@ -1643,6 +1905,142 @@
       "title": "Kripto Satın Alın(KYC OLMADAN )",
       "body": "Apple Pay ile 1.000 dolara kadar satın alma",
       "cta": "Hemen Satın Al"
+    },
+    "savers": {
+      "title": "%{asset} ile ödüller kazanın",
+      "body": "THORChain Savers Vault'a bahis yapın. Kilitlenme süresi yok.",
+      "cta": "Para Yatırma"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "Arkeo nedir?",
+      "bodyParts": {
+        "1": "Geçen yıl,",
+        "2": "Coinbase Cloud",
+        "3": "Arkeo adlı bir projeyi kuluçkaya yatırdı. Mainnet lansmanı çok yakında!",
+        "4": "Arkeo, tüm düğüm verileri için merkezi olmayan bir arka uç olacak şekilde oluşturuldu. Arkeo kullanan uygulamalar, artan geliştirme hızı, sansür direnci ve",
+        "5": "nakamoto katsayısından",
+        "6": "merkezi veri kaynaklarına bağımlılığı azaltırken."
+      }
+    },
+    "whoQualifies": {
+      "title": "Arkeo Airdrop'a kimler hak kazanır?",
+      "body": "ShapeShift dApp'i kullanarak airdrop'a katılmaya hak kazanmanın birkaç yolu vardır. Anlık görüntü yayınlanıyor, kalifiye olmak için hala zamanınız var!"
+    },
+    "staking": {
+      "title": "%{asset} Staker",
+      "body": "Boşta kalan %{asset} üzerinden %{apy}'ye kadar APR ve Arkeo airdrop'una hak kazanın. AYRICA %{provider}'a bahis yaparsanız, Arkeo airdrop miktarınız hesaplanırken bahis bakiyenize 2 kat çarpan uygulanacaktır.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Sağlayıcılar",
+      "body": "Elinizde %{asset1} ve %{asset2} var mı? %{apy} APR kazanmak için Uniswap V2 Havuzuna likidite sağlayın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
+      "cta": "Likidite Ekleyin"
+    },
+    "foxTokenHolders": {
+      "title": "FOX Token Sahipleri",
+      "body": "Cüzdanda tutulan FOX token'ları. Çantanız ne kadar büyükse, Arkeo airdrop'unuz da o kadar büyük olur.",
+      "cta": "FOX Takas yap",
+      "secondary": "FOX Satın Al"
+    },
+    "foxFarmers": {
+      "title": "FOX/ETH LP Çiftçiler",
+      "body": "FOX Farm'da ETH/FOX LP jetonlarınızı staking yaparak %{apy} APR'ye kadar kazanın. AYRICA FOX Farm'ın 5. Turunda yatırdığınız ETH/FOX LP tokenlerinin temelinde yatan FOX, Arkeo airdrop'u için hak kazanacaktır.",
+      "cta": "FOX/ETH LP Stake Et"
+    },
+    "foxyTokenHolders": {
+      "title": "FOXy Token Sahipleri",
+      "body": "FOX Yieldy (FOXy) ile boştaki FOX'unuzdan %{apy}'ye kadar APR kazanın. AYRICA Cüzdanınızda tutulan FOXy, FOX ile aynı muameleyi görecek ve Arkeo airdrop için uygun olacaktır.",
+      "cta": "FOX Token Stake Et"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LP'ler",
+      "body": "%{asset1} ve %{asset2}'ye sahip misiniz? Uniswap V2 Havuzuna likidite sağlayarak %{apy} APR kazanın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
+      "cta": "Likidite Ekleyin"
+    },
+    "stakeAtom": {
+      "title": "ATOM Stake",
+      "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
+      "cta": "ATOM Stake"
+    },
+    "footer": {
+      "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",
+      "cta": "Yönetişim teklifine göz atın",
+      "disclaimer": {
+        "body": "* Yalnızca kişisel saklama cüzdanları geçerli olacaktır. Merkezi bir borsa aracılığıyla bir cüzdanda tutulan veya stake edilen jetonlar uygun değildir. Cüzdana mı ihtiyacınız var?",
+        "cta": "Bir tane yaratın"
+      }
+    }
+  },
+  "nft": {
+    "customizeFoxatar": "FOXatar'ını Özelleştir",
+    "setAsAvatar": "Avatar olarak ayarla",
+    "floorPrice": "Taban Fiyat",
+    "lastPrice": "Son fiyat",
+    "overview": "Genel Bakış",
+    "properties": "Özellikler",
+    "collection": "Koleksiyon",
+    "tokenId": "Token ID",
+    "address": "Adres",
+    "chain": "Zincir",
+    "standard": "Standart",
+    "description": "Açıklama",
+    "details": "Detaylar",
+    "attributes": "Özellikler",
+    "aboutCollection": "%{collectionName} Hakkında",
+    "emptyTitle": "Tüm NFT'ler nereye gitti?",
+    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin."
+  },
+  "missions": {
+    "subtitle": "FOX Görevleri",
+    "missionEnded": "Görev Sona Erdi",
+    "viewMission": "Görevleri Görüntüle",
+    "comingSoon": "Yakında",
+    "activeMissions": "Aktif Görevler",
+    "endedMissions": "Biten Görevler",
+    "title": {
+      "1": "Merkezi Olmayan Evreni Serbest Bırakın ve",
+      "2": "Ödülleri Dağıt"
+    },
+    "body": "Görevlere Katılın, Ödüller Kazanın ve Sürekli Genişleyen ShapeShift Ekosistemi hakkındaki bilginizi artırın",
+    "ends": "Son",
+    "ongoing": "Devam Eden Görev",
+    "optimism": {
+      "title": "19,5 OP'ye kadar kazanın",
+      "subtitle": "Optimism'i Keşfedin",
+      "cta": "Göreve Başla"
+    },
+    "foxatar": {
+      "title": "Ücretsiz ve Özelleştirilebilir bir NFT edinin",
+      "subtitle": "FOXatar'ı Basın",
+      "cta": "Göreve Başla"
+    },
+    "foxArmy": {
+      "subtitle": "FOX Ordusuna Katılın",
+      "title": "20.000 FOX Havuzu",
+      "cta": "Göreve Başla"
+    },
+    "yat": {
+      "subtitle": "Yat Fantasy Oyna",
+      "title": "3.000 USDC Ödül Havuzu",
+      "cta": "Göreve Başla"
+    },
+    "getListed": {
+      "subtitle": "Projeniz Burada",
+      "title": "Görevler İçin Bir Proje Başlatın",
+      "cta": "Projeyi Gönder"
+    },
+    "foxRewards": {
+      "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
+      "title": "FOX Kazanın",
+      "cta": "Göreve Başla"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Yeni Avatar Ayarla",
+      "restoreDefault": "Varsayılan"
     }
   }
 }

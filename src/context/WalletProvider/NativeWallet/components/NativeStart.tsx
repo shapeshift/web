@@ -6,9 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['NativeStart'] })
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -20,7 +17,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {
-        moduleLogger.error(e, 'WalletProvider:NativeWallet:Start - Cannot enumerate Vault')
+        console.error(e)
         setHasLocalWallet(false)
       }
     })()
@@ -32,18 +29,16 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.start.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.start.body'} />
+        <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.start.body'} />
         <Stack mt={6} spacing={4}>
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!hasLocalWallet}
+            isDisabled={!hasLocalWallet}
             onClick={() => history.push('/native/load')}
             data-test='wallet-native-load-button'
           >
@@ -51,8 +46,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
           </Button>
           <Divider />
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}
@@ -65,8 +58,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}

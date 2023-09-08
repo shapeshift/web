@@ -1,5 +1,4 @@
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -18,6 +17,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -29,6 +29,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
@@ -120,6 +121,11 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
+      },
+      [DefiStep.Approve]: {
+        label: translate('defi.steps.approve.title'),
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
+        props: {},
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

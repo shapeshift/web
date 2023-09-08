@@ -1,13 +1,13 @@
 import { ArrowDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Divider, IconButton, List, Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,7 +57,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({
         {chain && symbol ? (
           <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
         ) : (
-          <Text flex={1} color='gray.500' textAlign='left' translation='bridge.selectChain' />
+          <Text flex={1} color='text.subtle' textAlign='left' translation='bridge.selectChain' />
         )}
         <ChevronRightIcon boxSize={4} />
       </Stack>

@@ -1,18 +1,30 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import { createSelector } from 'reselect'
+import type { Asset } from 'lib/asset-service'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter, selectFiatRampActionFromFilter } from 'state/selectors'
+import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectMarketDataSortedByMarketCap } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
+} from 'state/slices/selectors'
 
 import { fiatRampApi } from './fiatRamps'
 
 export const selectFiatBuyAssetIds = createDeepEqualOutputSelector(
   fiatRampApi.endpoints.getFiatRamps.select(),
   (fiatRampData): AssetId[] => fiatRampData?.data?.buyAssetIds ?? [],
+)
+
+export const selectFiatRampChainCount = createSelector(
+  fiatRampApi.endpoints.getFiatRamps.select(),
+  (fiatRampData): number =>
+    new Set(
+      Object.keys(fiatRampData.data?.byAssetId ?? {}).map(assetId => fromAssetId(assetId).chainId),
+    ).size,
 )
 
 export const selectFiatSellAssetIds = createDeepEqualOutputSelector(
@@ -24,7 +36,7 @@ type AssetWithMarketData = Asset & MarketData
 
 export const selectFiatRampBuyAssetsWithMarketData = createSelector(
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectFiatBuyAssetIds,
   (assetsById, cryptoMarketData, assetIds): AssetWithMarketData[] => {
     return assetIds.reduce<AssetWithMarketData[]>((acc, assetId) => {
@@ -36,18 +48,7 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
     }, [])
   },
 )
-export const selectSupportsFiatRampActionByAssetId = createSelector(
-  selectFiatBuyAssetIds,
-  selectFiatSellAssetIds,
-  selectAssetIdParamFromFilter,
-  selectFiatRampActionFromFilter,
-  (buyAssetIds, sellAssetIds, assetId, fiatRampAction): boolean => {
-    if (!assetId) return false
-    if (!fiatRampAction) return false
-    const targetArray = fiatRampAction === 'buy' ? buyAssetIds : sellAssetIds
-    return targetArray.includes(assetId)
-  },
-)
+
 export const selectSupportsFiatRampByAssetId = createSelector(
   selectFiatBuyAssetIds,
   selectFiatSellAssetIds,

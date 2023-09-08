@@ -31,12 +31,17 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
+  selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -69,12 +74,14 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
-  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
-  const { popup } = useModal()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
+  const popup = useModal('popup')
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
+  const assets = useAppSelector(selectAssets)
   const {
     state: { wallet, isConnected, isDemoWallet },
     dispatch,
@@ -88,7 +95,9 @@ export const Overview: React.FC<OverviewProps> = ({
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
-  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
+  const accountUserCurrencyBalance = useAppSelector(s =>
+    selectPortfolioUserCurrencyBalanceByFilter(s, filter),
+  )
   const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
 
   const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
@@ -143,10 +152,17 @@ export const Overview: React.FC<OverviewProps> = ({
   const handlePopupClick = useCallback(
     ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
+      const mpData = {
+        action: fiatRampAction,
+        assetId: getMaybeCompositeAssetSymbol(assetId, assets),
+        ramp: ramp.id,
+      }
+      getMixPanel()?.track(MixPanelEvents.FiatRamp, mpData)
       const url = ramp.onSubmit({
         action: fiatRampAction,
         assetId,
         address,
+        fiatCurrency,
         options: {
           language: selectedLocale,
           mode: colorMode,
@@ -155,7 +171,7 @@ export const Overview: React.FC<OverviewProps> = ({
       })
       if (url) popup.open({ url, title: 'Buy' })
     },
-    [assetId, colorMode, fiatRampAction, popup, selectedLocale],
+    [assets, assetId, colorMode, fiatCurrency, fiatRampAction, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {
@@ -170,7 +186,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <FaCreditCard />
           </IconCircle>
           <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
-          <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+          <Text translation='fiatRamps.noProvidersBody' color='text.subtle' />
         </Center>
       )
     const listOfRamps = [...rampIdsForAssetIdAndAction]
@@ -187,14 +203,14 @@ export const Overview: React.FC<OverviewProps> = ({
           <FiatRampButton
             key={rampId}
             onClick={() => handlePopupClick({ rampId, address: passedAddress })}
-            accountFiatBalance={accountFiatBalance}
+            accountFiatBalance={accountUserCurrencyBalance}
             action={fiatRampAction}
             {...ramp}
           />
         )
       })
   }, [
-    accountFiatBalance,
+    accountUserCurrencyBalance,
     address,
     assetId,
     fiatCurrency,
@@ -213,16 +229,17 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderFiatOptions = useMemo(() => {
     const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
     return options.map(option => (
-      <option value={option.code}>{`${option.code} - ${option.name}`}</option>
+      <option key={option.code} value={option.code}>
+        {`${option.code} - ${option.name}`}
+      </option>
     ))
   }, [])
-
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
-      <Flex display='flex' flexDir='column' gap={6} p={6}>
+      <Flex display='flex' flexDir='column' gap={6} p={6} bg='background.surface.raised.base'>
         <Stack spacing={4}>
           <Text
             fontWeight='bold'
@@ -230,14 +247,17 @@ export const Overview: React.FC<OverviewProps> = ({
               fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
             }
           />
-          <Select onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}>
+          <Select
+            value={fiatCurrency}
+            onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}
+          >
             {renderFiatOptions}
           </Select>
         </Stack>
         <Stack spacing={4}>
           <Box>
             <Text fontWeight='medium' translation={assetTranslation} />
-            <Text color='gray.500' translation='fiatRamps.selectBody' />
+            <Text color='text.subtle' translation='fiatRamps.selectBody' />
           </Box>
           <Button
             width='full'
@@ -245,7 +265,7 @@ export const Overview: React.FC<OverviewProps> = ({
             height='48px'
             justifyContent='space-between'
             onClick={() => handleIsSelectingAsset(fiatRampAction)}
-            rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
+            rightIcon={<ChevronRightIcon color='text.subtle' boxSize={6} />}
           >
             {assetId ? (
               <Flex alignItems='center'>
@@ -255,7 +275,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 </Box>
               </Flex>
             ) : (
-              <Text translation={selectAssetTranslation} color='gray.500' />
+              <Text translation={selectAssetTranslation} color='text.subtle' />
             )}
           </Button>
           <Flex flexDirection='column' mb='10px'>
@@ -265,7 +285,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   ? ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
                   : fundsTranslation
               }
-              color='gray.500'
+              color='text.subtle'
               mt='15px'
               mb='8px'
             />
@@ -319,7 +339,7 @@ export const Overview: React.FC<OverviewProps> = ({
                                   ? 'green.500'
                                   : shownOnDisplay === false
                                   ? 'red.500'
-                                  : 'gray.500'
+                                  : 'text.subtle'
                               }
                               isRound
                               variant='ghost'
@@ -343,7 +363,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Box>
               <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
               <Text
-                color='gray.500'
+                color='text.subtle'
                 translation={[
                   'fiatRamps.titleMessage',
                   {

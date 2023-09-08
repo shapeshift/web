@@ -1,12 +1,12 @@
-import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
-import { Center, Circle, Flex, Link, Stack } from '@chakra-ui/layout'
+import { Button, Center, Circle, Flex, Link, Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { LanguageSelector } from 'components/LanguageSelector'
 import { Page } from 'components/Layout/Page'
 import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
@@ -43,66 +43,80 @@ export const ConnectWallet = () => {
   return (
     <Page>
       <SEO title={translate('common.connectWallet')} />
-      <DarkMode>
-        <Flex
-          backgroundImage={AuroraBg}
-          backgroundSize='cover'
-          backgroundPosition='bottom center'
-          width='100vw'
-          alignItems='center'
-          justifyContent='center'
-        >
-          <Flex flexDir='column' zIndex={4} width='full'>
-            <Center flexDir='column' height='100vh' px={6}>
-              <Circle size='100px' mb={6}>
-                <FoxIcon boxSize='100%' color='white' />
-              </Circle>
-              <Flex
-                flexDir='row'
-                textAlign='center'
-                letterSpacing='-4px'
-                fontSize={{ base: '6xl', lg: '8xl' }}
-                mb={6}
-              >
-                <RawText color='white' fontWeight='light' lineHeight='1' userSelect={'none'}>
-                  {translate('connectWalletPage.exploreThe')}{' '}
-                  <RawText color='white' fontWeight='bold' as='span'>
-                    {translate('connectWalletPage.defiUniverse')}
-                  </RawText>
+      <Flex
+        backgroundImage={AuroraBg}
+        backgroundSize='cover'
+        backgroundPosition='bottom center'
+        width='100vw'
+        alignItems='center'
+        justifyContent='center'
+        position={'relative'}
+      >
+        <Flex flexDir='column' zIndex={4} width='full'>
+          <Center
+            flexDir='column'
+            // Full height with "-webkit-fill-available" polyfill, see https://chakra-ui.com/changelog/v2.3.1#styled-system-231
+            height='$100vh'
+            px={6}
+          >
+            <Flex
+              position={'absolute'}
+              // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
+              top={'calc(var(--chakra-space-6) + env(safe-area-inset-top))'}
+              right={6}
+            >
+              <LanguageSelector size={'sm'} />
+            </Flex>
+            <Circle size='100px' mb={6}>
+              <FoxIcon boxSize='100%' color='white' />
+            </Circle>
+            <Flex
+              flexDir='row'
+              textAlign='center'
+              letterSpacing='-4px'
+              fontSize={{ base: '6xl', lg: '8xl' }}
+              mb={6}
+            >
+              <RawText color='white' fontWeight='light' lineHeight='1' userSelect={'none'}>
+                {translate('connectWalletPage.exploreThe')}{' '}
+                <RawText color='white' fontWeight='bold' as='span'>
+                  {translate('connectWalletPage.defiUniverse')}
                 </RawText>
-              </Flex>
-              <Text
-                userSelect={'none'}
-                color='white'
-                fontSize='lg'
-                mb={12}
-                textAlign='center'
-                translation={'connectWalletPage.body2'}
-              />
-              <Stack
-                alignItems='center'
-                spacing={{ base: 2, md: 8 }}
-                mx='auto'
-                direction={{ base: 'column', md: 'row' }}
+              </RawText>
+            </Flex>
+            <Text
+              userSelect={'none'}
+              color='white'
+              fontSize='lg'
+              mb={12}
+              textAlign='center'
+              translation={'connectWalletPage.body2'}
+            />
+            <Stack
+              alignItems='center'
+              spacing={{ base: 2, md: 8 }}
+              mx='auto'
+              direction={{ base: 'column', md: 'row' }}
+            >
+              <Button
+                size='lg'
+                zIndex={1}
+                colorScheme='blue'
+                onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+                data-test='connect-wallet-button'
               >
-                <Button
-                  size='lg'
-                  zIndex={1}
-                  colorScheme='blue'
-                  onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-                  data-test='connect-wallet-button'
-                >
-                  <Text translation='connectWalletPage.cta' />
-                </Button>
-                <Flex alignItems='center' justifyContent='center'>
-                  <Text
-                    color='whiteAlpha.500'
-                    fontSize='lg'
-                    fontWeight='bold'
-                    textAlign='center'
-                    translation='common.or'
-                  />
-                </Flex>
+                <Text translation='connectWalletPage.cta' />
+              </Button>
+              <Flex alignItems='center' justifyContent='center'>
+                <Text
+                  color='whiteAlpha.500'
+                  fontSize='lg'
+                  fontWeight='bold'
+                  textAlign='center'
+                  translation='common.or'
+                />
+              </Flex>
+              <DarkMode>
                 <Button
                   size='lg'
                   zIndex={1}
@@ -113,48 +127,40 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='connectWalletPage.viewADemo' />
                 </Button>
-              </Stack>
-            </Center>
-            <Flex
-              direction={'column'}
-              gap={4}
-              width='full'
-              position={{ base: 'static', md: 'fixed' }}
-              zIndex={3}
-              py={3}
-              px={4}
-              bottom={0}
-              alignItems={'center'}
-            >
-              <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
-                <Link
-                  href='/#/legal/terms-of-service'
-                  color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
-                  <Text translation='common.terms' />
-                </Link>
-                <Link
-                  href='/#/legal/privacy-policy'
-                  color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
-                  <Text translation='common.privacy' />
-                </Link>
-                <Link
-                  href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
-                  isExternal
-                  color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
-                  <Text translation='connectWalletPage.betaSunset' />
-                </Link>
-              </Flex>
+              </DarkMode>
+            </Stack>
+          </Center>
+          <Flex
+            direction={'column'}
+            gap={4}
+            width='full'
+            position={{ base: 'static', md: 'fixed' }}
+            zIndex={3}
+            py={3}
+            px={4}
+            bottom={0}
+            alignItems={'center'}
+          >
+            <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
+              <Link
+                href='/#/legal/terms-of-service'
+                color='whiteAlpha.500'
+                _hover={{ color: 'white' }}
+              >
+                <Text translation='common.terms' />
+              </Link>
+              <Link
+                href='/#/legal/privacy-policy'
+                color='whiteAlpha.500'
+                _hover={{ color: 'white' }}
+              >
+                <Text translation='common.privacy' />
+              </Link>
             </Flex>
           </Flex>
-          <AuroraBackground />
         </Flex>
-      </DarkMode>
+        <AuroraBackground />
+      </Flex>
     </Page>
   )
 }

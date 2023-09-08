@@ -1,14 +1,14 @@
-import { ModalCloseButton } from '@chakra-ui/modal'
 import {
   Button,
   Checkbox,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -16,11 +16,6 @@ import { Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'Modals', 'Wipe'],
-})
 
 export const WipeModal = () => {
   const initRef = useRef<HTMLInputElement | null>(null)
@@ -28,9 +23,7 @@ export const WipeModal = () => {
   const { keepKeyWallet } = useKeepKey()
   const { disconnect } = useWallet()
   const translate = useTranslate()
-  const {
-    keepKeyWipe: { close, isOpen },
-  } = useModal()
+  const { close, isOpen } = useModal('keepKeyWipe')
   const {
     state: {
       deviceState: { awaitingDeviceInteraction },
@@ -41,7 +34,7 @@ export const WipeModal = () => {
 
   const onClose = () => {
     keepKeyWallet?.cancel().catch(e => {
-      moduleLogger.error(e, { fn: 'onClose' }, 'Error canceling KeepKey action')
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -53,13 +46,12 @@ export const WipeModal = () => {
   }
 
   const wipeDevice = async () => {
-    moduleLogger.trace({ fn: 'wipeDevice' }, 'Wiping KeepKey...')
     try {
       await keepKeyWallet?.wipe()
       disconnect()
       close()
     } catch (e) {
-      moduleLogger.error(e, { fn: 'wipeDevice' }, 'KeepKey Wipe Failed')
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: (e as { message: string })?.message ?? translate('common.somethingWentWrong'),
@@ -87,7 +79,7 @@ export const WipeModal = () => {
         <ModalCloseButton />
         <ModalBody>
           <Text
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.keepKey.modals.descriptions.wipeKeepKey'}
             mb={6}
           />

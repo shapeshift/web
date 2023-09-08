@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { PartialRecord } from 'lib/utils'
 
 export type PriceHistoryData = PartialRecord<AssetId, HistoryData[]>

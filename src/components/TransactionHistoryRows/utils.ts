@@ -1,9 +1,9 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
@@ -16,12 +16,15 @@ export const getTransfersByType = (
   transfers: Transfer[],
   types: TransferType[],
 ): Record<TransferType, Transfer[]> =>
-  types.reduce((prev, type) => {
-    const transfersByType = transfers.filter(t => t.type === type)
-    if (!transfersByType.length) return prev
-    prev[type] = transfersByType
-    return prev
-  }, {} as Record<TransferType, Transfer[]>)
+  types.reduce(
+    (prev, type) => {
+      const transfersByType = transfers.filter(t => t.type === type)
+      if (!transfersByType.length) return prev
+      prev[type] = transfersByType
+      return prev
+    },
+    {} as Record<TransferType, Transfer[]>,
+  )
 
 type GetTradeFeesInput = {
   buy: Transfer
@@ -73,12 +76,16 @@ export const getTradeFees = memoize(
 
 export const makeAmountOrDefault = (
   value: string,
-  approvedAssetMarketData: MarketData,
-  approvedAsset: Asset,
+  approvedAssetMarketData: MarketData | undefined,
+  approvedAsset: Asset | undefined,
   parser: TxMetadata['parser'] | undefined,
 ) => {
   // An obvious revoke i.e a 0-value approve() Tx
   if (bn(value).isZero()) return `transactionRow.parser.${parser}.revoke`
+
+  // Unavailable assets
+  if (!approvedAsset || !approvedAssetMarketData)
+    return `transactionRow.parser.${parser}.amountUnavailable`
 
   const approvedAmount = bn(value).div(bn(10).pow(approvedAsset.precision)).toString()
 

@@ -1,4 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { getConfig } from 'config'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -7,23 +8,28 @@ import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { nftApi } from './apis/nft/nftApi'
+import { swappersApi } from './apis/swappers/swappersApi'
+import { zapper, zapperApi } from './apis/zapper/zapperApi'
+import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
-import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
+import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
   key: 'root',
-  version: 1,
-  whitelist: ['txHistory', 'portfolio', 'opportunities'],
+  version: Math.max(...Object.keys(migrations).map(Number)),
+  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft'],
   storage: localforage,
   // @ts-ignore createMigrate typings are wrong
   migrate: createMigrate(migrations, { debug: false }),
@@ -34,12 +40,17 @@ const apiMiddleware = [
   marketApi.middleware,
   assetApi.middleware,
   txHistoryApi.middleware,
-  validatorDataApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
+  swappersApi.middleware,
   fiatRampApi.middleware,
+  zapper.middleware,
+  zapperApi.middleware,
+  nftApi.middleware,
+  covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
+  zerionApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -48,16 +59,21 @@ export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())
-  store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
+  store.dispatch(slices.swappers.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
-  store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
+  store.dispatch(apiSlices.zapperApi.util.resetApiState())
+  store.dispatch(apiSlices.nftApi.util.resetApiState())
+  store.dispatch(apiSlices.covalentApi.util.resetApiState())
+  store.dispatch(apiSlices.zapper.util.resetApiState())
+  store.dispatch(apiSlices.swapperApi.util.resetApiState())
+  store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
 /**
@@ -78,6 +94,10 @@ const actionSanitizer = (action: any) => {
     'assetApi/executeQuery/fulfilled',
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
+    'zapperApi/executeQuery/fulfilled',
+    'nftApi/executeQuery/fulfilled',
+    'covalentApi/executeQuery/fulfilled',
+    'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
     ? {
@@ -106,6 +126,10 @@ const stateSanitizer = (state: any) => {
 export const createStore = () =>
   configureStore({
     reducer: persistedReducer,
+    enhancers: existingEnhancers => {
+      // Add the autobatch enhancer to the store setup
+      return existingEnhancers.concat(autoBatchEnhancer())
+    },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         immutableCheck: {
@@ -118,7 +142,9 @@ export const createStore = () =>
           warnAfter: 128,
           ignoredActions: [PERSIST, PURGE],
         },
-      }).concat(apiMiddleware),
+      })
+        .concat(apiMiddleware)
+        .concat(getConfig().REACT_APP_REDUX_WINDOW ? [updateWindowStoreMiddleware] : []),
     devTools: {
       actionSanitizer,
       stateSanitizer,
@@ -127,6 +153,11 @@ export const createStore = () =>
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+export type ReduxStore = typeof store
+
+// dev QoL to access the store in the console
+if (window && getConfig().REACT_APP_REDUX_WINDOW) window.store = store
 
 getStateWith(store.getState)
 registerSelectors(selectors)

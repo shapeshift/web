@@ -18,9 +18,18 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectFeeAssetById,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -32,17 +41,27 @@ type StatusProps = {
 }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const opportunity = state?.opportunity
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
   const assetId = state?.opportunity?.assetId
-  const feeAssetId = assetId
 
-  const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const assets = useAppSelector(selectAssets)
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+  )
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const userAddress = useMemo(
@@ -70,7 +89,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
             payload: {
               txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-              usedGasFee: confirmedTransaction.fee?.value,
             },
           })
         }
@@ -79,12 +97,35 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, confirmedTransaction, contextDispatch, getOpportunitiesUserData])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!assetId || !opportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    assetId,
+    mixpanel,
+    opportunity,
+    state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!(state && asset)) return null
 
@@ -144,31 +185,50 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         </Row>
         <Row variant='gutter'>
           <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
-              <Text
-                translation={
-                  state.withdraw.txStatus === 'pending'
-                    ? 'defi.modals.saversVaults.estimatedFee'
-                    : 'defi.modals.saversVaults.fee'
-                }
-              />
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation={'trade.protocolFee'} />
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
+                value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
-                color='gray.500'
-                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
+                color='text.subtle'
+                value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}
                 symbol={asset.symbol}
+              />
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              <Text translation={'trade.minerFee'} />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .times(feeMarketData.price)
+                  .toFixed()}
+              />
+              <Amount.Crypto
+                color='text.subtle'
+                value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .toFixed()}
+                symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>
@@ -189,7 +249,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   .toFixed()}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}

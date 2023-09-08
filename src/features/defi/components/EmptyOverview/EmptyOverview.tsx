@@ -1,27 +1,25 @@
+import type { StackProps } from '@chakra-ui/react'
 import { Flex, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { Fragment } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
+import type { Asset } from 'lib/asset-service'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
-export type EmptyOverviewAsset =
-  | {
-      icon: string
-      icons?: never
-    }
-  | {
-      icon?: never
-      icons: string[]
-    }
-
 type EmptyOverviewProps = {
-  assets: EmptyOverviewAsset[]
+  assets: Asset[]
   footer?: React.ReactNode
+  stackProps?: StackProps
 } & PropsWithChildren
 
-export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, assets }) => {
+export const EmptyOverview: React.FC<EmptyOverviewProps> = ({
+  children,
+  footer,
+  assets,
+  stackProps,
+}) => {
   if (assets.length === 0) return null
   return (
     <Flex
@@ -31,7 +29,7 @@ export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, 
       flexDir='column'
     >
       <ModalBody textAlign='center'>
-        <Stack py={8}>
+        <Stack py={8} {...stackProps}>
           <Stack
             direction='row'
             justifyContent='center'

@@ -34,7 +34,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
         <Text translation={headerText} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={bodyText} />
+        <Text mb={4} color='text.subtle' translation={bodyText} />
         {loading ? (
           <Button
             width='full'
@@ -42,7 +42,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             isLoading
             loadingText='Pairing Wallet'
             spinner={<Spinner color='white' />}
-            disabled={loading}
+            isDisabled={loading}
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>
@@ -51,7 +51,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             width='full'
             colorScheme='blue'
             onClick={handlePairDeviceClick}
-            disabled={loading}
+            isDisabled={loading}
             data-test='wallet-pair-button'
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />

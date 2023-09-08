@@ -3,14 +3,13 @@ import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { locales } from 'assets/translations/constants'
+import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { locales } from '../../../assets/translations/constants'
-import { getLocaleLabel } from '../../../assets/translations/utils'
 
 export const Languages = () => {
   const dispatch = useAppDispatch()

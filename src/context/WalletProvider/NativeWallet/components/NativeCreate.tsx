@@ -15,15 +15,15 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
-const moduleLogger = logger.child({ namespace: ['NativeCreate'] })
 
 const getVault = async (): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
@@ -40,6 +40,7 @@ export const NativeCreate = () => {
   const location = useLocation<LocationState>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
     revealedOnce.current = true
@@ -67,6 +68,16 @@ export const NativeCreate = () => {
     ))
   }, [])
 
+  const handleClick = useCallback(() => {
+    if (vault) {
+      history.push('/native/create-test', {
+        vault,
+        isLegacyWallet,
+      })
+      mixpanel?.track(MixPanelEvents.NativeCreate)
+    }
+  }, [history, isLegacyWallet, mixpanel, vault])
+
   useEffect(() => {
     ;(async () => {
       try {
@@ -74,8 +85,7 @@ export const NativeCreate = () => {
         const vault = isLegacyWallet ? location.state.vault : await getVault()
         setVault(vault)
       } catch (e) {
-        // @TODO
-        moduleLogger.error(e, 'NativeCreate error')
+        console.error(e)
       }
     })()
   }, [setVault, location.state?.vault, isLegacyWallet])
@@ -103,7 +113,7 @@ export const NativeCreate = () => {
           ),
         )
       } catch (e) {
-        moduleLogger.error(e, 'failed to get Secret Recovery Phrase:')
+        console.error(e)
         setWords(null)
       }
     })()
@@ -134,7 +144,7 @@ export const NativeCreate = () => {
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
+        <Text color='text.subtle' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -146,7 +156,7 @@ export const NativeCreate = () => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />
@@ -154,15 +164,8 @@ export const NativeCreate = () => {
         <Button
           colorScheme='blue'
           size='lg'
-          disabled={!(vault && words && revealedOnce.current)}
-          onClick={() => {
-            if (vault) {
-              history.push('/native/create-test', {
-                vault,
-                isLegacyWallet,
-              })
-            }
-          }}
+          isDisabled={!(vault && words && revealedOnce.current)}
+          onClick={handleClick}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>

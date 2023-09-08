@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -10,8 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -21,23 +19,26 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -45,12 +46,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference, contractAddress } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
 
+  const assets = useAppSelector(selectAssets)
   const feeAssetId = chainAdapter?.getFeeAssetId()
 
   const opportunityId = useMemo(
@@ -96,7 +99,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   // user info
   const { state: walletState } = useWallet()
@@ -109,11 +112,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch || !bip44Params) return
+    if (!dispatch || !bip44Params || !assetId) return
     try {
       if (
         !(
@@ -122,7 +125,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData
         )
       )
         return
@@ -145,8 +149,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ amountCryptoHuman: state.deposit.cryptoAmount, assetId }],
+        },
+        assets,
+      )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -164,12 +177,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     idleInvestor,
-    state,
     asset.precision,
     onNext,
+    opportunityData,
+    assetId,
     toast,
     translate,
+    assets,
   ])
 
   const handleCancel = useCallback(() => {
@@ -179,10 +196,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .minus(bnOrZero(state?.deposit.estimatedGasCryptoBaseUnit).div(`1e+${feeAsset.precision}`))
         .gte(0),
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch) return null
 
@@ -218,14 +241,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                color='text.subtle'
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}
                 symbol={feeAsset.symbol}

@@ -1,5 +1,4 @@
-import { Flex, Text } from '@chakra-ui/layout'
-import { SkeletonText } from '@chakra-ui/react'
+import { Flex, SkeletonText, Text } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -32,7 +31,7 @@ export const Total = ({ icons, fiatAmount }: TotalProps) => {
         ))}
       </Flex>
       <SkeletonText isLoaded={true} noOfLines={2}>
-        <Text color='gray.500' fontWeight='bold'>
+        <Text color='text.subtle' fontWeight='bold'>
           {translate('plugins.foxPage.totalFoxValue')}
         </Text>
         <Amount.Fiat

@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { clearState, store } from 'state/store'
 
 import { foxEthLpAssetId } from './constants'
@@ -12,6 +11,7 @@ import {
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
+import { DefiProvider, DefiType } from './types'
 import { serializeUserStakingId } from './utils'
 
 describe('opportunitiesSlice', () => {
@@ -37,8 +37,10 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxFarming,
+              provider: DefiProvider.UniV2,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -47,11 +49,13 @@ describe('opportunitiesSlice', () => {
                 string,
                 string,
               ],
+              rewardAssetIds: [],
+              isClaimableRewards: false,
             },
           },
           type: DefiType.LiquidityPool,
         } as const
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(payload))
         expect(store.getState().opportunities.lp.byId).toEqual(payload.byId)
         expect(store.getState().opportunities.lp.ids).toEqual([mockLpContractOne])
       })
@@ -62,8 +66,10 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxFarming,
+              provider: DefiProvider.UniV2,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -72,12 +78,14 @@ describe('opportunitiesSlice', () => {
                 string,
                 string,
               ],
+              rewardAssetIds: [],
+              isClaimableRewards: false,
             },
           },
           type: DefiType.LiquidityPool,
         } as const
 
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadOne))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(insertPayloadOne))
         expect(store.getState().opportunities.lp.byId).toEqual(insertPayloadOne.byId)
 
         const insertPayloadTwo = {
@@ -85,8 +93,10 @@ describe('opportunitiesSlice', () => {
             [mockLpContractTwo]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxFarming,
+              provider: DefiProvider.UniV2,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -95,12 +105,14 @@ describe('opportunitiesSlice', () => {
                 string,
                 string,
               ],
+              rewardAssetIds: [],
+              isClaimableRewards: false,
             },
           },
           type: DefiType.LiquidityPool,
         } as const
 
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadTwo))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(insertPayloadTwo))
         expect(store.getState().opportunities.lp.byId).toEqual({
           ...insertPayloadOne.byId,
           ...insertPayloadTwo.byId,
@@ -191,11 +203,16 @@ describe('opportunitiesSlice', () => {
 
     describe('upsertUserStakingOpportunities', () => {
       it('inserts user data', () => {
+        const userStakingId = serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')
         const payload = {
           byId: {
-            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingId]: {
+              userStakingId,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }
@@ -204,11 +221,19 @@ describe('opportunitiesSlice', () => {
         expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload.byId))
       })
       it('merges prevState and payload', () => {
+        const userStakingIdOne = serializeUserStakingId(
+          gomesAccountId,
+          'eip155:1:0xMyStakingContract',
+        )
         const insertPayloadOne = {
           byId: {
-            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingIdOne]: {
+              userStakingId: userStakingIdOne,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }
@@ -218,11 +243,19 @@ describe('opportunitiesSlice', () => {
           Object.keys(insertPayloadOne.byId),
         )
 
+        const userStakingIdTwo = serializeUserStakingId(
+          fauxmesAccountId,
+          'eip155:1:0xMyStakingContract',
+        )
         const insertPayloadTwo = {
           byId: {
-            [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingIdTwo]: {
+              userStakingId: userStakingIdTwo,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }

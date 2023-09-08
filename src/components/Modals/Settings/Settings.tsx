@@ -14,7 +14,7 @@ const Settings = () => {
   // for the secret flags menu to work on mobile
   const appHistory = useHistory()
 
-  const { settings } = useModal()
+  const settings = useModal('settings')
   const { close, isOpen } = settings
 
   /**

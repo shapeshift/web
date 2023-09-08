@@ -12,10 +12,9 @@ import { store } from 'state/store'
 export const Notice = () => {
   const translate = useTranslate()
   const iconColor = useColorModeValue('gray.200', 'gray.700')
-  const {
-    mobileWelcomeModal: { close: handleClose },
-    backupNativePassphrase: { open },
-  } = useModal()
+
+  const { close: handleClose } = useModal('mobileWelcomeModal')
+  const { open } = useModal('backupNativePassphrase')
 
   const handleRecoveryClick = useCallback(() => {
     handleClose()
@@ -43,7 +42,7 @@ export const Notice = () => {
               fontWeight='bold'
               translation='modals.mobileWelcome.notice.header'
             />
-            <Text color='gray.500' translation='modals.mobileWelcome.notice.body' />
+            <Text color='text.subtle' translation='modals.mobileWelcome.notice.body' />
           </Stack>
         </Stack>
       </ModalBody>
@@ -57,7 +56,7 @@ export const Notice = () => {
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>
-        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleDismissClick}>
+        <Button width='full' variant='ghost' onClick={handleDismissClick}>
           {translate('modals.mobileWelcome.notice.secondaryCta')}
         </Button>
       </ModalFooter>

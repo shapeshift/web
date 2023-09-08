@@ -1,12 +1,11 @@
-import { Button } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import type { CardProps } from '@chakra-ui/react'
+import { Button, Card, Flex, Heading } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import type { CardProps } from 'components/Card/Card'
-import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
-import { bn } from 'lib/bignumber/bignumber'
+import type { CarouselHeaderProps } from 'components/Carousel/types'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -14,8 +13,26 @@ import { FeaturedCard } from './FeaturedCards/FeaturedCard'
 
 type EligibleCarouselProps = CardProps
 
-export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
+const Header: React.FC<CarouselHeaderProps> = ({ controls }) => {
   const translate = useTranslate()
+  return (
+    <Flex alignItems='center' justifyContent='space-between' width='full'>
+      <Flex alignItems='center' gap={4}>
+        <Heading as='h4' fontSize='md'>
+          {translate('defi.eligibleOpportunities')}
+        </Heading>
+        <Button as={NavLink} to='/earn' variant='link' colorScheme='blue'>
+          {translate('common.viewAll')}
+        </Button>
+      </Flex>
+      {controls}
+    </Flex>
+  )
+}
+
+const cardPadding = { base: 4, xl: 0 }
+
+export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
@@ -33,23 +50,10 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   if (!filteredEligibleOpportunities.length) return null
 
   return (
-    <Card variant='outline' flexDir='column' {...props}>
-      <Card.Header
-        display='flex'
-        borderBottom={0}
-        alignItems='center'
-        justifyContent='space-between'
-      >
-        <Card.Heading>{translate('defi.eligibleOpportunities')}</Card.Heading>
-        <Button as={NavLink} to='/defi/earn' variant='link' colorScheme='blue'>
-          {translate('common.viewAll')}
-        </Button>
-      </Card.Header>
-      <Card.Body>
-        <Carousel showDots showArrows autoPlay>
-          {renderEligibleCards}
-        </Carousel>
-      </Card.Body>
+    <Card variant='unstyled' px={cardPadding}>
+      <Carousel autoPlay slideSize='100%' renderHeader={props => <Header {...props} />} {...props}>
+        {renderEligibleCards}
+      </Carousel>
     </Card>
   )
 }

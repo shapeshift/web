@@ -12,14 +12,19 @@ import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider
 import qs from 'qs'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from './ClaimCommon'
@@ -28,59 +33,70 @@ import { initialState, reducer } from './ClaimReducer'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
-})
+type CosmosClaimProps = {
+  accountId: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
 
-type CosmosClaimProps = { accountId: AccountId | undefined }
-
-export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
+export const CosmosClaim: React.FC<CosmosClaimProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
+  const { assetNamespace, contractAddress: validatorAddress, assetReference, chainId } = query
   const { state: walletState } = useWallet()
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
+    assetReference,
   })
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(cosmosOpportunity && bip44Params)) return
+    try {
+      if (!earnOpportunityData) return
 
-        const chainAdapterManager = getChainAdapterManager()
-        const chainAdapter = chainAdapterManager.get(
-          chainId,
-        ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
+      const chainAdapterManager = getChainAdapterManager()
+      const chainAdapter = chainAdapterManager.get(
+        chainId,
+      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+      if (!(walletState.wallet && validatorAddress && chainAdapter)) return
+      dispatch({
+        type: CosmosClaimActionType.SET_OPPORTUNITY,
+        payload: { ...earnOpportunityData },
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      console.error(error)
+    }
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
-        dispatch({ type: CosmosClaimActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({
-          type: CosmosClaimActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosClaim error')
-      }
-    })()
-  }, [chainId, cosmosOpportunity, contractAddress, walletState.wallet, bip44Params])
+  const highestBalanceAccountIdFilter = useMemo(() => ({ stakingId: validatorId }), [validatorId])
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
+  )
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
 
   // Asset info
 
@@ -106,7 +122,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, translate])

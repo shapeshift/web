@@ -7,7 +7,6 @@ import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
 import OnRamperLogo from 'assets/on-ramper.png'
-import { logger } from 'lib/logger'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import type commonFiatCurrencyList from './FiatCurrencyList.json'
@@ -37,10 +36,6 @@ import {
   getSupportedOnRamperFiatCurrencies,
 } from './fiatRampProviders/onramper'
 import type { CreateUrlProps } from './types'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'config'],
-})
 
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -76,7 +71,7 @@ export interface SupportedFiatRampConfig {
 }
 
 const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
-export type FiatRamp = typeof fiatRamps[number]
+export type FiatRamp = (typeof fiatRamps)[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -116,7 +111,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const gemPartnerUrl = makeGemPartnerUrl(props)
         return gemPartnerUrl
       } catch (err) {
-        moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
+        console.error(err)
       }
     },
     isActive: () => false,
@@ -129,7 +124,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: OnRamperLogo,
     isActive: () => true,
     minimumSellThreshold: 0,
-    order: 2,
+    order: 3,
     getBuyAndSellList: async () => {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
@@ -140,7 +135,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const onRamperCheckoutUrl = createOnRamperUrl(props)
         return onRamperCheckoutUrl
       } catch (err) {
-        moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
+        console.error(err)
       }
     },
   },
@@ -150,7 +145,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: banxaLogo,
     isActive: () => true,
     minimumSellThreshold: 50,
-    order: 3,
+    order: 2,
     getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
@@ -162,7 +157,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const banxaCheckoutUrl = createBanxaUrl(props)
         return banxaCheckoutUrl
       } catch (err) {
-        moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
+        console.error(err)
       }
     },
   },
@@ -184,7 +179,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const junoPayCheckoutUrl = createJunoPayUrl(props)
         return junoPayCheckoutUrl
       } catch (err) {
-        moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
+        console.error(err)
       }
     },
   },
@@ -209,7 +204,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)
         return mtPelerinCheckoutUrl
       } catch (err) {
-        moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
+        console.error(err)
       }
     },
   },

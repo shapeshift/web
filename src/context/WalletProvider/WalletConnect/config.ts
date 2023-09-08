@@ -3,7 +3,7 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const WalletConnectConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapter: WalletConnectAdapter,
+  adapters: [WalletConnectAdapter],
   supportsMobile: 'both',
   icon: WalletConnectIcon,
   name: 'WalletConnect',

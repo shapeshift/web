@@ -2,26 +2,35 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { nft, nftApi } from './apis/nft/nftApi'
+import { swappersApi } from './apis/swappers/swappersApi'
+import { zapper, zapperApi } from './apis/zapper/zapperApi'
+import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
+import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { swappers } from './slices/swappersSlice/swappersSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
-import { validatorData, validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
 export const slices = {
   assets,
   marketData,
   txHistory,
-  validatorData,
   portfolio,
   preferences,
   opportunities,
+  nft,
+  swappers,
+  tradeQuoteSlice,
 }
 
 const preferencesPersistConfig = {
@@ -36,9 +45,11 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  validatorData: validatorData.reducer,
   swapperApi: swapperApi.reducer,
+  swappers: swappers.reducer,
   opportunities: opportunities.reducer,
+  nft: nft.reducer,
+  tradeQuoteSlice: tradeQuoteSlice.reducer,
 }
 
 export const apiSlices = {
@@ -46,12 +57,17 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  validatorDataApi,
   swapperApi,
+  swappersApi,
   foxyApi,
   fiatRampApi,
+  zapper,
+  zapperApi,
+  nftApi,
+  covalentApi,
   opportunitiesApi,
   abiApi,
+  zerionApi,
 }
 
 export const apiReducers = {
@@ -59,12 +75,17 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [validatorDataApi.reducerPath]: validatorDataApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
+  [swappersApi.reducerPath]: swappersApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [zapperApi.reducerPath]: zapperApi.reducer,
+  [nftApi.reducerPath]: nftApi.reducer,
+  [covalentApi.reducerPath]: covalentApi.reducer,
+  [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
+  [zerionApi.reducerPath]: zerionApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

@@ -4,17 +4,17 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { selectAssetById } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
 
-const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
-
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const { send } = useModal()
+  const send = useModal('send')
+  const qrCode = useModal('qrCode')
   const {
     state: { wallet },
   } = useWallet()
@@ -22,23 +22,25 @@ export const useFormSend = () => {
   const handleFormSend = useCallback(
     async (sendInput: SendInput) => {
       try {
+        const asset = selectAssetById(store.getState(), sendInput.assetId)
+        if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
         const broadcastTXID = await handleSend({ wallet, sendInput })
 
         setTimeout(() => {
           toast({
-            title: translate('modals.send.sent', { asset: sendInput.asset.name }),
+            title: translate('modals.send.sent', { asset: asset.name }),
             description: (
               <Text>
                 <Text>
                   {translate('modals.send.youHaveSent', {
                     amount: sendInput.cryptoAmount,
-                    symbol: sendInput.cryptoSymbol,
+                    symbol: asset.symbol,
                   })}
                 </Text>
-                {sendInput.asset.explorerTxLink && (
-                  <Link href={`${sendInput.asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                {asset.explorerTxLink && (
+                  <Link href={`${asset.explorerTxLink}${broadcastTXID}`} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 )}
@@ -50,11 +52,13 @@ export const useFormSend = () => {
             position: 'top-right',
           })
         }, 5000)
-      } catch (e: any) {
-        moduleLogger.error(e, 'Error handling form send')
+      } catch (e) {
+        // If we're here, we know asset is defined
+        const asset = selectAssetById(store.getState(), sendInput.assetId)!
+        console.error(e)
         toast({
           title: translate('modals.send.errorTitle', {
-            asset: sendInput.asset.name,
+            asset: asset.name,
           }),
           description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
@@ -63,12 +67,14 @@ export const useFormSend = () => {
           position: 'top-right',
         })
 
-        throw new Error(e)
+        throw e
       } finally {
+        // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
+        qrCode.close()
         send.close()
       }
     },
-    [send, toast, translate, wallet],
+    [qrCode, send, toast, translate, wallet],
   )
 
   return {

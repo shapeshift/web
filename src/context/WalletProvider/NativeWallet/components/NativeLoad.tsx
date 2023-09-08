@@ -26,11 +26,8 @@ import {
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
-
-const moduleLogger = logger.child({ namespace: ['NativeLoad'] })
 
 type VaultInfo = {
   id: string
@@ -64,7 +61,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
           setWallets(storedWallets)
         } catch (e) {
-          moduleLogger.error(e, 'WalletProvider:NativeWallet:Load - Cannot get vault')
+          console.error(e)
           setWallets([])
         }
       }
@@ -72,12 +69,12 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
-    const adapter = state.adapters?.get(KeyManager.Native)
+    const adapters = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
-    if (adapter) {
+    if (adapters?.length) {
       const { name, icon } = NativeConfig
       try {
-        const wallet = await adapter.pairDevice(deviceId)
+        const wallet = await adapters[0].pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
           // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
@@ -86,7 +83,14 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId, meta: { label: item.name } },
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: item.name },
+              connectedType: KeyManager.Native,
+            },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           // The wallet is already initialized so we can close the modal
@@ -167,7 +171,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                     <Text
                       fontSize='xs'
                       lineHeight='1.2'
-                      color='gray.500'
+                      color='text.subtle'
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
                     />
                   </Box>

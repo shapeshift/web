@@ -2,12 +2,13 @@ import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN } from 'constants/Config'
+import {
+  MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_EIP712,
+  MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN,
+} from 'constants/Config'
 import { useEffect, useState } from 'react'
 import semverGte from 'semver/functions/gte'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_EIP712 } from '../../../../constants/Config'
 
 interface VersionUrl {
   version: string

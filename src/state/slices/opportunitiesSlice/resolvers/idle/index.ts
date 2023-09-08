@@ -1,35 +1,39 @@
-import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { logger } from 'lib/logger'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
+  AssetIdsTuple,
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
-  OpportunityId,
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
+  OpportunityIdsResolverInput,
 } from '../types'
-import { BASE_OPPORTUNITIES_BY_ID } from './constants'
-
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
+import { getIdleInvestor } from './idleInvestorSingleton'
 
 export const idleStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -38,24 +42,24 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return await getIdleInvestor().findAll()
   })()
 
+  if (!IdleFinance) {
+    return {
+      data: {
+        byId: {},
+        type: defiType,
+      },
+    }
+  }
   if (!opportunities?.length) {
     const data = {
-      byId: Object.fromEntries(
-        Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
-          opportunityId,
-          { ...opportunityMetadata, apy: '0', tvl: '0' },
-        ]),
-      ),
-      type: opportunityType,
+      byId: {},
+      type: defiType,
     } as const
 
     return {
       data,
     }
   }
-
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
@@ -76,73 +80,64 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
     if (!asset || !underlyingAsset) continue
 
-    const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
-    if (!baseOpportunity) {
-      moduleLogger.warn(`
-        No base opportunity found for ${opportunityId} in BASE_OPPORTUNITIES_BY_ID, refetching.
-        Add me to avoid re-fetching from the contract.
-        `)
+    const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
+      console.error(error)
+      return []
+    })) as AssetIdsTuple
+
+    stakingOpportunitiesById[opportunityId] = {
+      active: opportunity.active,
+      apy: opportunity.apy.toFixed(),
+      assetId,
+      cdoAddress: opportunity.metadata.cdoAddress,
+      id: opportunityId,
+      provider: DefiProvider.Idle,
+      tvl: opportunity.tvl.balance.toFixed(),
+      type: DefiType.Staking,
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [opportunity.underlyingAsset.assetId],
+      rewardAssetIds,
+      isClaimableRewards: Boolean(rewardAssetIds.length),
+      // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
+      // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
+      // As 1 Idle token wraps ~1.0x* underlying
+      underlyingAssetRatiosBaseUnit: [
+        opportunity.positionAsset.underlyingPerPosition
+          .times(bn(10).pow(underlyingAsset.precision))
+          .toFixed(),
+      ],
+      name: `${underlyingAsset.symbol} Vault`,
+      version: opportunity.version,
+      tags: [opportunity.strategy],
     }
-    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
-    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
-    stakingOpportunitiesById[opportunityId] = baseOpportunity
-      ? {
-          ...baseOpportunity,
-          apy: opportunity.apy.toFixed(),
-          tvl: opportunity.tvl.balanceUsdc.toFixed(),
-          name: `${underlyingAsset.symbol} Vault`,
-          version: opportunity.version,
-          provider: DefiProvider.Idle,
-          type: DefiType.Staking,
-        }
-      : {
-          apy: opportunity.apy.toFixed(),
-          assetId,
-          provider: DefiProvider.Idle,
-          tvl: opportunity.tvl.balance.toFixed(),
-          type: DefiType.Staking,
-          underlyingAssetId: assetId,
-          underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-          ...{
-            rewardAssetIds: (await opportunity.getRewardAssetIds().catch(error => {
-              moduleLogger.debug(
-                { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-                `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
-              )
-            })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined,
-          },
-          // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
-          underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
-          name: `${underlyingAsset.symbol} Vault`,
-          version: opportunity.version,
-        }
   }
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const idleStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+
+  if (!IdleFinance)
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
-
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
@@ -150,7 +145,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
-    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
     if (!asset) continue
@@ -171,8 +166,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
         stakedAmountCryptoBaseUnit: '0',
-        rewardsAmountsCryptoBaseUnit: [],
+        rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
       }
       continue
     }
@@ -192,7 +188,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
-      const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
+      const claimableTokens = await opportunity
+        .getClaimableTokens(fromAccountId(accountId).account)
+        .catch(_e => [])
       rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
@@ -200,23 +198,41 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       }) as [string] | [string, string]
     }
 
+    const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
+      console.error(error)
+      return []
+    })) as AssetIdsTuple
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      userStakingId,
       stakedAmountCryptoBaseUnit: balance,
-      rewardsAmountsCryptoBaseUnit,
+      rewardsCryptoBaseUnit: {
+        amounts: rewardsAmountsCryptoBaseUnit,
+        claimable: Boolean(rewardAssetIds.length),
+      },
     }
   }
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return Promise.resolve({ data })
 }
 
-export const idleStakingOpportunityIdsResolver = async (): Promise<{
+export const idleStakingOpportunityIdsResolver = async ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+  if (!IdleFinance) {
+    return { data: [] }
+  }
+
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -227,7 +243,7 @@ export const idleStakingOpportunityIdsResolver = async (): Promise<{
 
   if (!opportunities?.length) {
     return {
-      data: Object.keys(BASE_OPPORTUNITIES_BY_ID) as OpportunityId[],
+      data: [],
     }
   }
 

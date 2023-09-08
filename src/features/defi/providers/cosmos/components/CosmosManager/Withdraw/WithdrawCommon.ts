@@ -1,23 +1,8 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { WithdrawType } from '@shapeshiftoss/types'
 import type {
   Field as WithdrawField,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-
-type SupportedCosmosOpportunity = {
-  type: DefiType
-  provider: string
-  version: string
-  contractAddress: string
-  stakingToken: string
-  chain: ChainId
-  tvl: BigNumber
-  expired: boolean
-}
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -26,20 +11,15 @@ type EstimatedGas = {
 type CosmosWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage> &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
-    withdrawType: WithdrawType
   }
 
 export type CosmosWithdrawState = {
-  cosmosOpportunity: SupportedCosmosOpportunity
-  userAddress: string | null
   withdraw: CosmosWithdrawValues
   loading: boolean
   txid: string | null
 }
 export enum CosmosWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -48,17 +28,12 @@ export enum CosmosWithdrawActionType {
 
 type SetVaultAction = {
   type: CosmosWithdrawActionType.SET_OPPORTUNITY
-  payload: MergedActiveStakingOpportunity
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetWithdraw = {
   type: CosmosWithdrawActionType.SET_WITHDRAW
   payload: Partial<CosmosWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: CosmosWithdrawActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -71,9 +46,4 @@ type SetTxid = {
   payload: string
 }
 
-export type CosmosWithdrawActions =
-  | SetVaultAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type CosmosWithdrawActions = SetVaultAction | SetWithdraw | SetLoading | SetTxid

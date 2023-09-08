@@ -33,7 +33,11 @@ export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
       type: WalletActions.SET_WALLET
-      payload: WalletInfo & { isDemoWallet?: boolean; wallet: HDWallet | null }
+      payload: WalletInfo & {
+        isDemoWallet?: boolean
+        wallet: HDWallet | null
+        connectedType: KeyManager
+      }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_PROVIDER; payload: InitialState['provider'] }

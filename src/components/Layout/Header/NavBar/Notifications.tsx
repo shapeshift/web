@@ -15,13 +15,13 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints, theme } from 'theme/theme'
 
-const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native]
+const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
-    state: { wallet, type },
+    state: { wallet, modalType },
   } = useWallet()
 
   const [addressNList, setAddressNList] = useState<BIP32Path>()
@@ -59,7 +59,7 @@ export const Notifications = () => {
         accountIdx: 0,
       })[0]
 
-      const ethAddress = await wallet.ethGetAddress({ addressNList })
+      const ethAddress = await wallet.ethGetAddress({ addressNList, showDisplay: false })
 
       setEthAddress(ethAddress)
       setAddressNList(addressNList)
@@ -72,12 +72,16 @@ export const Notifications = () => {
         return
       }
 
-      const signedMsg = await wallet.ethSignMessage({
-        addressNList,
-        message,
-      })
+      try {
+        const signedMsg = await wallet.ethSignMessage({
+          addressNList,
+          message,
+        })
 
-      return signedMsg?.signature
+        return signedMsg?.signature
+      } catch (e) {
+        console.error(e)
+      }
     },
     [wallet, addressNList],
   )
@@ -88,12 +92,16 @@ export const Notifications = () => {
         return
       }
 
-      const signedMsg = await wallet.ethSignTypedData?.({
-        addressNList,
-        typedData,
-      })
+      try {
+        const signedMsg = await wallet.ethSignTypedData?.({
+          addressNList,
+          typedData,
+        })
 
-      return signedMsg?.signature
+        return signedMsg?.signature
+      } catch (e) {
+        console.error(e)
+      }
     },
     [wallet, addressNList],
   )
@@ -102,7 +110,7 @@ export const Notifications = () => {
     !isWhereverEnabled ||
     !ethAddress ||
     !wallet ||
-    !eip712SupportedWallets.includes(type as KeyManager) ||
+    !eip712SupportedWallets.includes(modalType as KeyManager) ||
     !supportsETH(wallet)
   )
     return null

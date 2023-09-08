@@ -3,6 +3,7 @@ import {
   accountIdToChainId,
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
@@ -11,9 +12,11 @@ import {
   fromAccountId,
   fromAssetId,
   fromChainId,
+  gnosisChainId,
+  isNft,
   ltcChainId,
   optimismChainId,
-  osmosisChainId,
+  polygonChainId,
   thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -21,23 +24,22 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
+  supportsBSC,
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
+  supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import groupBy from 'lodash/groupBy'
-import last from 'lodash/last'
+import maxBy from 'lodash/maxBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 
-import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import type {
   Portfolio,
   PortfolioAccountBalancesById,
@@ -65,6 +67,9 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case avalancheChainId:
     case optimismChainId:
     case ethChainId:
+    case polygonChainId:
+    case gnosisChainId:
+    case bscChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
     case btcChainId:
@@ -77,8 +82,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       return 'Bitcoin Cash'
     case cosmosChainId:
       return 'Cosmos'
-    case osmosisChainId:
-      return 'Osmosis'
     case thorchainChainId:
       return 'Thorchain'
     case dogeChainId:
@@ -104,22 +107,14 @@ export const isUtxoChainId = (chainId: ChainId): boolean =>
 export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
   getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
 
+export const accountIdToChainDisplayName = (accountId: AccountId): AssetId | undefined =>
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getDisplayName()
+
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
   getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
 export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
   chainIdToFeeAssetId(fromAssetId(assetId).chainId)
-
-export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | null => {
-  const pubkeyVariant = last(accountId.split(':'))
-  if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
-  if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
-  if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
-  if (pubkeyVariant?.startsWith('dgub')) return UtxoAccountType.P2pkh // doge
-  if (pubkeyVariant?.startsWith('Ltub')) return UtxoAccountType.P2pkh // ltc
-  if (pubkeyVariant?.startsWith('Mtub')) return UtxoAccountType.SegwitP2sh // ltc
-  return null
-}
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],
@@ -180,9 +175,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
-          if (!args.assetIds.includes(token.assetId)) {
-            return
-          }
+          // don't update portfolio if asset is not in the store except for nft assets,
+          // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
+          if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
 
@@ -229,81 +224,25 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.accounts.byId[accountId] = {
           assetIds: [],
-          validatorIds: [],
-          stakingDataByValidatorId: {},
         }
 
         portfolio.accounts.byId[accountId].assetIds.push(assetId)
-        const uniqueValidatorAddresses: PubKey[] = Array.from(
-          new Set(
-            [
-              cosmosAccount.chainSpecific.delegations.map(
-                delegation => delegation.validator.address,
-              ),
-              cosmosAccount.chainSpecific.undelegations
-                .map(undelegation => {
-                  return undelegation?.validator?.address
-                })
-                .filter(isSome),
-              cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
-            ].flat(),
-          ),
-        )
-
-        portfolio.accounts.byId[accountId].validatorIds = uniqueValidatorAddresses
-        portfolio.accounts.byId[accountId].stakingDataByValidatorId = {}
-
-        // This block loads staking data at validator into the portfolio state
-        // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
-        uniqueValidatorAddresses.forEach(validatorAddress => {
-          const validatorRewards = cosmosAccount.chainSpecific.rewards.find(
-            validatorRewards => validatorRewards.validator.address === validatorAddress,
-          )
-          const rewards = groupBy(validatorRewards?.rewards, rewardEntry => rewardEntry.assetId)
-          // TODO: Do we need this? There might only be one entry per validator address actually
-          const delegationEntries = cosmosAccount.chainSpecific.delegations.filter(
-            delegation => delegation.validator.address === validatorAddress,
-          )
-          // TODO: Do we need this? There might only be one entry per validator address actually
-          const undelegationEntries = cosmosAccount.chainSpecific.undelegations.find(
-            undelegation => undelegation.validator.address === validatorAddress,
-          )
-          const delegations = groupBy(delegationEntries, delegationEntry => delegationEntry.assetId)
-          const undelegations = groupBy(
-            undelegationEntries?.entries,
-            undelegationEntry => undelegationEntry.assetId,
-          )
-
-          const uniqueAssetIds = Array.from(
-            new Set([
-              ...Object.keys(delegations),
-              ...Object.keys(undelegations),
-              ...Object.keys(rewards),
-            ]),
-          )
-
-          let portfolioAccount = portfolio.accounts.byId[accountId]
-          if (portfolioAccount.stakingDataByValidatorId) {
-            portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
-
-            uniqueAssetIds.forEach(assetId => {
-              // Useless check just to make TS happy, we are sure this is defined because of the assignment before the forEach
-              // However, forEach being its own scope loses the narrowing
-              if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
-                portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
-                  delegations: delegations[assetId] ?? [],
-                  undelegations: undelegations[assetId] ?? [],
-                  rewards: rewards[assetId] ?? [],
-                  redelegations: [], // We don't need redelegations in web, let's not store them in store but keep them for unchained/chain-adapters parity
-                }
-              }
-            })
-          }
-        })
 
         portfolio.accounts.ids.push(accountId)
 
+        cosmosAccount.chainSpecific.assets?.forEach(asset => {
+          if (!args.assetIds.includes(asset.assetId)) {
+            return
+          }
+          portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
+
+          portfolio.accountBalances.byId[accountId] = {
+            ...portfolio.accountBalances.byId[accountId],
+            [asset.assetId]: asset.amount,
+          }
+        })
         portfolio.accountBalances.byId[accountId] = {
+          ...portfolio.accountBalances.byId[accountId],
           [assetId]: account.balance,
         }
 
@@ -327,6 +266,12 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsAvalanche(wallet)
     case optimismChainId:
       return supportsOptimism(wallet)
+    case bscChainId:
+      return supportsBSC(wallet)
+    case polygonChainId:
+      return supportsPolygon(wallet)
+    case gnosisChainId:
+      return supportsGnosis(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:
@@ -357,5 +302,26 @@ export const genericBalanceIncludingStakingByFilter = (
     }, {})
   return Object.values(totalByAccountId)
     .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
-    .toString()
+    .toFixed()
 }
+
+export const getHighestUserCurrencyBalanceAccountByAssetId = (
+  accountIdAssetValues: PortfolioAccountBalancesById,
+  assetId?: AssetId,
+): AccountId | undefined => {
+  if (!assetId) return
+  const accountValueMap = Object.entries(accountIdAssetValues).reduce((acc, [k, v]) => {
+    const assetValue = v[assetId]
+    return assetValue ? acc.set(k, assetValue) : acc
+  }, new Map<AccountId, string>())
+  const highestBalanceAccountToAmount = maxBy([...accountValueMap], ([_, v]) =>
+    bnOrZero(v).toNumber(),
+  )
+  return highestBalanceAccountToAmount?.[0]
+}
+
+export const getFirstAccountIdByChainId = (
+  accountIds: AccountId[],
+  chainId: ChainId,
+): AccountId | undefined =>
+  accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0]

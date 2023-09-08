@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -22,7 +22,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
-import { parseAddressInput } from 'lib/address/address'
+import { parseAddressInputWithChainId } from 'lib/address/address'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -34,18 +36,27 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
+    trigger,
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
-  const { send } = useModal()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const send = useModal('send')
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
+
+  useEffect(() => {
+    trigger(SendFormFields.Input)
+  }, [trigger])
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
 
   if (!asset) return null
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
-  const handleNext = () => history.push(SendRoutes.Details)
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
@@ -73,7 +84,7 @@ export const Address = () => {
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
         <FormControl>
-          <FormLabel color='gray.500' w='full'>
+          <FormLabel color='text.subtle' w='full'>
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>
           <AddressInput
@@ -81,25 +92,31 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (rawInput: string) => {
-                  const value = rawInput.trim() // trim leading/trailing spaces
-                  // clear previous values
+                  const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
+                  setIsValidating(true)
                   setValue(SendFormFields.To, '')
                   setValue(SendFormFields.VanityAddress, '')
-                  setIsValidating(true)
+                  const { assetId } = asset
                   // this does not throw, everything inside is handled
-                  const { address, vanityAddress } = await parseAddressInput({ chainId, value })
+                  const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
+                  const { address, vanityAddress } = await parseAddressInputWithChainId(
+                    parseAddressInputWithChainIdArgs,
+                  )
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.To, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  const invalidMessage =
-                    isYatFeatureEnabled && isYatSupportedChain
-                      ? 'common.invalidAddressOrYat'
-                      : 'common.invalidAddress'
+                  const invalidMessage = isYatSupported
+                    ? 'common.invalidAddressOrYat'
+                    : 'common.invalidAddress'
                   return address ? true : invalidMessage
                 },
               },
             }}
+            enableQr={true}
+            placeholder={translate(
+              isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}

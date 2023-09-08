@@ -1,6 +1,4 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
 import type {
   DefiParams,
@@ -15,23 +13,26 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { Asset } from 'lib/asset-service'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
   asset: Asset
-  releaseTime?: string
-} & WithdrawInfo
+  undelegation: UserUndelegation | undefined
+  canClaimWithdraw: boolean
+}
 
-export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { amount, releaseTime } = rest
-  const hasClaim = bnOrZero(amount).gt(0)
+  const hasClaim = bnOrZero(undelegation?.undelegationAmountCryptoBaseUnit).gt(0)
   const textColor = useColorModeValue('black', 'white')
-  const isAvailable = dayjs().isAfter(dayjs(releaseTime))
+  const isUndelegationAvailable =
+    canClaimWithdraw && undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
@@ -48,11 +49,13 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
+  if (!(undelegation && hasClaim)) return null
+
   return (
     <Stack px={8} py={6}>
       <Text fontWeight='medium' translation='defi.modals.foxyOverview.withdrawals' />
       {!hasClaim ? (
-        <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
+        <Text color='text.subtle' translation='defi.modals.foxyOverview.emptyWithdraws' />
       ) : (
         <Button
           variant='input'
@@ -62,7 +65,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           alignItems={{ base: 'flex-start', md: 'center' }}
           justifyContent='flex-start'
           textAlign='left'
-          isDisabled={!isAvailable}
+          isDisabled={!isUndelegationAvailable}
           gap={4}
           flexDir={{ base: 'column', md: 'row' }}
           py={2}
@@ -80,10 +83,10 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
             >
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={isAvailable ? successColor : pendingColor}
+                color={isUndelegationAvailable ? successColor : pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
-                translation={isAvailable ? 'common.available' : 'common.pending'}
+                translation={isUndelegationAvailable ? 'common.available' : 'common.pending'}
               />
             </Stack>
           </Stack>
@@ -97,11 +100,13 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           >
             <Amount.Crypto
               color={textColor}
-              value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+              value={bnOrZero(undelegation.undelegationAmountCryptoBaseUnit)
+                .div(bn(10).pow(asset?.precision))
+                .toFixed()}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />
-            {isAvailable ? (
+            {isUndelegationAvailable ? (
               <Stack direction='row' alignItems='center' color='blue.500'>
                 <Text translation='defi.modals.claim.claimNow' />
                 <FaArrowRight />
@@ -112,7 +117,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
                 lineHeight='shorter'
                 translation={[
                   'defi.modals.foxyOverview.availableDate',
-                  { date: dayjs(releaseTime).fromNow() },
+                  { date: dayjs(dayjs.unix(undelegation.completionTime)).fromNow() },
                 ]}
               />
             )}

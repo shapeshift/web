@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapperName } from '@shapeshiftoss/swapper'
-import { isTradingActive } from 'components/Trade/utils'
+import { isTradingActive } from 'components/MultiHopTrade/utils'
+import type { SwapperName } from 'lib/swapper/types'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { apiErrorHandler } from 'state/apis/utils'
 
@@ -16,10 +16,12 @@ export const getIsTradingActiveApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getIsTradingActive: build.query<GetIsTradingActiveReturn, GetIsTradingActiveArgs>({
       queryFn: async ({ assetId, swapperName }) => {
-        try {
-          return { data: await isTradingActive(assetId, swapperName) }
-        } catch (error) {
-          return getIsTradingActiveErrorHandler(error)
+        const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
+        if (maybeIsTradingActive.isErr()) {
+          return getIsTradingActiveErrorHandler(maybeIsTradingActive.unwrapErr())
+        }
+        return {
+          data: maybeIsTradingActive.unwrap(),
         }
       },
     }),

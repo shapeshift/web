@@ -8,11 +8,11 @@ type TransactionTimeProps = {
   format?: string
 }
 
-export const TransactionTime = ({ blockTime, format = 'hh:mm A' }: TransactionTimeProps) => {
+export const TransactionTime = ({ blockTime, format = 'LT' }: TransactionTimeProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
   return (
-    <RawText color='gray.500' fontSize='sm'>
+    <RawText color='text.subtle' fontSize='sm'>
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)
         .format(format)}

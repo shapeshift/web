@@ -16,11 +16,14 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectDelegationCryptoAmountByAssetIdAndValidator,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -31,8 +34,6 @@ import { WithdrawContext } from '../WithdrawContext'
 export type CosmosWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
-
-const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -46,7 +47,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference, contractAddress: validatorAddress } = query
   const toast = useToast()
 
   const methods = useForm<CosmosWithdrawValues>({ mode: 'onChange' })
@@ -54,6 +55,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Reward Asset info
   const assetId = toAssetId({
@@ -75,18 +77,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  const filter = useMemo(
-    () => ({
-      accountId: accountId ?? '',
-      validatorAddress: contractAddress,
-      assetId,
-    }),
-    [accountId, assetId, contractAddress],
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
-  const cryptoStakeBalance = useAppSelector(s =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
+  const cryptoStakeBalanceHuman = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+    bn(10).pow(asset.precision),
   )
-  const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
@@ -112,20 +118,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: CosmosWithdrawValues) => {
-      if (!state) return
+      if (!state || !earnOpportunityData) return
 
       const getWithdrawGasEstimate = async () => {
-        if (!state.userAddress) return
-
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
         try {
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getWithdrawGasEstimate', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')
           toast({
@@ -139,7 +140,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         }
       }
 
-      if (!state?.userAddress || !dispatch) return
+      if (!dispatch) return
       // set withdraw state for future use
       dispatch({
         type: CosmosWithdrawActionType.SET_WITHDRAW,
@@ -162,8 +163,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,
         })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: earnOpportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        console.error(error)
         dispatch({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,
@@ -176,13 +186,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
       }
     },
-    [dispatch, asset, marketData.price, onNext, state, toast, translate],
+    [
+      state,
+      dispatch,
+      asset,
+      marketData.price,
+      toast,
+      translate,
+      onNext,
+      earnOpportunityData,
+      assetId,
+      assets,
+    ],
   )
 
   if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+      bn(10).pow(asset.precision),
+    )
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -190,7 +213,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+      bn(10).pow(asset.precision),
+    )
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

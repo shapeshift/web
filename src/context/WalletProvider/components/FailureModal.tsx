@@ -1,8 +1,7 @@
 import { NotAllowedIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-
-import { Text } from '../../../components/Text'
+import { Text } from 'components/Text'
 
 export type FailureModalProps = {
   headerText: string
@@ -18,7 +17,7 @@ export const FailureModal: React.FC<FailureModalProps> = props => {
       <ModalBody textAlign='center' pb={8}>
         <NotAllowedIcon color='red.500' boxSize={20} mb={6} />
         <Text fontSize='lg' fontWeight='bold' translation={props.headerText} />
-        {isSuccessful && <Text color='gray.500' translation={props.bodyText} />}
+        {isSuccessful && <Text color='text.subtle' translation={props.bodyText} />}
       </ModalBody>
     </>
   )

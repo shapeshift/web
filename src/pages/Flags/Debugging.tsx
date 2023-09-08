@@ -1,47 +1,11 @@
-import { ChevronDownIcon, CopyIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Stack,
-} from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
-import { RawText } from 'components/Text'
 import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { getLogLevel, logger, saveLogLevel } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['FeatureFlags'] })
 
 export const Debugging = () => {
-  const [logLevel, setLogLevel] = useState(getLogLevel())
-  const [visitorId, setVisitorId] = useState<string | null>(null)
-
-  const handleCopyClick = async () => {
-    try {
-      if (!visitorId) throw new Error()
-      await navigator.clipboard.writeText(visitorId)
-      alert('Visitor ID copied!')
-    } catch (e) {
-      alert('Something went wrong')
-    }
-  }
-
-  useEffect(() => {
-    const pendoData = window.localStorage.getItem('visitorData')
-    if (pendoData) {
-      const value = JSON.parse(pendoData)
-      setVisitorId(value.visitorId.id)
-    }
-  }, [])
-
   type BuildMetadata = {
     headShortCommitHash: string
     latestTag: string
@@ -58,7 +22,7 @@ export const Debugging = () => {
         const { data } = await axios.get<BuildMetadata>(url)
         setBuildMetadata(data)
       } catch (e) {
-        moduleLogger.error(e, `failed to fetch ${url}`)
+        console.error(e)
       }
     })()
   }, [isLocalhost])
@@ -70,7 +34,7 @@ export const Debugging = () => {
       try {
         await showDeveloperModal()
       } catch (e) {
-        moduleLogger.error(e, 'failed to open developer modal')
+        console.error(e)
       }
     })()
   }, [])
@@ -78,10 +42,10 @@ export const Debugging = () => {
   return (
     <Stack my={8} spacing={4} flex={1}>
       <Card>
-        <Card.Header>
-          <Card.Heading>Debugging</Card.Heading>
-        </Card.Header>
-        <Card.Body as={Stack}>
+        <CardHeader>
+          <Heading>Debugging</Heading>
+        </CardHeader>
+        <CardBody as={Stack}>
           {isMobile && (
             <Row alignItems='center'>
               <Row.Label>Mobile environment</Row.Label>
@@ -104,51 +68,12 @@ export const Debugging = () => {
               </Row>
             </>
           )}
-          <Row alignItems='center'>
-            <Row.Label>Log Level</Row.Label>
-            <Row.Value>
-              <Menu>
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                  {logLevel}
-                </MenuButton>
-                <MenuList>
-                  <MenuOptionGroup
-                    defaultValue={logLevel}
-                    type='radio'
-                    onChange={value => {
-                      if (typeof value === 'string') saveLogLevel(value)
-                      setLogLevel(getLogLevel())
-                    }}
-                  >
-                    <MenuItemOption value='error'>error</MenuItemOption>
-                    <MenuItemOption value='warn'>warn</MenuItemOption>
-                    <MenuItemOption value='info'>info</MenuItemOption>
-                    <MenuItemOption value='debug'>debug</MenuItemOption>
-                    <MenuItemOption value='trace'>trace</MenuItemOption>
-                    <MenuItemOption value='none'>none</MenuItemOption>
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
-            </Row.Value>
-          </Row>
-          <Row alignItems='center'>
-            <Row.Label>Pendo visitor ID</Row.Label>
-            <Row.Value display='flex' gap={4} alignItems='center'>
-              <RawText>{visitorId}</RawText>
-              <IconButton
-                aria-label='Copy'
-                size='sm'
-                icon={<CopyIcon />}
-                onClick={handleCopyClick}
-              />
-            </Row.Value>
-          </Row>
-        </Card.Body>
-        <Card.Footer>
+        </CardBody>
+        <CardFooter>
           <Button onClick={handleReloadClick} colorScheme='blue'>
             Reload
           </Button>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     </Stack>
   )

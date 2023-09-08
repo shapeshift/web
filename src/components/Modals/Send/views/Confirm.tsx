@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   IconButton,
+  Input,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -15,7 +16,9 @@ import {
 import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { useMemo } from 'react'
+import { getConfig } from 'config'
+import type { ChangeEvent } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -26,12 +29,12 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
-import { SendRoutes } from '../SendCommon'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {
@@ -46,28 +49,21 @@ export const Confirm = () => {
   const {
     control,
     formState: { isSubmitting },
+    setValue,
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const {
-    accountId,
-    to,
-    asset,
-    cryptoAmount,
-    cryptoSymbol,
-    feeType,
-    fiatAmount,
-    memo,
-    vanityAddress,
-  } = useWatch({
-    control,
-  }) as Partial<SendInput>
+  const { accountId, to, assetId, cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const allowCustomSendNonce = getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset?.assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(
-    () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
-    [asset],
+    () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
+    [assetId],
   )
 
   const amountWithFees = useMemo(() => {
@@ -82,10 +78,20 @@ export const Confirm = () => {
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
+  const handleNonceChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      setValue(SendFormFields.CustomNonce, value)
+    },
+    [setValue],
+  )
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
-  if (!(to && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType)) return null
+  if (!(to && asset?.name && cryptoAmount && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition>
@@ -111,10 +117,10 @@ export const Confirm = () => {
             fontWeight='bold'
             lineHeight='shorter'
             textTransform='uppercase'
-            symbol={cryptoSymbol}
+            symbol={asset.symbol}
             value={cryptoAmount}
           />
-          <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
+          <Amount.Fiat color='text.subtle' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
           <Row alignItems='center'>
@@ -137,6 +143,22 @@ export const Confirm = () => {
             </Row.Label>
             <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
           </Row>
+          {allowCustomSendNonce && (
+            <Row>
+              <Row.Label>
+                <Text translation={'modals.send.confirm.customNonce'} />
+              </Row.Label>
+              <Row.Value>
+                <Input
+                  onChange={handleNonceChange}
+                  type='text'
+                  placeholder={''}
+                  pl={10}
+                  variant='filled'
+                />
+              </Row.Value>
+            </Row>
+          )}
           {showMemoRow && (
             <Row>
               <Row.Label>
@@ -152,7 +174,7 @@ export const Confirm = () => {
           <FormControl mt={4}>
             <Row variant='vertical'>
               <Row.Label>
-                <FormLabel color='gray.500' htmlFor='tx-fee'>
+                <FormLabel color='text.subtle' htmlFor='tx-fee'>
                   {translate('modals.send.sendForm.transactionFee')}
                 </FormLabel>
               </Row.Label>
@@ -186,7 +208,7 @@ export const Confirm = () => {
               <Amount.Crypto
                 textTransform='uppercase'
                 maximumFractionDigits={6}
-                symbol={cryptoSymbol}
+                symbol={asset.symbol}
                 value={cryptoAmount}
               />
               <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />

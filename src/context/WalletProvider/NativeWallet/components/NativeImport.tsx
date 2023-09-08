@@ -13,16 +13,20 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { NativeWalletValues } from '../types'
 
 export const NativeImport = ({ history }: RouteComponentProps) => {
+  const mixpanel = getMixPanel()
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
       history.push('/native/password', { vault })
+      mixpanel?.track(MixPanelEvents.NativeImport)
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
@@ -43,7 +47,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
+        <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea

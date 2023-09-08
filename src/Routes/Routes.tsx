@@ -1,5 +1,6 @@
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
-import { useEffect, useMemo, useState } from 'react'
+import type { Location } from 'history'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
@@ -11,34 +12,32 @@ import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { Yat } from 'pages/Yat/Yat'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
-
-function useLocationBackground() {
-  const location = useLocation<{ background: any }>()
-  const background = location.state && location.state.background
-  return { background, location }
-}
-
-export const Routes = () => {
+export const Routes = memo(() => {
   const dispatch = useDispatch()
-  const { background, location } = useLocationBackground()
+  const location = useLocation<{ background: Location }>()
   const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
-  const { lang } = useQuery()
+  const { lang } = useQuery<{ lang: string }>()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
     path: ['/demo/:appRoute(.+)', '/demo'],
   })
 
   useEffect(() => {
-    if (lang && LanguageTypeEnum[lang as LanguageTypeEnum] && selectedLocale !== lang) {
+    const selectedLocalteExists = selectedLocale in LanguageTypeEnum ?? {}
+    if (lang && selectedLocalteExists && selectedLocale !== lang) {
       dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
+    } else if (!selectedLocalteExists) {
+      // Set default language if locale in settings is not supported
+      dispatch(preferences.actions.setSelectedLocale({ locale: 'en' }))
     }
   }, [lang, dispatch, selectedLocale])
 
@@ -56,6 +55,14 @@ export const Routes = () => {
     connectDemo,
   ])
 
+  // Most routes should be stable and not re-render when the location changes
+  // However, some routes are unstable and should actually re-render when location.pathname reference changes
+  // Which happens both on actual route change, or when the same route gets pushed
+  const unstableRoutes = useMemo(() => ['/trade'], [])
+  const isUnstableRoute = useMemo(
+    () => unstableRoutes.some(route => location.pathname.includes(route)),
+    [location.pathname, unstableRoutes],
+  )
   /**
    * Memoize the route list to avoid unnecessary cascading re-renders
    * It should only re-render if the wallet changes
@@ -65,29 +72,37 @@ export const Routes = () => {
       appRoutes.map(route => {
         const MainComponent = route.main
         return (
-          <PrivateRoute key={'privateRoute'} path={route.path} exact hasWallet={hasWallet}>
-            <Layout>{MainComponent && <MainComponent />}</Layout>
+          <PrivateRoute
+            key={isUnstableRoute ? Date.now() : 'privateRoute'}
+            path={route.path}
+            hasWallet={hasWallet}
+          >
+            {MainComponent && <MainComponent />}
           </PrivateRoute>
         )
       }),
-    [appRoutes, hasWallet],
+    // We *actually* want to be reactive on the location.pathname reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appRoutes, hasWallet, isUnstableRoute, location],
   )
 
+  const locationProps = useMemo(() => location.state?.background || location, [location])
+
+  const renderRedirect = useCallback(() => {
+    return shouldRedirectDemoRoute ? (
+      <Redirect
+        from='/'
+        to={matchDemoPath?.params.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'}
+      />
+    ) : null
+  }, [matchDemoPath?.params.appRoute, shouldRedirectDemoRoute])
+
   return (
-    <Switch location={background || location}>
-      <Route path='/demo'>
-        {() => {
-          return shouldRedirectDemoRoute ? (
-            <Redirect
-              from='/'
-              to={
-                matchDemoPath?.params?.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'
-              }
-            />
-          ) : null
-        }}
+    <Switch location={locationProps}>
+      <Route path='/demo'>{renderRedirect}</Route>
+      <Route path='/yat/:eid'>
+        <Yat />
       </Route>
-      {privateRoutesList}
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
@@ -106,10 +121,15 @@ export const Routes = () => {
           <Flags />
         </Layout>
       </Route>
-      <Redirect from='/' to='/dashboard' />
-      <Route>
-        <NotFound />
-      </Route>
+      <Layout>
+        <Switch>
+          {privateRoutesList}
+          <Redirect from='/' to='/dashboard' />
+          <Route>
+            <NotFound />
+          </Route>
+        </Switch>
+      </Layout>
     </Switch>
   )
-}
+})

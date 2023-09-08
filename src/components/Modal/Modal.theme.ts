@@ -1,23 +1,38 @@
 import { mode } from '@chakra-ui/theme-tools'
 export const ModalStyle = {
-  parts: ['dialog', 'footer', 'closeButton', 'header'],
+  parts: ['dialog', 'footer', 'closeButton', 'header', 'overlay'],
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: () => ({
+    overlay: {
+      bgColor: 'blanket',
+    },
     dialog: {
-      bg: mode('white', 'gray.785')(props),
-      borderRadius: 'xl',
-      borderColor: mode('gray.50', 'gray.750')(props),
+      bg: 'background.surface.overlay.base',
+      borderRadius: '2xl',
+      borderColor: 'border.base',
       borderWidth: 1,
     },
     header: {
-      borderTopRadius: 'xl',
+      borderTopRadius: '2xl',
     },
     closeButton: {
       borderRadius: '100%',
     },
   }),
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    full: {
+      closeButton: {
+        top: 'calc(0.5rem + env(safe-area-inset-top))',
+      },
+      header: {
+        paddingTop: 'calc(1rem + env(safe-area-inset-top))',
+      },
+      footer: {
+        paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+      },
+    },
+  },
   // Styles for the visual style variations
   variants: {
     fluid: {
@@ -26,16 +41,16 @@ export const ModalStyle = {
         width: 'auto',
       },
     },
-    'header-nav': (props: Record<string, any>) => ({
+    'header-nav': () => ({
       dialog: {
         maxWidth: '100%',
         width: 'auto',
       },
       header: {
         borderBottom: '1px solid',
-        bg: mode('gray.50', 'rgba(255,255,255,.01)')(props),
-        borderColor: mode('gray.100', 'rgba(255,255,255,.05)')(props),
-        borderTopRadius: 'xl',
+        bg: 'background.surface.raised.accent',
+        borderColor: 'border.base',
+        borderTopRadius: '2xl',
         fontSize: 'md',
       },
     }),

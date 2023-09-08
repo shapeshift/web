@@ -4,7 +4,15 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
-import { server } from './test/msw-utils'
+import { server } from 'test/msw-utils'
+
+global.console = {
+  ...console,
+  debug: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+}
 
 // open issues to get this patch eliminated
 //  https://github.com/facebook/jest/issues/9983

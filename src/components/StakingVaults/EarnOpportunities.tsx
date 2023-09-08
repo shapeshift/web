@@ -1,21 +1,19 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
+import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -37,36 +35,44 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const { setLpAccountId, setFarmingAccountId } = useFoxEth()
+  const { setFarmingAccountId } = useFoxEth()
 
   useEffect(() => {
     if (accountId) {
       setFarmingAccountId(accountId)
-      setLpAccountId(accountId)
     }
-  }, [setLpAccountId, setFarmingAccountId, accountId])
+  }, [setFarmingAccountId, accountId])
 
-  const allRows = useNormalizeOpportunities({
-    cosmosSdkStakingOpportunities: [],
-    lpOpportunities,
-    stakingOpportunities,
-  }).filter(
-    row =>
-      row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
-      // show FOX_ETH LP token on FOX and ETH pages
-      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)) ||
-      // show foxy opportunity in the foxy asset page
-      (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+  const allRows = useMemo(
+    () =>
+      !asset
+        ? []
+        : lpOpportunities.concat(stakingOpportunities).filter(
+            row =>
+              row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+              (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
+              // show foxy opportunity in the foxy asset page
+              (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+          ),
+    [asset, lpOpportunities, stakingOpportunities],
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { isReadOnly, type, provider, contractAddress, chainId, assetId, rewardAddress } =
+      opportunity
+
+    if (isReadOnly) {
+      const url = getMetadataForProvider(opportunity.provider)?.url
+      url && window.open(url, '_blank')
+    }
+
     const { assetReference, assetNamespace } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -90,17 +96,18 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     })
   }
 
+  if (!asset) return null
   if (allRows.length === 0) return null
 
   return (
-    <Card>
-      <Card.Header flexDir='row' display='flex'>
+    <Card variant='outline'>
+      <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>
-            <Card.Heading>
-              <Text translation='defi.earn' />
-            </Card.Heading>
-            <Text color='gray.500' translation='defi.earnBody' />
+            <Heading as='h5'>
+              <Text translation='navBar.defi' />
+            </Heading>
+            <Text color='text.subtle' translation='defi.earnBody' />
           </Box>
           <Box flex={1} textAlign='right'>
             <Button
@@ -109,18 +116,18 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
               colorScheme='blue'
               ml='auto'
               as={NavLink}
-              to='/defi/earn'
+              to='/earn'
               rightIcon={<ArrowForwardIcon />}
             >
               <Text translation='common.seeAll' />
             </Button>
           </Box>
         </HStack>
-      </Card.Header>
+      </CardHeader>
       {Boolean(allRows?.length) && (
-        <Card.Body pt={0} px={2}>
+        <CardBody pt={0} px={2}>
           <StakingTable data={allRows} onClick={handleClick} />
-        </Card.Body>
+        </CardBody>
       )}
     </Card>
   )

@@ -1,11 +1,10 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button } from '@chakra-ui/react'
+import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -17,10 +16,6 @@ type AssetTransactionHistoryProps = {
   accountId?: AccountId
   useCompactMode?: boolean
   limit?: number
-}
-export type MatchParams = {
-  chainId: ChainId
-  assetSubId: string
 }
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
@@ -47,15 +42,15 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   if (!walletSupportsChain) return null
 
   return (
-    <Card>
-      <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
-        <Card.Heading>
+    <Card variant='outline'>
+      <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
+        <Heading as='h5'>
           {translate(
             useCompactMode
               ? 'transactionHistory.recentTransactions'
               : 'transactionHistory.transactionHistory',
           )}
-        </Card.Heading>
+        </Heading>
         {limit && txIds.length > limit && (
           <Button
             variant='link'
@@ -68,7 +63,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
             {translate('common.seeAll')}
           </Button>
         )}
-      </Card.Header>
+      </CardHeader>
       <TransactionHistoryList
         txIds={limit ? txIds.slice(0, limit) : txIds}
         useCompactMode={useCompactMode}

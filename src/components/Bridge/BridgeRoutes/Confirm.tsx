@@ -1,4 +1,4 @@
-import { Button, Stack } from '@chakra-ui/react'
+import { Button, Card, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
@@ -16,7 +16,6 @@ import {
   chainNameToGasToken,
   getDenomFromBridgeAsset,
 } from 'components/Bridge/utils'
-import { Card } from 'components/Card/Card'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { useFormSend } from 'components/Modals/Send/hooks/useFormSend/useFormSend'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
@@ -25,7 +24,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -37,8 +35,6 @@ import { EditableAddress } from '../components/EditableAddress'
 import type { BridgeState } from '../types'
 import { BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
-
-const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 export const Confirm: React.FC = () => {
   const history = useHistory()
@@ -107,7 +103,7 @@ export const Confirm: React.FC = () => {
 
         setIsLoadingRelayerFee(false)
       } catch (e) {
-        moduleLogger.error(e, 'GasFee error')
+        console.error(e)
       }
     })()
   }, [
@@ -137,7 +133,7 @@ export const Confirm: React.FC = () => {
 
       const estimateFeesArgs: EstimateFeesInput = {
         cryptoAmount,
-        asset,
+        assetId: asset.assetId,
         to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
@@ -148,13 +144,12 @@ export const Confirm: React.FC = () => {
 
       const handleSendArgs: SendInput = {
         cryptoAmount,
-        asset,
+        assetId: asset.assetId,
         from: '',
         to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',
-        cryptoSymbol: bridgeAsset?.symbol ?? '',
         estimatedFees,
         feeType: FeeDataKey.Average,
         fiatAmount: '',
@@ -166,7 +161,7 @@ export const Confirm: React.FC = () => {
       await handleFormSend(handleSendArgs)
       history.push(BridgeRoutePaths.Status)
     } catch (e) {
-      moduleLogger.error(e, 'GasFee error')
+      console.error(e)
       setIsExecutingTransaction(false)
     }
   }
@@ -188,13 +183,13 @@ export const Confirm: React.FC = () => {
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation='bridge.confirm' />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
+        </CardHeader>
         <Stack spacing={6}>
           <Summary>
             <Row variant='vert-gutter'>
@@ -206,7 +201,7 @@ export const Confirm: React.FC = () => {
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={fromChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                     <RawText>{fromChain?.symbol}</RawText>
-                    <RawText fontSize='sm' color='gray.500'>
+                    <RawText fontSize='sm' color='text.subtle'>
                       {fromChain?.name}
                     </RawText>
                   </Stack>
@@ -231,7 +226,7 @@ export const Confirm: React.FC = () => {
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={toChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                     <RawText>{toChain?.symbol}</RawText>
-                    <RawText fontSize='sm' color='gray.500'>
+                    <RawText fontSize='sm' color='text.subtle'>
                       {toChain?.name}
                     </RawText>
                   </Stack>
@@ -278,7 +273,7 @@ export const Confirm: React.FC = () => {
                       <>
                         <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
-                          color='gray.500'
+                          color='text.subtle'
                           value={transferFeeNativeToken ?? '0'}
                           symbol={bridgeAsset?.symbol ?? ''}
                         />

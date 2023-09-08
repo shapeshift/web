@@ -2,19 +2,20 @@ import { Button, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssets, selectMarketDataSortedByMarketCap, selectTxs } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectTxs,
+} from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
-
-const moduleLogger = logger.child({ namespace: ['DownloadButton'] })
 
 type ReportRow = {
   txid: TxId
@@ -40,37 +41,41 @@ const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string =>
   return `${csvRows}\r\n`
 }
 
+const buttonMargin = [3, 3, 6]
+
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const translate = useTranslate()
-  const fields = {
-    txid: translate('transactionHistory.csv.txid'),
-    type: translate('transactionHistory.csv.type'),
-    status: translate('transactionHistory.csv.status'),
-    timestamp: translate('transactionHistory.csv.timestamp'),
-    minerFee: translate('transactionHistory.csv.minerFee'),
-    minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
-    inputAmount: translate('transactionHistory.csv.inputAmount'),
-    inputCurrency: translate('transactionHistory.csv.inputCurrency'),
-    inputAddress: translate('transactionHistory.csv.inputAddress'),
-    outputAmount: translate('transactionHistory.csv.outputAmount'),
-    outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-    outputAddress: translate('transactionHistory.csv.outputAddress'),
-  }
+  const fields = useMemo(
+    () => ({
+      txid: translate('transactionHistory.csv.txid'),
+      type: translate('transactionHistory.csv.type'),
+      status: translate('transactionHistory.csv.status'),
+      timestamp: translate('transactionHistory.csv.timestamp'),
+      minerFee: translate('transactionHistory.csv.minerFee'),
+      minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
+      inputAmount: translate('transactionHistory.csv.inputAmount'),
+      inputCurrency: translate('transactionHistory.csv.inputCurrency'),
+      inputAddress: translate('transactionHistory.csv.inputAddress'),
+      outputAmount: translate('transactionHistory.csv.outputAmount'),
+      outputCurrency: translate('transactionHistory.csv.outputCurrency'),
+      outputAddress: translate('transactionHistory.csv.outputAddress'),
+    }),
+    [translate],
+  )
 
-  const generateCSV = () => {
+  const generateCSV = useCallback(() => {
     setIsLoading(true)
 
     const report: ReportRow[] = []
     for (const txId of txIds) {
       const tx = allTxs[txId]
-      const transfers = getTransfers(tx.transfers, assets, marketData)
+      const transfers = getTransfers(tx, assets, marketData)
       const type = getTxType(tx, transfers)
-
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
       const { send, receive } = (() => {
@@ -117,15 +122,15 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       )}.csv`
       fileDownload(data, filename)
     } catch (error) {
-      moduleLogger.error(error, 'DownloadButton:generateCSV error')
+      console.error(error)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [allTxs, assets, fields, marketData, translate, txIds])
 
   return isLargerThanLg ? (
     <Button
-      ml={[3, 3, 6]}
+      ml={buttonMargin}
       colorScheme='blue'
       variant='ghost-filled'
       isLoading={isLoading}

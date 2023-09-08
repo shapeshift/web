@@ -1,7 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  adapters,
   avalancheAssetId,
   bchAssetId,
   binanceAssetId,
@@ -14,17 +12,23 @@ import {
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { Asset } from 'lib/asset-service'
+import type { BN } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
+  MidgardPoolPeriod,
+  MidgardPoolRequest,
   MidgardPoolResponse,
   ThorchainSaverPositionResponse,
   ThorchainSaversDepositQuoteResponse,
@@ -34,24 +38,32 @@ import type {
 } from './types'
 
 const THOR_PRECISION = '8'
-const BASE_BPS_POINTS = '10000'
+export const BASE_BPS_POINTS = '10000'
 const SAVERS_UPDATE_TIME = 25000 // The time it takes for savers to be updated (currently ~15s + some 10s buffer)
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
 
+const usdcEthereumAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const usdcAvalancheAssetId: AssetId =
+  'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
+export const usdtEthereumAssetId: AssetId =
+  'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
-  [btcAssetId]: '10000',
+  [btcAssetId]: '30000',
   [bchAssetId]: '10000',
   [ltcAssetId]: '10000',
   [dogeAssetId]: '100000000',
-  [ethAssetId]: '0',
-  [avalancheAssetId]: '0',
+  [ethAssetId]: '10000000000',
+  [avalancheAssetId]: '10000000000',
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
+  [usdcEthereumAssetId]: '0',
+  [usdcAvalancheAssetId]: '0',
 }
 
 const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
@@ -62,6 +74,8 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   bchAssetId,
   ltcAssetId,
   dogeAssetId,
+  usdcEthereumAssetId,
+  usdcAvalancheAssetId,
 ]
 
 const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
@@ -114,7 +128,7 @@ export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
 export const getAllThorchainSaversPositions = async (
   assetId: AssetId,
 ): Promise<ThorchainSaverPositionResponse[]> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId })
+  const poolId = assetIdToPoolAssetId({ assetId })
 
   if (!poolId) return []
 
@@ -133,7 +147,7 @@ export const getThorchainSaversPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<ThorchainSaverPositionResponse> => {
+}): Promise<ThorchainSaverPositionResponse | null> => {
   const allPositions = await getAllThorchainSaversPositions(assetId)
 
   if (!allPositions.length)
@@ -150,22 +164,22 @@ export const getThorchainSaversPosition = async ({
   )
 
   if (!accountPosition) {
-    throw new Error(`No THORCHain savers position in ${assetId} pool for accountId ${accountId}`)
+    return null
   }
 
   return accountPosition
 }
 
-export const getThorchainSaversDepositQuote = async ({
+export const getMaybeThorchainSaversDepositQuote = async ({
   asset,
   amountCryptoBaseUnit,
 }: {
   asset: Asset
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
-}): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+}): Promise<Result<ThorchainSaversDepositQuoteResponseSuccess, string>> => {
+  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
-  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+  if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const amountThorBaseUnit = toThorBaseUnit({
     valueCryptoBaseUnit: amountCryptoBaseUnit,
@@ -179,12 +193,12 @@ export const getThorchainSaversDepositQuote = async ({
   )
 
   if (!quoteData || 'error' in quoteData)
-    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+    return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return {
+  return Ok({
     ...quoteData,
     memo: `${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`,
-  }
+  })
 }
 
 export const getThorchainSaversWithdrawQuote = async ({
@@ -196,7 +210,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   accountId: AccountId
   bps: string
 }): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
@@ -228,9 +242,13 @@ export const getThorchainSaversWithdrawQuote = async ({
   return quoteData
 }
 
-export const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
+export const getMidgardPools = async (
+  period?: MidgardPoolPeriod,
+): Promise<MidgardPoolResponse[]> => {
+  const maybePeriodQueryParameter: MidgardPoolRequest = period ? { period } : {}
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
     `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+    { params: maybePeriodQueryParameter },
   )
 
   if (!poolsData) return []
@@ -267,14 +285,14 @@ export const isAboveDepositDustThreshold = ({
 export const getWithdrawBps = ({
   withdrawAmountCryptoBaseUnit,
   stakedAmountCryptoBaseUnit,
-  rewardsamountCryptoBaseUnit,
+  rewardsAmountCryptoBaseUnit,
 }: {
   withdrawAmountCryptoBaseUnit: BigNumber.Value
   stakedAmountCryptoBaseUnit: BigNumber.Value
-  rewardsamountCryptoBaseUnit: BigNumber.Value
+  rewardsAmountCryptoBaseUnit: BigNumber.Value
 }) => {
   const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
-    rewardsamountCryptoBaseUnit,
+    rewardsAmountCryptoBaseUnit,
   )
 
   const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(
@@ -292,3 +310,39 @@ export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
 export const waitForSaversUpdate = () => setTimeoutAsync(SAVERS_UPDATE_TIME)
+
+export const makeDaysToBreakEven = ({
+  expectedAmountOutThorBaseUnit,
+  amountCryptoBaseUnit,
+  asset,
+  apy,
+}: {
+  expectedAmountOutThorBaseUnit: string
+  amountCryptoBaseUnit: BigNumber.Value
+  asset: Asset
+  apy: string
+}) => {
+  const amountCryptoThorBaseUnit = toThorBaseUnit({
+    valueCryptoBaseUnit: amountCryptoBaseUnit,
+    asset,
+  })
+  // The total downside that goes into a savers deposit, from THOR docs;
+  // "the minimum amount of the target asset the user can expect to deposit after fees"
+  // https://thornode.ninerealms.com/thorchain/doc/
+  const depositFeeCryptoPrecision = bnOrZero(
+    fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit)),
+  )
+  // Daily upside
+  const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expectedAmountOutThorBaseUnit))
+    .times(apy)
+    .div(365)
+
+  const daysToBreakEvenOrZero = bnOrZero(1)
+    .div(dailyEarnAmount.div(depositFeeCryptoPrecision))
+    .toFixed()
+  // If daysToBreakEvenOrZero is a fraction of 1, the daily upside is effectively higher than the fees
+  // meaning the user will break even in a timeframe between the first rewards accrual (e.g next THOR block after deposit is confirmed)
+  // and ~ a day after deposit
+  const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
+  return daysToBreakEven
+}

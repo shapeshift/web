@@ -21,15 +21,10 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { mobileLogger } from '../config'
 import { createWallet } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileLocationState } from '../types'
-
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileCreate'],
-})
 
 type MobileCreateProps = {
   HeaderComponent?: React.ComponentType<any>
@@ -72,7 +67,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
     try {
       if (!vault) setVault(location.state?.vault ?? createWallet())
     } catch (e) {
-      moduleLogger.error(e, 'Create Wallet')
+      console.log(e)
     }
   }, [location.state?.vault, setVault, vault])
 
@@ -99,7 +94,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         ) ?? null,
       )
     } catch (e) {
-      moduleLogger.error(e, 'failed to get Secret Recovery Phrase')
+      console.log(e)
       setWords(null)
     }
 
@@ -116,7 +111,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
+        <Text color='text.subtle' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -142,7 +137,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         </FormControl>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />
@@ -151,7 +146,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
           colorScheme='blue'
           size='lg'
           isLoading={isSaving}
-          disabled={isSaving || !(words && revealedOnce.current && label)}
+          isDisabled={isSaving || !(words && revealedOnce.current && label)}
           onClick={() => {
             if (vault?.mnemonic && label) {
               try {
@@ -159,7 +154,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
                 vault.label = label
                 history.push('/mobile/create-test', { vault, isLegacyWallet: false })
               } catch (e) {
-                moduleLogger.error(e, 'Error saving new wallet')
+                console.log(e)
               } finally {
                 setIsSaving(false)
               }

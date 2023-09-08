@@ -1,3 +1,4 @@
+import type { Config } from '@jest/types'
 import CircularDependencyPlugin from 'circular-dependency-plugin'
 import stableStringify from 'fast-json-stable-stringify'
 import * as fs from 'fs'
@@ -9,6 +10,7 @@ import * as path from 'path'
 import * as ssri from 'ssri'
 import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
+import WorkBoxPlugin from 'workbox-webpack-plugin'
 
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
@@ -46,7 +48,7 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 
   // While we're at it, also calculate IPFS CIDs for everything.
   // The typings here are imprecise; sha256.digest() never returns a Promise.
-  const digest = sha256.digest(data) as Awaited<ReturnType<typeof sha256['digest']>>
+  const digest = sha256.digest(data) as Awaited<ReturnType<(typeof sha256)['digest']>>
   const cid = CID.create(1, raw.code, digest).toString()
   process.env[`REACT_APP_CID_${mungedName}`] = cid
 }
@@ -73,6 +75,8 @@ const reactAppRewireConfig = {
           crypto: require.resolve('crypto-browserify'),
           http: require.resolve('stream-http'),
           https: require.resolve('https-browserify'),
+          fs: require.resolve('browserify-fs'),
+          os: require.resolve('os-browserify'),
           path: require.resolve('path-browserify'),
           stream: require.resolve('stream-browserify'),
           zlib: require.resolve('browserify-zlib'),
@@ -85,7 +89,9 @@ const reactAppRewireConfig = {
           Buffer: ['buffer/', 'Buffer'],
           process: ['process/browser.js'],
         }),
-        progressPlugin,
+        // only show build progress for production builds
+        // saves about 1 second on hot reloads in development
+        ...(isProduction ? [progressPlugin] : []),
       ],
     })
 
@@ -113,11 +119,13 @@ const reactAppRewireConfig = {
     )
 
     // Webpack uses MD4 by default, but SHA-256 can be verified with standard tooling.
-    _.merge(config, {
-      output: {
-        hashFunction: 'sha256',
-      },
-    })
+    // md4 400% faster for development
+    isProduction &&
+      _.merge(config, {
+        output: {
+          hashFunction: 'sha256',
+        },
+      })
 
     // Ignore warnings raised by source-map-loader. Some third party packages ship misconfigured
     // sourcemap paths and cause many spurious warnings.
@@ -157,19 +165,21 @@ const reactAppRewireConfig = {
     // Generate and embed Subresource Integrity (SRI) attributes for all files.
     // Automatically embeds SRI hashes when generating the embedded webpack loaders
     // for split code.
-    _.merge(config, {
-      output: {
-        // This is the default, but the SRI spec requires it to be set explicitly.
-        crossOriginLoading: 'anonymous',
-      },
-      // SubresourceIntegrityPlugin automatically disables itself in development.
-      plugins: [
-        ...(config.plugins ?? []),
-        new SubresourceIntegrityPlugin({
-          hashFuncNames: ['sha256'],
-        }),
-      ],
-    })
+    // costs about 1 second in development, disable
+    isProduction &&
+      _.merge(config, {
+        output: {
+          // This is the default, but the SRI spec requires it to be set explicitly.
+          crossOriginLoading: 'anonymous',
+        },
+        // SubresourceIntegrityPlugin automatically disables itself in development.
+        plugins: [
+          ...(config.plugins ?? []),
+          new SubresourceIntegrityPlugin({
+            hashFuncNames: ['sha256'],
+          }),
+        ],
+      })
 
     _.merge(config, {
       plugins: [
@@ -322,12 +332,78 @@ const reactAppRewireConfig = {
         : {},
     )
 
+    const MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES = 50 * 1024 * 1024 // 50MB
+
+    // after adding BSC chain, the build got even more bloated, so we need to increase the limit
+    // of cached assets, to avoid compiling with warnings, which emit a non-zero exit code, causing the build
+    // to "fail", even though build artefacts are emitted.
+    // https://www.appsloveworld.com/reactjs/100/54/workaround-for-cache-size-limit-in-create-react-app-pwa-service-worker
+    config.plugins?.forEach(plugin => {
+      if (plugin instanceof WorkBoxPlugin.InjectManifest) {
+        // @ts-ignore
+        plugin.config.maximumFileSizeToCacheInBytes = MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES
+      }
+    })
+
+    if (isDevelopment) {
+      _.merge(config, {
+        // https://webpack.js.org/configuration/cache/#cache
+        // do not enable in memory cache - filesystem is actually faster
+        optimization: {
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
+          splitChunks: false,
+        },
+        // fastest source map hot reload in development https://webpack.js.org/guides/build-performance/#development
+        devtool: 'eval-cheap-module-source-map',
+        // https://webpack.js.org/guides/build-performance/#output-without-path-info
+        output: {
+          pathinfo: false,
+        },
+        watchOptions: {
+          ignored: [
+            // ignore changes to packages .ts files - yarn workspace builds these via tsc --watch
+            path.join(buildPath, 'packages/*/src/**/*'),
+          ],
+        },
+        stats: {
+          preset: 'minimal',
+          assets: false,
+          modules: false,
+          timings: true,
+        },
+      })
+
+      // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
+      // have to mutate these out last because something else is adding them in
+      if (config.optimization) {
+        config.optimization.minimize = false
+        config.optimization.minimizer = []
+      }
+    }
+
+    return config
+  },
+  jest: (config: Config.InitialOptions) => {
+    config.transformIgnorePatterns = [
+      '/node_modules/(?!(viem)/)',
+      '/node_modules/(?!(@wagmi)/)',
+      '^.+\\.module\\.(css|sass|scss)$',
+    ]
+    // allows jest to not crash when our deps import different versions of axios
+    config.moduleNameMapper = {
+      '^axios$': require.resolve('axios'),
+    }
     return config
   },
   devServer: (configFunction: DevServerConfigFunction): DevServerConfigFunction => {
     return (...args) => {
       const config = configFunction(...args)
       config.headers = headers
+      // enable hot module replacement! (HMR)
+      config.hot = true
+      // disable compression
+      config.compress = false
       return config
     }
   },

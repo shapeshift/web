@@ -1,12 +1,9 @@
-import omit from 'lodash/omit'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from 'context/WalletProvider/MobileWallet/types'
-
-import { mobileLogger } from './config'
 
 type Command =
   | 'getWallet'
@@ -16,6 +13,7 @@ type Command =
   | 'addWallet'
   | 'listWallets'
   | 'getWalletCount'
+  | 'reloadWebview'
 
 type Message =
   | {
@@ -50,13 +48,14 @@ type Message =
       cmd: 'showDeveloperModal'
       key: string
     }
+  | {
+      cmd: 'reloadWebview'
+    }
 
 export type MessageFromMobileApp = {
   id: number
   result: unknown
 }
-
-const moduleLogger = mobileLogger.child({ namespace: ['lib', 'mobileWallet'] })
 
 /**
  * Create a Promise that sends a message and waits for the matching response
@@ -90,7 +89,7 @@ const postMessage = <T>(msg: Message): Promise<T> => {
 
       window.ReactNativeWebView?.postMessage(JSON.stringify({ ...msg, id }))
     } catch (e) {
-      moduleLogger.error(e, omit(msg, 'mnemonic'), 'Error communicating with the mobile app')
+      console.error(e)
       reject(e)
     }
   })
@@ -100,7 +99,6 @@ const postMessage = <T>(msg: Message): Promise<T> => {
  * Show the native developer modal to allow switching environments
  */
 export const showDeveloperModal = (): Promise<void> => {
-  moduleLogger.trace({ fn: 'showDeveloperModal' }, 'Show Developer Modal')
   return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
 }
 
@@ -110,7 +108,6 @@ export const showDeveloperModal = (): Promise<void> => {
  * The list does not include the mnemonic for the wallets
  */
 export const listWallets = (): Promise<RevocableWallet[]> => {
-  moduleLogger.trace({ fn: 'listWallets' }, 'List Wallets')
   return postMessage<RevocableWallet[]>({ cmd: 'listWallets' })
 }
 
@@ -120,7 +117,6 @@ export const listWallets = (): Promise<RevocableWallet[]> => {
  * The ID is provided in the `listWallets` call
  */
 export const getWallet = async (key: string): Promise<RevocableWallet | null> => {
-  moduleLogger.trace({ fn: 'getWallet', key }, 'Get Wallet')
   const wallet = await postMessage<MobileWalletInfoWithMnemonic | null>({ cmd: 'getWallet', key })
   return wallet ? createRevocableWallet(wallet) : null
 }
@@ -129,7 +125,6 @@ export const getWallet = async (key: string): Promise<RevocableWallet | null> =>
  * Returns the number of wallets available from the mobile app
  */
 export const getWalletCount = (): Promise<number> => {
-  moduleLogger.trace({ fn: 'getWalletCount' }, 'Number of Wallets')
   // mobile app returns the number of wallets saved
   return postMessage<number>({ cmd: 'getWalletCount' })
 }
@@ -138,7 +133,6 @@ export const getWalletCount = (): Promise<number> => {
  * Returns `true` is a given wallet by `ID` exists in the mobile app
  */
 export const hasWallet = (key: string): Promise<boolean> => {
-  moduleLogger.trace({ fn: 'hasWallet', key }, 'Has Wallet')
   return postMessage<boolean>({ cmd: 'hasWallet', key })
 }
 
@@ -146,7 +140,6 @@ export const hasWallet = (key: string): Promise<boolean> => {
  * Rename a wallet
  */
 export const updateWallet = (key: string, walletInfo: { label: string }): Promise<boolean> => {
-  moduleLogger.trace({ fn: 'updateWallet', key, wallet: walletInfo }, 'Update Wallet')
   return postMessage<boolean>({ cmd: 'updateWallet', key, label: walletInfo.label })
 }
 
@@ -162,7 +155,6 @@ export const addWallet = async (walletInfo: {
   label: string
   mnemonic: string
 }): Promise<RevocableWallet | null> => {
-  moduleLogger.trace({ fn: 'addWallet' }, 'Add Wallet')
   const newWallet = await postMessage<MobileWalletInfo | null>({ cmd: 'addWallet', ...walletInfo })
   return newWallet ? createRevocableWallet({ ...newWallet, mnemonic: walletInfo.mnemonic }) : null
 }
@@ -184,8 +176,14 @@ export const createWallet = (): RevocableWallet => {
  * This operation cannot be undone.
  */
 export const deleteWallet = (key: string): Promise<boolean> => {
-  moduleLogger.trace({ fn: 'deleteWallet', key }, 'Delete Wallet')
   return postMessage<boolean>({ cmd: 'deleteWallet', key })
+}
+
+/**
+ * Ask the mobile app to reload the webview.
+ */
+export const reloadWebview = (): Promise<boolean> => {
+  return postMessage<boolean>({ cmd: 'reloadWebview' })
 }
 
 /**
@@ -196,7 +194,7 @@ export const hashPassword = (email: string, password: string): Promise<string | 
 }
 
 /**
- * Decrypt a legacy ShapeShift native wallet
+ * Decrypt a legacy ShapeShift wallet
  */
 export const decryptWallet = (
   email: string,

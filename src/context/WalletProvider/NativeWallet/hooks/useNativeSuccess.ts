@@ -9,27 +9,28 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from 'state/store'
 
 import { NativeConfig } from '../config'
-
-const moduleLogger = logger.child({ namespace: ['useNativeSuccess'] })
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 
 export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
+  const appDispatch = useAppDispatch()
+  const { setWelcomeModal } = preferences.actions
   const { state, dispatch } = useWallet()
 
   useEffect(() => {
     ;(async () => {
-      const adapter = state.adapters?.get(KeyManager.Native)!
+      const adapters = state.adapters?.get(KeyManager.Native)
       try {
         await new Promise(resolve => setTimeout(resolve, 250))
         await Promise.all([navigator.storage?.persist?.(), vault.save()])
 
         const deviceId = vault.id
-        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapters?.[0].pairDevice?.(deviceId)) as NativeHDWallet
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })
@@ -43,6 +44,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
             icon,
             deviceId,
             meta: { label: walletLabel },
+            connectedType: KeyManager.Native,
           },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -50,8 +52,10 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
+        //Set to show the native onboarding
+        appDispatch(setWelcomeModal({ show: true }))
       } catch (error) {
-        moduleLogger.error(error, 'Failed to load device')
+        console.error(error)
         setIsSuccessful(false)
       }
     })()

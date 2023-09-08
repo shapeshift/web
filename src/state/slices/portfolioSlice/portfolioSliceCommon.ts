@@ -1,28 +1,11 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
-import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
-
-export type Staking = {
-  delegations: cosmossdk.Delegation[]
-  redelegations: cosmossdk.Redelegation[]
-  undelegations: cosmossdk.UndelegationEntry[]
-  rewards: cosmossdk.Reward[]
-}
-
-type StakingDataParsedByAccountId = Record<AssetId, Staking>
-export type StakingDataByValidatorId = Record<PubKey, StakingDataParsedByAccountId>
-
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
-  /** The list of validators this account is delegated to */
-  validatorIds?: PubKey[]
-  /** The staking data for per validator, so we can do a join from validatorDataSlice */
-  stakingDataByValidatorId?: StakingDataByValidatorId
 }
 
 export type PortfolioAccounts = {
@@ -35,7 +18,7 @@ export type PortfolioAccounts = {
 
 // aggregated balances across all accounts in a portfolio for the same asset
 // balance in base units of asset
-export type AssetBalancesById = Record<AssetId, string>
+export type AssetBalancesById = PartialRecord<AssetId, string>
 
 export type PortfolioAccountBalancesById = {
   [k: AccountId]: AssetBalancesById
@@ -85,6 +68,7 @@ export type Portfolio = {
    * the currently connected wallet id, used to determine which accounts to index into
    */
   walletId?: WalletId
+  walletName?: string
 }
 
 export const initialState: Portfolio = {
@@ -104,4 +88,26 @@ export const initialState: Portfolio = {
     byId: {},
     ids: [],
   },
+}
+
+export enum AssetEquityType {
+  Account = 'Account',
+  Staking = 'Staking',
+  LP = 'LP',
+  Reward = 'Reward',
+}
+
+export type AssetEquityItem = {
+  id: string
+  type: AssetEquityType
+  fiatAmount: string
+  amountCryptoPrecision: string
+  provider: string
+  color?: string
+  underlyingAssetId?: AssetId
+}
+
+export type AssetEquityBalance = {
+  fiatAmount: string
+  amountCryptoPrecision: string
 }

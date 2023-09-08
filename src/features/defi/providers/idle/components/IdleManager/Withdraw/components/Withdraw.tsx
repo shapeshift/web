@@ -1,7 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -9,16 +7,20 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import type { IdleOpportunity } from 'lib/investor/investor-idle'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -28,10 +30,6 @@ import { useAppSelector } from 'state/store'
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
-})
-
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
@@ -40,6 +38,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const assets = useAppSelector(selectAssets)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -92,7 +91,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   )
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   // user info
   const amountAvailableCryptoPrecision = useMemo(() => {
@@ -121,7 +120,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
-        moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
+        console.error(error)
       }
     },
     [userAddress, opportunityData, assetReference, idleOpportunity, asset?.precision],
@@ -129,7 +128,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && dispatch)) return
+      if (!(userAddress && dispatch && opportunityData)) return
       // set withdraw state for future use
       dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
@@ -141,8 +140,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawContinue,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [formValues.fiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount }],
+        },
+        assets,
+      )
     },
-    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
+    [userAddress, dispatch, getWithdrawGasEstimate, onNext, opportunityData, asset.assetId, assets],
   )
 
   const handleCancel = useCallback(() => {

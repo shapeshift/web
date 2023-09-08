@@ -1,52 +1,56 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Drawer,
   DrawerContent,
   DrawerOverlay,
   Flex,
   HStack,
   IconButton,
-  Progress,
-  SlideFade,
-  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
+import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect } from 'react'
-import { MdLocalActivity } from 'react-icons/md'
-import { useTranslate } from 'react-polyglot'
-import { Link, useHistory } from 'react-router-dom'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
+import { AppLoadingIcon } from './AppLoadingIcon'
+import { DegradedStateBanner } from './DegradedStateBanner'
+import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
+import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { PendingTxWindow } from './PendingTx/PendingTx'
 import { SideNavContent } from './SideNavContent'
 
-export const Header = () => {
+export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const isLoading = useIsAnyApiFetching()
+  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
 
   const history = useHistory()
-  const translate = useTranslate()
-  const bg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
+  const ref = useRef<HTMLDivElement>(null)
+  const [y, setY] = useState(0)
+  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
+  const { scrollY } = useScroll()
+  useEffect(() => {
+    return scrollY.onChange(() => setY(scrollY.get()))
+  }, [scrollY])
 
-  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isWalletConnectToDappsEnabled =
+    isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
   /**
    * FOR DEVELOPERS:
@@ -66,7 +70,10 @@ export const Header = () => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleBannerClick = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
 
   return (
     <>
@@ -96,67 +103,37 @@ export const Header = () => {
       )}
       <Flex
         direction='column'
-        bg={bg}
         width='full'
         position='sticky'
         zIndex='banner'
+        ref={ref}
+        bg={y > height ? 'background.surface.base' : 'transparent'}
+        transitionDuration='200ms'
+        transitionProperty='all'
+        transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        <AnimatePresence exitBeforeEnter initial={true}>
-          {isLoading && (
-            <SlideFade in={true} reverse>
-              <Progress
-                isIndeterminate
-                position='absolute'
-                top={0}
-                left={0}
-                width='100%'
-                size='xs'
-                bg='transparent'
-              />
-            </SlideFade>
-          )}
-        </AnimatePresence>
-        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
-          <HStack
-            width='full'
-            margin='0 auto'
-            maxW='container.3xl'
-            px={{ base: 0, md: 4 }}
-            spacing={0}
-            columnGap={4}
-          >
+        <HStack height='4.5rem' width='full' px={4}>
+          <HStack width='full' margin='0 auto' px={{ base: 0, xl: 4 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
-              <IconButton
-                aria-label='Open menu'
-                variant='ghost'
-                onClick={onToggle}
-                icon={<HamburgerIcon />}
-              />
+              <IconButton aria-label='Open menu' onClick={onToggle} icon={<HamburgerIcon />} />
             </Box>
-            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-              <Link to='/'>
-                <FoxIcon boxSize='7' />
-              </Link>
-            </Flex>
-            <HStack
-              width='100%'
+
+            <Box display={{ base: 'block', md: 'none' }} mx='auto'>
+              <AppLoadingIcon />
+            </Box>
+
+            <Flex
+              justifyContent='flex-end'
+              alignItems='center'
+              width={{ base: 'auto', md: 'full' }}
               flex={1}
-              justifyContent='center'
-              display={{ base: 'none', md: 'block' }}
+              rowGap={4}
+              columnGap={2}
             >
-              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
-            </HStack>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
-              <Box display={{ base: 'block', md: 'none' }}>
-                <Button onClick={() => history.push('/buy-crypto')}>
-                  {translate('fiatRamps.buy')}
-                </Button>
-              </Box>
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
-              </Box>
+              <GlobalSeachButton />
+              {isDegradedState && <DegradedStateBanner />}
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
@@ -165,6 +142,10 @@ export const Header = () => {
               <ChainMenu display={{ base: 'none', md: 'block' }} />
               <PendingTxWindow />
               <Notifications />
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
             </Flex>
           </HStack>
         </HStack>
@@ -179,6 +160,7 @@ export const Header = () => {
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
+      <MobileNavBar />
     </>
   )
-}
+})

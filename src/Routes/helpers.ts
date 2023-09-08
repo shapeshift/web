@@ -20,6 +20,7 @@ export enum RouteCategory {
 export type Route = {
   path: string
   label: string
+  shortLabel?: string
   main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]
@@ -27,8 +28,18 @@ export type Route = {
   disable?: boolean
   hide?: boolean
   breadcrumb?: string | React.ReactNode
+  isNew?: boolean
   category?: RouteCategory
-}
+} & (
+  | {
+      mobileNav: boolean
+      priority: number
+    }
+  | {
+      mobileNav?: never
+      priority?: never
+    }
+)
 
 const combinePaths = (parent: string, child: string): string =>
   `${parent.replace(/\/$/, '')}/${child.replace(/^\//, '')}`

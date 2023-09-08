@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertIcon, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
@@ -8,17 +7,18 @@ import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 import { isSome } from 'lib/utils'
 
 export const ApprovePreFooter = ({
   action,
   feeAsset,
-  estimatedGasCrypto,
+  estimatedGasCryptoPrecision,
   accountId,
 }: {
   accountId: AccountId | undefined
   action: DefiAction.Deposit | DefiAction.Withdraw
-  estimatedGasCrypto: string | undefined
+  estimatedGasCryptoPrecision: string | undefined
   feeAsset: Asset
 }) => {
   const translate = useTranslate()
@@ -26,10 +26,14 @@ export const ApprovePreFooter = ({
   const alertTextColor = useColorModeValue('blue.800', 'white')
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
-      canCoverTxFees({ feeAsset, estimatedGasCrypto, accountId }),
-    [estimatedGasCrypto, accountId, feeAsset],
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCryptoPrecision,
+        accountId,
+      }),
+    [estimatedGasCryptoPrecision, accountId, feeAsset],
   )
 
   const feeTranslation = useMemo(

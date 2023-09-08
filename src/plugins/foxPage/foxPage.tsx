@@ -15,11 +15,9 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,20 +27,28 @@ import { SEO } from 'components/Layout/Seo'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectAssets,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './components/AssetActions'
+import { BondProtocolCta } from './components/BondProtocolCta'
 import { DappBack } from './components/DappBack'
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
@@ -79,15 +85,16 @@ export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
+  const mixpanel = getMixPanel()
 
   const activeAssetId = useRouteAssetId()
+  const allAssets = useAppSelector(selectAssets)
   // TODO(gomes): Use useRouteAssetId and selectAssetById programmatically
   const assetFox = useAppSelector(state => selectAssetById(state, foxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, foxyAssetId))
   if (!assetFox) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!assetFoxy) throw new Error(`Asset not found for AssetId ${foxyAssetId}`)
 
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
@@ -102,13 +109,13 @@ export const FoxPage = () => {
   const foxFilter = useMemo(() => ({ assetId: foxAssetId }), [])
   const foxyFilter = useMemo(() => ({ assetId: foxyAssetId }), [])
   const fiatBalanceFox =
-    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, foxFilter)) ?? '0'
   const fiatBalanceFoxy =
-    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, foxyFilter)) ?? '0'
   const cryptoHumanBalanceFox =
-    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, foxFilter)) ?? '0'
   const cryptoHumanBalanceFoxy =
-    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, foxyFilter)) ?? '0'
 
   const fiatBalances = useMemo(
     () => [fiatBalanceFox, fiatBalanceFoxy],
@@ -127,34 +134,63 @@ export const FoxPage = () => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const description =
-    selectedAsset?.assetId === foxAssetId
+    selectedAsset.assetId === foxAssetId
       ? translate('plugins.foxPage.foxDescription') // FOX has a custom description, other assets can use the asset-service one
-      : selectedAsset?.description
+      : selectedAsset.description
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   // TODO(gomes): Export a similar RTK select() query, consumed to determine wallet + staking balance loaded
   const getAssetDescriptionQuery = useGetAssetDescriptionQuery({
-    assetId: selectedAsset?.assetId,
+    assetId: selectedAsset.assetId,
     selectedLocale,
   })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
+  const toAssetIdParts: ToAssetIdArgs = {
+    assetNamespace: 'erc20',
+    assetReference: foxyAddresses[0].staking,
+    chainId: ethChainId,
+  }
+
+  const opportunityId = toOpportunityId(toAssetIdParts)
+  const opportunityDataFilter = useMemo(() => {
+    return {
+      stakingId: opportunityId,
+    }
+  }, [opportunityId])
+
+  const foxyEarnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectAggregatedEarnUserStakingOpportunityByStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
+
   const handleTabClick = useCallback(
-    (assetId: AssetId) => {
+    (assetId: AssetId, assetName: string) => {
       if (assetId === activeAssetId) {
         return
       }
-
+      mixpanel?.track(MixPanelEvents.Click, { element: `${assetName} toggle` })
       history.push(assetsRoutes[assetId])
     },
-    [activeAssetId, history],
+    [activeAssetId, history, mixpanel],
   )
 
   const handleOpportunityClick = useCallback(() => {
+    if (!foxyEarnOpportunityData) return
     if (!wallet || !supportsETH(wallet)) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
+
+    trackOpportunityEvent(
+      MixPanelEvents.ClickOpportunity,
+      {
+        opportunity: foxyEarnOpportunityData,
+        element: 'Fox Page Row',
+      },
+      allAssets,
+    )
 
     history.push({
       pathname: location.pathname,
@@ -169,10 +205,10 @@ export const FoxPage = () => {
       }),
       state: { background: location },
     })
-  }, [assetFoxy.chainId, dispatch, history, location, wallet])
+  }, [allAssets, assetFoxy.chainId, dispatch, foxyEarnOpportunityData, history, location, wallet])
 
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
-  if (wallet && supportsETH(wallet) && (isFoxyBalancesLoading || !foxyBalancesData)) return null
+  if (wallet && supportsETH(wallet) && !foxyEarnOpportunityData) return null
 
   return (
     <Layout
@@ -204,7 +240,7 @@ export const FoxPage = () => {
                   assetIcon={asset.icon}
                   cryptoAmount={cryptoHumanBalances[index]}
                   fiatAmount={fiatBalances[index]}
-                  onClick={() => handleTabClick(asset.assetId)}
+                  onClick={() => handleTabClick(asset.assetId, asset.name)}
                 />
               ))}
             {!isLargerThanMd && (
@@ -232,7 +268,10 @@ export const FoxPage = () => {
                   </Box>
                   <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
-                      <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>
+                      <MenuItem
+                        key={asset.assetId}
+                        onClick={() => handleTabClick(asset.assetId, asset.name)}
+                      >
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
@@ -260,9 +299,11 @@ export const FoxPage = () => {
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
                   apy={foxyAprData?.foxyApr ?? ''}
-                  tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
-                  balance={cryptoHumanBalances[selectedAssetIndex]}
+                  tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toString()}
+                  isLoaded={Boolean(foxyEarnOpportunityData && !isFoxyAprLoading)}
+                  balance={bnOrZero(foxyEarnOpportunityData?.cryptoAmountBaseUnit)
+                    .div(bn(10).pow(assetFoxy.precision))
+                    .toFixed()}
                   onClick={handleOpportunityClick}
                 />
 
@@ -275,6 +316,7 @@ export const FoxPage = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={foxAssetId} />
+                <BondProtocolCta />
                 <DappBack />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[foxAssetId]} />
                 <AssetMarketData assetId={selectedAsset.assetId} />

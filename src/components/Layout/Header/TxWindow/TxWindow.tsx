@@ -72,20 +72,21 @@ export const TxWindow = () => {
           icon={hasPendingTxs ? <CircularProgress size='18px' /> : <TxHistoryIcon />}
           onClick={() => setIsOpen(!isOpen)}
         />
-        {hasPendingTxs && (
-          <Circle
-            position='absolute'
-            size='18px'
-            fontSize='12px'
-            fontWeight='bold'
-            bg='blue.500'
-            color='white'
-            top='-0.2em'
-            right='-0.2em'
-          >
-            {pendingTxIds.length}
-          </Circle>
-        )}
+        <Circle
+          position='absolute'
+          size='18px'
+          fontSize='12px'
+          fontWeight='bold'
+          bg='blue.500'
+          color='white'
+          top='-0.2em'
+          right='-0.2em'
+          opacity={hasPendingTxs ? 1 : 0}
+          transitionProperty='common'
+          transitionDuration='normal'
+        >
+          {pendingTxIds.length}
+        </Circle>
       </Box>
       <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} size='sm'>
         <DrawerOverlay backdropBlur='10px' />

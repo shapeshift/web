@@ -4,6 +4,7 @@
     "balance": "Balance",
     "next": "Next",
     "error": "Error",
+    "show": "Show",
     "cancel": "Cancel",
     "close": "Close",
     "loadMore": "Load More",
@@ -537,6 +538,7 @@
     "trade": "Trade",
     "amount": "Amount",
     "for": "for",
+    "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
       "weth": {
         "deposit": "Deposit",

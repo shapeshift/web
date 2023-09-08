@@ -39,7 +39,7 @@ import type {
 
 const THOR_PRECISION = '8'
 export const BASE_BPS_POINTS = '10000'
-const SAVERS_UPDATE_TIME = 35000 // The time it takes for savers to be updated (currently ~15s + some 20s buffer)
+const SAVERS_UPDATE_TIME = 25000 // The time it takes for savers to be updated (currently ~15s + some 10s buffer)
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now

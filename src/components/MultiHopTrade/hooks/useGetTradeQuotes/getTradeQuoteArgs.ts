@@ -63,7 +63,6 @@ export const getTradeQuoteArgs = async ({
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,
-      accountType: sellAccountType,
     })
     return {
       ...tradeQuoteInputCommonArgs,
@@ -80,6 +79,7 @@ export const getTradeQuoteArgs = async ({
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,
+      accountType: sellAccountType,
     })
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,

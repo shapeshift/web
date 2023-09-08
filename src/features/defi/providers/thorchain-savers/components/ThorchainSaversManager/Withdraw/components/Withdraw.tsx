@@ -1,8 +1,11 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
+import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -20,12 +23,16 @@ import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { isToken } from 'lib/utils'
+import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -34,9 +41,11 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -76,6 +85,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     assetReference,
   })
 
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
+
+  const {
+    state: { wallet },
+  } = useWallet()
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const opportunityId = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
     [assetId, assetNamespace, assetReference, chainId],
@@ -105,6 +123,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee Asset not found for AssetId ${assetId}`)
+
+  const isTokenWithdraw = isToken(fromAssetId(assetId).assetReference)
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
@@ -143,7 +164,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const getWithdrawGasEstimate = useCallback(
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenWithdraw || !feeAsset?.assetId,
+  })
+
+  const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
     async (withdraw: WithdrawValues) => {
       if (
         !(
@@ -151,14 +177,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           assetReference &&
           accountId &&
           opportunityData?.stakedAmountCryptoBaseUnit &&
-          dustAmountCryptoBaseUnit
+          wallet &&
+          accountNumber !== undefined
         )
       )
         return
       try {
-        const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
+        const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
+
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
           stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
@@ -166,7 +192,53 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+
         const chainAdapters = getChainAdapterManager()
+
+        if (isTokenWithdraw) {
+          if (!saversRouterContractAddress)
+            throw new Error(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
+
+          const adapter = assertGetEvmChainAdapter(chainId)
+          const thorContract = getOrCreateContractByType({
+            address: saversRouterContractAddress,
+            type: ContractType.ThorRouter,
+            chainId: asset.chainId,
+          })
+
+          const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+            quote.inbound_address,
+            // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
+            // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
+            AddressZero,
+            amountCryptoBaseUnit,
+            quote.memo,
+            quote.expiry,
+          ])
+
+          const customTxInput = await createBuildCustomTxInput({
+            accountNumber,
+            adapter,
+            data,
+            value: '0',
+            to: saversRouterContractAddress,
+            wallet,
+          })
+
+          const fees = await adapter.getFeeData({
+            to: customTxInput.to,
+            value: customTxInput.value,
+            chainSpecific: {
+              from: fromAccountId(accountId).account,
+              data: customTxInput.data,
+            },
+          })
+
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
+
+          return bnOrZero(fastFeeCryptoBaseUnit).toString()
+        }
+
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -182,11 +254,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           sendMax: false,
         }
         const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
-
-        const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-        )
-        return bnOrZero(fastFeeCryptoPrecision).toString()
+        return bnOrZero(fastFeeCryptoBaseUnit).toString()
       } catch (error) {
         console.error(error)
         toast({
@@ -202,11 +270,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       assetReference,
       accountId,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      opportunityData?.rewardsCryptoBaseUnit,
-      dustAmountCryptoBaseUnit,
+      opportunityData?.rewardsCryptoBaseUnit?.amounts,
+      wallet,
+      accountNumber,
       asset,
+      isTokenWithdraw,
       chainId,
+      dustAmountCryptoBaseUnit,
       supportedEvmChainIds,
+      saversRouterContractAddress,
+      feeAsset.assetId,
       toast,
       translate,
     ],
@@ -227,19 +300,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && opportunityData && dispatch)) return
+      if (!(userAddress && opportunityData && accountId && dispatch)) return
 
       // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
+        const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
+        if (!estimatedGasCryptoBaseUnit) return
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit },
         })
+
         onNext(DefiStep.Confirm)
+
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
           MixPanelEvents.WithdrawContinue,
@@ -262,13 +337,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
     },
     [
-      assets,
       userAddress,
       opportunityData,
+      accountId,
       dispatch,
-      getWithdrawGasEstimate,
+      getWithdrawGasEstimateCryptoBaseUnit,
       onNext,
       assetId,
+      assets,
       toast,
       translate,
     ],
@@ -296,13 +372,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
       const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const valueCryptoPrecision = bnOrZero(value)
-      const valueCryptoBaseUnit = bn(value).times(bn(10).pow(asset.precision))
+      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
 
       const hasValidBalance =
         balanceCryptoPrecision.gt(0) &&
         valueCryptoPrecision.gt(0) &&
         balanceCryptoPrecision.gte(valueCryptoPrecision)
-      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
+      const isBelowWithdrawThreshold = bn(valueCryptoBaseUnit)
+        .minus(outboundFeeCryptoBaseUnit)
+        .lt(0)
 
       if (isBelowWithdrawThreshold) {
         const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
@@ -367,32 +445,38 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!(accountId && inputValues && asset && opportunityData?.stakedAmountCryptoBaseUnit)) return
     const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
-    if (amountCryptoBaseUnit.isZero()) return
+    if (bn(amountCryptoBaseUnit).isZero()) return
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)
-      const withdrawBps = getWithdrawBps({
-        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
-        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-      })
 
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-      const { dust_amount, slippage_bps } = quote
-      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+      try {
+        const withdrawBps = getWithdrawBps({
+          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+          stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
+          rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+        })
 
-      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
-      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
-      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const { dust_amount, slippage_bps } = quote
+        const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
-      setDustAmountCryptoBaseUnit(
-        bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-          asset.precision,
-        ),
-      )
-      setQuoteLoading(false)
+        // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+        const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
+        setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+        setDustAmountCryptoBaseUnit(
+          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
+            asset.precision,
+          ),
+        )
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setQuoteLoading(false)
+      }
     })
 
     debounced()
@@ -403,7 +487,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
+    feeAsset.assetId,
+    feeAsset.chainId,
     inputValues,
+    isTokenWithdraw,
     opportunityData?.apy,
     opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,

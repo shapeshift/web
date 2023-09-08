@@ -96,6 +96,20 @@ export const TabsStyle = {
         },
       },
     }),
+    button: {
+      tab: {
+        borderRadius: 'lg',
+        fontWeight: 'bold',
+        color: 'text.subtlest',
+        _hover: {
+          color: 'text.base',
+        },
+        _selected: {
+          bg: 'background.button.secondary.base',
+          color: 'text.base',
+        },
+      },
+    },
   },
   // The default `size` or `variant` values
   defaultProps: {},

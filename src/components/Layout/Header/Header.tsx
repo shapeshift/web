@@ -27,8 +27,8 @@ import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
-import { PendingTxWindow } from './PendingTx/PendingTx'
 import { SideNavContent } from './SideNavContent'
+import { TxWindow } from './TxWindow/TxWindow'
 
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
@@ -140,9 +140,8 @@ export const Header = memo(() => {
                 </Box>
               )}
               <ChainMenu display={{ base: 'none', md: 'block' }} />
-              <PendingTxWindow />
+              <TxWindow />
               <Notifications />
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

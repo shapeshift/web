@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export declare const RateLimitError: {
     new <V extends {
         cause?: unknown;
@@ -8,7 +7,7 @@ export declare const RateLimitError: {
         details: (V extends {
             details: infer R;
         } ? R : undefined) | undefined;
-        "__#48375@#code"?: string | undefined;
+        "__#48405@#code"?: string | undefined;
         code: string | undefined;
         readonly cause: V extends {
             cause: infer R_1;

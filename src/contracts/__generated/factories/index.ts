@@ -4,4 +4,5 @@
 export { ERC20ABI__factory } from "./ERC20ABI__factory";
 export { IUniswapV2Pair__factory } from "./IUniswapV2Pair__factory";
 export { IUniswapV2Router02__factory } from "./IUniswapV2Router02__factory";
+export { THORCHAIN_Router__factory } from "./THORCHAIN_Router__factory";
 export { FarmingAbi__factory } from "./FarmingAbi__factory";

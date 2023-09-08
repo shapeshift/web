@@ -5,6 +5,7 @@ import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-clie
 import React, { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
@@ -56,7 +57,6 @@ const TransactionIcon = ({
 }) => {
   const green = useColorModeValue('green.700', 'green.500')
   const red = useColorModeValue('red.700', 'red.500')
-
   if (status === TxStatus.Failed) return <WarningTwoIcon color={red} />
 
   switch (type) {
@@ -142,9 +142,7 @@ export const TransactionGenericRow = ({
   }, [fee])
 
   const fiatValue = useMemo(() => {
-    return bnOrZero(fee?.marketData?.price)
-      .times(cryptoValue)
-      .toString()
+    return bnOrZero(fee?.marketData?.price).times(cryptoValue).toString()
   }, [fee?.marketData?.price, cryptoValue])
 
   return (
@@ -167,8 +165,9 @@ export const TransactionGenericRow = ({
           <Flex alignItems='center' width='full'>
             <IconCircle
               mr={2}
-              boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+              boxSize={{ base: '24px', lg: compactMode ? '24px' : '38px' }}
               bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.200')}
+              position='relative'
             >
               <TransactionIcon
                 type={type}
@@ -177,6 +176,7 @@ export const TransactionGenericRow = ({
                 value={txData?.value}
                 compactMode={compactMode}
               />
+              {status === TxStatus.Pending && <CircularProgress position='absolute' size='100%' />}
             </IconCircle>
             <Stack
               direction={{ base: 'row', md: 'column', xl: compactMode ? 'row' : 'column' }}

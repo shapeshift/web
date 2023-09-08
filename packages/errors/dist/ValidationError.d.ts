@@ -1,4 +1,3 @@
-/// <reference types="node" />
 type ValidationErrorDetails = {
     name: string;
     actual: unknown;
@@ -13,7 +12,7 @@ export declare const ValidationError: {
         details: (V extends {
             details: infer R;
         } ? R : undefined) | undefined;
-        "__#48375@#code"?: string | undefined;
+        "__#48405@#code"?: string | undefined;
         code: string | undefined;
         readonly cause: V extends {
             cause: infer R_1;

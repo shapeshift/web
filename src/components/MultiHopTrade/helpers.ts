@@ -66,6 +66,8 @@ export const getMixpanelEventData = () => {
   return {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
+    buyAssetChain: buyAsset.networkName,
+    sellAssetChain: sellAsset.networkName,
     amountUsd: sellAmountBeforeFeesUsd,
     amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     swapperName,

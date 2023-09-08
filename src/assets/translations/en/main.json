@@ -1698,7 +1698,8 @@
         "connectedDapp": "Connected dApp(s)",
         "menu": {
           "disconnect": "Disconnect",
-          "address": "Address",
+          "addresses": "Addresses",
+          "address": "address",
           "connected": "Connected",
           "networks": "Network(s)",
           "unsupportedNetwork": "Unsupported Network",

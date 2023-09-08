@@ -1,6 +1,7 @@
-import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
+import { AccordionStyle as Accordion } from 'components/Accordion/Accordion.theme'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
@@ -115,6 +116,7 @@ export const theme = extendTheme({
   },
   colors,
   components: {
+    Accordion,
     Alert,
     Button,
     Menu,

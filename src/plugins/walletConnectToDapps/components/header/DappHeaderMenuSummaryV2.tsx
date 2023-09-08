@@ -1,4 +1,4 @@
-import { CloseIcon } from '@chakra-ui/icons'
+import { SmallCloseIcon } from '@chakra-ui/icons'
 import {
   Accordion,
   AccordionButton,
@@ -67,21 +67,24 @@ export const DappHeaderMenuSummaryV2 = () => {
         ml={3}
         color='text.subtle'
       >
-        <Accordion allowToggle defaultIndex={0}>
-          <AccordionItem>
-            <AccordionButton>
-              <HStack spacing={4} px={4} py={1}>
+        <Accordion allowToggle defaultIndex={0} variant='default'>
+          <AccordionItem borderBottomWidth={0}>
+            <AccordionButton width='full'>
+              <HStack spacing={4} py={1} width='full'>
                 <DappAvatar
                   name={session.peer.metadata.name}
                   image={session.peer.metadata.icons?.[0]}
                   connected={session.acknowledged}
+                  display={{ base: 'none', md: 'block' }}
                 />
-                <Box fontWeight='medium'>
+                <Box textAlign='left'>
                   <RawText
                     maxWidth='215px'
                     overflow='hidden'
                     textOverflow='ellipsis'
                     whiteSpace='nowrap'
+                    fontWeight='medium'
+                    lineHeight='shorter'
                   >
                     {session.peer.metadata.name}
                   </RawText>
@@ -92,22 +95,16 @@ export const DappHeaderMenuSummaryV2 = () => {
                     overflow='hidden'
                     textOverflow='ellipsis'
                     whiteSpace='nowrap'
+                    lineHeight='shorter'
                   >
                     {session.peer.metadata.url.replace(/^https?:\/\//, '')}
                   </RawText>
                 </Box>
-                <AccordionIcon />
+                <AccordionIcon ml='auto' />
               </HStack>
             </AccordionButton>
-            <AccordionPanel p={0}>
-              <VStack
-                px={4}
-                py={1}
-                fontWeight='medium'
-                spacing={2}
-                alignItems='stretch'
-                fontSize='sm'
-              >
+            <AccordionPanel px={4} pt={0} pb={4}>
+              <VStack fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
                 <HStack justifyContent='space-between' spacing={4}>
                   <Text
                     translation='plugins.walletConnectToDapps.header.menu.expiry'
@@ -119,8 +116,13 @@ export const DappHeaderMenuSummaryV2 = () => {
                 </HStack>
                 <AddressLinks accountIds={connectedAccounts} />
                 <Networks accountIds={connectedAccounts} />
-                <Button colorScheme='red' size='md' onClick={handleDisconnect}>
-                  <CloseIcon mr={2} />
+                <Button
+                  colorScheme='red'
+                  size='sm'
+                  onClick={handleDisconnect}
+                  leftIcon={<SmallCloseIcon />}
+                  mt={2}
+                >
                   <Text translation='plugins.walletConnectToDapps.header.menu.disconnect' />
                 </Button>
               </VStack>

@@ -112,6 +112,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
         minWidth={{ base: 0, md: 'xs' }}
         display='flex'
         flexDir='column'
+        pb={0}
       >
         <DappHeaderMenuSummaryV2 />
       </MenuList>

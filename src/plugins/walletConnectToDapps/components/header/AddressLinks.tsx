@@ -1,4 +1,4 @@
-import { HStack, Link } from '@chakra-ui/react'
+import { HStack, Link, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -18,12 +18,9 @@ const AddressLink = ({ feeAssetId, accountId }: { feeAssetId: AssetId; accountId
   const { account: address } = fromAccountId(accountId)
   if (!feeAsset) return null
   return (
-    <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
-      <Text translation='plugins.walletConnectToDapps.header.menu.address' color='text.subtle' />
-      <Link href={`${feeAsset.explorerAddressLink}${address}`} isExternal color='text.info'>
-        <MiddleEllipsis value={address} />
-      </Link>
-    </HStack>
+    <Link href={`${feeAsset.explorerAddressLink}${address}`} isExternal color='text.info'>
+      <MiddleEllipsis value={address} />
+    </Link>
   )
 }
 
@@ -45,11 +42,20 @@ export const AddressLinks: React.FC<AddressAndChainProps> = ({ accountIds }) => 
     [accountIds],
   )
 
+  const addressLabel = useMemo(() => {
+    return feeAssetIds.length > 1
+      ? 'plugins.walletConnectToDapps.header.menu.addresses'
+      : 'plugins.walletConnectToDapps.header.menu.address'
+  }, [feeAssetIds.length])
+
   return (
-    <>
-      {feeAssetIds.map((props, i) => (
-        <AddressLink key={i} {...props} />
-      ))}
-    </>
+    <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
+      <Text translation={addressLabel} color='text.subtle' />
+      <Stack alignItems='center' justifyContent='flex-end' flexWrap='wrap'>
+        {feeAssetIds.map((props, i) => (
+          <AddressLink key={i} {...props} />
+        ))}
+      </Stack>
+    </HStack>
   )
 }

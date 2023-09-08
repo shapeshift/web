@@ -29,19 +29,15 @@ export const Networks: React.FC<NetworksProps> = ({ accountIds }) => {
   }, [accountIds])
 
   return (
-    <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
-      <Text translation='plugins.walletConnectToDapps.header.menu.networks' color='text.subtle' />
-      <AvatarGroup size='md' max={2}>
+    <HStack justifyContent='space-between' spacing={4} alignItems='center'>
+      <Text
+        translation='plugins.walletConnectToDapps.header.menu.networks'
+        color='text.subtle'
+        lineHeight={1}
+      />
+      <AvatarGroup size='xs' max={2}>
         {nativeAssetIds.map(nativeAssetId => {
-          return (
-            <AssetIcon
-              key={nativeAssetId}
-              assetId={nativeAssetId}
-              showNetworkIcon
-              width='6'
-              height='auto'
-            />
-          )
+          return <AssetIcon key={nativeAssetId} assetId={nativeAssetId} showNetworkIcon />
         })}
       </AvatarGroup>
     </HStack>

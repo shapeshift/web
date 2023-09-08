@@ -128,7 +128,7 @@ export type ThorChainId =
 type ThorNodeStatusResponseSuccess = {
   // Non-exhaustive, the 'done' status is all we care about here
   observed_tx: {
-    status: 'done' | 'incomplete'
+    status?: 'done' | 'incomplete'
   }
 }
 

@@ -145,7 +145,6 @@ export const getAllThorchainSaversPositions = async (
 }
 
 export const getThorchainTransactionStatus = async (txHash: string) => {
-  console.log({ txHash })
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,

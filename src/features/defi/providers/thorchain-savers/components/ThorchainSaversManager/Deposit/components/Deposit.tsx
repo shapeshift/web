@@ -1,10 +1,13 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
+import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { getConfig } from 'config'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -25,13 +28,22 @@ import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import type { SwapErrorRight } from 'lib/swapper/types'
+import { isToken } from 'lib/utils'
+import {
+  assertGetEvmChainAdapter,
+  createBuildCustomTxInput,
+  getErc20Allowance,
+  getFees,
+} from 'lib/utils/evm'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -42,9 +54,11 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -65,6 +79,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onNext,
 }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
+  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -86,6 +101,19 @@ export const Deposit: React.FC<DepositProps> = ({
     assetNamespace,
     assetReference,
   })
+
+  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const opportunityId = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
     [assetId, assetNamespace, assetReference, chainId],
@@ -160,13 +188,54 @@ export const Deposit: React.FC<DepositProps> = ({
   const toast = useToast()
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+
+  const saversRouterContractAddress = useRouterContractAddress({
+    feeAssetId: feeAsset?.assetId ?? '',
+    skip: !isTokenDeposit || !feeAsset?.assetId,
+  })
+
+  useEffect(() => {
+    if (!inputValues || !accountId)
+      return // Router contract address is only set in case we're depositting a token, not a native asset
+    ;(async () => {
+      const isApprovalRequired = await (async () => {
+        if (!saversRouterContractAddress) return false
+        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+          address: fromAssetId(assetId).assetReference,
+          spender: saversRouterContractAddress,
+          from: fromAccountId(accountId).account,
+          chainId: asset.chainId,
+        })
+        const { cryptoAmount } = inputValues
+
+        const cryptoAmountBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
+
+        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
+        return false
+      })()
+      setIsApprovalRequired(isApprovalRequired)
+    })()
+  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, saversRouterContractAddress])
+
   const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(userAddress && assetReference && accountId && opportunityData)) return
+      if (
+        !(
+          userAddress &&
+          assetReference &&
+          accountId &&
+          opportunityData &&
+          accountNumber !== undefined &&
+          wallet &&
+          feeAsset
+        )
+      )
+        return
       try {
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
+
         const maybeQuote = await getMaybeThorchainSaversDepositQuote({
           asset,
           amountCryptoBaseUnit,
@@ -175,6 +244,53 @@ export const Deposit: React.FC<DepositProps> = ({
         const quote = maybeQuote.unwrap()
 
         const chainAdapters = getChainAdapterManager()
+
+        // We can only estimate the gas at this stage if allowance is already granted
+        // Else, the Tx simulation will fail
+        if (isTokenDeposit && !isApprovalRequired) {
+          const thorContract = getOrCreateContractByType({
+            address: saversRouterContractAddress!,
+            type: ContractType.ThorRouter,
+            chainId: asset.chainId,
+          })
+
+          const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
+            quote.inbound_address,
+            fromAssetId(assetId).assetReference,
+            amountCryptoBaseUnit.toString(),
+            quote.memo,
+            quote.expiry,
+          ])
+
+          const adapter = assertGetEvmChainAdapter(chainId)
+
+          const customTxInput = await createBuildCustomTxInput({
+            accountNumber,
+            adapter,
+            data,
+            value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
+            to: saversRouterContractAddress!,
+            wallet,
+          })
+
+          const fees = await adapter.getFeeData({
+            to: customTxInput.to,
+            value: customTxInput.value,
+            chainSpecific: {
+              from: fromAccountId(accountId).account,
+              data: customTxInput.data,
+            },
+          })
+
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
+
+          const fastFeeCryptoPrecision = bnOrZero(
+            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+          )
+
+          return fastFeeCryptoPrecision.toString()
+        }
+
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -210,10 +326,17 @@ export const Deposit: React.FC<DepositProps> = ({
       assetReference,
       accountId,
       opportunityData,
+      accountNumber,
+      wallet,
+      feeAsset,
       asset,
+      isTokenDeposit,
+      isApprovalRequired,
       chainId,
       supportedEvmChainIds,
       state?.deposit.sendMax,
+      saversRouterContractAddress,
+      assetId,
       toast,
       translate,
     ],
@@ -221,7 +344,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(userAddress && opportunityData && contextDispatch)) return
+      if (
+        !(userAddress && opportunityData && inputValues && accountId && contextDispatch && feeAsset)
+      )
+        return
       // set deposit state for future use
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
@@ -232,8 +358,53 @@ export const Deposit: React.FC<DepositProps> = ({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCryptoPrecision },
         })
+
+        const approvalFees = await (() => {
+          if (
+            !isApprovalRequired ||
+            !saversRouterContractAddress ||
+            accountNumber === undefined ||
+            !wallet
+          )
+            return undefined
+
+          const contract = getOrCreateContractByType({
+            address: fromAssetId(assetId).assetReference,
+            type: ContractType.ERC20,
+            chainId: asset.chainId,
+          })
+          if (!contract) return undefined
+
+          const data = contract.interface.encodeFunctionData('approve', [
+            saversRouterContractAddress,
+            MaxUint256,
+          ])
+
+          const adapter = assertGetEvmChainAdapter(chainId)
+
+          return getFees({
+            accountNumber,
+            adapter,
+            data,
+            to: fromAssetId(assetId).assetReference,
+            value: '0',
+            wallet,
+          })
+        })()
+        if (approvalFees) {
+          contextDispatch({
+            type: ThorchainSaversDepositActionType.SET_APPROVE,
+            payload: {
+              estimatedGasCryptoPrecision: bnOrZero(approvalFees.networkFeeCryptoBaseUnit)
+                .div(bn(10).pow(feeAsset.precision))
+                .toString(),
+            },
+          })
+
+          onNext(DefiStep.Approve)
+          return
+        }
         onNext(DefiStep.Confirm)
-        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
           {
@@ -252,16 +423,27 @@ export const Deposit: React.FC<DepositProps> = ({
           status: 'error',
         })
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      } finally {
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       }
     },
     [
-      assets,
       userAddress,
       opportunityData,
+      inputValues,
+      accountId,
       contextDispatch,
+      feeAsset,
       getDepositGasEstimateCryptoPrecision,
       onNext,
+      isApprovalRequired,
       assetId,
+      assets,
+      saversRouterContractAddress,
+      accountNumber,
+      wallet,
+      asset.chainId,
+      chainId,
       toast,
       translate,
     ],
@@ -273,7 +455,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
+      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
         bn(outboundFeeCryptoBaseUnit).gt(0) &&
@@ -371,11 +553,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
   useEffect(() => {
     if (!opportunityData?.apy) return
-    if (!(accountId && inputValues && asset)) return
+    if (!(accountId && inputValues && asset && feeAsset)) return
     const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
-    if (amountCryptoBaseUnit.isZero()) return
+    if (bn(amountCryptoBaseUnit).isZero()) return
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)
@@ -388,6 +570,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
+
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit
       // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
@@ -412,7 +595,7 @@ export const Deposit: React.FC<DepositProps> = ({
     // cancel the previous debounce when inputValues changes to avoid race conditions
     // and always ensure the latest value is used
     return debounced.cancel
-  }, [accountId, asset, inputValues, opportunityData?.apy])
+  }, [accountId, asset, feeAsset, inputValues, isTokenDeposit, opportunityData?.apy])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
     setInputValues({ fiatAmount, cryptoAmount })

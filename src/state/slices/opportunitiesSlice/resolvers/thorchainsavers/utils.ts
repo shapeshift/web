@@ -153,7 +153,8 @@ export const getThorchainTransactionStatus = async (txHash: string) => {
   )
 
   if ('error' in thorTxData || status === 404) return TxStatus.Unknown
-  if (thorTxData.observed_tx.status === 'incomplete') return TxStatus.Pending
+  if (!thorTxData.observed_tx.status || thorTxData.observed_tx.status === 'incomplete')
+    return TxStatus.Pending
   if (thorTxData.observed_tx.status === 'done') return TxStatus.Confirmed
 }
 

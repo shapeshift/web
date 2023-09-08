@@ -23,7 +23,7 @@ import type {
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { THORCHAIN_OUTBOUND_FEE_RUNE } from './constants'
+import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
@@ -33,7 +33,7 @@ import { getInboundAddressDataForChain } from './utils/getInboundAddressDataForC
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
   // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(THORCHAIN_OUTBOUND_FEE_RUNE)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT)
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 

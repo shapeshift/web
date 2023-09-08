@@ -1,73 +1,57 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import EventEmitter from 'events'
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
-import { withFromOrXpub } from 'components/MultiHopTrade/hooks/useTradeExecution/helpers'
 import { poll } from 'lib/poll/poll'
 
 import { swappers } from './constants'
 import type {
+  CommonGetUnsignedTransactionArgs,
+  CommonTradeExecutionInput,
+  CosmosSdkTransactionExecutionInput,
+  EvmMessageExecutionInput,
+  EvmTransactionExecutionInput,
   SellTxHashArgs,
   StatusArgs,
-  TradeExecutionBase,
+  Swapper,
+  SwapperApi,
   TradeExecutionEventMap,
-  TradeExecutionInput,
+  UtxoTransactionExecutionInput,
 } from './types'
 import { TradeExecutionEvent } from './types'
 
-export class TradeExecution implements TradeExecutionBase {
+export class TradeExecution {
   private emitter = new EventEmitter()
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
     this.emitter.on(eventName, callback)
   }
 
-  async exec({
-    swapperName,
-    tradeQuote,
-    stepIndex,
-    accountMetadata,
-    wallet,
-    supportsEIP1559,
-    slippageTolerancePercentageDecimal,
-  }: TradeExecutionInput) {
+  private async _execWalletAgnostic(
+    {
+      swapperName,
+      tradeQuote,
+      stepIndex,
+      slippageTolerancePercentageDecimal,
+    }: CommonTradeExecutionInput,
+    buildSignBroadcast: (
+      swapper: Swapper & SwapperApi,
+      args: CommonGetUnsignedTransactionArgs,
+    ) => Promise<string>,
+  ) {
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
 
-      if (!maybeSwapper) {
-        throw new Error(`no swapper matching swapperName '${swapperName}'`)
-      }
+      if (!maybeSwapper) throw new Error(`no swapper matching swapperName '${swapperName}'`)
 
       const { swapper } = maybeSwapper
 
-      if (!swapper.getUnsignedTx) {
-        throw Error('missing implementation for getUnsignedTx')
-      }
-      if (!swapper.executeTrade) {
-        throw Error('missing implementation for executeTrade')
-      }
-
       const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 
-      const unsignedTxResult = await withFromOrXpub(swapper.getUnsignedTx)(
-        {
-          wallet,
-          chainId,
-          accountMetadata,
-        },
-        {
-          tradeQuote,
-          chainId,
-          accountMetadata,
-          stepIndex,
-          supportsEIP1559,
-          slippageTolerancePercentageDecimal,
-        },
-      )
-
-      const sellTxHash = await swapper.executeTrade({
-        txToSign: unsignedTxResult,
-        wallet,
+      const sellTxHash = await buildSignBroadcast(swapper, {
+        tradeQuote,
         chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
       })
 
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
@@ -99,7 +83,196 @@ export class TradeExecution implements TradeExecutionBase {
 
       return { cancelPolling }
     } catch (e) {
+      console.error(e)
       this.emitter.emit(TradeExecutionEvent.Error, e)
     }
+  }
+
+  async execEvmTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: EvmTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedEvmTransaction) {
+        throw Error('missing implementation for getUnsignedEvmTransaction')
+      }
+      if (!swapper.executeEvmTransaction) {
+        throw Error('missing implementation for executeEvmTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execEvmMessage({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signMessage,
+  }: EvmMessageExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedEvmMessage) {
+        throw Error('missing implementation for getUnsignedEvmMessage')
+      }
+      if (!swapper.executeEvmMessage) {
+        throw Error('missing implementation for executeEvmMessage')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedEvmMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execUtxoTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    xpub,
+    accountType,
+    signAndBroadcastTransaction,
+  }: UtxoTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedUtxoTransaction) {
+        throw Error('missing implementation for getUnsignedUtxoTransaction')
+      }
+      if (!swapper.executeUtxoTransaction) {
+        throw Error('missing implementation for executeUtxoTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedUtxoTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        xpub,
+        accountType,
+      })
+
+      return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execCosmosSdkTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: CosmosSdkTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedCosmosSdkTransaction) {
+        throw Error('missing implementation for getUnsignedCosmosSdkTransaction')
+      }
+      if (!swapper.executeCosmosSdkTransaction) {
+        throw Error('missing implementation for executeCosmosSdkTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedCosmosSdkTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
   }
 }

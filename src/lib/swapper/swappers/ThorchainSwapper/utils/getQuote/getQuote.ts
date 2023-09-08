@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
-import { baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
   ThornodeQuoteResponse,
@@ -21,6 +21,7 @@ import type { SwapErrorRight } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 
+import { getThresholdedAffiliateBps } from '../getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { thorService } from '../thorService'
 
 type GetQuoteArgs = {
@@ -107,19 +108,14 @@ const _getQuote = async ({
 export const getQuote = async (
   input: GetQuoteArgs,
 ): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
-  const initialQuoteResult = await _getQuote(input)
+  const { sellAsset, sellAmountCryptoBaseUnit, affiliateBps } = input
 
-  if (initialQuoteResult.isErr()) return initialQuoteResult
+  // don't apply an affiliate fee if it's below the outbound fee for the inbound pool
+  const thresholdedAffiliateBps = await getThresholdedAffiliateBps({
+    sellAsset,
+    sellAmountCryptoBaseUnit,
+    affiliateBps,
+  })
 
-  const initialQuote = initialQuoteResult.unwrap()
-
-  // refetch quote without affiliate fee if it's less than the thorchain outbound fee
-  if (
-    bnOrZero(input.affiliateBps).gt(0) &&
-    bnOrZero(initialQuote.fees.affiliate).lte(initialQuote.fees.outbound)
-  ) {
-    return _getQuote({ ...input, affiliateBps: '0' })
-  }
-
-  return Ok(initialQuote)
+  return _getQuote({ ...input, affiliateBps: thresholdedAffiliateBps })
 }

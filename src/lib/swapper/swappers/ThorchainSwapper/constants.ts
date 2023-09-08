@@ -1,10 +1,7 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { bn } from 'lib/bignumber/bignumber'
 import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import type { SwapSource } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
-// TODO: read from https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
-export const RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN = bn('0.02')
 
 export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
@@ -32,4 +29,5 @@ export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
-export const THORCHAIN_OUTBOUND_FEE_RUNE = '2000000'
+// expressed in thor units (8 decimals of precision)
+export const THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT = '2000000'

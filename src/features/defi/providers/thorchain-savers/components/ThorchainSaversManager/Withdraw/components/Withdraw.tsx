@@ -155,7 +155,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     if (!accountId) return null
 
     try {
-      // Attempt getting a quote with 100000 bps, i.e 100% withdraw
+      // Attempt getting a quote with 10000 bps, i.e 100% withdraw
       // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
       // and will allow us to gracefully handle withdrawal amounts that are lower than the outbound fee
       // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn

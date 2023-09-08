@@ -210,10 +210,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-          // Rejections here indicate that the amount to withdraw is too small
-          // We don't want to re-throw
-          .catch(() => {})
-
         if (!quote) return
 
         const chainAdapters = getChainAdapterManager()

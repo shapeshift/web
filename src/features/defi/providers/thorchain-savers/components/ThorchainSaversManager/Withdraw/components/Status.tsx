@@ -82,7 +82,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       ;(async () => {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        await waitForSaversUpdate()
+        await waitForSaversUpdate(confirmedTransaction.txid).promise
 
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({

@@ -124,3 +124,12 @@ export type ThorChainId =
   | ThorCosmosSdkSupportedChainId
   | ThorEvmSupportedChainId
   | ThorUtxoSupportedChainId
+
+type ThorNodeStatusResponseSuccess = {
+  // Non-exhaustive, the 'done' status is all we care about here
+  observed_tx: {
+    status: 'done' | 'incomplete'
+  }
+}
+
+export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeQuoteResponseError

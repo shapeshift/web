@@ -161,9 +161,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
 
-      return Ok(
-        bnOrZero(toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision)).toFixed(0),
+      const outboundFee = bnOrZero(
+        toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision),
       )
+      const safeOutboundFee = bn(outboundFee).times(105).div(100).toFixed(0)
+      // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
+      return Ok(safeOutboundFee)
     } catch (error) {
       console.error(error)
       return Err((error as Error).message)

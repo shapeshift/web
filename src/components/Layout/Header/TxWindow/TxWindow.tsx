@@ -46,15 +46,19 @@ type TxsByStatusProps = {
 const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   const translate = useTranslate()
   const filter = useMemo(() => ({ txStatus }), [txStatus])
-  const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter)).slice(0, Number(limit))
-  if (txIds.length === 0) {
+  const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
+  const limitTxIds = useMemo(() => {
+    return txIds.slice(0, Number(limit))
+  }, [limit, txIds])
+
+  if (limitTxIds.length === 0) {
     return (
       <RawText px={padding} color='text.subtle'>
         {translate('transactionRow.emptyMessage', { status: txStatus })}
       </RawText>
     )
   }
-  return <TransactionsGroupByDate txIds={txIds} useCompactMode />
+  return <TransactionsGroupByDate txIds={limitTxIds} useCompactMode />
 }
 
 export const TxWindow = () => {

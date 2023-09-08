@@ -418,28 +418,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     ;(async () => {
       if (!contextDispatch) return
+      const estimatedFees = await (async () => {
+        if (isTokenWithdraw) return getCustomTxFees()
+        const estimateFeeArgs = await getEstimateFeesArgs()
+        return estimateFees(estimateFeeArgs!)
+      })()
 
-      try {
-        const estimatedFees = await (async () => {
-          if (isTokenWithdraw) return getCustomTxFees()
-          const estimateFeeArgs = await getEstimateFeesArgs()
-          return estimateFees(estimateFeeArgs!)
-        })()
+      if (!estimatedFees) return
 
-        if (!estimatedFees) return
+      setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
 
-        setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
-
-        contextDispatch({
-          type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-          payload: {
-            networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
-          },
-        })
-      } catch (e) {
-        // We don't want to throw in case there's an error in estimating fees - this would put users in a bad state
-        console.error(e)
-      }
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
     })()
   }, [contextDispatch, getCustomTxFees, getEstimateFeesArgs, isTokenWithdraw])
 

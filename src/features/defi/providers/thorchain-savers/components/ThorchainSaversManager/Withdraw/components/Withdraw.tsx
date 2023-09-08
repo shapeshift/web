@@ -3,6 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { Err, Ok, type Result } from '@sniptt/monads'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -56,7 +57,10 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
-  const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
+  const [maybeOutboundFeeCryptoBaseUnit, setMaybeOutboundFeeCryptoBaseUnit] = useState<Result<
+    string,
+    string
+  > | null>()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -144,16 +148,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [amountAvailableCryptoPrecision, assetMarketData.price],
   )
 
-  const getOutboundFeeCryptoBaseUnit = useCallback(async () => {
-    if (!accountId) return
+  const getOutboundFeeCryptoBaseUnit = useCallback(async (): Promise<Result<
+    string,
+    string
+  > | null> => {
+    if (!accountId) return null
 
-    // Attempt getting a quote with 100000 bps, i.e 100% withdraw
-    // If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
-    // and will allow us to gracefully handle amounts that are lower than the outbound fee
-    // If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
-    const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
+    try {
+      // Attempt getting a quote with 100000 bps, i.e 100% withdraw
+      // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
+      // and will allow us to gracefully handle amounts that are lower than the outbound fee
+      // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
 
-    return bnOrZero(toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision)).toFixed(0)
+      return Ok(
+        bnOrZero(toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision)).toFixed(0),
+      )
+    } catch (error) {
+      console.error(error)
+      return Err((error as Error).message)
+    }
   }, [accountId, asset])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
@@ -286,13 +300,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     ;(async () => {
-      if (outboundFeeCryptoBaseUnit) return
+      if (maybeOutboundFeeCryptoBaseUnit) return
 
       const _outboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit()
       if (!_outboundFeeCryptoBaseUnit) return
-      setOutboundFeeCryptoBaseUnit(_outboundFeeCryptoBaseUnit)
+
+      setMaybeOutboundFeeCryptoBaseUnit(_outboundFeeCryptoBaseUnit)
     })()
-  }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
+  }, [getOutboundFeeCryptoBaseUnit, maybeOutboundFeeCryptoBaseUnit])
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
@@ -364,7 +379,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
-      if (!outboundFeeCryptoBaseUnit) return false
+      if (!maybeOutboundFeeCryptoBaseUnit) return false
+
+      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+        return translate('trade.errors.amountTooSmallUnknownMinimum')
+      }
+
+      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
 
       const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const valueCryptoPrecision = bnOrZero(value)
@@ -396,14 +417,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      outboundFeeCryptoBaseUnit,
+      maybeOutboundFeeCryptoBaseUnit,
       translate,
     ],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      if (!outboundFeeCryptoBaseUnit) return false
+      if (!maybeOutboundFeeCryptoBaseUnit) return false
+
+      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+        return translate('amountTooSmallUnknownMinimum')
+      }
+
+      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
       const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
       const fiat = crypto.times(assetMarketData.price)
@@ -433,7 +461,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       assetMarketData.price,
-      outboundFeeCryptoBaseUnit,
+      maybeOutboundFeeCryptoBaseUnit,
       translate,
     ],
   )

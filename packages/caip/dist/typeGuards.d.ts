@@ -1,0 +1,16 @@
+import type { AssetId, AssetNamespace, AssetReference } from './assetId/assetId';
+import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId';
+export declare const isChainNamespace: (maybeChainNamespace: ChainNamespace | string) => maybeChainNamespace is ChainNamespace;
+export declare const isChainReference: (maybeChainReference: ChainReference | string) => maybeChainReference is ChainReference;
+export declare const isAssetNamespace: (maybeAssetNamespace: AssetNamespace | string) => maybeAssetNamespace is AssetNamespace;
+export declare const isAssetReference: (maybeAssetReference: AssetReference | string) => maybeAssetReference is AssetReference;
+export declare const isAssetId: (maybeAssetId: AssetId | string) => maybeAssetId is AssetId;
+export declare const isAssetIdParts: (maybeChainNamespace: string, maybeChainReference: string, maybeAssetNamespace: string) => boolean;
+export declare const isChainId: (maybeChainId: ChainId | string) => maybeChainId is ChainId;
+export declare const isChainIdParts: (chainNamespace: string, chainReference: string) => boolean;
+export declare const assertIsChainId: (value: ChainId | string | undefined) => asserts value is ChainId;
+export declare const assertIsChainNamespace: (value: ChainNamespace | string | undefined) => asserts value is ChainNamespace;
+export declare const assertIsChainReference: (value: ChainReference | string | undefined) => asserts value is ChainReference;
+export declare const assertIsAssetNamespace: (value: AssetNamespace | string | undefined) => asserts value is AssetNamespace;
+export declare const assertIsAssetReference: (value: AssetReference | string | undefined) => asserts value is AssetReference;
+export declare const assertValidChainPartsPair: (chainNamespace: ChainNamespace, chainReference: ChainReference) => void;

@@ -1,0 +1,166 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
+const utils_1 = require("../../utils");
+const utils_2 = require("./utils");
+const makeEthMockCoingeckoResponse = () => ({
+    id: 'ethereum',
+    symbol: 'eth',
+    platforms: {},
+});
+const makeWethMockCoingeckoResponse = () => ({
+    id: 'weth',
+    symbol: 'weth',
+    name: 'WETH',
+    platforms: {
+        ethereum: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        'optimistic-ethereum': '0x4200000000000000000000000000000000000006',
+        avalanche: '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+        'binance-smart-chain': '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+        'polygon-pos': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+        xdai: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
+    },
+});
+const makeAvalancheMockCoingeckoResponse = () => ({
+    id: 'avalanche-2',
+    symbol: 'avax',
+    platforms: {},
+});
+const makeFoxMockCoingeckoResponse = () => ({
+    id: 'shapeshift-fox-token',
+    symbol: 'fox',
+    platforms: {
+        ethereum: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    },
+});
+const makeBtcMockCoingeckoResponse = () => ({
+    id: 'bitcoin',
+    symbol: 'btc',
+    platforms: {},
+});
+const makeCosmosMockCoingeckoResponse = () => ({
+    id: 'cosmos',
+    symbol: 'atom',
+    platforms: {},
+});
+const makePolygonMockCoingeckoResponse = () => ({
+    id: 'polygon-pos',
+    symbol: 'matic',
+    platforms: {},
+});
+const makeGnosisMockCoingeckoResponse = () => ({
+    id: 'gnosis',
+    symbol: 'xDai',
+    platforms: {},
+});
+const makeThorchainMockCoingeckoResponse = () => ({
+    id: 'thorchain',
+    symbol: 'rune',
+    platforms: {
+        thorchain: '',
+    },
+});
+jest.mock('fs', () => ({
+    promises: {
+        writeFile: jest.fn(() => undefined),
+    },
+}));
+describe('adapters:coingecko:utils', () => {
+    describe('makeData', () => {
+        it('can make btc data', () => {
+            const result = utils_1.bitcoinAssetMap;
+            const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' };
+            expect(result).toEqual(expected);
+        });
+        it('can make cosmos data', () => {
+            const result = utils_1.cosmosAssetMap;
+            const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' };
+            expect(result).toEqual(expected);
+        });
+    });
+    describe('parseData', () => {
+        it('can parse all data', () => {
+            const result = (0, utils_2.parseData)([
+                makeEthMockCoingeckoResponse(),
+                makeWethMockCoingeckoResponse(),
+                makeFoxMockCoingeckoResponse(),
+                makeBtcMockCoingeckoResponse(),
+                makeCosmosMockCoingeckoResponse(),
+                makeThorchainMockCoingeckoResponse(),
+                makeAvalancheMockCoingeckoResponse(),
+                makePolygonMockCoingeckoResponse(),
+                makeGnosisMockCoingeckoResponse(),
+            ]);
+            const expected = {
+                'bip122:000000000019d6689c085ae165831e93': {
+                    'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin',
+                },
+                'bip122:000000000000000000651ef99cb9fcbe': {
+                    'bip122:000000000000000000651ef99cb9fcbe/slip44:145': 'bitcoin-cash',
+                },
+                'bip122:00000000001a91e3dace36e2be3bf030': {
+                    'bip122:00000000001a91e3dace36e2be3bf030/slip44:3': 'dogecoin',
+                },
+                'bip122:12a765e31ffd4059bada1e25190f6e98': {
+                    'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2': 'litecoin',
+                },
+                'cosmos:cosmoshub-4': {
+                    'cosmos:cosmoshub-4/slip44:118': 'cosmos',
+                },
+                'cosmos:thorchain-mainnet-v1': {
+                    'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',
+                },
+                'eip155:1': {
+                    'eip155:1/slip44:60': 'ethereum',
+                    'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
+                    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'shapeshift-fox-token',
+                },
+                'eip155:43114': {
+                    'eip155:43114/slip44:60': 'avalanche-2',
+                    'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab': 'weth',
+                },
+                'eip155:56': {
+                    'eip155:56/slip44:60': 'binancecoin',
+                    'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8': 'weth',
+                },
+                'eip155:10': {
+                    'eip155:10/slip44:60': 'ethereum',
+                    'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',
+                },
+                'eip155:137': {
+                    'eip155:137/slip44:60': 'matic-network',
+                    'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 'weth',
+                },
+                'eip155:100': {
+                    'eip155:100/slip44:60': 'xdai',
+                    'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1': 'weth',
+                },
+            };
+            expect(result).toEqual(expected);
+        });
+    });
+    describe('writeFiles', () => {
+        it('can writeFiles', async () => {
+            const data = {
+                foo: {
+                    assetIdAbc: 'bitcorn',
+                    assetIdDef: 'efferium',
+                },
+                bar: {
+                    assetIdGhi: 'fox',
+                    assetIdJkl: 'shib',
+                },
+            };
+            const fooAssetIds = JSON.stringify(data.foo);
+            const barAssetIds = JSON.stringify(data.bar);
+            console.info = jest.fn();
+            await (0, utils_2.writeFiles)(data);
+            expect(fs_1.default.promises.writeFile).toHaveBeenNthCalledWith(1, './src/adapters/coingecko/generated/foo/adapter.json', fooAssetIds);
+            expect(fs_1.default.promises.writeFile).toHaveBeenNthCalledWith(2, './src/adapters/coingecko/generated/bar/adapter.json', barAssetIds);
+            expect(console.info).toBeCalledWith('Generated CoinGecko AssetId adapter data.');
+        });
+    });
+});

@@ -1,0 +1,37 @@
+import type { Arg1, Arg2, Arg3, LoggerOptions, LoggerT } from './logger.type';
+import { LogLevel } from './logger.type';
+export declare class Logger implements LoggerT {
+    private readonly level;
+    private readonly defaultFields?;
+    private namespace;
+    private readonly logFn;
+    constructor(options?: LoggerOptions);
+    get isLogger(): true;
+    child(options?: LoggerOptions & Record<string, unknown>): Logger;
+    log(level: LogLevel, error: unknown, metadata: Record<string, unknown>, message: string): void;
+    log(level: LogLevel, error: unknown, message: string): void;
+    log(level: LogLevel, error: unknown, message: string): void;
+    log(level: LogLevel, metadata: Record<string, unknown>, message: string): void;
+    log(level: LogLevel, message: string): void;
+    log(level: LogLevel, arg1: Arg1, arg2?: Arg2, arg3?: Arg3): void;
+    trace(error: unknown, metadata: Record<string, unknown>, message: string): void;
+    trace(error: unknown, message: string): void;
+    trace(metadata: Record<string, unknown>, message: string): void;
+    trace(message: string): void;
+    debug(error: unknown, metadata: Record<string, unknown>, message: string): void;
+    debug(error: unknown, message: string): void;
+    debug(metadata: Record<string, unknown>, message: string): void;
+    debug(message: string): void;
+    info(error: unknown, metadata: Record<string, unknown>, message: string): void;
+    info(error: unknown, message: string): void;
+    info(metadata: Record<string, unknown>, message: string): void;
+    info(message: string): void;
+    warn(error: unknown, metadata: Record<string, unknown>, message: string): void;
+    warn(error: unknown, message: string): void;
+    warn(metadata: Record<string, unknown>, message: string): void;
+    warn(message: string): void;
+    error(error: unknown, metadata: Record<string, unknown>, message: string): void;
+    error(error: unknown, message: string): void;
+    error(metadata: Record<string, unknown>, message: string): void;
+    error(message: string): void;
+}

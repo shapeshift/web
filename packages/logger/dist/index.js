@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.loggerFactory = exports.LogLevel = exports.Logger = void 0;
+const logger_1 = require("./logger");
+var logger_2 = require("./logger");
+Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_2.Logger; } });
+var logger_type_1 = require("./logger.type");
+Object.defineProperty(exports, "LogLevel", { enumerable: true, get: function () { return logger_type_1.LogLevel; } });
+const loggerFactory = (options) => new logger_1.Logger(options);
+exports.loggerFactory = loggerFactory;

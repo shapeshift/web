@@ -1,0 +1,16 @@
+import type { Tx } from '../../../../../generated/bnbsmartchain';
+export declare const tokenSelfSend: Tx;
+declare const _default: {
+    tx: Tx;
+    txMempool: Tx & {
+        blockHeight: number;
+        status: number;
+        gasUsed: undefined;
+        confirmations: number;
+        fee: string;
+        blockHash: undefined;
+        tokenTransfers: import("../../../../../generated/bnbsmartchain").TokenTransfer[] | undefined;
+        internalTxs: undefined;
+    };
+};
+export default _default;

@@ -1,21 +1,18 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads/build'
-import { v4 as uuid } from 'uuid'
 import type {
+  EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUnsignedTxArgs,
+  GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
-import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
+import { checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchZrxQuote } from './utils/fetchZrxQuote'
-
-const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
+import { fetchFromZrx } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
@@ -24,56 +21,45 @@ export const zrxApi: SwapperApi = {
     const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
-      const id = uuid()
-      const firstHop = tradeQuote.steps[0]
-      tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
-
       return [tradeQuote]
     })
   },
 
-  getUnsignedTx: async ({
+  getUnsignedEvmTransaction: async ({
+    chainId,
     from,
     tradeQuote,
-    stepIndex,
-    slippageTolerancePercentageDecimal,
-  }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
-      tradeQuote.steps[stepIndex]
+  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    const { affiliateBps, receiveAddress, slippageTolerancePercentage, steps } = tradeQuote
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
 
-    const { receiveAddress, affiliateBps } = tradeQuote
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    // TODO: we should cache the quote in getTradeQuote and use that so we aren't altering amounts when executing the trade
-    const maybeZrxQuote = await fetchZrxQuote({
+    // We need to re-fetch the quote from 0x here because actual quote fetches include validation of
+    // approvals, which prevent quotes during trade input from succeeding if the user hasn't already
+    // approved the token they are getting a quote for.
+    // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
+    const zrxQuoteResponse = await fetchFromZrx({
+      priceOrQuote: 'quote',
       buyAsset,
       sellAsset,
-      receiveAddress,
-      slippageTolerancePercentageDecimal,
-      affiliateBps,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      receiveAddress,
+      affiliateBps: affiliateBps ?? '0',
+      slippageTolerancePercentage,
     })
 
-    if (maybeZrxQuote.isErr()) throw maybeZrxQuote.unwrapErr()
-    const { data: zrxQuote } = maybeZrxQuote.unwrap()
+    if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
 
-    const { value, to, gasPrice, gas, data } = zrxQuote
+    const { value, to, gasPrice, gas, data } = zrxQuoteResponse.unwrap()
 
-    const buildSendApiTxInput = {
-      value: value.toString(),
+    return {
       to,
-      from: from!,
-      chainSpecific: {
-        gasPrice: gasPrice.toString(),
-        gasLimit: gas.toString(),
-        maxFeePerGas: undefined,
-        maxPriorityFeePerGas: undefined,
-        data: data.toString(),
-      },
-      accountNumber,
+      from,
+      value,
+      data,
+      chainId: Number(fromChainId(chainId).chainReference),
+      gasLimit: gas,
+      gasPrice,
     }
-    return adapter.buildSendApiTransaction(buildSendApiTxInput)
   },
 
   checkTradeStatus: checkEvmSwapStatus,

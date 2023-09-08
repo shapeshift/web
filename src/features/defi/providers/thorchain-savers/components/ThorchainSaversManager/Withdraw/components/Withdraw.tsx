@@ -186,12 +186,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           accountId &&
           opportunityData?.stakedAmountCryptoBaseUnit &&
           wallet &&
-          accountNumber !== undefined
+          accountNumber !== undefined &&
+          maybeOutboundFeeCryptoBaseUnit
         )
       )
         return
       try {
         const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
+
+        // No need to fetch a quote for the exact amount being withdrawn nor to estimate gas if the amount is too low
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return
+        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
+        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit)) return
 
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
@@ -286,6 +293,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData?.rewardsCryptoBaseUnit?.amounts,
       wallet,
       accountNumber,
+      maybeOutboundFeeCryptoBaseUnit,
       asset,
       isTokenWithdraw,
       chainId,

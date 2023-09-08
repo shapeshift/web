@@ -1,7 +1,7 @@
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { SwapperName } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectWillDonate } from 'state/slices/selectors'
+import { selectAssets, selectFeeAssetById, selectWillDonate } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -21,6 +21,8 @@ export const getMixpanelEventData = () => {
 
   const sellAsset = selectFirstHopSellAsset(state)
   const buyAsset = selectLastHopBuyAsset(state)
+  const buyAssetFeeAsset = selectFeeAssetById(state, buyAsset?.assetId ?? '')
+  const sellAssetFeeAsset = selectFeeAssetById(state, sellAsset?.assetId ?? '')
 
   // mixpanel paranoia seeing impossibly high values
   if (!sellAsset?.precision) return
@@ -66,8 +68,8 @@ export const getMixpanelEventData = () => {
   return {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
-    buyAssetChain: buyAsset.networkName,
-    sellAssetChain: sellAsset.networkName,
+    buyAssetChain: buyAssetFeeAsset?.networkName,
+    sellAssetChain: sellAssetFeeAsset?.networkName,
     amountUsd: sellAmountBeforeFeesUsd,
     amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     swapperName,

@@ -31,7 +31,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -761,27 +761,37 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     onNext(DefiStep.Info)
   }, [onNext])
 
-  const missingBalanceForGas = useMemo(() => {
+  const missingBalanceForGasCryptoPrecision = useMemo(() => {
     // Token withdraws aren't dust sends, they're actual contract calls
     // Hence, the balance required for them is denominated in the native fee asset
     if (isTokenWithdraw) {
-      return bnOrZero(feeAssetBalanceCryptoBaseUnit)
-        .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
-        .times(-1)
+      return fromBaseUnit(
+        bnOrZero(feeAssetBalanceCryptoBaseUnit)
+          .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
+          .times(-1),
+        feeAsset.precision,
+      )
     }
-    return bnOrZero(assetBalanceBaseUnit)
-      .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
-      .minus(bnOrZero(dustAmountCryptoBaseUnit))
-      .times(-1)
+    return fromBaseUnit(
+      bnOrZero(assetBalanceBaseUnit)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
+        .minus(bnOrZero(dustAmountCryptoBaseUnit))
+        .times(-1),
+      feeAsset.precision,
+    )
   }, [
     isTokenWithdraw,
     assetBalanceBaseUnit,
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
     feeAssetBalanceCryptoBaseUnit,
+    feeAsset.precision,
   ])
 
-  const hasEnoughBalanceForGas = useMemo(() => missingBalanceForGas.lte(0), [missingBalanceForGas])
+  const hasEnoughBalanceForGas = useMemo(
+    () => bn(missingBalanceForGasCryptoPrecision).lte(0),
+    [missingBalanceForGasCryptoPrecision],
+  )
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
@@ -911,8 +921,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               translation={[
                 'modals.confirm.missingFundsForGas',
                 {
-                  cryptoAmountHuman: missingBalanceForGas.toFixed(6, BigNumber.ROUND_UP),
-                  assetSymbol: asset.symbol,
+                  cryptoAmountHuman: bn(missingBalanceForGasCryptoPrecision).toFixed(
+                    6,
+                    BigNumber.ROUND_UP,
+                  ),
+                  assetSymbol: feeAsset.symbol,
                 },
               ]}
             />

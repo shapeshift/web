@@ -12,6 +12,7 @@ import {
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -21,9 +22,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { poll } from 'lib/poll/poll'
+import type {
+  ThornodePoolResponse,
+  ThornodeStatusResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
@@ -39,7 +43,6 @@ import type {
 
 const THOR_PRECISION = '8'
 export const BASE_BPS_POINTS = '10000'
-const SAVERS_UPDATE_TIME = 25000 // The time it takes for savers to be updated (currently ~15s + some 10s buffer)
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
@@ -139,6 +142,20 @@ export const getAllThorchainSaversPositions = async (
   if (!opportunitiesData) return []
 
   return opportunitiesData
+}
+
+export const getThorchainTransactionStatus = async (txHash: string) => {
+  const thorTxHash = txHash.replace(/^0x/, '')
+  const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+    // We don't want to throw on 404s, we're parsing these ourselves
+    { validateStatus: () => true },
+  )
+
+  if ('error' in thorTxData || status === 404) return TxStatus.Unknown
+  if (!thorTxData.observed_tx.status || thorTxData.observed_tx.status === 'incomplete')
+    return TxStatus.Pending
+  if (thorTxData.observed_tx.status === 'done') return TxStatus.Confirmed
 }
 
 export const getThorchainSaversPosition = async ({
@@ -309,7 +326,13 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
-export const waitForSaversUpdate = () => setTimeoutAsync(SAVERS_UPDATE_TIME)
+export const waitForSaversUpdate = (txHash: string) =>
+  poll({
+    fn: () => getThorchainTransactionStatus(txHash),
+    validate: status => Boolean(status && status === TxStatus.Confirmed),
+    interval: 30000,
+    maxAttempts: 10,
+  })
 
 export const makeDaysToBreakEven = ({
   expectedAmountOutThorBaseUnit,

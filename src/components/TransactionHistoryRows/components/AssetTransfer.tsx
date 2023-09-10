@@ -40,7 +40,7 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
       <AssetIcon
         src={transfer.asset.icon}
         assetId={transfer.asset?.assetId}
-        size={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
+        size={{ base: 'sm', lg: compactMode ? 'sm' : 'sm' }}
       />
       <Box flex={1}>
         <Amount.Crypto

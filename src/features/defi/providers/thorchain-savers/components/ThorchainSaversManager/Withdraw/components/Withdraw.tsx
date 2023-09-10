@@ -3,7 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { getConfig } from 'config'
+import { Err, Ok, type Result } from '@sniptt/monads'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -29,7 +29,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
@@ -58,7 +57,10 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
-  const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
+  const [maybeOutboundFeeCryptoBaseUnit, setMaybeOutboundFeeCryptoBaseUnit] = useState<Result<
+    string,
+    string
+  > | null>()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -146,21 +148,30 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [amountAvailableCryptoPrecision, assetMarketData.price],
   )
 
-  const getOutboundFeeCryptoBaseUnit = useCallback(async () => {
-    const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-    const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+  const getOutboundFeeCryptoBaseUnit = useCallback(async (): Promise<Result<
+    string,
+    string
+  > | null> => {
+    if (!accountId) return null
 
-    return maybeInboundAddressData.match({
-      ok: ({ outbound_fee }) => {
-        const outboundFeeCryptoBaseUnit = toBaseUnit(
-          fromThorBaseUnit(outbound_fee),
-          asset.precision,
-        )
-        return outboundFeeCryptoBaseUnit
-      },
-      err: () => undefined,
-    })
-  }, [asset.precision, assetId])
+    try {
+      // Attempt getting a quote with 10000 bps, i.e 100% withdraw
+      // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
+      // and will allow us to gracefully handle withdrawal amounts that are lower than the outbound fee
+      // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
+
+      const outboundFee = bnOrZero(
+        toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision),
+      )
+      const safeOutboundFee = bn(outboundFee).times(105).div(100).toFixed(0)
+      // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
+      return Ok(safeOutboundFee)
+    } catch (error) {
+      console.error(error)
+      return Err((error as Error).message)
+    }
+  }, [accountId, asset])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
@@ -178,12 +189,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           accountId &&
           opportunityData?.stakedAmountCryptoBaseUnit &&
           wallet &&
-          accountNumber !== undefined
+          accountNumber !== undefined &&
+          maybeOutboundFeeCryptoBaseUnit
         )
       )
         return
       try {
         const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
+
+        // No need to fetch a quote for the exact amount being withdrawn nor to estimate gas if the amount is too low
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return
+        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
+        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit)) return
 
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
@@ -192,6 +210,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        if (!quote) return
 
         const chainAdapters = getChainAdapterManager()
 
@@ -273,6 +292,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData?.rewardsCryptoBaseUnit?.amounts,
       wallet,
       accountNumber,
+      maybeOutboundFeeCryptoBaseUnit,
       asset,
       isTokenWithdraw,
       chainId,
@@ -287,16 +307,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     ;(async () => {
-      if (outboundFeeCryptoBaseUnit) return
+      if (maybeOutboundFeeCryptoBaseUnit) return
 
-      const dustThresholdFee = await getOutboundFeeCryptoBaseUnit()
-      if (!dustThresholdFee) return ''
+      const _outboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit()
+      if (!_outboundFeeCryptoBaseUnit) return
 
-      // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
-      const safeOutboundFee = bn(dustThresholdFee).times(105).div(100).toString()
-      setOutboundFeeCryptoBaseUnit(safeOutboundFee ?? '')
+      setMaybeOutboundFeeCryptoBaseUnit(_outboundFeeCryptoBaseUnit)
     })()
-  }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
+  }, [getOutboundFeeCryptoBaseUnit, maybeOutboundFeeCryptoBaseUnit])
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
@@ -368,7 +386,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
-      if (!outboundFeeCryptoBaseUnit) return false
+      if (!maybeOutboundFeeCryptoBaseUnit) return false
+
+      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+        return translate('trade.errors.amountTooSmallUnknownMinimum')
+      }
+
+      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
 
       const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const valueCryptoPrecision = bnOrZero(value)
@@ -400,14 +424,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      outboundFeeCryptoBaseUnit,
+      maybeOutboundFeeCryptoBaseUnit,
       translate,
     ],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      if (!outboundFeeCryptoBaseUnit) return false
+      if (!maybeOutboundFeeCryptoBaseUnit) return false
+
+      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+        return translate('amountTooSmallUnknownMinimum')
+      }
+
+      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
       const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
       const fiat = crypto.times(assetMarketData.price)
@@ -437,7 +468,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       assetMarketData.price,
-      outboundFeeCryptoBaseUnit,
+      maybeOutboundFeeCryptoBaseUnit,
       translate,
     ],
   )

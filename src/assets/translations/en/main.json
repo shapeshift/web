@@ -231,7 +231,10 @@
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
-    "viewADemo": "View a Demo"
+    "viewADemo": "View a Demo",
+    "dontHaveWallet": "Don't have a wallet?",
+    "welcomeBack": "Welcome back!",
+    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started."
   },
   "connectWallet": {
     "menu": {
@@ -1277,7 +1280,9 @@
       "uninstall": {
         "title": "You have removed Multichain support from MetaMask!",
         "subtitle": "Re-add the Multichain Snap on MetaMask to view balances, send, receive and trade with the following chains:"
-      }
+      },
+      "connectMetaMask": "Connect MetaMask",
+      "andMore": "...and more"
     },
     "coinbase": {
       "errors": {

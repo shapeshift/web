@@ -1,9 +1,8 @@
-import { ArrowForwardIcon, WarningIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
   Button,
   Center,
   Checkbox,
-  Divider,
   Flex,
   Heading,
   HStack,

@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import NightSky from 'assets/nightsky.jpg'
@@ -27,6 +28,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isSome } from 'lib/utils'
@@ -42,16 +44,20 @@ const IncludeChains = [
   KnownChainIds.ThorchainMainnet,
 ]
 
-const containerPt = { base: 8, md: 0 }
-const flexAlign = { base: 'center', md: 'flex-start' }
-const flexRightAlign = { base: 'center', md: 'flex-end' }
-const textAlign: ResponsiveValue<any> = { base: 'center', md: 'left' }
-const margin = { base: 0, md: '130px' }
-const spacing = { base: 6, md: 8 }
+const containerPt = { base: 8, lg: 0 }
+const flexAlign = { base: 'center', lg: 'flex-start' }
+const flexRightAlign = { base: 'center', lg: 'flex-end' }
+const textAlign: ResponsiveValue<any> = { base: 'center', lg: 'left' }
+const margin = { base: 0, lg: '130px' }
+const spacing = { base: 6, lg: 8 }
+const display = { base: 'none', lg: 'flex' }
+const width = { base: '100%', lg: 'auto' }
+const maxWidth = { base: '100%', lg: '500px' }
 
 export const ConnectWallet = () => {
   const { state, dispatch, connectDemo, connect } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+  const isSnapEnabled = useFeatureFlag('Snaps')
 
   const allNativeAssets = useMemo(() => {
     return Object.values(KnownChainIds)
@@ -140,42 +146,74 @@ export const ConnectWallet = () => {
             my='auto'
             mx={margin}
             zIndex={4}
-            maxWidth='500px'
+            maxWidth={maxWidth}
+            width={width}
           >
-            <Stack spacing={6}>
+            {isMobile ? (
               <Stack spacing={4} textAlign={textAlign}>
-                <Heading as='h3' fontSize='2xl'>
-                  Multichain support is now on MetaMask!
-                </Heading>
-                <RawText color='text.subtle' fontSize='lg'>
-                  Add the Multichain Snap on MetaMask to view balances, send, receive, and trade on
-                  the following chains:
-                </RawText>
-                <HStack spacing={4} justify={flexAlign} wrap='wrap' mb={4}>
-                  {renderChains}
-                  <RawText color='text.subtle'>...and more</RawText>
-                </HStack>
+                <Flex flexDir='row' textAlign='left' fontSize='2xl' letterSpacing='tight'>
+                  <RawText color='white' lineHeight='1' userSelect={'none'}>
+                    {translate('connectWalletPage.exploreThe')}{' '}
+                    <RawText color='white' fontWeight='bold' as='span'>
+                      {translate('connectWalletPage.defiUniverse')}
+                    </RawText>
+                  </RawText>
+                </Flex>
+                <Text
+                  userSelect={'none'}
+                  color='text.subtle'
+                  fontSize='lg'
+                  textAlign='left'
+                  translation={'connectWalletPage.body2'}
+                />
               </Stack>
-              <Button
-                width='full'
-                size='lg'
-                onClick={handleMetaMaskConnect}
-                leftIcon={<MetaMaskIcon />}
-              >
-                Connect MetaMask
-              </Button>
-            </Stack>
-            <Flex alignItems='center' justifyContent='center' width='full' gap={4}>
-              <Divider flex={1} borderColor='border.bold' opacity='1' />
-              <Text
-                color='text.subtle'
-                fontWeight='medium'
-                textAlign='center'
-                translation='common.or'
-              />
-              <Divider flex={1} borderColor='border.bold' opacity='1' />
-            </Flex>
-
+            ) : isSnapEnabled ? (
+              <>
+                <Stack spacing={6}>
+                  <Stack spacing={4} textAlign={textAlign}>
+                    <Heading as='h3' fontSize='2xl'>
+                      {translate('walletProvider.metaMaskSnap.title')}
+                    </Heading>
+                    <RawText color='text.subtle' fontSize='lg'>
+                      {translate('walletProvider.metaMaskSnap.subtitle')}
+                    </RawText>
+                    <HStack spacing={4} justify={flexAlign} wrap='wrap' mb={4}>
+                      {renderChains}
+                      <RawText color='text.subtle'>
+                        {translate('walletProvider.metaMaskSnap.andMore')}
+                      </RawText>
+                    </HStack>
+                  </Stack>
+                  <Button
+                    width='full'
+                    size='lg'
+                    onClick={handleMetaMaskConnect}
+                    leftIcon={<MetaMaskIcon />}
+                  >
+                    {translate('walletProvider.metaMaskSnap.connectMetaMask')}
+                  </Button>
+                </Stack>
+                <Flex alignItems='center' justifyContent='center' width='full' gap={4}>
+                  <Divider flex={1} borderColor='border.bold' opacity='1' />
+                  <Text
+                    color='text.subtle'
+                    fontWeight='medium'
+                    textAlign='center'
+                    translation='common.or'
+                  />
+                  <Divider flex={1} borderColor='border.bold' opacity='1' />
+                </Flex>
+              </>
+            ) : (
+              <Stack spacing={6}>
+                <Heading as='h3' fontSize='2xl'>
+                  {translate('connectWalletPage.welcomeBack')}
+                </Heading>
+                <RawText fontSize='lg' color='text.subtle'>
+                  {translate('connectWalletPage.welcomeBody')}
+                </RawText>
+              </Stack>
+            )}
             <Button
               size='lg'
               zIndex={1}
@@ -187,7 +225,7 @@ export const ConnectWallet = () => {
               <Text translation='connectWalletPage.cta' />
             </Button>
             <Flex gap={1}>
-              <RawText color='text.subtle'>Don't have a wallet?</RawText>
+              <RawText color='text.subtle'>{translate('connectWalletPage.dontHaveWallet')}</RawText>
               <Button
                 onClick={connectDemo}
                 isLoading={state.isLoadingLocalWallet}
@@ -196,7 +234,7 @@ export const ConnectWallet = () => {
                 fontWeight='medium'
                 textDecoration='underline'
               >
-                View a demo
+                {translate('connectWalletPage.viewADemo')}
               </Button>
             </Flex>
           </Stack>
@@ -220,7 +258,7 @@ export const ConnectWallet = () => {
           maxWidth='400px'
           bgImage={NightSky}
           backgroundSize='cover'
-          display={{ base: 'none', md: 'flex' }}
+          display={display}
         >
           <Center
             flexDir='column'

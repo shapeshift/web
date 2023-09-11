@@ -11,6 +11,7 @@ import {
   usePrevious,
   useToast,
 } from '@chakra-ui/react'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -102,6 +103,8 @@ export const Header = memo(() => {
       snapModal.open({})
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
+      history.push(`/assets/${btcAssetId}`)
+
       // they installed the snap
       toast({
         status: 'success',
@@ -113,6 +116,7 @@ export const Header = memo(() => {
     appDispatch,
     currentWalletId,
     dispatch,
+    history,
     isSnapInstalled,
     previousSnapInstall,
     showSnapModal,

@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -24,12 +23,10 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   } = useWallet()
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
-  const isSnapFeatureEnabled = useFeatureFlag('Snaps')
-
   useEffect(() => {
     if (!wallet) return
-    setIsMultiAccountWallet(isSnapFeatureEnabled || wallet.supportsBip44Accounts())
-  }, [isSnapFeatureEnabled, wallet])
+    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
+  }, [wallet])
 
   const { open } = useModal('addAccount')
 

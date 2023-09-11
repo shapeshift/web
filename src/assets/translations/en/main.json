@@ -775,9 +775,10 @@
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
     "receiveAddress": "Receive Address",
-    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter address to continue.",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet.",
     "addressPlaceholder": "%{chainName} address",
-    "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?"
+    "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
+    "enableMetaMaskSnap": "Enable MetaMask multichain snap"
   },
   "modals": {
     "popup": {

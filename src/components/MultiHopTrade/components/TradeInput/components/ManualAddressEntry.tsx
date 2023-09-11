@@ -1,11 +1,13 @@
-import { FormControl, FormLabel } from '@chakra-ui/react'
+import { Button, FormControl, FormLabel } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { enableShapeShiftSnap } from 'utils/snaps'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
+import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -90,14 +92,22 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
   )
 
+  const handleEnableShapeShiftSnap = useCallback(() => enableShapeShiftSnap(), [])
+
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (
       <FormControl>
-        <FormLabel color='white.500' w='full' fontWeight='bold'>
-          {translate('trade.receiveAddress')}
-        </FormLabel>
         <FormLabel color='yellow.400'>
           {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
+        </FormLabel>
+        {!isSnapInstalled && (
+          <Button variant='outline' onClick={handleEnableShapeShiftSnap}>
+            {translate('trade.enableMetaMaskSnap')}
+          </Button>
+        )}
+        <RawText>&nbsp;{translate('trade.or')}</RawText>
+        <FormLabel color='white.500' w='full' fontWeight='bold'>
+          {translate('trade.receiveAddress')}
         </FormLabel>
         <AddressInput
           rules={rules}
@@ -105,7 +115,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
         />
       </FormControl>
     )
-  }, [buyAssetChainName, rules, translate])
+  }, [buyAssetChainName, handleEnableShapeShiftSnap, isSnapInstalled, rules, translate])
 
   return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
 })

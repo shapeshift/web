@@ -51,7 +51,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
 
   const maybeRefetchOpportunities = useCallback(
-    ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {
+    ({ chainId, data, transfers, status, txid }: Transaction, accountId: AccountId) => {
       if (status !== TxStatus.Confirmed) return
 
       const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -124,7 +124,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       } else if (shouldRefetchSaversOpportunities) {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        waitForSaversUpdate().then(() => {
+        waitForSaversUpdate(txid).promise.then(() => {
           dispatch(
             getOpportunitiesUserData.initiate(
               {

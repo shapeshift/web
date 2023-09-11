@@ -26,6 +26,7 @@ import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/t
 import {
   selectAssetById,
   selectAssets,
+  selectFeeAssetById,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -49,11 +50,18 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
   const assetId = state?.opportunity?.assetId
-  const feeAssetId = assetId
 
   const assets = useAppSelector(selectAssets)
-  const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+  )
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const userAddress = useMemo(
@@ -74,7 +82,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       ;(async () => {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        await waitForSaversUpdate()
+        await waitForSaversUpdate(confirmedTransaction.txid).promise
 
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({
@@ -211,16 +219,16 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
-                  .times(marketData.price)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .times(feeMarketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed()}
-                symbol={asset.symbol}
+                symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>

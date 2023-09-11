@@ -38,6 +38,7 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
+import { TxWindow } from './TxWindow/TxWindow'
 
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
@@ -179,8 +180,9 @@ export const Header = memo(() => {
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <Notifications />
               <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <TxWindow />
+              <Notifications />
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

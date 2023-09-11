@@ -18,6 +18,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectSearchQueryFromFilter,
+  selectTxStatusParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
@@ -109,11 +110,14 @@ const selectWalletRebasesByAccountIdAssetId = createSelector(
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
   selectTxIds,
+  selectTxs,
   selectWalletTxsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
+  selectTxStatusParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter): TxId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
+
     const filtered = pickBy(data, (_, accountId) =>
       accountIdFilter ? accountId === accountIdFilter : true,
     )
@@ -121,7 +125,10 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const sortedIds = uniqueIds.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+    const uniqueIdsByStatus = txStatusFilter
+      ? uniqueIds.filter(txId => txs[txId].status === txStatusFilter)
+      : uniqueIds
+    const sortedIds = uniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
 )

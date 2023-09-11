@@ -7,6 +7,7 @@ import {
   FarmingAbi__factory,
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
+  THORCHAIN_Router__factory,
 } from 'contracts/__generated'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
@@ -23,6 +24,7 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
   FOX_TOKEN_CONTRACT_ADDRESS,
+  THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
 import type {
@@ -46,11 +48,14 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FarmingAbi__factory,
   [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
   [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
+  // THOR Router Mainnet
+  [THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM]: THORCHAIN_Router__factory,
 } as const
 
 export const CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT = {
   [ContractType.UniV2Pair]: IUniswapV2Pair__factory,
   [ContractType.ERC20]: ERC20ABI__factory,
+  [ContractType.ThorRouter]: THORCHAIN_Router__factory,
 } as const
 
 export const getOrCreateContractByAddress = <T extends KnownContractAddress>(

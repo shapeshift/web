@@ -34,6 +34,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { SwapperName } from 'lib/swapper/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
@@ -184,9 +185,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
     if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
 
-    const cryptoAmount = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit)
-      .div(bn(10).pow(asset.precision))
-      .toString()
+    const cryptoAmount = fromBaseUnit(
+      earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      asset.precision,
+    )
     const price = marketData.price
     return bnOrZero(cryptoAmount).times(price).toString()
   }, [

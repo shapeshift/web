@@ -11,6 +11,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -70,6 +71,17 @@ export const ConnectWallet = () => {
       .filter(isSome)
   }, [])
 
+  const evmChains = useMemo(() => {
+    return Object.values(KnownChainIds)
+      .filter(isEvmChainId)
+      .map(knownChainId => {
+        const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
+        const asset = selectAssetById(store.getState(), assetId)
+        return asset
+      })
+      .filter(isSome)
+  }, [])
+
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
@@ -108,6 +120,9 @@ export const ConnectWallet = () => {
     ))
   }, [allNativeAssets])
 
+  const renderEvmChainText = useMemo(() => {
+    return evmChains.map(asset => asset.networkName).join(', ')
+  }, [evmChains])
   return (
     <Page>
       <SEO title={translate('common.connectWallet')} />
@@ -172,16 +187,18 @@ export const ConnectWallet = () => {
                 <Stack spacing={6}>
                   <Stack spacing={4} textAlign={textAlign}>
                     <Heading as='h3' fontSize='2xl'>
-                      {translate('walletProvider.metaMaskSnap.title')}
+                      {translate('walletProvider.metaMaskSnap.secondaryTitle')}
                     </Heading>
                     <RawText color='text.subtle' fontSize='lg'>
-                      {translate('walletProvider.metaMaskSnap.subtitle')}
+                      {translate('walletProvider.metaMaskSnap.secondaryBody')}
                     </RawText>
                     <HStack spacing={4} justify={flexAlign} wrap='wrap' mb={4}>
                       {renderChains}
-                      <RawText color='text.subtle'>
-                        {translate('walletProvider.metaMaskSnap.andMore')}
-                      </RawText>
+                      <Tooltip label={renderEvmChainText}>
+                        <RawText color='text.subtle'>
+                          {translate('walletProvider.metaMaskSnap.andMore')}
+                        </RawText>
+                      </Tooltip>
                     </HStack>
                   </Stack>
                   <Button

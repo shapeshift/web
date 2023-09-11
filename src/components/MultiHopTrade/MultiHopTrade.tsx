@@ -1,11 +1,12 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -29,10 +30,14 @@ type MatchParams = {
 
 export const MultiHopTrade = memo(
   ({
-    defaultBuyAssetId = foxAssetId,
+    defaultBuyAssetId: _defaultBuyAssetId = foxAssetId,
     defaultSellAssetId = ethAssetId,
     ...cardProps
   }: TradeCardProps) => {
+    // Overrides the defaultBuyAssetId to BTC across all instances of this component, to avoid all consumers programmatically checking for isSnapInstalled
+    const isSnapInstalled = useIsSnapInstalled()
+    const defaultBuyAssetId =
+      _defaultBuyAssetId === foxAssetId && isSnapInstalled ? btcAssetId : _defaultBuyAssetId
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
     const { assetSubId, chainId } = useParams<MatchParams>()

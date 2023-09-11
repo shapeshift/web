@@ -17,6 +17,7 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -120,7 +121,8 @@ export const handleSend = async ({
     if (
       fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
       !wallet.supportsOfflineSigning() &&
-      !isSnapsInstalled
+      (!(wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) ||
+        (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapsInstalled))
     ) {
       throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
     }

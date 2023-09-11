@@ -29,9 +29,9 @@ export const useSupportedAssets = () => {
     ;(async () => {
       const assetIds = await getSupportedSellAssetIds(enabledSwappers)
       const filteredAssetIds = new Set<AssetId>()
-      assetIds.forEach(async assetId => {
+      assetIds.forEach(assetId => {
         const chainId = fromAssetId(assetId).chainId
-        if (await walletSupportsChain({ chainId, wallet, isSnapInstalled })) {
+        if (walletSupportsChain({ chainId, wallet, isSnapInstalled })) {
           filteredAssetIds.add(assetId)
         }
       })

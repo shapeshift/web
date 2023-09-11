@@ -101,6 +101,7 @@
     "@shapeshiftoss/hdwallet-metamask": "^1.50.4",
     "@shapeshiftoss/hdwallet-native": "^1.50.4",
     "@shapeshiftoss/hdwallet-native-vault": "^1.50.4",
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": "^1.50.5-alpha.68",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.50.4",
     "@shapeshiftoss/hdwallet-xdefi": "^1.50.4",
     "@shapeshiftoss/types": "workspace:^",
@@ -260,7 +261,7 @@
     "lit-html": "^2.6.1",
     "msw": "^0.36.5",
     "multiformats": "^9.6.3",
-    "patch-package": "^6.4.7",
+    "patch-package": "^8.0.0",
     "path-browserify": "^1.0.1",
     "pify": "^5.0.0",
     "prettier": "^3.0.3",
@@ -288,7 +289,8 @@
     "@bithighlander/bitcoin-cash-js-lib@^5.2.1": "patch:@bithighlander/bitcoin-cash-js-lib@npm%3A5.2.1#./.yarn/patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch",
     "friendly-challenge@0.9.2": "patch:friendly-challenge@npm%3A0.9.2#./.yarn/patches/friendly-challenge-npm-0.9.2-db0cad46d3.patch",
     "react-dom@^18.2.0": "patch:react-dom@npm%3A18.2.0#./.yarn/patches/react-dom-npm-18.2.0-dd675bca1c.patch",
-    "react-dev-utils/fork-ts-checker-webpack-plugin": "^6.5.3"
+    "react-dev-utils/fork-ts-checker-webpack-plugin": "^6.5.3",
+    "p-queue": "^6.6.2"
   },
   "jest": {
     "preset": "ts-jest",

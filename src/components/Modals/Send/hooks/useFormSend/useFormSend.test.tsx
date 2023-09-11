@@ -3,6 +3,7 @@ import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
@@ -16,6 +17,11 @@ import { ensLookup } from 'lib/address/ens'
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
+
+jest.mock('@shapeshiftoss/metamask-snaps-adapter', () => ({
+  ...jest.requireActual('@shapeshiftoss/metamask-snaps-adapter'),
+  shapeShiftSnapInstalled: jest.fn(),
+}))
 
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
@@ -131,6 +137,9 @@ describe.each([
 ])('useFormSend (%s)', (_, walletSupportsEIP1559) => {
   it('handles successfully sending a tx with ETH address', async () => {
     const toaster = jest.fn()
+    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(false),
+    )
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: {
@@ -186,6 +195,9 @@ describe.each([
 
   it('handles successfully sending a tx with ENS name', async () => {
     const toaster = jest.fn()
+    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(false),
+    )
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: {
@@ -249,6 +261,9 @@ describe.each([
   it('handles successfully sending an ETH address tx without offline signing', async () => {
     const toaster = jest.fn()
     const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
+    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(false),
+    )
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: {
@@ -316,6 +331,9 @@ describe.each([
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
+    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(false),
+    )
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: {
@@ -369,6 +387,9 @@ describe.each([
 
   it('handles a failure while sending a tx', async () => {
     const toaster = jest.fn()
+    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(false),
+    )
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: { wallet: {} },

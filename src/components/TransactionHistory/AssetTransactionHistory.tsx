@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
@@ -35,7 +36,8 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   const chainId: ChainId = asset?.chainId ?? ''
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
+  const isSnapInstalled = useIsSnapInstalled()
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, isSnapInstalled })
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
   if (!assetId) return null

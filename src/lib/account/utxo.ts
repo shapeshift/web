@@ -7,6 +7,8 @@ import {
   utxoChainIds,
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -24,7 +26,12 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         chainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
 
-      for (const accountType of adapter.getSupportedAccountTypes()) {
+      let supportedAccountTypes = adapter.getSupportedAccountTypes()
+      if (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) {
+        // MetaMask snaps adapter only supports legacy for BTC and LTC
+        supportedAccountTypes = [UtxoAccountType.P2pkh]
+      }
+      for (const accountType of supportedAccountTypes) {
         const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, accountNumber)
         const pubkeys = await wallet.getPublicKeys([
           {
@@ -35,7 +42,8 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
           },
         ])
 
-        if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
+        // We do not want to throw for all ChainIds and script types, if one fails
+        if (!pubkeys?.[0]?.xpub || typeof pubkeys?.[0]?.xpub !== 'string') continue
 
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         if (!pubkey) continue

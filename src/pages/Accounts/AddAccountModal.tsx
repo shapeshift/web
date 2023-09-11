@@ -22,10 +22,12 @@ import { useSelector } from 'react-redux'
 import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
@@ -43,11 +45,18 @@ export const AddAccountModal = () => {
   } = useWallet()
 
   const assets = useSelector(selectAssets)
-  const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
+  const portfolioChainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
+
+  const isSnapInstalled = useIsSnapInstalled()
+
+  const chainIds = useMemo(() => {
+    if (!isSnapInstalled) return portfolioChainIds
+    // The ShapeShift multichain snap only support deriving accounts 0+ for UTXO chains
+    return portfolioChainIds.filter(chainId => isUtxoChainId(chainId))
+  }, [portfolioChainIds, isSnapInstalled])
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
-  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
@@ -117,7 +126,7 @@ export const AddAccountModal = () => {
             </Stack>
             <Box pt={4} width='full'>
               <ChainDropdown
-                chainIds={portfolioChainIds}
+                chainIds={chainIds}
                 chainId={selectedChainId}
                 onClick={setSelectedChainId}
                 matchWidth

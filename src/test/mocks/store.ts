@@ -91,6 +91,7 @@ export const mockStore: ReduxState = {
       AdvancedSlippage: false,
       WalletConnectV2: false,
       CustomSendNonce: false,
+      Snaps: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -99,6 +100,8 @@ export const mockStore: ReduxState = {
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
+    showSnapsModal: true,
+    snapInstalled: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

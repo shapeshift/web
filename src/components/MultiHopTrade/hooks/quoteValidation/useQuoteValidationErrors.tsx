@@ -4,6 +4,7 @@ import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -44,17 +45,21 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const quotes = useAppSelector(selectSwappersApiTradeQuotes)
 
+  const isSnapInstalled = useIsSnapInstalled()
+
   const walletSupportsSellAssetChain =
     firstHopSellAsset &&
     walletSupportsChain({
       chainId: firstHopSellAsset.chainId,
       wallet,
+      isSnapInstalled,
     })
   const walletSupportsBuyAssetChain =
     lastHopBuyAsset &&
     walletSupportsChain({
       chainId: lastHopBuyAsset.chainId,
       wallet,
+      isSnapInstalled,
     })
 
   const hasSufficientSellAssetBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(

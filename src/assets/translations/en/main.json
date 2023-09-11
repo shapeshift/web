@@ -1267,6 +1267,14 @@
         "button": "Open"
       }
     },
+    "metaMaskSnap": {
+      "title": "Multi-Chain support is now available for Metamask!",
+      "subtitle": "Add the ShapeShift Snap on Metamask to send, receive and trade with the following chains:",
+      "multiChainSnap": "Multichain Snap",
+      "active": "Active",
+      "notActive": "Not Active",
+      "addSnap": "Add Snap"
+    },
     "coinbase": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with Coinbase",

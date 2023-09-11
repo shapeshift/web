@@ -1,18 +1,30 @@
-import { CloseIcon } from '@chakra-ui/icons'
-import { Box, Flex, HStack, MenuDivider, MenuGroup, MenuItem, VStack } from '@chakra-ui/react'
+import { SmallCloseIcon } from '@chakra-ui/icons'
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  HStack,
+  MenuGroup,
+  VStack,
+} from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AddressAndChain } from './AddressAndChain'
+import { AddressLinks } from './AddressLinks'
 import { DappAvatar } from './DappAvatar'
+import { Networks } from './Networks'
 
 export const DappHeaderMenuSummaryV2 = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -46,12 +58,6 @@ export const DappHeaderMenuSummaryV2 = () => {
     }
   }, [core, dispatch, session, web3wallet])
 
-  const renderConnectedAddresses = useMemo(() => {
-    return connectedAccounts.map(accountId => (
-      <AddressAndChain key={accountId} accountId={accountId} />
-    ))
-  }, [connectedAccounts])
-
   if (!session || !web3wallet) return null
 
   return (
@@ -61,51 +67,69 @@ export const DappHeaderMenuSummaryV2 = () => {
         ml={3}
         color='text.subtle'
       >
-        <HStack spacing={4} px={4} py={1}>
-          <DappAvatar
-            name={session.peer.metadata.name}
-            image={session.peer.metadata.icons?.[0]}
-            connected={session.acknowledged}
-          />
-          <Box fontWeight='medium'>
-            <RawText maxWidth='215px' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
-              {session.peer.metadata.name}
-            </RawText>
-            <RawText
-              fontSize='sm'
-              color='text.subtle'
-              maxWidth='215px'
-              overflow='hidden'
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-            >
-              {session.peer.metadata.url.replace(/^https?:\/\//, '')}
-            </RawText>
-          </Box>
-        </HStack>
+        <Accordion allowToggle defaultIndex={0} variant='default'>
+          <AccordionItem borderBottomWidth={0}>
+            <AccordionButton width='full'>
+              <HStack spacing={4} py={1} width='full'>
+                <DappAvatar
+                  name={session.peer.metadata.name}
+                  image={session.peer.metadata.icons?.[0]}
+                  connected={session.acknowledged}
+                  display={{ base: 'none', md: 'block' }}
+                />
+                <Box textAlign='left'>
+                  <RawText
+                    maxWidth='215px'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    whiteSpace='nowrap'
+                    fontWeight='medium'
+                    lineHeight='shorter'
+                  >
+                    {session.peer.metadata.name}
+                  </RawText>
+                  <RawText
+                    fontSize='sm'
+                    color='text.subtle'
+                    maxWidth='215px'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    whiteSpace='nowrap'
+                    lineHeight='shorter'
+                  >
+                    {session.peer.metadata.url.replace(/^https?:\/\//, '')}
+                  </RawText>
+                </Box>
+                <AccordionIcon ml='auto' />
+              </HStack>
+            </AccordionButton>
+            <AccordionPanel px={4} pt={0} pb={4}>
+              <VStack fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
+                <HStack justifyContent='space-between' spacing={4}>
+                  <Text
+                    translation='plugins.walletConnectToDapps.header.menu.expiry'
+                    color='text.subtle'
+                  />
+                  <RawText>
+                    {dayjs.unix(session.expiry).locale(selectedLocale).format('ll LT')}
+                  </RawText>
+                </HStack>
+                <AddressLinks accountIds={connectedAccounts} />
+                <Networks accountIds={connectedAccounts} />
+                <Button
+                  colorScheme='red'
+                  size='sm'
+                  onClick={handleDisconnect}
+                  leftIcon={<SmallCloseIcon />}
+                  mt={2}
+                >
+                  <Text translation='plugins.walletConnectToDapps.header.menu.disconnect' />
+                </Button>
+              </VStack>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </MenuGroup>
-      <MenuDivider />
-
-      <VStack px={4} py={1} fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
-        <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='text.subtle' />
-          <RawText>{dayjs.unix(session.expiry).locale(selectedLocale).format('ll LT')}</RawText>
-        </HStack>
-        <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
-          <Text
-            translation='plugins.walletConnectToDapps.header.menu.addresses'
-            color='text.subtle'
-          />
-          <Flex flexWrap='wrap' gap={2} flex={1} justifyContent='flex-end'>
-            {renderConnectedAddresses}
-          </Flex>
-        </HStack>
-      </VStack>
-
-      <MenuDivider />
-      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={handleDisconnect} color='red.500'>
-        {translate('plugins.walletConnectToDapps.header.menu.disconnect')}
-      </MenuItem>
     </>
   )
 }

@@ -1,10 +1,8 @@
-import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
@@ -17,7 +15,7 @@ import type {
   StakingId,
 } from '../../types'
 import { DefiProvider, DefiType } from '../../types'
-import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import { serializeUserStakingId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -79,7 +77,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     })
   }
 
-  const midgardPools = await getMidgardPools()
+  const midgardPools = await getMidgardPools('7d')
 
   // It might be tempting to paralelize the two THOR requests - don't
   // Midgard is less reliable, so there's no point to continue the flow if this fails
@@ -154,6 +152,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   defiType,
   accountId,
   reduxApi,
+  opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -165,64 +164,54 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   }
 
   try {
-    const stakingOpportunityId = accountIdToFeeAssetId(accountId)
+    for (const stakingOpportunityId of opportunityIds) {
+      const asset = selectAssetById(state, stakingOpportunityId)
+      if (!asset)
+        throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
-    if (!stakingOpportunityId)
-      throw new Error(`Cannot get stakingOpportunityId for accountId: ${accountId}`)
+      const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
 
-    const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset)
-      throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
+      const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-      assetReference: fromAssetId(stakingOpportunityId).assetReference,
-      chainId: fromAssetId(stakingOpportunityId).chainId,
-    }
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+      if (!allPositions.length)
+        throw new Error(
+          `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
+        )
 
-    const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
+      const accountPosition = await getThorchainSaversPosition({
+        accountId,
+        assetId: stakingOpportunityId,
+      })
 
-    if (!allPositions.length)
-      throw new Error(
-        `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
-      )
-
-    const accountPosition = await getThorchainSaversPosition({
-      accountId,
-      assetId: stakingOpportunityId,
-    })
-
-    // No position on that pool - either it was never staked in, or fully withdrawn
-    if (!accountPosition) {
-      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        userStakingId,
-        stakedAmountCryptoBaseUnit: '0',
-        rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+      // No position on that pool - either it was never staked in, or fully withdrawn
+      if (!accountPosition) {
+        stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+          userStakingId,
+          stakedAmountCryptoBaseUnit: '0',
+          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+        }
+        continue
       }
 
-      return Promise.resolve({ data })
-    }
+      const { asset_deposit_value, asset_redeem_value } = accountPosition
 
-    const { asset_deposit_value, asset_redeem_value } = accountPosition
+      const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
+        bn(10).pow(asset.precision),
+      ) // to actual asset precision base unit
 
-    const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
-      bn(10).pow(asset.precision),
-    ) // to actual asset precision base unit
+      const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
+        bn(10).pow(asset.precision),
+      ) // to actual asset precision base unit
 
-    const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
-      bn(10).pow(asset.precision),
-    ) // to actual asset precision base unit
+      const rewardsAmountsCryptoBaseUnit: [string] = [
+        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
+      ]
 
-    const rewardsAmountsCryptoBaseUnit: [string] = [
-      stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
-    ]
-
-    stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      userStakingId,
-      stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
-      rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
+        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
+        rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
+      }
     }
 
     return Promise.resolve({ data })

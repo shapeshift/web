@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput, Swapper } from 'lib/swapper/types'
-import { executeEvmTrade } from 'lib/utils/evm'
+import { executeEvmTransaction } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -9,7 +9,7 @@ import type { ZrxSupportedChainId } from './types'
 import { ZRX_SUPPORTED_CHAINIDS, ZRX_UNSUPPORTED_ASSETS } from './utils/constants'
 
 export const zrxSwapper: Swapper = {
-  executeTrade: executeEvmTrade,
+  executeEvmTransaction,
 
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve(

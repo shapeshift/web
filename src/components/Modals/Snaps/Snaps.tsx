@@ -19,7 +19,7 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   useEffect(() => {
     if (isSnapInstalled) {
       close()
-      toast({ status: 'success', title: 'Snap Installed' })
+      toast({ status: 'success', title: 'ShapeShift Multichain MetaMask Snap Installed' })
     }
   }, [close, isSnapInstalled, toast])
 

@@ -7,6 +7,8 @@ import {
   utxoChainIds,
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -24,7 +26,11 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         chainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
 
-      const supportedAccountTypes = adapter.getSupportedAccountTypes()
+      let supportedAccountTypes = adapter.getSupportedAccountTypes()
+      if (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) {
+        // MetaMask snaps adapter only supports legacy for BTC and LTC
+        supportedAccountTypes = [UtxoAccountType.P2pkh]
+      }
       for (const accountType of supportedAccountTypes) {
         const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, accountNumber)
         const pubkeys = await wallet.getPublicKeys([

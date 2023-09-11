@@ -8,14 +8,10 @@ export interface WalletEnableResult {
   snaps: any
   errors?: Error[]
 }
-interface EnableShapeShiftSnapResult {
-  success: boolean
-  message: WalletEnableResult
-}
 
-export const enableShapeShiftSnap = (version?: string): Promise<EnableShapeShiftSnapResult> => {
+export const enableShapeShiftSnap = async (version?: string): Promise<void> => {
   const isSnapFeatureEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
   assert(isSnapFeatureEnabled, 'Snap feature flag is disabled')
   const snapId = getConfig().REACT_APP_SNAP_ID
-  return _enableShapeShiftSnap(snapId, version)
+  await _enableShapeShiftSnap(snapId, version)
 }

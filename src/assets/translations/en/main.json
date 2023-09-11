@@ -1699,7 +1699,7 @@
         "menu": {
           "disconnect": "Disconnect",
           "addresses": "Addresses",
-          "address": "address",
+          "address": "Address",
           "connected": "Connected",
           "networks": "Network(s)",
           "unsupportedNetwork": "Unsupported Network",

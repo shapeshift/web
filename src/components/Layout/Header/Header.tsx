@@ -103,7 +103,11 @@ export const Header = memo(() => {
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
       // they installed the snap
-      toast({ status: 'success', title: 'Snap Installed', position: 'bottom' })
+      toast({
+        status: 'success',
+        title: 'ShapeShift Multichain MetaMask Snap Installed',
+        position: 'bottom',
+      })
     }
   }, [
     appDispatch,

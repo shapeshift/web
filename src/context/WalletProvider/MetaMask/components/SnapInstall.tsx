@@ -12,7 +12,11 @@ export const SnapInstall = () => {
 
   useEffect(() => {
     if (isSnapInstalled === true) {
-      toast({ status: 'success', title: 'Snap Installed', position: 'bottom' })
+      toast({
+        status: 'success',
+        title: 'ShapeShift Multichain MetaMask Snap Installed',
+        position: 'bottom',
+      })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [dispatch, isSnapInstalled, toast])

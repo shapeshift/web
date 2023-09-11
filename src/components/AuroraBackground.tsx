@@ -34,7 +34,7 @@ const canvasStyle: CSSProperties = {
   width: '100vw',
   height: '100vh',
   filter: 'blur(10px)',
-  zIndex: 1,
+  zIndex: 2,
 }
 
 export const AuroraBackground: React.FC = props => {

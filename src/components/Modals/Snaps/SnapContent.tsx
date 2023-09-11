@@ -21,14 +21,12 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { isSome } from 'lib/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export const SnapContent = ({ isRemoved }: { isRemoved?: boolean }) => {
-  const isSnapsEnabled = useFeatureFlag('Snaps')
   const [isInstalling, setIsInstalling] = useState(false)
 
   const translate = useTranslate()
@@ -69,8 +67,6 @@ export const SnapContent = ({ isRemoved }: { isRemoved?: boolean }) => {
       </HStack>
     )
   }, [allNativeAssets])
-
-  if (!isSnapsEnabled) return null
 
   if (isInstalling) {
     return (

@@ -6,6 +6,7 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectShowSnapsModal } from 'state/slices/selectors'
@@ -40,6 +41,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     })()
   }, [onProviderChange])
 
+  const isSnapsEnabled = useFeatureFlag('Snaps')
+
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
@@ -70,9 +73,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        if (isSnapInstalled === true && !showSnapModal) {
+        if (!isSnapsEnabled || (isSnapsEnabled && isSnapInstalled === true && !showSnapModal)) {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else {
+        } else if (isSnapsEnabled) {
           history.push('/metamask/snap/install')
         }
       } catch (e: any) {

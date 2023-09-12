@@ -208,8 +208,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
         if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit)) return Err('Amount too low')
 
-        if (!quote) return Err('Error getting THORChain savers quote')
-
         const chainAdapters = getChainAdapterManager()
 
         if (isTokenWithdraw) {

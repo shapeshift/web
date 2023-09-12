@@ -12,6 +12,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -53,7 +54,7 @@ export const Header = memo(() => {
 
   const history = useHistory()
   const {
-    state: { isDemoWallet },
+    state: { isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -98,12 +99,22 @@ export const Header = memo(() => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
 
   useEffect(() => {
-    if (previousSnapInstall === null && isSnapInstalled === false) {
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    if (!isMetaMaskMultichainWallet) return
+
+    if (isSnapInstalled === false) {
       // We have just detected that the user doesn't have the snap installed currently
       // We need to check whether or not the user had previous non-EVM AccountIds and clear those
       if (currentWalletId && walletAccountIds.some(accountId => isUtxoAccountId(accountId)))
         appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
     }
+    // We don't want to re-run this every time `isSnapInstalled` reference changes
+    // By the time isMetaMaskMultichainWallet evaluates to true (i.e `wallet` is defined),
+    // `isSnapInstalled` will already be a non-null value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appDispatch, currentWalletId, wallet, walletAccountIds])
+
+  useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
       toast({ status: 'success', title: 'Snap Uninstalled', position: 'bottom' })
@@ -132,6 +143,7 @@ export const Header = memo(() => {
     showSnapModal,
     snapModal,
     toast,
+    wallet,
     walletAccountIds,
   ])
 

@@ -68,7 +68,7 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
             Hardware wallets are <strong>NOT</strong> supported
           </ListItem>
           <ListItem>
-            Only Account 1 in MetaMask is supported for the extra chains the ShapeShift Multichain
+            Only Account #1 in MetaMask is supported for the extra chains the ShapeShift Multichain
             Snap provides{' '}
             <RawText as='span' color='text.subtle'>
               (Bitcoin, Bitcoin Cash, Litecoin, Dogecoin, THORChain, Cosmos)

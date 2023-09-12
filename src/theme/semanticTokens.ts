@@ -122,6 +122,10 @@ export const semanticTokens = {
         default: 'black',
         _dark: 'white',
       },
+      link: {
+        default: 'blue.500',
+        _dark: 'blue.200',
+      },
       subtle: {
         default: 'gray.500',
         _dark: 'darkNeutral.400',

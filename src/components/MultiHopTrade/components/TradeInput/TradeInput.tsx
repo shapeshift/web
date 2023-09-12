@@ -445,7 +445,7 @@ export const TradeInput = memo(() => {
                   onAssetChange={setBuyAsset}
                 />
               }
-            ></TradeAssetInput>
+            />
           </Stack>
           {ConfirmSummary}
         </Stack>

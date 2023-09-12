@@ -1,9 +1,10 @@
-import { FormControl, FormLabel } from '@chakra-ui/react'
+import { FormControl, FormLabel, Link } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { enableShapeShiftSnap } from 'utils/snaps'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -26,6 +27,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   } = useFormContext()
   const translate = useTranslate()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
+  const isSnapEnabled = useFeatureFlag('Snaps')
 
   const wallet = useWallet().state.wallet
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectBuyAsset)
@@ -90,14 +92,22 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
   )
 
+  const handleEnableShapeShiftSnap = useCallback(() => enableShapeShiftSnap(), [])
+
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (
       <FormControl>
-        <FormLabel color='white.500' w='full' fontWeight='bold'>
-          {translate('trade.receiveAddress')}
-        </FormLabel>
         <FormLabel color='yellow.400'>
           {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
+          {!isSnapInstalled && isSnapEnabled && (
+            <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
+              {translate('trade.enableMetaMaskSnap')}
+            </Link>
+          )}
+          &nbsp;{translate('trade.toContinue')}
+        </FormLabel>
+        <FormLabel color='white.500' w='full' fontWeight='bold'>
+          {translate('trade.receiveAddress')}
         </FormLabel>
         <AddressInput
           rules={rules}
@@ -105,7 +115,14 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
         />
       </FormControl>
     )
-  }, [buyAssetChainName, rules, translate])
+  }, [
+    buyAssetChainName,
+    handleEnableShapeShiftSnap,
+    isSnapEnabled,
+    isSnapInstalled,
+    rules,
+    translate,
+  ])
 
   return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
 })

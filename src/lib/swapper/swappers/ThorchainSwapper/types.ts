@@ -149,9 +149,6 @@ type ThorNodeStatusResponseSuccess = {
     swap_status?: {
       pending: boolean
     }
-    swap_finalised?: {
-      completed: boolean
-    }
     outbound_signed?: {
       completed: boolean
     }

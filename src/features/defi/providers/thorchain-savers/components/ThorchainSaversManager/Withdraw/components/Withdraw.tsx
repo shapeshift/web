@@ -171,9 +171,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       return Ok(safeOutboundFee)
     } catch (error) {
       console.error(error)
-      return Err((error as Error).message)
+      return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
     }
-  }, [accountId, asset])
+  }, [accountId, asset, translate])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
@@ -201,10 +201,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       try {
         const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
 
-        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return null
+        // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
+
         const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
 
-        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit)) return Err('Amount too low')
+        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit))
+          return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
 
         const chainAdapters = getChainAdapterManager()
 
@@ -270,7 +273,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         return Ok(bnOrZero(fastFeeCryptoBaseUnit).toString())
       } catch (error) {
         console.error(error)
-        return Err((error as Error).message)
+        // Assume insufficient amount for gas if we've thrown on the try block above
+        return Err(translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol }))
       }
     },
     [
@@ -281,11 +285,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       maybeOutboundFeeCryptoBaseUnit,
       asset.precision,
       asset.chainId,
+      translate,
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
       saversRouterContractAddress,
       feeAsset.assetId,
+      feeAsset.symbol,
     ],
   )
 
@@ -382,7 +388,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
 
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return translate('trade.errors.amountTooSmallUnknownMinimum')
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
@@ -410,7 +416,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
 
       if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol })
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       if (valueCryptoPrecision.isEqualTo(0)) return ''
@@ -423,7 +429,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       translate,
-      feeAsset.symbol,
     ],
   )
 
@@ -433,7 +438,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
 
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return translate('amountTooSmallUnknownMinimum')
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
@@ -459,7 +464,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
 
       if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return translate('insufficientAmountForGas', { assetSymbol: feeAsset.symbol })
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
@@ -471,7 +476,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.precision,
       asset.symbol,
       assetMarketData.price,
-      feeAsset.symbol,
       maybeOutboundFeeCryptoBaseUnit,
       maybeWithdrawGasEstimateCryptoBaseUnit,
       translate,

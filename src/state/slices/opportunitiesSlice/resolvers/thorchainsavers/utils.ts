@@ -154,7 +154,6 @@ export const getThorchainTransactionStatus = async (txHash: string) => {
 
   if ('error' in thorTxData || status === 404) return TxStatus.Unknown
   // Tx has been observed, but swap/outbound Tx hasn't been completed yet
-  debugger
   if (
     // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
     !(thorTxData.stages.inbound_observed?.completed === true) ||
@@ -341,7 +340,6 @@ export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
 export const waitForSaversUpdate = (txHash: string) => {
-  debugger
   return poll({
     fn: () => getThorchainTransactionStatus(txHash),
     validate: status => Boolean(status && status === TxStatus.Confirmed),

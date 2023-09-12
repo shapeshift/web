@@ -299,9 +299,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       const adapter = assertGetEvmChainAdapter(chainId)
 
-      const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()

@@ -26,6 +26,7 @@ type SnapConfirmProps = {
 export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   const [isInstalling, setIsInstalling] = useState(false)
   const [hasAgreed, setHasAgreed] = useState(false)
+  const [hasPinkySworeSeedPhraseIsBackedUp, setHasPinkySworeSeedPhraseIsBackedUp] = useState(false)
   const translate = useTranslate()
   const handleAddSnap = useCallback(() => {
     setIsInstalling(true)
@@ -62,6 +63,13 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
             The ShapeShift Multichain Snap is a new, experimental feature, provided "as is"
           </AlertDescription>
         </Alert>
+        <Alert status='error' borderRadius='lg' mb={4}>
+          <AlertIcon />
+          <AlertDescription>
+            Ensure you have backed up your MetaMask seed phrase. Any funds you send to non-EVM
+            chains using this Snap will be directed to the default account you set up with MetaMask.
+          </AlertDescription>
+        </Alert>
         <RawText fontWeight='bold'>Before continuing please read the following:</RawText>
         <UnorderedList spacing={2} my={4}>
           <ListItem>
@@ -86,10 +94,20 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
         <Checkbox onChange={e => setHasAgreed(e.target.checked)} fontWeight='bold'>
           I have read and understand
         </Checkbox>
+        <Checkbox
+          onChange={e => setHasPinkySworeSeedPhraseIsBackedUp(e.target.checked)}
+          fontWeight='bold'
+        >
+          I have backed up my MetaMask seed phrase
+        </Checkbox>
       </ModalBody>
       <ModalFooter gap={2}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button colorScheme='blue' isDisabled={!hasAgreed} onClick={handleAddSnap}>
+        <Button
+          colorScheme='blue'
+          isDisabled={!(hasAgreed && hasPinkySworeSeedPhraseIsBackedUp)}
+          onClick={handleAddSnap}
+        >
           Confirm & Install
         </Button>
       </ModalFooter>

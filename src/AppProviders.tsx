@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
+import { Web3ModalService } from 'plugins/walletConnectToDapps/Web3Modal'
 import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -70,6 +71,7 @@ export function AppProviders({ children }: ProvidersProps) {
                               <TransactionsProvider>
                                 <AppProvider>
                                   <FoxEthProvider>
+                                    <Web3ModalService />
                                     <DefiManagerProvider>{children}</DefiManagerProvider>
                                   </FoxEthProvider>
                                 </AppProvider>

@@ -7,6 +7,7 @@ import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
+import { Modal } from 'context/WalletProvider/WalletConnectV2/components/Modal'
 
 import { CoinbaseConnect } from './Coinbase/components/Connect'
 import { CoinbaseFailure } from './Coinbase/components/Failure'
@@ -64,7 +65,6 @@ import { WalletConnectFailure } from './WalletConnect/components/Failure'
 import { WalletConnectConfig } from './WalletConnect/config'
 import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
 import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
-import { WalletConnectV2Start } from './WalletConnectV2/components/Start'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
@@ -187,7 +187,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,
     routes: [
-      { path: '/walletconnectv2/connect', component: WalletConnectV2Start },
+      { path: '/walletconnectv2/connect', component: Modal },
       { path: '/walletconnectv2/load', component: WalletConnectV2Load },
       { path: '/walletconnectv2/create', component: WalletConnectV2Create },
     ],

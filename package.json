@@ -117,6 +117,8 @@
     "@walletconnect/utils": "^2.10.1",
     "@walletconnect/web3-provider": "^1.8.0",
     "@walletconnect/web3wallet": "^1.9.1",
+    "@web3modal/ethereum": "^2.7.1",
+    "@web3modal/react": "^2.7.1",
     "@wherever/react-notification-feed": "^0.4.4",
     "alchemy-sdk": "^2.8.3",
     "allsettled-polyfill": "^1.0.4",
@@ -194,6 +196,7 @@
     "styled-components": "^6.0.7",
     "uuid": "^9.0.0",
     "viem": "1.10.1",
+    "wagmi": "^1.4.1",
     "web-vitals": "^2.1.4",
     "web3": "1.7.4"
   },

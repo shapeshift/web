@@ -193,7 +193,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           userAddress &&
           assetReference &&
           accountId &&
-          opportunityData?.stakedAmountCryptoBaseUnit &&
           wallet &&
           accountNumber !== undefined &&
           maybeOutboundFeeCryptoBaseUnit
@@ -279,7 +278,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       userAddress,
       assetReference,
       accountId,
-      opportunityData?.stakedAmountCryptoBaseUnit,
       wallet,
       accountNumber,
       maybeOutboundFeeCryptoBaseUnit,
@@ -382,7 +380,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
       if (!maybeOutboundFeeCryptoBaseUnit) return false
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
 
@@ -422,7 +419,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       return hasValidBalance || 'common.insufficientFunds'
     },
     [
-      opportunityData?.stakedAmountCryptoBaseUnit,
       maybeOutboundFeeCryptoBaseUnit,
       maybeWithdrawGasEstimateCryptoBaseUnit,
       amountAvailableCryptoPrecision,
@@ -544,9 +540,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     feeAsset.chainId,
     inputValues,
     isTokenWithdraw,
-    opportunityData?.apy,
-    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
   ])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {

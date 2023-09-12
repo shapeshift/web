@@ -147,15 +147,29 @@ export const getAllThorchainSaversPositions = async (
 export const getThorchainTransactionStatus = async (txHash: string) => {
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
     // We don't want to throw on 404s, we're parsing these ourselves
     { validateStatus: () => true },
   )
 
   if ('error' in thorTxData || status === 404) return TxStatus.Unknown
-  if (!thorTxData.observed_tx.status || thorTxData.observed_tx.status === 'incomplete')
+  // Tx has been observed, but swap/outbound Tx hasn't been completed yet
+  debugger
+  if (
+    // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
+    !(thorTxData.stages.inbound_observed?.completed === true) ||
+    !thorTxData.stages.inbound_finalised?.completed ||
+    thorTxData.stages.swap_status?.pending === true ||
+    // Note, this does not apply to all Txs, e.g savers deposit won't have this property
+    // the *presence* of outbound_signed?.completed as false *will* indicate a pending outbound Tx, but the opposite is not neccessarily true
+    // i.e a succesful end-to-end "swap" might be succesful despite the *absence* of outbound_signed property
+    thorTxData.stages.outbound_signed?.completed === false
+  )
     return TxStatus.Pending
-  if (thorTxData.observed_tx.status === 'done') return TxStatus.Confirmed
+  if (thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
+
+  // We shouldn't end up here, but just in case
+  return TxStatus.Unknown
 }
 
 export const getThorchainSaversPosition = async ({
@@ -326,13 +340,16 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
-export const waitForSaversUpdate = (txHash: string) =>
-  poll({
+export const waitForSaversUpdate = (txHash: string) => {
+  debugger
+  return poll({
     fn: () => getThorchainTransactionStatus(txHash),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
-    interval: 30000,
+    interval: 60000,
+    // i.e max. 10mn from the first Tx confirmation
     maxAttempts: 10,
   })
+}
 
 export const makeDaysToBreakEven = ({
   expectedAmountOutThorBaseUnit,

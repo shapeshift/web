@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { SnapContent } from 'components/Modals/Snaps/SnapContent'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -21,5 +21,9 @@ export const SnapInstall = () => {
     }
   }, [dispatch, isSnapInstalled, toast])
 
-  return <SnapContent />
+  const handleClose = useCallback(() => {
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+  }, [dispatch])
+
+  return <SnapContent onClose={handleClose} />
 }

@@ -66,13 +66,13 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
           </ListItem>
           <ListItem>
             Only Account 1 in MetaMask is supported for the extra chains the ShapeShift Multichain
-            snap provides{' '}
+            Snap provides{' '}
             <RawText as='span' color='text.subtle'>
               (Bitcoin, Bitcoin Cash, Litecoin, Dogecoin, THORChain, Cosmos)
             </RawText>
           </ListItem>
           <ListItem>
-            To use the existing Ethereum chains provided by MetaMask, I must connect Account 1 to
+            To use the existing Ethereum chains provided by MetaMask, you must connect Account #1 to
             ShapeShift in MetaMask
           </ListItem>
           <ListItem>
@@ -80,7 +80,7 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
             risk
           </ListItem>
         </UnorderedList>
-        <Checkbox onChange={e => setHasAgreed(e.target.checked)}>
+        <Checkbox onChange={e => setHasAgreed(e.target.checked)} fontWeight='bold'>
           I have read and understand
         </Checkbox>
       </ModalBody>

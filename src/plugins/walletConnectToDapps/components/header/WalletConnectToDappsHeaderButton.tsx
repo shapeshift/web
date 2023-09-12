@@ -1,70 +1,48 @@
-import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, Menu, MenuButton, MenuList, useDisclosure } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
+import type { SessionTypes } from '@walletconnect/types'
 import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
-import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
-import type { FC } from 'react'
+import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { isSome } from 'lib/utils'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 
 import { useIsWalletConnectToDappsSupportedWallet } from '../../hooks/useIsWalletConnectToDappsSupportedWallet'
+import { WalletConnectButtons } from './ConnectDapp'
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
-export const WalletConnectToDappsHeaderButton: FC = () => {
-  const { isOpen, onClose: handleClose, onOpen: handleOpen } = useDisclosure()
-  const translate = useTranslate()
+const paddingProp = { base: 0, md: '20px' }
+const maxWidthProp = { base: '280px', md: 'xs' }
+const minWidthProp = { base: 0, md: 'xs' }
+const widthProp = { base: 'full', md: 'auto' }
+
+const WalletConnectV1ConnectedButton = () => {
   const walletConnectV1 = useWalletConnect()
-  const walletConnectV2 = useWalletConnectV2()
 
-  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
-  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-
-  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
-  if (!isWalletConnectToDappsSupportedWallet) return null
-
-  const walletConnectV2Connected = !!walletConnectV2.session?.peer
-
-  const walletConnectButtons = (
-    <>
-      {(isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled) && (
-        <Button
-          leftIcon={<WalletConnectIcon />}
-          rightIcon={<ChevronRightIcon />}
-          onClick={handleOpen}
-          width={{ base: 'full', md: 'auto' }}
-        >
-          {translate('plugins.walletConnectToDapps.header.connectDapp')}
-        </Button>
-      )}
-      <ConnectModal isOpen={isOpen} onClose={handleClose} />
-    </>
-  )
-
-  const walletConnectV1ConnectedButton = (
+  return (
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={
           <DappAvatar
-            name={walletConnectV1.dapp?.name ?? ''}
             image={walletConnectV1.dapp?.icons[0] ?? ''}
             connected={walletConnectV1.connector?.connected ?? false}
-            size={6}
+            size='xs'
             connectedDotSize={2}
             borderWidth={1}
           />
         }
         rightIcon={<ChevronDownIcon />}
-        width={{ base: 'full', md: 'auto' }}
+        width={widthProp}
         textAlign='left'
         flexShrink='none'
       >
-        <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
+        <RawText pr={paddingProp} fontSize='sm'>
           {trimWithEndEllipsis(walletConnectV1.dapp?.name, 16)}
         </RawText>
         <RawText fontSize='xs' color='text.subtle'>
@@ -76,40 +54,81 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
       </MenuList>
     </Menu>
   )
+}
 
-  const walletConnectV2ConnectedButton = (
+const WalletConnectV2ConnectedButtonText = ({
+  title,
+  subTitle,
+}: {
+  title: string
+  subTitle: string
+}) => {
+  return (
+    <>
+      <RawText pr={paddingProp} fontSize='sm'>
+        {title}
+      </RawText>
+      <RawText fontSize='xs' color='text.subtle'>
+        {subTitle}
+      </RawText>
+    </>
+  )
+}
+
+const WalletConnectV2ConnectedButton = () => {
+  const walletConnectV2 = useWalletConnectV2()
+  const translate = useTranslate()
+  const sessions = Object.values(walletConnectV2.sessionsByTopic).filter(isSome)
+  const mostRecentSession = sessions.reduce<SessionTypes.Struct | undefined>((acc, session) => {
+    if (!acc || acc.expiry < session.expiry) return session
+    return acc
+  }, undefined)
+  return (
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={
-          <DappAvatar
-            name={walletConnectV2.session?.peer.metadata.name ?? ''}
-            image={walletConnectV2.session?.peer.metadata.icons[0] ?? ''}
-            connected={walletConnectV2.session?.acknowledged ?? false}
-            size={6}
-            connectedDotSize={2}
-            borderWidth={1}
-          />
+          <AvatarGroup max={2} size='xs'>
+            {sessions.map(session => {
+              return (
+                <DappAvatar
+                  key={session.topic}
+                  image={session.peer.metadata.icons[0]}
+                  connected={session.acknowledged}
+                  size='xs'
+                  connectedDotSize={2}
+                  borderWidth={1}
+                />
+              )
+            })}
+          </AvatarGroup>
         }
         rightIcon={<ChevronDownIcon />}
-        width={{ base: 'full', md: 'auto' }}
+        width={widthProp}
         textAlign='left'
         flexShrink='none'
       >
-        <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
-          {trimWithEndEllipsis(walletConnectV2.session?.peer.metadata.name, 16)}
-        </RawText>
-        <RawText fontSize='xs' color='text.subtle'>
-          {trimWithEndEllipsis(
-            walletConnectV2.session?.peer.metadata.url.replace(/^https?:\/\//, ''),
-            18,
-          )}
-        </RawText>
+        {sessions.length > 1 ? (
+          <WalletConnectV2ConnectedButtonText
+            title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
+              count: sessions.length,
+            })}
+            subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
+          />
+        ) : (
+          <WalletConnectV2ConnectedButtonText
+            title={trimWithEndEllipsis(mostRecentSession?.peer.metadata.name, 16)}
+            subTitle={trimWithEndEllipsis(
+              mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, ''),
+              18,
+            )}
+          />
+        )}
       </MenuButton>
       <MenuList
         zIndex='banner'
-        maxWidth={{ base: '280px', md: 'xs' }}
-        minWidth={{ base: 0, md: 'xs' }}
+        maxWidth={maxWidthProp}
+        minWidth={minWidthProp}
         display='flex'
         flexDir='column'
         pb={0}
@@ -118,13 +137,32 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
       </MenuList>
     </Menu>
   )
+}
+
+export const WalletConnectToDappsHeaderButton: FC = () => {
+  const walletConnectV1 = useWalletConnect()
+  const walletConnectV2 = useWalletConnectV2()
+
+  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+
+  const walletConnectV2Connected = useMemo(
+    () => Object.values(walletConnectV2.sessionsByTopic).some(session => session?.peer),
+    [walletConnectV2.sessionsByTopic],
+  )
+
+  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
+
+  if (!isWalletConnectToDappsSupportedWallet) return null
 
   switch (true) {
-    case (!walletConnectV1.connector || !walletConnectV1.dapp) && !walletConnectV2Connected:
-      return walletConnectButtons
+    case (!walletConnectV1.connector || !walletConnectV1.dapp) &&
+      !walletConnectV2Connected &&
+      (isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled):
+      return <WalletConnectButtons />
     case walletConnectV2Connected:
-      return walletConnectV2ConnectedButton
+      return <WalletConnectV2ConnectedButton />
     default:
-      return walletConnectV1ConnectedButton
+      return <WalletConnectV1ConnectedButton />
   }
 }

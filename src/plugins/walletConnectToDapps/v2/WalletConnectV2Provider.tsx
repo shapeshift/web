@@ -22,7 +22,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     pair: undefined,
     modalData: undefined,
     activeModal: undefined,
-    session: undefined,
+    sessionsByTopic: {},
   }
 
   const [state, dispatch] = useReducer(walletConnectReducer, initialState)
@@ -44,16 +44,8 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()
     const sessions = activeSessions ? Object.values(activeSessions) : []
-    if (sessions?.length) {
-      // Load the most recent session
-      const session = sessions[sessions.length - 1]
-      ;(async () => {
-        // Reactivate the session
-        await state.core?.pairing.activate({ topic: session.topic })
-        await state.web3wallet?.extendSession({ topic: session.topic })
-      })()
-      // TODO: handle multiple sessions
-      dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
+    if (sessions.length) {
+      dispatch({ type: WalletConnectActionType.SET_SESSIONS, payload: sessions })
     }
   }, [state.core?.pairing, state.web3wallet])
 

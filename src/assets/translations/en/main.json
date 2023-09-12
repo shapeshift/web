@@ -1716,16 +1716,21 @@
       },
       "header": {
         "connectDapp": "Connect dApp",
+        "connectAnotherDapp": "Connect another dApp",
         "connectedDapp": "Connected dApp(s)",
+        "staleDapp": "Stale dApp(s)",
         "menu": {
           "disconnect": "Disconnect",
+          "reconnect": "Reconnect",
           "addresses": "Addresses",
           "address": "Address",
           "connected": "Connected",
           "networks": "Network(s)",
           "unsupportedNetwork": "Unsupported Network",
           "expiry": "Session expiry"
-        }
+        },
+        "multipleSessionsConnected": "%{count} dApps connected",
+        "clickToManage": "Click to manage"
       },
       "modal": {
         "title": "WalletConnect",

@@ -1,7 +1,7 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
 import {
-  extractConnectedAccounts,
+  extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
@@ -22,7 +22,7 @@ import { useAppSelector } from 'state/store'
   A helper hook to derive commonly used information from the WalletConnectState
  */
 export const useWalletConnectState = (state: WalletConnectState) => {
-  const { modalData, session } = state
+  const { modalData, sessionsByTopic } = state
   const requestEvent = modalData?.requestEvent
 
   const params = requestEvent?.params
@@ -32,7 +32,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const requestParams = request?.params
   const transaction = isTransactionParamsArray(requestParams) ? requestParams?.[0] : undefined
 
-  const connectedAccounts = extractConnectedAccounts(session)
+  const connectedAccounts = extractAllConnectedAccounts(sessionsByTopic)
 
   const address = (() => {
     if (requestParams && isEthSignParams(requestParams))

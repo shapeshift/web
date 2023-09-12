@@ -32,11 +32,13 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
+import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -56,11 +58,12 @@ import { WithdrawContext } from '../WithdrawContext'
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
-  const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [maybeOutboundFeeCryptoBaseUnit, setMaybeOutboundFeeCryptoBaseUnit] = useState<Result<
     string,
     string
   > | null>()
+  const [maybeWithdrawGasEstimateCryptoBaseUnit, setMaybeWithdrawGasEstimateCryptoBaseUnit] =
+    useState<Result<string, string> | null>(null)
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -169,9 +172,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       return Ok(safeOutboundFee)
     } catch (error) {
       console.error(error)
-      return Err((error as Error).message)
+      return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
     }
-  }, [accountId, asset])
+  }, [accountId, asset, translate])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
@@ -181,42 +184,32 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   })
 
   const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
-    async (withdraw: WithdrawValues) => {
+    async (
+      withdraw: WithdrawValues,
+      quote: ThorchainSaversWithdrawQuoteResponseSuccess,
+      dustAmountCryptoBaseUnit: string,
+    ): Promise<Result<string, string> | null> => {
       if (
         !(
           userAddress &&
-          assetReference &&
           accountId &&
-          opportunityData?.stakedAmountCryptoBaseUnit &&
           wallet &&
           accountNumber !== undefined &&
           maybeOutboundFeeCryptoBaseUnit
         )
       )
-        return
+        return null
       try {
         const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
 
-        // No need to fetch a quote for the exact amount being withdrawn nor to estimate gas if the amount is too low
-        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return
-        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
-
-        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit)) return
-
-        const withdrawBps = getWithdrawBps({
-          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
-          stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-          rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-        })
-
-        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-        if (!quote) return
+        // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
         const chainAdapters = getChainAdapterManager()
 
         if (isTokenWithdraw) {
           if (!saversRouterContractAddress)
-            throw new Error(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
+            return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
           const adapter = assertGetEvmChainAdapter(chainId)
           const thorContract = getOrCreateContractByType({
@@ -235,11 +228,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             quote.expiry,
           ])
 
+          const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+
           const customTxInput = await createBuildCustomTxInput({
             accountNumber,
             adapter,
             data,
-            value: '0',
+            value: amount,
             to: saversRouterContractAddress,
             wallet,
           })
@@ -255,7 +250,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
           const fastFeeCryptoBaseUnit = fees.fast.txFee
 
-          return bnOrZero(fastFeeCryptoBaseUnit).toString()
+          return Ok(bnOrZero(fastFeeCryptoBaseUnit).toString())
         }
 
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
@@ -273,35 +268,28 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           sendMax: false,
         }
         const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
-        return bnOrZero(fastFeeCryptoBaseUnit).toString()
+        return Ok(bnOrZero(fastFeeCryptoBaseUnit).toString())
       } catch (error) {
         console.error(error)
-        toast({
-          position: 'top-right',
-          description: translate('common.somethingWentWrongBody'),
-          title: translate('common.somethingWentWrong'),
-          status: 'error',
-        })
+        // Assume insufficient amount for gas if we've thrown on the try block above
+        return Err(translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol }))
       }
     },
     [
       userAddress,
-      assetReference,
       accountId,
-      opportunityData?.stakedAmountCryptoBaseUnit,
-      opportunityData?.rewardsCryptoBaseUnit?.amounts,
       wallet,
       accountNumber,
       maybeOutboundFeeCryptoBaseUnit,
-      asset,
+      asset.precision,
+      asset.chainId,
+      translate,
       isTokenWithdraw,
       chainId,
-      dustAmountCryptoBaseUnit,
       supportedEvmChainIds,
       saversRouterContractAddress,
       feeAsset.assetId,
-      toast,
-      translate,
+      feeAsset.symbol,
     ],
   )
 
@@ -317,15 +305,24 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [getOutboundFeeCryptoBaseUnit, maybeOutboundFeeCryptoBaseUnit])
 
   const handleContinue = useCallback(
-    async (formValues: WithdrawValues) => {
-      if (!(userAddress && opportunityData && accountId && dispatch)) return
+    (formValues: WithdrawValues) => {
+      if (
+        !(
+          userAddress &&
+          opportunityData &&
+          accountId &&
+          dispatch &&
+          maybeWithdrawGasEstimateCryptoBaseUnit
+        )
+      )
+        return
 
       // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
-        if (!estimatedGasCryptoBaseUnit) return
+        if (maybeWithdrawGasEstimateCryptoBaseUnit.isErr()) return
+        const estimatedGasCryptoBaseUnit = maybeWithdrawGasEstimateCryptoBaseUnit.unwrap()
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCryptoBaseUnit },
@@ -359,7 +356,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData,
       accountId,
       dispatch,
-      getWithdrawGasEstimateCryptoBaseUnit,
+      maybeWithdrawGasEstimateCryptoBaseUnit,
       onNext,
       assetId,
       assets,
@@ -385,11 +382,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
       if (!maybeOutboundFeeCryptoBaseUnit) return false
+      if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+
+      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+      }
 
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return translate('trade.errors.amountTooSmallUnknownMinimum')
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
@@ -420,11 +421,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       return hasValidBalance || 'common.insufficientFunds'
     },
     [
+      maybeOutboundFeeCryptoBaseUnit,
+      maybeWithdrawGasEstimateCryptoBaseUnit,
       amountAvailableCryptoPrecision,
       asset.precision,
       asset.symbol,
-      opportunityData?.stakedAmountCryptoBaseUnit,
-      maybeOutboundFeeCryptoBaseUnit,
       translate,
     ],
   )
@@ -432,9 +433,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!maybeOutboundFeeCryptoBaseUnit) return false
+      if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+
+      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+      }
 
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return translate('amountTooSmallUnknownMinimum')
+        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
@@ -469,6 +475,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       asset.symbol,
       assetMarketData.price,
       maybeOutboundFeeCryptoBaseUnit,
+      maybeWithdrawGasEstimateCryptoBaseUnit,
       translate,
     ],
   )
@@ -490,21 +497,31 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
         })
 
-        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-        const { dust_amount, slippage_bps } = quote
+        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const { dust_amount, slippage_bps } = _quote
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
         const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
-        setDustAmountCryptoBaseUnit(
-          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-            asset.precision,
-          ),
+        const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
+
+        // Derived fields
+        setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+        // Attempt getting withdraw fees
+        const _maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
+          methods.getValues(),
+          _quote,
+          _dustAmountCryptoBaseUnit,
         )
+        setMaybeWithdrawGasEstimateCryptoBaseUnit(_maybeWithdrawGasEstimateCryptoBaseUnit)
       } catch (e) {
         console.error(e)
+        setMaybeWithdrawGasEstimateCryptoBaseUnit(
+          Err(translate('trade.errors.amountTooSmallUnknownMinimum')),
+        )
       } finally {
         setQuoteLoading(false)
       }
@@ -515,16 +532,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     // cancel the previous debounce when inputValues changes to avoid race conditions
     // and always ensure the latest value is used
     return debounced.cancel
+    // We do not want to react on methods.getValues(), it's way too reacty and will cause THOR API spam
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     accountId,
     asset,
-    feeAsset.assetId,
-    feeAsset.chainId,
     inputValues,
     isTokenWithdraw,
-    opportunityData?.apy,
-    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
+    getWithdrawGasEstimateCryptoBaseUnit,
   ])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {

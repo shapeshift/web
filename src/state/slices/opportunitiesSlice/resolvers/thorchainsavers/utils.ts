@@ -339,15 +339,14 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
-export const waitForSaversUpdate = (txHash: string) => {
-  return poll({
+export const waitForSaversUpdate = (txHash: string) =>
+  poll({
     fn: () => getThorchainTransactionStatus(txHash),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
     // i.e max. 10mn from the first Tx confirmation
     maxAttempts: 10,
   })
-}
 
 export const makeDaysToBreakEven = ({
   expectedAmountOutThorBaseUnit,

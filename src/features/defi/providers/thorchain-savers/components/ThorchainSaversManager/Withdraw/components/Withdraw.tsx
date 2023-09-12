@@ -534,12 +534,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
-    feeAsset.assetId,
-    feeAsset.chainId,
     inputValues,
     isTokenWithdraw,
     opportunityData?.stakedAmountCryptoBaseUnit,
     opportunityData?.rewardsCryptoBaseUnit,
+    getWithdrawGasEstimateCryptoBaseUnit,
   ])
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {

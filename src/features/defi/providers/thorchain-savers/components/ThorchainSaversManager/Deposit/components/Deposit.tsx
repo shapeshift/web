@@ -232,9 +232,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
         return
       try {
-        const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
-          bn(10).pow(asset.precision),
-        )
+        const amountCryptoBaseUnit = toBaseUnit(deposit.cryptoAmount, asset.precision)
 
         const maybeQuote = await getMaybeThorchainSaversDepositQuote({
           asset,
@@ -296,7 +294,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
           to: quote.inbound_address,
-          value: amountCryptoBaseUnit.toFixed(0),
+          value: amountCryptoBaseUnit,
           // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
           // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
           chainSpecific: {

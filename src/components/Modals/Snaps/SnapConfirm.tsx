@@ -16,6 +16,8 @@ import { useTranslate } from 'react-polyglot'
 import { enableShapeShiftSnap } from 'utils/snaps'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 type SnapConfirmProps = {
   onClose: () => void
@@ -28,6 +30,7 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   const handleAddSnap = useCallback(() => {
     setIsInstalling(true)
     enableShapeShiftSnap()
+    getMixPanel()?.track(MixPanelEvents.SnapInstalled)
   }, [])
 
   if (isInstalling) {

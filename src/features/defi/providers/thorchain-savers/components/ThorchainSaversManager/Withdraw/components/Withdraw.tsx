@@ -191,7 +191,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       if (
         !(
           userAddress &&
-          assetReference &&
           accountId &&
           wallet &&
           accountNumber !== undefined &&
@@ -276,7 +275,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     },
     [
       userAddress,
-      assetReference,
       accountId,
       wallet,
       accountNumber,

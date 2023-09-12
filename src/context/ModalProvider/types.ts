@@ -7,6 +7,7 @@ import type { PopupWindowModalProps } from 'components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
 import type { ReceivePropsType } from 'components/Modals/Receive/Receive'
 import type { SendModalProps } from 'components/Modals/Send/Send'
+import type { SnapsModalProps } from 'components/Modals/Snaps/Snaps'
 
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
 
@@ -27,6 +28,7 @@ export type Modals = {
   nativeOnboard: () => JSX.Element
   nft: React.FC<NftModalProps>
   feedbackSupport: () => JSX.Element
+  snaps: React.FC<SnapsModalProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

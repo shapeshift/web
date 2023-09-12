@@ -23,7 +23,10 @@ const allNamespacesSupported = (
 ): boolean =>
   Object.values(requiredNamespaces).every(
     requiredNamespace =>
-      requiredNamespace.chains?.every(chainId => walletSupportsChain({ chainId, wallet })),
+      requiredNamespace.chains?.every(chainId =>
+        // TODO(gomes): fix this
+        walletSupportsChain({ chainId, wallet, isSnapInstalled: false }),
+      ),
   )
 
 const createApprovalNamespaces = (

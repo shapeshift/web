@@ -16,6 +16,7 @@ import { QrCodeModal } from 'components/Modals/QrCode/QrCode'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
+import { Snaps } from 'components/Modals/Snaps/Snaps'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { createModalProviderInner } from './ModalContainer'
@@ -38,6 +39,7 @@ const MODALS: Modals = {
   nativeOnboard: NativeOnboarding,
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
+  snaps: Snaps,
 } as const
 
 export const createModalProvider = () => {

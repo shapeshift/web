@@ -67,6 +67,22 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<AccountMetadataById>(),
     },
+    clearWalletMetadata: {
+      reducer: (draftState, { payload }: { payload: WalletId }) => {
+        const walletId = payload
+        // Clear AccountIds that were previously associated with that wallet
+        draftState.wallet.byId[walletId] = []
+        draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
+
+        // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
+        // Theoretically, not doing so would make reloading these easier?
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<WalletId>(),
+    },
+
     upsertPortfolio: {
       reducer: (draftState, { payload }: { payload: Portfolio }) => {
         // upsert all

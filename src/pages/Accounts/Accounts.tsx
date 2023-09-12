@@ -1,5 +1,5 @@
 import { AddIcon } from '@chakra-ui/icons'
-import { Button, Heading, List, Stack } from '@chakra-ui/react'
+import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -8,12 +8,15 @@ import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
+import {
+  selectPortfolioChainIdsSortedUserCurrency,
+  selectPortfolioLoading,
+} from 'state/slices/selectors'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
 
-const AccountHeader = () => {
+const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
   const {
     state: { wallet },
@@ -36,20 +39,24 @@ const AccountHeader = () => {
       pb={6}
     >
       <SEO title={translate('accounts.accounts')} />
-      <Heading fontSize='xl'>
-        <Text translation='accounts.accounts' />
-      </Heading>
+      <Skeleton isLoaded={!isLoading}>
+        <Heading fontSize='xl'>
+          <Text translation='accounts.accounts' />
+        </Heading>
+      </Skeleton>
       {isMultiAccountWallet && (
-        <Button
-          loadingText={translate('accounts.addAccount')}
-          leftIcon={<AddIcon />}
-          colorScheme='blue'
-          onClick={open}
-          size='sm'
-          data-test='add-account-button'
-        >
-          <Text translation='accounts.addAccount' />
-        </Button>
+        <Skeleton isLoaded={!isLoading}>
+          <Button
+            loadingText={translate('accounts.addAccount')}
+            leftIcon={<AddIcon />}
+            colorScheme='blue'
+            onClick={open}
+            size='sm'
+            data-test='add-account-button'
+          >
+            <Text translation='accounts.addAccount' />
+          </Button>
+        </Skeleton>
       )}
     </Stack>
   )
@@ -57,6 +64,8 @@ const AccountHeader = () => {
 
 export const Accounts = () => {
   const { path } = useRouteMatch()
+  const blanks = Array(4).fill(0)
+  const loading = useSelector(selectPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectPortfolioChainIdsSortedUserCurrency)
   const chainRows = useMemo(
     () =>
@@ -66,12 +75,22 @@ export const Accounts = () => {
     [portfolioChainIdsSortedUserCurrency],
   )
 
+  const blankRows = useMemo(() => {
+    return blanks.map(index => (
+      <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
+    ))
+  }, [blanks])
+
+  const renderRows = useMemo(() => {
+    return loading ? blankRows : chainRows
+  }, [blankRows, chainRows, loading])
+
   return (
     <Switch>
       <Route exact path={`${path}/`}>
-        <AccountHeader />
+        <AccountHeader isLoading={loading} />
         <List ml={0} mt={0} spacing={4}>
-          {chainRows}
+          {renderRows}
         </List>
       </Route>
       <Route path={`${path}/:accountId`}>

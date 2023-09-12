@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -27,11 +28,15 @@ export const useInsufficientBalanceProtocolFeeMeta = () => {
   )
 
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
+
+  const isSnapInstalled = useIsSnapInstalled()
+
   const walletSupportsBuyAssetChain =
     lastHopBuyAsset &&
     walletSupportsChain({
       chainId: lastHopBuyAsset.chainId,
       wallet,
+      isSnapInstalled,
     })
 
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)

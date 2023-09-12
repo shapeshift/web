@@ -25,6 +25,7 @@ export type GetTradeQuoteInputArgs = {
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
   affiliateBps?: string
+  isSnapInstalled?: boolean
 }
 
 export const getTradeQuoteArgs = async ({
@@ -78,6 +79,7 @@ export const getTradeQuoteArgs = async ({
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,
+      accountType: sellAccountType,
     })
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,

@@ -20,4 +20,5 @@ export const MODAL_KEYS: (keyof Modals)[] = [
   'nativeOnboard',
   'nft',
   'feedbackSupport',
+  'snaps',
 ]

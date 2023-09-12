@@ -12,6 +12,7 @@ import { PositionDetails } from 'components/EarnDashboard/components/PositionDet
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isEthAddress } from 'lib/address/utils'
@@ -88,12 +89,18 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     ),
   )
 
+  const isSnapInstalled = useIsSnapInstalled()
+
   const filteredPositions = useMemo(
     () =>
       positions.filter(position =>
-        walletSupportsChain({ chainId: fromAssetId(position.assetId).chainId, wallet }),
+        walletSupportsChain({
+          chainId: fromAssetId(position.assetId).chainId,
+          wallet,
+          isSnapInstalled,
+        }),
       ),
-    [positions, wallet],
+    [isSnapInstalled, positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(

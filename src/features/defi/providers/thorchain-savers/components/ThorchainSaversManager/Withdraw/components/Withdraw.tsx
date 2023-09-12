@@ -57,7 +57,6 @@ import { WithdrawContext } from '../WithdrawContext'
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
-  const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [maybeOutboundFeeCryptoBaseUnit, setMaybeOutboundFeeCryptoBaseUnit] = useState<Result<
     string,
     string
@@ -67,7 +66,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
-  const [quote, setQuote] = useState<ThorchainSaversWithdrawQuoteResponseSuccess | null>(null)
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
     cryptoAmount: string
@@ -185,7 +183,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   })
 
   const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
-    async (withdraw: WithdrawValues): Promise<Result<string, string> | null> => {
+    async (
+      withdraw: WithdrawValues,
+      quote: ThorchainSaversWithdrawQuoteResponseSuccess,
+      dustAmountCryptoBaseUnit: string,
+    ): Promise<Result<string, string> | null> => {
       if (
         !(
           userAddress &&
@@ -285,10 +287,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       maybeOutboundFeeCryptoBaseUnit,
       asset.precision,
       asset.chainId,
-      quote,
       isTokenWithdraw,
       chainId,
-      dustAmountCryptoBaseUnit,
       supportedEvmChainIds,
       saversRouterContractAddress,
       feeAsset.assetId,
@@ -384,7 +384,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      console.log({ quote, maybeOutboundFeeCryptoBaseUnit, maybeWithdrawGasEstimateCryptoBaseUnit })
       if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
       if (!maybeOutboundFeeCryptoBaseUnit) return false
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
@@ -438,7 +437,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      console.log({ quote, maybeOutboundFeeCryptoBaseUnit, maybeWithdrawGasEstimateCryptoBaseUnit })
       if (!maybeOutboundFeeCryptoBaseUnit) return false
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
 
@@ -505,27 +503,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
         })
 
-        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-        const { dust_amount, slippage_bps } = quote
+        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const { dust_amount, slippage_bps } = _quote
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
         const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
+        const _dustAmountCryptoBaseUnit = bnOrZero(
+          toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision),
+        ).toFixed(0)
+
         // Derived fields
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
-        setDustAmountCryptoBaseUnit(
-          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-            asset.precision,
-          ),
-        )
-        // Raw quote
-        setQuote(quote)
 
         // Attempt getting withdraw fees
         const _maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
           methods.getValues(),
+          _quote,
+          _dustAmountCryptoBaseUnit,
         )
         setMaybeWithdrawGasEstimateCryptoBaseUnit(_maybeWithdrawGasEstimateCryptoBaseUnit)
       } catch (e) {

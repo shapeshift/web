@@ -779,7 +779,7 @@
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
-    "enableMetaMaskSnap": "use multichain snap"
+    "enableMetaMaskSnap": "use the multichain snap"
   },
   "modals": {
     "popup": {

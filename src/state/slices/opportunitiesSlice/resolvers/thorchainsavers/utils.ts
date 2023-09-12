@@ -156,7 +156,7 @@ export const getThorchainTransactionStatus = async (txHash: string) => {
   // Tx has been observed, but swap/outbound Tx hasn't been completed yet
   if (
     // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
-    !thorTxData.stages.inbound_finalised?.completed ||
+    thorTxData.stages.inbound_finalised?.completed === false ||
     thorTxData.stages.swap_status?.pending === true ||
     // Note, this does not apply to all Txs, e.g savers deposit won't have this property
     // the *presence* of outbound_signed?.completed as false *will* indicate a pending outbound Tx, but the opposite is not neccessarily true

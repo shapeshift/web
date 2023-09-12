@@ -38,6 +38,7 @@ import {
   fromThorBaseUnit,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -204,11 +205,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
-        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
-
-        if (bn(amountCryptoBaseUnit).lte(outboundFeeCryptoBaseUnit))
-          return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
-
         const chainAdapters = getChainAdapterManager()
 
         if (isTokenWithdraw) {
@@ -232,11 +228,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             quote.expiry,
           ])
 
+          const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+
           const customTxInput = await createBuildCustomTxInput({
             accountNumber,
             adapter,
             data,
-            value: '0',
+            value: amount,
             to: saversRouterContractAddress,
             wallet,
           })
@@ -387,6 +385,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       if (!maybeOutboundFeeCryptoBaseUnit) return false
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
 
+      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+      }
+
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
         return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
@@ -415,10 +417,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
       }
 
-      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
-      }
-
       if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
@@ -436,6 +434,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     (value: string) => {
       if (!maybeOutboundFeeCryptoBaseUnit) return false
       if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+
+      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+      }
 
       if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
         return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
@@ -461,10 +463,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         return translate('trade.errors.amountTooSmall', {
           minLimit,
         })
-      }
-
-      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
       }
 
       const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
@@ -521,6 +519,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         setMaybeWithdrawGasEstimateCryptoBaseUnit(_maybeWithdrawGasEstimateCryptoBaseUnit)
       } catch (e) {
         console.error(e)
+        setMaybeWithdrawGasEstimateCryptoBaseUnit(
+          Err(translate('trade.errors.amountTooSmallUnknownMinimum')),
+        )
       } finally {
         setQuoteLoading(false)
       }

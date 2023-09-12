@@ -40,6 +40,8 @@ export enum MixPanelEvents {
   PageView = 'Page View',
   SwapperApiRequest = 'Swapper API request',
   QuotesReceived = 'Quotes Received',
+  SnapInstalled = 'Snap Installed',
+  StartAddSnap = 'Start Add Snap',
 }
 
 export type TrackOpportunityProps = {

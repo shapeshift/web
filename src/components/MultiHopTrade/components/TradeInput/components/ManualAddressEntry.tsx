@@ -4,12 +4,12 @@ import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { enableShapeShiftSnap } from 'utils/snaps'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
@@ -28,6 +28,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const translate = useTranslate()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   const isSnapEnabled = useFeatureFlag('Snaps')
+  const { open: openSnapsModal } = useModal('snaps')
 
   const wallet = useWallet().state.wallet
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectBuyAsset)
@@ -92,7 +93,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
   )
 
-  const handleEnableShapeShiftSnap = useCallback(() => enableShapeShiftSnap(), [])
+  const handleEnableShapeShiftSnap = useCallback(() => openSnapsModal({}), [openSnapsModal])
 
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (

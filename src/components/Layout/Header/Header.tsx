@@ -24,9 +24,11 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioLoadingStatus,
   selectShowSnapsModal,
+  selectWalletAccountIds,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
@@ -93,7 +95,15 @@ export const Header = memo(() => {
   )
 
   const currentWalletId = useSelector(selectWalletId)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
+
   useEffect(() => {
+    if (previousSnapInstall === null && isSnapInstalled === false) {
+      // We have just detected that the user doesn't have the snap installed currently
+      // We need to check whether or not the user had previous non-EVM AccountIds and clear those
+      if (currentWalletId && walletAccountIds.some(accountId => isUtxoAccountId(accountId)))
+        appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+    }
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
       toast({ status: 'success', title: 'Snap Uninstalled', position: 'bottom' })
@@ -122,6 +132,7 @@ export const Header = memo(() => {
     showSnapModal,
     snapModal,
     toast,
+    walletAccountIds,
   ])
 
   return (

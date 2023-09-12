@@ -505,9 +505,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
-        const _dustAmountCryptoBaseUnit = bnOrZero(
-          toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision),
-        ).toFixed(0)
+        const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
 
         // Derived fields
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())

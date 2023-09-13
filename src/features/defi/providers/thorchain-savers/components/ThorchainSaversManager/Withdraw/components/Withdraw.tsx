@@ -343,7 +343,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
         onNext(DefiStep.Confirm)
 
-        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
           MixPanelEvents.WithdrawContinue,
           {
@@ -361,6 +360,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           title: translate('common.somethingWentWrong'),
           status: 'error',
         })
+      } finally {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },

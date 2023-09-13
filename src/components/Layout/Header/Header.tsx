@@ -97,7 +97,7 @@ export const Header = memo(() => {
 
   const currentWalletId = useSelector(selectWalletId)
   const walletAccountIds = useSelector(selectWalletAccountIds)
-  const hasUtXoAccountIds = useMemo(
+  const hasUtxoAccountIds = useMemo(
     () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
     [walletAccountIds],
   )
@@ -108,8 +108,8 @@ export const Header = memo(() => {
 
     // We have just detected that the user doesn't have the snap installed currently
     // We need to check whether or not the user had previous non-EVM AccountIds and clear those
-    if (hasUtXoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-  }, [appDispatch, currentWalletId, hasUtXoAccountIds, isSnapInstalled, wallet, walletAccountIds])
+    if (hasUtxoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+  }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {

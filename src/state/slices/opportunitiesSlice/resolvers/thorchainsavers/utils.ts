@@ -51,8 +51,7 @@ const AFFILIATE_BPS = 0
 const usdcEthereumAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const usdcAvalancheAssetId: AssetId =
   'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
-export const usdtEthereumAssetId: AssetId =
-  'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+const usdtEthereumAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
@@ -66,6 +65,7 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
+  [usdtEthereumAssetId]: '0',
   [usdcAvalancheAssetId]: '0',
 }
 
@@ -78,6 +78,7 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   ltcAssetId,
   dogeAssetId,
   usdcEthereumAssetId,
+  usdtEthereumAssetId,
   usdcAvalancheAssetId,
 ]
 

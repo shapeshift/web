@@ -260,7 +260,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           return Ok(bnOrZero(fastFeeCryptoBaseUnit).toString())
         }
 
-        // TODO(gomes): error-handling
+        // Quote errors aren't necessarily user-friendly, we don't want to return them
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
         const quote = maybeQuote.unwrap()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
@@ -311,7 +312,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {
-        // TODO(gomes): maybe start extract this logit into its own if it ends up being repeated too much
         const { cryptoAmount } = inputValues
         const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
         const withdrawBps = getWithdrawBps({
@@ -323,7 +323,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
         setQuoteLoading(false)
 
-        // TODO(gomes): error-handling
+        if (_quote.isErr()) throw new Error(_quote.unwrapErr())
         const quote = _quote.unwrap()
         const { dust_amount } = quote
         const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
@@ -336,7 +336,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         if (maybeWithdrawGasEstimateCryptoBaseUnit.isErr()) return
 
         const estimatedGasCryptoBaseUnit = maybeWithdrawGasEstimateCryptoBaseUnit.unwrap()
-        // TODO(gomes): maybe end extract logic
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCryptoBaseUnit },
@@ -403,7 +402,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       if (!dispatch) return false
 
       try {
-        // TODO(gomes): maybe start extract this logit into its own if it ends up being repeated too much
         const cryptoAmount = value
         const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
         const withdrawBps = getWithdrawBps({
@@ -431,8 +429,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           _quote,
           _dustAmountCryptoBaseUnit,
         )
-
-        // TODO(gomes): maybe end extract logic
 
         if (!maybeOutboundFeeCryptoBaseUnit) return false
         if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false

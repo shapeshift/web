@@ -272,6 +272,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
         throw new Error('accountId is undefined')
 
+      if (bnOrZero(state?.withdraw.cryptoAmount).isZero()) return
+
       const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
 
       const withdrawBps = getWithdrawBps({

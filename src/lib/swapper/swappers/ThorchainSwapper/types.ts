@@ -126,9 +126,32 @@ export type ThorChainId =
   | ThorUtxoSupportedChainId
 
 type ThorNodeStatusResponseSuccess = {
-  // Non-exhaustive, the 'done' status is all we care about here
-  observed_tx: {
-    status?: 'done' | 'incomplete'
+  // Non-exhaustive. https://thornode.ninerealms.com/thorchain/doc/ for the full response type.
+  tx?: {
+    id: string
+    memo: string
+    chain: string
+    from_address: string
+    to_address: string
+  }
+  stages: {
+    inbound_observed: {
+      started?: boolean
+      final_count: number
+      completed: boolean
+    }
+    inbound_confirmation_counted?: {
+      completed: boolean
+    }
+    inbound_finalised?: {
+      completed: boolean
+    }
+    swap_status?: {
+      pending: boolean
+    }
+    outbound_signed?: {
+      completed: boolean
+    }
   }
 }
 

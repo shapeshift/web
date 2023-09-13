@@ -26,6 +26,7 @@ type SnapConfirmProps = {
 export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   const [isInstalling, setIsInstalling] = useState(false)
   const [hasAgreed, setHasAgreed] = useState(false)
+  const [hasPinkySworeSeedPhraseIsBackedUp, setHasPinkySworeSeedPhraseIsBackedUp] = useState(false)
   const translate = useTranslate()
   const handleAddSnap = useCallback(() => {
     setIsInstalling(true)
@@ -53,44 +54,57 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   return (
     <>
       <ModalHeader textAlign='center'>
-        <Heading as='h4'>Install Multichain Snap</Heading>
+        <Heading as='h4'>{translate('walletProvider.metaMaskSnapConfirm.title')}</Heading>
       </ModalHeader>
       <ModalBody>
         <Alert status='warning' borderRadius='lg' mb={4}>
           <AlertIcon />
           <AlertDescription>
-            The ShapeShift Multichain Snap is a new, experimental feature, provided "as is"
+            {translate('walletProvider.metaMaskSnapConfirm.warningExperimental')}
           </AlertDescription>
         </Alert>
-        <RawText fontWeight='bold'>Before continuing please read the following:</RawText>
+        <Alert status='error' borderRadius='lg' mb={4}>
+          <AlertIcon />
+          <AlertDescription>
+            {translate('walletProvider.metaMaskSnapConfirm.warningBackup')}
+          </AlertDescription>
+        </Alert>
+        <RawText fontWeight='bold'>
+          {translate('walletProvider.metaMaskSnapConfirm.agreeIntro')}
+        </RawText>
         <UnorderedList spacing={2} my={4}>
           <ListItem>
-            Hardware wallets are <strong>NOT</strong> supported
+            {translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.1')}{' '}
+            <strong>{translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.2')}</strong>{' '}
+            {translate('walletProvider.metaMaskSnapConfirm.agreeItem1Parts.3')}
           </ListItem>
           <ListItem>
-            Only Account #1 in MetaMask is supported for the extra chains the ShapeShift Multichain
-            Snap provides{' '}
+            {translate('walletProvider.metaMaskSnapConfirm.agreeItem2')}{' '}
             <RawText as='span' color='text.subtle'>
               (Bitcoin, Bitcoin Cash, Litecoin, Dogecoin, THORChain, Cosmos)
             </RawText>
           </ListItem>
-          <ListItem>
-            To use the existing Ethereum chains provided by MetaMask, you must connect Account #1 to
-            ShapeShift in MetaMask
-          </ListItem>
-          <ListItem>
-            By enabling the ShapeShift Multichain Snap, you acknowledge you are using it at your own
-            risk
-          </ListItem>
+          <ListItem>{translate('walletProvider.metaMaskSnapConfirm.agreeItem3')}</ListItem>
+          <ListItem>{translate('walletProvider.metaMaskSnapConfirm.agreeItem4')}</ListItem>
         </UnorderedList>
         <Checkbox onChange={e => setHasAgreed(e.target.checked)} fontWeight='bold'>
-          I have read and understand
+          {translate('walletProvider.metaMaskSnapConfirm.readAndUnderstood')}
+        </Checkbox>
+        <Checkbox
+          onChange={e => setHasPinkySworeSeedPhraseIsBackedUp(e.target.checked)}
+          fontWeight='bold'
+        >
+          {translate('walletProvider.metaMaskSnapConfirm.seedBackedUp')}
         </Checkbox>
       </ModalBody>
       <ModalFooter gap={2}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button colorScheme='blue' isDisabled={!hasAgreed} onClick={handleAddSnap}>
-          Confirm & Install
+        <Button onClick={onClose}>{translate('common.cancel')}</Button>
+        <Button
+          colorScheme='blue'
+          isDisabled={!(hasAgreed && hasPinkySworeSeedPhraseIsBackedUp)}
+          onClick={handleAddSnap}
+        >
+          {translate('walletProvider.metaMaskSnapConfirm.acceptInstall')}
         </Button>
       </ModalFooter>
     </>

@@ -194,12 +194,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>,
       dustAmountCryptoBaseUnit: string,
     ): Promise<Result<string, string> | null> => {
-      if (!(userAddress && accountId && wallet && accountNumber !== undefined)) return null
-      const formValues = methods.getValues()
+      if (!(userAddress && accountId && wallet && accountNumber !== undefined && inputValues))
+        return null
       try {
         const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(maybeQuote)
         if (!maybeOutboundFeeCryptoBaseUnit) return null
-        const amountCryptoBaseUnit = toBaseUnit(formValues.cryptoAmount, asset.precision)
+        const amountCryptoBaseUnit = toBaseUnit(inputValues.cryptoAmount, asset.precision)
 
         // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
@@ -217,7 +217,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             chainId: asset.chainId,
           })
 
-          // TODO(gomes): error-handling
+          if (maybeQuote.isErr())
+            return Err(
+              translate('trade.errors.amountTooSmallUnknownMinimum', {
+                assetSymbol: feeAsset.symbol,
+              }),
+            )
           const quote = maybeQuote.unwrap()
 
           const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
@@ -284,7 +289,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       accountId,
       wallet,
       accountNumber,
-      methods,
+      inputValues,
       getOutboundFeeCryptoBaseUnit,
       asset.precision,
       asset.chainId,
@@ -487,39 +492,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   )
 
   const validateFiatAmount = useCallback(
-    async (value: string) => {
+    (value: string) => {
       if (!(opportunityData && accountId && dispatch)) return false
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
 
       try {
-        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit()
-
-        const amountCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
-        const amountCryptoBaseUnit = amountCryptoPrecision.times(bn(10).pow(asset.precision))
-
-        if (!maybeOutboundFeeCryptoBaseUnit) return false
-        if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-          return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
-        }
-
-        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
-
         const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
         const fiat = crypto.times(assetMarketData.price)
         const valueCryptoPrecision = bnOrZero(value)
-
-        const isBelowWithdrawThreshold = amountCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
-
-        if (isBelowWithdrawThreshold) {
-          const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
-            bn(10).pow(asset.precision),
-          )
-          const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
-          return translate('trade.errors.amountTooSmall', {
-            minLimit,
-          })
-        }
 
         const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
         if (valueCryptoPrecision.isEqualTo(0)) return ''
@@ -532,16 +513,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
-    [
-      accountId,
-      amountAvailableCryptoPrecision,
-      asset,
-      assetMarketData.price,
-      dispatch,
-      getOutboundFeeCryptoBaseUnit,
-      opportunityData,
-      translate,
-    ],
+    [accountId, amountAvailableCryptoPrecision, assetMarketData.price, dispatch, opportunityData],
   )
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {

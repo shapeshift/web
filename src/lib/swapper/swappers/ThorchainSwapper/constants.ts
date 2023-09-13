@@ -12,6 +12,7 @@ export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.CosmosMainnet]: true,
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
+  [KnownChainIds.BnbSmartChainMainnet]: true,
 }
 
 export const buySupportedChainIds: Record<ThorChainId, boolean> = {
@@ -23,6 +24,7 @@ export const buySupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.CosmosMainnet]: true,
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
+  [KnownChainIds.BnbSmartChainMainnet]: true,
 }
 
 export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Streaming`

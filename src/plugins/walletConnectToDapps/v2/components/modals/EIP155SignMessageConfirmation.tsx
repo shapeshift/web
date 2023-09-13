@@ -25,14 +25,16 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const EIP155SignMessageConfirmationModal: FC<
   WalletConnectRequestModalProps<EthSignCallRequest | EthPersonalSignCallRequest>
-> = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
+> = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { address, message } = useWalletConnectState(state)
-  const peerMetadata = state.session.peer.metadata
+  const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
   const cardBg = useColorModeValue('white', 'gray.850')
+
+  if (!peerMetadata) return null
 
   return (
     <>

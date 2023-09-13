@@ -7,6 +7,7 @@ import type {
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import type { SessionTypes } from '@walletconnect/types'
 import { utils } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
@@ -18,6 +19,7 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 
 /**
  * Converts hex to utf8 string if it is valid bytes
@@ -83,15 +85,26 @@ export const getSignParamsMessage = (params: [string, string]) => {
   return maybeConvertHexEncodedMessageToUtf8(message)
 }
 
-export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {
+export const extractConnectedAccounts = (session: SessionTypes.Struct): AccountId[] => {
   const namespaces = session?.namespaces ?? []
   const requiredNamespacesValues = Object.values(namespaces)
-  return requiredNamespacesValues
-    .map(v => v.accounts)
-    .reduce(
-      (acc, namespaceAccounts) => (acc && namespaceAccounts ? acc.concat(namespaceAccounts) : []),
-      [],
-    )
+  return requiredNamespacesValues.map(v => v.accounts).flat()
+}
+
+export const extractAllConnectedAccounts = (
+  sessionsByTopic: WalletConnectState['sessionsByTopic'],
+): AccountId[] => {
+  return Array.from(
+    new Set(
+      Object.values(sessionsByTopic)
+        .map(session => {
+          if (!session) return undefined
+          return extractConnectedAccounts(session)
+        })
+        .flat()
+        .filter(isSome),
+    ),
+  )
 }
 
 // Get our account from params by checking if the params string contains an account from our wallet

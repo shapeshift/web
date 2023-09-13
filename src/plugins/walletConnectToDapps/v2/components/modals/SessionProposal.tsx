@@ -100,11 +100,19 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   )
 
   const handleApprove = useCallback(async () => {
-    const session = await web3wallet?.approveSession({
+    // exit if the proposal was not found - likely duplicate call rerendering shenanigans
+    const pendingProposals = web3wallet.getPendingSessionProposals()
+    if (
+      !Object.values(pendingProposals).some(pendingProposal => pendingProposal.id === proposal.id)
+    ) {
+      return
+    }
+
+    const session = await web3wallet.approveSession({
       id: proposal.id,
       namespaces: approvalNamespaces,
     })
-    dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
+    dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
     handleClose()
   }, [approvalNamespaces, dispatch, handleClose, proposal, web3wallet])
 

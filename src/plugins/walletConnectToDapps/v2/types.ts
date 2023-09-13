@@ -4,6 +4,7 @@ import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type { Dispatch } from 'react'
+import type { PartialRecord } from 'lib/utils'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -35,15 +36,16 @@ export type WalletConnectState<T = WalletConnectRequest> = {
   pair?: (params: { uri: string }) => Promise<PairingTypes.Struct>
   modalData?: ModalData<T>
   activeModal?: WalletConnectModal
-  session?: SessionTypes.Struct
+  sessionsByTopic: PartialRecord<string, SessionTypes.Struct>
 }
 
 export enum WalletConnectActionType {
   SET_MODAL = 'SET_MODAL',
   CLEAR_MODAL = 'CLEAR_MODAL',
   INITIALIZE = 'INITIALIZE',
-  SET_SESSION = 'SET_SESSION',
+  SET_SESSIONS = 'SET_SESSIONS',
   DELETE_SESSION = 'DELETE_SESSION',
+  ADD_SESSION = 'ADD_SESSION',
   UPDATE_SESSION = 'UPDATE_SESSION',
 }
 
@@ -60,15 +62,20 @@ export type WalletConnectAction =
       payload: { core: ICore; web3wallet: IWeb3Wallet; pair: WalletConnectState['pair'] }
     }
   | {
-      type: WalletConnectActionType.SET_SESSION
-      payload: SessionTypes.Struct
+      type: WalletConnectActionType.SET_SESSIONS
+      payload: SessionTypes.Struct[]
     }
   | {
       type: WalletConnectActionType.DELETE_SESSION
+      payload: Pick<SessionTypes.Struct, 'topic'>
     }
   | {
       type: WalletConnectActionType.UPDATE_SESSION
-      payload: Partial<SessionTypes.Struct>
+      payload: Pick<SessionTypes.Struct, 'topic'> & Partial<Omit<SessionTypes.Struct, 'topic'>>
+    }
+  | {
+      type: WalletConnectActionType.ADD_SESSION
+      payload: SessionTypes.Struct
     }
 
 export type WalletConnectContextType = {

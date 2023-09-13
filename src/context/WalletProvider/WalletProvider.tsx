@@ -9,6 +9,11 @@ import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
+import EthereumProvider from '@walletconnect/ethereum-provider'
+import type {
+  EthereumProvider as EthereumProviderType,
+  EthereumProviderOptions,
+} from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
@@ -92,6 +97,7 @@ export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
   | KeyManager.WalletConnect
+  | KeyManager.WalletConnectV2
   | KeyManager.Coinbase
 
 export interface InitialState {
@@ -104,7 +110,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
-  provider: MetaMaskLikeProvider | WalletConnectProvider | null
+  provider: MetaMaskLikeProvider | WalletConnectProvider | EthereumProviderType | null
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -145,6 +151,7 @@ export const isKeyManagerWithProvider = (
         KeyManager.XDefi,
         KeyManager.MetaMask,
         KeyManager.WalletConnect,
+        KeyManager.WalletConnectV2,
         KeyManager.Coinbase,
       ].includes(keyManager),
   )
@@ -580,7 +587,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
-            case KeyManager.WalletConnect:
+            case KeyManager.WalletConnect: {
               const localWalletConnectWallet = await state.adapters
                 .get(KeyManager.WalletConnect)?.[0]
                 ?.pairDevice()
@@ -609,6 +616,37 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            }
+            case KeyManager.WalletConnectV2: {
+              const localWalletConnectWallet = await state.adapters
+                .get(KeyManager.WalletConnectV2)?.[0]
+                ?.pairDevice()
+              if (localWalletConnectWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
+                try {
+                  await localWalletConnectWallet.initialize()
+                  const deviceId = await localWalletConnectWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localWalletConnectWallet,
+                      name,
+                      icon,
+                      deviceId,
+                      connectedType: KeyManager.WalletConnectV2,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            }
             default:
               /**
                * The fall-through case also handles clearing
@@ -702,6 +740,24 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             return new WalletConnectProvider(config)
           }
+          if (walletType === KeyManager.WalletConnectV2) {
+            const config: EthereumProviderOptions = {
+              projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
+              chains: [1],
+              optionalChains: [100],
+              optionalMethods: [
+                'eth_signTypedData',
+                'eth_signTypedData_v4',
+                'eth_sign',
+                'ethVerifyMessage',
+                'eth_accounts',
+                'eth_sendTransaction',
+                'eth_signTransaction',
+              ],
+              showQrModal: true,
+            }
+            return await EthereumProvider.init(config)
+          }
 
           return null
         })()
@@ -739,18 +795,36 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               | undefined
               | WalletConnectProviderConfig
               | CoinbaseProviderConfig
+              | EthereumProviderOptions
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 
             const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
               switch (keyManager) {
-                case 'walletconnect':
+                case KeyManager.WalletConnect:
                   return {
                     rpc: {
                       1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                     },
                   }
-                case 'coinbase':
+                case KeyManager.WalletConnectV2:
+                  // FIXME: duplicated from above
+                  return {
+                    projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
+                    chains: [1],
+                    optionalChains: [100],
+                    optionalMethods: [
+                      'eth_signTypedData',
+                      'eth_signTypedData_v4',
+                      'eth_sign',
+                      'ethVerifyMessage',
+                      'eth_accounts',
+                      'eth_sendTransaction',
+                      'eth_signTransaction',
+                    ],
+                    showQrModal: true,
+                  }
+                case KeyManager.Coinbase:
                   return {
                     appName: 'ShapeShift',
                     appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',

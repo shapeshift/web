@@ -1,4 +1,4 @@
-import type { SessionTypes } from '@walletconnect/types'
+import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsHandler'
 import type {
@@ -12,6 +12,9 @@ import {
   WalletConnectActionType,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
+
+// any type ok here because we're only pulling out the topic
+type PairingEvent = Pick<PairingJsonRpcTypes.EventCallback<any>, 'topic'>
 
 export const isSupportedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
@@ -38,17 +41,32 @@ export const useWalletConnectEventsManager = (
       const signClientEvents = web3wallet.engine.signClient.events
       const pairingEvents = core.pairing.events
 
-      const sessionRequestListener = (request: Web3WalletTypes.SessionRequest) =>
+      const sessionRequestListener = (
+        request: SignClientTypes.EventArguments['session_request'],
+      ) => {
         isSupportedSessionRequest(request) && handleSessionRequest(request)
-      const sessionDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
-      const sessionUpdateListener = (session: Partial<SessionTypes.Struct>) =>
-        dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: session })
+      }
+      const sessionDeleteListener = ({
+        topic,
+      }: SignClientTypes.EventArguments['session_delete']) => {
+        dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+      }
+      const sessionUpdateListener = ({
+        topic,
+        params,
+      }: SignClientTypes.EventArguments['session_update']) => {
+        dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: { ...params, topic } })
+      }
       const sessionPingListener = () => {}
       const pairingPingListener = () => {}
 
-      const pairingDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+      const pairingDeleteListener = ({ topic }: PairingEvent) => {
+        dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+      }
 
-      const pairingExpireListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+      const pairingExpireListener = ({ topic }: PairingEvent) => {
+        dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+      }
 
       // Sign
       web3wallet.on('session_proposal', handleSessionProposal)

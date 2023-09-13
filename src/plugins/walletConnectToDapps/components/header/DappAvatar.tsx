@@ -1,32 +1,27 @@
-import type { BoxProps } from '@chakra-ui/react'
-import { Box, Image, useColorModeValue } from '@chakra-ui/react'
-import Placeholder from 'assets/placeholder.png'
+import { Avatar, useColorModeValue } from '@chakra-ui/react'
 import { CircleIcon } from 'components/Icons/Circle'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 
 type DappAvatarProps = {
   image?: string
-  name: string
   connected: boolean
-  size?: number
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '2xs' | 'xs' | 'full'
   connectedDotSize?: number
   borderWidth?: number
-} & BoxProps
+}
 
 export const DappAvatar: React.FC<DappAvatarProps> = ({
   image,
-  name,
   connected,
-  size = 8,
+  size,
   connectedDotSize = 3,
   borderWidth = 2,
-  ...rest
 }) => {
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
   const menuBg = useColorModeValue('gray.100', 'gray.700')
 
   return (
-    <Box position='relative' {...rest}>
-      <Image boxSize={size} borderRadius='full' src={image || Placeholder} alt={name} />
+    <Avatar size={size} src={image} icon={<FoxIcon />}>
       {connected && (
         <CircleIcon
           color={connectedIconColor}
@@ -40,6 +35,6 @@ export const DappAvatar: React.FC<DappAvatarProps> = ({
           borderColor={menuBg}
         />
       )}
-    </Box>
+    </Avatar>
   )
 }

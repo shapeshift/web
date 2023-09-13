@@ -238,24 +238,24 @@ export const getThorchainSaversWithdrawQuote = async ({
   asset: Asset
   accountId: AccountId
   bps: string
-}): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
+}): Promise<Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>> => {
   const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
-  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+  if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const accountAddresses = await getAccountAddresses(accountId)
 
   const allPositions = await getAllThorchainSaversPositions(asset.assetId)
 
   if (!allPositions.length)
-    throw new Error(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
+    return Err(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
 
   const accountPosition = allPositions.find(
     ({ asset_address }) =>
       asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
   )
 
-  if (!accountPosition) throw new Error('No THORChain savers position found')
+  if (!accountPosition) return Err('No THORChain savers position found')
 
   const { asset_address } = accountPosition
 
@@ -266,9 +266,9 @@ export const getThorchainSaversWithdrawQuote = async ({
   )
 
   if (!quoteData || 'error' in quoteData)
-    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+    return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return quoteData
+  return Ok(quoteData)
 }
 
 export const getMidgardPools = async (

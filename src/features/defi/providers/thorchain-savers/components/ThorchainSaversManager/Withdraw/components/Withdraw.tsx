@@ -13,8 +13,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import debounce from 'lodash/debounce'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -58,12 +57,6 @@ import { WithdrawContext } from '../WithdrawContext'
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
-  const [maybeOutboundFeeCryptoBaseUnit, setMaybeOutboundFeeCryptoBaseUnit] = useState<Result<
-    string,
-    string
-  > | null>()
-  const [maybeWithdrawGasEstimateCryptoBaseUnit, setMaybeWithdrawGasEstimateCryptoBaseUnit] =
-    useState<Result<string, string> | null>(null)
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -151,18 +144,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [amountAvailableCryptoPrecision, assetMarketData.price],
   )
 
-  const getOutboundFeeCryptoBaseUnit = useCallback(async (): Promise<Result<
-    string,
-    string
-  > | null> => {
-    if (!accountId) return null
+  const getOutboundFeeCryptoBaseUnit = useCallback(
+    async (
+      _quote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>,
+    ): Promise<Result<string, string> | null> => {
+      if (!accountId) return null
 
-    try {
-      // Attempt getting a quote with 100000 bps, i.e 100% withdraw
-      // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
-      // and will allow us to gracefully handle amounts that are lower than the outbound fee
-      // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
+      const maybeQuote = await (async () => {
+        if (_quote.isOk()) return _quote
+
+        // Attempt getting a quote with 100000 bps, i.e 100% withdraw
+        // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps
+        // and will allow us to gracefully handle amounts that are lower than the outbound fee
+        // - If this fails, we know that the withdraw amount is too low anyway, regarding of how many bps are withdrawn
+        setQuoteLoading(true)
+        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: '10000' })
+        setQuoteLoading(false)
+        return quote
+      })()
+
+      // Neither the passed quote, nor the safer 10,000 bps quote succeeded
+      // Meaning the amount being withdraw *is* too small
+      if (maybeQuote.isErr()) {
+        console.error(maybeQuote.unwrapErr())
+        return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
+      }
+
+      const quote = maybeQuote.unwrap()
 
       const outboundFee = bnOrZero(
         toBaseUnit(fromThorBaseUnit(quote.fees.outbound), asset.precision),
@@ -170,11 +178,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       const safeOutboundFee = bn(outboundFee).times(105).div(100).toFixed(0)
       // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
       return Ok(safeOutboundFee)
-    } catch (error) {
-      console.error(error)
-      return Err(translate('trade.errors.amountTooSmallUnknownMinimum'))
-    }
-  }, [accountId, asset, translate])
+    },
+    [accountId, asset, translate],
+  )
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
@@ -186,20 +192,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const getWithdrawGasEstimateCryptoBaseUnit = useCallback(
     async (
       withdraw: WithdrawValues,
-      quote: ThorchainSaversWithdrawQuoteResponseSuccess,
+      maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>,
       dustAmountCryptoBaseUnit: string,
     ): Promise<Result<string, string> | null> => {
-      if (
-        !(
-          userAddress &&
-          accountId &&
-          wallet &&
-          accountNumber !== undefined &&
-          maybeOutboundFeeCryptoBaseUnit
-        )
-      )
-        return null
+      if (!(userAddress && accountId && wallet && accountNumber !== undefined)) return null
       try {
+        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(maybeQuote)
+        if (!maybeOutboundFeeCryptoBaseUnit) return null
         const amountCryptoBaseUnit = toBaseUnit(withdraw.cryptoAmount, asset.precision)
 
         // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
@@ -217,6 +216,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             type: ContractType.ThorRouter,
             chainId: asset.chainId,
           })
+
+          // TODO(gomes): error-handling
+          const quote = maybeQuote.unwrap()
 
           const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
             quote.inbound_address,
@@ -253,6 +255,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           return Ok(bnOrZero(fastFeeCryptoBaseUnit).toString())
         }
 
+        // TODO(gomes): error-handling
+        const quote = maybeQuote.unwrap()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -280,49 +284,54 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       accountId,
       wallet,
       accountNumber,
-      maybeOutboundFeeCryptoBaseUnit,
+      getOutboundFeeCryptoBaseUnit,
       asset.precision,
       asset.chainId,
-      translate,
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
       saversRouterContractAddress,
       feeAsset.assetId,
       feeAsset.symbol,
+      translate,
     ],
   )
 
-  useEffect(() => {
-    ;(async () => {
-      if (maybeOutboundFeeCryptoBaseUnit) return
-
-      const _outboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit()
-      if (!_outboundFeeCryptoBaseUnit) return
-
-      setMaybeOutboundFeeCryptoBaseUnit(_outboundFeeCryptoBaseUnit)
-    })()
-  }, [getOutboundFeeCryptoBaseUnit, maybeOutboundFeeCryptoBaseUnit])
-
   const handleContinue = useCallback(
-    (formValues: WithdrawValues) => {
-      if (
-        !(
-          userAddress &&
-          opportunityData &&
-          accountId &&
-          dispatch &&
-          maybeWithdrawGasEstimateCryptoBaseUnit
-        )
-      )
-        return
+    async (formValues: WithdrawValues) => {
+      if (!(userAddress && opportunityData && accountId && dispatch && inputValues)) return
 
       // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {
+        // TODO(gomes): maybe start extract this logit into its own if it ends up being repeated too much
+        const { cryptoAmount } = inputValues
+        const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
+        const withdrawBps = getWithdrawBps({
+          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+          stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
+          rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+        })
+        setQuoteLoading(true)
+        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        setQuoteLoading(false)
+
+        // TODO(gomes): error-handling
+        const quote = _quote.unwrap()
+        const { dust_amount } = quote
+        const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
+
+        const maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
+          methods.getValues(),
+          _quote,
+          _dustAmountCryptoBaseUnit,
+        )
+        if (!maybeWithdrawGasEstimateCryptoBaseUnit) return
         if (maybeWithdrawGasEstimateCryptoBaseUnit.isErr()) return
+
         const estimatedGasCryptoBaseUnit = maybeWithdrawGasEstimateCryptoBaseUnit.unwrap()
+        // TODO(gomes): maybe end extract logic
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCryptoBaseUnit },
@@ -356,7 +365,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData,
       accountId,
       dispatch,
-      maybeWithdrawGasEstimateCryptoBaseUnit,
+      inputValues,
+      asset,
+      getWithdrawGasEstimateCryptoBaseUnit,
+      methods,
       onNext,
       assetId,
       assets,
@@ -381,168 +393,191 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   )
 
   const validateCryptoAmount = useCallback(
-    (value: string) => {
-      if (!maybeOutboundFeeCryptoBaseUnit) return false
-      if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+    async (value: string) => {
+      if (!opportunityData) return false
+      if (!accountId) return false
 
-      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
-      }
-
-      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
-      }
-
-      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
-
-      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
-      const valueCryptoPrecision = bnOrZero(value)
-      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
-
-      const hasValidBalance =
-        balanceCryptoPrecision.gt(0) &&
-        valueCryptoPrecision.gt(0) &&
-        balanceCryptoPrecision.gte(valueCryptoPrecision)
-      const isBelowWithdrawThreshold = bn(valueCryptoBaseUnit)
-        .minus(outboundFeeCryptoBaseUnit)
-        .lt(0)
-
-      if (isBelowWithdrawThreshold) {
-        const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
-          bn(10).pow(asset.precision),
-        )
-        const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
-        return translate('trade.errors.amountTooSmall', {
-          minLimit,
-        })
-      }
-
-      if (valueCryptoPrecision.isEqualTo(0)) return ''
-      return hasValidBalance || 'common.insufficientFunds'
-    },
-    [
-      maybeOutboundFeeCryptoBaseUnit,
-      maybeWithdrawGasEstimateCryptoBaseUnit,
-      amountAvailableCryptoPrecision,
-      asset.precision,
-      asset.symbol,
-      translate,
-    ],
-  )
-
-  const validateFiatAmount = useCallback(
-    (value: string) => {
-      if (!maybeOutboundFeeCryptoBaseUnit) return false
-      if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
-
-      if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
-        return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
-      }
-
-      if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
-        return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
-      }
-
-      const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
-
-      const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
-
-      const fiat = crypto.times(assetMarketData.price)
-      const valueCryptoPrecision = bnOrZero(value)
-      const valueCryptoBaseUnit = bnOrZero(value)
-        .div(assetMarketData.price)
-        .times(bn(10).pow(asset.precision))
-
-      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
-
-      if (isBelowWithdrawThreshold) {
-        const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
-          bn(10).pow(asset.precision),
-        )
-        const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
-        return translate('trade.errors.amountTooSmall', {
-          minLimit,
-        })
-      }
-
-      const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
-      if (valueCryptoPrecision.isEqualTo(0)) return ''
-      return hasValidBalance || 'common.insufficientFunds'
-    },
-    [
-      amountAvailableCryptoPrecision,
-      asset.precision,
-      asset.symbol,
-      assetMarketData.price,
-      maybeOutboundFeeCryptoBaseUnit,
-      maybeWithdrawGasEstimateCryptoBaseUnit,
-      translate,
-    ],
-  )
-
-  useEffect(() => {
-    if (!(accountId && inputValues && asset && opportunityData?.stakedAmountCryptoBaseUnit)) return
-    const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
-
-    if (bn(amountCryptoBaseUnit).isZero()) return
-
-    const debounced = debounce(async () => {
-      setQuoteLoading(true)
+      // TODO(gomes): maybe start extract this logit into its own if it ends up being repeated too much
+      const cryptoAmount = value
+      const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
+        rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+      })
 
       try {
-        const withdrawBps = getWithdrawBps({
-          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
-          stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
-          rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-        })
-
+        setQuoteLoading(true)
         const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-        const { dust_amount, slippage_bps } = _quote
-        const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(_quote)
+        // TODO(gomes): error-handling
+        const quote = _quote.unwrap()
+        const { slippage_bps, dust_amount } = quote
 
+        const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
         const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
         const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
 
-        // Derived fields
-        setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
-
-        // Attempt getting withdraw fees
-        const _maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
+        const maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
           methods.getValues(),
           _quote,
           _dustAmountCryptoBaseUnit,
         )
-        setMaybeWithdrawGasEstimateCryptoBaseUnit(_maybeWithdrawGasEstimateCryptoBaseUnit)
+
+        // TODO(gomes): maybe end extract logic
+
+        if (!maybeOutboundFeeCryptoBaseUnit) return false
+        if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+
+        if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+          return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+        }
+
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+          return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
+        }
+
+        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
+        const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+        const valueCryptoPrecision = bnOrZero(value)
+        const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
+
+        const hasValidBalance =
+          balanceCryptoPrecision.gt(0) &&
+          valueCryptoPrecision.gt(0) &&
+          balanceCryptoPrecision.gte(valueCryptoPrecision)
+        const isBelowWithdrawThreshold = bn(valueCryptoBaseUnit)
+          .minus(outboundFeeCryptoBaseUnit)
+          .lt(0)
+
+        if (isBelowWithdrawThreshold) {
+          const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+            bn(10).pow(asset.precision),
+          )
+          const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+          return translate('trade.errors.amountTooSmall', {
+            minLimit,
+          })
+        }
+
+        if (valueCryptoPrecision.isEqualTo(0)) return ''
+        return hasValidBalance || 'common.insufficientFunds'
       } catch (e) {
         console.error(e)
-        setMaybeWithdrawGasEstimateCryptoBaseUnit(
-          Err(translate('trade.errors.amountTooSmallUnknownMinimum')),
-        )
+        // TODO(gomes): quote is the only one that can throw here, so let's make it a monadic error there to avoid having this large try/catch
+        return translate('trade.errors.amountTooSmallUnknownMinimum')
       } finally {
         setQuoteLoading(false)
       }
-    })
-
-    debounced()
-
-    // cancel the previous debounce when inputValues changes to avoid race conditions
-    // and always ensure the latest value is used
-    return debounced.cancel
-    // We do not want to react on methods.getValues(), it's way too reacty and will cause THOR API spam
+    },
+    // We don't want to be reacting on methods.getValues(), which is too reacty
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    accountId,
-    asset,
-    inputValues,
-    isTokenWithdraw,
-    opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsCryptoBaseUnit,
-    getWithdrawGasEstimateCryptoBaseUnit,
-  ])
+    [
+      opportunityData,
+      accountId,
+      getOutboundFeeCryptoBaseUnit,
+      asset,
+      getWithdrawGasEstimateCryptoBaseUnit,
+      amountAvailableCryptoPrecision,
+      translate,
+    ],
+  )
+
+  const validateFiatAmount = useCallback(
+    async (value: string) => {
+      if (!(opportunityData && accountId && dispatch)) return false
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+
+      // TODO(gomes): maybe start extract this logit into its own if it ends up being repeated too much
+      const amountCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
+      const amountCryptoBaseUnit = amountCryptoPrecision.times(bn(10).pow(asset.precision))
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit ?? '0',
+        rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+      })
+
+      try {
+        setQuoteLoading(true)
+        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        setQuoteLoading(false)
+
+        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(_quote)
+
+        // TODO(gomes): error-handling
+        const quote = _quote.unwrap()
+
+        const { dust_amount } = quote
+
+        const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
+
+        const maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
+          methods.getValues(),
+          _quote,
+          _dustAmountCryptoBaseUnit,
+        )
+
+        // TODO(gomes): maybe end extract logic
+
+        if (!maybeOutboundFeeCryptoBaseUnit) return false
+        if (!maybeWithdrawGasEstimateCryptoBaseUnit) return false
+
+        if (maybeWithdrawGasEstimateCryptoBaseUnit?.isErr()) {
+          return maybeWithdrawGasEstimateCryptoBaseUnit.unwrapErr()
+        }
+
+        if (maybeOutboundFeeCryptoBaseUnit.isErr()) {
+          return maybeOutboundFeeCryptoBaseUnit.unwrapErr()
+        }
+
+        const outboundFeeCryptoBaseUnit = maybeOutboundFeeCryptoBaseUnit.unwrap()
+
+        const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+
+        const fiat = crypto.times(assetMarketData.price)
+        const valueCryptoPrecision = bnOrZero(value)
+
+        const isBelowWithdrawThreshold = amountCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
+
+        if (isBelowWithdrawThreshold) {
+          const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+            bn(10).pow(asset.precision),
+          )
+          const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+          return translate('trade.errors.amountTooSmall', {
+            minLimit,
+          })
+        }
+
+        const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
+        if (valueCryptoPrecision.isEqualTo(0)) return ''
+        return hasValidBalance || 'common.insufficientFunds'
+      } catch (e) {
+        console.error(e)
+        // TODO(gomes): quote is the only one that can throw here, so let's make it a monadic error there to avoid having this large try/catch
+        return translate('trade.errors.amountTooSmallUnknownMinimum')
+      } finally {
+        setQuoteLoading(false)
+        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      }
+    },
+    // We don't want to be reacting on methods.getValues(), which is too reacty
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      accountId,
+      amountAvailableCryptoPrecision,
+      asset,
+      assetMarketData.price,
+      getOutboundFeeCryptoBaseUnit,
+      getWithdrawGasEstimateCryptoBaseUnit,
+      opportunityData,
+      translate,
+    ],
+  )
 
   const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
     setInputValues({ fiatAmount, cryptoAmount })

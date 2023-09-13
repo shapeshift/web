@@ -60,10 +60,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
-  const [inputValues, setInputValues] = useState<{
-    fiatAmount: string
-    cryptoAmount: string
-  } | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -72,7 +68,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { chainId, assetNamespace, assetReference } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { setValue } = methods
+  const { getValues, setValue } = methods
 
   // Asset info
 
@@ -194,8 +190,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>,
       dustAmountCryptoBaseUnit: string,
     ): Promise<Result<string, string> | null> => {
-      if (!(userAddress && accountId && wallet && accountNumber !== undefined && inputValues))
-        return null
+      if (!(userAddress && accountId && wallet && accountNumber !== undefined)) return null
+      const inputValues = getValues()
       try {
         const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(maybeQuote)
         if (!maybeOutboundFeeCryptoBaseUnit) return null
@@ -290,7 +286,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       accountId,
       wallet,
       accountNumber,
-      inputValues,
+      getValues,
       getOutboundFeeCryptoBaseUnit,
       asset.precision,
       asset.chainId,
@@ -306,7 +302,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && opportunityData && accountId && dispatch && inputValues)) return
+      if (!(userAddress && opportunityData && accountId && dispatch)) return
+
+      const inputValues = getValues()
 
       // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
@@ -369,7 +367,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       opportunityData,
       accountId,
       dispatch,
-      inputValues,
+      getValues,
       asset,
       getWithdrawGasEstimateCryptoBaseUnit,
       onNext,
@@ -388,9 +386,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     (percent: number) => {
       const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
       const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(), { shouldValidate: true })
-      handleInputChange(fiatAmount.toString(), cryptoAmount.toString())
     },
     [amountAvailableCryptoPrecision, assetMarketData, setValue],
   )
@@ -512,10 +510,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [accountId, amountAvailableCryptoPrecision, assetMarketData.price, dispatch, opportunityData],
   )
 
-  const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
-    setInputValues({ fiatAmount, cryptoAmount })
-  }
-
   if (!state) return null
 
   return (
@@ -546,7 +540,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
-        onChange={handleInputChange}
       >
         <Row>
           <Row.Label>{translate('common.slippage')}</Row.Label>

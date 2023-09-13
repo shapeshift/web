@@ -97,22 +97,19 @@ export const Header = memo(() => {
 
   const currentWalletId = useSelector(selectWalletId)
   const walletAccountIds = useSelector(selectWalletAccountIds)
+  const hasUtXoAccountIds = useMemo(
+    () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
+    [walletAccountIds],
+  )
 
   useEffect(() => {
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-    if (!isMetaMaskMultichainWallet) return
+    if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
 
-    if (isSnapInstalled === false) {
-      // We have just detected that the user doesn't have the snap installed currently
-      // We need to check whether or not the user had previous non-EVM AccountIds and clear those
-      if (currentWalletId && walletAccountIds.some(accountId => isUtxoAccountId(accountId)))
-        appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-    }
-    // We don't want to re-run this every time `isSnapInstalled` reference changes
-    // By the time isMetaMaskMultichainWallet evaluates to true (i.e `wallet` is defined),
-    // `isSnapInstalled` will already be a non-null value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appDispatch, currentWalletId, wallet, walletAccountIds])
+    // We have just detected that the user doesn't have the snap installed currently
+    // We need to check whether or not the user had previous non-EVM AccountIds and clear those
+    if (hasUtXoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+  }, [appDispatch, currentWalletId, hasUtXoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {

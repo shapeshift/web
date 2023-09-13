@@ -68,7 +68,6 @@ export const Accounts = () => {
   const { path } = useRouteMatch()
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectPortfolioLoading)
-  console.log({ loading })
   const portfolioChainIdsSortedUserCurrency = useSelector(selectPortfolioChainIdsSortedUserCurrency)
   const chainRows = useMemo(
     () =>

@@ -12,6 +12,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -24,9 +25,11 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioLoadingStatus,
   selectShowSnapsModal,
+  selectWalletAccountIds,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
@@ -51,7 +54,7 @@ export const Header = memo(() => {
 
   const history = useHistory()
   const {
-    state: { isDemoWallet },
+    state: { isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -93,6 +96,21 @@ export const Header = memo(() => {
   )
 
   const currentWalletId = useSelector(selectWalletId)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
+  const hasUtxoAccountIds = useMemo(
+    () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
+    [walletAccountIds],
+  )
+
+  useEffect(() => {
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
+
+    // We have just detected that the user doesn't have the snap installed currently
+    // We need to check whether or not the user had previous non-EVM AccountIds and clear those
+    if (hasUtxoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+  }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
+
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
@@ -122,6 +140,8 @@ export const Header = memo(() => {
     showSnapModal,
     snapModal,
     toast,
+    wallet,
+    walletAccountIds,
   ])
 
   return (

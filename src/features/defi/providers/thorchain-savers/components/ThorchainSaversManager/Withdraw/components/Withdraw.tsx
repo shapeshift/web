@@ -318,16 +318,20 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           rewardsAmountCryptoBaseUnit: opportunityData.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
         })
         setQuoteLoading(true)
-        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const maybeQuote = await getThorchainSaversWithdrawQuote({
+          asset,
+          accountId,
+          bps: withdrawBps,
+        })
         setQuoteLoading(false)
 
-        if (_quote.isErr()) throw new Error(_quote.unwrapErr())
-        const quote = _quote.unwrap()
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
         const { dust_amount } = quote
         const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
 
         const maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
-          _quote,
+          maybeQuote,
           _dustAmountCryptoBaseUnit,
         )
         if (!maybeWithdrawGasEstimateCryptoBaseUnit) return
@@ -409,11 +413,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
 
         setQuoteLoading(true)
-        const _quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const maybeQuote = await getThorchainSaversWithdrawQuote({
+          asset,
+          accountId,
+          bps: withdrawBps,
+        })
 
-        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(_quote)
-        if (_quote.isErr()) return translate('trade.errors.amountTooSmallUnknownMinimum')
-        const quote = _quote.unwrap()
+        const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(maybeQuote)
+        if (maybeQuote.isErr()) return translate('trade.errors.amountTooSmallUnknownMinimum')
+        const quote = maybeQuote.unwrap()
         const { slippage_bps, dust_amount } = quote
 
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
@@ -424,7 +432,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const _dustAmountCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)
 
         const maybeWithdrawGasEstimateCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(
-          _quote,
+          maybeQuote,
           _dustAmountCryptoBaseUnit,
         )
 

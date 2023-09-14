@@ -20,7 +20,7 @@ export const addSlippageToMemo = ({
   chainId: ChainId
   affiliateBps: string
   isStreaming: boolean
-  streamingInterval: number | undefined
+  streamingInterval: number
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 

@@ -16,6 +16,7 @@ import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-sh
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
@@ -58,6 +59,7 @@ export const Header = memo(() => {
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
+  const translate = useTranslate()
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
@@ -114,7 +116,11 @@ export const Header = memo(() => {
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
-      toast({ status: 'success', title: 'Snap Uninstalled', position: 'bottom' })
+      toast({
+        status: 'success',
+        title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
+        position: 'bottom',
+      })
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
@@ -126,7 +132,7 @@ export const Header = memo(() => {
       // they installed the snap
       toast({
         status: 'success',
-        title: 'ShapeShift Multichain MetaMask Snap Installed',
+        title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
     }
@@ -140,6 +146,7 @@ export const Header = memo(() => {
     showSnapModal,
     snapModal,
     toast,
+    translate,
     wallet,
     walletAccountIds,
   ])

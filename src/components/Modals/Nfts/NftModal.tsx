@@ -246,7 +246,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                 rightIcon={<FaExclamationTriangle />}
                 onClick={handleReportSpamClick}
               >
-                Report Spam
+                {translate('nft.reportSpam')}
               </Button>
             </Flex>
             {!mediaUrl || mediaType === 'image' ? (

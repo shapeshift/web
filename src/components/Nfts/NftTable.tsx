@@ -40,8 +40,6 @@ export const NftTable = () => {
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
-  console.log({ nftItems })
-
   const availableChainIds = useMemo(
     () =>
       nftItems.reduce<ChainId[]>((acc, nftItem) => {

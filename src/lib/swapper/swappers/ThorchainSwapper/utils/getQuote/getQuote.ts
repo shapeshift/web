@@ -8,7 +8,6 @@ import type { Asset } from 'lib/asset-service'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
-  ThornodePoolResponse,
   ThornodeQuoteResponse,
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -30,9 +29,17 @@ type GetQuoteArgs = {
   sellAmountCryptoBaseUnit: string
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
-  streaming: boolean
   affiliateBps: string
-}
+} & (
+  | {
+      streaming: true
+      streamingInterval: number
+    }
+  | {
+      streaming?: false
+      streamingInterval?: never
+    }
+)
 
 const _getQuote = async ({
   sellAsset,
@@ -41,6 +48,7 @@ const _getQuote = async ({
   receiveAddress,
   streaming,
   affiliateBps,
+  streamingInterval,
 }: GetQuoteArgs): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
@@ -61,45 +69,6 @@ const _getQuote = async ({
       : receiveAddress
 
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-  const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
-  )
-
-  if (maybePoolsResponse.isErr()) return Err(maybePoolsResponse.unwrapErr())
-
-  const { data: poolsResponse } = maybePoolsResponse.unwrap()
-
-  const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
-  const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
-
-  if (!sellAssetPool)
-    return Err(
-      makeSwapErrorRight({
-        message: `[_getQuote]: Pool not found for sell asset ${sellAsset.assetId}`,
-        code: SwapErrorType.POOL_NOT_FOUND,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
-      }),
-    )
-
-  if (!buyAssetPool)
-    return Err(
-      makeSwapErrorRight({
-        message: `[_getQuote]: Pool not found for buy asset ${buyAssetId}`,
-        code: SwapErrorType.POOL_NOT_FOUND,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
-      }),
-    )
-
-  const sellAssetDepthBps = sellAssetPool.derived_depth_bps
-  const buyAssetDepthBps = buyAssetPool.derived_depth_bps
-  const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
-
-  const streamingInterval = (() => {
-    // Low health for the pools of this swap - use a longer streaming interval
-    if (swapDepthBps.lt(5000)) return 10
-    if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
-    return 1
-  })()
 
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),

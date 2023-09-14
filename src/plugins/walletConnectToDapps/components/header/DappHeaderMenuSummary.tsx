@@ -34,7 +34,6 @@ export const DappHeaderMenuSummary = () => {
       >
         <HStack spacing={4} px={3} py={1}>
           <DappAvatar
-            name={walletConnect.dapp.name}
             image={walletConnect.dapp.icons?.[0]}
             connected={walletConnect.connector?.connected}
           />

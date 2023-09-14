@@ -1288,6 +1288,23 @@
       "connectMetaMask": "Connect MetaMask",
       "andMore": "...and more"
     },
+    "metaMaskSnapConfirm":{
+      "title": "Install Multichain Snap",
+      "warningExperimental": "The ShapeShift Multichain Snap is a new, experimental feature, provided \"as is\"",
+      "warningBackup": "Ensure you have backed up your MetaMask seed phrase. Any funds you send to non-EVM chains using this Snap will be directed to the default account you set up with MetaMask.",
+      "agreeIntro": "Before continuing please read the following:",
+      "agreeItem1Parts": {
+        "1": "Hardware wallets are",
+        "2": "NOT",
+        "3": "supported"
+      },
+      "agreeItem2": "Only Account #1 in MetaMask is supported for the extra chains the ShapeShift Multichain Snap provides",
+      "agreeItem3": "To use the existing Ethereum chains provided by MetaMask, you must connect Account #1 to ShapeShift in MetaMask",
+      "agreeItem4": "By enabling the ShapeShift Multichain Snap, you acknowledge you are using it at your own risk",
+      "readAndUnderstood": "I have read and understand",
+      "seedBackedUp": "I have backed up my MetaMask seed phrase",
+      "acceptInstall": "Confirm & Install"
+    },
     "coinbase": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with Coinbase",
@@ -1716,16 +1733,21 @@
       },
       "header": {
         "connectDapp": "Connect dApp",
+        "connectAnotherDapp": "Connect another dApp",
         "connectedDapp": "Connected dApp(s)",
+        "staleDapp": "Stale dApp(s)",
         "menu": {
           "disconnect": "Disconnect",
+          "reconnect": "Reconnect",
           "addresses": "Addresses",
           "address": "Address",
           "connected": "Connected",
           "networks": "Network(s)",
           "unsupportedNetwork": "Unsupported Network",
           "expiry": "Session expiry"
-        }
+        },
+        "multipleSessionsConnected": "%{count} dApps connected",
+        "clickToManage": "Click to manage"
       },
       "modal": {
         "title": "WalletConnect",

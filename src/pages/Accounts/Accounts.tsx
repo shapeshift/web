@@ -11,7 +11,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectPortfolioChainIdsSortedUserCurrency,
   selectPortfolioLoading,
+  selectWalletId,
 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
@@ -75,6 +77,8 @@ export const Accounts = () => {
     [portfolioChainIdsSortedUserCurrency],
   )
 
+  const walletId = useAppSelector(selectWalletId)
+
   const blankRows = useMemo(() => {
     return blanks.map(index => (
       <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
@@ -87,7 +91,7 @@ export const Accounts = () => {
 
   return (
     <Switch>
-      <Route exact path={`${path}/`}>
+      <Route exact path={`${path}/`} key={`${walletId}-${loading}`}>
         <AccountHeader isLoading={loading} />
         <List ml={0} mt={0} spacing={4}>
           {renderRows}

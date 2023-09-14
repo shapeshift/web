@@ -18,7 +18,7 @@ import type {
 } from 'plugins/walletConnectToDapps/v2/types'
 import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
-import type { FC } from 'react'
+import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
@@ -26,9 +26,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const CosmosSignMessageConfirmationModal: FC<
   WalletConnectRequestModalProps<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
-> = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
+> = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { address } = useWalletConnectState(state)
-  const peerMetadata = state.session.peer.metadata
+  const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -36,13 +36,15 @@ export const CosmosSignMessageConfirmationModal: FC<
   const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
 
-  const methodSpecificContent: JSX.Element | null = (() => {
+  const methodSpecificContent: JSX.Element | null = useMemo(() => {
     if (request?.method === CosmosSigningMethod.COSMOS_SIGN_AMINO) {
-      const memo = request.params.signDoc.memo
-      const messages = request.params.signDoc.msgs
-      const sequence = request.params.signDoc.sequence
-      const accountNumber = request.params.signDoc.account_number
-      const chainId = request.params.signDoc.chain_id
+      const {
+        memo,
+        sequence,
+        msgs: messages,
+        account_number: accountNumber,
+        chain_id: chainId,
+      } = request.params.signDoc
 
       return (
         <Box p={4}>
@@ -115,7 +117,9 @@ export const CosmosSignMessageConfirmationModal: FC<
         </Box>
       )
     } else return null
-  })()
+  }, [request?.method, request?.params.signDoc, translate])
+
+  if (!peerMetadata) return null
 
   return (
     <>

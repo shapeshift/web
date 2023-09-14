@@ -59,6 +59,7 @@ export type WalletConnectSessionModalProps = {
 export type WalletConnectRequestModalProps<T> = {
   dispatch: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
+  topic: string
   onConfirm(): Promise<void>
   onReject(): Promise<void>
 }
@@ -77,10 +78,11 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleClose = () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
 
-  const handleConfirmEIP155Request = async (customTransactionData?: CustomTransactionData) => {
-    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return
+  const topic = requestEvent?.topic
 
-    const topic = requestEvent.topic
+  const handleConfirmEIP155Request = async (customTransactionData?: CustomTransactionData) => {
+    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic) return
+
     const response = await approveEIP155Request({
       wallet,
       requestEvent,
@@ -97,9 +99,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   }
 
   const handleConfirmCosmosRequest = async (customTransactionData?: CustomTransactionData) => {
-    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return
+    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic) return
 
-    const topic = requestEvent.topic
     const response = await approveCosmosRequest({
       wallet,
       requestEvent,
@@ -116,9 +117,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   }
 
   const handleRejectRequest = async () => {
-    if (!requestEvent || !web3wallet) return
+    if (!requestEvent || !web3wallet || !topic) return
 
-    const topic = requestEvent.topic
     const { id } = requestEvent
     const response = formatJsonRpcError(id, getSdkError('USER_REJECTED_METHODS').message)
 
@@ -136,25 +136,30 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SessionProposal:
         return <SessionProposalModal onClose={handleClose} dispatch={dispatch} state={state} />
       case WalletConnectModal.SignEIP155MessageConfirmation:
+        if (!topic) return null
         return (
           <EIP155SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequest}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
+            topic={topic}
           />
         )
       case WalletConnectModal.SignEIP155TypedDataConfirmation:
+        if (!topic) return null
         return (
           <EIP155SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequest}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
+            topic={topic}
           />
         )
       case WalletConnectModal.SignEIP155TransactionConfirmation:
       case WalletConnectModal.SendEIP155TransactionConfirmation:
+        if (!topic) return null
         return (
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
@@ -165,9 +170,11 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
                 WalletConnectState<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
               >
             }
+            topic={topic}
           />
         )
       case WalletConnectModal.SendCosmosTransactionConfirmation:
+        if (!topic) return null
         return (
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
@@ -178,6 +185,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
                 WalletConnectState<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
               >
             }
+            topic={topic}
           />
         )
       default:
@@ -185,28 +193,31 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     }
   })()
 
-  const modalWrapper = (content: JSX.Element) => (
-    <Modal isOpen={!!activeModal} onClose={handleClose} variant='header-nav'>
-      <ModalOverlay />
-      <ModalContent
-        width='full'
-        borderRadius={{ base: 0, md: 'xl' }}
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
-      >
-        <ModalHeader py={2}>
-          <HStack alignItems='center' spacing={2}>
-            <WalletConnectIcon />
-            <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <ModalCloseButton position='static' />
-          </HStack>
-        </ModalHeader>
-        <VStack p={6} spacing={6} alignItems='stretch'>
-          {content}
-        </VStack>
-      </ModalContent>
-    </Modal>
-  )
+  const modalWrapper = (content: JSX.Element | null) => {
+    if (content === null) return null
+    return (
+      <Modal isOpen={!!activeModal} onClose={handleClose} variant='header-nav'>
+        <ModalOverlay />
+        <ModalContent
+          width='full'
+          borderRadius={{ base: 0, md: 'xl' }}
+          minWidth={{ base: '100%', md: '500px' }}
+          maxWidth={{ base: 'full', md: '500px' }}
+        >
+          <ModalHeader py={2}>
+            <HStack alignItems='center' spacing={2}>
+              <WalletConnectIcon />
+              <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
+              <ModalCloseButton position='static' />
+            </HStack>
+          </ModalHeader>
+          <VStack p={6} spacing={6} alignItems='stretch'>
+            {content}
+          </VStack>
+        </ModalContent>
+      </Modal>
+    )
+  }
 
   return modalWrapper(modalContent)
 }

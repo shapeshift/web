@@ -51,8 +51,7 @@ const AFFILIATE_BPS = 0
 const usdcEthereumAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const usdcAvalancheAssetId: AssetId =
   'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
-export const usdtEthereumAssetId: AssetId =
-  'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+const usdtEthereumAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
@@ -66,6 +65,7 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
+  [usdtEthereumAssetId]: '0',
   [usdcAvalancheAssetId]: '0',
 }
 
@@ -78,6 +78,7 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   ltcAssetId,
   dogeAssetId,
   usdcEthereumAssetId,
+  usdtEthereumAssetId,
   usdcAvalancheAssetId,
 ]
 
@@ -147,15 +148,27 @@ export const getAllThorchainSaversPositions = async (
 export const getThorchainTransactionStatus = async (txHash: string) => {
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
     // We don't want to throw on 404s, we're parsing these ourselves
     { validateStatus: () => true },
   )
 
   if ('error' in thorTxData || status === 404) return TxStatus.Unknown
-  if (!thorTxData.observed_tx.status || thorTxData.observed_tx.status === 'incomplete')
+  // Tx has been observed, but swap/outbound Tx hasn't been completed yet
+  if (
+    // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
+    thorTxData.stages.inbound_finalised?.completed === false ||
+    thorTxData.stages.swap_status?.pending === true ||
+    // Note, this does not apply to all Txs, e.g savers deposit won't have this property
+    // the *presence* of outbound_signed?.completed as false *will* indicate a pending outbound Tx, but the opposite is not neccessarily true
+    // i.e a succesful end-to-end "swap" might be succesful despite the *absence* of outbound_signed property
+    thorTxData.stages.outbound_signed?.completed === false
+  )
     return TxStatus.Pending
-  if (thorTxData.observed_tx.status === 'done') return TxStatus.Confirmed
+  if (thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
+
+  // We shouldn't end up here, but just in case
+  return TxStatus.Unknown
 }
 
 export const getThorchainSaversPosition = async ({
@@ -226,24 +239,24 @@ export const getThorchainSaversWithdrawQuote = async ({
   asset: Asset
   accountId: AccountId
   bps: string
-}): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
+}): Promise<Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>> => {
   const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
-  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+  if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const accountAddresses = await getAccountAddresses(accountId)
 
   const allPositions = await getAllThorchainSaversPositions(asset.assetId)
 
   if (!allPositions.length)
-    throw new Error(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
+    return Err(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
 
   const accountPosition = allPositions.find(
     ({ asset_address }) =>
       asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
   )
 
-  if (!accountPosition) throw new Error('No THORChain savers position found')
+  if (!accountPosition) return Err('No THORChain savers position found')
 
   const { asset_address } = accountPosition
 
@@ -254,9 +267,9 @@ export const getThorchainSaversWithdrawQuote = async ({
   )
 
   if (!quoteData || 'error' in quoteData)
-    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+    return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return quoteData
+  return Ok(quoteData)
 }
 
 export const getMidgardPools = async (
@@ -330,7 +343,8 @@ export const waitForSaversUpdate = (txHash: string) =>
   poll({
     fn: () => getThorchainTransactionStatus(txHash),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
-    interval: 30000,
+    interval: 60000,
+    // i.e max. 10mn from the first Tx confirmation
     maxAttempts: 10,
   })
 

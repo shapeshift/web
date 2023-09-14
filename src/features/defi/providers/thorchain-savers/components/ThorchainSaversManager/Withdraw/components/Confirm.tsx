@@ -202,9 +202,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         if (bn(withdrawBps).isZero()) return
 
-        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+        const maybeQuote = await getThorchainSaversWithdrawQuote({
+          asset,
+          accountId,
+          bps: withdrawBps,
+        })
 
-        const { expiry, dust_amount, expected_amount_out, slippage_bps } = quote
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+        const { expiry, dust_amount, expected_amount_out, slippage_bps } = maybeQuote.unwrap()
 
         setExpiry(expiry)
 
@@ -266,6 +272,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
         throw new Error('accountId is undefined')
 
+      if (bnOrZero(state?.withdraw.cryptoAmount).isZero()) return
+
       const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
 
       const withdrawBps = getWithdrawBps({
@@ -273,12 +281,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
         rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
       })
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+      const maybeQuote = await getThorchainSaversWithdrawQuote({
+        asset,
+        accountId,
+        bps: withdrawBps,
+      })
 
       if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
         throw new Error('Account address required to withdraw from THORChain savers')
       }
 
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      const quote = maybeQuote.unwrap()
       const { expiry, expected_amount_out, dust_amount } = quote
 
       const amountCryptoThorBaseUnit = toThorBaseUnit({
@@ -293,7 +307,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         ),
       )
 
-      if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
+      if (!maybeQuote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
       return {
         from: maybeFromUTXOAccountAddress,
@@ -334,7 +348,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
 
       if (bn(withdrawBps).isZero()) return
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+      const maybeQuote = await getThorchainSaversWithdrawQuote({
+        asset,
+        accountId,
+        bps: withdrawBps,
+      })
+
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+      const quote = maybeQuote.unwrap()
 
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const maybeInboundAddressData = await getInboundAddressDataForChain(
@@ -468,7 +490,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
       })
 
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
+      const maybeQuote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
+
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      const quote = maybeQuote.unwrap()
 
       if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
         throw new Error('Account address required to withdraw from THORChain savers')
@@ -534,9 +559,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       if (bn(withdrawBps).isZero()) return
 
-      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+      const maybeQuote = await getThorchainSaversWithdrawQuote({
+        asset,
+        accountId,
+        bps: withdrawBps,
+      })
 
-      if (!quote) throw new Error('Error getting THORChain savers withdraw quote')
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      const quote = maybeQuote.unwrap()
 
       const { dust_amount } = quote
 

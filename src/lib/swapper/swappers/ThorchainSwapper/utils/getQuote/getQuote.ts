@@ -13,7 +13,6 @@ import type {
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
-  DEFAULT_STREAMING_INTERVAL,
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
@@ -102,8 +101,6 @@ const _getQuote = async ({
     return 1
   })()
 
-  console.log({ streamingInterval })
-
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),
     from_asset: sellPoolId,
@@ -111,7 +108,7 @@ const _getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
-    ...(streaming && { streaming_interval: DEFAULT_STREAMING_INTERVAL }),
+    ...(streaming && { streaming_interval: streamingInterval }),
   })
   const maybeData = (
     await thorService.get<ThornodeQuoteResponse>(

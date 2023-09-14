@@ -1,6 +1,8 @@
+import detectEthereumProvider from '@metamask/detect-provider'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { getConfig } from 'config'
+import type { providers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -19,6 +21,9 @@ export const useIsSnapInstalled = (): null | boolean => {
     const snapId = getConfig().REACT_APP_SNAP_ID
 
     const checkSnapInstallation = async () => {
+      const provider = (await detectEthereumProvider()) as providers.ExternalProvider
+      // MetaMask impersonators don't support the methods we need to check for snap installation, and will throw
+      if (!provider.isMetaMask) return
       const snapIsInstalled = await shapeShiftSnapInstalled(snapId)
       setIsSnapInstalled(snapIsInstalled)
     }

@@ -145,11 +145,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     const alchemyUri = (() => {
       switch (chainId) {
         case polygonChainId:
-          return `https://polygon-mainnet.g.alchemy.com/nft/v2/${
+          return `${getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL}/${
             getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY
           }`
         case ethChainId:
-          return `https://eth-mainnet.g.alchemy.com/nft/v2/${
+          return `${getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
             getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
           }`
         default:

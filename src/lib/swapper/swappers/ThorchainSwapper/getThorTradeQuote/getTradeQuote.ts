@@ -122,7 +122,7 @@ export const getThorTradeQuote = async (
   if (!sellAssetPool)
     return Err(
       makeSwapErrorRight({
-        message: `[_getQuote]: Pool not found for sell asset ${sellAsset.assetId}`,
+        message: `[getThorTradeQuote]: Pool not found for sell asset ${sellAsset.assetId}`,
         code: SwapErrorType.POOL_NOT_FOUND,
         details: { sellAssetId: sellAsset.assetId, buyAssetId: buyAsset.assetId },
       }),
@@ -131,7 +131,7 @@ export const getThorTradeQuote = async (
   if (!buyAssetPool)
     return Err(
       makeSwapErrorRight({
-        message: `[_getQuote]: Pool not found for buy asset ${buyAsset.assetId}`,
+        message: `[getThorTradeQuote]: Pool not found for buy asset ${buyAsset.assetId}`,
         code: SwapErrorType.POOL_NOT_FOUND,
         details: { sellAssetId: sellAsset.assetId, buyAsset: buyAsset.assetId },
       }),

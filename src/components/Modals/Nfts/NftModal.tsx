@@ -141,12 +141,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   }, [dispatch, nftAssetId])
 
   const handleReportSpamClick = useCallback(async () => {
-    // Note, we're using collectionId vs. nftAssetId since the NFT AssetId contains <address>/<tokenId>
-    // and deserializing the asset would give us an assetReference in that form, which is what we want for linking purposes
-    // but not here
     const { assetReference: address, chainId } = fromAssetId(nftItem.collectionId)
-    // Alchemy only supports spam filtering and reporting for Ethereum and Polygon
-    if (![ethChainId, polygonChainId].includes(chainId)) return
     const alchemyUri = (() => {
       switch (chainId) {
         case polygonChainId:
@@ -170,6 +165,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
           isSpam: true,
         }),
       )
+
+      // Alchemy only supports spam filtering and reporting for Ethereum and Polygon
+      if (![ethChainId, polygonChainId].includes(chainId)) return
       const { data } = await axios.get<string>(`${alchemyUri!}/reportSpam`, {
         params: { address },
       })

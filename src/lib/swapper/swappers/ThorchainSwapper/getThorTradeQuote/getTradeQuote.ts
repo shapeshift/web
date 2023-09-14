@@ -9,7 +9,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import {
+  DEFAULT_STREAMING_INTERVAL,
+  THORCHAIN_FIXED_PRECISION,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
@@ -227,14 +230,15 @@ export const getThorTradeQuote = async (
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
-              isStreaming,
-              sellAsset.chainId,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              isStreaming,
+              streamingInterval: DEFAULT_STREAMING_INTERVAL,
+            })
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
@@ -309,14 +313,15 @@ export const getThorTradeQuote = async (
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
               isStreaming,
-              sellAsset.chainId,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              streamingInterval: DEFAULT_STREAMING_INTERVAL,
+            })
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
@@ -405,14 +410,15 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
               isStreaming,
-              sellAsset.chainId,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              streamingInterval: DEFAULT_STREAMING_INTERVAL,
+            })
 
             return {
               id: uuid(),

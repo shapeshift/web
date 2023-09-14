@@ -2,22 +2,26 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import {
-  DEFAULT_STREAMING_INTERVAL,
-  DEFAULT_STREAMING_NUM_SWAPS,
-  LIMIT_PART_DELIMITER,
-  MEMO_PART_DELIMITER,
-} from './constants'
+import { DEFAULT_STREAMING_NUM_SWAPS, LIMIT_PART_DELIMITER, MEMO_PART_DELIMITER } from './constants'
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
-export const addSlippageToMemo = (
-  expectedAmountOutThorBaseUnit: string,
-  quotedMemo: string | undefined,
-  slippageBps: BigNumber.Value,
-  isStreaming: boolean,
-  chainId: ChainId,
-  affiliateBps: string,
-) => {
+export const addSlippageToMemo = ({
+  expectedAmountOutThorBaseUnit,
+  quotedMemo,
+  slippageBps,
+  isStreaming,
+  chainId,
+  affiliateBps,
+  streamingInterval,
+}: {
+  expectedAmountOutThorBaseUnit: string
+  quotedMemo: string | undefined
+  slippageBps: BigNumber.Value
+  chainId: ChainId
+  affiliateBps: string
+  isStreaming: boolean
+  streamingInterval: number | undefined
+}) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
   // the missing element is the original limit with (optional, missing) streaming parameters
@@ -31,7 +35,7 @@ export const addSlippageToMemo = (
   )
 
   const updatedLimitComponent = isStreaming
-    ? [limitWithManualSlippage, DEFAULT_STREAMING_INTERVAL, DEFAULT_STREAMING_NUM_SWAPS].join(
+    ? [limitWithManualSlippage, streamingInterval, DEFAULT_STREAMING_NUM_SWAPS].join(
         LIMIT_PART_DELIMITER,
       )
     : [limitWithManualSlippage]

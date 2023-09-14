@@ -24,6 +24,8 @@ export const useIsSnapInstalled = (): null | boolean => {
       const provider = (await detectEthereumProvider()) as providers.ExternalProvider
       // MetaMask impersonators don't support the methods we need to check for snap installation, and will throw
       if (!provider.isMetaMask) return
+      // Some impersonators really like to make it difficult for us to detect *actual* MetaMask
+      if ((provider as any).isBraveWallet) return
       const snapIsInstalled = await shapeShiftSnapInstalled(snapId)
       setIsSnapInstalled(snapIsInstalled)
     }

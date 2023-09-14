@@ -565,7 +565,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         bps: withdrawBps,
       })
 
-      if (!maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()
 
       const { dust_amount } = quote

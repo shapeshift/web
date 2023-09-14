@@ -144,7 +144,9 @@ export const getThorTradeQuote = async (
   const streamingInterval = (() => {
     // Low health for the pools of this swap - use a longer streaming interval
     if (swapDepthBps.lt(5000)) return 10
+    // Moderate health for the pools of this swap - use a moderate streaming interval
     if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
+    // Pool is at 90%+ health - use a 1 block streaming interval
     return 1
   })()
 

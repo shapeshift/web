@@ -27,9 +27,11 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId, polygonChainId } from '@shapeshiftoss/caip'
+import axios from 'axios'
+import { getConfig } from 'config'
 import { useCallback, useMemo, useState } from 'react'
-import { FaSync } from 'react-icons/fa'
+import { FaExclamationTriangle, FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -138,6 +140,47 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     dispatch(nftApi.endpoints.getNft.initiate({ assetId: nftAssetId }, { forceRefetch: true }))
   }, [dispatch, nftAssetId])
 
+  const handleReportSpamClick = useCallback(async () => {
+    // Note, we're using collectionId vs. nftAssetId since the NFT AssetId contains <address>/<tokenId>
+    // and deserializing the asset would give us an assetReference in that form, which is what we want for linking purposes
+    // but not here
+    const { assetReference: address, chainId } = fromAssetId(nftItem.collectionId)
+    // Alchemy only supports spam filtering and reporting for Ethereum and Polygon
+    if (![ethChainId, polygonChainId].includes(chainId)) return
+    const alchemyUri = (() => {
+      switch (chainId) {
+        case polygonChainId:
+          return `https://polygon-mainnet.g.alchemy.com/nft/v2/${
+            getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY
+          }`
+        case ethChainId:
+          return `https://eth-mainnet.g.alchemy.com/nft/v2/${
+            getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
+          }`
+        default:
+          return undefined
+      }
+    })()
+
+    try {
+      if (!nftCollection) throw new Error(`NFT collection for ${nftItem.collectionId} not found`)
+      dispatch(
+        nft.actions.upsertCollection({
+          ...nftCollection,
+          isSpam: true,
+        }),
+      )
+      const { data } = await axios.get<string>(`${alchemyUri!}/reportSpam`, {
+        params: { address },
+      })
+      console.log(data)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      handleClose()
+    }
+  }, [dispatch, handleClose, nftCollection, nftItem.collectionId])
+
   const nftModalMedia = useMemo(() => {
     return (
       <Skeleton flex={1} isLoaded={isMediaLoaded}>
@@ -194,6 +237,15 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                   OpenSea
                 </Button>
               )}
+              <Button
+                as={Link}
+                size='sm'
+                colorScheme='whiteAlpha'
+                rightIcon={<FaExclamationTriangle />}
+                onClick={handleReportSpamClick}
+              >
+                Report Spam
+              </Button>
             </Flex>
             {!mediaUrl || mediaType === 'image' ? (
               <>
@@ -226,6 +278,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     assetLink,
     customizeLink,
     handleRefreshClick,
+    handleReportSpamClick,
     handleSetAsAvatarClick,
     isMediaLoaded,
     mediaBoxProps,

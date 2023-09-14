@@ -9,7 +9,7 @@ import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import {
   selectGetNftUserTokensPending,
-  selectPortfolioNftItemsWithCollection,
+  selectPortfolioNftItemsWithCollectionExcludeSpams,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { useAppSelector } from 'state/store'
@@ -38,7 +38,9 @@ export const NftTable = () => {
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
-  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollection)
+  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
+
+  console.log({ nftItems })
 
   const availableChainIds = useMemo(
     () =>

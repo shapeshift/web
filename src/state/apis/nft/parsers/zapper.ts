@@ -25,6 +25,7 @@ export const parseToNftItem = (
     floorPrice: collection?.floorPriceEth ?? '',
     openseaId: collection?.openseaId ?? '',
     socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
+    isSpam: false,
   }
 
   const nftItem: NftItemWithCollection = {

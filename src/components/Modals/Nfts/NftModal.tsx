@@ -27,7 +27,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId, polygonChainId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useCallback, useMemo, useState } from 'react'
@@ -152,6 +152,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
           return `${getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
             getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
           }`
+        case optimismChainId:
+          return `${getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL}/${
+            getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY
+          }`
         default:
           return undefined
       }
@@ -166,8 +170,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
         }),
       )
 
-      // Alchemy only supports spam filtering and reporting for Ethereum and Polygon
-      if (![ethChainId, polygonChainId].includes(chainId)) return
+      // Alchemy only supports spam filtering and reporting for Ethereum, Polygon and Optimism
+      if (![ethChainId, polygonChainId, optimismChainId].includes(chainId)) return
       const { data } = await axios.get<string>(`${alchemyUri!}/reportSpam`, {
         params: { address },
       })

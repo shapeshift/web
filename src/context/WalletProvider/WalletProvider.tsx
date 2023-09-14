@@ -744,7 +744,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const config: EthereumProviderOptions = {
               projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
               chains: [1],
-              optionalChains: [100],
+              optionalChains: [],
               optionalMethods: [
                 'eth_signTypedData',
                 'eth_signTypedData_v4',
@@ -812,7 +812,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   return {
                     projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
                     chains: [1],
-                    optionalChains: [100],
+                    optionalChains: [],
                     optionalMethods: [
                       'eth_signTypedData',
                       'eth_signTypedData_v4',

@@ -68,7 +68,6 @@ export const parseAlchemyNftContractToCollectionItem = (
     openseaId: '', // not supported by Alchemy
     description: openSea?.description ?? '',
     socialLinks,
-    isSpam: false,
   }
 }
 
@@ -91,7 +90,6 @@ export const parseAlchemyNftToNftItem = async (
     openseaId: '', // The Alchemy NFT data does not have an openseaId
     description: alchemyNft.contract.openSea?.description ?? '',
     socialLinks,
-    isSpam: false,
   }
 
   // If we have an IPNS gateway metadata URL, it means unchained can get a fresh media URL

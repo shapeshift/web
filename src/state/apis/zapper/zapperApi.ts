@@ -287,7 +287,6 @@ export const zapperApi = createApi({
               displayName: link.label,
               url: link.url,
             })),
-            isSpam: false,
           }
         })
 

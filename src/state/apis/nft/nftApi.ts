@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import type { PartialRecord } from 'lib/utils'
 import { isRejected } from 'lib/utils'
+import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -16,6 +17,7 @@ import { initialState as initialPortfolioState } from 'state/slices/portfolioSli
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
+import { selectNftCollectionById } from './selectors'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
   getAlchemyCollectionData,
@@ -169,7 +171,9 @@ export const nftApi = createApi({
   reducerPath: 'nftApi',
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
-      queryFn: async ({ accountIds }, { dispatch }) => {
+      queryFn: async ({ accountIds }, { dispatch, getState }) => {
+        const state = getState() as ReduxState
+
         const services = [
           getAlchemyNftsUserData,
           (accountIds: AccountId[]) =>
@@ -246,6 +250,8 @@ export const nftApi = createApi({
         const collectionsById = nftsWithCollection.reduce<NftState['collections']['byId']>(
           (acc, item) => {
             if (!item.collection.assetId) return acc
+            const cachedCollection = selectNftCollectionById(state, item.collection.assetId)
+            if (cachedCollection?.isSpam) item.collection.isSpam = true
             acc[item.collection.assetId] = item.collection
             return acc
           },

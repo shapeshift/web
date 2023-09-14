@@ -18,7 +18,7 @@ export type NftCollectionType = {
   }[]
   // At the moment, this is user-triggered. A user may mark a collection as spam, and it will be hidden from the UI
   // while at the same time being sent as a spam report to Alchemy, which should eventually filter it out upstream as well
-  isSpam: boolean
+  isSpam?: boolean
 }
 
 export type NftItem = {

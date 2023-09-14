@@ -67,7 +67,6 @@ export const parseToNftItem = (
                 },
               ]
             : [],
-          isSpam: false,
         },
       }
 

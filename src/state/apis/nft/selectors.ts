@@ -37,7 +37,7 @@ export const selectGetNftUserTokensPending = createSelector(
   queries => Boolean(queries.length),
 )
 
-export const selectPortfolioNftItemsWithCollection = createSelector(
+export const selectPortfolioNftItemsWithCollectionExcludeSpams = createSelector(
   selectNfts,
   selectNftCollections,
   selectPortfolioAssetIds,
@@ -50,6 +50,7 @@ export const selectPortfolioNftItemsWithCollection = createSelector(
       if (!nft) return acc
       const collection = collections[nft.collectionId]
       if (!collection) return acc
+      if (collection.isSpam) return acc
 
       const nftItemWithCollection = Object.assign({}, nft, { collection })
 

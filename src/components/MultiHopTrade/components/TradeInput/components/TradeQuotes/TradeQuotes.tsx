@@ -1,7 +1,9 @@
-import { ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
 import { memo, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { SlideTransitionY } from 'components/SlideTransitionY'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -67,28 +69,31 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
         display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
       }}
     >
-      {hasMoreThanOneQuote && !showAll && (
-        <Button
-          borderRadius='full'
-          position='absolute'
-          left='50%'
-          bottom='1rem'
-          size='sm'
-          transform='translateX(-50%)'
-          onClick={() => setShowAll(!showAll)}
-          zIndex={3}
-          backdropFilter='blur(15px)'
-          rightIcon={<ArrowUpIcon />}
-          boxShadow='lg'
-          borderWidth={1}
-        >
-          {translate('common.showAll')}
-        </Button>
-      )}
+      <AnimatePresence>
+        <SlideTransitionY>
+          {hasMoreThanOneQuote && !showAll && (
+            <Button
+              borderRadius='full'
+              position='absolute'
+              left='50%'
+              bottom='1rem'
+              size='sm'
+              transform='translateX(-50%)'
+              onClick={() => setShowAll(!showAll)}
+              zIndex={3}
+              backdropFilter='blur(15px)'
+              rightIcon={<ArrowDownIcon />}
+              boxShadow='lg'
+              borderWidth={1}
+            >
+              {translate('common.showAll')}
+            </Button>
+          )}
+        </SlideTransitionY>
+      </AnimatePresence>
 
       <Flex
         flexDir='column'
-        gap={2}
         width='full'
         px={2}
         pt={0}

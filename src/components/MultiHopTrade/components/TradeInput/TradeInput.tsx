@@ -104,7 +104,6 @@ export const TradeInput = memo(() => {
     'blue.500',
     'background.surface.raised.base',
   ])
-  const [countdownKey, setCountdownKey] = useState(0)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -163,14 +162,6 @@ export const TradeInput = memo(() => {
     () => isQuoteLoading || isConfirmationLoading,
     [isConfirmationLoading, isQuoteLoading],
   )
-
-  useEffect(() => {
-    if (sortedQuotes.length !== 0 && !isLoading) {
-      console.info('bah', countdownKey)
-      setCountdownKey(prevKey => prevKey + 1)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, sortedQuotes])
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()

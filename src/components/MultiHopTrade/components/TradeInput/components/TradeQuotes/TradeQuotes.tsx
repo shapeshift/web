@@ -1,5 +1,6 @@
-import { Flex } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { memo, useMemo, useState } from 'react'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -13,8 +14,16 @@ type TradeQuotesProps = {
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isLoading }) => {
   const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
-
+  const [showAll, setShowAll] = useState(false)
   const bestQuoteData = sortedQuotes[0]
+  const bottomOverlay = useColorModeValue(
+    'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
+    'linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.2) 100%)',
+  )
+
+  const hasMoreThanOneQuote = useMemo(() => {
+    return sortedQuotes.length > 1
+  }, [sortedQuotes.length])
 
   const quotes = useMemo(
     () =>
@@ -43,8 +52,50 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
   )
 
   return (
-    <Flex flexDir='column' gap={2} width='full' px={0} py={2}>
-      {quotes}
-    </Flex>
+    <Box
+      position='relative'
+      _after={{
+        content: '""',
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        height: '50px',
+        width: '100%',
+        bg: bottomOverlay,
+      }}
+    >
+      {hasMoreThanOneQuote && (
+        <Button
+          borderRadius='full'
+          position='absolute'
+          left='50%'
+          bottom='1rem'
+          size='sm'
+          transform='translateX(-50%)'
+          onClick={() => setShowAll(!showAll)}
+          zIndex={3}
+          backdropFilter='blur(15px)'
+          rightIcon={showAll ? <ArrowUpIcon /> : <ArrowDownIcon />}
+        >
+          {showAll ? 'Show Less' : 'Show All'}
+        </Button>
+      )}
+
+      <Flex
+        flexDir='column'
+        gap={2}
+        width='full'
+        px={2}
+        pt={0}
+        maxHeight={showAll ? '5000px' : '300px'}
+        overflowY='hidden'
+        pb={hasMoreThanOneQuote ? 12 : 2}
+        transitionProperty='max-height'
+        transitionDuration='0.65s'
+        transitionTimingFunction='ease-in-out'
+      >
+        {quotes}
+      </Flex>
+    </Box>
   )
 })

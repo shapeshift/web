@@ -1,18 +1,15 @@
 export const CardStyle = {
   parts: ['container', 'header', 'body', 'footer'],
   baseStyle: () => ({
-    container: {
-      rounded: {
-        base: 0,
-        xl: '2xl',
-      },
-    },
     header: {
       fontWeight: 'bold',
     },
   }),
   sizes: {
     md: {
+      container: {
+        borderRadius: '2xl',
+      },
       header: {
         py: 4,
         px: {
@@ -33,6 +30,9 @@ export const CardStyle = {
       },
     },
     sm: {
+      container: {
+        borderRadius: 'lg',
+      },
       header: {
         fontSize: 'md',
       },

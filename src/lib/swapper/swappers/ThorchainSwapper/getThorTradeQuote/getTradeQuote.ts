@@ -119,7 +119,7 @@ export const getThorTradeQuote = async (
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
-  if (!sellAssetPool)
+  if (!sellAssetPool && sellPoolId !== 'THOR.RUNE')
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote]: Pool not found for sell asset ${sellAsset.assetId}`,
@@ -128,7 +128,7 @@ export const getThorTradeQuote = async (
       }),
     )
 
-  if (!buyAssetPool)
+  if (!buyAssetPool && buyPoolId !== 'THOR.RUNE')
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote]: Pool not found for buy asset ${buyAsset.assetId}`,
@@ -137,18 +137,21 @@ export const getThorTradeQuote = async (
       }),
     )
 
-  const sellAssetDepthBps = sellAssetPool.derived_depth_bps
-  const buyAssetDepthBps = buyAssetPool.derived_depth_bps
-  const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
-
-  const streamingInterval = (() => {
-    // Low health for the pools of this swap - use a longer streaming interval
-    if (swapDepthBps.lt(5000)) return 10
-    // Moderate health for the pools of this swap - use a moderate streaming interval
-    if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
-    // Pool is at 90%+ health - use a 1 block streaming interval
-    return 1
-  })()
+  const streamingInterval =
+    sellAssetPool && buyAssetPool
+      ? (() => {
+          const sellAssetDepthBps = sellAssetPool.derived_depth_bps
+          const buyAssetDepthBps = buyAssetPool.derived_depth_bps
+          const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
+          // Low health for the pools of this swap - use a longer streaming interval
+          if (swapDepthBps.lt(5000)) return 10
+          // Moderate health for the pools of this swap - use a moderate streaming interval
+          if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
+          // Pool is at 90%+ health - use a 1 block streaming interval
+          return 1
+        })()
+      : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
+        10
 
   const maybeStreamingSwapQuote = thorSwapStreamingSwaps
     ? await getQuote({

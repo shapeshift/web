@@ -16,7 +16,7 @@ export const checkIsSnapInstalled = pDebounce.promise(
   (): Promise<boolean | null> => shapeShiftSnapInstalled(snapId),
 )
 
-const _isMetaMask = pMemoize(
+export const checkIsMetaMask = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM
@@ -43,7 +43,7 @@ export const useIsSnapInstalled = (): null | boolean => {
   } = useWallet()
 
   const checkSnapInstallation = useCallback(async () => {
-    const isMetaMask = await _isMetaMask(wallet)
+    const isMetaMask = await checkIsMetaMask(wallet)
     if (!isMetaMask) return
 
     const _isSnapInstalled = await checkIsSnapInstalled()

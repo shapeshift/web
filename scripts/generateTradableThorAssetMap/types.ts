@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   bchChainId,
   binanceChainId,
+  bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -21,6 +22,7 @@ export enum ThorchainChain {
   BNB = 'BNB',
   GAIA = 'GAIA',
   THOR = 'THOR',
+  BSC = 'BSC',
 }
 
 export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
@@ -33,6 +35,7 @@ export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
   [ThorchainChain.BNB, binanceChainId],
   [ThorchainChain.GAIA, cosmosChainId],
   [ThorchainChain.THOR, thorchainChainId],
+  [ThorchainChain.BSC, bscChainId],
 ])
 
 export type AssetIdPair = [thorchainAsset: string, assetId: AssetId]

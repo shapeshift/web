@@ -115,7 +115,10 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.LitecoinMainnet
   | KnownChainIds.BitcoinCashMainnet
 
-export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+export type ThorEvmSupportedChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.BnbSmartChainMainnet
 
 export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet

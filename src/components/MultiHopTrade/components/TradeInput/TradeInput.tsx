@@ -13,12 +13,14 @@ import {
   useToken,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
+import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
@@ -364,26 +366,27 @@ export const TradeInput = memo(() => {
                 {translate('navBar.trade')}
               </Heading>
               <Flex>
-                <IconButton
-                  variant='ghost'
-                  aria-label='Quote status'
-                  icon={
-                    <CountdownCircleTimer
-                      key={countdownKey}
-                      isPlaying={!!sortedQuotes.length && !isLoading}
-                      duration={20}
-                      size={20}
-                      strokeWidth={3}
-                      trailColor={themeTrackColor as ColorFormat}
-                      colors={themeIndicatorColor as ColorFormat}
-                      onComplete={() => {
-                        return {
-                          shouldRepeat: true,
+                <AnimatePresence>
+                  {!!sortedQuotes.length && !isLoading && hasUserEnteredAmount && (
+                    <FadeTransition>
+                      <IconButton
+                        variant='ghost'
+                        aria-label='Quote status'
+                        icon={
+                          <CountdownCircleTimer
+                            isPlaying
+                            duration={20}
+                            size={20}
+                            strokeWidth={3}
+                            trailColor={themeTrackColor as ColorFormat}
+                            colors={themeIndicatorColor as ColorFormat}
+                          />
                         }
-                      }}
-                    />
-                  }
-                />
+                      />
+                    </FadeTransition>
+                  )}
+                </AnimatePresence>
+
                 {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && (
                   <SlippagePopover />
                 )}

@@ -137,7 +137,7 @@ describe('getTradeQuote', () => {
           const mockThorQuote: { data: ThornodeQuoteResponseSuccess } = {
             data: {
               expected_amount_out: '10232161',
-              expiry: '1681132269',
+              expiry: 1681132269,
               fees: {
                 affiliate: '0',
                 asset: 'ETH.ETH',

@@ -43,7 +43,7 @@ export type ThornodePoolResponse = {
 export type ThornodeQuoteResponseSuccess = {
   dust_threshold?: string
   expected_amount_out: string
-  expiry: string
+  expiry: number
   fees: {
     affiliate: string
     asset: string

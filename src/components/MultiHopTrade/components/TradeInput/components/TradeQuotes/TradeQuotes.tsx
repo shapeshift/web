@@ -61,10 +61,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
         position: 'absolute',
         left: 0,
         bottom: 0,
-        height: '50px',
+        height: '80px',
         width: '100%',
         bg: bottomOverlay,
-        display: showAll ? 'none' : 'block',
+        display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
       }}
     >
       {hasMoreThanOneQuote && !showAll && (

@@ -33,8 +33,10 @@ import {
 } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
-import type { ThornodeQuoteResponseSuccess } from '../types'
+import type { ThornodePoolResponse, ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
+import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
+import { thorService } from '../utils/thorService'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
 export type ThorEvmTradeQuote = TradeQuote &
@@ -103,6 +105,51 @@ export const getThorTradeQuote = async (
     affiliateBps: requestedAffiliateBps,
   })
 
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
+    `${daemonUrl}/lcd/thorchain/pools`,
+  )
+
+  if (maybePoolsResponse.isErr()) return Err(maybePoolsResponse.unwrapErr())
+
+  const { data: poolsResponse } = maybePoolsResponse.unwrap()
+
+  const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
+  const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
+  const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
+  const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
+
+  if (!sellAssetPool)
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote]: Pool not found for sell asset ${sellAsset.assetId}`,
+        code: SwapErrorType.POOL_NOT_FOUND,
+        details: { sellAssetId: sellAsset.assetId, buyAssetId: buyAsset.assetId },
+      }),
+    )
+
+  if (!buyAssetPool)
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote]: Pool not found for buy asset ${buyAsset.assetId}`,
+        code: SwapErrorType.POOL_NOT_FOUND,
+        details: { sellAssetId: sellAsset.assetId, buyAsset: buyAsset.assetId },
+      }),
+    )
+
+  const sellAssetDepthBps = sellAssetPool.derived_depth_bps
+  const buyAssetDepthBps = buyAssetPool.derived_depth_bps
+  const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
+
+  const streamingInterval = (() => {
+    // Low health for the pools of this swap - use a longer streaming interval
+    if (swapDepthBps.lt(5000)) return 10
+    // Moderate health for the pools of this swap - use a moderate streaming interval
+    if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
+    // Pool is at 90%+ health - use a 1 block streaming interval
+    return 1
+  })()
+
   const maybeStreamingSwapQuote = thorSwapStreamingSwaps
     ? await getQuote({
         sellAsset,
@@ -111,6 +158,7 @@ export const getThorTradeQuote = async (
         receiveAddress,
         streaming: true,
         affiliateBps: requestedAffiliateBps,
+        streamingInterval,
       })
     : undefined
 
@@ -227,14 +275,15 @@ export const getThorTradeQuote = async (
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
-              isStreaming,
-              sellAsset.chainId,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              isStreaming,
+              streamingInterval,
+            })
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
@@ -309,14 +358,15 @@ export const getThorTradeQuote = async (
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
               isStreaming,
-              sellAsset.chainId,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              streamingInterval,
+            })
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
@@ -405,14 +455,15 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
-            const updatedMemo = addSlippageToMemo(
+            const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              quote.memo,
-              inputSlippageBps,
+              quotedMemo: quote.memo,
+              slippageBps: inputSlippageBps,
               isStreaming,
-              sellAsset.chainId,
+              chainId: sellAsset.chainId,
               affiliateBps,
-            )
+              streamingInterval,
+            })
 
             return {
               id: uuid(),

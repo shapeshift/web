@@ -200,7 +200,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       onClick={isDisabled ? undefined : handleQuoteSelection}
       transitionProperty='common'
       transitionDuration='normal'
-      opacity={isDisabled ? 0.4 : 1}
     >
       <CardHeader fontWeight='normal' fontSize='sm' px={4}>
         <Flex justifyContent='space-between' alignItems='center'>

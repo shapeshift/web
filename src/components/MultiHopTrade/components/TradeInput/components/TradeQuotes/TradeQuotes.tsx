@@ -1,6 +1,7 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { memo, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,11 +15,12 @@ type TradeQuotesProps = {
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isLoading }) => {
   const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
+  const translate = useTranslate()
   const [showAll, setShowAll] = useState(false)
   const bestQuoteData = sortedQuotes[0]
   const bottomOverlay = useColorModeValue(
     'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
-    'linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.2) 100%)',
+    'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
   )
 
   const hasMoreThanOneQuote = useMemo(() => {
@@ -62,9 +64,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
         height: '50px',
         width: '100%',
         bg: bottomOverlay,
+        display: showAll ? 'none' : 'block',
       }}
     >
-      {hasMoreThanOneQuote && (
+      {hasMoreThanOneQuote && !showAll && (
         <Button
           borderRadius='full'
           position='absolute'
@@ -75,9 +78,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
           onClick={() => setShowAll(!showAll)}
           zIndex={3}
           backdropFilter='blur(15px)'
-          rightIcon={showAll ? <ArrowUpIcon /> : <ArrowDownIcon />}
+          rightIcon={<ArrowUpIcon />}
+          boxShadow='lg'
+          borderWidth={1}
         >
-          {showAll ? 'Show Less' : 'Show All'}
+          {translate('common.showAll')}
         </Button>
       )}
 
@@ -87,9 +92,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
         width='full'
         px={2}
         pt={0}
-        maxHeight={showAll ? '5000px' : '300px'}
+        maxHeight={showAll ? '5000px' : '230px'}
         overflowY='hidden'
-        pb={hasMoreThanOneQuote ? 12 : 2}
+        pb={4}
         transitionProperty='max-height'
         transitionDuration='0.65s'
         transitionTimingFunction='ease-in-out'

@@ -12,15 +12,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
 
-export const checkIsSnapInstalled = pDebounce.promise(async (): Promise<boolean | null> => {
-  console.log('checkIsSnapInstalled checks invoked')
-  const snapIsInstalled = await shapeShiftSnapInstalled(snapId)
-  return snapIsInstalled
-})
+export const checkIsSnapInstalled = pDebounce.promise(
+  (): Promise<boolean | null> => shapeShiftSnapInstalled(snapId),
+)
 
 const _isMetaMask = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
-    console.log('_isMetaMask checks invoked')
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
@@ -54,7 +51,7 @@ export const useIsSnapInstalled = (): null | boolean => {
   }, [wallet])
 
   useEffect(() => {
-    // Call the function immediately
+    // Call the throttled function immediately
     checkSnapInstallation()
 
     // Set up a polling interval

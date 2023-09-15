@@ -121,6 +121,7 @@ export const updateNftCollection = (
       url: 'https://app.mercle.xyz/shapeshift',
     })
   }
+  draftItem.isSpam = currentItem.isSpam
 
   return draftItem
 }

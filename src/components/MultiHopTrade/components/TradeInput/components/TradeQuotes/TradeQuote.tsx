@@ -3,9 +3,7 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
-  Divider,
   Flex,
-  Radio,
   Skeleton,
   Tag,
   useColorModeValue,
@@ -159,7 +157,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor
     if (!hasAmountWithPositiveReceive) return redColor
-    if (isActive) return 'border.base'
+    if (isActive) return 'border.focused'
     return borderColor
   })()
 
@@ -171,7 +169,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     [],
   )
   const activeProps = useMemo(
-    () => ({ borderColor: isActive ? 'blue.500' : focusColor }),
+    () => ({ borderColor: isActive ? 'transparent' : focusColor }),
     [focusColor, isActive],
   )
 
@@ -190,126 +188,107 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   return showSwapper ? (
     <>
-      {!isBest && (
-        <Divider
-          my='-1px'
-          style={{ width: 'auto', marginLeft: '2.5rem', marginRight: '1rem' }}
-          opacity={1}
-        />
-      )}
       <Card
-        borderWidth={0}
+        borderWidth={2}
         boxShadow='none'
         bg={isActive ? 'background.surface.hover' : 'transparent'}
         cursor={isDisabled ? 'not-allowed' : 'pointer'}
-        borderColor={isActive ? activeSwapperColor : 'transparent'}
+        borderColor={isActive ? activeSwapperColor : 'border.base'}
         _hover={isDisabled ? undefined : hoverProps}
         _active={isDisabled ? undefined : activeProps}
         borderRadius={borderRadius}
         size='sm'
-        flexDir='row'
+        flexDir='column'
         width='full'
         fontSize='sm'
         onClick={isDisabled ? undefined : handleQuoteSelection}
         transitionProperty='common'
         transitionDuration='normal'
-        my='-1px'
       >
-        <Flex pl={3} alignItems='center'>
-          <Radio isChecked={isActive} isDisabled={isDisabled} />
-        </Flex>
-        <Flex flexDir='column' flex={1}>
-          <CardHeader fontWeight='normal' fontSize='sm' px={4}>
-            <Flex justifyContent='space-between' alignItems='center'>
-              <Flex gap={2} alignItems='center'>
-                <SwapperIcon swapperName={quoteData.swapperName} />
-                <RawText fontWeight='medium'>
-                  {quote?.steps[0].source ?? quoteData.swapperName}
-                </RawText>
-              </Flex>
-              <Flex gap={2}>
-                <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-              </Flex>
+        <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4}>
+          <Flex justifyContent='space-between' alignItems='center'>
+            <Flex gap={2} alignItems='center'>
+              <SwapperIcon swapperName={quoteData.swapperName} />
+              <RawText fontWeight='medium'>
+                {quote?.steps[0].source ?? quoteData.swapperName}
+              </RawText>
             </Flex>
-          </CardHeader>
+            <Flex gap={2}>
+              <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
+            </Flex>
+          </Flex>
+        </CardHeader>
 
-          {quote && (
-            <CardBody
-              py={2}
-              px={4}
-              display='flex'
-              alignItems='center'
-              justifyContent='space-between'
-            >
-              <Flex gap={2} flexDir='column' justifyContent='space-between' alignItems='flex-start'>
-                <Flex gap={2} alignItems='center'>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto
-                      value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-                      symbol={buyAsset?.symbol ?? ''}
-                      fontSize='xl'
-                      lineHeight={1}
-                    />
-                  </Skeleton>
-                  {!isBest &&
-                    hasAmountWithPositiveReceive &&
-                    quoteDifferenceDecimalPercentage !== 0 && (
-                      <Skeleton isLoaded={!isLoading}>
-                        <Amount.Percent
-                          value={-quoteDifferenceDecimalPercentage}
-                          prefix='('
-                          suffix=')'
-                          autoColor
-                        />
-                      </Skeleton>
-                    )}
-                </Flex>
+        {quote && (
+          <CardBody py={2} px={4} display='flex' alignItems='center' justifyContent='space-between'>
+            <Flex gap={2} flexDir='column' justifyContent='space-between' alignItems='flex-start'>
+              <Flex gap={2} alignItems='center'>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat
-                    color='text.subtle'
-                    value={totalReceiveAmountFiatPrecision}
-                    prefix='≈'
+                  <Amount.Crypto
+                    value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
+                    symbol={buyAsset?.symbol ?? ''}
+                    fontSize='xl'
                     lineHeight={1}
                   />
                 </Skeleton>
-              </Flex>
-            </CardBody>
-          )}
-
-          {quote && (
-            <CardFooter px={4} pb={4}>
-              <Flex justifyContent='left' alignItems='left' gap={8}>
-                {quote.estimatedExecutionTimeMs !== undefined &&
-                  quote.estimatedExecutionTimeMs > 0 && (
+                {!isBest &&
+                  hasAmountWithPositiveReceive &&
+                  quoteDifferenceDecimalPercentage !== 0 && (
                     <Skeleton isLoaded={!isLoading}>
-                      <Flex gap={2} alignItems='center'>
-                        <RawText color='text.subtle'>
-                          <FaRegClock />
-                        </RawText>
-                        {prettyMilliseconds(quote.estimatedExecutionTimeMs)}
-                      </Flex>
+                      <Amount.Percent
+                        value={-quoteDifferenceDecimalPercentage}
+                        prefix='('
+                        suffix=')'
+                        autoColor
+                      />
                     </Skeleton>
                   )}
-                <Skeleton isLoaded={!isLoading}>
-                  <Flex gap={2} alignItems='center'>
-                    <RawText color='text.subtle'>
-                      <FaGasPump />
-                    </RawText>
-
-                    {
-                      // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-                      !networkFeeUserCurrencyPrecision ? (
-                        translate('trade.unknownGas')
-                      ) : (
-                        <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
-                      )
-                    }
-                  </Flex>
-                </Skeleton>
               </Flex>
-            </CardFooter>
-          )}
-        </Flex>
+              <Skeleton isLoaded={!isLoading}>
+                <Amount.Fiat
+                  color='text.subtle'
+                  value={totalReceiveAmountFiatPrecision}
+                  prefix='≈'
+                  lineHeight={1}
+                />
+              </Skeleton>
+            </Flex>
+          </CardBody>
+        )}
+
+        {quote && (
+          <CardFooter px={4} pb={4}>
+            <Flex justifyContent='left' alignItems='left' gap={8}>
+              {quote.estimatedExecutionTimeMs !== undefined &&
+                quote.estimatedExecutionTimeMs > 0 && (
+                  <Skeleton isLoaded={!isLoading}>
+                    <Flex gap={2} alignItems='center'>
+                      <RawText color='text.subtle'>
+                        <FaRegClock />
+                      </RawText>
+                      {prettyMilliseconds(quote.estimatedExecutionTimeMs)}
+                    </Flex>
+                  </Skeleton>
+                )}
+              <Skeleton isLoaded={!isLoading}>
+                <Flex gap={2} alignItems='center'>
+                  <RawText color='text.subtle'>
+                    <FaGasPump />
+                  </RawText>
+
+                  {
+                    // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+                    !networkFeeUserCurrencyPrecision ? (
+                      translate('trade.unknownGas')
+                    ) : (
+                      <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
+                    )
+                  }
+                </Flex>
+              </Skeleton>
+            </Flex>
+          </CardFooter>
+        )}
       </Card>
     </>
   ) : null

@@ -103,6 +103,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
         transitionProperty='max-height'
         transitionDuration='0.65s'
         transitionTimingFunction='ease-in-out'
+        gap={2}
       >
         {quotes}
       </Flex>

@@ -1286,7 +1286,9 @@
       "secondaryTitle": "The best Multichain experience for MetaMask: Powered by ShapeShift",
       "secondaryBody": "Send, receive, track, trade, and earn with the ShapeShift Multichain Snap on the following chains:",
       "connectMetaMask": "Connect MetaMask",
-      "andMore": "...and more"
+      "andMore": "...and more",
+      "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled"
     },
     "metaMaskSnapConfirm":{
       "title": "Install Multichain Snap",
@@ -2038,7 +2040,8 @@
     "attributes": "Attributes",
     "aboutCollection": "About %{collectionName}",
     "emptyTitle": "Where did all the NFTs go?",
-    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
+    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence.",
+    "reportSpam": "Report Spam"
   },
   "missions": {
     "subtitle": "FOX Missions",

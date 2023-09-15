@@ -28,7 +28,7 @@ import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft } from 'state/apis/nft/nftApi'
 import {
   selectGetNftUserTokensPending,
-  selectPortfolioNftItemsWithCollection,
+  selectPortfolioNftItemsWithCollectionExcludeSpams,
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
@@ -50,7 +50,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const columnCount = useBreakpointValue({ base: 2, md: 3 }, { ssr: false }) ?? 2
 
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
-  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollection)
+  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
   const defaultWalletImage = useMemo(
     () => makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`),

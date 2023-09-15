@@ -12,7 +12,6 @@ import type {
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
-  DEFAULT_STREAMING_INTERVAL,
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
@@ -30,9 +29,17 @@ type GetQuoteArgs = {
   sellAmountCryptoBaseUnit: string
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
-  streaming: boolean
   affiliateBps: string
-}
+} & (
+  | {
+      streaming: true
+      streamingInterval: number
+    }
+  | {
+      streaming?: false
+      streamingInterval?: never
+    }
+)
 
 const _getQuote = async ({
   sellAsset,
@@ -41,6 +48,7 @@ const _getQuote = async ({
   receiveAddress,
   streaming,
   affiliateBps,
+  streamingInterval,
 }: GetQuoteArgs): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
@@ -60,6 +68,8 @@ const _getQuote = async ({
       ? receiveAddress.replace('bitcoincash:', '')
       : receiveAddress
 
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),
     from_asset: sellPoolId,
@@ -67,9 +77,8 @@ const _getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
-    ...(streaming && { streaming_interval: DEFAULT_STREAMING_INTERVAL }),
+    ...(streaming && { streaming_interval: streamingInterval }),
   })
-  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (
     await thorService.get<ThornodeQuoteResponse>(
       `${daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,

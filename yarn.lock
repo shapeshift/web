@@ -8152,6 +8152,8 @@ __metadata:
     myzod: ^1.10.1
     node-polyglot: ^2.4.0
     os-browserify: ^0.3.0
+    p-debounce: ^4.0.0
+    p-memoize: ^7.1.1
     p-ratelimit: ^1.0.1
     patch-package: ^8.0.0
     path-browserify: ^1.0.1
@@ -24129,6 +24131,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-debounce@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "p-debounce@npm:4.0.0"
+  checksum: 7f796f6ed264cb964b83601e70c4c0d94dd52d54e1361400ee80df7527217a59074aa14ab746d4d3089b352181c4ffb5329158fd679cb4b4b52c208574e9e56d
+  languageName: node
+  linkType: hard
+
 "p-finally@npm:^1.0.0":
   version: 1.0.0
   resolution: "p-finally@npm:1.0.0"
@@ -24212,6 +24221,16 @@ __metadata:
   dependencies:
     aggregate-error: ^3.0.0
   checksum: cb0ab21ec0f32ddffd31dfc250e3afa61e103ef43d957cc45497afe37513634589316de4eb88abdfd969fe6410c22c0b93ab24328833b8eb1ccc087fc0442a1c
+  languageName: node
+  linkType: hard
+
+"p-memoize@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "p-memoize@npm:7.1.1"
+  dependencies:
+    mimic-fn: ^4.0.0
+    type-fest: ^3.0.0
+  checksum: 2fc5b12fc530aed9c1e455f706d8da2a2e6bed4573f611a4e92b2a75f253e8c0acc63ad014b55f155b5d5de110c586b490a4d6612d64bc743106cad626d995fd
   languageName: node
   linkType: hard
 
@@ -29950,6 +29969,13 @@ pvutils@latest:
   version: 1.4.0
   resolution: "type-fest@npm:1.4.0"
   checksum: b011c3388665b097ae6a109a437a04d6f61d81b7357f74cbcb02246f2f5bd72b888ae33631b99871388122ba0a87f4ff1c94078e7119ff22c70e52c0ff828201
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^3.0.0":
+  version: 3.13.1
+  resolution: "type-fest@npm:3.13.1"
+  checksum: c06b0901d54391dc46de3802375f5579868949d71f93b425ce564e19a428a0d411ae8d8cb0e300d330071d86152c3ea86e744c3f2860a42a79585b6ec2fdae8e
   languageName: node
   linkType: hard
 

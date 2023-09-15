@@ -7,7 +7,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
@@ -29,7 +29,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const isSnapInstalled = useIsSnapInstalled()
   const showSnapModal = useSelector(selectShowSnapsModal)
 
   // eslint-disable-next-line no-sequences
@@ -73,11 +72,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        if (!isSnapsEnabled || (isSnapsEnabled && isSnapInstalled === true && !showSnapModal)) {
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else if (isSnapsEnabled) {
+        const isSnapInstalled = await checkIsSnapInstalled()
+        if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
           history.push('/metamask/snap/install')
-        }
+        } else dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error(e)

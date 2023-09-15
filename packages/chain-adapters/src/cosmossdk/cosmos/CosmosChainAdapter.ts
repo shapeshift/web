@@ -268,7 +268,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   async getFeeData(
     _: Partial<GetFeeDataInput<KnownChainIds.CosmosMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.CosmosMainnet>> {
-    const gasLimit = '300000'
+    const gasLimit = '1000000'
     const scalars = { fast: bn(2), average: bn(1.5), slow: bn(1) }
 
     // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.

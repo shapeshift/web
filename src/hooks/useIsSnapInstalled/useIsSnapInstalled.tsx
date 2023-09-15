@@ -51,7 +51,7 @@ export const useIsSnapInstalled = (): null | boolean => {
   }, [wallet])
 
   useEffect(() => {
-    // Call the throttled function immediately
+    // Call the function immediately
     checkSnapInstallation()
 
     // Set up a polling interval

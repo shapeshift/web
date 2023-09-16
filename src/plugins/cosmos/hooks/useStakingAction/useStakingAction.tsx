@@ -1,5 +1,8 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import type { BIP44Params } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import {
   isStakingChainAdapter,
   StakingAction,
@@ -40,7 +43,14 @@ export const useStakingAction = () => {
 
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
-      if (!wallet.supportsOfflineSigning()) {
+
+      const snapId = getConfig().REACT_APP_SNAP_ID
+      const isSnapInstalled = await shapeShiftSnapInstalled(snapId)
+      if (
+        !wallet.supportsOfflineSigning() &&
+        (!(wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) ||
+          (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapInstalled))
+      ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }
 

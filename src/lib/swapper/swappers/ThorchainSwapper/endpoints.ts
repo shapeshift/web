@@ -80,6 +80,12 @@ export const thorchainApi: SwapperApi = {
               basePath: getConfig().REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
             }),
           )
+        case KnownChainIds.BnbSmartChainMainnet:
+          return new evm.bnbsmartchain.V1Api(
+            new evm.bnbsmartchain.Configuration({
+              basePath: getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
+            }),
+          )
         default:
           throw Error(`Unsupported chainId '${chainId}'`)
       }

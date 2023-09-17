@@ -10,8 +10,7 @@ import { Session } from './Session'
 export const DappHeaderMenuSummaryV2 = () => {
   const translate = useTranslate()
 
-  const { dispatch, ...state } = useWalletConnectV2()
-  const { sessionsByTopic, web3wallet } = state
+  const { sessionsByTopic, web3wallet } = useWalletConnectV2()
 
   const sessions = useMemo(() => Object.values(sessionsByTopic), [sessionsByTopic])
 

@@ -12,6 +12,10 @@ type Props = {
   onClose(): void
 }
 
+const borderRadiusProp = { base: 0, md: 'xl' }
+const minWidthProp = { base: '100%', md: '500px' }
+const maxWidthProp = { base: 'full', md: '500px' }
+
 const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const { connect, wcAccountId } = useWalletConnect()
   const { pair } = useWalletConnectV2()
@@ -49,9 +53,9 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         width='full'
         textAlign='center'
         p={0}
-        borderRadius={{ base: 0, md: 'xl' }}
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
+        borderRadius={borderRadiusProp}
+        minWidth={minWidthProp}
+        maxWidth={maxWidthProp}
       >
         <ModalCloseButton position='absolute' color='text.subtle' />
         <ConnectContent initialUri={initialUri} handleConnect={handleConnect} />

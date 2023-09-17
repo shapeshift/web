@@ -76,13 +76,17 @@ const WalletConnectV2ConnectedButtonText = ({
 }
 
 const WalletConnectV2ConnectedButton = () => {
-  const walletConnectV2 = useWalletConnectV2()
+  const { sessionsByTopic } = useWalletConnectV2()
   const translate = useTranslate()
-  const sessions = Object.values(walletConnectV2.sessionsByTopic).filter(isSome)
-  const mostRecentSession = sessions.reduce<SessionTypes.Struct | undefined>((acc, session) => {
-    if (!acc || acc.expiry < session.expiry) return session
-    return acc
-  }, undefined)
+  const sessions = useMemo(() => Object.values(sessionsByTopic).filter(isSome), [sessionsByTopic])
+  const mostRecentSession = useMemo(
+    () =>
+      sessions.reduce<SessionTypes.Struct | undefined>((acc, session) => {
+        if (!acc || acc.expiry < session.expiry) return session
+        return acc
+      }, undefined),
+    [sessions],
+  )
   return (
     <Menu autoSelect={false}>
       <MenuButton

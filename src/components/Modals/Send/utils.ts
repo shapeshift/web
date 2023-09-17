@@ -17,10 +17,12 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
-import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -113,11 +115,14 @@ export const handleSend = async ({
     if (!asset) return ''
     const acccountMetadataFilter = { accountId: sendInput.accountId }
     const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
-    const isMetaMask = await checkIsMetaMask(wallet)
+    const snapId = getConfig().REACT_APP_SNAP_ID
+    const isSnapInstalled = await shapeShiftSnapInstalled(snapId)
+    // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
     if (
       fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
       !wallet.supportsOfflineSigning() &&
-      (!isMetaMask || (isMetaMask && !(await checkIsSnapInstalled())))
+      (!(wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) ||
+        (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapInstalled))
     ) {
       throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
     }

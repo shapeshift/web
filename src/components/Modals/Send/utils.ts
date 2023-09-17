@@ -17,12 +17,10 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
-import { checkIsMetaMask } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -115,12 +113,11 @@ export const handleSend = async ({
     if (!asset) return ''
     const acccountMetadataFilter = { accountId: sendInput.accountId }
     const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
-    const snapId = getConfig().REACT_APP_SNAP_ID
     const isMetaMask = await checkIsMetaMask(wallet)
     if (
       fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
       !wallet.supportsOfflineSigning() &&
-      (!isMetaMask || (isMetaMask && !(await shapeShiftSnapInstalled(snapId))))
+      (!isMetaMask || (isMetaMask && !(await checkIsSnapInstalled())))
     ) {
       throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
     }

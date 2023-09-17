@@ -1,5 +1,4 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { getConfig } from 'config'

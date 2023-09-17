@@ -37,7 +37,7 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/v2/types'
 import { approveCosmosRequest } from 'plugins/walletConnectToDapps/v2/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from 'plugins/walletConnectToDapps/v2/utils/EIP155RequestHandlerUtil'
-import type { Dispatch, FC } from 'react'
+import { type Dispatch, type FC, useCallback, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -64,6 +64,10 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): Promise<void>
 }
 
+const borderRadiusProp = { base: 0, md: 'xl' }
+const minWidthProp = { base: '100%', md: '500px' }
+const maxWidthProp = { base: 'full', md: '500px' }
+
 const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState =>
   !!(state.modalData && state.web3wallet && state.activeModal)
 
@@ -76,47 +80,76 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const { activeModal, web3wallet } = state
 
-  const handleClose = () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
+  const handleClose = useCallback(
+    () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL }),
+    [dispatch],
+  )
 
   const topic = requestEvent?.topic
 
-  const handleConfirmEIP155Request = async (customTransactionData?: CustomTransactionData) => {
-    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic) return
+  const handleConfirmEIP155Request = useCallback(
+    async (customTransactionData?: CustomTransactionData) => {
+      if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic)
+        return
 
-    const response = await approveEIP155Request({
-      wallet,
-      requestEvent,
-      chainAdapter: chainAdapter as unknown as EvmBaseAdapter<EvmChainId>,
-      accountMetadata,
-      customTransactionData,
+      const response = await approveEIP155Request({
+        wallet,
+        requestEvent,
+        chainAdapter: chainAdapter as unknown as EvmBaseAdapter<EvmChainId>,
+        accountMetadata,
+        customTransactionData,
+        accountId,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+      handleClose()
+    },
+    [
       accountId,
-    })
-    await web3wallet.respondSessionRequest({
-      topic,
-      response,
-    })
-    handleClose()
-  }
-
-  const handleConfirmCosmosRequest = async (customTransactionData?: CustomTransactionData) => {
-    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic) return
-
-    const response = await approveCosmosRequest({
-      wallet,
-      requestEvent,
-      chainAdapter: chainAdapter as ChainAdapter<CosmosSdkChainId>,
       accountMetadata,
-      customTransactionData,
-      accountId,
-    })
-    await web3wallet.respondSessionRequest({
+      chainAdapter,
+      handleClose,
+      requestEvent,
       topic,
-      response,
-    })
-    handleClose()
-  }
+      wallet,
+      web3wallet,
+    ],
+  )
 
-  const handleRejectRequest = async () => {
+  const handleConfirmCosmosRequest = useCallback(
+    async (customTransactionData?: CustomTransactionData) => {
+      if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic)
+        return
+
+      const response = await approveCosmosRequest({
+        wallet,
+        requestEvent,
+        chainAdapter: chainAdapter as ChainAdapter<CosmosSdkChainId>,
+        accountMetadata,
+        customTransactionData,
+        accountId,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+      handleClose()
+    },
+    [
+      accountId,
+      accountMetadata,
+      chainAdapter,
+      handleClose,
+      requestEvent,
+      topic,
+      wallet,
+      web3wallet,
+    ],
+  )
+
+  const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return
 
     const { id } = requestEvent
@@ -127,11 +160,10 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       response,
     })
     handleClose()
-  }
+  }, [handleClose, requestEvent, topic, web3wallet])
 
-  if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
-
-  const modalContent = (() => {
+  const modalContent = useMemo(() => {
+    if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         return <SessionProposalModal onClose={handleClose} dispatch={dispatch} state={state} />
@@ -191,33 +223,40 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       default:
         assertUnreachable(activeModal)
     }
-  })()
+  }, [
+    activeModal,
+    dispatch,
+    handleClose,
+    handleConfirmCosmosRequest,
+    handleConfirmEIP155Request,
+    handleRejectRequest,
+    state,
+    topic,
+    web3wallet,
+  ])
 
-  const modalWrapper = (content: JSX.Element | null) => {
-    if (content === null) return null
-    return (
-      <Modal isOpen={!!activeModal} onClose={handleClose} variant='header-nav'>
-        <ModalOverlay />
-        <ModalContent
-          width='full'
-          borderRadius={{ base: 0, md: 'xl' }}
-          minWidth={{ base: '100%', md: '500px' }}
-          maxWidth={{ base: 'full', md: '500px' }}
-        >
-          <ModalHeader py={2}>
-            <HStack alignItems='center' spacing={2}>
-              <WalletConnectIcon />
-              <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-              <ModalCloseButton position='static' />
-            </HStack>
-          </ModalHeader>
-          <VStack p={6} spacing={6} alignItems='stretch'>
-            {content}
-          </VStack>
-        </ModalContent>
-      </Modal>
-    )
-  }
+  if (modalContent === null) return null
 
-  return modalWrapper(modalContent)
+  return (
+    <Modal isOpen={!!activeModal} onClose={handleClose} variant='header-nav'>
+      <ModalOverlay />
+      <ModalContent
+        width='full'
+        borderRadius={borderRadiusProp}
+        minWidth={minWidthProp}
+        maxWidth={maxWidthProp}
+      >
+        <ModalHeader py={2}>
+          <HStack alignItems='center' spacing={2}>
+            <WalletConnectIcon />
+            <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
+            <ModalCloseButton position='static' />
+          </HStack>
+        </ModalHeader>
+        <VStack p={6} spacing={6} alignItems='stretch'>
+          {modalContent}
+        </VStack>
+      </ModalContent>
+    </Modal>
+  )
 }

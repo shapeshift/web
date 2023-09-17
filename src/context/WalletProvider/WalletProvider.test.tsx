@@ -27,10 +27,6 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   },
 }))
 
-jest.mock('p-debounce', () => ({
-  promise: jest.fn(fn => fn),
-}))
-
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,

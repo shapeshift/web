@@ -116,15 +116,18 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     setSupportedChains(_supportedChains)
   }, [chainAdapterManager, featureFlags, pluginManager, plugins])
 
-  if (!plugins) return <></>
+  const values = useMemo(
+    () => ({
+      plugins,
+      pluginManager,
+      chainAdapterManager,
+      supportedChains,
+      routes,
+    }),
+    [chainAdapterManager, pluginManager, plugins, routes, supportedChains],
+  )
 
-  const values = {
-    plugins,
-    pluginManager,
-    chainAdapterManager,
-    supportedChains,
-    routes,
-  }
+  if (!plugins) return <></>
 
   return <PluginContext.Provider value={values}>{children}</PluginContext.Provider>
 }

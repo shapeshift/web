@@ -135,6 +135,7 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [
     appDispatch,

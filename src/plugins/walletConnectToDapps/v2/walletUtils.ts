@@ -4,23 +4,25 @@ import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { Web3Wallet } from '@walletconnect/web3wallet'
 import { getConfig } from 'config'
 
-let walletConnectWallet: IWeb3Wallet
+let walletConnectWallet: Promise<IWeb3Wallet>
 let core: ICore
 
 // WalletConnect Core singleton
 export const getWalletConnectCore = () => {
-  const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
-  core = new Core({
-    projectId: walletConnectProjectId,
-  })
+  if (!core) {
+    const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
+    core = new Core({
+      projectId: walletConnectProjectId,
+    })
+  }
 
   return core
 }
 
 // WalletConnect Web3Wallet singleton
-export const getWalletConnectWallet = async () => {
-  try {
-    walletConnectWallet = await Web3Wallet.init({
+export const getWalletConnectWallet = () => {
+  if (!walletConnectWallet) {
+    walletConnectWallet = Web3Wallet.init({
       core, // <- pass the shared `core` instance
       metadata: {
         name: 'ShapeShift',
@@ -30,13 +32,7 @@ export const getWalletConnectWallet = async () => {
         icons: ['https://app.shapeshift.com/icon-512x512.png'],
       },
     })
-  } catch (e) {
-    console.error(e)
   }
 
   return walletConnectWallet
-}
-
-export async function pair(params: { uri: string }) {
-  return await core.pairing.pair({ uri: params.uri })
 }

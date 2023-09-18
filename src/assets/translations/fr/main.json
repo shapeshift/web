@@ -4,6 +4,7 @@
     "balance": "Solde",
     "next": "Suivant",
     "error": "Erreur",
+    "show": "Afficher",
     "cancel": "Annuler",
     "close": "Fermer",
     "loadMore": "Charger plus",
@@ -109,7 +110,8 @@
     "feedbackAndSupport": "Feedback & Support",
     "getSupport": "Obtenir de l'aide",
     "viewMyWallet": "Voir mon porte-monnaie",
-    "submitFeatureRequest": "Soumettre une idée de fonctionnalité"
+    "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
+    "learnMore": "En savoir plus"
   },
   "consentBanner": {
     "body": {
@@ -229,7 +231,10 @@
     "body2": "Bienvenue sur le nouveau ShapeShift. 100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
-    "viewADemo": "Voir une démo"
+    "viewADemo": "Voir une démo",
+    "dontHaveWallet": "Vous n'avez pas de porte-monnaie ?",
+    "welcomeBack": "Bon retour parmi nous !",
+    "welcomeBody": "Connecter votre porte-monnaie, c'est comme \"se loguer\". Sélectionnez votre porte-monnaie parmi les options pour commencer."
   },
   "connectWallet": {
     "menu": {
@@ -536,6 +541,7 @@
     "trade": "Échange",
     "amount": "Montant",
     "for": "pour",
+    "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
     "parser": {
       "weth": {
         "deposit": "Dépôt",
@@ -597,6 +603,7 @@
       },
       "swap": {
         "deposit": "Échange",
+        "streamingSwap": "Échange streamé",
         "out": "Échange",
         "refund": "Remboursement",
         "outbound": "Sortant"
@@ -676,6 +683,8 @@
     "approvingAsset": "Autoriser les %{symbol}",
     "viewTransaction": "Voir la transaction",
     "unlimited": "Illimitée",
+    "streamStatus": "Statut du stream",
+    "swapsFailed": "%{failedSwaps} échange(s) échoué(s)",
     "exact": "Exacte",
     "expectedAmount": "Montant attendu",
     "beforeFees": "Avant frais",
@@ -766,8 +775,11 @@
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
     "receiveAddress": "Adresse de réception",
+    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse ou",
+    "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
-    "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?"
+    "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
+    "enableMetaMaskSnap": "utilisez le Snap MultiChain"
   },
   "modals": {
     "popup": {
@@ -1260,6 +1272,41 @@
         "button": "Ouvrir"
       }
     },
+    "metaMaskSnap": {
+      "title": "La prise en charge multichaîne est désormais disponible pour MetaMask !",
+      "subtitle": "Ajoutez le Snap Multichain sur Metamask pour envoyer, recevoir, suivre, échanger et gagner sur les chaînes suivantes :",
+      "multiChainSnap": "Snap Multichain",
+      "active": "Actif",
+      "notActive": "Pas actif",
+      "addSnap": "Ajouter le Snap",
+      "uninstall": {
+        "title": "Vous avez supprimé le support multichaîne de MetaMask !",
+        "subtitle": "Ajoutez à nouveau le Snap Multichain sur MetaMask pour envoyer, recevoir, suivre, échanger et gagner sur les chaînes suivantes :"
+      },
+      "secondaryTitle": "La meilleure expérience multichaîne pour MetaMask : Propulsée par ShapeShift",
+      "secondaryBody": "Envoyez, recevez, suivez, échangez et gagnez avec le Snap ShapeShift Multichain sur les chaînes suivantes :",
+      "connectMetaMask": "Connecter MetaMask",
+      "andMore": "... et plus",
+      "snapInstalledToast": "Snap ShapeShift MultiChain de MetaMask installé",
+      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "Installer le Snap Multichain",
+      "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie \"telle quelle\".",
+      "warningBackup": "Assurez-vous d'avoir sauvegardé votre phrase de récupération MetaMask. Tous les fonds que vous envoyez sur des chaînes non-EVM à l'aide de ce Snap seront dirigés vers le compte par défaut que vous avez créé dans MetaMask.",
+      "agreeIntro": "Avant de continuer, veuillez lire ce qui suit :",
+      "agreeItem1Parts": {
+        "1": "Les porte-monnaie matériels ne sont",
+        "2": "PAS",
+        "3": "pris en charge"
+      },
+      "agreeItem2": "Seul le Compte #1 dans MetaMask est pris en charge pour les chaînes supplémentaires fournies par le Snap ShapeShift Multichain.",
+      "agreeItem3": "Pour utiliser les chaînes Ethereum existantes fournies par MetaMask, vous devez connecter le Compte #1 à ShapeShift dans MetaMask",
+      "agreeItem4": "En activant le Snap ShapeShift Multichain, vous reconnaissez que vous l'utilisez à vos propres risques.",
+      "readAndUnderstood": "J'ai lu et compris",
+      "seedBackedUp": "J'ai sauvegardé ma phrase de récupération MetaMask",
+      "acceptInstall": "Confirmer & Installer"
+    },
     "coinbase": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec Coinbase",
@@ -1688,15 +1735,21 @@
       },
       "header": {
         "connectDapp": "Connecter la dApp",
+        "connectAnotherDapp": "Connecter une autre dApp",
+        "connectedDapp": "dApp(s) connectée(s)",
+        "staleDapp": "dApp(s) obsolète(s)",
         "menu": {
           "disconnect": "Déconnecter",
-          "address": "Adresse",
+          "reconnect": "Reconnecter",
           "addresses": "Adresses",
+          "address": "Adresse",
           "connected": "Connecté",
-          "network": "Réseau",
+          "networks": "Réseau(x)",
           "unsupportedNetwork": "Réseau non pris en charge",
           "expiry": "Expiration de session"
-        }
+        },
+        "multipleSessionsConnected": "%{count} dApps connectées",
+        "clickToManage": "Cliquez pour gérer"
       },
       "modal": {
         "title": "WalletConnect",
@@ -1987,7 +2040,8 @@
     "attributes": "Attributs",
     "aboutCollection": "Informations sur %{collectionName}",
     "emptyTitle": "Où sont passés tous les NFT ?",
-    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence."
+    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence.",
+    "reportSpam": "Signaler comme spam"
   },
   "missions": {
     "subtitle": "Missions FOX",

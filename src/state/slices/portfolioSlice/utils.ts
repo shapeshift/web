@@ -41,7 +41,7 @@ import maxBy from 'lodash/maxBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { nftNameBlacklistRegex } from 'state/apis/nft/nftApi'
+import { nftNameBlacklistRegex } from 'state/apis/nft/constants'
 import type { NftCollectionType } from 'state/apis/nft/types'
 
 import type {

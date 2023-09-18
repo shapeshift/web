@@ -15,7 +15,7 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { BLACKLISTED_COLLECTION_IDS, nftNameBlacklistRegex } from 'state/apis/nft/nftApi'
+import { BLACKLISTED_COLLECTION_IDS, nftNameBlacklistRegex } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 

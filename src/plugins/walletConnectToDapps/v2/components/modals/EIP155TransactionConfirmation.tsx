@@ -36,11 +36,18 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
-  const { address, transaction, isInteractingWithContract, method } = useWalletConnectState(state)
+  const { address, transaction, isInteractingWithContract, method, chainId } =
+    useWalletConnectState(state)
+
+  const connectedAccountFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, chainId ?? ''),
+  )
 
   transaction && assertIsTransactionParams(transaction)
 
@@ -79,7 +86,11 @@ export const EIP155TransactionConfirmation: FC<
   return (
     <FormProvider {...form}>
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
-        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard
+          address={address ?? ''}
+          icon={<WalletIcon w='full' h='full' />}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+        />
       </ModalSection>
       <ModalSection
         title={`plugins.walletConnectToDapps.modal.sendTransaction.${
@@ -90,6 +101,7 @@ export const EIP155TransactionConfirmation: FC<
           address={transaction.to}
           showWalletProviderName={false}
           icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
+          explorerAddressLink={feeAsset?.explorerAddressLink}
         />
       </ModalSection>
       {isInteractingWithContract ? (

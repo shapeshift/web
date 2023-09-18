@@ -22,12 +22,18 @@ import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const EIP155SignMessageConfirmationModal: FC<
   WalletConnectRequestModalProps<EthSignCallRequest | EthPersonalSignCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
-  const { address, message } = useWalletConnectState(state)
+  const { address, message, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
+
+  const connectedAccountFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, chainId ?? ''),
+  )
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -39,7 +45,11 @@ export const EIP155SignMessageConfirmationModal: FC<
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard
+          address={address ?? ''}
+          icon={<WalletIcon w='full' h='full' />}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+        />
       </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>

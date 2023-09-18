@@ -11,12 +11,18 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertIsDefined } from 'lib/utils'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
-  const { address, message } = useWalletConnectState(state)
+  const { address, message, chainId } = useWalletConnectState(state)
   assertIsDefined(message)
+
+  const connectedAccountFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, chainId ?? ''),
+  )
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -25,7 +31,11 @@ export const EIP155SignTypedDataConfirmation: FC<
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard
+          address={address ?? ''}
+          icon={<WalletIcon w='full' h='full' />}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+        />
       </ModalSection>
       <TypedMessageInfo typedData={message} />
       <Text

@@ -10,6 +10,8 @@ type Props = {
   onChange(value: number): void
 }
 
+const styleProp = { height: 36 }
+
 export const PageInput: FC<Props> = ({ value, max, onChange }) => {
   const translate = useTranslate()
   const nextPage = useCallback(() => onChange(value + 1), [onChange, value])
@@ -29,7 +31,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         variant='ghost'
         icon={<ArrowBackIcon />}
         disabled={value <= 0}
-        style={{ height: 36 }}
+        style={styleProp}
         onClick={prevPage}
       />
       <Text textAlign='center' minWidth={16}>
@@ -43,7 +45,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         variant='ghost'
         icon={<ArrowForwardIcon />}
         disabled={value >= max}
-        style={{ height: 36 }}
+        style={styleProp}
         onClick={nextPage}
       />
     </HStack>

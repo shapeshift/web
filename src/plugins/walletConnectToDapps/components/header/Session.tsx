@@ -27,8 +27,7 @@ import { Networks } from './Networks'
 export const Session = ({ session }: { session: SessionTypes.Struct }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
-  const { dispatch, ...state } = useWalletConnectV2()
-  const { web3wallet, core } = state
+  const { dispatch, web3wallet, core } = useWalletConnectV2()
   const connectedAccounts = useMemo(() => extractConnectedAccounts(session), [session])
 
   const handleDisconnect = useCallback(() => {

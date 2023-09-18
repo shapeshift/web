@@ -9,11 +9,13 @@ const NFT_NAME_BLACKLIST = [
   'winner',
   '$',
   'pirategirls',
-  ' USDC',
+  'USDC',
+  'USDT',
   'calim cryptopunk',
   'coupon',
   'bonus',
   'claim',
+  'etherscan',
 ]
 export const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
@@ -36,4 +38,8 @@ export const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0xfd920bd499511d0f5e37b4405a7986a4d6f1abe3',
   'eip155:137/erc1155:0x55d50a035bc5830dac9f1a42b71c48cbad568d60',
   'eip155:137/erc1155:0x5620a667cbe1eb7e1e27087d135881a546456ebb',
+  'eip155:137/erc1155:0x1b6ff968f954fef75a82c0f47364eb00c3643d17',
+  'eip155:137/erc1155:0x5df82d6f8dc0a697d2785953a40735b33e3b1f50',
+  'eip155:137/erc1155:0x71c7c713aaf6b129ebeb29d00647b6cc39e4f9f9',
+  'eip155:137/erc1155:0xabda1f46fe8ad6b08aa9505702144522c511038f',
 ]

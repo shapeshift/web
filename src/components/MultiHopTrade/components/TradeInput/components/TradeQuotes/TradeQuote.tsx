@@ -46,6 +46,10 @@ type TradeQuoteProps = {
 }
 
 const borderRadius = { base: 'md', md: 'lg' }
+const hoverProps = {
+  cursor: 'pointer',
+  bg: 'background.surface.hover',
+}
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isActive,
@@ -161,13 +165,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return borderColor
   })()
 
-  const hoverProps = useMemo(
-    () => ({
-      cursor: 'pointer',
-      bg: 'background.surface.hover',
-    }),
-    [],
-  )
   const activeProps = useMemo(
     () => ({ borderColor: isActive ? 'transparent' : focusColor }),
     [focusColor, isActive],

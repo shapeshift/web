@@ -17,10 +17,21 @@ export const abiApi = createApi({
         try {
           const apiKey = getConfig().REACT_APP_ETHERSCAN_API_KEY
           const url = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${apiKey}`
-          const response = await fetch(url).then(res => res.json())
-          if (isEmpty(response.result) || response.message !== 'OK') throw new Error(response)
-          // TODO: render response.result error message in the UI when response.message === "NOTOK"
-          const abi = JSON.parse(response.result)
+          const response = await fetch(url)
+          if (!response.ok) {
+            const text = await response.text()
+            console.error({ text, status: response.status })
+            throw Error('Error fetching from etherscan')
+          }
+
+          const { result, message } = await response.json()
+
+          if (message === 'NOTOK' || isEmpty(result)) {
+            console.error({ result, message })
+            throw Error('Error fetching from etherscan')
+          }
+
+          const abi = JSON.parse(result)
           return { data: abi }
         } catch (e) {
           console.error(e)

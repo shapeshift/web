@@ -11,19 +11,28 @@ import {
   getWalletConnectWallet,
 } from 'plugins/walletConnectToDapps/v2/walletUtils'
 import type { FC, PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { clearAllWalletConnectToDappsSessions } from './utils/clearAllWalletConnectToDappsSessions'
 
 const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
 
+const initialState: WalletConnectState = Object.freeze({
+  core: undefined,
+  web3wallet: undefined,
+  pair: undefined,
+  modalData: undefined,
+  activeModal: undefined,
+  sessionsByTopic: {},
+})
+
 export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => {
-  const initialState: WalletConnectState = {
-    core: undefined,
-    web3wallet: undefined,
-    pair: undefined,
-    modalData: undefined,
-    activeModal: undefined,
-    sessionsByTopic: {},
-  }
+  const previousWalletId = useRef<string>()
+
+  const {
+    state: { walletInfo },
+  } = useWallet()
 
   const [state, dispatch] = useReducer(walletConnectReducer, initialState)
 
@@ -48,6 +57,22 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
       dispatch({ type: WalletConnectActionType.SET_SESSIONS, payload: sessions })
     }
   }, [state.core?.pairing, state.web3wallet])
+
+  useEffect(() => {
+    // NOTE: don't use `useAppSelector(selectWalletId)` because it introduces a race condition
+    const deviceId = walletInfo?.deviceId
+
+    if (!previousWalletId.current && deviceId) {
+      previousWalletId.current = deviceId
+    } else if (deviceId && previousWalletId.current !== deviceId) {
+      // clear wallet connect sessions on wallet change
+      void clearAllWalletConnectToDappsSessions()
+      dispatch({ type: WalletConnectActionType.SET_SESSIONS, payload: [] })
+
+      // update ref
+      previousWalletId.current = deviceId
+    }
+  }, [walletInfo?.deviceId])
 
   const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
   return (

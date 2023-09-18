@@ -110,7 +110,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
       transfers.some(
         transfer =>
           nftNameBlacklistRegex.test(
-            `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`,
+            `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`.toLowerCase(),
           ) || BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
       )
     )

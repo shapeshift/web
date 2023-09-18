@@ -68,11 +68,11 @@ const NFT_NAME_BLACKLIST = [
   'calim cryptopunk',
   'coupon',
 ]
-const nftNameBlacklistRegex = new RegExp(
+export const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',
 )
-const BLACKLISTED_COLLECTION_IDS = [
+export const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',
   'eip155:137/erc1155:0x4217495f2a128da8d6122d120a1657753823721a',
   'eip155:137/erc1155:0x54e75b47353a5ded078d8eb6ba67ff01a2a18ef7',

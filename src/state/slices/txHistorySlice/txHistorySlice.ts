@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAccountId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -15,6 +15,7 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { BLACKLISTED_COLLECTION_IDS, nftNameBlacklistRegex } from 'state/apis/nft/nftApi'
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
@@ -237,10 +238,27 @@ export const txHistoryApi = createApi({
         let currentCursor: string = ''
         try {
           do {
-            const { cursor, transactions } = await adapter.getTxHistory({
+            const { cursor, transactions: _transactions } = await adapter.getTxHistory({
               cursor: currentCursor,
               pubkey,
               pageSize: 100,
+            })
+
+            const transactions = _transactions.filter(transaction => {
+              const transfers = transaction.transfers
+              // Not an NFT, we don't need to filter this
+              if (!transfers.some(transfer => isNft(transfer.assetId))) return true
+              if (
+                transfers.some(
+                  transfer =>
+                    nftNameBlacklistRegex.test(
+                      `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`,
+                    ) || BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
+                )
+              )
+                return false
+
+              return true
             })
 
             currentCursor = cursor

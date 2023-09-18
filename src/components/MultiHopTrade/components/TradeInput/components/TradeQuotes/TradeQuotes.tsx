@@ -1,7 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -28,6 +28,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
   const hasMoreThanOneQuote = useMemo(() => {
     return sortedQuotes.length > 1
   }, [sortedQuotes.length])
+
+  const handleShowAll = useCallback(() => {
+    setShowAll(!showAll)
+  }, [showAll])
 
   const quotes = useMemo(
     () =>
@@ -79,7 +83,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
               bottom='1rem'
               size='sm'
               transform='translateX(-50%)'
-              onClick={() => setShowAll(!showAll)}
+              onClick={handleShowAll}
               zIndex={3}
               backdropFilter='blur(15px)'
               rightIcon={<ArrowDownIcon />}

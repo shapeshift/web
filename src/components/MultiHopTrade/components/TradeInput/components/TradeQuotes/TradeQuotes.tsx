@@ -59,20 +59,21 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
     [activeQuoteIndex, bestQuoteData?.quote?.steps, isLoading, sortedQuotes],
   )
 
+  const quoteOverlayAfter = useMemo(() => {
+    return {
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      bottom: 0,
+      height: '80px',
+      width: '100%',
+      bg: bottomOverlay,
+      display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
+    }
+  }, [bottomOverlay, hasMoreThanOneQuote, showAll])
+
   return (
-    <Box
-      position='relative'
-      _after={{
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        height: '80px',
-        width: '100%',
-        bg: bottomOverlay,
-        display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
-      }}
-    >
+    <Box position='relative' _after={quoteOverlayAfter}>
       <AnimatePresence>
         <SlideTransitionY>
           {hasMoreThanOneQuote && !showAll && (

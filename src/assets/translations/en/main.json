@@ -111,7 +111,9 @@
     "getSupport": "Get Support",
     "viewMyWallet": "View My Wallet",
     "submitFeatureRequest": "Submit a Feature Request",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "showAll": "Show All",
+    "showLess": "Show Less"
   },
   "consentBanner": {
     "body": {

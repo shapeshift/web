@@ -53,6 +53,25 @@ type NftState = {
   }
 }
 
+const NFT_NAME_BLACKLIST = [
+  'voucher',
+  'airdrop',
+  'giveaway',
+  'promo',
+  'airdrop',
+  'rewards',
+  'ticket',
+  'winner',
+  '$',
+  'pirategirls',
+  ' USDC',
+  'calim cryptopunk',
+  'coupon',
+]
+const nftNameBlacklistRegex = new RegExp(
+  NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
+  'i',
+)
 const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',
   'eip155:137/erc1155:0x4217495f2a128da8d6122d120a1657753823721a',
@@ -276,6 +295,12 @@ export const nftApi = createApi({
             if (!item.collection.assetId) return acc
             const cachedCollection = selectNftCollectionById(state, item.collection.assetId)
             if (cachedCollection?.isSpam) item.collection.isSpam = true
+            if (
+              nftNameBlacklistRegex.test(
+                `${item.description.toLowerCase()} ${item.name.toLowerCase()} ${item.symbol.toLowerCase()}`,
+              )
+            )
+              item.collection.isSpam = true
             acc[item.collection.assetId] = item.collection
             return acc
           },

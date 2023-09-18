@@ -766,7 +766,6 @@
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
     "receiveAddress": "Alıcı Adresi",
-    "receiveAddressDescription": "Bağlı cüzdandan hiçbir %{chainName} adresi bulunamadı. Devam etmek için adresi manuel olarak girin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "dApp'e Bağlanın",
-        "connectedDapp": "dApp'e Bağlandı",
         "menu": {
           "disconnect": "Bağlantıyı Kes",
           "address": "Adres",
           "addresses": "Adresler",
           "connected": "Bağlı",
           "network": "Ağ",
-          "networks": "Ağlar",
           "unsupportedNetwork": "Desteklenmeyen Ağ",
           "expiry": "Oturumun Sona Ermesi"
         }

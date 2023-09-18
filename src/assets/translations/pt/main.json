@@ -766,7 +766,6 @@
     "onChainName": "na %{chainName}",
     "unknownGas": "(desconhecido)",
     "receiveAddress": "Endereço de recebimento",
-    "receiveAddressDescription": "Nenhum %{chainName} endereço encontrado na carteira conectada. Insira o endereço manualmente para continuar. ",
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "Conecte ao dApp",
-        "connectedDapp": "dApp Conectado",
         "menu": {
           "disconnect": "Desconecte",
           "address": "Endereço",
           "addresses": "Endereços",
           "connected": "Conectado",
           "network": "Rede",
-          "networks": "Redes",
           "unsupportedNetwork": "Rede não suportada",
           "expiry": "Sessão expirada"
         }

@@ -766,7 +766,6 @@
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
     "receiveAddress": "Адрес получателя",
-    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную, чтобы продолжить.",
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "Подключить dApp",
-        "connectedDapp": "Подключенная dApp",
         "menu": {
           "disconnect": "Отключить",
           "address": "Адрес",
           "addresses": "Адреса",
           "connected": "Подключено",
           "network": "Сеть",
-          "networks": "Сеть",
           "unsupportedNetwork": "Неподдерживаемая сеть",
           "expiry": "Истечение срока действия сессии"
         }

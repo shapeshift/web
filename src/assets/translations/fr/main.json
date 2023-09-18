@@ -766,7 +766,6 @@
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
     "receiveAddress": "Adresse de réception",
-    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entrez une adresse manuellement pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "Connecter la dApp",
-        "connectedDapp": "dApp connectée",
         "menu": {
           "disconnect": "Déconnecter",
           "address": "Adresse",
           "addresses": "Adresses",
           "connected": "Connecté",
           "network": "Réseau",
-          "networks": "Réseaux",
           "unsupportedNetwork": "Réseau non pris en charge",
           "expiry": "Expiration de session"
         }

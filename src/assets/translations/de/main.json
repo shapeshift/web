@@ -766,7 +766,6 @@
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
     "receiveAddress": "Empfangsadresse ",
-    "receiveAddressDescription": "Keine %{chainName}-Adresse in verbundener Wallet gefunden. Geben Sie die Adresse manuell ein, um fortzufahren.",
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "dApp verbinden",
-        "connectedDapp": "dApp verbunden",
         "menu": {
           "disconnect": "Trennen",
           "address": "Adresse ",
           "addresses": "Adressen",
           "connected": "Verbunden",
           "network": "Netzwerk",
-          "networks": "Netzwerke",
           "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
           "expiry": "Session ablaufen"
         }

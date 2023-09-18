@@ -766,7 +766,6 @@
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
     "receiveAddress": "Dirección de recepción",
-    "receiveAddressDescription": "No dirección %{chainName} en billetera conectada. Introduzca manualmente para continuar",
     "addressPlaceholder": "Dirección %{chainName}",
     "priceImpactWarning": "Debido al tamaño de la operación en relación a la liquidez disponible, el impacto de precio esperado es %{priceImpactPercentage}%. ¿Estás seguro quieres operar?"
   },
@@ -1689,14 +1688,12 @@
       },
       "header": {
         "connectDapp": "Conectar dApp",
-        "connectedDapp": "dApp Conectada",
         "menu": {
           "disconnect": "Desconectar",
           "address": "Dirección",
           "addresses": "Direcciones",
           "connected": "Conectado",
           "network": "Red",
-          "networks": "Redes",
           "unsupportedNetwork": "Red no soportada",
           "expiry": "Sesión expirada"
         }

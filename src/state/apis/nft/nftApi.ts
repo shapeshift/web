@@ -209,6 +209,13 @@ export const nftApi = createApi({
 
               data.forEach(item => {
                 const { assetId } = item
+                if (item.collection.isSpam) return
+                if (
+                  nftNameBlacklistRegex.test(
+                    `${item.collection.description} ${item.name} ${item.symbol} ${item.description}`.toLowerCase(),
+                  )
+                )
+                  return
                 const { assetReference, chainId } = fromAssetId(assetId)
 
                 const [contractAddress, id] = deserializeNftAssetReference(assetReference)

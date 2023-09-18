@@ -102,6 +102,25 @@ export const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
   const { txs } = txHistory
+  const isSpam = (() => {
+    const transfers = tx.transfers
+    // Not an NFT, we don't need to filter this
+    if (!transfers.some(transfer => isNft(transfer.assetId))) return false
+    if (
+      transfers.some(
+        transfer =>
+          nftNameBlacklistRegex.test(
+            `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`,
+          ) || BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
+      )
+    )
+      return true
+
+    return false
+  })()
+
+  if (isSpam) return
+
   const txIndex = serializeTxIndex(accountId, tx.txid, tx.address, tx.data)
 
   const isNew = !txs.byId[txIndex]
@@ -238,27 +257,10 @@ export const txHistoryApi = createApi({
         let currentCursor: string = ''
         try {
           do {
-            const { cursor, transactions: _transactions } = await adapter.getTxHistory({
+            const { cursor, transactions } = await adapter.getTxHistory({
               cursor: currentCursor,
               pubkey,
               pageSize: 100,
-            })
-
-            const transactions = _transactions.filter(transaction => {
-              const transfers = transaction.transfers
-              // Not an NFT, we don't need to filter this
-              if (!transfers.some(transfer => isNft(transfer.assetId))) return true
-              if (
-                transfers.some(
-                  transfer =>
-                    nftNameBlacklistRegex.test(
-                      `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`,
-                    ) || BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
-                )
-              )
-                return false
-
-              return true
             })
 
             currentCursor = cursor

@@ -291,6 +291,7 @@ export const getThorTradeQuote = async (
               sellAsset,
               sellAmountCryptoBaseUnit,
               memo: updatedMemo,
+              expiry: quote.expiry,
             })
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({

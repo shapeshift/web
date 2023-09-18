@@ -1,4 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Card,
@@ -14,6 +15,7 @@ import {
   Text as PlainText,
   VStack,
 } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -28,6 +30,13 @@ import { PageInput } from './PageInput'
 const registryItems: RegistryItem[] = require('../registry.json')
 
 const PAGE_SIZE = 20
+
+const pxProp = { base: 4, xl: 0 }
+const flexDirProp: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const alignItemsProp = { base: 'flex-start', md: 'center' }
+const widthProp = { base: 'full', md: 'auto' }
+const columnsProp = { lg: 4, sm: 2, base: 1 }
+const hoverProp = { opacity: 0.8, transition: 'opacity 0.2s ease-in-out' }
 
 export const DappRegistryGrid: FC = () => {
   const translate = useTranslate()
@@ -54,30 +63,29 @@ export const DappRegistryGrid: FC = () => {
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 
+  const handlePageInputChange = useCallback((value: number) => setValue('page', value), [setValue])
+
+  const inputProps = useMemo(() => register('search'), [register])
+
   return (
-    <Box px={{ base: 4, xl: 0 }}>
+    <Box px={pxProp}>
       <Flex
         justifyContent='space-between'
-        flexDir={{ base: 'column', md: 'row' }}
-        alignItems={{ base: 'flex-start', md: 'center' }}
+        flexDir={flexDirProp}
+        alignItems={alignItemsProp}
         mb={4}
         gap={2}
       >
         <Heading flex={1} fontSize='2xl'>
           <Text translation='plugins.walletConnectToDapps.registry.availableDapps' />
         </Heading>
-        <Flex
-          gap={2}
-          flex={1}
-          width={{ base: 'full', md: 'auto' }}
-          flexDir={{ base: 'column', sm: 'row' }}
-        >
+        <Flex gap={2} flex={1} width={widthProp} flexDir={flexDirProp}>
           <InputGroup flex={1}>
             <InputLeftElement pointerEvents='none'>
               <SearchIcon color='gray.700' />
             </InputLeftElement>
             <Input
-              {...register('search')}
+              {...inputProps}
               autoComplete='off'
               type='text'
               placeholder={translate('common.search')}
@@ -86,11 +94,11 @@ export const DappRegistryGrid: FC = () => {
             />
           </InputGroup>
 
-          <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
+          <PageInput value={page} max={maxPage} onChange={handlePageInputChange} />
         </Flex>
       </Flex>
       {!!filteredListings.length ? (
-        <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
+        <SimpleGrid columns={columnsProp} spacing={4}>
           {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
             <Link
               key={listing.id}
@@ -98,13 +106,7 @@ export const DappRegistryGrid: FC = () => {
               isExternal
               onClick={() => handleClick(listing.name)}
             >
-              <Box
-                borderRadius='lg'
-                p={2}
-                position='relative'
-                overflow='hidden'
-                _hover={{ opacity: 0.8, transition: 'opacity 0.2s ease-in-out' }}
-              >
+              <Box borderRadius='lg' p={2} position='relative' overflow='hidden' _hover={hoverProp}>
                 <Image
                   src={listing.image}
                   style={{

@@ -116,13 +116,13 @@ export const handleSend = async ({
     const acccountMetadataFilter = { accountId: sendInput.accountId }
     const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
     const snapId = getConfig().REACT_APP_SNAP_ID
-    const isSnapsInstalled = await shapeShiftSnapInstalled(snapId)
+    const isSnapInstalled = await shapeShiftSnapInstalled(snapId)
     // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
     if (
       fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
       !wallet.supportsOfflineSigning() &&
       (!(wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) ||
-        (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapsInstalled))
+        (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapInstalled))
     ) {
       throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
     }

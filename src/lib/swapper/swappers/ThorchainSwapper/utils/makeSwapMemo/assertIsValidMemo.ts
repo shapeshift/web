@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   bchChainId,
   binanceChainId,
+  bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
@@ -35,11 +36,13 @@ const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['GAIA', cosmosChainId],
   ['RUNE', thorchainChainId],
   ['THOR', thorchainChainId],
+  ['BSC', bscChainId],
 ])
 
 export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: string): boolean => {
   switch (true) {
     case thorId.startsWith('ETH.'):
+    case thorId.startsWith('BSC.'):
     case thorId.startsWith('AVAX.'):
     case thorId.startsWith('BTC.'):
     case thorId.startsWith('BCH.'):

@@ -43,7 +43,7 @@ export type ThornodePoolResponse = {
 export type ThornodeQuoteResponseSuccess = {
   dust_threshold?: string
   expected_amount_out: string
-  expiry: string
+  expiry: number
   fees: {
     affiliate: string
     asset: string
@@ -115,7 +115,10 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.LitecoinMainnet
   | KnownChainIds.BitcoinCashMainnet
 
-export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+export type ThorEvmSupportedChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.BnbSmartChainMainnet
 
 export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet

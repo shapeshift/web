@@ -1,13 +1,27 @@
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { checkIsMetaMask, useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const MetaMaskMenu = () => {
   const isSnapInstalled = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
+  const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)
+
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  useEffect(() => {
+    if (!wallet) return
+    ;(async () => {
+      const _isMetaMask = await checkIsMetaMask(wallet)
+      setIsMetaMask(_isMetaMask)
+    })()
+  }, [wallet])
 
   const handleClick = useCallback(() => {
     if (isSnapInstalled === false) {
@@ -23,7 +37,7 @@ export const MetaMaskMenu = () => {
     }
   }, [isSnapInstalled, translate])
 
-  return (
+  return isMetaMask ? (
     <>
       <MenuDivider />
       <MenuItem
@@ -35,5 +49,5 @@ export const MetaMaskMenu = () => {
         <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>
       </MenuItem>
     </>
-  )
+  ) : null
 }

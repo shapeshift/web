@@ -23,7 +23,7 @@ export const getWalletConnectCore = () => {
 export const getWalletConnectWallet = () => {
   if (!walletConnectWallet) {
     walletConnectWallet = Web3Wallet.init({
-      core, // <- pass the shared `core` instance
+      core: getWalletConnectCore(), // <- pass the shared `core` instance
       metadata: {
         name: 'ShapeShift',
         description:

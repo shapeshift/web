@@ -42,8 +42,9 @@ export const swappersApi = createApi({
         if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
 
         // Await market data fetching thunk, to ensure we can display some USD rate and don't bail in getDependencies above
-        await dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId))
-        await dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId))
+        await dispatch(
+          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
+        )
 
         // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
         const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(

@@ -1,38 +1,21 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import { useEffect, useState } from 'react'
-import { createSelector } from 'reselect'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import type { ReduxState } from 'state/reducer'
 import { selectWalletId } from 'state/slices/common-selectors'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectIsMarketDataLoaded } from 'state/slices/marketDataSlice/selectors'
 import {
   selectCurrencyFormat,
   selectPortfolioAnonymized,
-  selectPortfolioAssetIds,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-// define selector here to avoid circular imports, specific to this hook below
-const selectMarketDataLoaded = createSelector(
-  (s: ReduxState) => s,
-  selectPortfolioAssetIds,
-  (state, assetIds): boolean => {
-    if (!assetIds.length) return false
-    // for every asset in the portfolio, has market data loaded, either fulfilled or rejected
-    return assetIds
-      .map(assetId => marketApi.endpoints.findByAssetId.select(assetId)(state))
-      .every(result => [QueryStatus.fulfilled, QueryStatus.rejected].includes(result.status))
-  },
-)
-
 export const useMixpanelPortfolioTracking = () => {
   const anonymizedPortfolio = useAppSelector(selectPortfolioAnonymized)
   const [isTracked, setIsTracked] = useState(false)
   const { isDemoWallet } = useWallet().state
-  const isMarketDataLoaded = useAppSelector(selectMarketDataLoaded)
+  const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
   const walletId = useAppSelector(selectWalletId)
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)

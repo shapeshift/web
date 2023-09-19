@@ -1,15 +1,15 @@
 import type { ReduxState } from 'state/reducer'
-import { initialState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { initialState } from 'state/slices/assetsSlice/assetsSlice'
 
-export const clearPortfolio = (state: ReduxState): ReduxState => {
+export const clearAssets = (state: ReduxState): ReduxState => {
   return {
     ...state,
-    portfolio: initialState,
+    assets: initialState,
     // This is very ugly but also very correct
     // Typically, to achieve this, we would dispatch nftapi.util.resetApiState as a side effect
     // But we can't do this here because circular deps, so we have to do it manually
     // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#resetapistate
-    portfolioApi: {
+    assetApi: {
       queries: {},
       mutations: {},
       provided: {},
@@ -22,7 +22,7 @@ export const clearPortfolio = (state: ReduxState): ReduxState => {
         refetchOnReconnect: true,
         refetchOnMountOrArgChange: false,
         keepUnusedDataFor: 60,
-        reducerPath: 'portfolioApi',
+        reducerPath: 'assetApi',
       },
     },
   }

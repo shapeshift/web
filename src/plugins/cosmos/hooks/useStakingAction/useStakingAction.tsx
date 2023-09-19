@@ -43,13 +43,12 @@ export const useStakingAction = () => {
 
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
-
       const snapId = getConfig().REACT_APP_SNAP_ID
-      const isSnapInstalled = await shapeShiftSnapInstalled(snapId)
       if (
         !wallet.supportsOfflineSigning() &&
         (!(wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) ||
-          (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet && !isSnapInstalled))
+          (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet &&
+            !(await shapeShiftSnapInstalled(snapId))))
       ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }

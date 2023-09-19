@@ -4,6 +4,7 @@ import {
   avalancheAssetId,
   bchAssetId,
   binanceAssetId,
+  bscAssetId,
   btcAssetId,
   cosmosAssetId,
   dogeAssetId,
@@ -39,6 +40,8 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
       return thorchainAssetId
     case ThorchainChain.GAIA:
       return cosmosAssetId
+    case ThorchainChain.BSC:
+      return bscAssetId
     default:
       return undefined
   }
@@ -67,7 +70,8 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
   const [chain, symbol] = thorchainAsset.split('.')
   const [, id] = symbol.split('-')
   const chainId = ChainToChainIdMap.get(chain as ThorchainChain)
-  const isFeeAsset = chain === symbol || thorchainAsset === 'GAIA.ATOM'
+  const isFeeAsset =
+    chain === symbol || thorchainAsset === 'GAIA.ATOM' || thorchainAsset === 'BSC.BNB'
   if (isFeeAsset) {
     const assetId = chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
     if (assetId) {

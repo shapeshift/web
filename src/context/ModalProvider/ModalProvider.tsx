@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import {
@@ -47,13 +47,13 @@ export const createModalProvider = () => {
     return createModalProviderInner({ key: key as keyof Modals, Component })
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return memo(({ children }: { children: React.ReactNode }) => (
     <>
       {providers.reduceRight((children, Provider, index) => {
         return <Provider key={index}>{children}</Provider>
       }, children)}
     </>
-  )
+  ))
 }
 
 export const ModalProvider = createModalProvider()

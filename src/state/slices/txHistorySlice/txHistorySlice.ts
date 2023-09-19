@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAccountId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -15,6 +15,7 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
@@ -101,6 +102,24 @@ export const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
   const { txs } = txHistory
+  const isSpam = (() => {
+    const transfers = tx.transfers
+    // Not an NFT, we don't need to filter this
+    if (!transfers.some(transfer => isNft(transfer.assetId))) return false
+    if (
+      transfers.some(
+        transfer =>
+          [transfer.token?.name ?? '', transfer.token?.symbol ?? ''].some(isSpammyNftText) ||
+          BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
+      )
+    )
+      return true
+
+    return false
+  })()
+
+  if (isSpam) return
+
   const txIndex = serializeTxIndex(accountId, tx.txid, tx.address, tx.data)
 
   const isNew = !txs.byId[txIndex]

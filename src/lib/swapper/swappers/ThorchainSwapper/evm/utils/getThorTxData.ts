@@ -1,7 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
-import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
+import { depositWithExpiry } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
@@ -9,6 +9,7 @@ type GetEvmThorTxInfoArgs = {
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   memo: string
+  expiry: number
 }
 
 type GetEvmThorTxInfoReturn = Promise<{
@@ -20,6 +21,7 @@ export const getThorTxInfo = async ({
   sellAsset,
   sellAmountCryptoBaseUnit,
   memo,
+  expiry,
 }: GetEvmThorTxInfoArgs): GetEvmThorTxInfoReturn => {
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const { assetReference } = fromAssetId(sellAsset.assetId)
@@ -35,7 +37,7 @@ export const getThorTxInfo = async ({
     throw Error(`No router found for ${sellAsset.assetId} at inbound address ${inboundAddress}`)
   }
 
-  const data = deposit(
+  const data = depositWithExpiry(
     router,
     vault,
     isNativeEvmAsset(sellAsset.assetId)
@@ -43,6 +45,7 @@ export const getThorTxInfo = async ({
       : assetReference,
     sellAmountCryptoBaseUnit,
     memo,
+    expiry,
   )
 
   return { data, router }

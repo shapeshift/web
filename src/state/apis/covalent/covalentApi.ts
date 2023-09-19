@@ -4,7 +4,7 @@ import { polygonChainId } from '@shapeshiftoss/caip'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { selectFeatureFlag } from 'state/slices/selectors'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { parseToNftItem } from '../nft/parsers/covalent'

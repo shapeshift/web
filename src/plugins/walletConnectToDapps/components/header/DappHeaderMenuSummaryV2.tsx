@@ -1,6 +1,6 @@
 import { Accordion, MenuDivider, MenuGroup } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
+import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -10,8 +10,7 @@ import { Session } from './Session'
 export const DappHeaderMenuSummaryV2 = () => {
   const translate = useTranslate()
 
-  const { dispatch, ...state } = useWalletConnectV2()
-  const { sessionsByTopic, web3wallet } = state
+  const { sessionsByTopic, web3wallet } = useWalletConnectV2()
 
   const sessions = useMemo(() => Object.values(sessionsByTopic), [sessionsByTopic])
 

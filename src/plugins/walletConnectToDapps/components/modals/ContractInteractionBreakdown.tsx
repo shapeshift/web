@@ -5,8 +5,7 @@ import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyB
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { useGetAbi } from 'plugins/walletConnectToDapps/hooks/useGetAbi'
-import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
+import type { EthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
@@ -17,8 +16,8 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ContractInteractionBreakdownProps = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
-  feeAsset: Asset | null
+  request: EthSendTransactionCallRequest['params'][number]
+  feeAsset: Asset | undefined
 }
 
 const EncodedText = ({ value }: { value: string }) => (
@@ -45,7 +44,6 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
   }, [contractInterface, request.data, request.value])
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
-  const { accountExplorerAddressLink } = useWalletConnect()
 
   const renderAbiInput = (input: ParamType, index: number): JSX.Element => {
     const inputValue = transaction?.args[index].toString()
@@ -59,10 +57,12 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
               <MiddleEllipsis color={addressColor} value={inputValue} />
             </Box>
             <CopyButton value={inputValue} />
-            <ExternalLinkButton
-              href={`${accountExplorerAddressLink}${inputValue}`}
-              ariaLabel={inputValue}
-            />
+            {feeAsset && (
+              <ExternalLinkButton
+                href={`${feeAsset.explorerAddressLink}${inputValue}`}
+                ariaLabel={inputValue}
+              />
+            )}
           </HStack>
         )
       case 'tuple':
@@ -74,8 +74,6 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
         )
     }
   }
-
-  if (!accountExplorerAddressLink) return null
 
   return (
     <ModalCollapsableSection

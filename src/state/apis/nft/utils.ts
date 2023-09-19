@@ -12,7 +12,8 @@ import {
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { NftFilters } from 'alchemy-sdk'
-import { invert } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
+import invert from 'lodash/invert'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
@@ -65,9 +66,10 @@ export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwo
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
 
 export const updateNftItem = (
-  originalItem: NftItemWithCollection,
+  _originalItem: NftItemWithCollection,
   currentItem: NftItemWithCollection,
 ) => {
+  const originalItem = cloneDeep(_originalItem)
   if (!originalItem.medias.length && currentItem.medias.length) {
     originalItem.medias = currentItem.medias
   }
@@ -121,6 +123,7 @@ export const updateNftCollection = (
       url: 'https://app.mercle.xyz/shapeshift',
     })
   }
+  draftItem.isSpam = currentItem.isSpam
 
   return draftItem
 }

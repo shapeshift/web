@@ -12,9 +12,9 @@ import {
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
+import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
 import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
-import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
+import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
 import { RawText, Text } from 'components/Text'
 import { selectSelectedLocale } from 'state/slices/selectors'
@@ -27,8 +27,7 @@ import { Networks } from './Networks'
 export const Session = ({ session }: { session: SessionTypes.Struct }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
-  const { dispatch, ...state } = useWalletConnectV2()
-  const { web3wallet, core } = state
+  const { dispatch, web3wallet, core } = useWalletConnectV2()
   const connectedAccounts = useMemo(() => extractConnectedAccounts(session), [session])
 
   const handleDisconnect = useCallback(() => {

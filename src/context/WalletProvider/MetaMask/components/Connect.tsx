@@ -7,7 +7,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
@@ -29,7 +29,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const isSnapInstalled = useIsSnapInstalled()
   const showSnapModal = useSelector(selectShowSnapsModal)
 
   // eslint-disable-next-line no-sequences
@@ -73,11 +72,18 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        if (!isSnapsEnabled || (isSnapsEnabled && isSnapInstalled === true && !showSnapModal)) {
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else if (isSnapsEnabled) {
-          history.push('/metamask/snap/install')
-        }
+
+        await (async () => {
+          const isMetaMask = await checkIsMetaMask(wallet)
+          if (!isMetaMask) return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          const isSnapInstalled = await checkIsSnapInstalled()
+
+          if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
+            return history.push('/metamask/snap/install')
+          }
+
+          return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        })()
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error(e)

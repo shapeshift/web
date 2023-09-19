@@ -7,6 +7,7 @@ import {
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
+  deserializeNftAssetReference,
   dogeChainId,
   ethChainId,
   fromAccountId,
@@ -19,6 +20,7 @@ import {
   polygonChainId,
   thorchainChainId,
   toAccountId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -39,6 +41,8 @@ import maxBy from 'lodash/maxBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSpammyNftText } from 'state/apis/nft/constants'
+import type { NftCollectionType } from 'state/apis/nft/types'
 
 import type {
   Portfolio,
@@ -146,6 +150,7 @@ type PortfolioAccounts = {
 type AccountToPortfolioArgs = {
   portfolioAccounts: PortfolioAccounts
   assetIds: string[]
+  nftCollectionsById: Partial<Record<AssetId, NftCollectionType>>
 }
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
@@ -155,6 +160,7 @@ type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
+  const nftCollectionsById = args.nftCollectionsById
   Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
     const { chainId } = account
     const { chainNamespace } = fromChainId(chainId)
@@ -178,6 +184,22 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           // don't update portfolio if asset is not in the store except for nft assets,
           // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
           if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
+
+          if (isNft(token.assetId)) {
+            const { assetReference, chainId, assetNamespace } = fromAssetId(token.assetId)
+            const [contractAddress] = deserializeNftAssetReference(assetReference)
+            const collectionAssetId = toAssetId({
+              chainId,
+              assetReference: contractAddress,
+              assetNamespace,
+            })
+
+            const nftCollection = nftCollectionsById[collectionAssetId]
+
+            if (nftCollection?.isSpam) return
+            if ([nftCollection?.description ?? '', nftCollection?.name ?? ''].some(isSpammyNftText))
+              return
+          }
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
 

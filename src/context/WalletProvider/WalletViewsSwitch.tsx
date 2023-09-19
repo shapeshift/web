@@ -52,7 +52,7 @@ export const WalletViewsSwitch = () => {
     })
   }, [toast, translate, wallet])
 
-  const onClose = async () => {
+  const onClose = useCallback(async () => {
     if (disposition === 'initializing' || disposition === 'recovering') {
       await wallet?.cancel()
       disconnect()
@@ -69,9 +69,17 @@ export const WalletViewsSwitch = () => {
       }
       await cancelWalletRequests()
     }
-  }
+  }, [
+    cancelWalletRequests,
+    disconnect,
+    disconnectOnCloseModal,
+    dispatch,
+    disposition,
+    history,
+    wallet,
+  ])
 
-  const handleBack = async () => {
+  const handleBack = useCallback(async () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
@@ -79,7 +87,7 @@ export const WalletViewsSwitch = () => {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
-  }
+  }, [cancelWalletRequests, dispatch, history])
 
   useEffect(() => {
     if (initialRoute) {
@@ -107,6 +115,8 @@ export const WalletViewsSwitch = () => {
         : [],
     [modalType],
   )
+
+  const renderSelectModal = useCallback(() => <SelectModal />, [])
 
   return (
     <>
@@ -137,7 +147,7 @@ export const WalletViewsSwitch = () => {
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {walletRoutesList}
-                <Route path={'/'} children={() => <SelectModal />} />
+                <Route path={'/'} children={renderSelectModal} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

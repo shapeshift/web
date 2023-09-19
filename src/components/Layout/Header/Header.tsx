@@ -69,10 +69,7 @@ export const Header = memo(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
 
-  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const isWalletConnectToDappsEnabled =
-    isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
   /**
    * FOR DEVELOPERS:
@@ -135,6 +132,7 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [
     appDispatch,
@@ -210,7 +208,7 @@ export const Header = memo(() => {
             >
               <GlobalSeachButton />
               {isDegradedState && <DegradedStateBanner />}
-              {isWalletConnectToDappsEnabled && (
+              {isWalletConnectToDappsV2Enabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>

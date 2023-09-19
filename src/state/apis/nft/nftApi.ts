@@ -16,6 +16,7 @@ import { initialState as initialPortfolioState } from 'state/slices/portfolioSli
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
+import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
   getAlchemyCollectionData,
@@ -58,8 +59,13 @@ export const initialState: NftState = {
     ids: [],
   },
   collections: {
-    byId: {},
-    ids: [],
+    byId: {
+      ...BLACKLISTED_COLLECTION_IDS.reduce<Partial<Record<AssetId, NftCollectionType>>>(
+        (acc, assetId) => ({ ...acc, [assetId]: { assetId, isSpam: true } }),
+        {},
+      ),
+    },
+    ids: BLACKLISTED_COLLECTION_IDS,
   },
 }
 
@@ -199,6 +205,10 @@ export const nftApi = createApi({
 
               data.forEach(item => {
                 const { assetId } = item
+                if (item.collection.isSpam) return
+                if (hasSpammyMedias(item.medias)) return
+                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
+                  return
                 const { assetReference, chainId } = fromAssetId(assetId)
 
                 const [contractAddress, id] = deserializeNftAssetReference(assetReference)

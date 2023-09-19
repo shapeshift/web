@@ -13,7 +13,7 @@ import { selectPortfolioAssetIds } from 'state/slices/selectors'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
-const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
+export const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
 export const selectNftApiQueries = (state: ReduxState) => state.nftApi.queries
 
 export const selectNftApiQueriesByEndpointAndStatus = createSelector(
@@ -37,7 +37,7 @@ export const selectGetNftUserTokensPending = createSelector(
   queries => Boolean(queries.length),
 )
 
-export const selectPortfolioNftItemsWithCollection = createSelector(
+export const selectPortfolioNftItemsWithCollectionExcludeSpams = createSelector(
   selectNfts,
   selectNftCollections,
   selectPortfolioAssetIds,
@@ -50,6 +50,7 @@ export const selectPortfolioNftItemsWithCollection = createSelector(
       if (!nft) return acc
       const collection = collections[nft.collectionId]
       if (!collection) return acc
+      if (collection.isSpam) return acc
 
       const nftItemWithCollection = Object.assign({}, nft, { collection })
 

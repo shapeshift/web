@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import type { Asset } from 'lib/asset-service'
@@ -34,16 +34,6 @@ export const selectAssets = createDeepEqualOutputSelector(
   byId => byId,
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
-
-// not deep equal output selector for perf reasons - hashing more expensive than selecting
-export const selectNonNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
-  assetIds.filter(assetId => !isNft(assetId)),
-)
-
-// not deep equal output selector for perf reasons - hashing more expensive than selecting
-export const selectNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
-  assetIds.filter(assetId => isNft(assetId)),
-)
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectCryptoMarketDataIds,

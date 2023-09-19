@@ -10,6 +10,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
 import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
@@ -116,16 +117,16 @@ export const portfolioApi = createApi({
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
-        // 0xdef1cafe: be careful with this, RTK query can't type this correctly
-        const untypedState = getState()
-        const assetIds = (untypedState as ReduxState).assets.ids
+        const state: ReduxState = getState() as any
+        const assetIds = state.assets.ids
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
-          const data = accountToPortfolio({ portfolioAccounts, assetIds })
+          const nftCollectionsById = selectNftCollections(state)
+          const data = accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {

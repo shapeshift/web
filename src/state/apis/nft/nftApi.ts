@@ -17,6 +17,7 @@ import { initialState as initialPortfolioState } from 'state/slices/portfolioSli
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText } from './constants'
 import { selectNftCollectionById } from './selectors'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
@@ -53,47 +54,6 @@ type NftState = {
   }
 }
 
-const NFT_NAME_BLACKLIST = [
-  'voucher',
-  'airdrop',
-  'giveaway',
-  'promo',
-  'airdrop',
-  'rewards',
-  'ticket',
-  'winner',
-  '$',
-  'pirategirls',
-  ' USDC',
-  'calim cryptopunk',
-  'coupon',
-]
-// This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
-// e.g "$9999+ free giveaway *limited time only*" would not work without it
-const nftNameBlacklistRegex = new RegExp(
-  NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
-  'i',
-)
-const isSpammyNftText = (nftText: string) => nftNameBlacklistRegex.test(nftText)
-
-const BLACKLISTED_COLLECTION_IDS = [
-  'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',
-  'eip155:137/erc1155:0x4217495f2a128da8d6122d120a1657753823721a',
-  'eip155:137/erc1155:0x54e75b47353a5ded078d8eb6ba67ff01a2a18ef7',
-  'eip155:137/erc1155:0x7d33048b74c24d695d349e73a59b7de3ed50c4c0',
-  'eip155:137/erc1155:0xb1cfea0eb0f67a50b896985bda6368fc1c21907b',
-  'eip155:137/erc1155:0xc165d899628c5fd74e19c91de596a9ea2f3599ec',
-  'eip155:137/erc1155:0xcf2576238640a3a232fa6046d549dfb753a805f4',
-  'eip155:137/erc1155:0xcf63b89da7c6ada007fbef13fa1e8453756ba7a6',
-  'eip155:137/erc1155:0xda8091a96aefcc2bec5ed64eb2e18008ebf7806c',
-  'eip155:137/erc1155:0xe0b7dafe2eb86ad56386676a61781d863144db1e',
-  'eip155:137/erc1155:0xed13387ea51efb26b1281bd6decc352141fd312a',
-  'eip155:137/erc1155:0xf02521228c6250b255abbc4ea66fd5aa86aa2ce0',
-  'eip155:137/erc1155:0xf30437ad7d081046b4931e29460fcb0d7bbaca46',
-  'eip155:137/erc1155:0xfd920bd499511d0f5e37b4405a7986a4d6f1abe3',
-  'eip155:137/erc1155:0x55d50a035bc5830dac9f1a42b71c48cbad568d60',
-  'eip155:137/erc1155:0x5620a667cbe1eb7e1e27087d135881a546456ebb',
-]
 export const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
   nfts: {
@@ -249,6 +209,9 @@ export const nftApi = createApi({
 
               data.forEach(item => {
                 const { assetId } = item
+                if (item.collection.isSpam) return
+                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
+                  return
                 const { assetReference, chainId } = fromAssetId(assetId)
 
                 const [contractAddress, id] = deserializeNftAssetReference(assetReference)

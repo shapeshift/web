@@ -11,13 +11,13 @@ import {
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
   CosmosSignDirectCallRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/v2/types'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+} from 'plugins/walletConnectToDapps/types'
+import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'

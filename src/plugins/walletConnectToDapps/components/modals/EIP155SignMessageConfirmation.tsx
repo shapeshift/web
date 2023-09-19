@@ -11,43 +11,54 @@ import {
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import type {
+  EthPersonalSignCallRequest,
+  EthSignCallRequest,
+} from 'plugins/walletConnectToDapps/types'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
+import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-type SignMessageConfirmationProps = {
-  message: string
-  onConfirm(): void
-  onReject(): void
-}
+export const EIP155SignMessageConfirmationModal: FC<
+  WalletConnectRequestModalProps<EthSignCallRequest | EthPersonalSignCallRequest>
+> = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
+  const { address, message, chainId } = useWalletConnectState(state)
+  const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
-  const { message, onConfirm, onReject } = props
+  const connectedAccountFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, chainId ?? ''),
+  )
+
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
   const cardBg = useColorModeValue('white', 'gray.850')
-  const walletConnect = useWalletConnect()
 
-  if (!walletConnect.connector || !walletConnect.dapp) return null
-
-  const address = walletConnect.connector.accounts[0]
+  if (!peerMetadata) return null
 
   return (
-    <VStack p={6} spacing={6} alignItems='stretch'>
+    <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard
+          address={address ?? ''}
+          icon={<WalletIcon w='full' h='full' />}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+        />
       </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>
           <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={walletConnect.dapp.icons[0]} />
+            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons[0]} />
             <RawText fontWeight='semibold' flex={1}>
-              {walletConnect.dapp.name}
+              {peerMetadata.name}
             </RawText>
-            <ExternalLinkButton href={walletConnect.dapp.url} ariaLabel={walletConnect.dapp.name} />
+            <ExternalLinkButton href={peerMetadata.url} ariaLabel={peerMetadata.name} />
           </HStack>
           <Divider />
           <Box p={4}>
@@ -68,13 +79,13 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={handleConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button size='lg' width='full' onClick={onReject}>
+        <Button size='lg' width='full' onClick={handleReject}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>
-    </VStack>
+    </>
   )
 }

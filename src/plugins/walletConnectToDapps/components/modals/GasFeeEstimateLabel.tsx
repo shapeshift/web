@@ -1,5 +1,5 @@
 import { HStack } from '@chakra-ui/react'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
+import type { ConfirmData } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

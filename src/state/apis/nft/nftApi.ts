@@ -175,7 +175,7 @@ export const nftApi = createApi({
   reducerPath: 'nftApi',
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
-      queryFn: async ({ accountIds }, { dispatch, getState }) => {
+      queryFn: async ({ accountIds }, { dispatch }) => {
         const services = [
           getAlchemyNftsUserData,
           (accountIds: AccountId[]) =>

@@ -258,14 +258,8 @@ export const nftApi = createApi({
         dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
         const collectionsById = nftsWithCollection.reduce<NftState['collections']['byId']>(
-          (acc, _item) => {
-            const item = cloneDeep(_item)
+          (acc, item) => {
             if (!item.collection.assetId) return acc
-            const cachedCollection = selectNftCollectionById(state, item.collection.assetId)
-            if (cachedCollection?.isSpam) item.collection.isSpam = true
-            if (hasSpammyMedias(item.medias)) item.collection.isSpam = true
-            if ([item.description, item.name, item.symbol].some(isSpammyNftText))
-              item.collection.isSpam = true
             acc[item.collection.assetId] = item.collection
             return acc
           },

@@ -1,19 +1,19 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
 import {
+  isEthSignParams,
+  isSignRequest,
+  isSignTypedRequest,
+  isTransactionParamsArray,
+} from 'plugins/walletConnectToDapps/typeGuards'
+import type { KnownSigningMethod, WalletConnectState } from 'plugins/walletConnectToDapps/types'
+import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
-import {
-  isEthSignParams,
-  isSignRequest,
-  isSignTypedRequest,
-  isTransactionParamsArray,
-} from 'plugins/walletConnectToDapps/v2/typeGuards'
-import type { KnownSigningMethod, WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'

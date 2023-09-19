@@ -6,8 +6,8 @@ import type {
   RequestParams,
   TransactionParams,
   WalletConnectRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
 import { getTypeGuardAssertion } from 'lib/utils'
 
 export const isTransactionParamsArray = (

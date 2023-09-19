@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
-import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
+import type { TransactionParams } from 'plugins/walletConnectToDapps/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 

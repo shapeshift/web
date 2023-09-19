@@ -76,6 +76,7 @@ export type TradeAmountInputProps = {
   label?: string
   rightRegion?: JSX.Element
   labelPostFix?: JSX.Element
+  hideAmounts?: boolean
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -105,6 +106,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     label,
     rightRegion,
     labelPostFix,
+    hideAmounts,
   }) => {
     const {
       number: { localeParts },
@@ -197,7 +199,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           )}
         </Flex>
         {labelPostFix}
-        <Stack direction='row' alignItems='center' px={6}>
+        <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
           <Flex gap={2} flex={1} alignItems='center'>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
               <NumberFormat
@@ -228,6 +230,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           px={6}
           justifyContent='space-between'
           alignItems='center'
+          display={hideAmounts ? 'none' : 'flex'}
         >
           {showFiatAmount && (
             <Button

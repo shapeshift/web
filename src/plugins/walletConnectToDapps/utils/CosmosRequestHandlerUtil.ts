@@ -8,8 +8,8 @@ import { getSdkError } from '@walletconnect/utils'
 import type {
   CustomTransactionData,
   SupportedSessionRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
+import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
 import { assertIsDefined } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 

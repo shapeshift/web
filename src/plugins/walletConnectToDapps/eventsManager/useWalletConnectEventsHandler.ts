@@ -4,13 +4,13 @@ import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
 import { useCallback } from 'react'
 
 export const useWalletConnectEventsHandler = (

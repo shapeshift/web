@@ -17,17 +17,17 @@ import { GasInput } from 'plugins/walletConnectToDapps/components/modals/GasInpu
 import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
-import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
-import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/v2/hooks/useCallRequestEvmFees'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
-import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/v2/typeGuards'
+import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/typeGuards'
 import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+} from 'plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
+import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
@@ -101,13 +101,16 @@ export const EIP155TransactionConfirmation: FC<
           address={transaction.to}
           showWalletProviderName={false}
           icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
-          explorerAddressLink={feeAsset?.explorerAddressLink}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
       {isInteractingWithContract ? (
         <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
           <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-            <ContractInteractionBreakdown request={transaction} feeAsset={feeAsset} />
+            <ContractInteractionBreakdown
+              request={transaction}
+              feeAsset={connectedAccountFeeAsset}
+            />
           </Card>
         </ModalSection>
       ) : (

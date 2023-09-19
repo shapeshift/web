@@ -33,6 +33,7 @@ import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
+  marketData,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
@@ -273,14 +274,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // const opts = { subscriptionOptions: { pollingInterval } }
     const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-    dispatch(
-      marketApi.endpoints.findPriceHistoryByAssetIds.initiate({
-        timeframe,
-        assetIds: portfolioAssetIdsExcludeNoMarketData,
-      }),
-    )
-    portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+    void (async () => {
+      await Promise.all([
+        dispatch(
+          marketApi.endpoints.findPriceHistoryByAssetIds.initiate({
+            timeframe,
+            assetIds: portfolioAssetIdsExcludeNoMarketData,
+          }),
+        ),
+        dispatch(marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData)),
+      ])
+
+      // used to trigger mixpanel init after load of market data
+      dispatch(marketData.actions.setMarketDataLoaded())
     })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
@@ -319,7 +325,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
+    dispatch(marketApi.endpoints.findByAssetIds.initiate([routeAssetId]))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render

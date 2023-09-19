@@ -22,4 +22,4 @@ export type MarketDataState = {
   fiat: FiatMarketDataState
 }
 
-export type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
+export type FindPriceHistoryByAssetIdArgs = { assetIds: AssetId[]; timeframe: HistoryTimeframe }

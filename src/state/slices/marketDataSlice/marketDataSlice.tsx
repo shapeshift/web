@@ -1,7 +1,12 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import type {
+  HistoryData,
+  HistoryTimeframe,
+  MarketCapResult,
+  MarketData,
+} from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -48,7 +53,10 @@ export const defaultMarketData: MarketData = {
   changePercent24Hr: 0,
 }
 
-type CryptoPriceHistoryPayload = { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs }
+type CryptoPriceHistoryPayload = {
+  timeframe: HistoryTimeframe
+  historyDataByAssetId: Record<AssetId, HistoryData[]>
+}
 
 export const marketData = createSlice({
   name: 'marketData',
@@ -84,15 +92,9 @@ export const marketData = createSlice({
     },
     setCryptoPriceHistory: {
       reducer: (state, { payload }: { payload: CryptoPriceHistoryPayload }) => {
-        const { args } = payload
-        const { assetId, timeframe } = args
         const incoming = {
           crypto: {
-            priceHistory: {
-              [timeframe]: {
-                [assetId]: payload.data,
-              },
-            },
+            priceHistory: payload,
           },
         }
         merge(state, incoming)
@@ -163,25 +165,38 @@ export const marketApi = createApi({
       },
       keepUnusedDataFor: 5, // Invalidate cached asset market data after 5 seconds.
     }),
-    findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
-      queryFn: async (args, { dispatch }) => {
-        const { assetId, timeframe } = args
-        if (shouldIgnoreAsset(assetId)) return { data: [] }
-        try {
-          const data = await getMarketServiceManager().findPriceHistoryByAssetId({
-            timeframe,
-            assetId,
-          })
-          const payload = { args, data }
-          dispatch(marketData.actions.setCryptoPriceHistory(payload))
-          return { data }
-        } catch (e) {
-          const error = {
-            data: `findPriceHistoryByAssetId: error fetching price history for ${assetId}`,
-            status: 400,
-          }
-          return { error }
-        }
+    findPriceHistoryByAssetIds: build.query<null, FindPriceHistoryByAssetIdArgs>({
+      queryFn: async function findPriceHistoryByAssetIds(args, { dispatch }) {
+        const { assetIds, timeframe } = args
+
+        if (assetIds.length === 0) return { data: null }
+
+        const responseData: { assetId: AssetId; historyData: HistoryData[] }[] = await Promise.all(
+          assetIds.map(async assetId => {
+            if (shouldIgnoreAsset(assetId)) return { assetId, historyData: [] }
+            try {
+              const historyData = await getMarketServiceManager().findPriceHistoryByAssetId({
+                timeframe,
+                assetId,
+              })
+
+              return { assetId, historyData }
+            } catch (e) {
+              return { assetId, historyData: [] }
+            }
+          }),
+        )
+
+        const historyDataByAssetId = responseData.reduce<
+          CryptoPriceHistoryPayload['historyDataByAssetId']
+        >((acc, { assetId, historyData }) => {
+          acc[assetId] = historyData
+          return acc
+        }, {})
+
+        dispatch(marketData.actions.setCryptoPriceHistory({ timeframe, historyDataByAssetId }))
+
+        return { data: null }
       },
     }),
     findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({

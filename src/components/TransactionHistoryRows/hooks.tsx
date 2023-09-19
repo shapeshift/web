@@ -18,7 +18,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     selectCryptoPriceHistoryTimeframe(state, HistoryTimeframe.ALL),
   )
 
-  const { findPriceHistoryByAssetId } = marketApi.endpoints
+  const { findPriceHistoryByAssetIds } = marketApi.endpoints
 
   const buy = useMemo(
     () => txDetails.transfers.find(transfer => transfer.type === TransferType.Receive),
@@ -34,19 +34,14 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (!(txDetails.tx.trade && buy && sell)) return
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
-    if (!cryptoPriceHistoryData?.[buy.asset.assetId]) {
-      dispatch(
-        findPriceHistoryByAssetId.initiate({
-          assetId: buy.asset.assetId,
-          timeframe: HistoryTimeframe.ALL,
-        }),
-      )
-    }
+    const assetIds = []
+    if (!cryptoPriceHistoryData?.[buy.asset.assetId]) assetIds.push(buy.asset.assetId)
+    if (!cryptoPriceHistoryData?.[sell.asset.assetId]) assetIds.push(sell.asset.assetId)
 
-    if (!cryptoPriceHistoryData?.[sell.asset.assetId]) {
+    if (assetIds.length > 0) {
       dispatch(
-        findPriceHistoryByAssetId.initiate({
-          assetId: sell.asset.assetId,
+        findPriceHistoryByAssetIds.initiate({
+          assetIds,
           timeframe: HistoryTimeframe.ALL,
         }),
       )
@@ -60,7 +55,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     })
 
     setTradeFees(tradeFees)
-  }, [dispatch, buy, sell, cryptoPriceHistoryData, findPriceHistoryByAssetId, txDetails.tx])
+  }, [dispatch, buy, sell, cryptoPriceHistoryData, findPriceHistoryByAssetIds, txDetails.tx])
 
   return { tradeFees }
 }

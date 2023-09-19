@@ -120,6 +120,8 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
     })
 
     dispatch(assetsSlice.actions.upsertAssets(assetsToUpsert))
+
+    // TODO: combine responses and upsert once with `upsertPortfolios`
     dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
   },
 )

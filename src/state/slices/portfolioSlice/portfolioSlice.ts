@@ -101,6 +101,21 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<Portfolio>(),
     },
+
+    upsertPortfolios: (draftState, { payload }: { payload: Portfolio[] }) => {
+      // upsert all
+      draftState.accounts.byId = merge(
+        draftState.accounts.byId,
+        ...payload.map(portfolio => portfolio.accounts.byId),
+      )
+      draftState.accounts.ids = Object.keys(draftState.accounts.byId)
+
+      draftState.accountBalances.byId = merge(
+        draftState.accountBalances.byId,
+        ...payload.map(portfolio => portfolio.accountBalances.byId),
+      )
+      draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
+    },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })

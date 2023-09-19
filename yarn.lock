@@ -6393,30 +6393,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keepkey/hdwallet-keepkey-rest@npm:1.40.35":
-  version: 1.40.35
-  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.35"
+"@keepkey/hdwallet-keepkey-rest@npm:1.40.40":
+  version: 1.40.40
+  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.40"
   dependencies:
-    "@keepkey/keepkey-sdk": 0.2.48
+    "@keepkey/keepkey-sdk": 0.2.52
     lodash: ^4.17.21
     semver: ^6.3.0
   peerDependencies:
     "@shapeshiftoss/hdwallet-core": ^1.50.3
-  checksum: b7311c99b4efe2ba5d42e853fe8d0ff56eb926d0a7ccef01ac0874036729b5b9809e2d013099b406687ea8c268370e4e01948432d852b9064a6c21c9d1679a7e
+  checksum: 6f0713125827cf40ecaeda1ac1a1da7249d5f7d172cf4e7b6cfed5473e401d4a18cee6a263897cbb12c6f6c4bb22cbdee660b987dc50e040fa8cf8e8d4b7efbd
   languageName: node
   linkType: hard
 
-"@keepkey/keepkey-sdk@npm:0.2.48":
-  version: 0.2.48
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.48"
-  checksum: 544340de018238e9f90dd0aff17aa56d265d0f4f531601229fe6b381e8fa07932eebe5c7b3fd631a78443b6493506d3ea0159a680f5c8a54643acdaebc5dc584
-  languageName: node
-  linkType: hard
-
-"@keepkey/keepkey-sdk@npm:0.2.49":
-  version: 0.2.49
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.49"
-  checksum: a28ea36d90688b0c9d5e6ed602e3e73b7341b51a3c4e308fcb472512be1d56a767cac9e498ef1db57bbad716547eab9ef44514187eb129e31cb282bc735c5dd1
+"@keepkey/keepkey-sdk@npm:0.2.52":
+  version: 0.2.52
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.52"
+  checksum: a8f7ad5447132509b8eba66f40fe7ca2131d3c2a9d7755bc052272c5722be6f553ec7c8fef830f644d19ab6bc7f0c302d8712ce9c39cb10ba6256fd83e656be6
   languageName: node
   linkType: hard
 
@@ -8018,8 +8011,8 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
     "@jest/types": ^27.1.0
-    "@keepkey/hdwallet-keepkey-rest": 1.40.35
-    "@keepkey/keepkey-sdk": 0.2.49
+    "@keepkey/hdwallet-keepkey-rest": 1.40.40
+    "@keepkey/keepkey-sdk": 0.2.52
     "@keplr-wallet/types": ^0.12.21
     "@lifi/sdk": ^2.2.3
     "@metamask/detect-provider": ^1.2.0

@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -34,6 +33,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { isKeepKeyHDWallet } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
@@ -131,7 +131,7 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }, [address, toast, translate])
 
-  const supportsAddressVerification = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
+  const supportsAddressVerification = useMemo(() => wallet && isKeepKeyHDWallet(wallet), [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return

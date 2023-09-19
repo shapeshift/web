@@ -12,7 +12,6 @@ import {
   Tooltip,
   useToken,
 } from '@chakra-ui/react'
-import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
@@ -47,6 +46,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
+import { isKeplrHDWallet } from 'lib/utils'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -105,7 +105,7 @@ export const TradeInput = memo(() => {
     'background.surface.raised.base',
   ])
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
+  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)

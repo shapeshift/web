@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
   createContext,
   useCallback,
@@ -25,6 +24,7 @@ import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from 'lib/utils'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
@@ -123,7 +123,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const { versions, updaterUrl, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
   const translate = useTranslate()
   const toast = useToast()
-  const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
+  const keepKeyWallet = useMemo(
+    () => (wallet && isKeepKeyHDWallet(wallet) ? wallet : undefined),
+    [wallet],
+  )
   const [state, dispatch] = useReducer(reducer, initialState)
   const toastRef = useRef<ToastId | undefined>()
 

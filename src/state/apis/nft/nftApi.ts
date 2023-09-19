@@ -68,6 +68,8 @@ const NFT_NAME_BLACKLIST = [
   'calim cryptopunk',
   'coupon',
 ]
+// This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
+// e.g "$9999+ free giveaway *limited time only*" would not work without it
 const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',

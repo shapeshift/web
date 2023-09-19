@@ -210,7 +210,11 @@ export const nftApi = createApi({
               data.forEach(item => {
                 const { assetId } = item
                 if (item.collection.isSpam) return
-                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
+                if (
+                  [item.collection.description, item.name, item.description, item.symbol].some(
+                    isSpammyNftText,
+                  )
+                )
                   return
                 const { assetReference, chainId } = fromAssetId(assetId)
 

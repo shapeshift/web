@@ -4,7 +4,7 @@ const NFT_NAME_BLACKLIST = [
   'giveaway',
   'promo',
   'airdrop',
-  'rewards',
+  'reward',
   'ticket',
   'winner',
   '$',
@@ -17,6 +17,13 @@ const NFT_NAME_BLACKLIST = [
   'claim',
   'etherscan',
   'shibarium',
+  ' ETH',
+  'gift',
+  'event',
+  'mint pass',
+  'ethstation',
+  'jrnyclubnet',
+  'jrnyclub.net',
 ]
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist

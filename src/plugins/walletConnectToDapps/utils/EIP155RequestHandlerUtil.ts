@@ -8,17 +8,17 @@ import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { getSdkError } from '@walletconnect/utils'
+import type {
+  CustomTransactionData,
+  SupportedSessionRequest,
+} from 'plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
 import {
   convertNumberToHex,
   getFeesForTx,
   getGasData,
   getSignParamsMessage,
 } from 'plugins/walletConnectToDapps/utils'
-import type {
-  CustomTransactionData,
-  SupportedSessionRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import { assertIsDefined } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 

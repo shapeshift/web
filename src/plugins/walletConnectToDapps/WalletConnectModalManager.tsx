@@ -16,12 +16,12 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
-import { CosmosSignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/CosmosSignMessageConfirmation'
-import { EIP155SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155SignMessageConfirmation'
-import { EIP155SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155SignTypedDataConfirmation'
-import { EIP155TransactionConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155TransactionConfirmation'
-import { SessionProposalModal } from 'plugins/walletConnectToDapps/v2/components/modals/SessionProposal'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
+import { CosmosSignMessageConfirmationModal } from 'plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
+import { EIP155SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
+import { EIP155SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
+import { EIP155TransactionConfirmation } from 'plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { SessionProposalModal } from 'plugins/walletConnectToDapps/components/modals/SessionProposal'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
   CosmosSignDirectCallRequest,
@@ -33,10 +33,10 @@ import type {
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/v2/types'
-import { approveCosmosRequest } from 'plugins/walletConnectToDapps/v2/utils/CosmosRequestHandlerUtil'
-import { approveEIP155Request } from 'plugins/walletConnectToDapps/v2/utils/EIP155RequestHandlerUtil'
+} from 'plugins/walletConnectToDapps/types'
+import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/types'
+import { approveCosmosRequest } from 'plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
+import { approveEIP155Request } from 'plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
 import { type Dispatch, type FC, useCallback, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'

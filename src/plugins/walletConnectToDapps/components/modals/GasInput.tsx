@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
+import type { ConfirmData } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

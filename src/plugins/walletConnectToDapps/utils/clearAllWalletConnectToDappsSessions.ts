@@ -1,6 +1,5 @@
 import { getSdkError } from '@walletconnect/utils'
-
-import { getWalletConnectWallet } from '../walletUtils'
+import { getWalletConnectWallet } from 'plugins/walletConnectToDapps/walletUtils'
 
 const clearWalletConnectLocalStorage = () => {
   const keysToRemove: string[] = []

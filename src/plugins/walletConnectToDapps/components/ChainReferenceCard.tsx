@@ -12,6 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
+import { AccountSelectionByChainId } from 'plugins/walletConnectToDapps/components/AccountSelectionByChainId'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,8 +20,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { AccountSelectionByChainId } from './AccountSelectionByChainId'
 
 type ChainReferenceCardProps = {
   methods: string[]

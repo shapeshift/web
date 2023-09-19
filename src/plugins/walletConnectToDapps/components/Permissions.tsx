@@ -1,9 +1,8 @@
 import { VStack } from '@chakra-ui/react'
 import type { ProposalTypes } from '@walletconnect/types'
+import { ChainReferenceCard } from 'plugins/walletConnectToDapps/components/ChainReferenceCard'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-
-import { ChainReferenceCard } from './ChainReferenceCard'
 
 interface IProps {
   requiredNamespaces: ProposalTypes.RequiredNamespaces

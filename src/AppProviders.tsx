@@ -5,7 +5,7 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
-import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
+import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -38,9 +38,17 @@ const manager = createLocalStorageManager('ss-theme')
 
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
-  const handleError = useCallback((error: Error, info: { componentStack: string }) => {
-    getMixPanel()?.track(MixPanelEvents.Error, { error, info })
-  }, [])
+  const handleError = useCallback(
+    (
+      error: Error,
+      info: {
+        componentStack: string
+      },
+    ) => {
+      getMixPanel()?.track(MixPanelEvents.Error, { error, info })
+    },
+    [],
+  )
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>

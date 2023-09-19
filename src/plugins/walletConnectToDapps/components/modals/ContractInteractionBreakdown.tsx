@@ -5,7 +5,7 @@ import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyB
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { useGetAbi } from 'plugins/walletConnectToDapps/hooks/useGetAbi'
-import type { EthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v2/types'
+import type { EthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'

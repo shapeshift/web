@@ -1,16 +1,16 @@
 import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
-import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsHandler'
+import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
 import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
 import { useEffect } from 'react'
 
 // any type ok here because we're only pulling out the topic

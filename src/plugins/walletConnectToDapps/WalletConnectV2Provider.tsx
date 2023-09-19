@@ -1,20 +1,19 @@
-import { useWalletConnectEventsManager } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsManager'
+import { useWalletConnectEventsManager } from 'plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsManager'
 import type {
   WalletConnectContextType,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
-import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
-import { WalletConnectModalManager } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
-import { walletConnectReducer } from 'plugins/walletConnectToDapps/v2/walletConnectReducer'
+} from 'plugins/walletConnectToDapps/types'
+import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
+import { clearAllWalletConnectToDappsSessions } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
+import { WalletConnectModalManager } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
+import { walletConnectReducer } from 'plugins/walletConnectToDapps/walletConnectReducer'
 import {
   getWalletConnectCore,
   getWalletConnectWallet,
-} from 'plugins/walletConnectToDapps/v2/walletUtils'
+} from 'plugins/walletConnectToDapps/walletUtils'
 import type { FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-import { clearAllWalletConnectToDappsSessions } from './utils/clearAllWalletConnectToDappsSessions'
 
 const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
 

@@ -9,14 +9,15 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { utils } from 'ethers'
-import type { ConfirmData, TransactionParams } from 'plugins/walletConnectToDapps/types'
 import type {
+  ConfirmData,
   CosmosSignAminoCallRequestParams,
   CosmosSignDirectCallRequestParams,
   CustomTransactionData,
   EthSignParams,
+  TransactionParams,
   WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 

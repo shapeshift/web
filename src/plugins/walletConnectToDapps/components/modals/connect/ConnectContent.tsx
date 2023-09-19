@@ -11,7 +11,7 @@ import {
   Link,
   VStack,
 } from '@chakra-ui/react'
-import { isValidWalletConnectUri } from 'plugins/walletConnectToDapps/components/modals/connect/utils'
+import { isWalletConnectV2Uri } from 'plugins/walletConnectToDapps/components/modals/connect/utils'
 import { useCallback, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -52,7 +52,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
   )
 
   const uri = useWatch({ control, name: 'uri' })
-  const isValidUri = isValidWalletConnectUri(uri)
+  const isValidUri = isWalletConnectV2Uri(uri)
 
   if (isQrCodeView)
     return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />

@@ -11,12 +11,12 @@ import {
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   EthPersonalSignCallRequest,
   EthSignCallRequest,
-} from 'plugins/walletConnectToDapps/v2/types'
-import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+} from 'plugins/walletConnectToDapps/types'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'

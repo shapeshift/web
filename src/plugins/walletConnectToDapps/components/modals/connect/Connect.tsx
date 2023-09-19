@@ -1,6 +1,6 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
-import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
+import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
 
 type Props = {

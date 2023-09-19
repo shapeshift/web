@@ -94,8 +94,13 @@ export const TxWindow = () => {
       </Box>
       <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
-        <DrawerContent minHeight='100vh' maxHeight='100vh' overflow='auto'>
-          <DrawerCloseButton />
+        <DrawerContent
+          minHeight='100vh'
+          maxHeight='100vh'
+          overflow='auto'
+          paddingTop={`env(safe-area-inset-top)`}
+        >
+          <DrawerCloseButton top={'calc(var(--chakra-space-2) + env(safe-area-inset-top))'} />
           <DrawerHeader px={padding} display='flex' alignItems='center' gap={2}>
             <TxHistoryIcon color='text.subtle' />
             {translate('navBar.transactions')}

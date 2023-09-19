@@ -84,7 +84,7 @@
     "@formatjs/intl-locale": "^3.0.2",
     "@formatjs/intl-numberformat": "^8.0.2",
     "@formatjs/intl-pluralrules": "^5.0.2",
-    "@keepkey/hdwallet-keepkey-rest": "1.40.39",
+    "@keepkey/hdwallet-keepkey-rest": "1.40.40",
     "@keepkey/keepkey-sdk": "0.2.52",
     "@lifi/sdk": "^2.2.3",
     "@metamask/detect-provider": "^1.2.0",

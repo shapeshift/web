@@ -20,10 +20,11 @@ const NFT_NAME_BLACKLIST = [
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
 // e.g "$9999+ free giveaway *limited time only*" would not work without it
-export const nftNameBlacklistRegex = new RegExp(
+const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',
 )
+export const isSpammyNftText = (nftText: string) => nftNameBlacklistRegex.test(nftText)
 export const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',
   'eip155:137/erc1155:0x4217495f2a128da8d6122d120a1657753823721a',

@@ -15,7 +15,7 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { BLACKLISTED_COLLECTION_IDS, nftNameBlacklistRegex } from 'state/apis/nft/constants'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
@@ -109,9 +109,8 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
     if (
       transfers.some(
         transfer =>
-          nftNameBlacklistRegex.test(
-            `${transfer.token?.name ?? ''} ${transfer.token?.symbol ?? ''}`.toLowerCase(),
-          ) || BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
+          [transfer.token?.name ?? '', transfer.token?.symbol ?? ''].some(isSpammyNftText) ||
+          BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
       )
     )
       return true

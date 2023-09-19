@@ -17,7 +17,7 @@ import { initialState as initialPortfolioState } from 'state/slices/portfolioSli
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import { BLACKLISTED_COLLECTION_IDS, nftNameBlacklistRegex } from './constants'
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText } from './constants'
 import { selectNftCollectionById } from './selectors'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
@@ -210,11 +210,7 @@ export const nftApi = createApi({
               data.forEach(item => {
                 const { assetId } = item
                 if (item.collection.isSpam) return
-                if (
-                  nftNameBlacklistRegex.test(
-                    `${item.collection.description} ${item.name} ${item.symbol} ${item.description}`.toLowerCase(),
-                  )
-                )
+                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
                   return
                 const { assetReference, chainId } = fromAssetId(assetId)
 
@@ -266,11 +262,7 @@ export const nftApi = createApi({
             if (!item.collection.assetId) return acc
             const cachedCollection = selectNftCollectionById(state, item.collection.assetId)
             if (cachedCollection?.isSpam) item.collection.isSpam = true
-            if (
-              nftNameBlacklistRegex.test(
-                `${item.description.toLowerCase()} ${item.name.toLowerCase()} ${item.symbol.toLowerCase()}`,
-              )
-            )
+            if ([item.description, item.name, item.symbol].some(isSpammyNftText))
               item.collection.isSpam = true
             acc[item.collection.assetId] = item.collection
             return acc

@@ -41,7 +41,7 @@ import maxBy from 'lodash/maxBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { nftNameBlacklistRegex } from 'state/apis/nft/constants'
+import { isSpammyNftText } from 'state/apis/nft/constants'
 import type { NftCollectionType } from 'state/apis/nft/types'
 
 import type {
@@ -197,11 +197,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
             const nftCollection = nftCollectionsById[collectionAssetId]
 
             if (nftCollection?.isSpam) return
-            if (
-              nftNameBlacklistRegex.test(
-                `${nftCollection?.description.toLowerCase()} ${nftCollection?.name.toLowerCase()}}`,
-              )
-            )
+            if ([nftCollection?.description ?? '', nftCollection?.name ?? ''].some(isSpammyNftText))
               return
           }
 

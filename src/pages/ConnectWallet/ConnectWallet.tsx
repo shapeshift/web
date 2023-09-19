@@ -112,9 +112,9 @@ export const ConnectWallet = () => {
 
   const renderChains = useMemo(() => {
     return allNativeAssets.map(asset => (
-      <Tooltip label={asset.networkName}>
+      <Tooltip key={asset.assetId} label={asset.networkName}>
         <span>
-          <AssetIcon key={asset.assetId} src={asset.networkIcon ?? asset.icon} size='sm' />
+          <AssetIcon src={asset.networkIcon ?? asset.icon} size='sm' />
         </span>
       </Tooltip>
     ))

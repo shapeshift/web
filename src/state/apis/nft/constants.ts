@@ -16,6 +16,7 @@ const NFT_NAME_BLACKLIST = [
   'bonus',
   'claim',
   'etherscan',
+  'shibarium',
 ]
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist

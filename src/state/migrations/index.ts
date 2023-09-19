@@ -12,4 +12,5 @@ export const migrations = {
   4: clearOpportunities,
   5: clearNfts,
   6: clearAssets,
+  7: clearPortfolio,
 }

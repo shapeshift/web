@@ -1,7 +1,6 @@
-// List of domains to check for
-
 import type { NftItem } from './types'
 
+// List of domains to check for
 // Try to be as broad as possible vs. specific here to accommodate for diff. TLDs and subdomains
 const NFT_DOMAINS_BLACKLIST = ['ethercb']
 const NFT_NAME_BLACKLIST = [

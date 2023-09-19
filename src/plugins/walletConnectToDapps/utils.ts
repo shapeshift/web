@@ -9,8 +9,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { utils } from 'ethers'
-import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
+import type { ConfirmData, TransactionParams } from 'plugins/walletConnectToDapps/types'
 import type {
   CosmosSignAminoCallRequestParams,
   CosmosSignDirectCallRequestParams,

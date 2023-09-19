@@ -101,13 +101,16 @@ export const EIP155TransactionConfirmation: FC<
           address={transaction.to}
           showWalletProviderName={false}
           icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
-          explorerAddressLink={feeAsset?.explorerAddressLink}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
       {isInteractingWithContract ? (
         <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
           <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-            <ContractInteractionBreakdown request={transaction} feeAsset={feeAsset} />
+            <ContractInteractionBreakdown
+              request={transaction}
+              feeAsset={connectedAccountFeeAsset}
+            />
           </Card>
         </ModalSection>
       ) : (

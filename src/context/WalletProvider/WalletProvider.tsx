@@ -28,6 +28,7 @@ import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/use
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -710,6 +711,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
   const onProviderChange = useCallback(
     async (localWalletType: KeyManagerWithProvider | null) => {
+      console.log('xxx onProviderChange', { localWalletType, walletType })
       if (!localWalletType) return
       setWalletType(localWalletType)
       if (!walletType) return
@@ -741,22 +743,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             return new WalletConnectProvider(config)
           }
           if (walletType === KeyManager.WalletConnectV2) {
-            const config: EthereumProviderOptions = {
-              projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
-              chains: [1],
-              optionalChains: [],
-              optionalMethods: [
-                'eth_signTypedData',
-                'eth_signTypedData_v4',
-                'eth_sign',
-                'ethVerifyMessage',
-                'eth_accounts',
-                'eth_sendTransaction',
-                'eth_signTransaction',
-              ],
-              showQrModal: true,
-            }
-            return await EthereumProvider.init(config)
+            return await EthereumProvider.init({
+              ...walletConnectV2ProviderConfig,
+              showQrModal: false,
+            })
           }
 
           return null
@@ -808,22 +798,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     },
                   }
                 case KeyManager.WalletConnectV2:
-                  // FIXME: duplicated from above
-                  return {
-                    projectId: '5abef0455c768644c2bc866f1520374f', // FIXME: use env var
-                    chains: [1],
-                    optionalChains: [],
-                    optionalMethods: [
-                      'eth_signTypedData',
-                      'eth_signTypedData_v4',
-                      'eth_sign',
-                      'ethVerifyMessage',
-                      'eth_accounts',
-                      'eth_sendTransaction',
-                      'eth_signTransaction',
-                    ],
-                    showQrModal: true,
-                  }
+                  return walletConnectV2ProviderConfig
                 case KeyManager.Coinbase:
                   return {
                     appName: 'ShapeShift',

@@ -60,9 +60,6 @@ import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
 import { KeepKeyRoutes } from './routes'
-import { WalletConnectConnect } from './WalletConnect/components/Connect'
-import { WalletConnectFailure } from './WalletConnect/components/Failure'
-import { WalletConnectConfig } from './WalletConnect/config'
 import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
 import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
@@ -169,13 +166,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
-  },
-  [KeyManager.WalletConnect]: {
-    ...WalletConnectConfig,
-    routes: [
-      { path: '/walletconnect/connect', component: WalletConnectConnect },
-      { path: '/walletconnect/failure', component: WalletConnectFailure },
-    ],
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,

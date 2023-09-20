@@ -6,8 +6,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { ConnectModal } from 'context/WalletProvider/components/ConnectModal'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
-import { WalletConnectConfig } from 'context/WalletProvider/WalletConnect/config'
-import { WalletNotFoundError } from 'context/WalletProvider/WalletConnect/Error'
+import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
+import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Error'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { LocationState } from '../../NativeWallet/types'
@@ -41,7 +41,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
           throw new WalletNotFoundError()
         }
 
-        const { name, icon } = WalletConnectConfig
+        const { name, icon } = WalletConnectV2Config
         const deviceId = await wallet.getDeviceID()
 
         dispatch({

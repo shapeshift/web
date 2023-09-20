@@ -1,7 +1,6 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
@@ -14,7 +13,7 @@ import type {
   EthereumProvider as EthereumProviderType,
   EthereumProviderOptions,
 } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
-import WalletConnectProvider from '@walletconnect/web3-provider'
+import type WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
@@ -97,7 +96,6 @@ export type MetaMaskLikeProvider = providers.Web3Provider
 export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
-  | KeyManager.WalletConnect
   | KeyManager.WalletConnectV2
   | KeyManager.Coinbase
 
@@ -151,7 +149,6 @@ export const isKeyManagerWithProvider = (
       [
         KeyManager.XDefi,
         KeyManager.MetaMask,
-        KeyManager.WalletConnect,
         KeyManager.WalletConnectV2,
         KeyManager.Coinbase,
       ].includes(keyManager),
@@ -588,36 +585,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
-            case KeyManager.WalletConnect: {
-              const localWalletConnectWallet = await state.adapters
-                .get(KeyManager.WalletConnect)?.[0]
-                ?.pairDevice()
-              if (localWalletConnectWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnect]
-                try {
-                  await localWalletConnectWallet.initialize()
-                  const deviceId = await localWalletConnectWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localWalletConnectWallet,
-                      name,
-                      icon,
-                      deviceId,
-                      connectedType: KeyManager.WalletConnect,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            }
             case KeyManager.WalletConnectV2: {
               const localWalletConnectWallet = await state.adapters
                 .get(KeyManager.WalletConnectV2)?.[0]
@@ -727,21 +694,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               throw new Error('walletProvider.xdefi.errors.connectFailure')
             }
           }
-          if (walletType === KeyManager.WalletConnect) {
-            const config: WalletConnectProviderConfig = {
-              /** List of RPC URLs indexed by chain reference */
-              rpc: {
-                [CHAIN_REFERENCE.EthereumMainnet]: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-                [CHAIN_REFERENCE.OptimismMainnet]: getConfig().REACT_APP_OPTIMISM_NODE_URL,
-                [CHAIN_REFERENCE.BnbSmartChainMainnet]:
-                  getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
-                [CHAIN_REFERENCE.GnosisMainnet]: getConfig().REACT_APP_GNOSIS_NODE_URL,
-                [CHAIN_REFERENCE.PolygonMainnet]: getConfig().REACT_APP_POLYGON_NODE_URL,
-                [CHAIN_REFERENCE.AvalancheCChain]: getConfig().REACT_APP_AVALANCHE_NODE_URL,
-              },
-            }
-            return new WalletConnectProvider(config)
-          }
           if (walletType === KeyManager.WalletConnectV2) {
             return await EthereumProvider.init({
               ...walletConnectV2ProviderConfig,
@@ -791,12 +743,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
             const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
               switch (keyManager) {
-                case KeyManager.WalletConnect:
-                  return {
-                    rpc: {
-                      1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-                    },
-                  }
                 case KeyManager.WalletConnectV2:
                   return walletConnectV2ProviderConfig
                 case KeyManager.Coinbase:
@@ -840,7 +786,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const connect = useCallback((type: KeyManager) => {
     // remove existing dapp or wallet connections
-    if (type === KeyManager.WalletConnect) localStorage.removeItem('walletconnect')
+    // if (type === KeyManager.WalletConnect) localStorage.removeItem('walletconnect')
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),

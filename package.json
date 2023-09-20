@@ -116,7 +116,6 @@
     "@visx/responsive": "^2.10.0",
     "@visx/xychart": "^2.12.2",
     "@wagmi/core": "^1.4.1",
-    "@walletconnect/client": "^1.8.0",
     "@walletconnect/ethereum-provider": "^2.10.0",
     "@walletconnect/utils": "^2.10.1",
     "@walletconnect/web3-provider": "^1.8.0",

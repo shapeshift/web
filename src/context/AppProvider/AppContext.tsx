@@ -287,7 +287,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())
-    })
+    })()
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**

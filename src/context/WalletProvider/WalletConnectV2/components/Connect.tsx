@@ -12,12 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { LocationState } from '../../NativeWallet/types'
 
-export interface WalletConnectSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
+export interface WalletConnectSetupProps extends RouteComponentProps<{}, {}, LocationState> {
   dispatch: React.Dispatch<ActionTypes>
 }
 

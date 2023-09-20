@@ -63,25 +63,25 @@ export function AppProviders({ children }: ProvidersProps) {
                 <ScrollToTop />
                 <BrowserRouterProvider>
                   <I18nProvider>
-                    <WalletProvider>
-                      <WalletConnectV2Provider>
-                        <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <ModalProvider>
-                              <TransactionsProvider>
-                                <AppProvider>
-                                  <FoxEthProvider>
-                                    <Web3ModalProvider>
+                    <Web3ModalProvider>
+                      <WalletProvider>
+                        <WalletConnectV2Provider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                              <ModalProvider>
+                                <TransactionsProvider>
+                                  <AppProvider>
+                                    <FoxEthProvider>
                                       <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </Web3ModalProvider>
-                                  </FoxEthProvider>
-                                </AppProvider>
-                              </TransactionsProvider>
-                            </ModalProvider>
-                          </ErrorBoundary>
-                        </KeepKeyProvider>
-                      </WalletConnectV2Provider>
-                    </WalletProvider>
+                                    </FoxEthProvider>
+                                  </AppProvider>
+                                </TransactionsProvider>
+                              </ModalProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectV2Provider>
+                      </WalletProvider>
+                    </Web3ModalProvider>
                   </I18nProvider>
                 </BrowserRouterProvider>
               </HashRouter>

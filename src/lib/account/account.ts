@@ -24,11 +24,10 @@ export type DeriveAccountIdsAndMetadata = (
   args: DeriveAccountIdsAndMetadataArgs,
 ) => DeriveAccountIdsAndMetadataReturn
 
-export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = args => {
+export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
   if (!Number.isInteger(accountNumber) || accountNumber < 0)
     throw new Error('invalid accountNumber')
-
   type ChainNamespaceKey = (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE]
   type ChainIdsByChainNamespace = {
     [key in ChainNamespaceKey]: ChainId[]
@@ -45,13 +44,14 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = args => 
     return acc
   }, initial)
 
-  const result = Object.entries(chainIdsByChainNamespace).map(([chainNamespace, chainIds]) =>
-    deriveAccountIdsAndMetadataForChainNamespace[chainNamespace as ChainNamespaceKey]({
-      accountNumber,
-      chainIds,
-      wallet,
-    }),
+  const result = await Promise.all(
+    Object.entries(chainIdsByChainNamespace).map(([chainNamespace, chainIds]) =>
+      deriveAccountIdsAndMetadataForChainNamespace[chainNamespace as ChainNamespaceKey]({
+        accountNumber,
+        chainIds,
+        wallet,
+      }),
+    ),
   )
-
   return merge({}, ...result)
 }

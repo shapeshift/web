@@ -92,9 +92,12 @@ export const marketData = createSlice({
     },
     setCryptoPriceHistory: {
       reducer: (state, { payload }: { payload: CryptoPriceHistoryPayload }) => {
+        const { timeframe, historyDataByAssetId } = payload
         const incoming = {
           crypto: {
-            priceHistory: payload,
+            priceHistory: {
+              [timeframe]: historyDataByAssetId,
+            },
           },
         }
         merge(state, incoming)

@@ -185,6 +185,7 @@ export const marketApi = createApi({
 
               return { assetId, historyData }
             } catch (e) {
+              console.error(e)
               return { assetId, historyData: [] }
             }
           }),

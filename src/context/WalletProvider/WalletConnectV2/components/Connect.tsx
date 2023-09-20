@@ -32,6 +32,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     console.log('xxx WalletConnectV2Connect pairDevice')
     // onProviderChange will trigger the Web3Modal
+    // FIXME: we might be able to not clear the session above, and instead reconnect if a session exists
     await onProviderChange(KeyManager.WalletConnectV2)
     try {
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnectV2)) {

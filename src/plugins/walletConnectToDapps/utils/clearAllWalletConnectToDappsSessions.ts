@@ -11,6 +11,8 @@ export const clearWalletConnectLocalStorage = () => {
     }
   }
 
+  console.log('xxx clearWalletConnectLocalStorage', keysToRemove)
+
   for (const key of keysToRemove) {
     window.localStorage.removeItem(key)
   }

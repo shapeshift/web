@@ -22,7 +22,7 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
-import { Web3ModalService } from 'context/WalletProvider/WalletConnectV2/Web3ModalSingleton'
+import { Web3ModalProvider } from 'context/WalletProvider/WalletConnectV2/Web3ModalProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -71,8 +71,9 @@ export function AppProviders({ children }: ProvidersProps) {
                               <TransactionsProvider>
                                 <AppProvider>
                                   <FoxEthProvider>
-                                    <Web3ModalService />
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    <Web3ModalProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </Web3ModalProvider>
                                   </FoxEthProvider>
                                 </AppProvider>
                               </TransactionsProvider>

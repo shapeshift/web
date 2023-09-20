@@ -18,10 +18,10 @@ import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
 import FoxMissionsBg from 'assets/fox-mission-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
-import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import FoxRewardsBg from 'assets/foxrewards-mission.png'
 import SponsorBg from 'assets/mission-sponsor-bg.jpg'
 import OptimismBg from 'assets/op-card-bg.png'
+import SnapFoxatar from 'assets/snap-foxatar.jpg'
 import YatBg from 'assets/yat-mission-bg.png'
 import { Carousel } from 'components/Carousel/Carousel'
 import type { CarouselHeaderProps } from 'components/Carousel/types'
@@ -47,10 +47,10 @@ export const useGetMissions = () => {
   const missionItems: MissionProps[] = useMemo(() => {
     return [
       {
-        title: translate('missions.foxatar.title'),
-        subtitle: translate('missions.foxatar.subtitle'),
-        buttonText: translate('missions.foxatar.cta'),
-        coverImage: FoxAtarBg,
+        title: translate('missions.snapfoxatar.title'),
+        subtitle: translate('missions.snapfoxatar.subtitle'),
+        buttonText: translate('missions.snapfoxatar.cta'),
+        coverImage: SnapFoxatar,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
       },
       {

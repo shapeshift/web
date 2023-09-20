@@ -2088,6 +2088,11 @@
       "subtitle": "Buy, sell, trade, earn, and more",
       "title": "Earn FOX",
       "cta": "Start Mission"
+    },
+    "snapfoxatar": {
+      "title": "Unlock Bitcoin with MetaMask",
+      "subtitle": "Mint a Metamask FOXatar skin",
+      "cta": "Start Mission"
     }
   },
   "avatar": {

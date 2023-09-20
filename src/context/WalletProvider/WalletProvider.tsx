@@ -7,7 +7,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import EthereumProvider from '@walletconnect/ethereum-provider'
 import type {
   EthereumProvider as EthereumProviderType,
@@ -733,11 +732,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions =
-              | undefined
-              | WalletConnectProviderConfig
-              | CoinbaseProviderConfig
-              | EthereumProviderOptions
+            type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 

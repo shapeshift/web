@@ -28,7 +28,7 @@ type CoinGeckoHistoryData = {
   prices: [number, number][]
 }
 
-const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS })
+const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class CoinGeckoMarketService implements MarketService {
   private readonly maxPerPage = 250

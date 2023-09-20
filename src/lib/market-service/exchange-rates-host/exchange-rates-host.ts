@@ -17,7 +17,7 @@ import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchan
 
 const baseCurrency = 'USD'
 
-const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS })
+const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export const makeExchangeRateRequestUrls = (
   start: Dayjs,

@@ -19,7 +19,7 @@ import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
 
-const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS })
+const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class CoinCapMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'

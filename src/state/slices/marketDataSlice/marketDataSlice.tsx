@@ -168,6 +168,7 @@ export const marketApi = createApi({
               const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
               return { assetId, currentMarketData }
             } catch (e) {
+              console.error(e)
               return { assetId, currentMarketData: null }
             }
           }),

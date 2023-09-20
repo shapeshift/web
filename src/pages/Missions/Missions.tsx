@@ -46,13 +46,6 @@ export const useGetMissions = () => {
   const translate = useTranslate()
   const missionItems: MissionProps[] = useMemo(() => {
     return [
-      // {
-      //   title: translate('missions.foxatar.title'),
-      //   subtitle: translate('missions.foxatar.subtitle'),
-      //   buttonText: translate('missions.foxatar.cta'),
-      //   coverImage: FoxAtarBg,
-      //   onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
-      // },
       {
         title: translate('missions.snapfoxatar.title'),
         subtitle: translate('missions.snapfoxatar.subtitle'),

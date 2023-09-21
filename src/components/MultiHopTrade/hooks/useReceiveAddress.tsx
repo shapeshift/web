@@ -1,4 +1,5 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -11,29 +12,32 @@ import {
   selectBuyAsset,
   selectManualReceiveAddress,
 } from 'state/slices/swappersSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-const getReceiveAddress = async ({
-  asset,
-  wallet,
-  accountMetadata,
-}: GetReceiveAddressArgs): Promise<string | undefined> => {
-  const { chainId } = fromAssetId(asset.assetId)
-  const { accountType, bip44Params } = accountMetadata
-  const chainAdapter = getChainAdapterManager().get(chainId)
-  if (!(chainAdapter && wallet)) return
-  const { accountNumber } = bip44Params
-  try {
-    return await chainAdapter.getAddress({ wallet, accountNumber, accountType })
-  } catch (e) {
-    console.log(e)
-  }
-}
+const getReceiveAddress = pMemoize(
+  async ({
+    asset,
+    wallet,
+    accountMetadata,
+  }: GetReceiveAddressArgs): Promise<string | undefined> => {
+    const { chainId } = fromAssetId(asset.assetId)
+    const { accountType, bip44Params } = accountMetadata
+    const chainAdapter = getChainAdapterManager().get(chainId)
+    if (!(chainAdapter && wallet)) return
+    const { accountNumber } = bip44Params
+    try {
+      const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType })
+      return address
+    } catch (e) {
+      console.log(e)
+    }
+  },
+  { cacheKey: JSON.stringify },
+)
 
 export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
-  const dispatch = useAppDispatch()
   // TODO: this should live in redux
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>(undefined)
 
@@ -80,7 +84,7 @@ export const useReceiveAddress = () => {
         setReceiveAddress(undefined)
       }
     })()
-  }, [buyAsset, dispatch, getReceiveAddressFromBuyAsset, setReceiveAddress])
+  }, [buyAsset, getReceiveAddressFromBuyAsset])
 
   // Always use the manual receive address if it is set
   return manualReceiveAddress || receiveAddress

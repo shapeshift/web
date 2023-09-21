@@ -29,7 +29,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     setError(null)
     setLoading(true)
     if (state.adapters && state.adapters?.has(KeyManager.Ledger)) {
-      debugger
       const wallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')

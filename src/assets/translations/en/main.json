@@ -1253,6 +1253,26 @@
         "body": "Unable to connect Keplr wallet"
       }
     },
+    "ledger": {
+      "success": {
+        "header": "Ledger Connected",
+        "success": "You can now close this window or it will auto-close shortly",
+        "error": "There was an error connecting your wallet"
+      },
+      "errors": {
+        "connectFailure": "Unable to connect Ledger wallet",
+        "unknown": "An unexpected error occurred communicating with Ledger wallet"
+      },
+      "connect": {
+        "header": "Pair Ledger",
+        "body": "Click Pair then select your Ledger from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Ledger wallet"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",

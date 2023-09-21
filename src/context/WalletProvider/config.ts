@@ -30,6 +30,10 @@ import { KeplrConnect } from './Keplr/components/Connect'
 import { KeplrFailure } from './Keplr/components/Failure'
 import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
+import { LedgerConnect } from './Ledger/components/Connect'
+import { LedgerFailure } from './Ledger/components/Failure'
+import { LedgerSuccess } from './Ledger/components/Success'
+import { LedgerConfig } from './Ledger/config'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskMenu } from './MetaMask/components/MetaMaskMenu'
@@ -182,6 +186,14 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/keplr/connect', component: KeplrConnect },
       { path: '/keplr/failure', component: KeplrFailure },
+    ],
+  },
+  [KeyManager.Ledger]: {
+    ...LedgerConfig,
+    routes: [
+      { path: '/ledger/connect', component: LedgerConnect },
+      { path: '/ledger/success', component: LedgerSuccess },
+      { path: '/ledger/failure', component: LedgerFailure },
     ],
   },
   [KeyManager.WalletConnectV2]: {

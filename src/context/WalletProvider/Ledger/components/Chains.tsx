@@ -1,78 +1,108 @@
 import { Box, Button, Flex, ModalBody, Text as CText } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { btcAssetId, btcChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  bchAssetId,
+  bchChainId,
+  btcAssetId,
+  btcChainId,
+  dogeAssetId,
+  dogeChainId,
+  ethAssetId,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  ltcAssetId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 import pull from 'lodash/pull'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { deriveUtxoAccountIdsAndMetadata } from 'lib/account/utxo'
+import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { useAppDispatch } from 'state/store'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
   const wallet = useWallet().state.wallet
   const dispatch = useAppDispatch()
+  const assets = useAppSelector(selectAssets)
 
-  const handleConnectClick = useCallback(async () => {
-    if (!wallet) return
-    // TODO(gomes): we don't have multi account support here yet but we may want to
-    const accountNumber = 0
-    const chainIds = [btcChainId]
-    // TODO(gomes): this should be programmatic
+  // TODO(gomes): KnownChainIds filter walletSupportsChain
+  const availableAssetIds = useMemo(
+    () => [btcAssetId, dogeAssetId, bchAssetId, ltcAssetId, ethAssetId],
+    [],
+  )
+  const availableAssets = useMemo(
+    () => availableAssetIds.map(id => assets[id]).filter(isSome),
+    [assets, availableAssetIds],
+  )
+  const availableChainIds = useMemo(
+    () => [btcChainId, dogeChainId, bchChainId, ltcChainId, ethChainId],
+    [],
+  )
 
-    const accountMetadataByAccountId = await deriveUtxoAccountIdsAndMetadata({
-      accountNumber,
-      chainIds,
-      wallet,
-    })
+  const handleConnectClick = useCallback(
+    async (chainId: ChainId) => {
+      if (!wallet) return
 
-    const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
-    const { getAccount } = portfolioApi.endpoints
-    const opts = { forceRefetch: true }
-    // do *not* upsertOnFetch here - we need to check if the fetched account is empty
-    const accountPromises = accountIds.map(accountId =>
-      dispatch(getAccount.initiate({ accountId }, opts)),
-    )
-    const accountResults = await Promise.allSettled(accountPromises)
+      const accountNumber = 0
 
-    /**
-     * because UTXO chains can have multiple accounts per number, we need to aggregate
-     * balance by chain id to see if we fetch the next by accountNumber
-     */
-    const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
-      if (res.status === 'rejected') return acc
-      const { data: account } = res.value
-      if (!account) return acc
-      const accountId = accountIds[idx]
-      const { chainId } = fromAccountId(accountId)
-      const accountBalance = Object.values(account.accountBalances.byId).reduce<BN>(
-        (acc, byAssetId) => {
-          Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
-          return acc
-        },
-        bnOrZero(0),
+      // TODO(gomes): this should be programmatic
+      const { chainNamespace } = fromChainId(chainId)
+      const accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
+        chainNamespace
+      ]({
+        accountNumber,
+        chainIds: [chainId],
+        wallet,
+      })
+
+      const accountIds = Object.keys(accountMetadataByAccountId)
+      const { getAccount } = portfolioApi.endpoints
+      const opts = { forceRefetch: true }
+
+      const accountPromises = accountIds.map(accountId =>
+        dispatch(getAccount.initiate({ accountId }, opts)),
       )
-      acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
-      // don't upsert empty accounts past account 0
-      if (accountNumber > 0 && accountBalance.eq(0)) return acc
-      const accountMetadata = accountMetadataByAccountId[accountId]
-      const payload = { [accountId]: accountMetadata }
-      dispatch(portfolio.actions.upsertAccountMetadata(payload))
-      dispatch(portfolio.actions.upsertPortfolio(account))
-      return acc
-    }, {})
 
-    /**
-     * if the balance for all accounts for the current chainId and accountNumber
-     * is zero, we've exhausted that chain, don't fetch more of them
-     */
-    Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
-      if (balance.eq(0)) pull(chainIds, chainId) // pull mutates chainIds, but we want to
-    })
-  }, [dispatch, wallet])
+      const accountResults = await Promise.allSettled(accountPromises)
+
+      const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
+        if (res.status === 'rejected') return acc
+        const { data: account } = res.value
+        if (!account) return acc
+
+        const accountId = accountIds[idx]
+        const { chainId } = fromAccountId(accountId)
+        const accountBalance = Object.values(account.accountBalances.byId).reduce(
+          (acc, byAssetId) => {
+            Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
+            return acc
+          },
+          bnOrZero(0),
+        )
+
+        acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
+        if (accountNumber > 0 && accountBalance.eq(0)) return acc
+
+        const accountMetadata = accountMetadataByAccountId[accountId]
+        const payload = { [accountId]: accountMetadata }
+        dispatch(portfolio.actions.upsertAccountMetadata(payload))
+        dispatch(portfolio.actions.upsertPortfolio(account))
+        return acc
+      }, {})
+
+      Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
+        if (balance.eq(0)) pull(availableChainIds, chainId)
+      })
+    },
+    [availableChainIds, dispatch, wallet],
+  )
 
   return (
     <>
@@ -94,15 +124,17 @@ export const LedgerChains = () => {
             mb={2}
           />
           <Box>
-            <Flex alignItems='center' justifyContent='space-between' mb={4}>
-              <Flex alignItems='center'>
-                <AssetIcon assetId={btcAssetId} mr={2} />
-                <CText>Bitcoin</CText>
+            {availableAssets.map(asset => (
+              <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+                <Flex alignItems='center'>
+                  <AssetIcon assetId={asset.assetId} mr={2} />
+                  <CText>{asset.name}</CText>
+                </Flex>
+                <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
+                  Connect
+                </Button>
               </Flex>
-              <Button colorScheme='blue' onClick={handleConnectClick}>
-                Connect
-              </Button>
-            </Flex>
+            ))}
           </Box>
         </Box>
       </ModalBody>

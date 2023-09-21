@@ -8,7 +8,7 @@ import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'
 import { deriveUtxoAccountIdsAndMetadata } from './utxo'
 
-const deriveAccountIdsAndMetadataForChainNamespace = {
+export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.CosmosSdk]: deriveCosmosSdkAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Evm]: deriveEvmAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Utxo]: deriveUtxoAccountIdsAndMetadata,

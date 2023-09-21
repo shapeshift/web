@@ -1254,6 +1254,12 @@
       }
     },
     "ledger": {
+      "chains": {
+        "header": "Import Ledger Accounts",
+        "body": "To see your balances for each chain, you'll need to connect each app.",
+        "availableChains": "Available Chains",
+        "error": "There was an error connecting your wallet"
+      },
       "success": {
         "header": "Ledger Connected",
         "success": "You can now close this window or it will auto-close shortly",

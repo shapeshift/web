@@ -30,6 +30,7 @@ import { KeplrConnect } from './Keplr/components/Connect'
 import { KeplrFailure } from './Keplr/components/Failure'
 import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
+import { LedgerChains } from './Ledger/components/Chains'
 import { LedgerConnect } from './Ledger/components/Connect'
 import { LedgerFailure } from './Ledger/components/Failure'
 import { LedgerSuccess } from './Ledger/components/Success'
@@ -192,6 +193,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...LedgerConfig,
     routes: [
       { path: '/ledger/connect', component: LedgerConnect },
+      { path: '/ledger/chains', component: LedgerChains },
       { path: '/ledger/success', component: LedgerSuccess },
       { path: '/ledger/failure', component: LedgerFailure },
     ],

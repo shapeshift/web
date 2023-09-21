@@ -48,7 +48,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
-        history.push('/ledger/success')
+        history.push('/ledger/chains')
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')

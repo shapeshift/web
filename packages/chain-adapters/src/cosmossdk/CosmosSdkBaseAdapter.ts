@@ -2,7 +2,15 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import type {
+  BaseTransactionParser,
+  ParsedTx,
+  Tx,
+} from '@shapeshiftoss/unchained-client/dist/cosmossdk'
+import type { V1Api as CosmosV1Api } from '@shapeshiftoss/unchained-client/dist/cosmossdk/cosmos'
+import { V1Api as ThorchainV1Api } from '@shapeshiftoss/unchained-client/dist/cosmossdk/thorchain'
+import type { Validator as CosmosSdkValidator } from '@shapeshiftoss/unchained-client/dist/cosmossdk/types'
+import type { Client } from '@shapeshiftoss/unchained-client/dist/websocket'
 import { bech32 } from 'bech32'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -58,7 +66,7 @@ export const assertIsValidatorAddress = (validator: string, chainId: CosmosSdkCh
   }
 }
 
-const transformValidator = (validator: unchained.cosmossdk.types.Validator): Validator => ({
+const transformValidator = (validator: CosmosSdkValidator): Validator => ({
   address: validator.address,
   moniker: validator.moniker,
   tokens: validator.tokens,
@@ -66,7 +74,7 @@ const transformValidator = (validator: unchained.cosmossdk.types.Validator): Val
   apr: validator.apr,
 })
 
-const parsedTxToTransaction = (parsedTx: unchained.cosmossdk.ParsedTx): Transaction => ({
+const parsedTxToTransaction = (parsedTx: ParsedTx): Transaction => ({
   ...parsedTx,
   transfers: parsedTx.transfers.map(transfer => ({
     assetId: transfer.assetId,
@@ -92,8 +100,8 @@ export interface ChainAdapterArgs {
   chainId?: CosmosSdkChainId
   coinName: string
   providers: {
-    http: unchained.cosmos.V1Api | unchained.thorchain.V1Api
-    ws: unchained.ws.Client<unchained.cosmossdk.Tx>
+    http: CosmosV1Api | ThorchainV1Api
+    ws: Client<Tx>
   }
 }
 
@@ -102,7 +110,7 @@ export interface CosmosSdkBaseAdapterArgs extends ChainAdapterArgs {
   chainId: CosmosSdkChainId
   defaultBIP44Params: BIP44Params
   denom: Denom
-  parser: unchained.cosmossdk.BaseTransactionParser<unchained.cosmossdk.Tx>
+  parser: BaseTransactionParser<Tx>
   supportedChainIds: ChainId[]
 }
 
@@ -112,13 +120,13 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: unchained.cosmos.V1Api | unchained.thorchain.V1Api
-    ws: unchained.ws.Client<unchained.cosmossdk.Tx>
+    http: CosmosV1Api | ThorchainV1Api
+    ws: Client<Tx>
   }
 
   protected assetId: AssetId
   protected denom: string
-  protected parser: unchained.cosmossdk.BaseTransactionParser<unchained.cosmossdk.Tx>
+  protected parser: BaseTransactionParser<Tx>
 
   protected constructor(args: CosmosSdkBaseAdapterArgs) {
     this.assetId = args.assetId
@@ -160,7 +168,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const account = await (async () => {
-        if (this.providers.http instanceof unchained.thorchain.V1Api) {
+        if (this.providers.http instanceof ThorchainV1Api) {
           const data = await this.providers.http.getAccount({ pubkey })
           return { ...data, delegations: [], redelegations: [], undelegations: [], rewards: [] }
         }
@@ -385,7 +393,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   async getValidators(): Promise<Validator[]> {
-    if (this.providers.http instanceof unchained.thorchain.V1Api) return []
+    if (this.providers.http instanceof ThorchainV1Api) return []
 
     try {
       const data = await this.providers.http.getValidators()
@@ -396,7 +404,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   async getValidator(address: string): Promise<Validator | undefined> {
-    if (this.providers.http instanceof unchained.thorchain.V1Api) return
+    if (this.providers.http instanceof ThorchainV1Api) return
 
     try {
       const validator = await this.providers.http.getValidator({ pubkey: address })

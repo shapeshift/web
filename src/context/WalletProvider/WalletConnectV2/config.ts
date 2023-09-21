@@ -15,7 +15,7 @@ export const WalletConnectV2Config: Omit<SupportedWalletInfo, 'routes'> = {
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
   projectId: getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID,
   chains: [1],
-  optionalChains: [],
+  optionalChains: [10, 56, 100, 137, 43114],
   optionalMethods: [
     'eth_signTypedData',
     'eth_signTypedData_v4',

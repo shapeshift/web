@@ -243,6 +243,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           default:
         }
       })
+
+      // const uniqueChainIds = Array.from(
+      //   new Set(requestedAccountIds.map(accountId => fromAccountId(accountId).chainId)),
+      // )
     })()
   }, [
     portfolioLoadingStatus,

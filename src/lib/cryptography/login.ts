@@ -1,12 +1,11 @@
-import { crypto } from '@shapeshiftoss/hdwallet-native'
+import { EncryptedWallet, engines } from '@shapeshiftoss/hdwallet-native/dist/crypto'
 import {
   decryptWallet,
   hashPassword,
 } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile } from 'lib/globals'
 
-const { EncryptedWallet } = crypto
-const cryptoEngine = new crypto.engines.WebCryptoEngine()
+const cryptoEngine = new engines.WebCryptoEngine()
 
 const getEncryptedWallet = () => {
   return new EncryptedWallet(cryptoEngine)

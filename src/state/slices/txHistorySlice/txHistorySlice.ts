@@ -250,58 +250,63 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<TransactionsByAccountId, AccountId>({
-      queryFn: async (accountId, { getState }) => {
-        const { chainId, account: pubkey } = fromAccountId(accountId)
-        const adapter = getChainAdapterManager().get(chainId)
-        if (!adapter)
-          return {
-            error: {
-              data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
-              status: 400,
-            },
-          }
-
-        let currentCursor: string = ''
-
+    getAllTxHistory: build.query<null, AccountId[]>({
+      queryFn: async (accountIds, { dispatch, getState }) => {
         const results: TransactionsByAccountId = {}
+        await Promise.all(
+          accountIds.map(async accountId => {
+            const { chainId, account: pubkey } = fromAccountId(accountId)
+            const adapter = getChainAdapterManager().get(chainId)
+            if (!adapter)
+              return {
+                error: {
+                  data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+                  status: 400,
+                },
+              }
 
-        try {
-          do {
-            const { cursor, transactions } = await adapter.getTxHistory({
-              cursor: currentCursor,
-              pubkey,
-              pageSize: 100,
-            })
+            let currentCursor: string = ''
 
-            currentCursor = cursor
+            try {
+              do {
+                const { cursor, transactions } = await adapter.getTxHistory({
+                  cursor: currentCursor,
+                  pubkey,
+                  pageSize: 100,
+                })
 
-            const state = getState() as State
-            const txState = state.txHistory.txs
+                currentCursor = cursor
 
-            const existingTxIndexes = Object.values(
-              txState?.byAccountIdAssetId?.[accountId] ?? {},
-            ).flatMap(identity)
+                const state = getState() as State
+                const txState = state.txHistory.txs
 
-            // freshly fetched - unchained returns latest txs first
-            const fetchedTxIndexes: TxId[] = transactions.map(tx =>
-              serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-            )
-            // diff the two - if we haven't seen any of these txs before, upsert them
-            const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
-            if (diffedTxIds.length) {
-              // new txs to return
-              results[accountId] = transactions
-            } else {
-              // we've previously fetched all txs for this account, don't keep paginating
-              break
+                const existingTxIndexes = Object.values(
+                  txState?.byAccountIdAssetId?.[accountId] ?? {},
+                ).flatMap(identity)
+
+                // freshly fetched - unchained returns latest txs first
+                const fetchedTxIndexes: TxId[] = transactions.map(tx =>
+                  serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+                )
+                // diff the two - if we haven't seen any of these txs before, upsert them
+                const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
+                if (diffedTxIds.length) {
+                  // new txs to return
+                  results[accountId] = transactions
+                } else {
+                  // we've previously fetched all txs for this account, don't keep paginating
+                  break
+                }
+              } while (currentCursor)
+            } catch (err) {
+              console.error(err)
             }
-          } while (currentCursor)
-        } catch (err) {
-          console.error(err)
-        }
+          }),
+        )
 
-        return { data: results }
+        dispatch(txHistory.actions.upsertTxsByAccountId(results))
+
+        return { data: null }
       },
     }),
   }),

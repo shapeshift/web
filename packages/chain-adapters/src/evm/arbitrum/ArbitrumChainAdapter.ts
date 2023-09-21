@@ -18,13 +18,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.ArbitrumMainnet> 
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs<unchained.polygon.V1Api>) {
+  constructor(args: ChainAdapterArgs<unchained.arbitrum.V1Api>) {
     super({
       assetId: arbitrumAssetId,
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
-      parser: new unchained.polygon.TransactionParser({
+      parser: new unchained.arbitrum.TransactionParser({
         assetId: arbitrumAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,

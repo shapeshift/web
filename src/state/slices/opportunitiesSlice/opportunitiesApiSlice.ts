@@ -99,6 +99,7 @@ export const opportunitiesApi = createApi({
                 reduxApi: { dispatch, getState },
               })
 
+              // TODO: collect and dispatch once to improve perf locally
               dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
             } catch (e) {
               const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
@@ -135,6 +136,7 @@ export const opportunitiesApi = createApi({
                 reduxApi: { dispatch, getState },
               })
 
+              // TODO: collect and dispatch once to improve perf locally
               dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
             } catch (e) {
               const message =

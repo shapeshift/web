@@ -122,6 +122,7 @@ export const mockStore: ReduxState = {
       ids: [],
       priceHistory: {},
     },
+    isMarketDataLoaded: false,
   },
   txHistory: {
     txs: {

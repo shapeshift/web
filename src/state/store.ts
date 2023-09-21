@@ -12,6 +12,7 @@ import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
+import { snapshotApi } from './apis/snapshot/snapshot'
 import { swappersApi } from './apis/swappers/swappersApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
@@ -44,6 +45,7 @@ const apiMiddleware = [
   swapperApi.middleware,
   swappersApi.middleware,
   fiatRampApi.middleware,
+  snapshotApi.middleware,
   zapper.middleware,
   zapperApi.middleware,
   nftApi.middleware,

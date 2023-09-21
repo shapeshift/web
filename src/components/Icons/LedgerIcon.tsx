@@ -1,8 +1,8 @@
 import { createIcon } from '@chakra-ui/react'
 /**
- * Keplr Icon
+ * Ledger Icon
  *
- * @see https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/public/assets/temp-icon.svg
+ * @see https://developers.ledger.com/docs/transport/ledger-logos/
  */
 export const LedgerIcon = createIcon({
   displayName: 'LedgerIcon',

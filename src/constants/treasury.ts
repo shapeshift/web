@@ -1,6 +1,24 @@
 // Wallets relating to the ShapeShift DAO Treasury
 // https://forum.shapeshift.com/thread/dao-treasuries-and-multisigs-43646
 
+import type { ChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+
+export const evmTreasuryChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.OptimismMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
+] as const
+
+export type EvmTreasuryChainId = (typeof evmTreasuryChainIds)[number]
+
+export const isEvmTreasuryChainId = (chainId: ChainId): chainId is EvmTreasuryChainId => {
+  return evmTreasuryChainIds.includes(chainId as EvmTreasuryChainId)
+}
+
 // Safes
 export const DAO_TREASURY_ETHEREUM_MAINNET = '0x90a48d5cf7343b08da12e067680b4c6dbfe551be'
 export const DAO_TREASURY_OPTIMISM = '0x6268d07327f4fb7380732dc6d63d95F88c0E083b'

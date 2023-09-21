@@ -698,6 +698,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 [CHAIN_REFERENCE.GnosisMainnet]: getConfig().REACT_APP_GNOSIS_NODE_URL,
                 [CHAIN_REFERENCE.PolygonMainnet]: getConfig().REACT_APP_POLYGON_NODE_URL,
                 [CHAIN_REFERENCE.AvalancheCChain]: getConfig().REACT_APP_AVALANCHE_NODE_URL,
+                [CHAIN_REFERENCE.ArbitrumMainnet]: getConfig().REACT_APP_ARBITRUM_NODE_URL,
               },
             }
             return new WalletConnectProvider(config)

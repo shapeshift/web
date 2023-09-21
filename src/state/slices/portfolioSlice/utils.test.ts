@@ -1,4 +1,5 @@
 import {
+  arbitrumAssetId,
   avalancheAssetId,
   bscAssetId,
   ethAssetId,
@@ -43,6 +44,11 @@ describe('accountIdToFeeAssetId', () => {
     const accountId = 'eip155:137:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(polygonAssetId)
+  })
+  it('can get arbitrum feeAssetId from accountId', () => {
+    const accountId = 'eip155:42161:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(arbitrumAssetId)
   })
 })
 

@@ -8087,6 +8087,7 @@ __metadata:
     assert: ^2.0.0
     axios: ^0.26.1
     axios-cache-adapter: ^2.7.3
+    axios-cache-interceptor: ^1.3.0
     bignumber.js: ^9.1.1
     bip21: ^2.0.3
     bip39: ^3.0.4
@@ -12397,6 +12398,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios-cache-interceptor@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "axios-cache-interceptor@npm:1.3.0"
+  dependencies:
+    cache-parser: ^1.2.4
+    fast-defer: ^1.1.7
+    object-code: ^1.3.0
+  peerDependencies:
+    axios: ^1
+  checksum: 000138670d97a9bcddf996a4c1b87f186712c9bd4a1ac2ef7a0d49ee1965110923343226596e7419f153945f46ab1aece6fef64aca53836312f3949f4a674aca
+  languageName: node
+  linkType: hard
+
 "axios@npm:0.21.1":
   version: 0.21.1
   resolution: "axios@npm:0.21.1"
@@ -13557,6 +13571,13 @@ __metadata:
   version: 1.0.0
   resolution: "cache-control-esm@npm:1.0.0"
   checksum: 4f8c8399f2b15ad43c635d14b80aadd9de039f09fa56c4686aca828f82e57c1fc479026db1786dea1ba1026415dab0fe463938be4a6110874d3bf3aa7a60d0f3
+  languageName: node
+  linkType: hard
+
+"cache-parser@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "cache-parser@npm:1.2.4"
+  checksum: de9fc4ab7af318109f1e53474e674d43997bc7b8676157e4f28e7dc60fda2f434ee138aa9d9abb9f849c55e73202ee74865afaa4e00298de70c4326510680c19
   languageName: node
   linkType: hard
 
@@ -18093,6 +18114,13 @@ __metadata:
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
   checksum: e21a9d8d84f53493b6aa15efc9cfd53dd5b714a1f23f67fb5dc8f574af80df889b3bce25dc081887c6d25457cce704e636395333abad896ccdec03abaf1f3f9d
+  languageName: node
+  linkType: hard
+
+"fast-defer@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "fast-defer@npm:1.1.7"
+  checksum: c0f816fe3f83ca7e12c56a6631c6819a50349fb7e1931cec88e883168b523c65605e6e0df32c8fba6c341860c29ecc6fe2531ba8a418d27d31da6544ad1bf45b
   languageName: node
   linkType: hard
 
@@ -23707,6 +23735,13 @@ __metadata:
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
+  languageName: node
+  linkType: hard
+
+"object-code@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "object-code@npm:1.3.0"
+  checksum: bc5e3df85ac54785b3d1d9b8a9b2e168eb5f69e02be3c958fc05aebaa85ec659c55903852bf15ebf44e98053212f88eb7d3a9e28a50f10c4d60d820f80aa8d64
   languageName: node
   linkType: hard
 

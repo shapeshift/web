@@ -273,10 +273,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // const opts = { subscriptionOptions: { pollingInterval } }
     const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
+    dispatch(
+      marketApi.endpoints.findPriceHistoryByAssetIds.initiate({
+        timeframe,
+        assetIds: portfolioAssetIdsExcludeNoMarketData,
+      }),
+    )
     portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
       dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-      const payload = { assetId, timeframe }
-      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
     })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 

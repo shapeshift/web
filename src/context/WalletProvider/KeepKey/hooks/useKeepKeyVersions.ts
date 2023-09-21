@@ -1,5 +1,4 @@
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
 import {
@@ -9,6 +8,7 @@ import {
 import { useEffect, useState } from 'react'
 import semverGte from 'semver/functions/gte'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from 'lib/utils'
 
 interface VersionUrl {
   version: string
@@ -53,7 +53,7 @@ export const useKeepKeyVersions = () => {
   } = useWallet()
 
   useEffect(() => {
-    if (!wallet || !(wallet instanceof KeepKeyHDWallet)) return
+    if (!wallet || !isKeepKeyHDWallet(wallet)) return
 
     const getBootloaderVersion = (
       releases: FirmwareReleases,

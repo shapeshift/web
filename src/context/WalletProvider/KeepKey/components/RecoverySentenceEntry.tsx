@@ -12,7 +12,6 @@ import {
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeyboardEvent, MouseEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -22,6 +21,7 @@ import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvid
 import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from 'lib/utils'
 
 const minInputLength = 3
 const maxInputLength = 4
@@ -60,7 +60,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const inputBackgroundColor = useColorModeValue('blackAlpha.50', 'blackAlpha.300')
   const progressBarBackgroundColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
-  const keepKeyWallet = wallet && isKeepKey(wallet) ? wallet : undefined
+  const keepKeyWallet = wallet && isKeepKeyHDWallet(wallet) ? wallet : undefined
 
   useEffect(() => {
     setWordEntropy(() => {

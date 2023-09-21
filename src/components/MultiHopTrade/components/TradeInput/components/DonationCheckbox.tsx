@@ -1,6 +1,5 @@
 import { Checkbox, Stack } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,6 +8,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from 'lib/utils'
 import { getIsDonationAmountBelowMinimum } from 'state/apis/swappers/helpers/getIsDonationAmountBelowMinimum'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectSellAsset, selectWillDonate } from 'state/slices/swappersSlice/selectors'
@@ -29,7 +29,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
     const dispatch = useAppDispatch()
     const willDonate = useAppSelector(selectWillDonate)
     const wallet = useWallet().state.wallet
-    const walletIsKeepKey = wallet && isKeepKey(wallet)
+    const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
     const sellAsset = useAppSelector(selectSellAsset)
     const sellAssetUsdRate = useAppSelector(state =>
       selectUsdRateByAssetId(state, sellAsset.assetId),

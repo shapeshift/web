@@ -2,9 +2,9 @@ import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -13,6 +13,18 @@ import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
+
+export const isKeepKeyHDWallet = (wallet: HDWallet): wallet is KeepKeyHDWallet => {
+  return wallet.getVendor() === 'KeepKey'
+}
+
+export const isKeplrHDWallet = (wallet: HDWallet): wallet is KeplrHDWallet => {
+  return wallet.getVendor() === 'Keplr'
+}
+
+export const isNativeHDWallet = (wallet: HDWallet): wallet is NativeHDWallet => {
+  return wallet.getVendor() === 'Native'
+}
 
 // we don't want utils to mutate by default, so spreading here is ok
 export const upsertArray = <T extends unknown>(arr: T[], item: T): T[] =>
@@ -89,10 +101,10 @@ export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>
 
 export const walletCanEditMemo = (wallet: HDWallet): boolean => {
   switch (true) {
-    case wallet instanceof KeepKeyHDWallet:
-    case wallet instanceof NativeHDWallet:
+    case isKeepKeyHDWallet(wallet):
+    case isNativeHDWallet(wallet):
       return false
-    case wallet instanceof KeplrHDWallet:
+    case isKeplrHDWallet(wallet):
     default:
       return true
   }

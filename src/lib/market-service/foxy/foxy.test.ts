@@ -1,4 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import { bn } from 'lib/bignumber/bignumber'
 
@@ -13,7 +14,17 @@ const foxyMarketService = new FoxyMarketService({
   },
 })
 
-jest.mock('axios')
+jest.mock('axios', () => {
+  const axios = jest.requireActual('axios')
+
+  axios.create = jest.fn().mockImplementation(() => axios)
+
+  return axios
+})
+
+jest.mock('axios-cache-interceptor', () => ({
+  setupCache: jest.fn().mockImplementation((axiosInstance: AxiosInstance) => axiosInstance),
+}))
 
 const mockTotalSupply = jest.fn().mockReturnValue(bn('502526240759422886301171305'))
 const mockTvl = jest.fn().mockReturnValue(bn('52018758965754575223841191'))
@@ -25,24 +36,22 @@ jest.mock('lib/investor/investor-foxy', () => ({
   foxyAddresses: [{ foxy: '0xAddress' }],
 }))
 
-const mockedAxios = axios as jest.Mocked<typeof axios>
-
 describe('foxy market service', () => {
   describe('getMarketCap', () => {
     it('can return fox market data', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { data: [{ market_data: fox }] } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: [{ market_data: fox }] } })
       const result = await foxyMarketService.findAll()
       expect(Object.keys(result).length).toEqual(1)
     })
 
     it('can handle api errors', async () => {
-      mockedAxios.get.mockRejectedValue({ error: 'foo' })
+      jest.spyOn(axios, 'get').mockRejectedValue({ error: 'foo' })
       const result = await foxyMarketService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
 
     it('can handle rate limiting', async () => {
-      mockedAxios.get.mockRejectedValue({ status: 429 })
+      jest.spyOn(axios, 'get').mockRejectedValue({ status: 429 })
       const result = await foxyMarketService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
@@ -54,12 +63,12 @@ describe('foxy market service', () => {
     }
 
     it('should return market data for FOXy', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { market_data: fox } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { market_data: fox } })
       expect(await foxyMarketService.findByAssetId(args)).toEqual(mockFoxyMarketData)
     })
 
     it('should return null on network error', async () => {
-      mockedAxios.get.mockRejectedValue(Error)
+      jest.spyOn(axios, 'get').mockRejectedValue(Error)
       await expect(foxyMarketService.findByAssetId(args)).rejects.toEqual(
         new Error('FoxyMarketService(findByAssetId): error fetching market data'),
       )
@@ -88,12 +97,12 @@ describe('foxy market service', () => {
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 0.4860349080635926 },
         { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 0.46897407484696146 },
       ]
-      mockedAxios.get.mockResolvedValue({ data: mockHistoryData })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: mockHistoryData })
       expect(await foxyMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
-      mockedAxios.get.mockRejectedValue(Error)
+      jest.spyOn(axios, 'get').mockRejectedValue(Error)
       await expect(foxyMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history'),
       )

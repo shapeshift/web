@@ -1,5 +1,5 @@
 import { Box, Button, Checkbox, Divider, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
+import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -11,8 +11,8 @@ import { RawText, Text } from 'components/Text'
 
 import type { NativeSetupProps } from '../types'
 
-const Revocable = native.crypto.Isolation.Engines.Default.Revocable
-const revocable = native.crypto.Isolation.Engines.Default.revocable
+const Revocable = Default.Revocable
+const revocable = Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 

@@ -54,6 +54,9 @@ const WalletSelectItem = ({
 
   const handleConnect = useCallback(() => connect(walletType), [connect, walletType])
 
+  const isLedgerEnabled = getConfig().REACT_APP_FEATURE_LEDGER_WALLET
+  if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
+
   if (!isSupported) return null
 
   const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET

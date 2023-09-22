@@ -170,9 +170,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const { getAllTxHistory } = txHistoryApi.endpoints
 
       try {
-        await Promise.all(
-          requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
-        )
+        await dispatch(getAllTxHistory.initiate(requestedAccountIds))
       } finally {
         // add any nft assets detected in the tx history state.
         // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.

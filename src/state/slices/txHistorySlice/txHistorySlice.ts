@@ -50,6 +50,8 @@ export type TxHistoryById = {
  * and use the accountIds from the connected wallet to index into it
  */
 
+type TransactionsByAccountId = Record<AccountId, Transaction[]>
+
 export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
 export type TxIdsByAccountIdAssetId = PartialRecord<AccountId, TxIdsByAssetId>
 
@@ -78,7 +80,7 @@ export type TxHistory = {
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
 export type TxsMessage = {
-  payload: { txs: Transaction[]; accountId: AccountId }
+  payload: TransactionsByAccountId
 }
 
 export const initialState: TxHistory = {
@@ -94,6 +96,22 @@ export const initialState: TxHistory = {
   },
 }
 
+const checkIsSpam = (tx: Tx): boolean => {
+  const transfers = tx.transfers
+  // Not an NFT, we don't need to filter this
+  if (!transfers.some(transfer => isNft(transfer.assetId))) return false
+  if (
+    transfers.some(
+      transfer =>
+        [transfer.token?.name ?? '', transfer.token?.symbol ?? ''].some(isSpammyNftText) ||
+        BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
+    )
+  )
+    return true
+
+  return false
+}
+
 /**
  * Manage state of the txHistory slice
  *
@@ -102,21 +120,8 @@ export const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
   const { txs } = txHistory
-  const isSpam = (() => {
-    const transfers = tx.transfers
-    // Not an NFT, we don't need to filter this
-    if (!transfers.some(transfer => isNft(transfer.assetId))) return false
-    if (
-      transfers.some(
-        transfer =>
-          [transfer.token?.name ?? '', transfer.token?.symbol ?? ''].some(isSpammyNftText) ||
-          BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
-      )
-    )
-      return true
 
-    return false
-  })()
+  const isSpam = checkIsSpam(tx)
 
   if (isSpam) return
 
@@ -194,8 +199,12 @@ export const txHistory = createSlice({
     },
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsertTx(txState, payload.message, payload.accountId),
-    upsertTxs: (txState, { payload }: TxsMessage) => {
-      for (const tx of payload.txs) updateOrInsertTx(txState, tx, payload.accountId)
+    upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
+      for (const [accountId, txs] of Object.entries(payload)) {
+        for (const tx of txs) {
+          updateOrInsertTx(txState, tx, accountId)
+        }
+      }
     },
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
       updateOrInsertRebase(txState, payload),
@@ -241,55 +250,63 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<Transaction[], AccountId>({
-      queryFn: async (accountId, { dispatch, getState }) => {
-        const { chainId, account: pubkey } = fromAccountId(accountId)
-        const adapter = getChainAdapterManager().get(chainId)
-        if (!adapter)
-          return {
-            error: {
-              data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
-              status: 400,
-            },
-          }
+    getAllTxHistory: build.query<null, AccountId[]>({
+      queryFn: async (accountIds, { dispatch, getState }) => {
+        const results: TransactionsByAccountId = {}
+        await Promise.all(
+          accountIds.map(async accountId => {
+            const { chainId, account: pubkey } = fromAccountId(accountId)
+            const adapter = getChainAdapterManager().get(chainId)
+            if (!adapter)
+              return {
+                error: {
+                  data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+                  status: 400,
+                },
+              }
 
-        let currentCursor: string = ''
-        try {
-          do {
-            const { cursor, transactions } = await adapter.getTxHistory({
-              cursor: currentCursor,
-              pubkey,
-              pageSize: 100,
-            })
+            let currentCursor: string = ''
 
-            currentCursor = cursor
+            try {
+              do {
+                const { cursor, transactions } = await adapter.getTxHistory({
+                  cursor: currentCursor,
+                  pubkey,
+                  pageSize: 100,
+                })
 
-            const state = getState() as State
-            const txState = state.txHistory.txs
+                currentCursor = cursor
 
-            const existingTxIndexes = Object.values(
-              txState?.byAccountIdAssetId?.[accountId] ?? {},
-            ).flatMap(identity)
+                const state = getState() as State
+                const txState = state.txHistory.txs
 
-            // freshly fetched - unchained returns latest txs first
-            const fetchedTxIndexes: TxId[] = transactions.map(tx =>
-              serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-            )
-            // diff the two - if we haven't seen any of these txs before, upsert them
-            const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
-            if (diffedTxIds.length) {
-              // new txs to upsert
-              dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
-            } else {
-              // we've previously fetched all txs for this account, don't keep paginating
-              break
+                const existingTxIndexes = Object.values(
+                  txState?.byAccountIdAssetId?.[accountId] ?? {},
+                ).flatMap(identity)
+
+                // freshly fetched - unchained returns latest txs first
+                const fetchedTxIndexes: TxId[] = transactions.map(tx =>
+                  serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+                )
+                // diff the two - if we haven't seen any of these txs before, upsert them
+                const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
+                if (diffedTxIds.length) {
+                  // new txs to return
+                  results[accountId] = transactions
+                } else {
+                  // we've previously fetched all txs for this account, don't keep paginating
+                  break
+                }
+              } while (currentCursor)
+            } catch (err) {
+              console.error(err)
             }
-          } while (currentCursor)
-        } catch (err) {
-          console.error(err)
-        }
+          }),
+        )
 
-        return { data: [] }
+        dispatch(txHistory.actions.upsertTxsByAccountId(results))
+
+        return { data: null }
       },
     }),
   }),

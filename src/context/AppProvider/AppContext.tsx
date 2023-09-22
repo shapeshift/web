@@ -319,10 +319,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
       }
     })()
-
-    // setting symbol causes infinite render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, toast])
+  }, [currency, dispatch, toast, translate])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route

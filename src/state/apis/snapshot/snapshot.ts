@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import snapshot from '@snapshot-labs/snapshot.js'
 import axios from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,26 +48,42 @@ export const snapshotApi = createApi({
       },
     }),
     getVotingPower: build.query<FoxVotingPowerCryptoBalance, SnapshotVotingPowerArgs>({
-      queryFn: async (_, { dispatch }) => {
+      queryFn: async (accountIds, { dispatch }) => {
         const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
         const strategies = strategiesResult?.data
         if (!strategies) {
           console.log('snapshotApi getVotingPower could not get strategies')
           return { data: bn(0).toString() }
         }
-        const address = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-        const delegation = true
-        const votingPowerUnvalidated = await snapshot.utils.getVp(
-          address,
-          '1',
-          strategies,
-          'latest',
-          SNAPSHOT_SPACE,
-          delegation,
+        const evmAddresses = Array.from(
+          accountIds.reduce<Set<string>>((acc, accountId) => {
+            const { account, chainId } = fromAccountId(accountId)
+            isEvmChainId(chainId) && acc.add(account)
+            return acc
+          }, new Set()),
         )
-        const { vp: foxCryptoBalance } = VotingPowerSchema.parse(votingPowerUnvalidated)
-        const data = bnOrZero(foxCryptoBalance).toString()
-        console.log('FOXvoting power', data)
+        const delegation = true
+        const votingPowerResults = await Promise.all(
+          evmAddresses.map(async address => {
+            const votingPowerUnvalidated = await snapshot.utils.getVp(
+              address,
+              '1', // TODO - aggregate by chain reference
+              strategies,
+              'latest', // TODO - implement delay
+              SNAPSHOT_SPACE,
+              delegation,
+            )
+            // vp is FOX in crypto balance
+            return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+          }),
+        )
+        const data = votingPowerResults
+          .reduce((acc, cur) => {
+            return acc.plus(cur)
+          }, bn(0))
+          .toString()
+        console.log('addresses', evmAddresses)
+        console.log('FOX voting power', data)
         return { data }
       },
     }),

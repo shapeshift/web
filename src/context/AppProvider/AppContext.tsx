@@ -29,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { nftApi } from 'state/apis/nft/nftApi'
-import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -82,8 +82,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
   const isSnapInstalled = useIsSnapInstalled()
-
-  useGetVotingPowerQuery([])
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -162,6 +160,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
+
+  // once portfolio is done loading, fetch fox voting power
+  useEffect(() => {
+    ;(() => {
+      if (portfolioLoadingStatus === 'loading') return
+      dispatch(snapshotApi.endpoints.getVotingPower.initiate(requestedAccountIds))
+    })()
+  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

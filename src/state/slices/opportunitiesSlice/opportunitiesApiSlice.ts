@@ -17,7 +17,6 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataInput,
   GetOpportunityUserDataInput,
-  GetOpportunityUserDataOutput,
   OpportunityDataById,
   OpportunityId,
   UserStakingId,
@@ -151,131 +150,126 @@ export const opportunitiesApi = createApi({
         return { data: null }
       },
     }),
-    getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
-      queryFn: async (
-        { accountId, opportunityId, defiType, defiProvider },
-        { dispatch, getState },
-      ) => {
-        try {
-          const resolver = getUserDataResolversByDefiProviderAndDefiType(defiProvider, defiType)
+    getOpportunityUserData: build.query<null, GetOpportunityUserDataInput[]>({
+      queryFn: async (queries, { dispatch, getState }) => {
+        await Promise.allSettled(
+          queries.map(async ({ accountId, opportunityId, defiType, defiProvider }) => {
+            try {
+              const resolver = getUserDataResolversByDefiProviderAndDefiType(defiProvider, defiType)
 
-          if (!resolver) {
-            throw new Error(`resolver for ${DefiProvider.UniV2}::${defiType} not implemented`)
-          }
+              if (!resolver) {
+                throw new Error(`resolver for ${DefiProvider.UniV2}::${defiType} not implemented`)
+              }
 
-          const { chainId: accountChainId } = fromAccountId(accountId)
-          const opportunityChainId = opportunityIdToChainId(opportunityId)
-          if (opportunityChainId !== accountChainId) {
-            const byAccountId: OpportunityDataById = {
-              [accountId]: [],
+              const { chainId: accountChainId } = fromAccountId(accountId)
+              const opportunityChainId = opportunityIdToChainId(opportunityId)
+              if (opportunityChainId !== accountChainId) {
+                const byAccountId: OpportunityDataById = {
+                  [accountId]: [],
+                }
+
+                const data = {
+                  byAccountId,
+                  type: defiType,
+                }
+
+                dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+                return { data }
+              }
+
+              const resolved = await resolver({
+                opportunityId,
+                defiType,
+                accountId,
+                reduxApi: { dispatch, getState },
+              })
+
+              if (resolved?.data) {
+                // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
+                dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
+              }
+
+              const byAccountId: OpportunityDataById = {
+                [accountId]: [opportunityId],
+              }
+
+              const data = {
+                byAccountId,
+                type: defiType,
+              }
+
+              dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+            } catch (e) {
+              const message = e instanceof Error ? e.message : 'Error getting opportunities data'
+              console.error(message)
             }
+          }),
+        )
 
-            const data = {
-              byAccountId,
-              type: defiType,
-            }
-
-            dispatch(opportunities.actions.upsertOpportunityAccounts(data))
-            return { data }
-          }
-
-          const resolved = await resolver({
-            opportunityId,
-            defiType,
-            accountId,
-            reduxApi: { dispatch, getState },
-          })
-
-          if (resolved?.data) {
-            // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
-          }
-
-          const byAccountId: OpportunityDataById = {
-            [accountId]: [opportunityId],
-          }
-
-          const data = {
-            byAccountId,
-            type: defiType,
-          }
-
-          dispatch(opportunities.actions.upsertOpportunityAccounts(data))
-
-          return { data }
-        } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunities data'
-          return {
-            error: {
-              error: message,
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
+        return { data: null }
       },
     }),
     getOpportunitiesUserData: build.query<
-      GetOpportunityUserDataOutput,
-      Omit<GetOpportunityUserDataInput, 'opportunityId'>
+      null,
+      Omit<GetOpportunityUserDataInput, 'opportunityId'>[]
     >({
-      queryFn: async ({ accountId, defiType, defiProvider }, { dispatch, getState }) => {
-        try {
-          const opportunityIds = getOpportunityIds(
-            { accountId, defiProvider, defiType },
-            { getState },
-          )
+      queryFn: async (queries, { dispatch, getState }) => {
+        await Promise.allSettled(
+          queries.map(async ({ accountId, defiType, defiProvider }) => {
+            try {
+              const opportunityIds = getOpportunityIds(
+                { accountId, defiProvider, defiType },
+                { getState },
+              )
 
-          if (!opportunityIds) {
-            throw new Error("Can't select staking OpportunityIds")
-          }
+              if (!opportunityIds) {
+                throw new Error("Can't select staking OpportunityIds")
+              }
 
-          const resolver = getOpportunitiesUserDataResolversByDefiProviderAndDefiType(
-            defiProvider,
-            defiType,
-          )
+              const resolver = getOpportunitiesUserDataResolversByDefiProviderAndDefiType(
+                defiProvider,
+                defiType,
+              )
 
-          if (!resolver) {
-            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
-          }
+              if (!resolver) {
+                throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+              }
 
-          const onInvalidate = (userStakingId: UserStakingId) =>
-            dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
+              const onInvalidate = (userStakingId: UserStakingId) =>
+                dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
 
-          const resolved = await resolver({
-            opportunityIds,
-            defiType,
-            accountId,
-            reduxApi: { dispatch, getState },
-            onInvalidate,
-          })
+              const resolved = await resolver({
+                opportunityIds,
+                defiType,
+                accountId,
+                reduxApi: { dispatch, getState },
+                onInvalidate,
+              })
 
-          if (resolved?.data) {
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
-          }
+              if (resolved?.data) {
+                dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
+              }
 
-          const byAccountId = {
-            [accountId]: Object.keys(resolved?.data.byId ?? {}).map(
-              userStakingId => deserializeUserStakingId(userStakingId as UserStakingId)[1],
-            ),
-          } as OpportunityDataById
+              const byAccountId = {
+                [accountId]: Object.keys(resolved?.data.byId ?? {}).map(
+                  userStakingId => deserializeUserStakingId(userStakingId as UserStakingId)[1],
+                ),
+              } as OpportunityDataById
 
-          const data = {
-            byAccountId,
-            type: defiType,
-          }
+              const data = {
+                byAccountId,
+                type: defiType,
+              }
 
-          dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+              dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+            } catch (e) {
+              const message = e instanceof Error ? e.message : 'Error getting opportunities data'
+              console.error(message)
+            }
+          }),
+        )
 
-          return { data }
-        } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunities data'
-          return {
-            error: {
-              error: message,
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
+        return { data: null }
       },
     }),
   }),

@@ -20,7 +20,6 @@ export type FeatureFlags = {
   IdleFinance: boolean
   Axelar: boolean
   Yat: boolean
-  WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
   Wherever: boolean
   SaversVaults: boolean
@@ -83,7 +82,6 @@ const initialState: Preferences = {
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
-    WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,

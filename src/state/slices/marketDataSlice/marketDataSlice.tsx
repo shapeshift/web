@@ -2,6 +2,7 @@ import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -29,8 +30,19 @@ const initialState: MarketDataState = {
   fiat: {
     byId: {},
     ids: [],
-    priceHistory: {},
+    priceHistory: {
+      // 1usd has always cost exactly 1usd
+      [HistoryTimeframe.ALL]: {
+        USD: [
+          {
+            price: 1,
+            date: 0,
+          },
+        ],
+      },
+    },
   },
+  isMarketDataLoaded: false,
 }
 
 const shouldIgnoreAsset = (assetId: AssetId | string): boolean => {
@@ -48,13 +60,19 @@ export const defaultMarketData: MarketData = {
   changePercent24Hr: 0,
 }
 
-type CryptoPriceHistoryPayload = { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs }
+type CryptoPriceHistoryPayload = {
+  timeframe: HistoryTimeframe
+  historyDataByAssetId: Record<AssetId, HistoryData[]>
+}
 
 export const marketData = createSlice({
   name: 'marketData',
   initialState,
   reducers: {
     clear: () => initialState,
+    setMarketDataLoaded: state => {
+      state.isMarketDataLoaded = true
+    },
     setCryptoMarketData: {
       reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
         state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
@@ -84,14 +102,11 @@ export const marketData = createSlice({
     },
     setCryptoPriceHistory: {
       reducer: (state, { payload }: { payload: CryptoPriceHistoryPayload }) => {
-        const { args } = payload
-        const { assetId, timeframe } = args
+        const { timeframe, historyDataByAssetId } = payload
         const incoming = {
           crypto: {
             priceHistory: {
-              [timeframe]: {
-                [assetId]: payload.data,
-              },
+              [timeframe]: historyDataByAssetId,
             },
           },
         }
@@ -148,40 +163,71 @@ export const marketApi = createApi({
         }
       },
     }),
-    findByAssetId: build.query<MarketCapResult, AssetId>({
-      queryFn: async (assetId: AssetId, { dispatch }) => {
-        try {
-          const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
-          if (!currentMarketData) throw new Error()
-          const data = { [assetId]: currentMarketData }
-          dispatch(marketData.actions.setCryptoMarketData(data))
-          return { data }
-        } catch (e) {
-          const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }
-          return { error }
-        }
+    findByAssetIds: build.query<null, AssetId[]>({
+      // named function for profiling+debugging purposes
+      queryFn: async function findByAssetIds(assetIds: AssetId[], { dispatch }) {
+        if (assetIds.length === 0) return { data: null }
+
+        const responseData = await Promise.all(
+          assetIds.map(async assetId => {
+            try {
+              const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
+              return { assetId, currentMarketData }
+            } catch (e) {
+              console.error(e)
+              return { assetId, currentMarketData: null }
+            }
+          }),
+        )
+
+        const payload = responseData.reduce<MarketCapResult>(
+          (acc, { assetId, currentMarketData }) => {
+            if (currentMarketData) acc[assetId] = currentMarketData
+            return acc
+          },
+          {},
+        )
+
+        dispatch(marketData.actions.setCryptoMarketData(payload))
+
+        return { data: null }
       },
       keepUnusedDataFor: 5, // Invalidate cached asset market data after 5 seconds.
     }),
-    findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
-      queryFn: async (args, { dispatch }) => {
-        const { assetId, timeframe } = args
-        if (shouldIgnoreAsset(assetId)) return { data: [] }
-        try {
-          const data = await getMarketServiceManager().findPriceHistoryByAssetId({
-            timeframe,
-            assetId,
-          })
-          const payload = { args, data }
-          dispatch(marketData.actions.setCryptoPriceHistory(payload))
-          return { data }
-        } catch (e) {
-          const error = {
-            data: `findPriceHistoryByAssetId: error fetching price history for ${assetId}`,
-            status: 400,
-          }
-          return { error }
-        }
+    findPriceHistoryByAssetIds: build.query<null, FindPriceHistoryByAssetIdArgs>({
+      // named function for profiling+debugging purposes
+      queryFn: async function findPriceHistoryByAssetIds(args, { dispatch }) {
+        const { assetIds, timeframe } = args
+
+        if (assetIds.length === 0) return { data: null }
+
+        const responseData: { assetId: AssetId; historyData: HistoryData[] }[] = await Promise.all(
+          assetIds.map(async assetId => {
+            if (shouldIgnoreAsset(assetId)) return { assetId, historyData: [] }
+            try {
+              const historyData = await getMarketServiceManager().findPriceHistoryByAssetId({
+                timeframe,
+                assetId,
+              })
+
+              return { assetId, historyData }
+            } catch (e) {
+              console.error(e)
+              return { assetId, historyData: [] }
+            }
+          }),
+        )
+
+        const historyDataByAssetId = responseData.reduce<
+          CryptoPriceHistoryPayload['historyDataByAssetId']
+        >((acc, { assetId, historyData }) => {
+          acc[assetId] = historyData
+          return acc
+        }, {})
+
+        dispatch(marketData.actions.setCryptoPriceHistory({ timeframe, historyDataByAssetId }))
+
+        return { data: null }
       },
     }),
     findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
@@ -228,7 +274,7 @@ export const marketApi = createApi({
 })
 
 export const {
-  useFindByAssetIdQuery,
+  useFindByAssetIdsQuery,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,

@@ -93,7 +93,7 @@ type GetZapperAppsBalancesInput = void // void in the interim, but should eventu
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
-  collectionId: string
+  collectionId: AssetId
 }
 
 export type GetZapperAppsBalancesOutput = {
@@ -276,7 +276,6 @@ export const zapperApi = createApi({
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
             assetId: collectionId,
-            // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,
             floorPrice: item.collection.floorPriceEth || '',

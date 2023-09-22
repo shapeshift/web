@@ -28,7 +28,6 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
   const { accountNumber, chainIds, wallet } = args
   if (!Number.isInteger(accountNumber) || accountNumber < 0)
     throw new Error('invalid accountNumber')
-
   type ChainNamespaceKey = (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE]
   type ChainIdsByChainNamespace = {
     [key in ChainNamespaceKey]: ChainId[]

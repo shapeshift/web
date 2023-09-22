@@ -57,7 +57,7 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
     return (
       <HStack px={6} spacing={4} justify='center' mt='4' wrap='wrap'>
         {allNativeAssets.map(asset => (
-          <AssetIcon key={asset.assetId} src={asset.icon} size='sm' />
+          <AssetIcon key={asset.assetId} src={asset.networkIcon ?? asset.icon} size='sm' />
         ))}
       </HStack>
     )

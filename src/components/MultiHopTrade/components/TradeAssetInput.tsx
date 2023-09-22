@@ -51,6 +51,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
 
 export type TradeAssetInputProps = {
   assetId?: AssetId
+  hideAmounts?: boolean
 } & TradeAmountInputProps
 
 export const TradeAssetInput: React.FC<TradeAssetInputProps> = memo(

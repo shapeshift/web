@@ -237,11 +237,19 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
         const sortedAccountIds = autoSelectHighestBalance
           ? getAccountIdsSortedByBalance(accountIds)
           : getAccountIdsSortedByUtxoAccountType(accountIds)
+
+        if (accountIds.length === 0) return null
+
+        // the account sub title uses an account id which is then converted to a chainId and pubkey
+        // so for convenience and simplicity we can safely use the first account id here
+        const [firstAccountId] = accountIds
+        const subtitle = accountIdToLabel(firstAccountId)
+
         return (
           <React.Fragment key={accountNumber}>
             <AccountSegment
               title={translate('accounts.accountNumber', { accountNumber })}
-              subtitle={accountLabel} // hide me until we have the option to "nickname" accounts
+              subtitle={subtitle}
             />
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption
@@ -272,7 +280,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       getAccountIdsSortedByBalance,
       getAccountIdsSortedByUtxoAccountType,
       translate,
-      accountLabel,
       accountBalances,
       assetId,
       selectedAccountId,

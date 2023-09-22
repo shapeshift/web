@@ -6393,30 +6393,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keepkey/hdwallet-keepkey-rest@npm:1.40.35":
-  version: 1.40.35
-  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.35"
+"@keepkey/hdwallet-keepkey-rest@npm:1.40.40":
+  version: 1.40.40
+  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.40"
   dependencies:
-    "@keepkey/keepkey-sdk": 0.2.48
+    "@keepkey/keepkey-sdk": 0.2.52
     lodash: ^4.17.21
     semver: ^6.3.0
   peerDependencies:
     "@shapeshiftoss/hdwallet-core": ^1.50.3
-  checksum: b7311c99b4efe2ba5d42e853fe8d0ff56eb926d0a7ccef01ac0874036729b5b9809e2d013099b406687ea8c268370e4e01948432d852b9064a6c21c9d1679a7e
+  checksum: 6f0713125827cf40ecaeda1ac1a1da7249d5f7d172cf4e7b6cfed5473e401d4a18cee6a263897cbb12c6f6c4bb22cbdee660b987dc50e040fa8cf8e8d4b7efbd
   languageName: node
   linkType: hard
 
-"@keepkey/keepkey-sdk@npm:0.2.48":
-  version: 0.2.48
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.48"
-  checksum: 544340de018238e9f90dd0aff17aa56d265d0f4f531601229fe6b381e8fa07932eebe5c7b3fd631a78443b6493506d3ea0159a680f5c8a54643acdaebc5dc584
-  languageName: node
-  linkType: hard
-
-"@keepkey/keepkey-sdk@npm:0.2.49":
-  version: 0.2.49
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.49"
-  checksum: a28ea36d90688b0c9d5e6ed602e3e73b7341b51a3c4e308fcb472512be1d56a767cac9e498ef1db57bbad716547eab9ef44514187eb129e31cb282bc735c5dd1
+"@keepkey/keepkey-sdk@npm:0.2.52":
+  version: 0.2.52
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.52"
+  checksum: a8f7ad5447132509b8eba66f40fe7ca2131d3c2a9d7755bc052272c5722be6f553ec7c8fef830f644d19ab6bc7f0c302d8712ce9c39cb10ba6256fd83e656be6
   languageName: node
   linkType: hard
 
@@ -8018,8 +8011,8 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
     "@jest/types": ^27.1.0
-    "@keepkey/hdwallet-keepkey-rest": 1.40.35
-    "@keepkey/keepkey-sdk": 0.2.49
+    "@keepkey/hdwallet-keepkey-rest": 1.40.40
+    "@keepkey/keepkey-sdk": 0.2.52
     "@keplr-wallet/types": ^0.12.21
     "@lifi/sdk": ^2.2.3
     "@metamask/detect-provider": ^1.2.0
@@ -8083,8 +8076,6 @@ __metadata:
     "@visx/gradient": ^2.10.0
     "@visx/responsive": ^2.10.0
     "@visx/xychart": ^2.12.2
-    "@walletconnect/client": ^1.8.0
-    "@walletconnect/legacy-types": ^2.0.0
     "@walletconnect/types": ^2.10.0
     "@walletconnect/utils": ^2.8.5
     "@walletconnect/web3-provider": ^1.8.0
@@ -8096,6 +8087,7 @@ __metadata:
     assert: ^2.0.0
     axios: ^0.26.1
     axios-cache-adapter: ^2.7.3
+    axios-cache-interceptor: ^1.3.0
     bignumber.js: ^9.1.1
     bip21: ^2.0.3
     bip39: ^3.0.4
@@ -10835,15 +10827,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/legacy-types@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@walletconnect/legacy-types@npm:2.0.0"
-  dependencies:
-    "@walletconnect/jsonrpc-types": ^1.0.2
-  checksum: 358d789f8a50e689edcfd8eb668fcdf8e1f03ab08757b12fad0e658ce7ef62268f8022502b476bce69e5165aa4454c4ad1ea41f17244ab8d0fcd9026bd94707c
-  languageName: node
-  linkType: hard
-
 "@walletconnect/logger@npm:2.0.1, @walletconnect/logger@npm:^2.0.1":
   version: 2.0.1
   resolution: "@walletconnect/logger@npm:2.0.1"
@@ -12415,6 +12398,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios-cache-interceptor@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "axios-cache-interceptor@npm:1.3.0"
+  dependencies:
+    cache-parser: ^1.2.4
+    fast-defer: ^1.1.7
+    object-code: ^1.3.0
+  peerDependencies:
+    axios: ^1
+  checksum: 000138670d97a9bcddf996a4c1b87f186712c9bd4a1ac2ef7a0d49ee1965110923343226596e7419f153945f46ab1aece6fef64aca53836312f3949f4a674aca
+  languageName: node
+  linkType: hard
+
 "axios@npm:0.21.1":
   version: 0.21.1
   resolution: "axios@npm:0.21.1"
@@ -13575,6 +13571,13 @@ __metadata:
   version: 1.0.0
   resolution: "cache-control-esm@npm:1.0.0"
   checksum: 4f8c8399f2b15ad43c635d14b80aadd9de039f09fa56c4686aca828f82e57c1fc479026db1786dea1ba1026415dab0fe463938be4a6110874d3bf3aa7a60d0f3
+  languageName: node
+  linkType: hard
+
+"cache-parser@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "cache-parser@npm:1.2.4"
+  checksum: de9fc4ab7af318109f1e53474e674d43997bc7b8676157e4f28e7dc60fda2f434ee138aa9d9abb9f849c55e73202ee74865afaa4e00298de70c4326510680c19
   languageName: node
   linkType: hard
 
@@ -18111,6 +18114,13 @@ __metadata:
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
   checksum: e21a9d8d84f53493b6aa15efc9cfd53dd5b714a1f23f67fb5dc8f574af80df889b3bce25dc081887c6d25457cce704e636395333abad896ccdec03abaf1f3f9d
+  languageName: node
+  linkType: hard
+
+"fast-defer@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "fast-defer@npm:1.1.7"
+  checksum: c0f816fe3f83ca7e12c56a6631c6819a50349fb7e1931cec88e883168b523c65605e6e0df32c8fba6c341860c29ecc6fe2531ba8a418d27d31da6544ad1bf45b
   languageName: node
   linkType: hard
 
@@ -23725,6 +23735,13 @@ __metadata:
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
+  languageName: node
+  linkType: hard
+
+"object-code@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "object-code@npm:1.3.0"
+  checksum: bc5e3df85ac54785b3d1d9b8a9b2e168eb5f69e02be3c958fc05aebaa85ec659c55903852bf15ebf44e98053212f88eb7d3a9e28a50f10c4d60d820f80aa8d64
   languageName: node
   linkType: hard
 

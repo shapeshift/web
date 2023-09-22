@@ -1,28 +1,25 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
   Button,
   CardFooter,
   CardHeader,
-  Center,
+  Collapse,
   Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
   Tooltip,
-  useColorModeValue,
+  useToken,
 } from '@chakra-ui/react'
-import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
+import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import type { ColorFormat } from 'react-countdown-circle-timer'
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
@@ -49,6 +46,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
+import { isKeplrHDWallet } from 'lib/utils'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -83,7 +81,12 @@ import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-const formControlProps = { borderRadius: 0, background: 'transparent', borderWidth: 0 }
+const formControlProps = {
+  borderRadius: 0,
+  background: 'transparent',
+  borderWidth: 0,
+  paddingBottom: 0,
+}
 
 const percentOptions = [1]
 
@@ -97,15 +100,18 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const [themeIndicatorColor, themeTrackColor] = useToken('colors', [
+    'blue.500',
+    'background.surface.raised.base',
+  ])
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
+  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
-  const hoverColor = useColorModeValue('black', 'white')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -220,10 +226,6 @@ export const TradeInput = memo(() => {
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
-  const onHoverProps = useMemo(() => {
-    return { color: hoverColor }
-  }, [hoverColor])
-
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       quoteHasError ||
@@ -316,32 +318,9 @@ export const TradeInput = memo(() => {
           (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
             <DonationCheckbox isLoading={isLoading} />
           )}
-        {!!sortedQuotes.length && hasUserEnteredAmount && (
-          <Accordion allowToggle defaultIndex={0}>
-            <AccordionItem>
-              <h2>
-                <Center>
-                  <AccordionButton>
-                    <Box as='span' flex='1' textAlign='left'>
-                      <Text
-                        translation={'trade.availableRoutes'}
-                        fontWeight={'semibold'}
-                        color='text.subtle'
-                        _hover={onHoverProps}
-                      />
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </Center>
-                <AccordionPanel p={0}>{MaybeRenderedTradeQuotes}</AccordionPanel>
-              </h2>
-            </AccordionItem>
-          </Accordion>
-        )}
       </CardFooter>
     ),
     [
-      MaybeRenderedTradeQuotes,
       activeQuote,
       activeQuoteError,
       activeQuoteStatus.error?.message,
@@ -356,7 +335,6 @@ export const TradeInput = memo(() => {
       hasUserEnteredAmount,
       isLoading,
       isModeratePriceImpact,
-      onHoverProps,
       priceImpactPercentage,
       quoteHasError,
       rate,
@@ -364,7 +342,6 @@ export const TradeInput = memo(() => {
       shapeShiftFee,
       shouldDisablePreviewButton,
       slippageDecimal,
-      sortedQuotes.length,
       totalNetworkFeeFiatPrecision,
       totalProtocolFees,
     ],
@@ -379,7 +356,32 @@ export const TradeInput = memo(() => {
               <Heading as='h5' fontSize='md'>
                 {translate('navBar.trade')}
               </Heading>
-              {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && <SlippagePopover />}
+              <Flex>
+                <AnimatePresence>
+                  {!!sortedQuotes.length && !isLoading && hasUserEnteredAmount && (
+                    <FadeTransition>
+                      <IconButton
+                        variant='ghost'
+                        aria-label='Quote status'
+                        icon={
+                          <CountdownCircleTimer
+                            isPlaying
+                            duration={20}
+                            size={20}
+                            strokeWidth={3}
+                            trailColor={themeTrackColor as ColorFormat}
+                            colors={themeIndicatorColor as ColorFormat}
+                          />
+                        }
+                      />
+                    </FadeTransition>
+                  )}
+                </AnimatePresence>
+
+                {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && (
+                  <SlippagePopover />
+                )}
+              </Flex>
             </Flex>
           </CardHeader>
           <Stack spacing={0}>
@@ -420,6 +422,7 @@ export const TradeInput = memo(() => {
               assetId={buyAsset.assetId}
               assetSymbol={buyAsset.symbol}
               assetIcon={buyAsset.icon}
+              hideAmounts={true}
               cryptoAmount={
                 isSellAmountEntered
                   ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
@@ -445,7 +448,11 @@ export const TradeInput = memo(() => {
                   onAssetChange={setBuyAsset}
                 />
               }
-            />
+            >
+              <Collapse in={!!sortedQuotes.length && hasUserEnteredAmount}>
+                {MaybeRenderedTradeQuotes}
+              </Collapse>
+            </TradeAssetInput>
           </Stack>
           {ConfirmSummary}
         </Stack>

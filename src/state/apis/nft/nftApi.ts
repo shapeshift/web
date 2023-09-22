@@ -7,7 +7,6 @@ import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import type { PartialRecord } from 'lib/utils'
 import { isRejected } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -17,7 +16,7 @@ import { initialState as initialPortfolioState } from 'state/slices/portfolioSli
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import { selectNftCollectionById } from './selectors'
+import { BLACKLISTED_COLLECTION_IDS, hasSpammyMedias, isSpammyNftText } from './constants'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import {
   getAlchemyCollectionData,
@@ -60,8 +59,13 @@ export const initialState: NftState = {
     ids: [],
   },
   collections: {
-    byId: {},
-    ids: [],
+    byId: {
+      ...BLACKLISTED_COLLECTION_IDS.reduce<Partial<Record<AssetId, NftCollectionType>>>(
+        (acc, assetId) => ({ ...acc, [assetId]: { assetId, isSpam: true } }),
+        {},
+      ),
+    },
+    ids: BLACKLISTED_COLLECTION_IDS,
   },
 }
 
@@ -171,9 +175,7 @@ export const nftApi = createApi({
   reducerPath: 'nftApi',
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
-      queryFn: async ({ accountIds }, { dispatch, getState }) => {
-        const state = getState() as ReduxState
-
+      queryFn: async ({ accountIds }, { dispatch }) => {
         const services = [
           getAlchemyNftsUserData,
           (accountIds: AccountId[]) =>
@@ -203,6 +205,10 @@ export const nftApi = createApi({
 
               data.forEach(item => {
                 const { assetId } = item
+                if (item.collection.isSpam) return
+                if (hasSpammyMedias(item.medias)) return
+                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
+                  return
                 const { assetReference, chainId } = fromAssetId(assetId)
 
                 const [contractAddress, id] = deserializeNftAssetReference(assetReference)
@@ -250,8 +256,6 @@ export const nftApi = createApi({
         const collectionsById = nftsWithCollection.reduce<NftState['collections']['byId']>(
           (acc, item) => {
             if (!item.collection.assetId) return acc
-            const cachedCollection = selectNftCollectionById(state, item.collection.assetId)
-            if (cachedCollection?.isSpam) item.collection.isSpam = true
             acc[item.collection.assetId] = item.collection
             return acc
           },

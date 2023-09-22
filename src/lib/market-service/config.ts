@@ -5,3 +5,4 @@ export const RATE_LIMIT_THRESHOLDS_PER_MINUTE = {
 }
 
 export const DEFAULT_RATE_LIMITER_INTERVAL_IN_MS = 60000
+export const DEFAULT_CACHE_TTL_MS = 1000 * 5 // 5 seconds

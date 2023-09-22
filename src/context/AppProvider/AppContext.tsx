@@ -13,7 +13,7 @@ import {
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
 import pull from 'lodash/pull'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -33,9 +33,8 @@ import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
+  marketData,
   useFindAllQuery,
-  useFindByFiatSymbolQuery,
-  useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
@@ -169,9 +168,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const { getAllTxHistory } = txHistoryApi.endpoints
 
       try {
-        await Promise.all(
-          requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
-        )
+        await dispatch(getAllTxHistory.initiate(requestedAccountIds))
       } finally {
         // add any nft assets detected in the tx history state.
         // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
@@ -273,49 +270,61 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // const opts = { subscriptionOptions: { pollingInterval } }
     const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-    portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-      const payload = { assetId, timeframe }
-      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
-    })
+    void (async () => {
+      await Promise.all([
+        dispatch(
+          marketApi.endpoints.findPriceHistoryByAssetIds.initiate({
+            timeframe,
+            assetIds: portfolioAssetIdsExcludeNoMarketData,
+          }),
+        ),
+        dispatch(marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData)),
+      ])
+
+      // used to trigger mixpanel init after load of market data
+      dispatch(marketData.actions.setMarketDataLoaded())
+    })()
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**
    * fetch forex spot and history for user's selected currency
    */
   const currency = useAppSelector(state => selectSelectedCurrency(state))
-  const timeframe = DEFAULT_HISTORY_TIMEFRAME
-  const priceHistoryArgs = useMemo(() => ({ symbol: currency, timeframe }), [currency, timeframe])
-  const { error: fiatPriceHistoryError } = useFindPriceHistoryByFiatSymbolQuery(priceHistoryArgs)
-  const { error: forexRateError } = useFindByFiatSymbolQuery(priceHistoryArgs)
 
   useEffect(() => {
-    /**
-     * crypto market data is denominated in USD and is the "safe" condition we can
-     * recover from failures on
-     */
+    // we already know 1usd costs 1usd
     if (currency === 'USD') return
-    if (fiatPriceHistoryError || forexRateError) {
-      toast({
-        position: 'top-right',
-        title: translate('multiCurrency.toast.title', { symbol: currency }),
-        description: translate('multiCurrency.toast.description'),
-        status: 'error',
-        duration: null, // don't auto-dismiss
-        isClosable: true,
-      })
-      dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
-    }
-    // setting symbol causes infinite render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, fiatPriceHistoryError, forexRateError, toast])
+
+    void (async () => {
+      const timeframe = DEFAULT_HISTORY_TIMEFRAME
+      const priceHistoryArgs = { symbol: currency, timeframe }
+      const { error: fiatPriceHistoryError } = await dispatch(
+        marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate(priceHistoryArgs),
+      )
+      const { error: forexRateError } = await dispatch(
+        marketApi.endpoints.findByFiatSymbol.initiate(priceHistoryArgs),
+      )
+
+      if (fiatPriceHistoryError || forexRateError) {
+        toast({
+          position: 'top-right',
+          title: translate('multiCurrency.toast.title', { symbol: currency }),
+          description: translate('multiCurrency.toast.description'),
+          status: 'error',
+          duration: null, // don't auto-dismiss
+          isClosable: true,
+        })
+        dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
+      }
+    })()
+  }, [currency, dispatch, toast, translate])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
+    dispatch(marketApi.endpoints.findByAssetIds.initiate([routeAssetId]))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render

@@ -71,7 +71,6 @@ export const mockStore: ReduxState = {
       IdleFinance: false,
       Axelar: false,
       Yat: false,
-      WalletConnectToDapps: false,
       WalletConnectToDappsV2: false,
       Wherever: false,
       SaversVaults: false,
@@ -123,6 +122,7 @@ export const mockStore: ReduxState = {
       ids: [],
       priceHistory: {},
     },
+    isMarketDataLoaded: false,
   },
   txHistory: {
     txs: {

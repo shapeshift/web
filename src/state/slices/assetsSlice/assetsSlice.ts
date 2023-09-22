@@ -39,7 +39,7 @@ export type AssetsState = {
   ids: AssetId[]
 }
 
-const initialState: AssetsState = {
+export const initialState: AssetsState = {
   byId: {},
   ids: [],
 }

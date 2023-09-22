@@ -462,17 +462,22 @@ export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
       const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
         [k: AccountId]: { [k: AssetId]: string }
       }>((acc, [accountId, account]) => {
-        const entries: [AssetId, BigNumber][] = Object.entries(account).map(
-          ([assetId, cryptoBalance]) => {
+        const entries: [AssetId, BigNumber][] = Object.entries(account).reduce(
+          (acc: [AssetId, BigNumber][], [assetId, cryptoBalance]) => {
             const asset = assets?.[assetId]
-            if (!asset) return [assetId, bn(0)]
+            if (!asset) return acc
+
             const { precision } = asset
             const price = marketData[assetId]?.price ?? 0
-            return [
+            const calculatedValue: [AssetId, BigNumber] = [
               assetId,
               bnOrZero(fromBaseUnit(bnOrZero(cryptoBalance), precision)).times(price),
             ]
+
+            acc.push(calculatedValue)
+            return acc
           },
+          [],
         )
 
         const fiatAccountSorted = Object.fromEntries(

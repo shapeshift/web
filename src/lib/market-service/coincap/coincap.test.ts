@@ -1,5 +1,6 @@
 import { adapters } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 
 import { CoinCapMarketService } from './coincap'
@@ -7,9 +8,17 @@ import type { CoinCapMarketCap } from './coincap-types'
 
 const coinMarketService = new CoinCapMarketService()
 
-jest.mock('axios')
+jest.mock('axios', () => {
+  const axios = jest.requireActual('axios')
 
-const mockedAxios = axios as jest.Mocked<typeof axios>
+  axios.create = jest.fn().mockImplementation(() => axios)
+
+  return axios
+})
+
+jest.mock('axios-cache-interceptor', () => ({
+  setupCache: jest.fn().mockImplementation((axiosInstance: AxiosInstance) => axiosInstance),
+}))
 
 describe('coincap market service', () => {
   describe('getMarketCap', () => {
@@ -44,7 +53,8 @@ describe('coincap market service', () => {
     }
 
     it('can flatten multiple responses', async () => {
-      mockedAxios.get
+      jest
+        .spyOn(axios, 'get')
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValue({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()
@@ -52,7 +62,8 @@ describe('coincap market service', () => {
     })
 
     it('can sort by market cap', async () => {
-      mockedAxios.get
+      jest
+        .spyOn(axios, 'get')
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValue({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()
@@ -60,19 +71,20 @@ describe('coincap market service', () => {
     })
 
     it('can handle api errors', async () => {
-      mockedAxios.get.mockRejectedValue({ error: 'foo' })
+      jest.spyOn(axios, 'get').mockRejectedValue({ error: 'foo' })
       const result = await coinMarketService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
 
     it('can handle rate limiting', async () => {
-      mockedAxios.get.mockResolvedValue({ status: 429 })
+      jest.spyOn(axios, 'get').mockResolvedValue({ status: 429 })
       const result = await coinMarketService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
 
     it('can return some results if partially rate limited', async () => {
-      mockedAxios.get
+      jest
+        .spyOn(axios, 'get')
         .mockResolvedValueOnce({ status: 429 })
         .mockResolvedValue({ data: { data: [eth] } })
       const result = await coinMarketService.findAll()
@@ -80,21 +92,22 @@ describe('coincap market service', () => {
     })
 
     it('can use default args', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { data: [btc] } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: [btc] } })
       await coinMarketService.findAll()
-      expect(mockedAxios.get).toHaveBeenCalledTimes(10)
+      expect(jest.spyOn(axios, 'get')).toHaveBeenCalledTimes(10)
     })
 
     it('can use override args', async () => {
-      mockedAxios.get.mockResolvedValue({ data: [btc] })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: [btc] })
       await coinMarketService.findAll({ count: 10 })
-      expect(mockedAxios.get).toHaveBeenCalledTimes(1)
+      expect(jest.spyOn(axios, 'get')).toHaveBeenCalledTimes(1)
       const url = 'https://api.coincap.io/v2/assets?limit=10&offset=1'
-      expect(mockedAxios.get).toBeCalledWith(url)
+      expect(jest.spyOn(axios, 'get')).toBeCalledWith(url)
     })
 
     it('can map coincap to AssetIds', async () => {
-      mockedAxios.get
+      jest
+        .spyOn(axios, 'get')
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValue({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()
@@ -152,7 +165,7 @@ describe('coincap market service', () => {
         volume: '13216473429.9114945699035335',
         supply: '118739782.1240000000000000',
       }
-      mockedAxios.get.mockResolvedValue({ data: { data: eth } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: eth } })
       expect(await coinMarketService.findByAssetId(args1)).toEqual(result)
     })
 
@@ -165,12 +178,12 @@ describe('coincap market service', () => {
         supply: '18901193.0000000000000000',
         maxSupply: '21000000.0000000000000000',
       }
-      mockedAxios.get.mockResolvedValue({ data: { data: btc } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: btc } })
       expect(await coinMarketService.findByAssetId(args2)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
-      mockedAxios.get.mockRejectedValue(Error)
+      jest.spyOn(axios, 'get').mockRejectedValue(Error)
       await expect(coinMarketService.findByAssetId(args1)).rejects.toThrow()
     })
   })
@@ -195,12 +208,12 @@ describe('coincap market service', () => {
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 46195.21830082935 },
         { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 },
       ]
-      mockedAxios.get.mockResolvedValue({ data: { data: mockHistoryData } })
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: mockHistoryData } })
       expect(await coinMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
-      mockedAxios.get.mockRejectedValue(Error)
+      jest.spyOn(axios, 'get').mockRejectedValue(Error)
       await expect(coinMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('MarketService(findPriceHistoryByAssetId): error fetching price history'),
       )

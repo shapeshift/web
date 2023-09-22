@@ -18,6 +18,7 @@ import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -28,7 +29,7 @@ import { selectAssets } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
-  const wallet = useWallet().state.wallet
+  const { state } = useWallet()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -53,6 +54,9 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
+      if (!state.adapters) return
+      // Re-pair device in case disconnecting an app disconnected the device
+      const wallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
       if (!wallet) return
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
@@ -112,7 +116,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, wallet],
+    [availableChainIds, dispatch, state.adapters],
   )
 
   return (

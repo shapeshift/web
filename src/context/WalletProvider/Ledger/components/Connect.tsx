@@ -37,7 +37,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
 
       const { name, icon } = LedgerConfig
       try {
-        await wallet.initialize()
         // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
         const deviceId = await wallet.getDeviceID()
 

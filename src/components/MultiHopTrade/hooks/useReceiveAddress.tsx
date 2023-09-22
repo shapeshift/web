@@ -32,7 +32,10 @@ const getReceiveAddress = pMemoize(
       console.log(e)
     }
   },
-  { cacheKey: JSON.stringify },
+  {
+    cacheKey: ([{ asset, accountMetadata }]) =>
+      JSON.stringify({ assetId: asset.assetId, accountMetadata }),
+  },
 )
 
 export const useReceiveAddress = () => {

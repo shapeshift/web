@@ -26,6 +26,8 @@ export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timef
     [assetIds, dispatch, timeframe],
   )
   useEffect(() => {
+    // we already know 1usd costs 1usd
+    if (symbol === 'USD') return
     dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe }))
   }, [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe])
 }

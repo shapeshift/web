@@ -1,12 +1,8 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData,
-} from '@shapeshiftoss/types'
+import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -34,7 +30,17 @@ const initialState: MarketDataState = {
   fiat: {
     byId: {},
     ids: [],
-    priceHistory: {},
+    priceHistory: {
+      // 1usd has always cost exactly 1usd
+      [HistoryTimeframe.ALL]: {
+        USD: [
+          {
+            price: 1,
+            date: 0,
+          },
+        ],
+      },
+    },
   },
   isMarketDataLoaded: false,
 }

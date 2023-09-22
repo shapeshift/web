@@ -32,6 +32,7 @@ export const snapshotApi = createApi({
             }
           }
         `
+        // https://hub.snapshot.org/graphql?query=query%20%7B%0A%20%20space(id%3A%20%22shapeshiftdao.eth%22)%20%7B%0A%20%20%20%20strategies%20%7B%0A%20%20%20%20%20%20name%0A%20%20%20%20%20%20network%0A%20%20%20%20%20%20params%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D
         const { data: resData } = await axios.post(
           'https://hub.snapshot.org/graphql',
           { query },
@@ -65,6 +66,7 @@ export const snapshotApi = createApi({
         const delegation = true
         const votingPowerResults = await Promise.all(
           evmAddresses.map(async address => {
+            // https://docs.snapshot.org/tools/snapshot.js#getvp
             const votingPowerUnvalidated = await snapshot.utils.getVp(
               address,
               '1', // TODO - aggregate by chain reference

@@ -4,6 +4,7 @@
     "balance": "Bakiye",
     "next": "Sonraki",
     "error": "Hata",
+    "show": "Göster",
     "cancel": "İptal",
     "close": "Kapat",
     "loadMore": "Daha fazla",
@@ -109,7 +110,8 @@
     "feedbackAndSupport": "Geribildirim ve Destek",
     "getSupport": "Destek Al",
     "viewMyWallet": "Cüzdanımı Görüntüle",
-    "submitFeatureRequest": "Özellik Talebi Gönderin"
+    "submitFeatureRequest": "Özellik Talebi Gönderin",
+    "learnMore": "Daha fazla bilgi edin"
   },
   "consentBanner": {
     "body": {
@@ -229,7 +231,10 @@
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
     "cta": "Cüzdanı Bağla",
-    "viewADemo": "Demo Görüntüle"
+    "viewADemo": "Demo Görüntüle",
+    "dontHaveWallet": "Cüzdanın yok mu?",
+    "welcomeBack": "Tekrar hoşgeldiniz!",
+    "welcomeBody": "Cüzdanınızı bağlamak \"giriş yapmak\" gibidir. Başlamak için seçeneklerden cüzdanınızı seçin."
   },
   "connectWallet": {
     "menu": {
@@ -536,6 +541,7 @@
     "trade": "Takas",
     "amount": "Tutar",
     "for": "için",
+    "emptyMessage": "%{status} işlemleriniz burada görünecek.",
     "parser": {
       "weth": {
         "deposit": "Depozit",
@@ -597,6 +603,7 @@
       },
       "swap": {
         "deposit": "Takas",
+        "streamingSwap": "Takas Yayınlanıyor",
         "out": "Takas",
         "refund": "Geri Ödeme",
         "outbound": "Giden"
@@ -676,6 +683,8 @@
     "approvingAsset": "%{symbol} onaylanıyor",
     "viewTransaction": "İşlemi Görüntüle",
     "unlimited": "Limitsiz",
+    "streamStatus": "Yayın Durumu",
+    "swapsFailed": "%{failedSwaps} takas başarısız oldu",
     "exact": "Aynı",
     "expectedAmount": "Beklenen Tutar",
     "beforeFees": "Ücretlerden Önce",
@@ -766,8 +775,11 @@
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
     "receiveAddress": "Alıcı Adresi",
+    "receiveAddressDescription": "Bağlı cüzdanda %{chainName} adresi bulunamadı. Manuel olarak bir adres girin veya",
+    "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
-    "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?"
+    "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
+    "enableMetaMaskSnap": "Multichain snap'i kullan"
   },
   "modals": {
     "popup": {
@@ -1260,6 +1272,41 @@
         "button": "Aç"
       }
     },
+    "metaMaskSnap": {
+      "title": "Çoklu zincir desteği artık MetaMask için mevcut!",
+      "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i Metamask'a ekleyin:",
+      "multiChainSnap": "Multichain Snap",
+      "active": "Aktif",
+      "notActive": "Aktif değil",
+      "addSnap": "Snap Ekle",
+      "uninstall": {
+        "title": "Multichain desteğini MetaMask'tan kaldırdınız!",
+        "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i MetaMask'a yeniden ekleyin:"
+      },
+      "secondaryTitle": "MetaMask için en iyi Çoklu Zincir deneyimi: ShapeShift tarafından desteklenmektedir",
+      "secondaryBody": "ShapeShift Multichain Snap ile aşağıdaki zincirlerde gönderin, alın, takip edin, ticaret yapın ve kazanın:",
+      "connectMetaMask": "MetaMask'ı bağlayın",
+      "andMore": "...ve dahası",
+      "snapInstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Yüklendi",
+      "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "Multichain Snap'i yükle",
+      "warningExperimental": "ShapeShift Multichain Snap, sağlanan yeni, deneysel bir özelliktir",
+      "warningBackup": "MetaMask tohum ifadenizi yedeklediğinizden emin olun. Bu Snap'i kullanarak EVM dışı zincirlere göndereceğiniz tüm fonlar, MetaMask ile kurduğunuz varsayılan hesaba yönlendirilecektir.",
+      "agreeIntro": "Devam etmeden önce lütfen aşağıdakileri okuyun:",
+      "agreeItem1Parts": {
+        "1": "Donanım cüzdanları",
+        "2": "DESTEKLENMİYOR",
+        "3": "!"
+      },
+      "agreeItem2": "ShapeShift Multichain Snap'in sağladığı ekstra zincirler için yalnızca MetaMask'taki Account #1 Hesap desteklenir",
+      "agreeItem3": "MetaMask tarafından sağlanan mevcut Ethereum zincirlerini kullanmak için Account #1'i MetaMask'taki ShapeShift'e bağlamanız gerekir.",
+      "agreeItem4": "ShapeShift Multichain Snap'i etkinleştirerek, riski size ait olmak üzere kullandığınızı kabul etmiş olursunuz.",
+      "readAndUnderstood": "Okudum Ve Anladım",
+      "seedBackedUp": "MetaMask tohum ifademi yedekledim",
+      "acceptInstall": "Onayla & Yükle"
+    },
     "coinbase": {
       "errors": {
         "unknown": "Coinbase ile iletişim kurulurken beklenmeyen bir hata oluştu",
@@ -1688,15 +1735,21 @@
       },
       "header": {
         "connectDapp": "dApp'e Bağlanın",
+        "connectAnotherDapp": "Başka bir dApp bağlayın",
+        "connectedDapp": "Bağlı dApp(ler)",
+        "staleDapp": "Eski dApp(ler)",
         "menu": {
           "disconnect": "Bağlantıyı Kes",
-          "address": "Adres",
+          "reconnect": "Tekrar Bağlan",
           "addresses": "Adresler",
+          "address": "Adres",
           "connected": "Bağlı",
-          "network": "Ağ",
+          "networks": "Ağ(lar)",
           "unsupportedNetwork": "Desteklenmeyen Ağ",
           "expiry": "Oturumun Sona Ermesi"
-        }
+        },
+        "multipleSessionsConnected": "%{count} dApp bağlandı",
+        "clickToManage": "Düzenlemek için tıklayın"
       },
       "modal": {
         "title": "WalletConnect",
@@ -1987,7 +2040,8 @@
     "attributes": "Özellikler",
     "aboutCollection": "%{collectionName} Hakkında",
     "emptyTitle": "Tüm NFT'ler nereye gitti?",
-    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin."
+    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin.",
+    "reportSpam": "Spam Bildir"
   },
   "missions": {
     "subtitle": "FOX Görevleri",

@@ -173,6 +173,7 @@ export const opportunitiesApi = createApi({
                   type: defiType,
                 }
 
+                // TODO: collect and dispatch once to improve perf locally
                 dispatch(opportunities.actions.upsertOpportunityAccounts(data))
                 return { data }
               }
@@ -185,6 +186,7 @@ export const opportunitiesApi = createApi({
               })
 
               if (resolved?.data) {
+                // TODO: collect and dispatch once to improve perf locally
                 // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
                 dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
               }
@@ -198,6 +200,7 @@ export const opportunitiesApi = createApi({
                 type: defiType,
               }
 
+              // TODO: collect and dispatch once to improve perf locally
               dispatch(opportunities.actions.upsertOpportunityAccounts(data))
             } catch (e) {
               const message = e instanceof Error ? e.message : 'Error getting opportunities data'
@@ -235,6 +238,7 @@ export const opportunitiesApi = createApi({
                 throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
               }
 
+              // TODO: collect and dispatch once to improve perf locally
               const onInvalidate = (userStakingId: UserStakingId) =>
                 dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
 
@@ -247,6 +251,7 @@ export const opportunitiesApi = createApi({
               })
 
               if (resolved?.data) {
+                // TODO: collect and dispatch once to improve perf locally
                 dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
               }
 
@@ -261,6 +266,7 @@ export const opportunitiesApi = createApi({
                 type: defiType,
               }
 
+              // TODO: collect and dispatch once to improve perf locally
               dispatch(opportunities.actions.upsertOpportunityAccounts(data))
             } catch (e) {
               const message = e instanceof Error ? e.message : 'Error getting opportunities data'

@@ -19,6 +19,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -67,11 +68,12 @@ export const LedgerChains = () => {
       try {
         // TODO(gomes): this should be programmatic
         const { chainNamespace } = fromChainId(chainId)
+        const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
           chainNamespace
         ]({
           accountNumber: 0,
-          chainIds: [chainId],
+          chainIds,
           wallet,
         })
 

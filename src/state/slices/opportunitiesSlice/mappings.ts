@@ -7,7 +7,6 @@ import {
   ethChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import pipe from 'lodash/flow'
 
 import {
   cosmosSdkOpportunityIdsResolver,
@@ -185,95 +184,47 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
   ],
 }
 
-// Single opportunity metadata resolvers
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderMetadataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToMetadataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeMetadataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderMetadataResolvers>,
-) => resolversByType?.[defiType]
-
 export const getMetadataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderMetadataResolvers,
-    getDefiTypeMetadataResolvers.bind(this, defiType),
-  )(defiProvider)
-
-// Many opportunity metadata resolvers
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderOpportunitiesMetadataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToOpportunitiesMetadataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeOpportunitiesMetadataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderOpportunitiesMetadataResolvers>,
-) => resolversByType?.[defiType]
+) => {
+  const resolversByType = DefiProviderToMetadataResolverByDeFiType[defiProvider]
+  const resolver = resolversByType?.[defiType]
+  return resolver
+}
 
 export const getOpportunitiesMetadataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderOpportunitiesMetadataResolvers,
-    getDefiTypeOpportunitiesMetadataResolvers.bind(this, defiType),
-  )(defiProvider)
-
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderUserDataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToUserDataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeUserDataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
-) => resolversByType?.[defiType]
+) => {
+  const resolversByType = DefiProviderToOpportunitiesMetadataResolverByDeFiType[defiProvider]
+  const resolver = resolversByType?.[defiType]
+  return resolver
+}
 
 export const getUserDataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderUserDataResolvers,
-    getDefiTypeUserDataResolvers.bind(this, defiType),
-  )(defiProvider)
-
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderOpportunitiesUserDataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToOpportunitiesUserDataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeOpportunitiesUserDataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderOpportunitiesUserDataResolvers>,
-) => resolversByType?.[defiType]
+) => {
+  const resolversByType = DefiProviderToUserDataResolverByDeFiType[defiProvider]
+  const resolver = resolversByType?.[defiType]
+  return resolver
+}
 
 export const getOpportunitiesUserDataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderOpportunitiesUserDataResolvers,
-    getDefiTypeOpportunitiesUserDataResolvers.bind(this, defiType),
-  )(defiProvider)
-
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderOpportunityIdsResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToOpportunityIdsResolverByDeFiType[defiProvider]
-
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeOpportunityIdsResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderOpportunityIdsResolvers>,
-) => resolversByType?.[defiType]
+) => {
+  const resolversByType = DefiProviderToOpportunitiesUserDataResolverByDeFiType[defiProvider]
+  const resolver = resolversByType?.[defiType]
+  return resolver
+}
 
 export const getOpportunityIdsResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderOpportunityIdsResolvers,
-    getDefiTypeOpportunityIdsResolvers.bind(this, defiType),
-  )(defiProvider)
+) => {
+  const resolversByType = DefiProviderToOpportunityIdsResolverByDeFiType[defiProvider]
+  const resolver = resolversByType?.[defiType]
+  return resolver
+}

@@ -121,15 +121,17 @@ export const Routes = memo(() => {
           <Flags />
         </Layout>
       </Route>
-      <Layout>
-        <Switch>
-          {privateRoutesList}
-          <Redirect from='/' to='/dashboard' />
-          <Route>
-            <NotFound />
-          </Route>
-        </Switch>
-      </Layout>
+      <Route>
+        <Layout>
+          <Switch>
+            {privateRoutesList}
+            <Redirect from='/' to='/dashboard' />
+            <Route>
+              <NotFound />
+            </Route>
+          </Switch>
+        </Layout>
+      </Route>
     </Switch>
   )
 })

@@ -235,7 +235,8 @@ export const opportunitiesApi = createApi({
               )
 
               if (!resolver) {
-                throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+                console.warn(`resolver for ${defiProvider}::${defiType} not implemented`)
+                return
               }
 
               // TODO: collect and dispatch once to improve perf locally

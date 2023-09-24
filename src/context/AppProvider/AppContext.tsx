@@ -37,6 +37,7 @@ import {
   marketData,
   useFindAllQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -48,6 +49,8 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
+  selectIsMarketDataLoaded,
+  selectMarketDataById,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -82,6 +85,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
   const isSnapInstalled = useIsSnapInstalled()
+  const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -188,10 +192,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
+  const lpTokenMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+  console.log(lpTokenMarketData)
+
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     ;(async () => {
-      if (portfolioLoadingStatus === 'loading') return
+      if (portfolioLoadingStatus === 'loading' || !isMarketDataLoaded) return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
@@ -251,6 +258,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch,
     requestedAccountIds,
     portfolioAssetIds,
+    isMarketDataLoaded,
   ])
 
   const uniV2LpIdsData = useAppSelector(

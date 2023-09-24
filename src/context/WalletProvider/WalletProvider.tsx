@@ -678,6 +678,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const onProviderChange = useCallback(
     async (localWalletType: KeyManagerWithProvider | null) => {
       console.log('xxx onProviderChange', { localWalletType, walletType })
+      if (localWalletType === walletType) return
       if (!localWalletType) return
       setWalletType(localWalletType)
       if (!walletType) return

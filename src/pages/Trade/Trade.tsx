@@ -1,5 +1,6 @@
 import { Container, Stack } from '@chakra-ui/react'
 import { memo } from 'react'
+import { FeeExplainer } from 'components/FeeChart/FeeChart'
 import { Main } from 'components/Layout/Main'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
@@ -14,7 +15,7 @@ export const Trade = memo(() => {
         <Container maxWidth={maxWidth} p={padding} position='relative' zIndex='2'>
           <MultiHopTrade />
         </Container>
-
+        <FeeExplainer />
         <Stack flexGrow={1}>
           <RecentTransactions />
         </Stack>

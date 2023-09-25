@@ -4,6 +4,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import snapshot from '@snapshot-labs/snapshot.js'
 import axios from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type { Strategy } from './validators'
@@ -40,7 +41,6 @@ export const snapshotApi = createApi({
         )
         try {
           const { strategies } = SnapshotSchema.parse(resData).data.space
-          console.log('###', strategies)
           return { data: strategies }
         } catch (e) {
           console.error('### snapshotApi getStrategies', e)
@@ -63,15 +63,16 @@ export const snapshotApi = createApi({
             return acc
           }, new Set()),
         )
-        const delegation = true
+        const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber()
+        const delegation = false // don't let people delegate for discounts - ambiguous in spec
         const votingPowerResults = await Promise.all(
           evmAddresses.map(async address => {
             // https://docs.snapshot.org/tools/snapshot.js#getvp
             const votingPowerUnvalidated = await snapshot.utils.getVp(
               address,
-              '1', // TODO - aggregate by chain reference
+              '1',
               strategies,
-              'latest', // TODO - implement delay
+              foxDiscountBlock,
               SNAPSHOT_SPACE,
               delegation,
             )
@@ -84,8 +85,7 @@ export const snapshotApi = createApi({
             return acc.plus(cur)
           }, bn(0))
           .toString()
-        console.log('addresses', evmAddresses)
-        console.log('FOX voting power', data)
+        console.log('addresses', evmAddresses, 'FOX voting power', data)
         return { data }
       },
     }),

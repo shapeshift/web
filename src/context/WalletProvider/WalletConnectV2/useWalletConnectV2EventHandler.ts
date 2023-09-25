@@ -25,10 +25,10 @@ export const useWalletConnectV2EventHandler = (
 
   useEffect(() => {
     if (ethereumProvider) {
-      ethereumProvider.on('disconnect', () => handleDisconnect)
-    }
-    return () => {
-      ethereumProvider.off('disconnect', handleDisconnect)
+      ethereumProvider.on('disconnect', handleDisconnect)
+      return () => {
+        ethereumProvider.off('disconnect', handleDisconnect)
+      }
     }
   }, [dispatch, ethereumProvider, handleDisconnect, state.wallet])
 }

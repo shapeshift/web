@@ -20,7 +20,6 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
 
   const pairDevice = useCallback(async () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-    console.log('xxx WalletConnectV2Connect pairDevice')
     // onProviderChange will trigger the Web3Modal
     await onProviderChange(KeyManager.WalletConnectV2)
     try {

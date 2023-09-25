@@ -9,6 +9,7 @@ import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nft, nftApi } from './apis/nft/nftApi'
+import { snapshotApi } from './apis/snapshot/snapshot'
 import { swappersApi } from './apis/swappers/swappersApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
@@ -61,6 +62,7 @@ export const apiSlices = {
   swappersApi,
   foxyApi,
   fiatRampApi,
+  snapshotApi,
   zapper,
   zapperApi,
   nftApi,
@@ -79,6 +81,7 @@ export const apiReducers = {
   [swappersApi.reducerPath]: swappersApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [snapshotApi.reducerPath]: snapshotApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,
   [nftApi.reducerPath]: nftApi.reducer,
   [covalentApi.reducerPath]: covalentApi.reducer,

@@ -11,5 +11,5 @@ export const csp: Csp = {
     'https://verify.walletconnect.org/',
   ],
   'img-src': ['https://imagedelivery.net/', 'https://registry.walletconnect.com/api/v2/logo/', '*'],
-  'frame-src': ['https://verify.walletconnect.com/'],
+  'frame-src': ['https://verify.walletconnect.com/', 'https://verify.walletconnect.org/'],
 }

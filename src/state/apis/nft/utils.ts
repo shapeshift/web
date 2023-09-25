@@ -11,6 +11,7 @@ import {
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { NftFilters } from 'alchemy-sdk'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
@@ -138,7 +139,8 @@ export const getAlchemyNftsUserData = async (
 
         const alchemy = getAlchemyInstanceByChainId(chainId)
         const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
-          excludeFilters: [NftFilters.SPAM],
+          // spam filter not implemented for optimism
+          excludeFilters: chainId !== KnownChainIds.OptimismMainnet ? [NftFilters.SPAM] : [],
         })
         return Promise.all(
           ownedNfts.map(ownedNft =>

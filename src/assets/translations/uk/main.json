@@ -4,6 +4,7 @@
     "balance": "Баланс",
     "next": "Далі",
     "error": "Помилка",
+    "show": "Показати",
     "cancel": "Відмінити",
     "close": "Закрити",
     "loadMore": "Читати далі",
@@ -109,7 +110,8 @@
     "feedbackAndSupport": "Зворотній зв'язок та підтримка",
     "getSupport": "Отримати підтримку",
     "viewMyWallet": "Огляд мого гаманця",
-    "submitFeatureRequest": "Подати запит на функціонал"
+    "submitFeatureRequest": "Подати запит на функціонал",
+    "learnMore": "Дізнатись більше"
   },
   "consentBanner": {
     "body": {
@@ -229,7 +231,10 @@
     "body2": "Ласкаво просимо до нового ShapeShift. 100% безкоштовний. З відкритим вихідним кодом. Належить громаді. Незалежний. Конфіденційний.",
     "header": "Для початку роботи під'єднайте гаманець",
     "cta": "Під'єднати гаманець",
-    "viewADemo": "Переглянути демо-версію"
+    "viewADemo": "Переглянути демо-версію",
+    "dontHaveWallet": "У вас немає гаманця?",
+    "welcomeBack": "З поверненням!",
+    "welcomeBody": "Підключення гаманця схоже на \"вхід в систему\". Виберіть свій гаманець із запропонованих варіантів, щоб почати роботу."
   },
   "connectWallet": {
     "menu": {
@@ -536,6 +541,7 @@
     "trade": "Обмін",
     "amount": "Сума",
     "for": "за",
+    "emptyMessage": "Тут з'являться ваші транзакції %{status}.",
     "parser": {
       "weth": {
         "deposit": "Вклад",
@@ -597,6 +603,7 @@
       },
       "swap": {
         "deposit": "Обмін",
+        "streamingSwap": "Передача інформації в режимі реального часу",
         "out": "Обмін",
         "refund": "Повернення коштів",
         "outbound": "Вихідні дані"
@@ -676,6 +683,8 @@
     "approvingAsset": "Затвердити %{symbol}",
     "viewTransaction": "Переглянути транзакцію",
     "unlimited": "Необмежено",
+    "streamStatus": "Статус передачі",
+    "swapsFailed": "%{failedSwaps} не вдалося виконати обмін",
     "exact": "Точно.",
     "expectedAmount": "Очікувана сума",
     "beforeFees": "До сплати комісій",
@@ -766,9 +775,11 @@
     "onChainName": "на %{chainName}",
     "unknownGas": "(невідомо)",
     "receiveAddress": "Адреса отримувача",
-    "receiveAddressDescription": "Не знайдено %{chainName} \nадресу з підключеного гаманця. Для продовження введіть адресу вручну..",
+    "receiveAddressDescription": "Не знайдено адресу %{chainName} з підключеного гаманця. Введіть адресу вручну або",
+    "toContinue": "щоб продовжити",
     "addressPlaceholder": "%{chainName} адреса",
-    "priceImpactWarning": "Враховуючи розмір цієї угоди відносно наявної ліквідності, очікуваний вплив на ціну цієї угоди становить %{priceImpactPercentage}%. Ви впевнені, що хочете обміняти?"
+    "priceImpactWarning": "Враховуючи розмір цієї угоди відносно наявної ліквідності, очікуваний вплив на ціну цієї угоди становить %{priceImpactPercentage}%. Ви впевнені, що хочете обміняти?",
+    "enableMetaMaskSnap": "використайте багатоланцюгову прив'язку"
   },
   "modals": {
     "popup": {
@@ -1261,6 +1272,41 @@
         "button": "Відкрити"
       }
     },
+    "metaMaskSnap": {
+      "title": "У MetaMask з'явилася підтримка мультичейну!",
+      "subtitle": "Додайте багатоланцюгову прив'язку на Metamask, щоб відправляти, отримувати, відстежувати, торгувати і заробляти за допомогою наступних ланцюжків:",
+      "multiChainSnap": "Багатоланцюгова прив'язка (Multichain Snap)",
+      "active": "Активна",
+      "notActive": "Не активна",
+      "addSnap": "Додати Snap",
+      "uninstall": {
+        "title": "Ви вилучили підтримку мультичейну з MetaMask!",
+        "subtitle": "Повторно додайте прив'язку Multichain Snap на MetaMask, щоб відправляти, отримувати, відстежувати, торгувати і заробляти за допомогою наступних ланцюжків:"
+      },
+      "secondaryTitle": "Найкращий досвід роботи з Multichain для MetaMask: На базі ShapeShift",
+      "secondaryBody": "Надсилайте, отримуйте, відстежуйте, торгуйте і заробляйте за допомогою ShapeShift Multichain Snap на наступних ланцюжках:",
+      "connectMetaMask": "Підключити MetaMask",
+      "andMore": "...та багато іншого",
+      "snapInstalledToast": "Встановлено Multichain MetaMask Snap для ShapeShift ",
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не встановлено"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "Встановити Multichain Snap",
+      "warningExperimental": "Multichain Snap у ShapeShift - це нова, експериментальна функція, яка надається \"як є\"",
+      "warningBackup": "Переконайтеся, що ви створили резервну копію початкової фрази MetaMask. Будь-які кошти, які ви відправляєте в не-EVM-ланцюги за допомогою цієї прив'язки, будуть спрямовані на обліковий запис за замовчуванням, який ви створили в MetaMask.",
+      "agreeIntro": "Перш ніж продовжити, будь ласка, прочитайте наступне:",
+      "agreeItem1Parts": {
+        "1": "Апаратні гаманці - це",
+        "2": "НЕ",
+        "3": "підтримують"
+      },
+      "agreeItem2": "Для додаткових ланцюжків, які надає ShapeShift Multichain Snap, підтримується лише обліковий запис №1 у MetaMask",
+      "agreeItem3": "Щоб використовувати існуючі ланцюжки Ethereum, надані MetaMask, ви повинні підключити обліковий запис №1 до ShapeShift в MetaMask",
+      "agreeItem4": "Увімкнувши багатоланцюгову прив'язку ShapeShift, ви визнаєте, що використовуєте її на свій страх і ризик",
+      "readAndUnderstood": "Я ознайомився та зрозумів",
+      "seedBackedUp": "Я створив резервну копію своєї сід фрази MetaMask",
+      "acceptInstall": "Підтвердити та встановити"
+    },
     "coinbase": {
       "errors": {
         "unknown": "Виникла несподівана помилка при взаємодії з Coinbase",
@@ -1689,17 +1735,21 @@
       },
       "header": {
         "connectDapp": "Підключити dApp",
-        "connectedDapp": "Підключені dApp",
+        "connectAnotherDapp": "Підключити іншу dApp",
+        "connectedDapp": "Підключені dApp(и)",
+        "staleDapp": "Застарілі dApp(и)",
         "menu": {
           "disconnect": "Від'єднати",
-          "address": "Адреса",
+          "reconnect": "Перепідключитися",
           "addresses": "Адреси",
+          "address": "Адреса",
           "connected": "Підключено",
-          "network": "Мережа",
-          "networks": "Мережі",
+          "networks": "Мережа(і)",
           "unsupportedNetwork": "Непідтримувана мережа",
           "expiry": "Кінець сесії"
-        }
+        },
+        "multipleSessionsConnected": "%{count} dApps підключено",
+        "clickToManage": "Натисніть, щоб налаштувати"
       },
       "modal": {
         "title": "WalletConnect",
@@ -1990,7 +2040,8 @@
     "attributes": "Атрибути",
     "aboutCollection": "Про %{collectionName}",
     "emptyTitle": "Куди поділися всі NFT?",
-    "emptyBody": "Не хвилюйтеся, ми відправили пошукову групу, щоб знайти ще більше дивовижних NFT. А тим часом, не соромтеся дивитися на цей порожній простір і роздумувати про сенс існування."
+    "emptyBody": "Не хвилюйтеся, ми відправили пошукову групу, щоб знайти ще більше дивовижних NFT. А тим часом, не соромтеся дивитися на цей порожній простір і роздумувати про сенс існування.",
+    "reportSpam": "Повідомити про спам"
   },
   "missions": {
     "subtitle": "Місії FOX",

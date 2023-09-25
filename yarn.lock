@@ -9266,9 +9266,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.50.8-ledger.6":
-  version: 1.50.8-ledger.6
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.50.8-ledger.6"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.50.8-ledger.9":
+  version: 1.50.8-ledger.9
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.50.8-ledger.9"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.0.8
     "@ledgerhq/hw-app-eth": ^6.9.0
@@ -9276,16 +9276,16 @@ __metadata:
     "@ledgerhq/hw-transport-webhid": ^6.7.0
     "@ledgerhq/live-common": ^21.8.2
     "@shapeshiftoss/hdwallet-core": ^1.50.8-ledger.2
-    "@shapeshiftoss/hdwallet-ledger": ^1.50.8-ledger.6
+    "@shapeshiftoss/hdwallet-ledger": ^1.50.8-ledger.9
     "@types/w3c-web-hid": ^1.0.2
     typescript: ^4.7.4
-  checksum: c4b4c7b7c2fb5830de1485efb6fa5f18cbeae3054850fdb52d3e01c3cdac08460e6fd4adfb473bce938094152e89db953f45cb88fcfa0d201760137e05f9232d
+  checksum: df28c166359dcd5808f4917a5300a88bbab07baf52712c63d3c14e7d35e8c834638393e76eb9d24c8ac15f1bd7a5b53feca55123425b07b21cb4e6c040eb9b39
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.6":
-  version: 1.50.8-ledger.6
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.6"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.9":
+  version: 1.50.8-ledger.9
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.9"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.0.8
     "@ledgerhq/hw-app-eth": ^6.9.0
@@ -9294,16 +9294,16 @@ __metadata:
     "@ledgerhq/live-common": ^21.8.2
     "@ledgerhq/logs": ^6.10.1
     "@shapeshiftoss/hdwallet-core": ^1.50.8-ledger.2
-    "@shapeshiftoss/hdwallet-ledger": ^1.50.8-ledger.6
+    "@shapeshiftoss/hdwallet-ledger": ^1.50.8-ledger.9
     "@types/w3c-web-usb": ^1.0.4
     typescript: ^4.7.4
-  checksum: 16642fccd2eed04916235ef615316206b1a1ded6dbb7ae039adce0af2ff785377152282355ee8fac967f7823cbd51f78d5b09238b990e96b1da6faa8fca1727e
+  checksum: db963221b09199b067c00382ad2309ca70e44188228bb95524bcd9bdd23139a09f6c68b9d3537ffe80838631ae40945c17d72db6c1409af5651fbc0c0b6de0c2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.50.8-ledger.6, @shapeshiftoss/hdwallet-ledger@npm:^1.50.8-ledger.6":
-  version: 1.50.8-ledger.6
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.50.8-ledger.6"
+"@shapeshiftoss/hdwallet-ledger@npm:1.50.8-ledger.9, @shapeshiftoss/hdwallet-ledger@npm:^1.50.8-ledger.9":
+  version: 1.50.8-ledger.9
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.50.8-ledger.9"
   dependencies:
     "@ethereumjs/common": ^2.4.0
     "@ethereumjs/tx": ^3.3.0
@@ -9316,7 +9316,7 @@ __metadata:
     ethereumjs-tx: 1.3.7
     ethereumjs-util: ^6.1.0
     lodash: ^4.17.21
-  checksum: 6b1e5c1dc47b1935eb05b74fff31744ce9cb0bd0b88423c03c5daeba7c88a34c47bce9a6a235600ab911546807dae9c3202888ff2d2d3471b254570104c1d750
+  checksum: 8288bbb08f792991d41c9edb2fb24bc2c8d73a44118c88cd89d683f6f704728cc7ebf2ffc982beb3e151c2345fa506f76cdd1f1fac02543960a8975309eb7aee
   languageName: node
   linkType: hard
 
@@ -9590,9 +9590,9 @@ __metadata:
     "@shapeshiftoss/hdwallet-keepkey": ^1.50.4
     "@shapeshiftoss/hdwallet-keepkey-webusb": ^1.50.4
     "@shapeshiftoss/hdwallet-keplr": ^1.50.4
-    "@shapeshiftoss/hdwallet-ledger": 1.50.8-ledger.6
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.50.8-ledger.6
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.50.8-ledger.6
+    "@shapeshiftoss/hdwallet-ledger": 1.50.8-ledger.9
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.50.8-ledger.9
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.50.8-ledger.9
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4

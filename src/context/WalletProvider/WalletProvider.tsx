@@ -33,6 +33,7 @@ import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { setupKeepKeySDK } from './KeepKey/setupKeepKeySdk'
 import { KeyManager } from './KeyManager'
+import { useLedgerEventHandler } from './Ledger/hooks/useLedgerEventHandler'
 import {
   clearLocalWallet,
   getLocalWalletDeviceId,
@@ -150,6 +151,7 @@ export const isKeyManagerWithProvider = (
   )
 
 const reducer = (state: InitialState, action: ActionTypes): InitialState => {
+  console.log({ state, action })
   switch (action.type) {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
@@ -360,6 +362,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
+    console.trace()
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
     clearLocalWallet()
@@ -421,6 +424,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                  * password modal will be shown
                  */
                 await localNativeWallet.initialize()
+              } else {
+                disconnect()
+              }
+              break
+            case KeyManager.Ledger:
+              const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
+              if (ledgerWallet) {
+                await ledgerWallet.initialize()
               } else {
                 disconnect()
               }
@@ -860,6 +871,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
+  useLedgerEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({

@@ -13,7 +13,7 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 
 import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
 
-export const useKeepKeyEventHandler = (
+export const useLedgerEventHandler = (
   state: InitialState,
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
@@ -30,11 +30,11 @@ export const useKeepKeyEventHandler = (
   const { poll } = usePoll()
 
   useEffect(() => {
-    // This effect should run and attach event handlers on KeepKey only
+    // This effect should run and attach event handlers on Ledger only
     // Failure to check for the localWalletType will result in a bunch of random bugs on other wallets
     // being mistakenly identified as KeepKey
     const localWalletType = getLocalWalletType()
-    if (localWalletType !== KeyManager.KeepKey) return
+    if (localWalletType !== KeyManager.Ledger) return
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
       const { message_enum, message_type, message, from_wallet } = event
@@ -196,9 +196,7 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    const handleConnect = async (e: [deviceId: string, message: Event]) => {
-      const [deviceId] = e
-
+    const handleConnect = async (deviceId: string) => {
       /*
         Understanding KeepKey DeviceID aliases:
 
@@ -225,7 +223,7 @@ export const useKeepKeyEventHandler = (
               name,
               deviceId: id,
               meta: { label: name },
-              connectedType: KeyManager.KeepKey,
+              connectedType: KeyManager.Ledger,
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
@@ -237,16 +235,17 @@ export const useKeepKeyEventHandler = (
     }
 
     const handleDisconnect = (deviceId: string) => {
+      debugger
       try {
-        const id = keyring.getAlias(deviceId)
-        if (id === state.walletInfo?.deviceId) {
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
-        }
-        if (modal) {
-          // Little trick to send the user back to the wallet select route
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-        }
+        // const id = keyring.getAlias(deviceId)
+        // if (id === state.walletInfo?.deviceId) {
+        // dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+        // }
+        // if (modal) {
+        // Little trick to send the user back to the wallet select route
+        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        // }
       } catch (e) {
         console.error(e)
       }

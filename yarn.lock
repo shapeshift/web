@@ -9283,9 +9283,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.9":
-  version: 1.50.8-ledger.9
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.9"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.13":
+  version: 1.50.8-ledger.13
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.50.8-ledger.13"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.0.8
     "@ledgerhq/hw-app-eth": ^6.9.0
@@ -9297,7 +9297,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-ledger": ^1.50.8-ledger.9
     "@types/w3c-web-usb": ^1.0.4
     typescript: ^4.7.4
-  checksum: db963221b09199b067c00382ad2309ca70e44188228bb95524bcd9bdd23139a09f6c68b9d3537ffe80838631ae40945c17d72db6c1409af5651fbc0c0b6de0c2
+  checksum: f76571b53474565e9fa6c633958bae8f0eb4233a2ebbde15a7e5a8102af4d9417926a471114328e7c3909c0efdcf7179a33535e765761054b425b2453be995fa
   languageName: node
   linkType: hard
 
@@ -9592,7 +9592,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-keplr": ^1.50.4
     "@shapeshiftoss/hdwallet-ledger": 1.50.8-ledger.9
     "@shapeshiftoss/hdwallet-ledger-webhid": 1.50.8-ledger.9
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.50.8-ledger.9
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.50.8-ledger.13
     "@shapeshiftoss/hdwallet-metamask": ^1.50.4
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4

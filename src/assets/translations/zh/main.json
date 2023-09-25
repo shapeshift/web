@@ -1746,6 +1746,7 @@
           "addresses": "地址",
           "address": "地址",
           "connected": "已连接",
+          "networks": "网络",
           "unsupportedNetwork": "不支持的网络",
           "expiry": "会话到期"
         },

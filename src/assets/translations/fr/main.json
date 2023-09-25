@@ -111,7 +111,9 @@
     "getSupport": "Obtenir de l'aide",
     "viewMyWallet": "Voir mon porte-monnaie",
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
-    "learnMore": "En savoir plus"
+    "learnMore": "En savoir plus",
+    "showAll": "Montrer tout",
+    "showLess": "Montrer moins"
   },
   "consentBanner": {
     "body": {
@@ -2085,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Achat, vente, échange, gains et plus encore",
       "title": "Gagnez des FOX",
+      "cta": "Commencez la mission"
+    },
+    "snapfoxatar": {
+      "title": "Accéder à Bitcoin avec MetaMask",
+      "subtitle": "Mintez un skin Metamask pour votre FOXatar",
       "cta": "Commencez la mission"
     }
   },

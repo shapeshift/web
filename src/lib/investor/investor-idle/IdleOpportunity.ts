@@ -322,7 +322,16 @@ export class IdleOpportunity
       govTokens = await strategyContract.methods.getRewardTokens().call()
     } else {
       const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
-      govTokens = await vaultContract.methods.getGovTokens().call()
+
+      govTokens = await vaultContract.methods
+        .getGovTokens()
+        .call()
+        .catch((e: Error) => {
+          // the contract may not actually implement the abi documented by idle, so swallow the
+          // error in this case
+          if (e.message?.includes('execution reverted')) return []
+          throw e
+        })
     }
 
     const rewardAssetIds = govTokens.map((token: string) =>

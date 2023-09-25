@@ -27,6 +27,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
+import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -677,8 +678,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
   const onProviderChange = useCallback(
     async (localWalletType: KeyManagerWithProvider | null) => {
-      console.log('xxx onProviderChange', { localWalletType, walletType })
-      if (localWalletType === walletType) return
       if (!localWalletType) return
       setWalletType(localWalletType)
       if (!walletType) return
@@ -850,6 +849,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
+  useWalletConnectV2EventHandler(state, dispatch)
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(

@@ -1,4 +1,3 @@
-import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 import React, { useCallback } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -17,17 +16,12 @@ export interface WalletConnectSetupProps extends RouteComponentProps<{}, {}, Loc
 }
 
 export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => {
-  // The Web3Modal doesn't trigger if there is already wc things in local storage
-  // https://github.com/orgs/WalletConnect/discussions/3010
-  clearWalletConnectLocalStorage()
-
   const { dispatch, state, onProviderChange } = useWallet()
 
   const pairDevice = useCallback(async () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     console.log('xxx WalletConnectV2Connect pairDevice')
     // onProviderChange will trigger the Web3Modal
-    // FIXME: we might be able to not clear the session above, and instead reconnect if a session exists
     await onProviderChange(KeyManager.WalletConnectV2)
     try {
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnectV2)) {

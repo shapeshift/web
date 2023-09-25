@@ -27,7 +27,4 @@ export const clearAllWalletConnectToDappsSessions = async () => {
       reason: getSdkError('USER_DISCONNECTED'),
     })
   }
-
-  // catch-all, clear local storage
-  clearWalletConnectLocalStorage()
 }

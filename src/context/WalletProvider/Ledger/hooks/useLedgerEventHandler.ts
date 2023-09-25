@@ -210,8 +210,9 @@ export const useLedgerEventHandler = (
         const id = keyring.getAlias(deviceId)
         const wallet = keyring.get(id)
         if (wallet && id === state.walletInfo?.deviceId) {
-          // This gets the firmware version needed for some KeepKey "supportsX" functions
-          await wallet.getFeatures()
+          // This looks weird but is correct - the connect event isn't only fired on connect, it's also firing when opening an app
+          // tl;dr closing an app disconnects, opening an app connects, and we want this to be a smooth experience
+          await state.adapters?.get(KeyManager.Ledger)?.[0].pairDevice()
           // Show the label from the wallet instead of a generic name
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.

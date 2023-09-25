@@ -3,7 +3,7 @@ import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import snapshot from '@snapshot-labs/snapshot.js'
 import axios from 'axios'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -24,7 +24,7 @@ export const snapshotApi = createApi({
       queryFn: async () => {
         const query = `
           query {
-            space(id: "shapeshiftdao.eth") {
+            space(id: "${SNAPSHOT_SPACE}") {
               strategies {
                 name
                 network
@@ -43,7 +43,7 @@ export const snapshotApi = createApi({
           const { strategies } = SnapshotSchema.parse(resData).data.space
           return { data: strategies }
         } catch (e) {
-          console.error('### snapshotApi getStrategies', e)
+          console.error('snapshotApi getStrategies', e)
           return { data: [] }
         }
       },
@@ -80,11 +80,7 @@ export const snapshotApi = createApi({
             return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
           }),
         )
-        const data = votingPowerResults
-          .reduce((acc, cur) => {
-            return acc.plus(cur)
-          }, bn(0))
-          .toString()
+        const data = BigNumber.sum(...votingPowerResults).toString()
         console.log('addresses', evmAddresses, 'FOX voting power', data)
         return { data }
       },

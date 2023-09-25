@@ -14,6 +14,7 @@ import {
   ltcAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
@@ -26,7 +27,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
@@ -34,7 +35,8 @@ export const LedgerChains = () => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
-  // TODO(gomes): KnownChainIds filter walletSupportsChain
+  const walletChainIds = useAppSelector(selectWalletChainIds)
+
   const availableAssetIds = useMemo(
     () => [btcAssetId, dogeAssetId, bchAssetId, ltcAssetId, ethAssetId],
     [],
@@ -51,7 +53,6 @@ export const LedgerChains = () => {
   )
 
   const [loadingChains, setLoadingChains] = useState<Record<ChainId, boolean>>({})
-  const [loadedChains, setLoadedChains] = useState<Record<ChainId, boolean>>({})
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
@@ -60,7 +61,9 @@ export const LedgerChains = () => {
       // TODO(gomes): we may want this straight at hdwallet level and augment transport.call() with this
       // see https://github.com/shapeshift/hdwallet/pull/629/commits/5a78f55a6366e8ab0a89d7dac069dedb8f7b36be
       // pairDevice() now calls transport.create() vs. transport.request(), meaning this is effectively invisible for the user on re-connections
-      const wallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
+      const wallet = (await state.adapters
+        .get(KeyManager.Ledger)?.[0]
+        .pairDevice()) as LedgerHDWallet
       if (!wallet) return
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
@@ -112,9 +115,6 @@ export const LedgerChains = () => {
         Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
           if (balance.eq(0)) pull(availableChainIds, chainId)
         })
-
-        // Mark the chain as loaded
-        setLoadedChains(prevLoaded => ({ ...prevLoaded, [chainId]: true }))
       } catch (e) {
         console.error(e)
       } finally {
@@ -145,14 +145,14 @@ export const LedgerChains = () => {
           />
           <Box>
             {availableAssets
-              .sort(a => (loadedChains[a.chainId] ? 1 : -1))
+              .sort(a => (walletChainIds.includes(a.chainId) ? 1 : -1))
               .map(asset => (
                 <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
                   <Flex alignItems='center'>
                     <AssetIcon assetId={asset.assetId} mr={2} />
                     <CText>{asset.name}</CText>
                   </Flex>
-                  {loadedChains[asset.chainId] ? (
+                  {walletChainIds.includes(asset.chainId) ? (
                     <CText>Added</CText>
                   ) : loadingChains[asset.chainId] ? (
                     <Spinner />

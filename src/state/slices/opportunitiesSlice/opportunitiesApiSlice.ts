@@ -16,7 +16,6 @@ import type {
   GetOpportunityIdsInput,
   GetOpportunityIdsOutput,
   GetOpportunityMetadataInput,
-  GetOpportunityMetadataOutput,
   GetOpportunityUserDataInput,
   GetOpportunityUserDataOutput,
   OpportunityDataById,
@@ -83,70 +82,73 @@ export const opportunitiesApi = createApi({
         }
       },
     }),
-    getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
-      queryFn: async ({ opportunityId, defiType, defiProvider }, { dispatch, getState }) => {
-        try {
-          const resolver = getMetadataResolversByDefiProviderAndDefiType(defiProvider, defiType)
+    getOpportunityMetadata: build.query<null, GetOpportunityMetadataInput[]>({
+      queryFn: async (queries, { dispatch, getState }) => {
+        await Promise.allSettled(
+          queries.map(async ({ opportunityId, defiType, defiProvider }) => {
+            try {
+              const resolver = getMetadataResolversByDefiProviderAndDefiType(defiProvider, defiType)
 
-          if (!resolver) {
-            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
-          }
+              if (!resolver) {
+                console.warn(`resolver for ${defiProvider}::${defiType} not implemented`)
+                return
+              }
 
-          const resolved = await resolver({
-            opportunityId,
-            defiType,
-            reduxApi: { dispatch, getState },
-          })
+              const resolved = await resolver({
+                opportunityId,
+                defiType,
+                reduxApi: { dispatch, getState },
+              })
 
-          dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
+              // TODO: collect and dispatch once to improve perf locally
+              dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
+            } catch (e) {
+              const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
+              console.error(message)
+            }
+          }),
+        )
 
-          return { data: resolved.data }
-        } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
-          return {
-            error: {
-              error: message,
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
+        return { data: null }
       },
     }),
     getOpportunitiesMetadata: build.query<
-      GetOpportunityMetadataOutput,
-      Omit<GetOpportunityMetadataInput, 'opportunityId'>
+      null,
+      Omit<GetOpportunityMetadataInput, 'opportunityId'>[]
     >({
-      queryFn: async ({ defiType, defiProvider }, { dispatch, getState }) => {
-        try {
-          const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
+      queryFn: async (queries, { dispatch, getState }) => {
+        await Promise.allSettled(
+          queries.map(async ({ defiType, defiProvider }) => {
+            try {
+              const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
 
-          const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
-            defiProvider,
-            defiType,
-          )
+              const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
+                defiProvider,
+                defiType,
+              )
 
-          if (!resolver) {
-            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
-          }
+              if (!resolver) {
+                console.warn(`resolver for ${defiProvider}::${defiType} not implemented`)
+                return
+              }
 
-          const resolved = await resolver({
-            opportunityIds,
-            defiType,
-            reduxApi: { dispatch, getState },
-          })
+              const resolved = await resolver({
+                opportunityIds,
+                defiType,
+                reduxApi: { dispatch, getState },
+              })
 
-          dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
+              // TODO: collect and dispatch once to improve perf locally
+              dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
+            } catch (e) {
+              const message =
+                e instanceof Error ? e.message : 'Error getting opportunities metadata'
+              console.error(message)
+            }
+          }),
+        )
 
-          return { data: resolved.data }
-        } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
-          return {
-            error: {
-              error: message,
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
+        return { data: null }
       },
     }),
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({

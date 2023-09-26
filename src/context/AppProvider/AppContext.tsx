@@ -37,7 +37,6 @@ import {
   marketData,
   useFindAllQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -50,7 +49,6 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
   selectIsMarketDataLoaded,
-  selectMarketDataById,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -191,9 +189,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
-
-  const lpTokenMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
-  console.log(lpTokenMarketData)
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {

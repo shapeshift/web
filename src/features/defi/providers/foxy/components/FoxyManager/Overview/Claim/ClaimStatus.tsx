@@ -100,11 +100,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
     dispatch(
       opportunitiesApi.endpoints.getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.ShapeShift,
-        },
+        [
+          {
+            accountId,
+            defiType: DefiType.Staking,
+            defiProvider: DefiProvider.ShapeShift,
+          },
+        ],
         { forceRefetch: true },
       ),
     )

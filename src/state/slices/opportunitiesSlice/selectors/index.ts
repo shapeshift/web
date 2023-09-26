@@ -23,11 +23,19 @@ export const selectOpportunitiesApiQueriesByFilter = createSelector(
   selectQueryStatusParamFromFilter,
   (queries, defiProvider, defiType, queryStatus) =>
     Object.values(queries).filter(query => {
+      if (!query) return false
       return (
-        (!queryStatus || query?.status === queryStatus) &&
+        (!queryStatus || query.status === queryStatus) &&
         (!defiProvider ||
-          (query?.originalArgs as GetOpportunityUserDataInput).defiProvider === defiProvider) &&
-        (!defiType || (query?.originalArgs as GetOpportunityUserDataInput).defiType === defiType)
+          (Array.isArray(query.originalArgs) &&
+            (query.originalArgs as GetOpportunityUserDataInput[]).some(
+              input => input.defiProvider === defiProvider,
+            ))) &&
+        (!defiType ||
+          (Array.isArray(query.originalArgs) &&
+            (query.originalArgs as GetOpportunityUserDataInput[]).some(
+              input => input.defiType === defiType,
+            )))
       )
     }),
 )

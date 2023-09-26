@@ -34,7 +34,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { LedgerConfig } from '../config'
 
 export const LedgerChains = () => {
-  const { state } = useWallet()
+  const { state, dispatch: walletDispatch } = useWallet()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -72,7 +72,7 @@ export const LedgerChains = () => {
       const { name, icon } = LedgerConfig
       // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
       const deviceId = await wallet.getDeviceID()
-      dispatch({
+      walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
       })
@@ -132,7 +132,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, state.adapters],
+    [availableChainIds, dispatch, state.adapters, walletDispatch],
   )
 
   return (

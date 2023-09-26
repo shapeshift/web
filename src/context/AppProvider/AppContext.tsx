@@ -48,6 +48,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
+  selectIsMarketDataLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -82,6 +83,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
   const isSnapInstalled = useIsSnapInstalled()
+  const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -191,7 +193,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     ;(async () => {
-      if (portfolioLoadingStatus === 'loading') return
+      if (portfolioLoadingStatus === 'loading' || !isMarketDataLoaded) return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
@@ -251,6 +253,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch,
     requestedAccountIds,
     portfolioAssetIds,
+    isMarketDataLoaded,
   ])
 
   const uniV2LpIdsData = useAppSelector(

@@ -209,12 +209,6 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
     translate,
   ])
 
-  console.log({
-    selectedAccountIds,
-    allNamespacesSupported,
-    allNamespacesHaveAccounts,
-  })
-
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.dAppInfo'>

@@ -1,11 +1,22 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { ResponsiveValue } from '@chakra-ui/react'
+import {
+  Button,
+  Container,
+  Flex,
+  IconButton,
+  Skeleton,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { QRCodeIcon } from 'components/Icons/QRCode'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -30,6 +41,36 @@ type TabItem = {
   exact?: boolean
   rightElement?: JSX.Element
   hide?: boolean
+}
+
+const IconButtonAfter = {
+  content: 'attr(aria-label)',
+  position: 'absolute',
+  bottom: '-1.5rem',
+  fontSize: '12px',
+  overflow: 'hidden',
+  width: '100%',
+  textOverflow: 'ellipsis',
+  color: 'text.base',
+}
+
+const ButtonRowDisplay = { base: 'flex', md: 'none' }
+
+const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const containerPadding = { base: 6, '2xl': 8 }
+const containerGap = { base: 6, md: 6 }
+const containerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
+const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
+  base: 'center',
+  md: 'flex-start',
+}
+const buttonGroupDisplay = { base: 'none', md: 'flex' }
+const navItemPadding = { base: 6, '2xl': 8 }
+const navCss = {
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
 }
 
 export const DashboardHeader = () => {
@@ -165,29 +206,24 @@ export const DashboardHeader = () => {
         width='full'
         display='flex'
         maxWidth='container.4xl'
-        px={{ base: 6, '2xl': 8 }}
+        px={containerPadding}
         pt={8}
         pb={4}
         alignItems='center'
         justifyContent='space-between'
-        gap={{ base: 4, md: 6 }}
-        flexDir={{ base: 'column', xl: 'row' }}
+        gap={containerGap}
+        flexDir={containerFlexDir}
       >
-        <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
+        <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4}>
           <ProfileAvatar />
-          <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
+          <Flex flexDir='column' alignItems={portfolioTextAlignment}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='text.subtle' />
             <Skeleton isLoaded={!loading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
             </Skeleton>
           </Flex>
         </Flex>
-        <Flex
-          gap={4}
-          flexWrap={'wrap'}
-          justifyContent={'center'}
-          display={{ base: 'none', md: 'flex' }}
-        >
+        <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'} display={buttonGroupDisplay}>
           <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
             {translate('modals.send.qrCode')}
           </Button>
@@ -205,9 +241,58 @@ export const DashboardHeader = () => {
             {translate('navBar.tradeShort')}
           </Button>
         </Flex>
+        <Flex width='full' display={ButtonRowDisplay}>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<ArrowUpIcon />}
+              size='lg'
+              isRound
+              aria-label={translate('common.send')}
+              _after={IconButtonAfter}
+              onClick={handleSendClick}
+              isDisabled={!isConnected}
+              colorScheme='blue'
+            />
+          </Flex>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<ArrowDownIcon />}
+              size='lg'
+              isRound
+              aria-label={translate('common.receive')}
+              _after={IconButtonAfter}
+              onClick={handleReceiveClick}
+              isDisabled={!isConnected}
+              colorScheme='blue'
+            />
+          </Flex>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<SwapIcon />}
+              size='lg'
+              isRound
+              aria-label={translate('navBar.tradeShort')}
+              _after={IconButtonAfter}
+              onClick={handleTradeClick}
+              colorScheme='blue'
+            />
+          </Flex>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<QRCodeIcon />}
+              size='lg'
+              isRound
+              aria-label={translate('modals.send.qrCode')}
+              _after={IconButtonAfter}
+              onClick={handleQrCodeClick}
+              isDisabled={!isConnected}
+              colorScheme='blue'
+            />
+          </Flex>
+        </Flex>
       </Container>
       <Flex
-        flexDir={{ base: 'column', md: 'row' }}
+        flexDir={flexDirTabs}
         borderBottomWidth={0}
         borderColor={borderColor}
         marginBottom='-1px'
@@ -221,13 +306,9 @@ export const DashboardHeader = () => {
           className='navbar-scroller'
           display='flex'
           gap={8}
-          px={{ base: 6, '2xl': 8 }}
+          px={navItemPadding}
           overflowY='auto'
-          css={{
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-          }}
+          css={navCss}
         >
           {renderNavItems}
         </Container>

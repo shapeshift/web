@@ -3,7 +3,10 @@ import { EthereumClient, w3mConnectors } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { getConfig } from 'config'
 import React, { createContext, useContext } from 'react'
-import { mainnet } from 'viem/chains'
+import {
+  walletConnectV2OptionalChains,
+  walletConnectV2RequiredChains,
+} from 'context/WalletProvider/WalletConnectV2/config'
 import { viemClient } from 'lib/viem-client'
 
 type Web3ModalProviderProps = {
@@ -18,7 +21,7 @@ export const Web3ModalContext = createContext<Web3ModalContextType | undefined>(
 
 // Initialization functions
 const createEthereumClient = () => {
-  const chains = [mainnet]
+  const chains = [...walletConnectV2RequiredChains, ...walletConnectV2OptionalChains]
   const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
 
   const wagmiConfig = createConfig({

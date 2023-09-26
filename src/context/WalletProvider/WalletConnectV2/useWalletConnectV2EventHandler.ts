@@ -3,7 +3,8 @@ import type { Dispatch } from 'react'
 import { useCallback, useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { clearLocalWallet } from 'context/WalletProvider/local-wallet'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { clearLocalWallet, getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 
 export const useWalletConnectV2EventHandler = (
@@ -24,6 +25,12 @@ export const useWalletConnectV2EventHandler = (
   }, [dispatch, state.wallet])
 
   useEffect(() => {
+    // This effect should run and attach event handlers on WalletConnectV2 only
+    // Failure to check for the localWalletType will result in a bunch of random bugs on other wallets
+    // being mistakenly identified as WalletConnectV2
+    const localWalletType = getLocalWalletType()
+    if (localWalletType !== KeyManager.WalletConnectV2) return
+
     if (ethereumProvider) {
       ethereumProvider.on('disconnect', handleDisconnect)
       return () => {

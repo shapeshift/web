@@ -64,13 +64,7 @@ const WalletSelectItem = ({
 
   const Icon = option.icon
   const activeWallet = walletInfo?.name === option.name
-  // TODO: We can probably do better than a hardcoded ETH-only option for Walletconnect here.
-  const supportsETHOnly = option.name.toLowerCase() === KeyManager.WalletConnect
-  const walletSubText = activeWallet
-    ? 'common.connected'
-    : supportsETHOnly
-    ? 'common.walletSupportsETHOnly'
-    : null
+  const walletSubText = activeWallet ? 'common.connected' : null
 
   return (
     <Button

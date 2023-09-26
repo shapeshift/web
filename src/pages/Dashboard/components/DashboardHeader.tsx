@@ -58,7 +58,7 @@ const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const containerPadding = { base: 6, '2xl': 8 }
-const containerGap = { base: 4, md: 6 }
+const containerGap = { base: 6, md: 6 }
 const containerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
 const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
@@ -241,8 +241,8 @@ export const DashboardHeader = () => {
             {translate('navBar.tradeShort')}
           </Button>
         </Flex>
-        <Flex width='full' my={4} display={ButtonRowDisplay}>
-          <Flex flex={1} alignItems='center' justifyContent='center'>
+        <Flex width='full' display={ButtonRowDisplay}>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
               icon={<ArrowUpIcon />}
               size='lg'
@@ -254,7 +254,7 @@ export const DashboardHeader = () => {
               colorScheme='blue'
             />
           </Flex>
-          <Flex flex={1} alignItems='center' justifyContent='center'>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
               icon={<ArrowDownIcon />}
               size='lg'
@@ -266,7 +266,7 @@ export const DashboardHeader = () => {
               colorScheme='blue'
             />
           </Flex>
-          <Flex flex={1} alignItems='center' justifyContent='center'>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
               icon={<SwapIcon />}
               size='lg'
@@ -277,7 +277,7 @@ export const DashboardHeader = () => {
               colorScheme='blue'
             />
           </Flex>
-          <Flex flex={1} alignItems='center' justifyContent='center'>
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
               icon={<QRCodeIcon />}
               size='lg'

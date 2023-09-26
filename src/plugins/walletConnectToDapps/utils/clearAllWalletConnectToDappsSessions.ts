@@ -1,7 +1,7 @@
 import { getSdkError } from '@walletconnect/utils'
 import { getWalletConnectWallet } from 'plugins/walletConnectToDapps/walletUtils'
 
-const clearWalletConnectLocalStorage = () => {
+export const clearWalletConnectLocalStorage = () => {
   const keysToRemove: string[] = []
 
   for (let i = 0; i < window.localStorage.length; i++) {
@@ -25,7 +25,4 @@ export const clearAllWalletConnectToDappsSessions = async () => {
       reason: getSdkError('USER_DISCONNECTED'),
     })
   }
-
-  // catch-all, clear local storage
-  clearWalletConnectLocalStorage()
 }

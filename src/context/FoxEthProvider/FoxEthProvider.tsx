@@ -75,16 +75,18 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         if (ongoingTxContractAddress)
           dispatch(
             opportunitiesApi.endpoints.getOpportunityUserData.initiate(
-              {
-                accountId: farmingAccountId,
-                opportunityId: toOpportunityId({
-                  assetNamespace: 'erc20',
-                  chainId: ethChainId,
-                  assetReference: ongoingTxContractAddress,
-                }),
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.EthFoxStaking,
-              },
+              [
+                {
+                  accountId: farmingAccountId,
+                  opportunityId: toOpportunityId({
+                    assetNamespace: 'erc20',
+                    chainId: ethChainId,
+                    assetReference: ongoingTxContractAddress,
+                  }),
+                  defiType: DefiType.Staking,
+                  defiProvider: DefiProvider.EthFoxStaking,
+                },
+              ],
               // Any previous query without portfolio loaded will be rejected
               // The first successful one will be cached unless forceRefetch is overriden with queryOptions
               { forceRefetch: true },

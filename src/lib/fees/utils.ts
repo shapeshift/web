@@ -2,14 +2,14 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
-import { FOX_DISCOUNT_DELAY_HOURS } from './parameters'
+import { FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS } from './parameters'
 
 dayjs.extend(duration)
 const ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS = 12.08
 
 export const findClosestFoxDiscountDelayBlockNumber = async (): Promise<number> => {
   const currentBlock = await getEthersProvider().getBlockNumber()
-  const dayjsDelay = dayjs.duration(FOX_DISCOUNT_DELAY_HOURS, 'hours')
+  const dayjsDelay = dayjs.duration(FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS, 'hours')
   const targetTimestamp = dayjs().subtract(dayjsDelay).unix()
   // Define a tolerance window as half of the average block time.
 

@@ -14,7 +14,7 @@ import {
 } from 'state/slices/swappersSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-const getReceiveAddress = pMemoize(
+export const getReceiveAddress = pMemoize(
   async ({
     asset,
     wallet,

@@ -19,6 +19,7 @@ import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -29,6 +30,8 @@ import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { LedgerConfig } from '../config'
 
 export const LedgerChains = () => {
   const { state } = useWallet()
@@ -65,6 +68,14 @@ export const LedgerChains = () => {
         .get(KeyManager.Ledger)?.[0]
         .pairDevice()) as LedgerHDWallet
       if (!wallet) return
+
+      const { name, icon } = LedgerConfig
+      // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
+      const deviceId = await wallet.getDeviceID()
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
+      })
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 

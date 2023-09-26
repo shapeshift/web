@@ -29,6 +29,7 @@ import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -65,20 +66,24 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const bip44Params = accountMetadata?.bip44Params
   useEffect(() => {
     ;(async () => {
-      if (!(wallet && chainAdapter)) return
-      if (!bip44Params) return
-      // if (chainAdapter.isAccountTypeRequired() && !accountType) return
-      const { chainNamespace } = fromChainId(asset.chainId)
-      if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
-      const { accountNumber } = bip44Params
-      const selectedAccountAddress = await chainAdapter.getAddress({
+      if (!accountMetadata) return
+      const selectedAccountAddress = await getReceiveAddress({
+        asset,
         wallet,
-        accountType,
-        accountNumber,
+        accountMetadata,
       })
       setReceiveAddress(selectedAccountAddress)
     })()
-  }, [setReceiveAddress, setEnsName, accountType, asset, wallet, chainAdapter, bip44Params])
+  }, [
+    setReceiveAddress,
+    setEnsName,
+    accountType,
+    asset,
+    wallet,
+    chainAdapter,
+    bip44Params,
+    accountMetadata,
+  ])
 
   useEffect(() => {
     if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return

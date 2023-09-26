@@ -34585,23 +34585,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"web3-eth-contract@npm:1.3.6":
-  version: 1.3.6
-  resolution: "web3-eth-contract@npm:1.3.6"
-  dependencies:
-    "@types/bn.js": ^4.11.5
-    underscore: 1.12.1
-    web3-core: 1.3.6
-    web3-core-helpers: 1.3.6
-    web3-core-method: 1.3.6
-    web3-core-promievent: 1.3.6
-    web3-core-subscriptions: 1.3.6
-    web3-eth-abi: 1.3.6
-    web3-utils: 1.3.6
-  checksum: 0f7f6c1492c52aaf7720792fc802244c632f8e6d07718c7b231415b8f5abf972505fe6eec51e1a36dbd60cfe92e3c23136876b5c9fe480a62e4824a4354f2939
-  languageName: node
-  linkType: hard
-
 "web3-eth-contract@npm:1.7.4":
   version: 1.7.4
   resolution: "web3-eth-contract@npm:1.7.4"

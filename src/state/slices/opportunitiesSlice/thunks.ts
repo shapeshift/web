@@ -53,11 +53,7 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
       ),
     ),
     store.dispatch(
-      getOpportunityMetadata.initiate(
-        ethFoxStakingQueries,
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
+      getOpportunityMetadata.initiate(ethFoxStakingQueries, { forceRefetch: true, ...options }),
     ),
   ])
 }

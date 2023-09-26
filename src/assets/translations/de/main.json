@@ -111,7 +111,9 @@
     "getSupport": "Hole dir Unterstützung",
     "viewMyWallet": "Meine Wallet anzeigen",
     "submitFeatureRequest": "Senden Sie einen Funktionswunsch",
-    "learnMore": "Erfahre mehr"
+    "learnMore": "Erfahre mehr",
+    "showAll": "Zeige alles",
+    "showLess": "Zeige weniger"
   },
   "consentBanner": {
     "body": {
@@ -2085,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Kaufen, verkaufen, handeln, verdienen und mehr",
       "title": "Verdiene FOX",
+      "cta": "Starte Mission"
+    },
+    "snapfoxatar": {
+      "title": "Schalte Bitcoin mit MetaMask frei",
+      "subtitle": "Mint eine Metamask FOXatar Skin",
       "cta": "Starte Mission"
     }
   },

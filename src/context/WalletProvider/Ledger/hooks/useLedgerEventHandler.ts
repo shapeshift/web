@@ -34,33 +34,32 @@ export const useLedgerEventHandler = (
     if (localWalletType !== KeyManager.Ledger) return
 
     const handleConnect = async (deviceId: string) => {
-      console.log('connect')
-      try {
-        const id = keyring.getAlias(deviceId)
-        const wallet = keyring.get(id)
-        if (wallet && id === state.walletInfo?.deviceId) {
-          // This gets the firmware version needed for some Ledger "supportsX" functions
-          await wallet.getFeatures()
-          // Show the label from the wallet instead of a generic name
-          const name = (await wallet.getLabel()) || state.walletInfo.name
-          // The keyring might have a new HDWallet instance for the device.
-          // We'll replace the one we have in state with the new one
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet,
-              name,
-              deviceId: id,
-              meta: { label: name },
-              connectedType: KeyManager.Ledger,
-              icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
-            },
-          })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        }
-      } catch (e) {
-        console.error(e)
-      }
+      // try {
+      // const id = keyring.getAlias(deviceId)
+      // const wallet = keyring.get(id)
+      // if (wallet && id === state.walletInfo?.deviceId) {
+      // This gets the firmware version needed for some Ledger "supportsX" functions
+      // await wallet.getFeatures()
+      // Show the label from the wallet instead of a generic name
+      // const name = (await wallet.getLabel()) || state.walletInfo.name
+      // The keyring might have a new HDWallet instance for the device.
+      // We'll replace the one we have in state with the new one
+      // dispatch({
+      // type: WalletActions.SET_WALLET,
+      // payload: {
+      // wallet,
+      // name,
+      // deviceId: id,
+      // meta: { label: name },
+      // connectedType: KeyManager.Ledger,
+      // icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
+      // },
+      // })
+      // dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+      // }
+      // } catch (e) {
+      // console.error(e)
+      // }
     }
 
     const handleDisconnect = (deviceId: string) => {

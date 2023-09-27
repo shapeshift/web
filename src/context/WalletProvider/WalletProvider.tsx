@@ -586,6 +586,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.WalletConnectV2: {
+              // Re-trigger the modal on refresh
+              await onProviderChange(KeyManager.WalletConnectV2)
               const localWalletConnectWallet = await state.adapters
                 .get(KeyManager.WalletConnectV2)?.[0]
                 ?.pairDevice()

@@ -58,6 +58,9 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   }, [state.core?.pairing, state.web3wallet])
 
   useEffect(() => {
+    // If we are connected to a wallet via wallet connect then this logic does not apply.
+    if (walletInfo?.name === 'WalletConnectV2') return
+
     // NOTE: don't use `useAppSelector(selectWalletId)` because it introduces a race condition
     const deviceId = walletInfo?.deviceId
 
@@ -71,7 +74,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
       // update ref
       previousWalletId.current = deviceId
     }
-  }, [walletInfo?.deviceId])
+  }, [walletInfo?.deviceId, walletInfo?.name])
 
   const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
   return (

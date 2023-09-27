@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
@@ -32,6 +33,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const {
     number: { toFiat },
   } = useLocaleFormatter()
+  const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const [percentChange, setPercentChange] = useState(0)
   const [fiatChange, setFiatChange] = useState(0)
@@ -59,7 +61,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         pb={0}
       >
         <Box alignItems='flex-start' display='flex' flexDir='column'>
-          <RawText color='text.subtle'>{asset?.symbol} Price</RawText>
+          <RawText color='text.subtle'>
+            {asset?.symbol} {translate('assets.assetDetails.assetHeader.price')}
+          </RawText>
           <Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat

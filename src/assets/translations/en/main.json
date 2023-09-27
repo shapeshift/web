@@ -113,7 +113,8 @@
     "submitFeatureRequest": "Submit a Feature Request",
     "learnMore": "Learn more",
     "showAll": "Show All",
-    "showLess": "Show Less"
+    "showLess": "Show Less",
+    "yourBalance": "Your balance"
   },
   "consentBanner": {
     "body": {

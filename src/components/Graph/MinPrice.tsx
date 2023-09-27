@@ -14,7 +14,7 @@ export const MinPrice = ({ label, yText, stroke, width }: LineChartProps) => {
       <animated.text
         x={width}
         width={100}
-        dy='1.5rem'
+        dy='2.25rem'
         dx='-0.5rem'
         fontSize='12px'
         fill={stroke}

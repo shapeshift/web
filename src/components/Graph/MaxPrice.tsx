@@ -18,7 +18,7 @@ export const MaxPrice = ({ label, yText, stroke, width }: LineChartProps) => {
         textAnchor='end'
         fill={stroke}
         fontSize='12px'
-        dy='-1rem'
+        dy='-1.75rem'
         dx='-0.5rem'
       >
         {label}

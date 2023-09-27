@@ -9,7 +9,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { makeBalanceChartData } from 'hooks/useBalanceChartData/utils'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { calculatePercentChange } from 'lib/charts'
+import { calculateFiatChange, calculatePercentChange } from 'lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
@@ -21,7 +21,9 @@ type PriceChartArgs = {
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void
+  setFiatChange?: (fiatChange: number) => void
   chartHeight?: string
+  hideAxis?: boolean
 } & ChakraStyledOptions
 
 export const PriceChart: React.FC<PriceChartArgs> = ({
@@ -30,6 +32,8 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   percentChange,
   chartHeight = '350px',
   setPercentChange,
+  setFiatChange,
+  hideAxis,
   ...props
 }) => {
   const assetIds = useMemo(() => [assetId], [assetId])
@@ -40,10 +44,10 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
   )
 
-  useEffect(
-    () => setPercentChange(calculatePercentChange(priceData)),
-    [priceData, setPercentChange],
-  )
+  useEffect(() => {
+    setPercentChange(calculatePercentChange(priceData))
+    setFiatChange && setFiatChange(calculateFiatChange(priceData))
+  }, [priceData, setFiatChange, setPercentChange])
 
   const loading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
@@ -71,7 +75,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
 
   return (
     <Box height={chartHeight} {...props}>
-      <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
+      <Graph color={color} data={data} loading={loading} isLoaded={!loading} hideAxis={hideAxis} />
     </Box>
   )
 }

@@ -27,6 +27,7 @@ export interface PrimaryChartProps {
   height: number
   margin: { top: number; right: number; bottom: number; left: number }
   color?: string
+  hideAxis?: boolean
 }
 
 // accessors
@@ -53,6 +54,7 @@ export const PrimaryChart = ({
   height,
   color = 'green.500',
   margin,
+  hideAxis = false,
 }: PrimaryChartProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
@@ -152,14 +154,17 @@ export const PrimaryChart = ({
     <ScaleSVG width={width} height={height}>
       <XYChart width={width} height={height} margin={xyChartMargin} xScale={xScale} yScale={yScale}>
         <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
-        <AnimatedAxis
-          orientation='bottom'
-          hideTicks
-          hideAxisLine
-          tickLabelProps={tickLabelPropsFn}
-          numTicks={5}
-          labelOffset={16}
-        />
+
+        {!hideAxis && (
+          <AnimatedAxis
+            orientation='bottom'
+            hideTicks
+            hideAxisLine
+            tickLabelProps={tickLabelPropsFn}
+            numTicks={5}
+            labelOffset={16}
+          />
+        )}
         <AnimatedAreaSeries
           dataKey='Line 1'
           data={data}

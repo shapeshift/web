@@ -70,7 +70,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
 
   return (
-    <Card variant='outline'>
+    <Card variant='dashboard'>
       <CardHeader
         display='flex'
         bg='background.surface.raised.base'

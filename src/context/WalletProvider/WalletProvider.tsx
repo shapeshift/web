@@ -428,9 +428,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
               break
-            case KeyManager.Ledger:
-              const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
-              return ledgerWallet
+            // case KeyManager.Ledger:
+            // const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
+            // return ledgerWallet
             case KeyManager.KeepKey:
               try {
                 const localKeepKeyWallet = await (async () => {
@@ -784,7 +784,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               return acc
             }, Promise.resolve([]))
 
-            adapters.set(keyManager, walletAdapters)
+            if (walletAdapters.length) adapters.set(keyManager, walletAdapters)
           } catch (e) {
             console.error(e)
           }

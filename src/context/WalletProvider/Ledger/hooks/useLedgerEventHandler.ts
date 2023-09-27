@@ -34,6 +34,7 @@ export const useLedgerEventHandler = (
     if (localWalletType !== KeyManager.Ledger) return
 
     const handleConnect = async (deviceId: string) => {
+      console.log('connect')
       // try {
       // const id = keyring.getAlias(deviceId)
       // const wallet = keyring.get(id)

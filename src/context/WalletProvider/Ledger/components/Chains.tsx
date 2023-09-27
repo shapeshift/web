@@ -14,13 +14,10 @@ import {
   ltcAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
@@ -31,10 +28,8 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { LedgerConfig } from '../config'
-
 export const LedgerChains = () => {
-  const { state, dispatch: walletDispatch } = useWallet()
+  const { state } = useWallet()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -64,18 +59,18 @@ export const LedgerChains = () => {
       // TODO(gomes): we may want this straight at hdwallet level and augment transport.call() with this
       // see https://github.com/shapeshift/hdwallet/pull/629/commits/5a78f55a6366e8ab0a89d7dac069dedb8f7b36be
       // pairDevice() now calls transport.create() vs. transport.request(), meaning this is effectively invisible for the user on re-connections
-      const wallet = (await state.adapters
-        .get(KeyManager.Ledger)?.[0]
-        .pairDevice()) as LedgerHDWallet
-      if (!wallet) return
+      // const wallet = (await state.adapters
+      // .get(KeyManager.Ledger)?.[0]
+      // .pairDevice()) as LedgerHDWallet
+      if (!state?.wallet) return
 
-      const { name, icon } = LedgerConfig
+      // const { name, icon } = LedgerConfig
       // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
-      const deviceId = await wallet.getDeviceID()
-      walletDispatch({
-        type: WalletActions.SET_WALLET,
-        payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
-      })
+      // const deviceId = await wallet.getDeviceID()
+      // walletDispatch({
+      // type: WalletActions.SET_WALLET,
+      // payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
+      // })
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
@@ -88,7 +83,7 @@ export const LedgerChains = () => {
         ]({
           accountNumber: 0,
           chainIds,
-          wallet,
+          wallet: state.wallet,
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)
@@ -132,7 +127,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, state.adapters, walletDispatch],
+    [availableChainIds, dispatch, state.adapters],
   )
 
   return (

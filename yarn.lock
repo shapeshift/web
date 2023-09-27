@@ -7846,20 +7846,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.50.7":
-  version: 1.50.7
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.7"
-  dependencies:
-    "@shapeshiftoss/proto-tx-builder": ^0.8.0
-    eip-712: ^1.0.0
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 2e0c583967c49f1218534fd31be60718323f018544bb652b0389952fab39b5b11d907291938ae7533b1e7fbb652a2169cd61f520b58c7f85cc85adff1080125a
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/hdwallet-core@npm:^1.50.5-alpha.68":
   version: 1.50.5-alpha.68
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.5-alpha.68"
@@ -7871,6 +7857,20 @@ __metadata:
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   checksum: 98d5eac360bf95376adf07802df4b8516ffa937a24a43a17a4cd9d8a9df6f68423ac880fac5007946dcf23b78a1cb5698cc17780b8e85e9e2c56a1495e1a37b5
+  languageName: node
+  linkType: hard
+
+"@shapeshiftoss/hdwallet-core@npm:^1.50.8":
+  version: 1.50.8
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.8"
+  dependencies:
+    "@shapeshiftoss/proto-tx-builder": ^0.8.0
+    eip-712: ^1.0.0
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: d083e9255b6770d417127775a16469d6d6ba429812e04d524fbd465e4ebe9ac1290537c92bc0da869e90170251f8bcdbf40aad4b571a514353bbded505d4a19a
   languageName: node
   linkType: hard
 
@@ -8000,15 +8000,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.7":
-  version: 1.50.7
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.7"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.8":
+  version: 1.50.8
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.8"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.50.7
+    "@shapeshiftoss/hdwallet-core": ^1.50.8
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 7ce5856c7c0a12abf4eb780cbc1ac049ee187fa0dcad04aedad0ba21dcd42facf22f3d29e252a4122fb4b2da341d7bb335d2a828ffbdadd6063db6af584d6188
+  checksum: 28d626c04945b25bc31bc34f4e43bed3949ca1958d70d56421130857d0e1dd6dcd57b680eb995639666ae8db77aa89b4383141965cc112ff98c2274d972bdeea
   languageName: node
   linkType: hard
 
@@ -8197,7 +8197,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
     "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.70
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.50.7
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.50.8
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

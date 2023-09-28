@@ -98,8 +98,8 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
         <AnimatedAxis orientation='bottom' />
         <AnimatedAxis
           orientation='left'
-          numTicks={FEE_CURVE_MAX_FEE_BPS / 5}
-          tickLabelProps={() => ({ fill, fontSize: 16 })}
+          numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
+          tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
         />
 
         <AnimatedAreaSeries

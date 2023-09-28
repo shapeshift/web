@@ -110,5 +110,5 @@ export const useGetAbi = (
     [contractImplementationRawAbiData],
   )
 
-  return proxyFunctionNameIfExists ? implementationContractInterface : rootContractInterface
+  return proxyContractImplementation ? implementationContractInterface : rootContractInterface
 }

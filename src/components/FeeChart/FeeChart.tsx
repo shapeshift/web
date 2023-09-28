@@ -20,6 +20,9 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFeeBps } from 'lib/fees/model'
+import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { useAppSelector } from 'state/store'
 
 type FeeChartProps = {
   tradeSize: number
@@ -207,6 +210,9 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
 export const FeeExplainer = () => {
   const [tradeSize, setTradeSize] = useState(0)
   const [foxHolding, setFoxHolding] = useState(0)
+
+  const walletAccountIds = useAppSelector(selectWalletAccountIds)
+  const { data } = useGetVotingPowerQuery(walletAccountIds)
   const onHover = (hoverTradeSize: number, hoverFoxHolding: number) => {
     setTradeSize(hoverTradeSize)
     setFoxHolding(hoverFoxHolding)
@@ -219,6 +225,7 @@ export const FeeExplainer = () => {
         <RawText color='text.subtle'>
           Something about savings, put good copy in here that doesn't suck.
         </RawText>
+        <RawText color='text.subtle'>FOX voting power {data} FOX</RawText>
         <Stack spacing={4} mt={6}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
           <FeeSliders

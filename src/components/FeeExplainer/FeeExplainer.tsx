@@ -19,7 +19,7 @@ import Plot from 'react-plotly.js'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
-import { calculateFeeBps } from 'lib/fees/model'
+import { calculateFees } from 'lib/fees/model'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
@@ -46,7 +46,7 @@ const foxHoldingData = [...Array(CHART_GRANULARITY).keys()].map(
 // Calculate fee for each combination of tradeSize and foxHolding
 const Z_bps = tradeSizeData.map(trade =>
   foxHoldingData.map(fox =>
-    calculateFeeBps({ tradeAmountUsd: bn(trade), foxHeld: bn(fox) }).toNumber(),
+    calculateFees({ tradeAmountUsd: bn(trade), foxHeld: bn(fox) }).feeBps.toNumber(),
   ),
 )
 
@@ -90,7 +90,6 @@ const config = {
 }
 const FeeChart: React.FC<FeeChartProps> = ({ onHover }) => {
   const handleHover = (event: Readonly<PlotHoverEvent>) => {
-    console.log(event)
     const { x, y } = event.points[0]
     const hoverFoxHolding = x as number // narrow
     const hoverTradeSize = y as number // narrow
@@ -188,7 +187,7 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
-  const feeBps = calculateFeeBps({ tradeAmountUsd: bn(tradeSize), foxHeld: bn(foxHolding) })
+  const { feeBps } = calculateFees({ tradeAmountUsd: bn(tradeSize), foxHeld: bn(foxHolding) })
   return (
     <Flex gap={4}>
       <Card flex={1}>
@@ -218,6 +217,11 @@ export const FeeExplainer = () => {
     setFoxHolding(hoverFoxHolding)
   }
 
+  const { foxDiscountPercent, feeUsd, feeUsdDiscount } = calculateFees({
+    tradeAmountUsd: bn(tradeSize),
+    foxHeld: bn(foxHolding),
+  })
+
   return (
     <Card flexDir='row' maxWidth='1200px' width='full' mx='auto'>
       <CardBody flex='1' p={{ base: 4, md: 8 }}>
@@ -226,6 +230,9 @@ export const FeeExplainer = () => {
           Something about savings, put good copy in here that doesn't suck.
         </RawText>
         <RawText color='text.subtle'>FOX voting power {data} FOX</RawText>
+        <RawText color='text.subtle'>FOX discount {foxDiscountPercent.toNumber()}%</RawText>
+        <RawText color='text.subtle'>Fee USD ${feeUsd.toNumber()}</RawText>
+        <RawText color='text.subtle'>FOX holder discount USD ${feeUsdDiscount.toNumber()}</RawText>
         <Stack spacing={4} mt={6}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
           <FeeSliders

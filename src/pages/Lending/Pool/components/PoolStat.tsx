@@ -75,13 +75,15 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
           ) : null}
         </AnimatePresence>
       </Flex>
-      {toolTipLabel ? (
-        <HelperTooltip label={toolTipLabel}>
+      <Box>
+        {toolTipLabel ? (
+          <HelperTooltip label={toolTipLabel}>
+            <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
+          </HelperTooltip>
+        ) : (
           <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
-        </HelperTooltip>
-      ) : (
-        <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
-      )}
+        )}
+      </Box>
     </Stack>
   )
 }

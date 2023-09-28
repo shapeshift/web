@@ -362,7 +362,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
-    console.trace()
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
     clearLocalWallet()
@@ -428,6 +427,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
               break
+            // We don't want to pairDevice() for ledger here - this will run on app load and won't work, as WebUSB `requestPermission` must be
+            // called from a user gesture. Instead, we'll pair the device when the user clicks the "Pair Device` button in Ledger `<Connect />`
             // case KeyManager.Ledger:
             // const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
             // return ledgerWallet

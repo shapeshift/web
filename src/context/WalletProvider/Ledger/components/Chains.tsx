@@ -14,7 +14,6 @@ import {
   ltcAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
@@ -30,7 +29,7 @@ import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
-  const { state } = useWallet()
+  const { state: walletState } = useWallet()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -55,23 +54,8 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      if (!state.adapters) return
-      // Re-pair device in case disconnecting an app disconnected the device
-      // TODO(gomes): we may want this straight at hdwallet level and augment transport.call() with this
-      // see https://github.com/shapeshift/hdwallet/pull/629/commits/5a78f55a6366e8ab0a89d7dac069dedb8f7b36be
-      // pairDevice() now calls transport.create() vs. transport.request(), meaning this is effectively invisible for the user on re-connections
-      // const wallet = (await state.adapters
-      // .get(KeyManager.Ledger)?.[0]
-      // .pairDevice()) as LedgerHDWallet
-      if (!state?.wallet) return
-
-      // const { name, icon } = LedgerConfig
-      // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
-      // const deviceId = await wallet.getDeviceID()
-      // walletDispatch({
-      // type: WalletActions.SET_WALLET,
-      // payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
-      // })
+      if (!walletState.adapters) return
+      if (!walletState?.wallet) return
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
@@ -83,7 +67,7 @@ export const LedgerChains = () => {
         ]({
           accountNumber: 0,
           chainIds,
-          wallet: state.wallet,
+          wallet: walletState.wallet,
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)
@@ -127,7 +111,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, state.adapters],
+    [availableChainIds, dispatch, walletState.adapters],
   )
 
   return (

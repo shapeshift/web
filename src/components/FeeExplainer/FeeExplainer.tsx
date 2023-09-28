@@ -187,22 +187,34 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
-  const { feeBps } = calculateFees({ tradeAmountUsd: bn(tradeSize), foxHeld: bn(foxHolding) })
+  const { feeBps, feeUsd, feeUsdDiscount, foxDiscountPercent } = calculateFees({
+    tradeAmountUsd: bn(tradeSize),
+    foxHeld: bn(foxHolding),
+  })
   return (
-    <Flex gap={4}>
-      <Card flex={1}>
-        <CardBody>
-          <Amount.Crypto fontSize='3xl' value={feeBps.toFixed(2)} symbol='bps' />
-          <RawText color='text.subtle'>Fee in bps</RawText>
-        </CardBody>
-      </Card>
-      <Card flex={1}>
-        <CardBody>
-          <Amount.Fiat fontSize='3xl' value={feeBps.times(tradeSize).div(10000).toFixed(2)} />
-          <RawText color='text.subtle'>Fee</RawText>
-        </CardBody>
-      </Card>
-    </Flex>
+    <Stack>
+      <RawText color='text.subtle'>
+        Fee ${feeUsd.toFixed(2)} ({feeBps.toFixed(2)} bps)
+      </RawText>
+      <Flex gap={4}>
+        <Card flex={1}>
+          <CardBody>
+            <Amount.Fiat fontSize='3xl' value={feeUsdDiscount.toFixed(2)} color={'green.500'} />
+            <RawText color='text.subtle'>FOX Holder Savings</RawText>
+          </CardBody>
+        </Card>
+        <Card flex={1}>
+          <CardBody>
+            <Amount.Percent
+              fontSize='3xl'
+              value={foxDiscountPercent.div(100).toNumber()}
+              color={'green.500'}
+            />
+            <RawText color='text.subtle'>FOX Holder Discount</RawText>
+          </CardBody>
+        </Card>
+      </Flex>
+    </Stack>
   )
 }
 
@@ -217,11 +229,6 @@ export const FeeExplainer = () => {
     setFoxHolding(hoverFoxHolding)
   }
 
-  const { foxDiscountPercent, feeUsd, feeUsdDiscount } = calculateFees({
-    tradeAmountUsd: bn(tradeSize),
-    foxHeld: bn(foxHolding),
-  })
-
   return (
     <Card flexDir='row' maxWidth='1200px' width='full' mx='auto'>
       <CardBody flex='1' p={{ base: 4, md: 8 }}>
@@ -230,9 +237,6 @@ export const FeeExplainer = () => {
           Something about savings, put good copy in here that doesn't suck.
         </RawText>
         <RawText color='text.subtle'>FOX voting power {data} FOX</RawText>
-        <RawText color='text.subtle'>FOX discount {foxDiscountPercent.toNumber()}%</RawText>
-        <RawText color='text.subtle'>Fee USD ${feeUsd.toNumber()}</RawText>
-        <RawText color='text.subtle'>FOX holder discount USD ${feeUsdDiscount.toNumber()}</RawText>
         <Stack spacing={4} mt={6}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
           <FeeSliders

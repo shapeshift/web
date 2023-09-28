@@ -11,15 +11,20 @@ import {
   SliderTrack,
   Stack,
   Text,
+  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { Data, Layout, PlotHoverEvent } from 'plotly.js'
-import { useState } from 'react'
-import Plot from 'react-plotly.js'
+import { LinearGradient } from '@visx/gradient'
+import { ScaleSVG } from '@visx/responsive'
+import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
+import { useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
+import { isSome } from 'lib/utils'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
@@ -39,64 +44,78 @@ const CHART_TRADE_SIZE_MAX_FOX = 1_100_000 // let them go a bit past a million
 const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
   i => i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
 )
-const foxHoldingData = [...Array(CHART_GRANULARITY).keys()].map(
-  i => i * (CHART_TRADE_SIZE_MAX_FOX / (CHART_GRANULARITY - 1)),
-)
 
-// Calculate fee for each combination of tradeSize and foxHolding
-const Z_bps = tradeSizeData.map(trade =>
-  foxHoldingData.map(fox =>
-    calculateFees({ tradeAmountUsd: bn(trade), foxHeld: bn(fox) }).feeBps.toNumber(),
-  ),
-)
-
-const data: Data[] = [
-  {
-    z: Z_bps,
-    x: foxHoldingData,
-    y: tradeSizeData,
-    hoverinfo: 'text',
-    colorscale: 'YlGnBu',
-    showscale: false,
-    type: 'surface',
-  },
-]
-
-const layout: Partial<Layout> = {
-  autosize: true,
-  hovermode: 'closest',
-  width: 400,
-  height: 400,
-  margin: {
-    l: 50,
-    r: 50,
-    b: 50,
-    t: 50,
-  },
-  paper_bgcolor: 'rgba(13,15,16,0)', // how to set background color
-  scene: {
-    aspectratio: { x: 1, y: 1, z: 0.75 },
-    xaxis: { title: 'FOX Held' },
-    yaxis: { title: 'Trade Amount $' },
-    zaxis: { title: 'Fee (bps)' },
-    camera: { eye: { x: 1.2, y: 1.2, z: 1.2 } },
-    domain: { x: [0, 1], y: [0, 1] },
-    dragmode: 'turntable',
-  },
+const accessors = {
+  xAccessor: ({ x }: { x: number }) => x,
+  yAccessor: ({ y }: { y: number }) => y,
 }
 
-const config = {
-  displayModeBar: false,
+type ChartData = {
+  x: number
+  y: number
 }
-const FeeChart: React.FC<FeeChartProps> = ({ onHover }) => {
-  const handleHover = (event: Readonly<PlotHoverEvent>) => {
-    const { x, y } = event.points[0]
-    const hoverFoxHolding = x as number // narrow
-    const hoverTradeSize = y as number // narrow
-    onHover(hoverTradeSize, hoverFoxHolding)
-  }
 
-  return <Plot data={data} layout={layout} config={config} onHover={handleHover} />
+const renderTooltip = ({ tooltipData }: RenderTooltipParams<ChartData>) => {
+  return (
+    <div>
+      <strong>Trade Size: </strong> {tooltipData?.nearestDatum?.datum?.x} <br />
+      <strong>Fee (bps): </strong> {tooltipData?.nearestDatum?.datum?.y}
+    </div>
+  )
+}
+
+const foxBlue = '#3761F9'
+
+const lineProps = {
+  stroke: foxBlue,
+}
+
+const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
+  const xScale = { type: 'linear' as const }
+  const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
+  const width = 450
+  const height = 450
+  const fill = useColorModeValue('gray.800', 'white')
+
+  const data = useMemo(() => {
+    return tradeSizeData
+      .map(trade => {
+        if (trade < FEE_CURVE_NO_FEE_THRESHOLD_USD) return null
+        const feeBps = calculateFees({
+          tradeAmountUsd: bn(trade),
+          foxHeld: bn(foxHolding),
+        }).feeBps.toNumber()
+        return { x: trade, y: feeBps }
+      })
+      .filter(isSome)
+  }, [foxHolding])
+
+  return (
+    <ScaleSVG width={width} height={height}>
+      <XYChart xScale={xScale} yScale={yScale} width={width} height={height}>
+        <LinearGradient id='area-gradient' from={foxBlue} to={foxBlue} toOpacity={0} />
+
+        <AnimatedAxis orientation='bottom' />
+        <AnimatedAxis
+          orientation='left'
+          numTicks={FEE_CURVE_MAX_FEE_BPS / 5}
+          tickLabelProps={() => ({ fill, fontSize: 16 })}
+        />
+
+        <AnimatedAreaSeries
+          {...accessors}
+          dataKey='Line 1'
+          data={data}
+          lineProps={lineProps}
+          fill='url(#area-gradient)'
+          fillOpacity={0.1}
+          strokeWidth={2}
+        />
+
+        <Tooltip renderTooltip={renderTooltip} />
+      </XYChart>
+    </ScaleSVG>
+  )
 }
 
 type FeeSlidersProps = {

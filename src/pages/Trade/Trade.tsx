@@ -1,6 +1,6 @@
 import { Container, Stack } from '@chakra-ui/react'
 import { memo } from 'react'
-import { FeeExplainer } from 'components/FeeChart/FeeChart'
+import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { Main } from 'components/Layout/Main'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'

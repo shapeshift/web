@@ -37,21 +37,20 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       // This is conventionally done in WalletProvider effect, but won't work here, as `requestDevice()` needs to be called from a user interaction
       // So we do it in this pairDevice() method instead and set the adapters the same as we would do in WalletProvider
       try {
-        await ledgerAdapter.initialize()
-        currentAdapters.set(KeyManager.Ledger, [ledgerAdapter])
-        walletDispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
-      } catch (e) {
-        console.error(e)
-      }
+        const wallet = await ledgerAdapter.pairDevice()
+        try {
+          currentAdapters.set(KeyManager.Ledger, [ledgerAdapter])
+          walletDispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+        } catch (e) {
+          console.error(e)
+        }
 
-      const wallet = await ledgerAdapter.pairDevice()
-      if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
-      }
+        if (!wallet) {
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
+        }
 
-      const { name, icon } = LedgerConfig
-      try {
+        const { name, icon } = LedgerConfig
         // TODO(gomes): this is most likely wrong, all Ledger devices get the same device ID
         const deviceId = await wallet.getDeviceID()
 

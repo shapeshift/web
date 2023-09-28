@@ -14,6 +14,7 @@ import {
   ltcAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
@@ -75,7 +76,6 @@ export const LedgerChains = () => {
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
       try {
-        // TODO(gomes): this should be programmatic
         const { chainNamespace } = fromChainId(chainId)
         const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[

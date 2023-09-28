@@ -1,16 +1,23 @@
 import {
   Box,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
   Slider,
   SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
+  Stack,
   Text,
   VStack,
 } from '@chakra-ui/react'
 import type { Data, Layout, PlotHoverEvent } from 'plotly.js'
 import { useState } from 'react'
 import Plot from 'react-plotly.js'
+import { Amount } from 'components/Amount/Amount'
+import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFeeBps } from 'lib/fees/model'
 
@@ -99,7 +106,8 @@ type FeeSlidersProps = {
 
 const labelStyles = {
   fontSize: 'sm',
-  top: '-30px',
+  mt: '2',
+  color: 'text.subtle',
 }
 
 const FeeSliders: React.FC<FeeSlidersProps> = ({
@@ -109,49 +117,64 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
   setFoxHolding,
 }) => {
   return (
-    <VStack height='100%'>
-      <Text>Trade Size: {tradeSize}</Text>
-      <Box pt={6} pb={2} width='100%'>
-        <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
-          <SliderTrack>
-            <SliderFilledTrack />
-          </SliderTrack>
-          <SliderThumb />
-          <SliderMark value={1_000} {...labelStyles}>
-            $1,000
-          </SliderMark>
-          <SliderMark value={50_000} {...labelStyles}>
-            $50k
-          </SliderMark>
-          <SliderMark value={100_000} {...labelStyles}>
-            $100k
-          </SliderMark>
-          <SliderMark value={250_000} {...labelStyles}>
-            $250k
-          </SliderMark>
-        </Slider>
-      </Box>
-      <Text>FOX Holding: {foxHolding}</Text>
-      <Box pt={6} pb={2} width='100%'>
-        <Slider min={0} max={CHART_TRADE_SIZE_MAX_FOX} value={foxHolding} onChange={setFoxHolding}>
-          <SliderTrack>
-            <SliderFilledTrack />
-          </SliderTrack>
-          <SliderThumb />
-          <SliderMark value={250000} {...labelStyles}>
-            250k
-          </SliderMark>
-          <SliderMark value={500000} {...labelStyles}>
-            500k
-          </SliderMark>
-          <SliderMark value={750000} {...labelStyles}>
-            750k
-          </SliderMark>
-          <SliderMark value={1000000} {...labelStyles}>
-            1MM
-          </SliderMark>
-        </Slider>
-      </Box>
+    <VStack height='100%' spacing={12} mb={8}>
+      <Stack width='full'>
+        <Flex width='full' justifyContent='space-between'>
+          <RawText>Trade Size</RawText>
+          <Amount.Fiat value={tradeSize} />
+        </Flex>
+        <Box width='100%'>
+          <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
+            <SliderMark value={0} {...labelStyles}>
+              $0.00
+            </SliderMark>
+            <SliderMark value={100_000} {...labelStyles}>
+              $100k
+            </SliderMark>
+            <SliderMark value={150_000} {...labelStyles}>
+              $150k
+            </SliderMark>
+            <SliderMark value={250_000} {...labelStyles}>
+              $250k
+            </SliderMark>
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+        </Box>
+      </Stack>
+      <Stack width='full'>
+        <Flex width='full' justifyContent='space-between'>
+          <Text>FOX Holding</Text>
+          <Amount.Crypto value={foxHolding.toString()} symbol='FOX' />
+        </Flex>
+        <Box width='100%'>
+          <Slider
+            min={0}
+            max={CHART_TRADE_SIZE_MAX_FOX}
+            value={foxHolding}
+            onChange={setFoxHolding}
+          >
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb />
+            <SliderMark value={250000} {...labelStyles}>
+              250k
+            </SliderMark>
+            <SliderMark value={500000} {...labelStyles}>
+              500k
+            </SliderMark>
+            <SliderMark value={750000} {...labelStyles}>
+              750k
+            </SliderMark>
+            <SliderMark value={1000000} {...labelStyles}>
+              1MM
+            </SliderMark>
+          </Slider>
+        </Box>
+      </Stack>
     </VStack>
   )
 }
@@ -164,10 +187,20 @@ type FeeOutputProps = {
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
   const feeBps = calculateFeeBps({ tradeAmountUsd: bn(tradeSize), foxHeld: bn(foxHolding) })
   return (
-    <Box>
-      <Text>Fee: {feeBps.toFixed(2)} bps</Text>
-      <Text>Fee: ${feeBps.times(tradeSize).div(10000).toFixed(2)}</Text>
-    </Box>
+    <Flex gap={4}>
+      <Card flex={1}>
+        <CardBody>
+          <Amount.Crypto fontSize='3xl' value={feeBps.toFixed(2)} symbol='bps' />
+          <RawText color='text.subtle'>Fee in bps</RawText>
+        </CardBody>
+      </Card>
+      <Card flex={1}>
+        <CardBody>
+          <Amount.Fiat fontSize='3xl' value={feeBps.times(tradeSize).div(10000).toFixed(2)} />
+          <RawText color='text.subtle'>Fee</RawText>
+        </CardBody>
+      </Card>
+    </Flex>
   )
 }
 
@@ -180,19 +213,25 @@ export const FeeExplainer = () => {
   }
 
   return (
-    <Box display='flex' h='400' p={20}>
-      <Box flex='1'>
+    <Card flexDir='row' maxWidth='1200px' width='full' mx='auto'>
+      <CardBody flex='1' p={{ base: 4, md: 8 }}>
+        <Heading as='h5'>Calculate your FOX Savings</Heading>
+        <RawText color='text.subtle'>
+          Something about savings, put good copy in here that doesn't suck.
+        </RawText>
+        <Stack spacing={4} mt={6}>
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
+          <FeeSliders
+            tradeSize={tradeSize}
+            setTradeSize={setTradeSize}
+            foxHolding={foxHolding}
+            setFoxHolding={setFoxHolding}
+          />
+        </Stack>
+      </CardBody>
+      <Flex flex='1' justifyContent='center' alignItems='center'>
         <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
-      </Box>
-      <Box flex='1'>
-        <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-        <FeeSliders
-          tradeSize={tradeSize}
-          setTradeSize={setTradeSize}
-          foxHolding={foxHolding}
-          setFoxHolding={setFoxHolding}
-        />
-      </Box>
-    </Box>
+      </Flex>
+    </Card>
   )
 }

@@ -1,5 +1,6 @@
 import { getConfig } from 'config'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
+import { RiExchangeFundsLine } from 'react-icons/ri'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -14,6 +15,7 @@ import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { LendingPage } from 'pages/Lending/LendingPage'
 import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
@@ -97,6 +99,15 @@ export const routes: NestedRoute[] = [
       main: Trade,
       hide: true,
     })),
+  },
+  {
+    path: '/lending',
+    label: 'navBar.lending',
+    icon: <RiExchangeFundsLine />,
+    main: LendingPage,
+    category: RouteCategory.Wallet,
+    priority: 4,
+    mobileNav: false,
   },
   {
     path: '/earn',

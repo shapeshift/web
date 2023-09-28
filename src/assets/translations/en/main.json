@@ -524,7 +524,8 @@
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "FOX Missions",
-    "foxMissionsShort": "Missions"
+    "foxMissionsShort": "Missions",
+    "lending": "Lending"
   },
   "transactionRow": {
     "send": "Sent",
@@ -2103,5 +2104,28 @@
       "title": "Set a New Avatar",
       "restoreDefault": "Restore default"
     }
+  },
+  "lending": {
+    "lending": "Lending",
+    "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
+    "collateralValue": "Collateral Value",
+    "debtValue": "Debt Value",
+    "loanToValue": "Loan to Value",
+    "availablePools": "Available Pools",
+    "yourLoans": "Your Loans",
+    "pool": "Pool",
+    "poolDepth": "Pool Depth",
+    "totalDebtBalance": "Total Depth Balance",
+    "totalCollateral": "Total Collateral",
+    "estCollateralizationRatio": "Est. Collateralization Ratio",
+    "totalBorrowers": "Total Borrowers",
+    "myLoanInformation": "My Loan Information",
+    "poolInformation": "Pool Information",
+    "collateralBalance": "Collateral Balance",
+    "debtBalance": "Debt Balance",
+    "repaymentLock": "Repayment Lock",
+    "borrow": "Borrow",
+    "repay": "Repay",
+    "outstandingDebt": "Outstanding Debt"
   }
 }

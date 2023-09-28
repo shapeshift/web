@@ -8,18 +8,25 @@ import type {
   WalletConnectRequest,
 } from 'plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
-import { getTypeGuardAssertion } from 'lib/utils'
+import { getTypeGuardAssertion, isTruthy } from 'lib/utils'
 
 export const isTransactionParamsArray = (
   transactions: RequestParams | undefined,
 ): transactions is TransactionParams[] =>
   (transactions as TransactionParams[])?.every?.(isTransactionParams)
 
-export const isEthSignParams = (requestParams: RequestParams): requestParams is EthSignParams =>
-  requestParams instanceof Array &&
-  requestParams.length === 2 &&
-  typeof requestParams[0] === 'string' &&
-  typeof requestParams[1] === 'string'
+export const isEthSignParams = (requestParams: RequestParams): requestParams is EthSignParams => {
+  if (!Array.isArray(requestParams)) return false
+
+  // some dapps (rarible) add a sneaky "" at the end of the array
+  const cleanedArray = requestParams.filter(isTruthy)
+
+  return (
+    cleanedArray.length === 2 &&
+    typeof cleanedArray[0] === 'string' &&
+    typeof cleanedArray[1] === 'string'
+  )
+}
 
 export const isSignRequest = (
   request: WalletConnectRequest,

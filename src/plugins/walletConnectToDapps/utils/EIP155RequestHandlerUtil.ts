@@ -55,7 +55,7 @@ export const approveEIP155Request = async ({
   switch (request.method) {
     case EIP155_SigningMethod.PERSONAL_SIGN:
     case EIP155_SigningMethod.ETH_SIGN: {
-      const message = getSignParamsMessage(request.params)
+      const message = getSignParamsMessage(request.params, false)
       const messageToSign = { addressNList, message }
       const input = { messageToSign, wallet }
       const signedMessage = await chainAdapter.signMessage(input)

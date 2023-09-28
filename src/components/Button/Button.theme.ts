@@ -120,9 +120,10 @@ export const ButtonStyle: ComponentStyleConfig = {
           _active: {
             bg: 'background.button.secondary.pressed',
             color: mode('gray.800', 'white')(props),
-            _checked: {
-              bg: 'background.button.secondary.pressed',
-            },
+          },
+          _checked: {
+            bg: 'background.button.secondary.pressed',
+            color: 'text.base',
           },
         }
       }

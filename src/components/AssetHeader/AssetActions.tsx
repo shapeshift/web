@@ -1,12 +1,12 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, Stack } from '@chakra-ui/react'
+import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
-import { IoSwapVertical } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -17,13 +17,32 @@ import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const IconButtonAfter = {
+  content: 'attr(aria-label)',
+  position: 'absolute',
+  bottom: '-1.5rem',
+  fontSize: '12px',
+  overflow: 'hidden',
+  width: '100%',
+  textOverflow: 'ellipsis',
+  color: 'text.base',
+}
+
+const ButtonRowDisplay = { base: 'flex', md: 'none' }
+
 type AssetActionProps = {
   assetId: AssetId
   accountId?: AccountId
   cryptoBalance: string
+  isMobile?: boolean
 }
 
-export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+export const AssetActions: React.FC<AssetActionProps> = ({
+  assetId,
+  accountId,
+  cryptoBalance,
+  isMobile,
+}) => {
   const history = useHistory()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
@@ -62,6 +81,69 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     })
   }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
+  const handleTradeClick = useCallback(() => {
+    history.push(`/trade/${assetId}`)
+  }, [assetId, history])
+
+  if (isMobile) {
+    return (
+      <Flex width='full' display={ButtonRowDisplay}>
+        {isValidChainId && (
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<ArrowUpIcon />}
+              size='lg'
+              isRound
+              aria-label={translate('common.send')}
+              _after={IconButtonAfter}
+              onClick={handleSendClick}
+              isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
+              colorScheme='blue'
+            />
+          </Flex>
+        )}
+
+        <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+          <IconButton
+            icon={<ArrowDownIcon />}
+            size='lg'
+            isRound
+            aria-label={translate('common.receive')}
+            _after={IconButtonAfter}
+            onClick={handleReceiveClick}
+            isDisabled={!isValidChainId}
+            colorScheme='blue'
+          />
+        </Flex>
+        <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+          <IconButton
+            icon={<SwapIcon />}
+            size='lg'
+            isRound
+            aria-label={translate('navBar.tradeShort')}
+            _after={IconButtonAfter}
+            onClick={handleTradeClick}
+            colorScheme='blue'
+          />
+        </Flex>
+        {assetSupportsBuy && (
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={<FaCreditCard />}
+              size='lg'
+              isRound
+              aria-label={translate('navBar.buyCryptoShort')}
+              _after={IconButtonAfter}
+              onClick={handleBuySellClick}
+              isDisabled={!isConnected}
+              colorScheme='blue'
+            />
+          </Flex>
+        )}
+      </Flex>
+    )
+  }
+
   return (
     <Stack
       ml={{ base: 0, lg: 'auto' }}
@@ -76,10 +158,10 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           <Button
             data-test='asset-action-trade'
             flex={{ base: 1, md: 'auto' }}
-            leftIcon={<IoSwapVertical />}
+            leftIcon={<SwapIcon />}
             size='sm-multiline'
             width={{ base: '100%', md: 'auto' }}
-            onClick={() => history.push(`/trade/${assetId}`)}
+            onClick={handleTradeClick}
           >
             {translate('assets.assetCards.assetActions.trade')}
           </Button>

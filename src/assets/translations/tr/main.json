@@ -111,7 +111,9 @@
     "getSupport": "Destek Al",
     "viewMyWallet": "Cüzdanımı Görüntüle",
     "submitFeatureRequest": "Özellik Talebi Gönderin",
-    "learnMore": "Daha fazla bilgi edin"
+    "learnMore": "Daha fazla bilgi edin",
+    "showAll": "Hepsini Göster",
+    "showLess": "Daha Az"
   },
   "consentBanner": {
     "body": {
@@ -2085,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
       "title": "FOX Kazanın",
+      "cta": "Göreve Başla"
+    },
+    "snapfoxatar": {
+      "title": "MetaMask ile Bitcoin'in Kilidini Açın",
+      "subtitle": "Bir Metamask FOXatar Skin oluşturun",
       "cta": "Göreve Başla"
     }
   },

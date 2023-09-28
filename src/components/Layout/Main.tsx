@@ -9,6 +9,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { Page } from './Page'
 
+const contentPaddingX = { base: 0, xl: 4, '2xl': 8 }
+
 export type MainProps = {
   titleComponent?: ReactNode
   headerComponent?: ReactNode
@@ -55,7 +57,7 @@ export const Main: React.FC<MainProps> = memo(
           </Box>
         )}
         {headerComponent}
-        <Container maxW='container.4xl' py={8} px={{ base: 0, xl: 4, '2xl': 8 }} {...rest}>
+        <Container maxW='container.4xl' py={8} px={contentPaddingX} {...rest}>
           {children}
         </Container>
       </Page>

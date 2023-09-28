@@ -111,7 +111,9 @@
     "getSupport": "Получить поддержку",
     "viewMyWallet": "Посмотреть мой кошелек",
     "submitFeatureRequest": "Отправить запрос на добавление функции",
-    "learnMore": "Подробнее"
+    "learnMore": "Подробнее",
+    "showAll": "Показать больше",
+    "showLess": "Показать меньше"
   },
   "consentBanner": {
     "body": {
@@ -2085,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Покупайте, продавайте, торгуйте, зарабатывайте и многое другое",
       "title": "Заработать FOX",
+      "cta": "Начать миссию"
+    },
+    "snapfoxatar": {
+      "title": "Разблокировать биткоин с помощью MetaMask",
+      "subtitle": "Сминтить скин FOXatar на Metamask ",
       "cta": "Начать миссию"
     }
   },

@@ -111,7 +111,9 @@
     "getSupport": "Obtener Soporte",
     "viewMyWallet": "Ver mi Billetera",
     "submitFeatureRequest": "Solicitar una función",
-    "learnMore": "Aprende más"
+    "learnMore": "Aprende más",
+    "showAll": "Mostrar todo",
+    "showLess": "Muestra menos"
   },
   "consentBanner": {
     "body": {
@@ -2086,6 +2088,11 @@
       "subtitle": "Compre, venda, intercambie, gane y más",
       "title": "Gane FOX",
       "cta": "Iniciar Misión"
+    },
+    "snapfoxatar": {
+      "title": "Desbloquea Bitcoin con MetaMask",
+      "subtitle": "Mint un skin Metamask para FOXatar",
+      "cta": "Iniciar misión"
     }
   },
   "avatar": {

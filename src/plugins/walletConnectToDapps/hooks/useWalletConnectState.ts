@@ -64,7 +64,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const message =
     request && (isSignRequest(request) || isSignTypedRequest(request))
-      ? getSignParamsMessage(request.params)
+      ? getSignParamsMessage(request.params, true)
       : undefined
   const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
   const chainAdapter = chainId && getChainAdapterManager().get(chainId)

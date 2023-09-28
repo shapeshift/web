@@ -72,7 +72,7 @@ export const Portfolio = memo(() => {
 
   return (
     <Stack spacing={6} width='full'>
-      <Card variant='outline'>
+      <Card variant='dashboard'>
         <CardHeader
           display='flex'
           justifyContent={{ base: 'center', md: 'space-between' }}
@@ -135,7 +135,7 @@ export const Portfolio = memo(() => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      <Card variant='outline'>
+      <Card variant='dashboard'>
         <CardHeader>
           <Heading as='h5'>
             <Text translation='dashboard.portfolio.yourAssets' />

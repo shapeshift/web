@@ -22,6 +22,7 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
+import { Web3ModalProvider } from 'context/WalletProvider/WalletConnectV2/Web3ModalProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -62,23 +63,25 @@ export function AppProviders({ children }: ProvidersProps) {
                 <ScrollToTop />
                 <BrowserRouterProvider>
                   <I18nProvider>
-                    <WalletProvider>
-                      <WalletConnectV2Provider>
-                        <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <ModalProvider>
-                              <TransactionsProvider>
-                                <AppProvider>
-                                  <FoxEthProvider>
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
-                                  </FoxEthProvider>
-                                </AppProvider>
-                              </TransactionsProvider>
-                            </ModalProvider>
-                          </ErrorBoundary>
-                        </KeepKeyProvider>
-                      </WalletConnectV2Provider>
-                    </WalletProvider>
+                    <Web3ModalProvider>
+                      <WalletProvider>
+                        <WalletConnectV2Provider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                              <ModalProvider>
+                                <TransactionsProvider>
+                                  <AppProvider>
+                                    <FoxEthProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </FoxEthProvider>
+                                  </AppProvider>
+                                </TransactionsProvider>
+                              </ModalProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectV2Provider>
+                      </WalletProvider>
+                    </Web3ModalProvider>
                   </I18nProvider>
                 </BrowserRouterProvider>
               </HashRouter>

@@ -113,7 +113,8 @@
     "submitFeatureRequest": "Submit a Feature Request",
     "learnMore": "Learn more",
     "showAll": "Show All",
-    "showLess": "Show Less"
+    "showLess": "Show Less",
+    "yourBalance": "Your balance"
   },
   "consentBanner": {
     "body": {
@@ -1843,13 +1844,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",
-          "permissions": "Permissions",
+          "permissions": "Required Permissions",
+          "optionalPermissions": "Optional Permissions",
           "accountSelection": "Choose accounts",
           "unsupportedChain": "Unsupported chain namespace in session proposal.",
           "methods": "Methods",
           "events": "Events",
           "selectedAccounts": "Selected Accounts",
-          "permissionMessage": "Please select at least one account per chain."
+          "permissionMessage": "Please select at least one account per chain.",
+          "optionalPermissionMessage": "The following permissions are optional."
         }
       },
       "registry": {

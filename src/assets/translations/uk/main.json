@@ -111,7 +111,9 @@
     "getSupport": "Отримати підтримку",
     "viewMyWallet": "Огляд мого гаманця",
     "submitFeatureRequest": "Подати запит на функціонал",
-    "learnMore": "Дізнатись більше"
+    "learnMore": "Дізнатись більше",
+    "showAll": "Показати більше",
+    "showLess": "Показати менше"
   },
   "consentBanner": {
     "body": {
@@ -2085,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Купуйте, продавайте, торгуйте, заробляйте та багато іншого",
       "title": "Заробляйте FOX",
+      "cta": "Розпочати місію"
+    },
+    "snapfoxatar": {
+      "title": "Розблокувати Bitcoin за допомогою MetaMask",
+      "subtitle": "Змінтіть скін Метамаска FOXatar",
       "cta": "Розпочати місію"
     }
   },

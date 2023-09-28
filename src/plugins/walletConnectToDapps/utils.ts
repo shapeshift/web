@@ -80,9 +80,9 @@ export const getGasData = (
  * a value that is not an address (thus is a message).
  * If it is a hex string, it gets converted to utf8 string
  */
-export const getSignParamsMessage = (params: [string, string]) => {
+export const getSignParamsMessage = (params: [string, string], toUtf8: boolean) => {
   const message = params.filter(p => !utils.isAddress(p))[0]
-  return maybeConvertHexEncodedMessageToUtf8(message)
+  return toUtf8 ? maybeConvertHexEncodedMessageToUtf8(message) : message
 }
 
 export const extractConnectedAccounts = (session: SessionTypes.Struct): AccountId[] => {

@@ -10,24 +10,42 @@ import { Permissions } from 'plugins/walletConnectToDapps/components/Permissions
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
 
-const allNamespacesSupported = (
-  requiredNamespaces: ProposalTypes.RequiredNamespaces,
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+
+const checkAllNamespacesSupported = (
+  namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
   wallet: HDWallet | null,
-): boolean =>
-  Object.values(requiredNamespaces).every(
-    requiredNamespace =>
-      requiredNamespace.chains?.every(chainId =>
+): boolean => {
+  return Object.values(namespaces).every(
+    namespace =>
+      namespace.chains?.every(chainId =>
         // TODO(gomes): fix this
         walletSupportsChain({ chainId, wallet, isSnapInstalled: false }),
       ),
   )
+}
+
+const checkAllNamespacesHaveAccounts = (
+  namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
+  selectedAccountIds: AccountId[],
+): boolean => {
+  return Object.values(namespaces).every(
+    namespace =>
+      namespace.chains?.every(requiredChainId =>
+        selectedAccountIds.some(accountId => {
+          const { chainId: accountChainId } = fromAccountId(accountId)
+          return requiredChainId === accountChainId
+        }),
+      ),
+  )
+}
 
 const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
@@ -64,35 +82,55 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   const translate = useTranslate()
 
   const { id, params } = proposal
-  const { proposer, requiredNamespaces } = params
+  const { proposer, requiredNamespaces, optionalNamespaces } = params
 
-  const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>(() => [])
-  const toggleAccountId = (accountId: string) =>
+  const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
+  const toggleAccountId = useCallback((accountId: string) => {
     setSelectedAccountIds(previousState =>
       previousState.includes(accountId)
         ? previousState.filter(existingAccountId => existingAccountId !== accountId)
         : [...previousState, accountId],
     )
+  }, [])
 
   /*
   We need to pass an account for every supported namespace. If we can't, we cannot approve the session.
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#21-session-namespaces-must-not-have-accounts-empty
    */
-  const areAllNamespacesSupported = allNamespacesSupported(requiredNamespaces, wallet)
+  const allNamespacesSupported = useMemo(() => {
+    const allRequiredNamespacesSupported = checkAllNamespacesSupported(requiredNamespaces, wallet)
+    return allRequiredNamespacesSupported
+  }, [requiredNamespaces, wallet])
 
   /*
   All namespaces require at least one account in the response payload
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#24-session-namespaces-must-contain-at-least-one-account-in-requested-chains
    */
-  const allNamespacesHaveAccounts = Object.values(requiredNamespaces).every(
-    requiredNamespaces =>
-      requiredNamespaces.chains?.every(requiredChainId =>
-        selectedAccountIds.some(accountId => {
-          const { chainId: accountChainId } = fromAccountId(accountId)
-          return requiredChainId === accountChainId
+  const allNamespacesHaveAccounts = useMemo(() => {
+    const allRequiredNamespacesHaveAccounts = checkAllNamespacesHaveAccounts(
+      requiredNamespaces,
+      selectedAccountIds,
+    )
+    return allRequiredNamespacesHaveAccounts
+  }, [requiredNamespaces, selectedAccountIds])
+
+  const supportedOptionalNamespacesWithAccounts = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(optionalNamespaces)
+        .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
+          namespace.chains = namespace.chains?.filter(chainId => {
+            const isRequired = requiredNamespaces[key].chains?.includes(chainId)
+            const isSupported = walletSupportsChain({ chainId, wallet, isSnapInstalled: false })
+            return !isRequired && isSupported
+          })
+
+          return [key, namespace]
+        })
+        .filter(([_key, namespace]) => {
+          return namespace.chains && namespace.chains.length > 0
         }),
-      ),
-  )
+    )
+  }, [optionalNamespaces, requiredNamespaces, wallet])
 
   const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
     requiredNamespaces,
@@ -124,27 +162,52 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
     handleClose()
   }, [handleClose, id, web3wallet])
 
-  const modalBody: JSX.Element = areAllNamespacesSupported ? (
-    <>
-      <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
-        <Alert status='warning' mb={4} mt={-2}>
-          <AlertIcon />
-          <AlertTitle>
-            <Text translation='plugins.walletConnectToDapps.modal.sessionProposal.permissionMessage' />
-          </AlertTitle>
-        </Alert>
-        <Permissions
-          requiredNamespaces={requiredNamespaces}
-          selectedAccountIds={selectedAccountIds}
-          toggleAccountId={toggleAccountId}
-        />
-      </ModalSection>
-    </>
-  ) : (
-    <RawText>
-      {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
-    </RawText>
-  )
+  const modalBody: JSX.Element = useMemo(() => {
+    return allNamespacesSupported ? (
+      <>
+        <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
+          <Alert status={allNamespacesHaveAccounts ? 'success' : 'warning'} mb={4} mt={-2}>
+            <AlertIcon />
+            <AlertTitle>
+              <Text translation='plugins.walletConnectToDapps.modal.sessionProposal.permissionMessage' />
+            </AlertTitle>
+          </Alert>
+          <Permissions
+            requiredNamespaces={requiredNamespaces}
+            selectedAccountIds={selectedAccountIds}
+            toggleAccountId={toggleAccountId}
+          />
+        </ModalSection>
+        {Object.keys(supportedOptionalNamespacesWithAccounts).length > 0 && (
+          <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.optionalPermissions'>
+            <Alert status='info' mb={4} mt={-2}>
+              <AlertIcon />
+              <AlertTitle>
+                <Text translation='plugins.walletConnectToDapps.modal.sessionProposal.optionalPermissionMessage' />
+              </AlertTitle>
+            </Alert>
+            <Permissions
+              requiredNamespaces={supportedOptionalNamespacesWithAccounts}
+              selectedAccountIds={selectedAccountIds}
+              toggleAccountId={toggleAccountId}
+            />
+          </ModalSection>
+        )}
+      </>
+    ) : (
+      <RawText>
+        {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
+      </RawText>
+    )
+  }, [
+    allNamespacesSupported,
+    requiredNamespaces,
+    selectedAccountIds,
+    toggleAccountId,
+    supportedOptionalNamespacesWithAccounts,
+    allNamespacesHaveAccounts,
+    translate,
+  ])
 
   return (
     <>
@@ -160,11 +223,12 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
             colorScheme='blue'
             type='submit'
             onClick={handleApprove}
-            disabled={
+            isDisabled={
               selectedAccountIds.length === 0 ||
-              !areAllNamespacesSupported ||
+              !allNamespacesSupported ||
               !allNamespacesHaveAccounts
             }
+            _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

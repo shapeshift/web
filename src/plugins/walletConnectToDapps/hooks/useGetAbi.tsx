@@ -5,12 +5,26 @@ import type { TransactionParams } from 'plugins/walletConnectToDapps/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 
+/*
+  If the root contract is a proxy and you need its implementation contract ABI, we currently
+  look for 1 of 2 methods on the root contract to detect it's a proxy:
+  1) the ZeroEx (Exchange Proxy) Spec: `getFunctionImplementation(sighash: string)` (a public getter)
+  2) the EIP-1967 way: `_implementation()` (onlyAdmin)
+  TODO: add additional proxy methods, if any, and handle them
+*/
+enum PROXY_CONTRACT_METHOD_NAME {
+  ZeroEx = 'getFunctionImplementation',
+  EIP1967 = 'implementation',
+}
+const EIP1967_IMPLEMENTATION_SLOT =
+  '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
+
 export const useGetAbi = (
   transactionParams: TransactionParams,
 ): ethers.utils.Interface | undefined => {
-  const [proxyContractImplementation, setProxyContractImplementation] = useState<
-    string | undefined
-  >()
+  const [proxyContractImplementation, setProxyContractImplementation] = useState<string | null>(
+    null,
+  )
 
   const { to: contractAddress, data } = transactionParams
   const provider = useMemo(
@@ -24,7 +38,7 @@ export const useGetAbi = (
     [rootContractRawAbiData],
   )
 
-  const contractWithProvider = useMemo(
+  const rootContractWithProvider = useMemo(
     () =>
       rootContractInterface
         ? new ethers.Contract(contractAddress, rootContractInterface, provider)
@@ -34,28 +48,55 @@ export const useGetAbi = (
 
   const sighash = data.substring(0, 10).toLowerCase()
 
-  /*
-  We check to see if there is a proxy method on the root interface. Currently, we only look for getFunctionImplementation.
-  I expect there are more.
-  TODO: add additional proxy methods.
-   */
-  const proxyFunctions = new Set(['getFunctionImplementation'])
-  const isProxyContract = rootContractInterface
-    ? Object.values(rootContractInterface.functions).some(f => proxyFunctions.has(f.name))
-    : undefined
+  // check for proxy methods on the root interface
+  let proxyFunctionNameIfExists: string | undefined
+  if (rootContractInterface) {
+    const rootFunctions = Object.values(rootContractInterface.functions)
+    proxyFunctionNameIfExists = Object.values(PROXY_CONTRACT_METHOD_NAME).find(x =>
+      rootFunctions.find(y => y.name === x),
+    )
+  }
 
   useEffect(() => {
     ;(async () => {
-      const implementation = isProxyContract
-        ? /*
-        We currently only handle the getFunctionImplementation method.
-        TODO: add additional proxy methods, and handle them.
-         */
-          await contractWithProvider?.getFunctionImplementation(sighash)
-        : undefined
-      setProxyContractImplementation(implementation)
+      let implementationAddress: string | null
+      try {
+        switch (proxyFunctionNameIfExists) {
+          case PROXY_CONTRACT_METHOD_NAME.ZeroEx:
+            console.debug('proxyFunctionName is "getFunctionImplementation"')
+            implementationAddress =
+              await rootContractWithProvider?.getFunctionImplementation(sighash)
+            break
+          case PROXY_CONTRACT_METHOD_NAME.EIP1967:
+            console.debug('proxyFunctionName is "implementation"')
+            const paddedImplementationAddress = await provider.getStorageAt(
+              contractAddress,
+              EIP1967_IMPLEMENTATION_SLOT,
+            )
+            // Remove the first 26 chars (64 hex digits)
+            implementationAddress = ethers.utils.getAddress(
+              paddedImplementationAddress.substring(26),
+            )
+            break
+          default:
+            implementationAddress = null
+        }
+        setProxyContractImplementation(implementationAddress)
+      } catch (e) {
+        console.error('Error getting implementation contract', e)
+        // any non-proxy contract could coincidentally contain a method with a proxy-like name
+        // so in this case, fallback to using the root contract
+        setProxyContractImplementation(null)
+      }
     })()
-  }, [contractWithProvider, sighash, setProxyContractImplementation, provider, isProxyContract])
+  }, [
+    rootContractInterface,
+    rootContractWithProvider,
+    sighash,
+    provider,
+    proxyFunctionNameIfExists,
+    contractAddress,
+  ])
 
   const { data: contractImplementationRawAbiData } = useGetContractAbiQuery(
     proxyContractImplementation ?? skipToken,
@@ -69,5 +110,5 @@ export const useGetAbi = (
     [contractImplementationRawAbiData],
   )
 
-  return isProxyContract ? implementationContractInterface : rootContractInterface
+  return proxyContractImplementation ? implementationContractInterface : rootContractInterface
 }

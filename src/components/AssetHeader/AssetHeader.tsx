@@ -23,6 +23,8 @@ import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
 
+const paddingX = { base: 4, xl: 8 }
+
 type AssetHeaderProps = {
   assetId?: AssetId
   accountId?: AccountId
@@ -76,20 +78,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
   if (!assetId) return null
 
   return (
-    <Container
-      width='full'
-      maxWidth='container.4xl'
-      px={{ base: 4, xl: 8 }}
-      pb={4}
-      pt={6}
-      {...rest}
-    >
+    <Container width='full' maxWidth='container.4xl' px={paddingX} pb={4} pt={6} {...rest}>
       <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1}>
         <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
         <Flex alignItems='center' mr='auto' flex={1}>
           <AssetIcon assetId={asset.assetId} boxSize='40px' />
           <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
-            <Heading fontSize='2xl' lineHeight='shorter'>
+            <Heading fontSize={{ base: 'xl', md: '2xl' }} lineHeight='shorter'>
               {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
             </Heading>
 
@@ -105,11 +100,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
           </Flex>
         </Flex>
         {walletSupportsChain ? (
-          <AssetActions
-            assetId={assetId}
-            accountId={accountId ? accountId : singleAccount}
-            cryptoBalance={cryptoBalance}
-          />
+          <Flex display={{ base: 'none', md: 'flex' }}>
+            <AssetActions
+              assetId={assetId}
+              accountId={accountId ? accountId : singleAccount}
+              cryptoBalance={cryptoBalance}
+            />
+          </Flex>
         ) : null}
       </Flex>
     </Container>

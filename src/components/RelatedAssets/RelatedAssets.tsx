@@ -49,7 +49,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   if (!data?.length) return null
 
   return (
-    <Card variant='outline'>
+    <Card variant='dashboard'>
       <CardHeader>
         <Heading as='h5'>
           <Text translation='assets.assetCards.relatedAssets' />

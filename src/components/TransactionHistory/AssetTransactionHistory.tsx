@@ -44,7 +44,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   if (!walletSupportsChain) return null
 
   return (
-    <Card variant='outline'>
+    <Card variant='dashboard'>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
         <Heading as='h5'>
           {translate(

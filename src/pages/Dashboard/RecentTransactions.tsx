@@ -16,7 +16,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
     const recentTxIds = useSelector((state: ReduxState) => selectLastNTxIds(state, limit))
     const translate = useTranslate()
     return (
-      <Card variant='outline' {...rest}>
+      <Card variant='dashboard' {...rest}>
         <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
           <Heading as='h5'>
             <Text translation={'dashboard.recentTransactions.recentTransactions'} />

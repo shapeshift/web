@@ -107,7 +107,8 @@ export const approveEIP155Request = async ({
         txToSign,
         wallet,
       })
-      return formatJsonRpcResult(id, signedTx)
+      const txHash = await chainAdapter.broadcastTransaction(signedTx)
+      return formatJsonRpcResult(id, txHash)
     }
 
     case EIP155_SigningMethod.ETH_SIGN_TRANSACTION: {

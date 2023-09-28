@@ -25,12 +25,8 @@ export const getReceiveAddress = pMemoize(
     const chainAdapter = getChainAdapterManager().get(chainId)
     if (!(chainAdapter && wallet)) return
     const { accountNumber } = bip44Params
-    try {
-      const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType })
-      return address
-    } catch (e) {
-      console.log(e)
-    }
+    const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType })
+    return address
   },
   {
     cacheKey: ([{ asset, accountMetadata }]) =>

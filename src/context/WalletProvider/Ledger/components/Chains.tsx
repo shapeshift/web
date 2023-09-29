@@ -111,7 +111,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, walletState.adapters],
+    [availableChainIds, dispatch, walletState.adapters, walletState.wallet],
   )
 
   return (

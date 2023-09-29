@@ -7,7 +7,7 @@ import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components
 import { useGetAbi } from 'plugins/walletConnectToDapps/hooks/useGetAbi'
 import type { EthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/types'
 import type { FC } from 'react'
-import { Fragment, useMemo } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -45,35 +45,38 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
 
-  const renderAbiInput = (input: ParamType, index: number): JSX.Element => {
-    const inputValue = transaction?.args[index].toString()
-    switch (input.type) {
-      case 'bytes[]':
-        return <EncodedText value={inputValue} />
-      case 'address':
-        return (
-          <HStack>
-            <Box flex={1} fontFamily='monospace' fontSize='md'>
-              <MiddleEllipsis color={addressColor} value={inputValue} />
-            </Box>
-            <CopyButton value={inputValue} />
-            {feeAsset && (
-              <ExternalLinkButton
-                href={`${feeAsset.explorerAddressLink}${inputValue}`}
-                ariaLabel={inputValue}
-              />
-            )}
-          </HStack>
-        )
-      case 'tuple':
-      default:
-        return (
-          <RawText fontWeight='normal' fontSize='md'>
-            {inputValue}
-          </RawText>
-        )
-    }
-  }
+  const renderAbiInput = useCallback(
+    (input: ParamType, index: number): JSX.Element => {
+      const inputValue = transaction?.args[index].toString()
+      switch (input.type) {
+        case 'bytes[]':
+          return <EncodedText value={inputValue} />
+        case 'address':
+          return (
+            <HStack>
+              <Box flex={1} fontFamily='monospace' fontSize='md'>
+                <MiddleEllipsis color={addressColor} value={inputValue} />
+              </Box>
+              <CopyButton value={inputValue} />
+              {feeAsset && (
+                <ExternalLinkButton
+                  href={`${feeAsset.explorerAddressLink}${inputValue}`}
+                  ariaLabel={inputValue}
+                />
+              )}
+            </HStack>
+          )
+        case 'tuple':
+        default:
+          return (
+            <RawText fontWeight='normal' fontSize='md'>
+              {inputValue}
+            </RawText>
+          )
+      }
+    },
+    [addressColor, feeAsset, transaction?.args],
+  )
 
   return (
     <ModalCollapsableSection

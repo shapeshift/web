@@ -84,6 +84,7 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   const { id, params } = proposal
   const { proposer, requiredNamespaces, optionalNamespaces } = params
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
   const toggleAccountId = useCallback((accountId: string) => {
     setSelectedAccountIds(previousState =>
@@ -146,6 +147,8 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
       return
     }
 
+    setIsLoading(true)
+
     const session = await web3wallet.approveSession({
       id: proposal.id,
       namespaces: approvalNamespaces,
@@ -155,10 +158,13 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   }, [approvalNamespaces, dispatch, handleClose, proposal, web3wallet])
 
   const handleReject = useCallback(async () => {
+    setIsLoading(true)
+
     await web3wallet.rejectSession({
       id,
       reason: getSdkError('USER_REJECTED_METHODS'),
     })
+
     handleClose()
   }, [handleClose, id, web3wallet])
 
@@ -229,10 +235,17 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
               !allNamespacesHaveAccounts
             }
             _disabled={disabledProp}
+            isLoading={isLoading}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>
-          <Button size='lg' width='full' onClick={handleReject}>
+          <Button
+            size='lg'
+            width='full'
+            onClick={handleReject}
+            isDisabled={isLoading}
+            _disabled={disabledProp}
+          >
             {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
           </Button>
         </VStack>

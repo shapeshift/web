@@ -19,7 +19,6 @@ import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/Mod
 import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/typeGuards'
 import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
@@ -35,9 +34,12 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
@@ -49,10 +51,9 @@ export const EIP155TransactionConfirmation: FC<
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
 
-  transaction && assertIsTransactionParams(transaction)
+  const { isLoading, feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
 
-  const { feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
-
+  const { showErrorToast } = useErrorHandler()
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
   const {
@@ -75,14 +76,23 @@ export const EIP155TransactionConfirmation: FC<
     },
   })
 
-  if (isInteractingWithContract === null)
+  if (isLoading || isInteractingWithContract === null)
     return (
       <Center p={8}>
         <CircularProgress />
       </Center>
     )
 
-  if (!transaction) return null
+  // if the transaction is missing the dapp sent invalid params
+  if (!transaction) {
+    showErrorToast({
+      message: 'unable to handle tx due to invalid params',
+      params: state.modalData.requestEvent?.params,
+    })
+    handleReject()
+    return null
+  }
+
   return (
     <FormProvider {...form}>
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
@@ -159,10 +169,17 @@ export const EIP155TransactionConfirmation: FC<
           onClick={form.handleSubmit(handleConfirm)}
           isLoading={form.formState.isSubmitting}
           isDisabled={!fees}
+          _disabled={disabledProp}
         >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button size='lg' width='full' onClick={handleReject}>
+        <Button
+          size='lg'
+          width='full'
+          onClick={handleReject}
+          isDisabled={form.formState.isSubmitting}
+          _disabled={disabledProp}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>

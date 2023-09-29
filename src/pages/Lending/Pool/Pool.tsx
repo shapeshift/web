@@ -145,7 +145,9 @@ export const Pool = () => {
                 </TabPanel>
               </TabPanels>
             </Tabs>
-            {/* <Input value={value} onChange={value => setValue(value.target.value)} /> */}
+            <Stack px={4} py={2}>
+              <Input value={value} onChange={value => setValue(value.target.value)} />
+            </Stack>
           </Card>
         </Stack>
       </Flex>

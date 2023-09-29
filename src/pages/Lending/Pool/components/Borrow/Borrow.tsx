@@ -6,11 +6,11 @@ import { BorrowInput } from './BorrowInput'
 import { BorrowConfirm } from './Confirm'
 import { BorrowRoutePaths } from './types'
 
-const MultiHopEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
+const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
 
 export const Borrow = () => {
   return (
-    <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
+    <MemoryRouter initialEntries={BorrowEntries} initialIndex={0}>
       <BorrowRoutes />
     </MemoryRouter>
   )

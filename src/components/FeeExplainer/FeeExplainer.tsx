@@ -16,7 +16,13 @@ import {
 } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
-import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
+import {
+  AnimatedAreaSeries,
+  AnimatedAxis,
+  AnimatedGlyphSeries,
+  Tooltip,
+  XYChart,
+} from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
 import { useEffect, useMemo, useState } from 'react'
@@ -79,7 +85,7 @@ const lineProps = {
 
 const labelProps = (fill: string) => ({ fill, fontSize: 16, fontWeight: 'bold' })
 
-const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
+const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   const xScale = { type: 'linear' as const }
   const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
   const width = 450
@@ -111,6 +117,17 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
       .filter(isSome)
   }, [debouncedFoxHolding])
 
+  const currentPoint = useMemo(() => {
+    if (tradeSize < FEE_CURVE_NO_FEE_THRESHOLD_USD) return []
+
+    const feeBps = calculateFees({
+      tradeAmountUsd: bn(tradeSize),
+      foxHeld: bn(debouncedFoxHolding),
+    }).feeBps.toNumber()
+
+    return [{ x: tradeSize, y: feeBps }]
+  }, [tradeSize, debouncedFoxHolding])
+
   return (
     <ScaleSVG width={width} height={height}>
       <XYChart xScale={xScale} yScale={yScale} width={width} height={height}>
@@ -132,7 +149,22 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
           numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
           tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
         />
-
+        <AnimatedGlyphSeries
+          {...accessors}
+          dataKey='Current Point'
+          data={currentPoint}
+          renderGlyph={({ x, y }) => (
+            <circle
+              cx={x}
+              cy={y}
+              r={6} // radius
+              stroke='#3761F9' // stroke color
+              strokeWidth={2} // stroke width
+              fill='none'
+            />
+          )}
+          /* additional styling here */
+        />
         <AnimatedAreaSeries
           {...accessors}
           dataKey='Line 1'

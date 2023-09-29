@@ -18,7 +18,8 @@ import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
 import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
-import { useMemo, useState } from 'react'
+import debounce from 'lodash/debounce'
+import { useEffect, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -85,18 +86,30 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
   const height = 400
   const fill = useColorModeValue('gray.800', 'white')
 
+  const [debouncedFoxHolding, setDebouncedFoxHolding] = useState(foxHolding)
+
+  const DEBOUNCE_MS = 150
+
+  // Debounce foxHolding updates
+  useEffect(() => {
+    const handleDebounce = debounce(() => setDebouncedFoxHolding(foxHolding), DEBOUNCE_MS)
+    handleDebounce()
+
+    return handleDebounce.cancel
+  }, [foxHolding])
+
   const data = useMemo(() => {
     return tradeSizeData
       .map(trade => {
         if (trade < FEE_CURVE_NO_FEE_THRESHOLD_USD) return null
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
-          foxHeld: bn(foxHolding),
+          foxHeld: bn(debouncedFoxHolding),
         }).feeBps.toNumber()
         return { x: trade, y: feeBps }
       })
       .filter(isSome)
-  }, [foxHolding])
+  }, [debouncedFoxHolding])
 
   return (
     <ScaleSVG width={width} height={height}>

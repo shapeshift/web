@@ -1,5 +1,16 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  Divider,
+  Flex,
+  IconButton,
+  Slider,
+  SliderFilledTrack,
+  SliderMark,
+  SliderThumb,
+  SliderTrack,
+  Stack,
+} from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -45,7 +56,20 @@ export const RepayInput = () => {
             onAssetChange={() => console.info('asset change')}
           />
         }
-      />
+      >
+        <Stack spacing={4} px={6} pb={4} mt={2}>
+          <Slider defaultValue={100}>
+            <SliderTrack>
+              <SliderFilledTrack bg='blue.500' />
+            </SliderTrack>
+            <SliderThumb boxSize={4} />
+          </Slider>
+          <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
+            <Amount.Fiat value={0} />
+            <Amount.Fiat value='14820' />
+          </Flex>
+        </Stack>
+      </TradeAssetInput>
       <Flex alignItems='center' justifyContent='center' my={-2}>
         <Divider />
         <IconButton

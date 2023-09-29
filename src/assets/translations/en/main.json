@@ -2136,6 +2136,9 @@
     "healthy": "Healthy",
     "caution": "Caution",
     "risky": "Risky",
+    "repayNoticeTitle": "Hold Up!",
+    "repayNoticeCta": "I understand",
+    "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "faq": {
       "title": "FAQ",
       "lending": {

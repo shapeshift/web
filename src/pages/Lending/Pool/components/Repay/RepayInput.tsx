@@ -1,23 +1,26 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Button,
   Divider,
   Flex,
+  Heading,
   IconButton,
   Slider,
   SliderFilledTrack,
-  SliderMark,
   SliderThumb,
   SliderTrack,
   Stack,
+  Tooltip,
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
+import { Text } from 'components/Text'
 
 import { LoanSummary } from '../LoanSummary'
 const formControlProps = {
@@ -28,7 +31,22 @@ const formControlProps = {
 }
 
 export const RepayInput = () => {
+  const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
+  if (!seenNotice) {
+    return (
+      <Stack spacing={6} px={4} py={6} textAlign='center' alignItems='center'>
+        <WarningIcon color='text.warning' boxSize={12} />
+        <Stack spacing={0} px={2}>
+          <Heading as='h4'>{translate('lending.repayNoticeTitle')}</Heading>
+          <Text color='text.subtle' translation='lending.repayNotice' />
+        </Stack>
+        <Button width='full' size='lg' colorScheme='blue' onClick={() => setSeenNotice(true)}>
+          {translate('lending.repayNoticeCta')}
+        </Button>
+      </Stack>
+    )
+  }
   return (
     <Stack spacing={0}>
       <TradeAssetInput
@@ -57,12 +75,14 @@ export const RepayInput = () => {
           />
         }
       >
-        <Stack spacing={4} px={6} pb={4} mt={2}>
-          <Slider defaultValue={100}>
+        <Stack spacing={4} px={6} pb={4}>
+          <Slider defaultValue={100} isReadOnly>
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
             </SliderTrack>
-            <SliderThumb boxSize={4} />
+            <Tooltip label={translate('lending.repayNotice')}>
+              <SliderThumb boxSize={4} />
+            </Tooltip>
           </Slider>
           <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
             <Amount.Fiat value={0} />

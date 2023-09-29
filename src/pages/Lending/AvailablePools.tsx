@@ -67,7 +67,7 @@ export const AvailablePools = () => {
             width='full'
             height='auto'
             color='text.base'
-            onClick={() => handlePoolClick('btc')}
+            onClick={() => handlePoolClick(btcAssetId)}
           >
             <AssetCell assetId={btcAssetId} />
             <Flex>
@@ -92,7 +92,7 @@ export const AvailablePools = () => {
             width='full'
             height='auto'
             color='text.base'
-            onClick={() => handlePoolClick('eth')}
+            onClick={() => handlePoolClick(ethAssetId)}
           >
             <AssetCell assetId={ethAssetId} />
             <Flex>

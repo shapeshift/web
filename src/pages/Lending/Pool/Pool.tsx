@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Card,
@@ -16,14 +16,12 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Tag,
-  TagLeftIcon,
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory, useParams } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
@@ -31,6 +29,7 @@ import { RawText, Text } from 'components/Text'
 
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
+import { PoolInfo } from './components/PoolInfo'
 import { DynamicComponent } from './components/PoolStat'
 import { Repay } from './components/Repay/Repay'
 
@@ -56,6 +55,8 @@ const PoolHeader = () => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const Pool = () => {
+  const { pid } = useParams<{ pid?: string }>()
+  const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
   return (
     <Main headerComponent={<PoolHeader />}>
@@ -66,6 +67,7 @@ export const Pool = () => {
               <Flex gap={4} alignItems='center'>
                 <AssetIcon assetId={btcAssetId} />
                 <Heading as='h3'>Bitcoin</Heading>
+                <RawText>{pid}</RawText>
               </Flex>
             </CardHeader>
             <CardBody gap={8} display='flex' flexDir='column' px={8} pb={8} pt={0}>
@@ -118,41 +120,7 @@ export const Pool = () => {
               borderTopWidth={1}
               borderColor='border.base'
             >
-              <Flex gap={4} alignItems='center'>
-                <Text translation='lending.poolInformation' fontWeight='medium' />
-                <Tag colorScheme='green'>
-                  <TagLeftIcon as={CheckCircleIcon} />
-                  Healthy
-                </Tag>
-              </Flex>
-              <Flex>
-                <DynamicComponent
-                  label='lending.totalCollateral'
-                  component={<Amount.Crypto fontSize='lg' value='25' symbol='BTC' />}
-                  flex={1}
-                  labelProps={{ fontSize: 'sm ' }}
-                />
-                <DynamicComponent
-                  label='lending.totalDebtBalance'
-                  component={<Amount.Fiat fontSize='lg' value={25} />}
-                  flex={1}
-                  labelProps={{ fontSize: 'sm ' }}
-                />
-              </Flex>
-              <Flex>
-                <DynamicComponent
-                  label='lending.estCollateralizationRatio'
-                  component={<Amount.Percent value={2.93} color='text.success' fontSize='lg' />}
-                  flex={1}
-                  labelProps={{ fontSize: 'sm ' }}
-                />
-                <DynamicComponent
-                  label='lending.totalBorrowers'
-                  component={<RawText fontSize='lg'>123</RawText>}
-                  flex={1}
-                  labelProps={{ fontSize: 'sm ' }}
-                />
-              </Flex>
+              <PoolInfo />
             </CardFooter>
           </Card>
           <Faq />
@@ -162,10 +130,10 @@ export const Pool = () => {
             <Tabs variant='unstyled'>
               <TabList px={2} py={4}>
                 <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  Borrow
+                  {translate('lending.borrow')}
                 </Tab>
                 <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  Repay
+                  {translate('lending.repay')}
                 </Tab>
               </TabList>
               <TabPanels>

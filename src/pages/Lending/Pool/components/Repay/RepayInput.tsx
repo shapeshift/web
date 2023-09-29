@@ -16,7 +16,7 @@ const formControlProps = {
   paddingBottom: 0,
 }
 
-export const Repay = () => {
+export const RepayInput = () => {
   const translate = useTranslate()
   return (
     <Stack spacing={0}>

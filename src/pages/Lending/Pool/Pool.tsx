@@ -32,6 +32,7 @@ import { RawText, Text } from 'components/Text'
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
 import { DynamicComponent } from './components/PoolStat'
+import { Repay } from './components/Repay/Repay'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const tabSelected = { color: 'text.base' }
@@ -171,7 +172,9 @@ export const Pool = () => {
                 <TabPanel px={0} py={0}>
                   <Borrow />
                 </TabPanel>
-                <TabPanel>Repay</TabPanel>
+                <TabPanel px={0} py={0}>
+                  <Repay />
+                </TabPanel>
               </TabPanels>
             </Tabs>
             <Input value={value} onChange={value => setValue(value.target.value)} />

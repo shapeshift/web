@@ -16,7 +16,7 @@ const formControlProps = {
   paddingBottom: 0,
 }
 
-export const Borrow = () => {
+export const Repay = () => {
   const translate = useTranslate()
   return (
     <Stack spacing={0}>
@@ -30,20 +30,19 @@ export const Borrow = () => {
         percentOptions={[0]}
         showInputSkeleton={false}
         showFiatSkeleton={false}
-        label={'Deposit BTC'}
+        label={'Repay Amount'}
         onAccountIdChange={() => console.info('blam')}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={
           <TradeAssetSelect
             accountId={''}
-            assetId={btcAssetId}
+            assetId={usdcAssetId}
             onAssetClick={() => console.info('clicked asset')}
             onAccountIdChange={() => console.info('changed account')}
             accountSelectionDisabled={false}
             label={'uhh'}
             onAssetChange={() => console.info('asset change')}
-            isReadOnly
           />
         }
       />
@@ -71,19 +70,20 @@ export const Borrow = () => {
         percentOptions={[0]}
         showInputSkeleton={false}
         showFiatSkeleton={false}
-        label={'Borrow'}
+        label={'Unlocked Collateral'}
         onAccountIdChange={() => console.info('blam')}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={
           <TradeAssetSelect
             accountId={''}
-            assetId={usdcAssetId}
+            assetId={btcAssetId}
             onAssetClick={() => console.info('clicked asset')}
             onAccountIdChange={() => console.info('changed account')}
             accountSelectionDisabled={false}
             label={'uhh'}
             onAssetChange={() => console.info('asset change')}
+            isReadOnly
           />
         }
       />
@@ -117,7 +117,7 @@ export const Borrow = () => {
           </Row.Value>
         </Row>
         <Button size='lg' colorScheme='blue' mx={-2}>
-          Borrow
+          Repay
         </Button>
       </Stack>
     </Stack>

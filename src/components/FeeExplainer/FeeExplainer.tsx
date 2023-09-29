@@ -37,7 +37,7 @@ type FeeChartProps = {
 
 // how many points to generate for the chart, higher is more accurate but slower
 const CHART_GRANULARITY = 100
-const CHART_TRADE_SIZE_MAX_USD = 300_000
+const CHART_TRADE_SIZE_MAX_USD = 400_000
 const CHART_TRADE_SIZE_MAX_FOX = 1_100_000 // let them go a bit past a million
 
 // Generate data for tradeSize and foxHolding
@@ -64,17 +64,25 @@ const renderTooltip = ({ tooltipData }: RenderTooltipParams<ChartData>) => {
   )
 }
 
+const formatMetricSuffix = (num: number) => {
+  if (Math.abs(num) >= 1e6) return `${(Math.abs(num) / 1e6).toFixed(0)}M`
+  if (Math.abs(num) >= 1e3) return `${(Math.abs(num) / 1e3).toFixed(0)}K`
+  return `${Math.abs(num)}`
+}
+
 const foxBlue = '#3761F9'
 
 const lineProps = {
   stroke: foxBlue,
 }
 
+const labelProps = (fill: string) => ({ fill, fontSize: 16, fontWeight: 'bold' })
+
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
   const xScale = { type: 'linear' as const }
   const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
   const width = 450
-  const height = 450
+  const height = 400
   const fill = useColorModeValue('gray.800', 'white')
 
   const data = useMemo(() => {
@@ -95,9 +103,19 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding }) => {
       <XYChart xScale={xScale} yScale={yScale} width={width} height={height}>
         <LinearGradient id='area-gradient' from={foxBlue} to={foxBlue} toOpacity={0} />
 
-        <AnimatedAxis orientation='bottom' />
+        <AnimatedAxis
+          orientation='bottom'
+          numTicks={4}
+          tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
+          tickFormat={x => `$${formatMetricSuffix(x)}`}
+          label='Trade Size ($)'
+          labelProps={labelProps(fill)}
+        />
         <AnimatedAxis
           orientation='left'
+          label='Fee (bps)'
+          labelProps={labelProps(fill)}
+          labelOffset={30}
           numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
           tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
         />

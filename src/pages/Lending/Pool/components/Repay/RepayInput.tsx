@@ -1,6 +1,7 @@
 import { ArrowDownIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Button,
+  Collapse,
   Divider,
   Flex,
   Heading,
@@ -13,8 +14,9 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -23,6 +25,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 
 import { LoanSummary } from '../LoanSummary'
+import { RepayRoutePaths } from './types'
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
@@ -33,6 +36,12 @@ const formControlProps = {
 export const RepayInput = () => {
   const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
+  const history = useHistory()
+
+  const onSubmit = useCallback(() => {
+    history.push(RepayRoutePaths.Confirm)
+  }, [history])
+
   if (!seenNotice) {
     return (
       <Stack spacing={6} px={4} py={6} textAlign='center' alignItems='center'>
@@ -131,7 +140,9 @@ export const RepayInput = () => {
           />
         }
       />
-      <LoanSummary show />
+      <Collapse in={true}>
+        <LoanSummary />
+      </Collapse>
       <Stack
         borderTopWidth={1}
         borderColor='border.subtle'
@@ -160,7 +171,7 @@ export const RepayInput = () => {
             <Amount.Fiat value='0' />
           </Row.Value>
         </Row>
-        <Button size='lg' colorScheme='blue' mx={-2}>
+        <Button size='lg' colorScheme='blue' mx={-2} onClick={onSubmit}>
           {translate('lending.repay')}
         </Button>
       </Stack>

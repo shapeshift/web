@@ -1,5 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, CardFooter, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
+import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -96,7 +96,9 @@ export const BorrowInput = () => {
             />
           }
         />
-        <LoanSummary show />
+        <Collapse in={true}>
+          <LoanSummary />
+        </Collapse>
         <CardFooter
           borderTopWidth={1}
           borderColor='border.subtle'

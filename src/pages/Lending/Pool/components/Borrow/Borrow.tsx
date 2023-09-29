@@ -2,8 +2,8 @@ import { AnimatePresence } from 'framer-motion'
 import { memo } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 
+import { BorrowConfirm } from './BorrowConfirm'
 import { BorrowInput } from './BorrowInput'
-import { BorrowConfirm } from './Confirm'
 import { BorrowRoutePaths } from './types'
 
 const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]

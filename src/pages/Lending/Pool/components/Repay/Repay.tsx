@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { memo } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 
+import { RepayConfirm } from './RepayConfirm'
 import { RepayInput } from './RepayInput'
 import { RepayRoutePaths } from './types'
 
@@ -22,6 +23,9 @@ const RepayRoutes = memo(() => {
       <Switch location={location}>
         <Route key={RepayRoutePaths.Input} path={RepayRoutePaths.Input}>
           <RepayInput />
+        </Route>
+        <Route key={RepayRoutePaths.Confirm} path={RepayRoutePaths.Confirm}>
+          <RepayConfirm />
         </Route>
       </Switch>
     </AnimatePresence>

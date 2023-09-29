@@ -35,6 +35,7 @@ import { DynamicComponent } from './components/PoolStat'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const tabSelected = { color: 'text.base' }
+const maxWidth = { base: '100%', md: '450px' }
 const PoolHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
@@ -155,7 +156,7 @@ export const Pool = () => {
           </Card>
           <Faq />
         </Stack>
-        <Stack flex={1} maxWidth='450px'>
+        <Stack flex={1} maxWidth={maxWidth}>
           <Card>
             <Tabs variant='unstyled'>
               <TabList px={2} py={4}>

@@ -5,6 +5,8 @@ import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { RawText } from 'components/Text'
+
+import { LoanSummary } from './LoanSummary'
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
@@ -68,6 +70,7 @@ export const Borrow = () => {
           />
         }
       />
+      <LoanSummary show />
       <Stack
         borderTopWidth={1}
         borderColor='border.subtle'

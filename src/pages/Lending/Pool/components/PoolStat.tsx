@@ -43,8 +43,8 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
         </Box>
         <AnimatePresence exitBeforeEnter>
           {newValue !== undefined ? (
-            <SlideTransitionX>
-              <Flex gap={2} alignItems='center' key={`${label}-new-value`}>
+            <SlideTransitionX key={`${label}-new-value`}>
+              <Flex gap={2} alignItems='center'>
                 <ArrowForwardIcon color='text.subtle' />
                 <Skeleton isLoaded={!isLoading}>{clonedComponent}</Skeleton>
               </Flex>

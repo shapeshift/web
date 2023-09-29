@@ -2118,8 +2118,10 @@
     "totalDebtBalance": "Total Depth Balance",
     "totalCollateral": "Total Collateral",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
+    "collateralizationRatio": "Collateralization Ratio",
     "totalBorrowers": "Total Borrowers",
     "myLoanInformation": "My Loan Information",
+    "loanInformation": "Loan Information",
     "poolInformation": "Pool Information",
     "collateralBalance": "Collateral Balance",
     "debtBalance": "Debt Balance",
@@ -2127,6 +2129,11 @@
     "borrow": "Borrow",
     "repay": "Repay",
     "outstandingDebt": "Outstanding Debt",
+    "collateral": "Collateral",
+    "debt": "Debt",
+    "healthy": "Healthy",
+    "caution": "Caution",
+    "risky": "Risky",
     "faq": {
       "title": "FAQ",
       "lending": {

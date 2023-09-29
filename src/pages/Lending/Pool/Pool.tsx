@@ -1,7 +1,6 @@
 import { ArrowBackIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -30,9 +29,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
-import { Borrow } from './components/Borrow'
+import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
-import { DynamicComponent, PoolStat, TestComponent } from './components/PoolStat'
+import { DynamicComponent } from './components/PoolStat'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const tabSelected = { color: 'text.base' }
@@ -55,9 +54,7 @@ const PoolHeader = () => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const Pool = () => {
-  const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
-  const [time, setTime] = useState('25')
   return (
     <Main headerComponent={<PoolHeader />}>
       <Flex gap={4} flexDir={flexDirPool}>

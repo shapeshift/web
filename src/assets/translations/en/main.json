@@ -98,6 +98,8 @@
     "viewAll": "View All",
     "slippage": "Slippage",
     "best": "Best",
+    "gasFee": "Gas Fee",
+    "fees": "Fees",
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",

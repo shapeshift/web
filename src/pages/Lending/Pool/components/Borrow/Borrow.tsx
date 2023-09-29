@@ -1,10 +1,12 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { RawText } from 'components/Text'
+import { Row } from 'components/Row/Row'
 
 import { LoanSummary } from './LoanSummary'
 const formControlProps = {
@@ -15,6 +17,7 @@ const formControlProps = {
 }
 
 export const Borrow = () => {
+  const translate = useTranslate()
   return (
     <Stack spacing={0}>
       <TradeAssetInput
@@ -81,6 +84,24 @@ export const Borrow = () => {
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        <Row fontSize='sm' fontWeight='medium'>
+          <Row.Label>{translate('common.slippage')}</Row.Label>
+          <Row.Value>
+            <Amount.Crypto value='20' symbol='BTC' />
+          </Row.Value>
+        </Row>
+        <Row fontSize='sm' fontWeight='medium'>
+          <Row.Label>{translate('common.gasFee')}</Row.Label>
+          <Row.Value>
+            <Amount.Fiat value='10' />
+          </Row.Value>
+        </Row>
+        <Row fontSize='sm' fontWeight='medium'>
+          <Row.Label>{translate('common.fees')}</Row.Label>
+          <Row.Value>
+            <Amount.Fiat value='0' />
+          </Row.Value>
+        </Row>
         <Button size='lg' colorScheme='blue' mx={-2}>
           Borrow
         </Button>

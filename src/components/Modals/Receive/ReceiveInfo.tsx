@@ -67,9 +67,11 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   useEffect(() => {
     ;(async () => {
       if (!accountMetadata) return
+      if (!wallet) return
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
+        deviceId: await wallet.getDeviceID(),
         accountMetadata,
       })
       setReceiveAddress(selectedAccountAddress)

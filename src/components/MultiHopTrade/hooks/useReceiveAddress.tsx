@@ -29,8 +29,13 @@ export const getReceiveAddress = pMemoize(
     return address
   },
   {
-    cacheKey: ([{ asset, accountMetadata }]) =>
-      JSON.stringify({ assetId: asset.assetId, accountMetadata }),
+    cacheKey: ([{ asset, accountMetadata, deviceId }]) => {
+      return JSON.stringify({
+        assetId: asset.assetId,
+        accountMetadata,
+        deviceId,
+      })
+    },
   },
 )
 
@@ -50,6 +55,7 @@ export const useReceiveAddress = () => {
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
+      if (!wallet) return
       if (!buyAccountId) return
       if (!buyAccountMetadata) return
       if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
@@ -65,6 +71,7 @@ export const useReceiveAddress = () => {
         asset: buyAsset,
         wallet,
         accountMetadata: buyAccountMetadata,
+        deviceId: await wallet.getDeviceID(),
       })
       return receiveAddress
     },

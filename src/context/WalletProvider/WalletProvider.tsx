@@ -156,7 +156,6 @@ export const isKeyManagerWithProvider = (
   )
 
 const reducer = (state: InitialState, action: ActionTypes): InitialState => {
-  console.log({ state, action })
   switch (action.type) {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }

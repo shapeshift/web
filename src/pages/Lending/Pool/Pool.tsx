@@ -12,6 +12,11 @@ import {
   IconButton,
   Input,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tag,
   TagLeftIcon,
 } from '@chakra-ui/react'
@@ -25,10 +30,12 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
+import { Borrow } from './components/Borrow'
 import { Faq } from './components/Faq'
 import { DynamicComponent, PoolStat, TestComponent } from './components/PoolStat'
 
 const containerPadding = { base: 6, '2xl': 8 }
+const tabSelected = { color: 'text.base' }
 const PoolHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
@@ -68,14 +75,16 @@ export const Pool = () => {
                 <DynamicComponent
                   label='lending.collateralBalance'
                   toolTipLabel='tbd'
-                  component={<Amount.Crypto fontSize='2xl' value='25' symbol='BTC' />}
+                  component={
+                    <Amount.Crypto fontSize='2xl' value='25' symbol='BTC' fontWeight='medium' />
+                  }
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.collateralValue'
                   toolTipLabel='tbd'
-                  component={<Amount.Fiat fontSize='2xl' value={25} />}
+                  component={<Amount.Fiat fontSize='2xl' value={25} fontWeight='medium' />}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -84,14 +93,18 @@ export const Pool = () => {
                 <DynamicComponent
                   label='lending.debtBalance'
                   toolTipLabel='tbd'
-                  component={<Amount.Fiat fontSize='2xl' value='2500' />}
+                  component={<Amount.Fiat fontSize='2xl' value='2500' fontWeight='medium' />}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.repaymentLock'
                   toolTipLabel='tbd'
-                  component={<RawText fontSize='2xl'>20 days</RawText>}
+                  component={
+                    <RawText fontSize='2xl' fontWeight='medium'>
+                      20 days
+                    </RawText>
+                  }
                   flex={1}
                   {...(value ? { newValue: { children: '30 days' } } : {})}
                 />
@@ -130,7 +143,7 @@ export const Pool = () => {
               <Flex>
                 <DynamicComponent
                   label='lending.estCollateralizationRatio'
-                  component={<Amount.Percent value={2.93} color='text.green' fontSize='lg' />}
+                  component={<Amount.Percent value={2.93} color='text.success' fontSize='lg' />}
                   flex={1}
                   labelProps={{ fontSize: 'sm ' }}
                 />
@@ -145,10 +158,27 @@ export const Pool = () => {
           </Card>
           <Faq />
         </Stack>
-        <Card flex={1} maxWidth='450px'>
-          <p>Borrow thing</p>
-          <Input value={value} onChange={value => setValue(value.target.value)} />
-        </Card>
+        <Stack flex={1} maxWidth='450px'>
+          <Card>
+            <Tabs variant='unstyled'>
+              <TabList px={2} py={4}>
+                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
+                  Borrow
+                </Tab>
+                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
+                  Repay
+                </Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel px={0} py={0}>
+                  <Borrow />
+                </TabPanel>
+                <TabPanel>Repay</TabPanel>
+              </TabPanels>
+            </Tabs>
+            <Input value={value} onChange={value => setValue(value.target.value)} />
+          </Card>
+        </Stack>
       </Flex>
     </Main>
   )

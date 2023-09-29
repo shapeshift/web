@@ -1,37 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps, TextProps } from '@chakra-ui/react'
-import { Box, Flex, Stack } from '@chakra-ui/react'
+import { Box, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import type { ReactElement } from 'react'
 import React from 'react'
-import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { SlideTransition } from 'components/SlideTransition'
 import { SlideTransitionX } from 'components/SlideTransitionX'
-import { SlideTransitionY } from 'components/SlideTransitionY'
 import { Text } from 'components/Text'
-
-type PoolStatProps = {
-  value: string
-  newValue?: string
-  label: string
-  toolTipLabel?: string
-}
-
-export const PoolStat: React.FC<PoolStatProps> = ({ value, label, toolTipLabel }) => {
-  return (
-    <Stack spacing={0}>
-      <Amount.Crypto value={value ?? ''} symbol='btc' fontSize='2xl' />
-      {toolTipLabel ? (
-        <HelperTooltip label={toolTipLabel}>
-          <Text translation={label} />
-        </HelperTooltip>
-      ) : (
-        <Text color='text.subtle' translation={label} />
-      )}
-    </Stack>
-  )
-}
 
 type DynamicComponentProps = {
   component: ReactElement
@@ -39,6 +14,7 @@ type DynamicComponentProps = {
   label: string
   toolTipLabel?: string
   labelProps?: TextProps
+  isLoading?: boolean
 } & StackProps
 
 export const DynamicComponent: React.FC<DynamicComponentProps> = ({
@@ -47,6 +23,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
   label,
   toolTipLabel,
   labelProps,
+  isLoading,
   ...rest
 }) => {
   // Clone the child component and merge the newValue props if provided
@@ -62,28 +39,28 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
           transitionProperty='common'
           transitionDuration='normal'
         >
-          {previousComponent}
+          <Skeleton isLoaded={!isLoading}>{previousComponent}</Skeleton>
         </Box>
         <AnimatePresence exitBeforeEnter>
           {newValue !== undefined ? (
             <SlideTransitionX>
               <Flex gap={2} alignItems='center' key={`${label}-new-value`}>
                 <ArrowForwardIcon color='text.subtle' />
-                {clonedComponent}
+                <Skeleton isLoaded={!isLoading}>{clonedComponent}</Skeleton>
               </Flex>
             </SlideTransitionX>
           ) : null}
         </AnimatePresence>
       </Flex>
-      <Box>
+      <Flex>
         {toolTipLabel ? (
-          <HelperTooltip label={toolTipLabel}>
+          <HelperTooltip label={toolTipLabel} iconProps={{ boxSize: '14px' }}>
             <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
           </HelperTooltip>
         ) : (
           <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
         )}
-      </Box>
+      </Flex>
     </Stack>
   )
 }

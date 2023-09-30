@@ -12,7 +12,7 @@ export const Faq = () => {
   return (
     <Card>
       <CardBody px={8} py={8} display='flex' flexDir='column' gap={6}>
-        <Text fontSize='xl' translation='lending.faq.title' />
+        <Text fontWeight='bold' fontSize='xl' translation='lending.faq.title' />
         <Accordion variant='default' defaultIndex={[0]}>
           <AccordionItem px={0}>
             <AccordionButton px={0}>

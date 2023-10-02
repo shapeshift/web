@@ -25,7 +25,7 @@ import {
 } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -131,6 +131,13 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
     return [{ x: tradeSize, y: feeBps }]
   }, [tradeSize, debouncedFoxHolding])
 
+  const tickLabelProps = useCallback(
+    () => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' }),
+    [textColor],
+  )
+
+  const tickFormat = useCallback((x: number) => `$${formatMetricSuffix(x)}`, [])
+
   return (
     <ScaleSVG width={width} height={height}>
       <XYChart xScale={xScale} yScale={yScale} width={width} height={height}>
@@ -139,8 +146,8 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
         <AnimatedAxis
           orientation='bottom'
           numTicks={4}
-          tickLabelProps={() => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' })}
-          tickFormat={x => `$${formatMetricSuffix(x)}`}
+          tickLabelProps={tickLabelProps}
+          tickFormat={tickFormat}
           labelProps={labelProps(textColor)}
           stroke={borderColor}
           tickStroke={borderColor}
@@ -150,7 +157,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
           labelProps={labelProps(textColor)}
           labelOffset={30}
           numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
-          tickLabelProps={() => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' })}
+          tickLabelProps={tickLabelProps}
           stroke={borderColor}
           tickStroke={borderColor}
         />

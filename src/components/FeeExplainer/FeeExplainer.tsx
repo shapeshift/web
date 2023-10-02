@@ -3,11 +3,7 @@ import {
   Card,
   CardBody,
   Flex,
-  FormControl,
-  FormHelperText,
-  FormLabel,
   Heading,
-  Input,
   Slider,
   SliderFilledTrack,
   SliderMark,
@@ -29,7 +25,7 @@ import {
 } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -39,6 +35,8 @@ import { isSome } from 'lib/utils'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
+
+import { FeeInput } from './components/FeeInput'
 
 type FeeChartProps = {
   tradeSize: number
@@ -93,7 +91,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   const xScale = { type: 'linear' as const }
   const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
   const width = 450
-  const height = 400
+  const height = 250
   const textColor = useToken('colors', 'text.subtle')
   const borderColor = useToken('colors', 'border.base')
   const circleBg = useToken('colors', 'blue.500')
@@ -145,14 +143,12 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
           numTicks={4}
           tickLabelProps={() => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' })}
           tickFormat={x => `$${formatMetricSuffix(x)}`}
-          label='Trade Size ($)'
           labelProps={labelProps(textColor)}
           stroke={borderColor}
           tickStroke={borderColor}
         />
         <AnimatedAxis
           orientation='left'
-          label='Fee (bps)'
           labelProps={labelProps(textColor)}
           labelOffset={30}
           numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
@@ -334,7 +330,7 @@ export const FeeExplainer = () => {
   }
 
   return (
-    <Card flexDir='row' maxWidth='1200px' width='full' mx='auto'>
+    <Card flexDir='column-reverse' maxWidth='600px' width='full' mx='auto'>
       <CardBody flex='1' p={{ base: 4, md: 8 }}>
         <Heading as='h5'>Calculate your FOX Savings</Heading>
         <RawText color='text.subtle'>

@@ -7860,9 +7860,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:^1.50.8":
-  version: 1.50.8
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.8"
+"@shapeshiftoss/hdwallet-core@npm:^1.50.9":
+  version: 1.50.10
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.10"
   dependencies:
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     eip-712: ^1.0.0
@@ -7870,7 +7870,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: d083e9255b6770d417127775a16469d6d6ba429812e04d524fbd465e4ebe9ac1290537c92bc0da869e90170251f8bcdbf40aad4b571a514353bbded505d4a19a
+  checksum: f092f731feaa7d729c73ba43b2d3a5828d9f41ec774f9e3ba40ecd870134afb409c3d1184247cb30cba95cf60775d4b64d4b654270d1de7cf16d15af325750c8
   languageName: node
   linkType: hard
 
@@ -8000,15 +8000,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.8":
-  version: 1.50.8
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.50.8"
+"@shapeshiftoss/hdwallet-walletconnectv2@file:../shapeshiftHdWallet/packages/hdwallet-walletconnectV2::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 1.50.9
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@file:../shapeshiftHdWallet/packages/hdwallet-walletconnectV2#../shapeshiftHdWallet/packages/hdwallet-walletconnectV2::hash=c37ce9&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.50.8
+    "@shapeshiftoss/hdwallet-core": ^1.50.9
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 28d626c04945b25bc31bc34f4e43bed3949ca1958d70d56421130857d0e1dd6dcd57b680eb995639666ae8db77aa89b4383141965cc112ff98c2274d972bdeea
+  checksum: 30c7c455f7c1661b4409f8a18fd256574e9726e1ac9f605f2fc0f011aabbe446882741e12433905d43c1429bfd39d0f052c4888a792051a3c851cbbb5f735e12
   languageName: node
   linkType: hard
 
@@ -8197,7 +8197,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-native": ^1.50.4
     "@shapeshiftoss/hdwallet-native-vault": ^1.50.4
     "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.50.5-alpha.70
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.50.8
+    "@shapeshiftoss/hdwallet-walletconnectv2": ../shapeshiftHdWallet/packages/hdwallet-walletconnectV2
     "@shapeshiftoss/hdwallet-xdefi": ^1.50.4
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

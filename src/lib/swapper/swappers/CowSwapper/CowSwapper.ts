@@ -27,7 +27,10 @@ export const cowSwapper: Swapper = {
     // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
     // For more info, check hashOrder method implementation
     const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
-    const messageToSign = ethers.utils.arrayify(orderDigest)
+    // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
+    const messageToSign = orderDigest
+    // TODO: signMessage here, as well as ethSignMessage in hdwallet should all expect an hex string as `message` and guard at types/runtime level against
+    // the wrong `message` (i.e args.data) being passed
     const signatureOrderDigest = await signMessage(messageToSign)
 
     // Passing the signature through split/join to normalize the `v` byte.

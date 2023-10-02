@@ -102,7 +102,7 @@
     "@shapeshiftoss/hdwallet-native": "^1.50.4",
     "@shapeshiftoss/hdwallet-native-vault": "^1.50.4",
     "@shapeshiftoss/hdwallet-shapeshift-multichain": "^1.50.5-alpha.70",
-    "@shapeshiftoss/hdwallet-walletconnectv2": "1.50.8",
+    "@shapeshiftoss/hdwallet-walletconnectv2": "../shapeshiftHdWallet/packages/hdwallet-walletconnectV2",
     "@shapeshiftoss/hdwallet-xdefi": "^1.50.4",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",

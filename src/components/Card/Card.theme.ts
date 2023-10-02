@@ -80,6 +80,31 @@ export const CardStyle = {
         borderColor: 'border.base',
       },
     }),
+    dashboard: {
+      container: {
+        bg: 'transparent',
+        borderWidth: {
+          base: 0,
+          md: 1,
+        },
+        borderColor: 'border.base',
+      },
+      header: {
+        borderBottomWidth: {
+          base: 0,
+          md: 1,
+        },
+        borderTopWidth: {
+          base: 1,
+          md: 0,
+        },
+        borderColor: 'border.base',
+      },
+      footer: {
+        borderTopWidth: 1,
+        borderColor: 'border.base',
+      },
+    },
   },
   defaultProps: {
     size: 'md',

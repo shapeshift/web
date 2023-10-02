@@ -28,13 +28,17 @@ type AssetDetailsProps = {
 const direction: StackDirection = { base: 'column', xl: 'row' }
 const maxWidth = { base: 'full', xl: 'sm' }
 const display = { base: 'none', md: 'block' }
+const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
   return (
-    <Main headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
+    <Main
+      headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}
+      py={contentPaddingY}
+    >
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />

@@ -60,7 +60,10 @@ If you are using Linux and macOS it works out of the box following these steps:
 
 3. Install [OpenJDK](https://openjdk.java.net/install/).
 
-    > On MacOS if you have [installed](https://openapi-generator.tech/docs/installation/) `openapi-generator-cli`, it will be installed automatically.
+    >  On MacOS via homebrew `brew install java` should do the trick
+    >  if you have [installed](https://openapi-generator.tech/docs/installation/) `brew install openapi-generator`, it should be installed automatically. 
+    > Follow the commands to symlink the PATH for JDK & java
+    > To verify a proper install and link check on the `java -version` and it should have openJDK versions displayed alongside java version.
 
 4. Install Dependencies:
 

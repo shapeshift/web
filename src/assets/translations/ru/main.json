@@ -4,6 +4,7 @@
     "balance": "Баланс",
     "next": "Следующий",
     "error": "Ошибка",
+    "show": "Показать",
     "cancel": "Отмена",
     "close": "Закрыть",
     "loadMore": "Загрузить еще",
@@ -109,7 +110,10 @@
     "feedbackAndSupport": "Обратная связь и поддержка",
     "getSupport": "Получить поддержку",
     "viewMyWallet": "Посмотреть мой кошелек",
-    "submitFeatureRequest": "Отправить запрос на добавление функции"
+    "submitFeatureRequest": "Отправить запрос на добавление функции",
+    "learnMore": "Подробнее",
+    "showAll": "Показать больше",
+    "showLess": "Показать меньше"
   },
   "consentBanner": {
     "body": {
@@ -229,7 +233,10 @@
     "body2": "Добро пожаловать в новый ShapeShift. 100% свободный. С открытым исходным кодом. Принадлежит сообществу. Без посредника. Приватный.",
     "header": "Пожалуйста, подключите кошелек, чтобы начать",
     "cta": "Подключить кошелек",
-    "viewADemo": "Посмотреть демо-версию"
+    "viewADemo": "Посмотреть демо-версию",
+    "dontHaveWallet": "У вас нет кошелька?",
+    "welcomeBack": "С возвращением!",
+    "welcomeBody": "Подключение кошелька аналогично \"входу в систему\". Выберите свой кошелек из предложенных вариантов, чтобы начать работу."
   },
   "connectWallet": {
     "menu": {
@@ -536,6 +543,7 @@
     "trade": "Торговля",
     "amount": "Сумма",
     "for": "за",
+    "emptyMessage": "Здесь %{status} будут отображаться ваши транзакции.",
     "parser": {
       "weth": {
         "deposit": "\nПополнение счета",
@@ -597,6 +605,7 @@
       },
       "swap": {
         "deposit": "Обмен",
+        "streamingSwap": "Трансляция обменa",
         "out": "Обмен",
         "refund": "Возврат",
         "outbound": "Исходящий"
@@ -676,6 +685,8 @@
     "approvingAsset": "Подтверждение %{symbol}",
     "viewTransaction": "Посмотреть транзакцию",
     "unlimited": "Безлимитный",
+    "streamStatus": "Статус операции",
+    "swapsFailed": "%{failedSwaps} обмен не удался",
     "exact": "Точный",
     "expectedAmount": "Предполагаемая сумма",
     "beforeFees": "До уплаты комиссии",
@@ -766,9 +777,11 @@
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
     "receiveAddress": "Адрес получателя",
-    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную, чтобы продолжить.",
+    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную или",
+    "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
-    "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?"
+    "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
+    "enableMetaMaskSnap": "используйте multichain snap"
   },
   "modals": {
     "popup": {
@@ -1261,6 +1274,41 @@
         "button": "Открыть"
       }
     },
+    "metaMaskSnap": {
+      "title": "Для MetaMask теперь доступна поддержка Multichain!",
+      "subtitle": "Добавьте привязку Multichain к Metamask, чтобы отправлять, получать, отслеживать, обменивать и зарабатывать с помощью следующих цепочек:",
+      "multiChainSnap": "Multichain Snap",
+      "active": "Активная",
+      "notActive": "Не активная",
+      "addSnap": "Додать Snap",
+      "uninstall": {
+        "title": "Вы удалили поддержку Multichain из MetaMask!",
+        "subtitle": "Повторно добавьте привязку Multichain на MetaMask, чтобы отправлять, получать, отслеживать, торговать и зарабатывать со следующими цепочками:"
+      },
+      "secondaryTitle": "Лучший опыт работы с Multichain для MetaMask: На платформе ShapeShift",
+      "secondaryBody": "Отправляйте, получайте, отслеживайте, обменивайте и зарабатывайте с помощью ShapeShift Multichain Snap на следующих цепочках:",
+      "connectMetaMask": "Подключить MetaMask",
+      "andMore": "...и многое другое",
+      "snapInstalledToast": "Установлена привязка ShapeShift Multichain MetaMask",
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не установлен"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "Установить Multichain Snap",
+      "warningExperimental": "ShapeShift Multichain Snap является новой, экспериментальной функцией и предоставляется \"как есть\".",
+      "warningBackup": "Убедитесь, что вы создали резервную копию начальной фразы MetaMask. Все средства, которые вы отправляете в не-EVM-цепочки с помощью этой привязки, будут направляться на счет по умолчанию, настроенный в MetaMask.",
+      "agreeIntro": "Перед продолжением работы ознакомьтесь с данной информацией:",
+      "agreeItem1Parts": {
+        "1": "Аппаратные кошельки",
+        "2": "НЕ",
+        "3": "поддерживают"
+      },
+      "agreeItem2": "Для дополнительных цепочек, которые предоставляет ShapeShift Multichain Snap, в MetaMask поддерживается только счет №1",
+      "agreeItem3": "Для использования существующих цепочек Ethereum, предоставляемых MetaMask, необходимо подключить к ShapeShift в MetaMask счет №1",
+      "agreeItem4": "Включая ShapeShift Multichain Snap, вы подтверждаете, что используете его на свой страх и риск",
+      "readAndUnderstood": "Я ознакомился и понимаю",
+      "seedBackedUp": "Я создал резервную копию своей начальной фразы MetaMask",
+      "acceptInstall": "Подтвердить и установить"
+    },
     "coinbase": {
       "errors": {
         "unknown": "Возникла непредвиденная ошибка при взаимодействии с Coinbase",
@@ -1689,17 +1737,21 @@
       },
       "header": {
         "connectDapp": "Подключить dApp",
-        "connectedDapp": "Подключенная dApp",
+        "connectAnotherDapp": "Подключить другой dApp",
+        "connectedDapp": "Подключенные dApp(ы)",
+        "staleDapp": "Устаревшие dApp(ы)",
         "menu": {
           "disconnect": "Отключить",
-          "address": "Адрес",
+          "reconnect": "Переподключить",
           "addresses": "Адреса",
+          "address": "Адрес",
           "connected": "Подключено",
-          "network": "Сеть",
-          "networks": "Сеть",
+          "networks": "Сеть (сети)",
           "unsupportedNetwork": "Неподдерживаемая сеть",
           "expiry": "Истечение срока действия сессии"
-        }
+        },
+        "multipleSessionsConnected": "%{count} подключенных dApps",
+        "clickToManage": "Нажмите для настройки"
       },
       "modal": {
         "title": "WalletConnect",
@@ -1990,7 +2042,8 @@
     "attributes": "Атрибуты",
     "aboutCollection": "О %{collectionName}",
     "emptyTitle": "Куда делись все NFT?",
-    "emptyBody": "Не волнуйтесь, мы отправили поисковую группу, чтобы вернуть больше удивительных NFT. А тем временем, не стесняйтесь смотреть на это пустое место и размышлять о смысле существования."
+    "emptyBody": "Не волнуйтесь, мы отправили поисковую группу, чтобы вернуть больше удивительных NFT. А тем временем, не стесняйтесь смотреть на это пустое место и размышлять о смысле существования.",
+    "reportSpam": "Сообщить о спаме"
   },
   "missions": {
     "subtitle": "Миссии FOX",
@@ -2034,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "Покупайте, продавайте, торгуйте, зарабатывайте и многое другое",
       "title": "Заработать FOX",
+      "cta": "Начать миссию"
+    },
+    "snapfoxatar": {
+      "title": "Разблокировать биткоин с помощью MetaMask",
+      "subtitle": "Сминтить скин FOXatar на Metamask ",
       "cta": "Начать миссию"
     }
   },

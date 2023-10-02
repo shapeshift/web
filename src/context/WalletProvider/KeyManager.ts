@@ -4,7 +4,6 @@ export enum KeyManager {
   KeepKey = 'keepkey',
   MetaMask = 'metamask',
   Demo = 'demo',
-  WalletConnect = 'walletconnect',
   XDefi = 'xdefi',
   Keplr = 'keplr',
   Coinbase = 'coinbase',

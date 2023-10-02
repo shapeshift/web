@@ -61,7 +61,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
   const isLoaded = !!marketData
 
   return (
-    <Card variant='outline'>
+    <Card variant='dashboard'>
       <CardHeader>
         <Heading as='h5'>{translate('assets.assetDetails.assetHeader.marketData')}</Heading>
       </CardHeader>

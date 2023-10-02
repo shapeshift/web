@@ -102,22 +102,26 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       if (shouldRefetchIdleOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
-            {
-              accountId,
-              defiProvider: DefiProvider.Idle,
-              defiType: DefiType.Staking,
-            },
+            [
+              {
+                accountId,
+                defiProvider: DefiProvider.Idle,
+                defiType: DefiType.Staking,
+              },
+            ],
             { forceRefetch: true },
           ),
         )
       } else if (shouldRefetchCosmosSdkOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
-            {
-              accountId,
-              defiProvider: DefiProvider.CosmosSdk,
-              defiType: DefiType.Staking,
-            },
+            [
+              {
+                accountId,
+                defiProvider: DefiProvider.CosmosSdk,
+                defiType: DefiType.Staking,
+              },
+            ],
             { forceRefetch: true },
           ),
         )
@@ -127,11 +131,13 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         waitForSaversUpdate(txid).promise.then(() => {
           dispatch(
             getOpportunitiesUserData.initiate(
-              {
-                accountId,
-                defiProvider: DefiProvider.ThorchainSavers,
-                defiType: DefiType.Staking,
-              },
+              [
+                {
+                  accountId,
+                  defiProvider: DefiProvider.ThorchainSavers,
+                  defiType: DefiType.Staking,
+                },
+              ],
               { forceRefetch: true },
             ),
           )

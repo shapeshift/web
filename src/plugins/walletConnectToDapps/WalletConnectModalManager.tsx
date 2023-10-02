@@ -1,6 +1,7 @@
 import {
   HStack,
   Modal,
+  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
@@ -238,7 +239,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   if (modalContent === null) return null
 
   return (
-    <Modal isOpen={!!activeModal} onClose={handleClose} variant='header-nav'>
+    <Modal
+      isOpen={!!activeModal}
+      onClose={handleClose}
+      variant='header-nav'
+      scrollBehavior='inside'
+      preserveScrollBarGap={true}
+    >
       <ModalOverlay />
       <ModalContent
         width='full'
@@ -253,9 +260,11 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>
-        <VStack p={6} spacing={6} alignItems='stretch'>
-          {modalContent}
-        </VStack>
+        <ModalBody p={0}>
+          <VStack p={6} spacing={6} alignItems='stretch'>
+            {modalContent}
+          </VStack>
+        </ModalBody>
       </ModalContent>
     </Modal>
   )

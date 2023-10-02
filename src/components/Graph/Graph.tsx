@@ -15,16 +15,24 @@ type GraphProps = {
   loading?: boolean
   color: string
   isRainbowChart?: boolean
+  hideAxis?: boolean
 }
 
 const margin = {
-  top: 16,
+  top: 8,
   right: 0,
-  bottom: 32,
+  bottom: 8,
   left: 0,
 }
 
-export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, isRainbowChart }) => {
+export const Graph: React.FC<GraphProps> = ({
+  data,
+  isLoaded,
+  loading,
+  color,
+  isRainbowChart,
+  hideAxis,
+}) => {
   const { total, rainbow } = data
   const renderGraph = useCallback(
     ({ height, width }: ParentSizeProvidedProps) => {
@@ -44,11 +52,18 @@ export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, is
             data={rainbow}
           />
         ) : (
-          <PrimaryChart height={height} width={width} color={color} margin={margin} data={total} />
+          <PrimaryChart
+            height={height}
+            width={width}
+            color={color}
+            margin={margin}
+            data={total}
+            hideAxis={hideAxis}
+          />
         )
       ) : null
     },
-    [color, data, isLoaded, isRainbowChart, loading, rainbow, total],
+    [color, data, hideAxis, isLoaded, isRainbowChart, loading, rainbow, total],
   )
   return <ParentSize debounceTime={10}>{renderGraph}</ParentSize>
 }

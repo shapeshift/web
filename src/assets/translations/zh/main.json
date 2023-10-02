@@ -4,6 +4,7 @@
     "balance": "余额",
     "next": "下一个",
     "error": "错误",
+    "show": "显示",
     "cancel": "取消",
     "close": "关闭",
     "loadMore": "加载更多",
@@ -109,7 +110,10 @@
     "feedbackAndSupport": "反馈与支持",
     "getSupport": "获得支持",
     "viewMyWallet": "查看我的钱包",
-    "submitFeatureRequest": "提交功能请求"
+    "submitFeatureRequest": "提交功能请求",
+    "learnMore": "了解更多",
+    "showAll": "显示全部",
+    "showLess": "显示较少"
   },
   "consentBanner": {
     "body": {
@@ -229,7 +233,10 @@
     "body2": "欢迎使用新的 ShapeShift。100% 免费、开源化、社区所有、非监管和隐私的。",
     "header": "请连接钱包以开始",
     "cta": "连接钱包",
-    "viewADemo": "查看演示"
+    "viewADemo": "查看演示",
+    "dontHaveWallet": "没有钱包？",
+    "welcomeBack": "欢迎回来！",
+    "welcomeBody": "连接钱包就像“登录”一样。从选项中选择你的钱包即可开始。"
   },
   "connectWallet": {
     "menu": {
@@ -536,6 +543,7 @@
     "trade": "交易",
     "amount": "数量",
     "for": "对于",
+    "emptyMessage": "你的 %{status} 交易将显示在此处。",
     "parser": {
       "weth": {
         "deposit": "充值",
@@ -597,6 +605,7 @@
       },
       "swap": {
         "deposit": "兑换",
+        "streamingSwap": "Streaming 兑换",
         "out": "兑换",
         "refund": "退款",
         "outbound": "出站"
@@ -676,6 +685,8 @@
     "approvingAsset": "授权 %{symbol}",
     "viewTransaction": "查看交易",
     "unlimited": "无限的",
+    "streamStatus": "Stream 状态",
+    "swapsFailed": "%{failedSwaps} 兑换失败",
     "exact": "精确的",
     "expectedAmount": "预计数量",
     "beforeFees": "费用前",
@@ -766,8 +777,11 @@
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
     "receiveAddress": "接收地址",
+    "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
+    "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
-    "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？"
+    "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
+    "enableMetaMaskSnap": "使用多链 snap"
   },
   "modals": {
     "popup": {
@@ -1261,8 +1275,39 @@
       }
     },
     "metaMaskSnap": {
+      "title": "MetaMask 现已提供多链支持！",
+      "subtitle": "在 Metamask 上添加多链 Snap，发送、接收、跟踪、交易和赚取收益可通过一下链：",
+      "multiChainSnap": "多链 Snap",
+      "active": "活跃",
+      "notActive": "不活跃",
+      "addSnap": "添加 Snap",
       "uninstall": {
-      }
+        "title": "你已从 MetaMask 中删除了多链支持！",
+        "subtitle": "在 MetaMask 上重新添加多链 Snap，发送、接收、跟踪、交易和赚取收益可通过以下链："
+      },
+      "secondaryTitle": "MetaMask 的最佳多链体验：由 ShapeShift 提供支持",
+      "secondaryBody": "使用 ShapeShift Multichain Snap 发送、接收、跟踪、交易和赚取收益在以下链：",
+      "connectMetaMask": "连接 MetaMask",
+      "andMore": "...和更多",
+      "snapInstalledToast": "ShapeShift 多链 MetaMask Snap 已安装 ",
+      "snapUninstalledToast": "ShapeShift 多链 MetaMask Snap 已卸载"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "安装多链 Snap",
+      "warningExperimental": "ShapeShift 多链 Snap 是一项新的实验性功能，“按原样”提供",
+      "warningBackup": "确保你已备份 MetaMask 助记词。你使用此 Snap 发送到非 EVM 链的任何资金都将直接到你在MetaMask 设置的默认帐户。",
+      "agreeIntro": "在继续之前，请阅读以下内容：",
+      "agreeItem1Parts": {
+        "1": "硬件钱包是",
+        "2": "不",
+        "3": "支持的"
+      },
+      "agreeItem2": "只有 MetaMask 中的账户 #1支持ShapeShift 多链Snap 提供的额外链",
+      "agreeItem3": "要使用 MetaMask 提供的现有以太坊链，您必须将帐户 #1 连接到 MetaMask 中的 ShapeShift",
+      "agreeItem4": "启用 ShapeShift Multichain Snap 即表示你承认使用它的风险由你自行承担",
+      "readAndUnderstood": "我已阅读并理解",
+      "seedBackedUp": "我已备份我的 MetaMask 助记词",
+      "acceptInstall": "确认并安装"
     },
     "coinbase": {
       "errors": {
@@ -1692,14 +1737,21 @@
       },
       "header": {
         "connectDapp": "连接 dApp",
+        "connectAnotherDapp": "连接另一个 dApp",
+        "connectedDapp": "已连接的 dApp(s)",
+        "staleDapp": "过时的 dApp(s)",
         "menu": {
           "disconnect": "断开",
+          "reconnect": "重新连接",
           "addresses": "地址",
           "address": "地址",
           "connected": "已连接",
+          "networks": "网络",
           "unsupportedNetwork": "不支持的网络",
           "expiry": "会话到期"
-        }
+        },
+        "multipleSessionsConnected": "已连接 %{count} 个 dApp",
+        "clickToManage": "点击管理"
       },
       "modal": {
         "title": "钱包连接",
@@ -1990,7 +2042,8 @@
     "attributes": "属性",
     "aboutCollection": "关于 %{collectionName}",
     "emptyTitle": "所有的 NFT 都去哪儿了？",
-    "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。"
+    "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
+    "reportSpam": "举报垃圾信息"
   },
   "missions": {
     "subtitle": "FOX 任务",
@@ -2034,6 +2087,11 @@
     "foxRewards": {
       "subtitle": "购买、出售、交易、赚取等等",
       "title": "赚取FOX",
+      "cta": "开始任务"
+    },
+    "snapfoxatar": {
+      "title": "使用 MetaMask 解锁比特币",
+      "subtitle": "打造 Metamask FOXatar 皮肤",
       "cta": "开始任务"
     }
   },

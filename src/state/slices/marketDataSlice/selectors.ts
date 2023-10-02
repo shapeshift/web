@@ -86,6 +86,7 @@ export const selectMarketDataByFilter = createCachedSelector(
 
 export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
+export const selectIsMarketDataLoaded = (state: ReduxState) => state.marketData.isMarketDataLoaded
 
 export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
   selectCryptoPriceHistory,

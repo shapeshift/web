@@ -42,7 +42,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {
       return (
-        <Card variant='outline'>
+        <Card variant='dashboard'>
           <CardBody>
             {(() => {
               if (!(includeEarnBalances || includeRewardsBalances)) return null

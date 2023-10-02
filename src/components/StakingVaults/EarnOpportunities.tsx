@@ -100,14 +100,14 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   if (allRows.length === 0) return null
 
   return (
-    <Card variant='outline'>
+    <Card variant='dashboard'>
       <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>
             <Heading as='h5'>
               <Text translation='navBar.defi' />
             </Heading>
-            <Text color='text.subtle' translation='defi.earnBody' />
+            <Text color='text.subtle' translation='defi.earnBody' fontWeight='normal' />
           </Box>
           <Box flex={1} textAlign='right'>
             <Button

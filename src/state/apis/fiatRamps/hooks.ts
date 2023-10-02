@@ -11,9 +11,10 @@ export const useFetchFiatAssetMarketData = (): void => {
   useEffect(() => {
     const timeframe = HistoryTimeframe.DAY
     const assetIds = Object.keys(data?.byAssetId ?? {})
-    assetIds.forEach(assetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
-    })
+
+    if (assetIds.length > 0) {
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetIds.initiate({ assetIds, timeframe }))
+      dispatch(marketApi.endpoints.findByAssetIds.initiate(assetIds))
+    }
   }, [data, dispatch])
 }

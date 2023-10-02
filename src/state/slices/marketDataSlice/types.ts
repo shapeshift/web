@@ -20,6 +20,7 @@ export type CryptoMarketDataState = MarketDataStateVariant<AssetId>
 export type MarketDataState = {
   crypto: CryptoMarketDataState
   fiat: FiatMarketDataState
+  isMarketDataLoaded: boolean
 }
 
-export type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
+export type FindPriceHistoryByAssetIdArgs = { assetIds: AssetId[]; timeframe: HistoryTimeframe }

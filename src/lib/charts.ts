@@ -4,11 +4,17 @@ import sortedIndexBy from 'lodash/sortedIndexBy'
 import { bnOrZero } from './bignumber/bignumber'
 
 type CalculatePercentChange = (data: HistoryData[]) => number
+type CalculateFiatChange = (data: HistoryData[]) => number
 
 export const calculatePercentChange: CalculatePercentChange = data => {
   const firstPrice = bnOrZero(data?.[0]?.price)
   const lastPrice = bnOrZero(data?.[data.length - 1]?.price)
   return lastPrice.minus(firstPrice).div(firstPrice.abs()).times(100).decimalPlaces(2).toNumber()
+}
+export const calculateFiatChange: CalculateFiatChange = data => {
+  const firstPrice = bnOrZero(data?.[0]?.price)
+  const lastPrice = bnOrZero(data?.[data.length - 1]?.price)
+  return lastPrice.minus(firstPrice).toNumber()
 }
 
 type PriceAtDateArgs = {

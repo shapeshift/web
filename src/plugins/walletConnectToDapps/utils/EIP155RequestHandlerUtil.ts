@@ -55,7 +55,7 @@ export const approveEIP155Request = async ({
   switch (request.method) {
     case EIP155_SigningMethod.PERSONAL_SIGN:
     case EIP155_SigningMethod.ETH_SIGN: {
-      const message = getSignParamsMessage(request.params)
+      const message = getSignParamsMessage(request.params, false)
       const messageToSign = { addressNList, message }
       const input = { messageToSign, wallet }
       const signedMessage = await chainAdapter.signMessage(input)
@@ -107,7 +107,8 @@ export const approveEIP155Request = async ({
         txToSign,
         wallet,
       })
-      return formatJsonRpcResult(id, signedTx)
+      const txHash = await chainAdapter.broadcastTransaction(signedTx)
+      return formatJsonRpcResult(id, txHash)
     }
 
     case EIP155_SigningMethod.ETH_SIGN_TRANSACTION: {

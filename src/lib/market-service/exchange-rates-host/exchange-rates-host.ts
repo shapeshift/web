@@ -1,11 +1,13 @@
 import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import axios from 'axios'
+import Axios from 'axios'
+import { setupCache } from 'axios-cache-interceptor'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { FiatMarketService } from '../api'
+import { DEFAULT_CACHE_TTL_MS } from '../config'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -14,6 +16,8 @@ import type {
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
 const baseCurrency = 'USD'
+
+const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export const makeExchangeRateRequestUrls = (
   start: Dayjs,

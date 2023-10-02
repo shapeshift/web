@@ -2,7 +2,7 @@ import { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { getConfig } from 'config'
 import type { Chain } from 'viem/chains'
-import { avalanche, arbitrum, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
+import { arbitrum, avalanche, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 

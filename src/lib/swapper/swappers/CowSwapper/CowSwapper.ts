@@ -1,6 +1,7 @@
 import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
+import { isHexString } from 'ethers/lib/utils.js'
 import type { Asset } from 'lib/asset-service'
 import type {
   BuyAssetBySellIdInput,
@@ -29,6 +30,9 @@ export const cowSwapper: Swapper = {
     const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
     // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
     const messageToSign = orderDigest
+
+    if (!isHexString(messageToSign)) throw new Error('messageToSign is not an hex string')
+
     // TODO: signMessage here, as well as ethSignMessage in hdwallet should all expect an hex string as `message` and guard at types/runtime level against
     // the wrong `message` (i.e args.data) being passed
     const signatureOrderDigest = await signMessage(messageToSign)

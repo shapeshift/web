@@ -7832,6 +7832,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-core@npm:1.50.10":
+  version: 1.50.10
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.10"
+  dependencies:
+    "@shapeshiftoss/proto-tx-builder": ^0.8.0
+    eip-712: ^1.0.0
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: f092f731feaa7d729c73ba43b2d3a5828d9f41ec774f9e3ba40ecd870134afb409c3d1184247cb30cba95cf60775d4b64d4b654270d1de7cf16d15af325750c8
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-core@npm:1.50.4, @shapeshiftoss/hdwallet-core@npm:^1.50.4":
   version: 1.50.4
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.4"
@@ -7857,20 +7871,6 @@ __metadata:
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   checksum: 98d5eac360bf95376adf07802df4b8516ffa937a24a43a17a4cd9d8a9df6f68423ac880fac5007946dcf23b78a1cb5698cc17780b8e85e9e2c56a1495e1a37b5
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:^1.50.9":
-  version: 1.50.10
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.10"
-  dependencies:
-    "@shapeshiftoss/proto-tx-builder": ^0.8.0
-    eip-712: ^1.0.0
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: f092f731feaa7d729c73ba43b2d3a5828d9f41ec774f9e3ba40ecd870134afb409c3d1184247cb30cba95cf60775d4b64d4b654270d1de7cf16d15af325750c8
   languageName: node
   linkType: hard
 
@@ -8001,14 +8001,14 @@ __metadata:
   linkType: hard
 
 "@shapeshiftoss/hdwallet-walletconnectv2@file:../shapeshiftHdWallet/packages/hdwallet-walletconnectV2::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
-  version: 1.50.9
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@file:../shapeshiftHdWallet/packages/hdwallet-walletconnectV2#../shapeshiftHdWallet/packages/hdwallet-walletconnectV2::hash=c37ce9&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  version: 1.50.10
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@file:../shapeshiftHdWallet/packages/hdwallet-walletconnectV2#../shapeshiftHdWallet/packages/hdwallet-walletconnectV2::hash=b818f7&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.50.9
+    "@shapeshiftoss/hdwallet-core": 1.50.10
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 30c7c455f7c1661b4409f8a18fd256574e9726e1ac9f605f2fc0f011aabbe446882741e12433905d43c1429bfd39d0f052c4888a792051a3c851cbbb5f735e12
+  checksum: fecbe8abed494b73d545c07cb167a8f9bcc73fea6fa18c5b150e081c3ec1ee3e171652bc69caea615c675b52c58a39f7e3ff6efdfc750e2480b6acc6b219452d
   languageName: node
   linkType: hard
 

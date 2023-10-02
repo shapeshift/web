@@ -31,6 +31,8 @@ type FeeInputProps = {
   value?: string | number | null
 }
 
+const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
+
 export const FeeInput: React.FC<FeeInputProps> = ({ isFiat, onChange, value }) => {
   const amountRef = useRef<string | null>(null)
   const {
@@ -53,7 +55,7 @@ export const FeeInput: React.FC<FeeInputProps> = ({ isFiat, onChange, value }) =
     <NumberFormat
       customInput={CryptoInput}
       isNumericString={true}
-      _disabled={{ opacity: 1, cursor: 'not-allowed' }}
+      _disabled={numberFormatDisabled}
       suffix={isFiat ? localeParts.postfix : ''}
       prefix={isFiat ? localeParts.prefix : ''}
       decimalSeparator={localeParts.decimal}

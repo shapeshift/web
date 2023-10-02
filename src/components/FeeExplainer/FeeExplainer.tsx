@@ -213,7 +213,6 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
   setTradeSize,
   foxHolding,
   setFoxHolding,
-  currentFoxHoldings,
 }) => {
   return (
     <VStack height='100%' spacing={12} mb={8}>

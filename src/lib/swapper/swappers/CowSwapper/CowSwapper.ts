@@ -33,8 +33,6 @@ export const cowSwapper: Swapper = {
 
     if (!isHexString(messageToSign)) throw new Error('messageToSign is not an hex string')
 
-    // TODO: signMessage here, as well as ethSignMessage in hdwallet should all expect an hex string as `message` and guard at types/runtime level against
-    // the wrong `message` (i.e args.data) being passed
     const signatureOrderDigest = await signMessage(messageToSign)
 
     // Passing the signature through split/join to normalize the `v` byte.

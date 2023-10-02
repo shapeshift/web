@@ -25,7 +25,7 @@ import {
 } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -35,8 +35,6 @@ import { isSome } from 'lib/utils'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
-
-import { FeeInput } from './components/FeeInput'
 
 type FeeChartProps = {
   tradeSize: number

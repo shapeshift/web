@@ -274,24 +274,23 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
-  const { feeBps, feeUsd, feeUsdDiscount, foxDiscountPercent } = calculateFees({
+  const { feeBps, feeUsd, foxDiscountPercent } = calculateFees({
     tradeAmountUsd: bn(tradeSize),
     foxHeld: bn(foxHolding),
   })
-  const totalFee = useMemo(() => feeUsd.minus(feeUsdDiscount), [feeUsd, feeUsdDiscount])
   return (
     <Stack>
       <Flex gap={4}>
         <Card flex={1}>
           <CardBody>
-            {totalFee.lte(0) ? (
+            {feeUsd.lte(0) ? (
               <RawText fontSize='3xl' color={'green.500'}>
                 Free
               </RawText>
             ) : (
               <Amount.Fiat
                 fontSize='3xl'
-                value={totalFee.lte(0) ? '0' : totalFee.toFixed(2)}
+                value={feeUsd.lte(0) ? '0' : feeUsd.toFixed(2)}
                 color={'green.500'}
               />
             )}

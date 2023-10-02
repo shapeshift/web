@@ -315,6 +315,8 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
   )
 }
 
+const feeExplainerCardBody = { base: 4, md: 8 }
+
 export const FeeExplainer = () => {
   const [tradeSize, setTradeSize] = useState(0)
   const [foxHolding, setFoxHolding] = useState(0)
@@ -328,7 +330,7 @@ export const FeeExplainer = () => {
 
   return (
     <Card flexDir='column-reverse' maxWidth='600px' width='full' mx='auto'>
-      <CardBody flex='1' p={{ base: 4, md: 8 }}>
+      <CardBody flex='1' p={feeExplainerCardBody}>
         <Heading as='h5'>Calculate your FOX Savings</Heading>
         <RawText color='text.subtle'>
           Something about savings, put good copy in here that doesn't suck.

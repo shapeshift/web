@@ -3,7 +3,11 @@ import {
   Card,
   CardBody,
   Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
   Heading,
+  Input,
   Slider,
   SliderFilledTrack,
   SliderMark,
@@ -11,7 +15,7 @@ import {
   SliderTrack,
   Stack,
   Text,
-  useColorModeValue,
+  useToken,
   VStack,
 } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
@@ -83,14 +87,17 @@ const lineProps = {
   stroke: foxBlue,
 }
 
-const labelProps = (fill: string) => ({ fill, fontSize: 16, fontWeight: 'bold' })
+const labelProps = (fill: string) => ({ fill, fontSize: 12, fontWeight: 'bold' })
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   const xScale = { type: 'linear' as const }
   const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
   const width = 450
   const height = 400
-  const fill = useColorModeValue('gray.800', 'white')
+  const textColor = useToken('colors', 'text.subtle')
+  const borderColor = useToken('colors', 'border.base')
+  const circleBg = useToken('colors', 'blue.500')
+  const circleStroke = useToken('colors', 'text.base')
 
   const [debouncedFoxHolding, setDebouncedFoxHolding] = useState(foxHolding)
 
@@ -136,18 +143,32 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
         <AnimatedAxis
           orientation='bottom'
           numTicks={4}
-          tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
+          tickLabelProps={() => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' })}
           tickFormat={x => `$${formatMetricSuffix(x)}`}
           label='Trade Size ($)'
-          labelProps={labelProps(fill)}
+          labelProps={labelProps(textColor)}
+          stroke={borderColor}
+          tickStroke={borderColor}
         />
         <AnimatedAxis
           orientation='left'
           label='Fee (bps)'
-          labelProps={labelProps(fill)}
+          labelProps={labelProps(textColor)}
           labelOffset={30}
           numTicks={FEE_CURVE_MAX_FEE_BPS / 7}
-          tickLabelProps={() => ({ fill, fontSize: 16, fontWeight: 'bold' })}
+          tickLabelProps={() => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' })}
+          stroke={borderColor}
+          tickStroke={borderColor}
+        />
+
+        <AnimatedAreaSeries
+          {...accessors}
+          dataKey='Line 1'
+          data={data}
+          lineProps={lineProps}
+          fill='url(#area-gradient)'
+          fillOpacity={0.1}
+          strokeWidth={2}
         />
         <AnimatedGlyphSeries
           {...accessors}
@@ -158,21 +179,12 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
               cx={x}
               cy={y}
               r={6} // radius
-              stroke='#3761F9' // stroke color
-              strokeWidth={2} // stroke width
-              fill='none'
+              strokeWidth={4} // stroke width
+              stroke={circleStroke}
+              fill={circleBg}
             />
           )}
           /* additional styling here */
-        />
-        <AnimatedAreaSeries
-          {...accessors}
-          dataKey='Line 1'
-          data={data}
-          lineProps={lineProps}
-          fill='url(#area-gradient)'
-          fillOpacity={0.1}
-          strokeWidth={2}
         />
 
         <Tooltip renderTooltip={renderTooltip} />
@@ -186,11 +198,13 @@ type FeeSlidersProps = {
   setTradeSize: (val: number) => void
   foxHolding: number
   setFoxHolding: (val: number) => void
+  currentFoxHoldings: string
 }
 
 const labelStyles = {
   fontSize: 'sm',
   mt: '2',
+  ml: '-2.5',
   color: 'text.subtle',
 }
 
@@ -199,6 +213,7 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
   setTradeSize,
   foxHolding,
   setFoxHolding,
+  currentFoxHoldings,
 }) => {
   return (
     <VStack height='100%' spacing={12} mb={8}>
@@ -209,17 +224,14 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
         </Flex>
         <Box width='100%'>
           <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
-            <SliderMark value={0} {...labelStyles}>
-              $0.00
+            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
+              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
             </SliderMark>
-            <SliderMark value={100_000} {...labelStyles}>
-              $100k
+            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.5} {...labelStyles}>
+              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.5} abbreviated />
             </SliderMark>
-            <SliderMark value={150_000} {...labelStyles}>
-              $150k
-            </SliderMark>
-            <SliderMark value={250_000} {...labelStyles}>
-              $250k
+            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.8} {...labelStyles}>
+              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.8} abbreviated={true} />
             </SliderMark>
             <SliderTrack>
               <SliderFilledTrack />
@@ -273,16 +285,24 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
     tradeAmountUsd: bn(tradeSize),
     foxHeld: bn(foxHolding),
   })
+  const totalFee = useMemo(() => feeUsd.minus(feeUsdDiscount), [feeUsd, feeUsdDiscount])
   return (
     <Stack>
-      <RawText color='text.subtle'>
-        Fee ${feeUsd.toFixed(2)} ({feeBps.toFixed(2)} bps)
-      </RawText>
       <Flex gap={4}>
         <Card flex={1}>
           <CardBody>
-            <Amount.Fiat fontSize='3xl' value={feeUsdDiscount.toFixed(2)} color={'green.500'} />
-            <RawText color='text.subtle'>FOX Holder Savings</RawText>
+            {totalFee.lte(0) ? (
+              <RawText fontSize='3xl' color={'green.500'}>
+                Free
+              </RawText>
+            ) : (
+              <Amount.Fiat
+                fontSize='3xl'
+                value={totalFee.lte(0) ? '0' : totalFee.toFixed(2)}
+                color={'green.500'}
+              />
+            )}
+            <RawText color='text.subtle'>Total Fees</RawText>
           </CardBody>
         </Card>
         <Card flex={1}>
@@ -296,6 +316,9 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
           </CardBody>
         </Card>
       </Flex>
+      <RawText color='text.subtle' fontSize='sm' textAlign='center'>
+        Fee before discount: ${feeUsd.toFixed(2)} ({feeBps.toFixed(2)} bps)
+      </RawText>
     </Stack>
   )
 }
@@ -305,7 +328,7 @@ export const FeeExplainer = () => {
   const [foxHolding, setFoxHolding] = useState(0)
 
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
-  const { data } = useGetVotingPowerQuery(walletAccountIds)
+  const { data: currentFoxHoldings } = useGetVotingPowerQuery(walletAccountIds)
   const onHover = (hoverTradeSize: number, hoverFoxHolding: number) => {
     setTradeSize(hoverTradeSize)
     setFoxHolding(hoverFoxHolding)
@@ -318,15 +341,16 @@ export const FeeExplainer = () => {
         <RawText color='text.subtle'>
           Something about savings, put good copy in here that doesn't suck.
         </RawText>
-        <RawText color='text.subtle'>FOX voting power {data} FOX</RawText>
+        <RawText color='text.subtle'>FOX voting power {currentFoxHoldings} FOX</RawText>
         <Stack spacing={4} mt={6}>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
           <FeeSliders
             tradeSize={tradeSize}
             setTradeSize={setTradeSize}
             foxHolding={foxHolding}
             setFoxHolding={setFoxHolding}
+            currentFoxHoldings={currentFoxHoldings ?? '0'}
           />
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
         </Stack>
       </CardBody>
       <Flex flex='1' justifyContent='center' alignItems='center'>

@@ -164,8 +164,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // once portfolio is done loading, fetch fox voting power
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
-    dispatch(snapshotApi.endpoints.getVotingPower.initiate(requestedAccountIds))
-  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
+    dispatch(snapshotApi.endpoints.getVotingPower.initiate())
+  }, [dispatch, portfolioLoadingStatus])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

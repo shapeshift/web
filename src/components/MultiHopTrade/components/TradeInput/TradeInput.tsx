@@ -26,7 +26,6 @@ import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
-import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getSwapperSupportsSlippage } from 'components/MultiHopTrade/components/TradeInput/getSwapperSupportsSlippage'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
@@ -45,7 +44,6 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import {
   selectSwappersApiTradeQuotePending,
@@ -66,7 +64,7 @@ import {
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectQuoteDonationAmountUserCurrency,
+  selectQuoteFeeAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -111,7 +109,7 @@ export const TradeInput = memo(() => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
-  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -154,7 +152,7 @@ export const TradeInput = memo(() => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
-  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteFeeAmountUserCurrency)
   const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
@@ -244,19 +242,21 @@ export const TradeInput = memo(() => {
     [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
-  const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (applyThorSwapAffiliateFees && activeSwapperName === SwapperName.Thorchain && activeQuote) {
-      return {
-        shapeShiftFee: {
+  const shapeShiftFee = useMemo(() => {
+    if (activeQuote) {
+      if (isFoxDiscountsEnabled) {
+        return {
           amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
           amountBps: activeQuote.affiliateBps ?? '0',
-        },
-        donationAmount: undefined,
+        }
+      } else {
+        return {
+          amountFiatPrecision: '0',
+          amountBps: '0',
+        }
       }
     }
-
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
-  }, [applyThorSwapAffiliateFees, activeSwapperName, activeQuote, quoteAffiliateFeeFiatPrecision])
+  }, [activeQuote, isFoxDiscountsEnabled, quoteAffiliateFeeFiatPrecision])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
@@ -288,7 +288,6 @@ export const TradeInput = memo(() => {
                 amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                 protocolFees={totalProtocolFees}
                 shapeShiftFee={shapeShiftFee}
-                donationAmount={donationAmount}
                 slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
               />
@@ -313,11 +312,6 @@ export const TradeInput = memo(() => {
             <Text translation={activeQuoteStatus.quoteStatusTranslation} />
           </Button>
         </Tooltip>
-        {hasUserEnteredAmount &&
-          activeSwapperName !== SwapperName.CowSwap &&
-          (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) && (
-            <DonationCheckbox isLoading={isLoading} />
-          )}
       </CardFooter>
     ),
     [
@@ -327,11 +321,9 @@ export const TradeInput = memo(() => {
       activeQuoteStatus.quoteErrors,
       activeQuoteStatus.quoteStatusTranslation,
       activeSwapperName,
-      applyThorSwapAffiliateFees,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       buyAsset.symbol,
-      donationAmount,
       hasUserEnteredAmount,
       isLoading,
       isModeratePriceImpact,

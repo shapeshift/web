@@ -19,11 +19,11 @@ import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAccountId,
   selectBuyAsset,
-  selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
   selectWillDonate,
 } from 'state/slices/selectors'
@@ -126,7 +126,7 @@ export const useGetTradeQuotes = () => {
 
   const mixpanel = getMixPanel()
 
-  const sellAssetMarketData = useAppSelector(s => selectMarketDataById(s, sellAsset.assetId))
+  const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
 
   const { data: foxHeld, isLoading: isFoxHeldLoading } = useGetVotingPowerQuery()
 
@@ -143,7 +143,7 @@ export const useGetTradeQuotes = () => {
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
         const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
 
-        const tradeAmountUsd = bnOrZero(sellAssetMarketData.price).times(sellAmountCryptoPrecision)
+        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
         const affiliateBps = (() => {
           let affiliateBps = willDonate
             ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(foxHeld) }).feeBps.toFixed(0)
@@ -186,7 +186,6 @@ export const useGetTradeQuotes = () => {
             : setTradeQuoteInput(skipToken)
 
           // If only the affiliateBps or the userSlippageTolerancePercentage changed, we've either:
-          // - toggled the donation checkbox
           // - switched swappers where one has a different default slippageTolerancePercentage
           // In either case, we don't want to reset the selected swapper
           if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
@@ -210,7 +209,6 @@ export const useGetTradeQuotes = () => {
     sellAccountMetadata,
     sellAmountCryptoPrecision,
     sellAsset,
-    sellAssetMarketData,
     foxHeld,
     isFoxHeldLoading,
     tradeQuoteInput,
@@ -219,6 +217,7 @@ export const useGetTradeQuotes = () => {
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentage,
     isFoxDiscountsEnabled,
+    sellAssetUsdRate,
   ])
 
   useEffect(() => {

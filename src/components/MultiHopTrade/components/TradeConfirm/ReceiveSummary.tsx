@@ -40,7 +40,6 @@ type ReceiveSummaryProps = {
   }
   slippageDecimalPercentage: string
   swapperName: string
-  donationAmount?: string
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
@@ -55,7 +54,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     slippageDecimalPercentage,
     swapperName,
     isLoading,
-    donationAmount,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -212,20 +210,18 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 </Skeleton>
               </Row.Value>
             </Row>
-            {donationAmount && donationAmount !== '0' && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.donation')}>
-                  <Row.Label>
-                    <Text translation='trade.donation' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Fiat value={donationAmount} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
+            {/* <Row>
+              <HelperTooltip label={translate('trade.tooltip.donation')}>
+                <Row.Label>
+                  <Text translation='trade.donation' />
+                </Row.Label>
+              </HelperTooltip>
+              <Row.Value>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Fiat value={donationAmount} />
+                </Skeleton>
+              </Row.Value>
+            </Row> */}
             <>
               <Divider borderColor='border.base' />
               <Row>

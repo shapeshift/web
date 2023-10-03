@@ -77,7 +77,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   state,
   dispatch,
 }) => {
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const sessionProposalRef = useRef<SessionProposalRef>(null)
   const { chainAdapter, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
 
@@ -264,6 +264,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     topic,
     web3wallet,
   ])
+
+  // automatically reject requests that are received without wallet connected
+  if (!isConnected) {
+    void handleRejectRequestAndClose()
+    return null
+  }
 
   if (modalContent === null) return null
 

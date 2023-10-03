@@ -8,7 +8,7 @@ export const useIsInteractingWithContract = ({
 }: {
   evmChainId: ChainId | undefined
   address: string | undefined
-}): { isInteractingWithContract: boolean | null } => {
+}): boolean | null => {
   const [isInteractingWithContract, setIsInteractingWithContract] = useState<boolean | null>(null)
   useEffect(() => {
     ;(async () => {
@@ -19,5 +19,5 @@ export const useIsInteractingWithContract = ({
     })()
   }, [address, evmChainId])
 
-  return { isInteractingWithContract }
+  return isInteractingWithContract
 }

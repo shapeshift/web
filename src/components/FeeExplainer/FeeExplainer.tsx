@@ -302,7 +302,7 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 
 export const FeeExplainer = () => {
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
-  const { data: currentFoxHoldings } = useGetVotingPowerQuery(walletAccountIds)
+  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery(walletAccountIds)
   const [tradeSize, setTradeSize] = useState(0)
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
   const translate = useTranslate()
@@ -313,8 +313,9 @@ export const FeeExplainer = () => {
   }
 
   useEffect(() => {
+    if (isLoading) return
     if (currentFoxHoldings) setFoxHolding(Number(currentFoxHoldings))
-  }, [currentFoxHoldings])
+  }, [currentFoxHoldings, isLoading])
 
   return (
     <Card flexDir='column' maxWidth='600px' width='full' mx='auto'>

@@ -45,6 +45,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             min={0}
             max={CHART_TRADE_SIZE_MAX_FOX}
             value={foxHolding}
+            defaultValue={Number(currentFoxHoldings)}
             onChange={setFoxHolding}
           >
             <SliderTrack>

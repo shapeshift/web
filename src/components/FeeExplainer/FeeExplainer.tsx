@@ -1,17 +1,22 @@
+import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
+  Center,
+  Divider,
   Flex,
   Heading,
+  Skeleton,
   Slider,
   SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
   Stack,
-  Text,
+  Tooltip as CKTooltip,
   useToken,
   VStack,
 } from '@chakra-ui/react'
@@ -24,17 +29,16 @@ import {
   AnimatedAreaSeries,
   AnimatedAxis,
   AnimatedGlyphSeries,
-  AnimatedGrid,
   DataContext,
-  Grid,
   Tooltip,
   XYChart,
 } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
@@ -121,7 +125,6 @@ const xScale = { type: 'linear' as const }
 const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
-  const width = 450
   const height = 250
   const textColor = useToken('colors', 'text.subtle')
   const borderColor = useToken('colors', 'border.base')
@@ -257,6 +260,7 @@ type FeeSlidersProps = {
   foxHolding: number
   setFoxHolding: (val: number) => void
   currentFoxHoldings: string
+  isLoading?: boolean
 }
 
 const labelStyles = {
@@ -271,15 +275,19 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
   setTradeSize,
   foxHolding,
   setFoxHolding,
+  isLoading,
+  currentFoxHoldings,
 }) => {
   return (
-    <VStack height='100%' spacing={12} mb={8}>
-      <Stack width='full'>
-        <Flex width='full' justifyContent='space-between'>
-          <Text>FOX Holding</Text>
-          <Amount.Crypto value={foxHolding.toString()} symbol='FOX' />
-        </Flex>
-        <Box width='100%'>
+    <VStack height='100%' spacing={0} mb={8} divider={<Divider />}>
+      <Card width='full' variant='unstyled' boxShadow='none'>
+        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
+          <Text translation='foxDiscounts.foxPower' />
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Crypto value={foxHolding.toString()} symbol='FOX' />
+          </Skeleton>
+        </CardHeader>
+        <CardBody width='100%'>
           <Slider
             min={0}
             max={CHART_TRADE_SIZE_MAX_FOX}
@@ -302,15 +310,25 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
             <SliderMark value={1000000} {...labelStyles}>
               1MM
             </SliderMark>
+            <SliderMark value={Number(currentFoxHoldings)} top='-10px !important' color='blue.500'>
+              <TriangleDownIcon />
+            </SliderMark>
           </Slider>
-        </Box>
-      </Stack>
-      <Stack width='full'>
-        <Flex width='full' justifyContent='space-between'>
-          <RawText>Trade Size</RawText>
+        </CardBody>
+        <CardFooter display='flex' width='full' alignItems='center' justifyContent='space-between'>
+          <Flex gap={2} alignItems='center'>
+            <Center boxSize={2} bg='blue.500' borderRadius='full' />
+            <RawText>Current FOX Power</RawText>
+          </Flex>
+          <Amount.Crypto value={currentFoxHoldings} symbol='FOX' maximumFractionDigits={0} />
+        </CardFooter>
+      </Card>
+      <Card width='full' width='full' variant='unstyled' boxShadow='none'>
+        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
+          <Text translation='foxDiscounts.tradeSize' />
           <Amount.Fiat value={tradeSize} />
-        </Flex>
-        <Box width='100%'>
+        </CardHeader>
+        <CardBody width='100%' pb={8}>
           <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
@@ -326,8 +344,8 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
             </SliderTrack>
             <SliderThumb />
           </Slider>
-        </Box>
-      </Stack>
+        </CardBody>
+      </Card>
     </VStack>
   )
 }
@@ -338,30 +356,25 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
-  const { feeUsd, feeBps, feeUsdDiscount, foxDiscountPercent } = calculateFees({
+  const { feeUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } = calculateFees({
     tradeAmountUsd: bn(tradeSize),
     foxHeld: bn(foxHolding),
   })
-  const feeWithDiscount = useMemo(() => {
-    const discountAmount = bn(feeUsdDiscount).gt(feeUsd) ? feeUsd : feeUsdDiscount
-    return bn(feeUsd).minus(discountAmount)
-  }, [feeUsd, feeUsdDiscount])
+
   return (
     <CardHeader fontWeight='medium' pb={0}>
       <Stack width='full'>
         <Flex gap={4}>
           <Box flex={1} textAlign='center'>
-            <RawText color='text.subtle'>Total Fees</RawText>
-            {feeUsdDiscount.lte(0) ? (
-              <RawText fontSize='3xl' color={'green.500'}>
-                Free
-              </RawText>
+            <Text color='text.subtle' translation='foxDiscounts.totalFee' />
+            {feeUsd.lte(0) ? (
+              <Text fontSize='3xl' translation='common.free' color='green.500' />
             ) : (
-              <Amount.Fiat fontSize='3xl' value={feeWithDiscount.toFixed(2)} color={'green.500'} />
+              <Amount.Fiat fontSize='3xl' value={feeUsd.toFixed(2)} color={'green.500'} />
             )}
           </Box>
           <Box flex={1} textAlign='center'>
-            <RawText color='text.subtle'>FOX Holder Discount</RawText>
+            <Text color='text.subtle' translation='foxDiscounts.foxPowerDiscount' />
             <Amount.Percent
               fontSize='3xl'
               value={foxDiscountPercent.div(100).toNumber()}
@@ -369,12 +382,15 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
             />
           </Box>
         </Flex>
-        <RawText color='text.subtle' fontSize='sm' textAlign='center'>
-          Based on a fee of: ${feeUsd.toFixed(2)} ({feeBps.toFixed(2)} bps)
-        </RawText>
-        <RawText>
-          <Amount.Fiat value={feeUsdDiscount.toFixed(2)} />
-        </RawText>
+        <Text
+          translation={[
+            'foxDiscounts.basedOnFee',
+            { fee: `$${feeUsdBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(2)} bps)` },
+          ]}
+          color='text.subtle'
+          fontSize='sm'
+          textAlign='center'
+        />
       </Stack>
     </CardHeader>
   )
@@ -383,27 +399,38 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
 const feeExplainerCardBody = { base: 4, md: 8 }
 
 export const FeeExplainer = () => {
-  const [tradeSize, setTradeSize] = useState(0)
-  const [foxHolding, setFoxHolding] = useState(0)
-
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
-  const { data: currentFoxHoldings } = useGetVotingPowerQuery(walletAccountIds)
+  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery(walletAccountIds)
+  const [tradeSize, setTradeSize] = useState(0)
+  const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
+  const translate = useTranslate()
+
   const onHover = (hoverTradeSize: number, hoverFoxHolding: number) => {
     setTradeSize(hoverTradeSize)
     setFoxHolding(hoverFoxHolding)
   }
 
+  useEffect(() => {
+    if (currentFoxHoldings) setFoxHolding(Number(currentFoxHoldings))
+  }, [currentFoxHoldings])
+
   return (
     <Card flexDir='column' maxWidth='600px' width='full' mx='auto'>
       <CardBody flex='1' p={feeExplainerCardBody}>
-        <Heading as='h5'>Simulate your FOX Savings</Heading>
-        <RawText color='text.subtle'>
-          Use this handy calculator to determine your total fees and the discount you'll receive on
-          your trade. Simply adjust the sliders below to indicate your FOX holder amount and the
-          trade size in fiat, and watch your potential savings unfold!
-        </RawText>
-        <RawText color='text.subtle'>FOX voting power {currentFoxHoldings} FOX</RawText>
-        <Stack spacing={4} mt={6}>
+        <Heading as='h5'>{translate('foxDiscounts.simulateTitle')}</Heading>
+        <Text color='text.subtle' translation='foxDiscounts.simulateBody' />
+      </CardBody>
+      <CardBody
+        flex='1'
+        flexDir='column'
+        justifyContent='center'
+        alignItems='center'
+        p={feeExplainerCardBody}
+      >
+        <Card>
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
+          <Divider />
           <FeeSliders
             tradeSize={tradeSize}
             setTradeSize={setTradeSize}
@@ -411,12 +438,6 @@ export const FeeExplainer = () => {
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={currentFoxHoldings ?? '0'}
           />
-        </Stack>
-      </CardBody>
-      <CardBody flex='1' flexDir='column' justifyContent='center' alignItems='center' pt={0}>
-        <Card>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
         </Card>
       </CardBody>
     </Card>

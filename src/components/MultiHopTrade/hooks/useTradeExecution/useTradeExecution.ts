@@ -114,7 +114,7 @@ export const useTradeExecution = ({
           stepIndex: activeStepOrDefault,
           slippageTolerancePercentageDecimal,
           from,
-          signMessage: async (message: Uint8Array) => {
+          signMessage: async (message: string) => {
             const messageToSign: ETHSignMessage = {
               addressNList: toAddressNList(bip44Params),
               message,

@@ -181,7 +181,7 @@ export type EvmTransactionExecutionProps = {
 }
 
 export type EvmMessageExecutionProps = {
-  signMessage: (messageToSign: Uint8Array) => Promise<string>
+  signMessage: (messageToSign: string) => Promise<string>
 }
 
 export type UtxoTransactionExecutionProps = {

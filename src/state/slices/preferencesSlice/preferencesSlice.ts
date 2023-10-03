@@ -44,6 +44,7 @@ export type FeatureFlags = {
   WalletConnectV2: boolean
   CustomSendNonce: boolean
   Snaps: boolean
+  FoxDiscounts: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -105,6 +106,7 @@ const initialState: Preferences = {
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
+    FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

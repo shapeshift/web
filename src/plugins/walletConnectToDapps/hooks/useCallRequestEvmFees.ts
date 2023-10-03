@@ -2,7 +2,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/typeGuards'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/types'
 import { getFeesForTx } from 'plugins/walletConnectToDapps/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -14,6 +13,7 @@ import { useAppSelector } from 'state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {
   const [fees, setFees] = useState<FeePrice | undefined>()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { chainAdapter, chainId, accountId, transaction } = useWalletConnectState(state)
 
   const assets = useAppSelector(selectAssets)
@@ -35,7 +35,8 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
     const adapter = getChainAdapterManager().get(chainId)
     if (!(address && chainId && feeAsset && feeAssetPrice && adapter)) return
     ;(async () => {
-      assertIsTransactionParams(transaction)
+      setIsLoading(true)
+
       const estimatedFees = await getFeesForTx(
         transaction,
         adapter as unknown as EvmBaseAdapter<EvmChainId>,
@@ -75,8 +76,9 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
         initialFees,
       )
       setFees(result)
+      setIsLoading(false)
     })()
   }, [accountId, chainId, feeAsset, feeAssetPrice, transaction])
 
-  return { fees, feeAsset, feeAssetPrice }
+  return { isLoading, fees, feeAsset, feeAssetPrice }
 }

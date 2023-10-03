@@ -15,17 +15,36 @@ type CalculateFeeBpsArgs = {
   foxHeld: BigNumber
 }
 
-type CalculateFeeBps = (args: CalculateFeeBpsArgs) => BigNumber
+type CalculateFeeBpsReturn = {
+  feeBps: BigNumber
+  feeUsd: BigNumber
+  feeUsdDiscount: BigNumber
+  foxDiscountPercent: BigNumber
+}
+type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
-export const calculateFeeBps: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }): BigNumber => {
+export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const noFeeThresholdUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
   const maxFeeBps = bn(FEE_CURVE_MAX_FEE_BPS)
   const minFeeBps = bn(FEE_CURVE_MIN_FEE_BPS)
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
-  if (tradeAmountUsd.lte(noFeeThresholdUsd)) return bn(0)
 
-  const sigmoidFee = minFeeBps.plus(
+  const foxDiscountPercent = BigNumber.minimum(
+    bn(100),
+    foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
+  )
+
+  if (tradeAmountUsd.lte(noFeeThresholdUsd)) {
+    return {
+      feeBps: bn(0),
+      feeUsd: bn(0),
+      feeUsdDiscount: bn(0),
+      foxDiscountPercent,
+    }
+  }
+
+  const feeBpsBeforeDiscount = minFeeBps.plus(
     maxFeeBps
       .minus(minFeeBps)
       .div(
@@ -39,9 +58,13 @@ export const calculateFeeBps: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }): B
       ),
   )
 
-  const foxDiscount = foxHeld.div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD))
+  const feeBps = BigNumber.maximum(
+    feeBpsBeforeDiscount.multipliedBy(bn(1).minus(foxDiscountPercent.div(100))),
+    bn(0),
+  )
+  const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))
+  const feeUsdDiscount = feeUsdBeforeDiscount.multipliedBy(foxDiscountPercent.div(100))
+  const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
 
-  const feeBps = sigmoidFee.multipliedBy(bn(1).minus(foxDiscount))
-
-  return BigNumber.maximum(feeBps, bn(0))
+  return { feeBps, feeUsd, feeUsdDiscount, foxDiscountPercent }
 }

@@ -31,6 +31,7 @@ import type {
   EthSignCallRequest,
   EthSignTransactionCallRequest,
   EthSignTypedDataCallRequest,
+  SessionProposalRef,
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
@@ -38,7 +39,7 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from 'plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from 'plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
-import { type Dispatch, type FC, useCallback, useMemo } from 'react'
+import { type Dispatch, type FC, useCallback, useMemo, useRef } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -77,6 +78,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   dispatch,
 }) => {
   const wallet = useWallet().state.wallet
+  const sessionProposalRef = useRef<SessionProposalRef>(null)
   const { chainAdapter, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
 
   const { activeModal, web3wallet } = state
@@ -160,20 +162,47 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       topic,
       response,
     })
+  }, [requestEvent, topic, web3wallet])
+
+  const handleRejectRequestAndClose = useCallback(async () => {
+    switch (activeModal) {
+      case WalletConnectModal.SessionProposal:
+        await sessionProposalRef.current?.handleReject()
+        break
+      case WalletConnectModal.SignEIP155MessageConfirmation:
+      case WalletConnectModal.SignEIP155TypedDataConfirmation:
+      case WalletConnectModal.SignEIP155TransactionConfirmation:
+      case WalletConnectModal.SendEIP155TransactionConfirmation:
+      case WalletConnectModal.SendCosmosTransactionConfirmation:
+        await handleRejectRequest()
+        break
+      case undefined:
+        break
+      default:
+        assertUnreachable(activeModal)
+    }
+
     handleClose()
-  }, [handleClose, requestEvent, topic, web3wallet])
+  }, [activeModal, handleClose, handleRejectRequest])
 
   const modalContent = useMemo(() => {
     if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
-        return <SessionProposalModal onClose={handleClose} dispatch={dispatch} state={state} />
+        return (
+          <SessionProposalModal
+            onClose={handleClose}
+            dispatch={dispatch}
+            state={state}
+            ref={sessionProposalRef}
+          />
+        )
       case WalletConnectModal.SignEIP155MessageConfirmation:
         if (!topic) return null
         return (
           <EIP155SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectRequest}
+            onReject={handleRejectRequestAndClose}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
             topic={topic}
@@ -184,7 +213,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <EIP155SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectRequest}
+            onReject={handleRejectRequestAndClose}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
             topic={topic}
@@ -196,7 +225,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectRequest}
+            onReject={handleRejectRequestAndClose}
             dispatch={dispatch}
             state={
               state as Required<
@@ -211,7 +240,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
-            onReject={handleRejectRequest}
+            onReject={handleRejectRequestAndClose}
             dispatch={dispatch}
             state={
               state as Required<
@@ -230,7 +259,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleClose,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
-    handleRejectRequest,
+    handleRejectRequestAndClose,
     state,
     topic,
     web3wallet,
@@ -241,7 +270,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   return (
     <Modal
       isOpen={!!activeModal}
-      onClose={handleClose}
+      onClose={handleRejectRequestAndClose}
       variant='header-nav'
       scrollBehavior='inside'
       preserveScrollBarGap={true}

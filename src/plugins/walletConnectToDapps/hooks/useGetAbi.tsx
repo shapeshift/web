@@ -48,27 +48,25 @@ export const useGetAbi = (
 
   const sighash = data.substring(0, 10).toLowerCase()
 
-  // check for proxy methods on the root interface
-  let proxyFunctionNameIfExists: string | undefined
-  if (rootContractInterface) {
-    const rootFunctions = Object.values(rootContractInterface.functions)
-    proxyFunctionNameIfExists = Object.values(PROXY_CONTRACT_METHOD_NAME).find(x =>
-      rootFunctions.find(y => y.name === x),
-    )
-  }
-
   useEffect(() => {
+    // check for proxy methods on the root interface
+    let proxyFunctionNameIfExists: string | undefined
+    if (rootContractInterface) {
+      const rootFunctions = Object.values(rootContractInterface.functions)
+      proxyFunctionNameIfExists = Object.values(PROXY_CONTRACT_METHOD_NAME).find(x =>
+        rootFunctions.find(y => y.name === x),
+      )
+    }
+
     ;(async () => {
       let implementationAddress: string | null
       try {
         switch (proxyFunctionNameIfExists) {
           case PROXY_CONTRACT_METHOD_NAME.ZeroEx:
-            console.debug('proxyFunctionName is "getFunctionImplementation"')
             implementationAddress =
               await rootContractWithProvider?.getFunctionImplementation(sighash)
             break
           case PROXY_CONTRACT_METHOD_NAME.EIP1967:
-            console.debug('proxyFunctionName is "implementation"')
             const paddedImplementationAddress = await provider.getStorageAt(
               contractAddress,
               EIP1967_IMPLEMENTATION_SLOT,
@@ -89,14 +87,7 @@ export const useGetAbi = (
         setProxyContractImplementation(null)
       }
     })()
-  }, [
-    rootContractInterface,
-    rootContractWithProvider,
-    sighash,
-    provider,
-    proxyFunctionNameIfExists,
-    contractAddress,
-  ])
+  }, [rootContractInterface, rootContractWithProvider, sighash, provider, contractAddress])
 
   const { data: contractImplementationRawAbiData } = useGetContractAbiQuery(
     proxyContractImplementation ?? skipToken,

@@ -92,6 +92,7 @@ export const mockStore: ReduxState = {
       WalletConnectV2: false,
       CustomSendNonce: false,
       Snaps: false,
+      FoxDiscounts: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

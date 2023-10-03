@@ -18,7 +18,7 @@ import type {
 } from 'plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
-import { type FC, useMemo } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
@@ -26,9 +26,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+
 export const CosmosSignMessageConfirmationModal: FC<
   WalletConnectRequestModalProps<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
-> = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
+> = ({ onConfirm, onReject, state, topic }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
@@ -41,6 +44,18 @@ export const CosmosSignMessageConfirmationModal: FC<
   const WalletIcon = walletInfo?.icon ?? FoxIcon
   const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
+
+  const handleConfirm = useCallback(async () => {
+    setIsLoading(true)
+    await onConfirm()
+    setIsLoading(false)
+  }, [onConfirm])
+
+  const handleReject = useCallback(async () => {
+    setIsLoading(true)
+    await onReject()
+    setIsLoading(false)
+  }, [onReject])
 
   const methodSpecificContent: JSX.Element | null = useMemo(() => {
     if (request?.method === CosmosSigningMethod.COSMOS_SIGN_AMINO) {
@@ -161,11 +176,19 @@ export const CosmosSignMessageConfirmationModal: FC<
           colorScheme='blue'
           type='submit'
           onClick={handleConfirm}
-          isDisabled={true}
+          isDisabled={true} // coming soon
+          _disabled={disabledProp}
+          isLoading={isLoading}
         >
           {translate('plugins.walletConnectToDapps.modal.signMessage.comingSoon')}
         </Button>
-        <Button size='lg' width='full' onClick={handleReject}>
+        <Button
+          size='lg'
+          width='full'
+          onClick={handleReject}
+          isDisabled={isLoading}
+          _disabled={disabledProp}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>

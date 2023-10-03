@@ -240,3 +240,7 @@ export type ConfirmData = {
     priorityFee: string
   }
 }
+
+export type SessionProposalRef = {
+  handleReject: () => Promise<void>
+}

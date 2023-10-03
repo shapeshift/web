@@ -179,7 +179,7 @@ export const arbitrum: AssetWithNetworkName = {
   assetId: caip.arbitrumAssetId,
   chainId: caip.arbitrumChainId,
   name: 'Ethereum',
-  networkName: 'Arbitrum',
+  networkName: 'Arbitrum One',
   symbol: 'ETH',
   precision: 18,
   color: '#5C6BC0',

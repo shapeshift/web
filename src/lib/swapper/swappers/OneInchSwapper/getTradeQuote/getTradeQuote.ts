@@ -12,6 +12,7 @@ import {
   convertBasisPointsToPercentage,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
@@ -35,13 +36,21 @@ export async function getTradeQuote(
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
+  const maybeTreasuryAddress = (() => {
+    try {
+      return getTreasuryAddressFromChainId(buyAsset.chainId)
+    } catch (err) {}
+  })()
+
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
     toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    fee: buyTokenPercentageFee,
+    ...(maybeTreasuryAddress && {
+      fee: buyTokenPercentageFee,
+    }),
   }
 
   const { chainReference } = fromChainId(chainId)

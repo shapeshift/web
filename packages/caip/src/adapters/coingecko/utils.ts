@@ -142,7 +142,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetNamespace: 'erc20',
             assetReference: platforms[CoingeckoAssetPlatform.Arbitrum],
           })
-          prev[gnosisChainId][assetId] = id
+          prev[arbitrumChainId][assetId] = id
         } catch (err) {
           // unable to create assetId, skip token
         }

@@ -6,6 +6,7 @@ export const oneInchSupportedChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
 ] as const
 
 export type OneInchSupportedChainId = (typeof oneInchSupportedChainIds)[number]
@@ -14,17 +15,16 @@ export type OneInchQuoteApiInput = {
   fromTokenAddress: string
   toTokenAddress: string
   amount: string
-  fee: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5
+  fee?: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
 }
 
 // https://docs.1inch.io/docs/aggregation-protocol/api/swap-params/
 export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   slippage: number
   fromAddress: string
-  referrerAddress: string
+  referrerAddress?: string
   allowPartialFill: boolean
   disableEstimate: boolean
-  fee: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
 }
 
 export type OneInchSpenderResponse = {

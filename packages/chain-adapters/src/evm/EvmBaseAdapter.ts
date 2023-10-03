@@ -507,10 +507,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async getAddress(input: GetAddressInput): Promise<string> {
     const { accountNumber, wallet, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
+    console.log({ input, bip44Params })
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),
       showDisplay: showOnDevice,
     })
+
+    console.log({ address })
 
     if (!address) throw new Error('EvmBaseAdapter: no address available from wallet')
 

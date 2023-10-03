@@ -16,7 +16,6 @@ import {
   SliderThumb,
   SliderTrack,
   Stack,
-  Tooltip as CKTooltip,
   useToken,
   VStack,
 } from '@chakra-ui/react'
@@ -323,7 +322,7 @@ const FeeSliders: React.FC<FeeSlidersProps> = ({
           <Amount.Crypto value={currentFoxHoldings} symbol='FOX' maximumFractionDigits={0} />
         </CardFooter>
       </Card>
-      <Card width='full' width='full' variant='unstyled' boxShadow='none'>
+      <Card width='full' variant='unstyled' boxShadow='none'>
         <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
           <Text translation='foxDiscounts.tradeSize' />
           <Amount.Fiat value={tradeSize} />
@@ -400,7 +399,7 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 
 export const FeeExplainer = () => {
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
-  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery(walletAccountIds)
+  const { data: currentFoxHoldings } = useGetVotingPowerQuery(walletAccountIds)
   const [tradeSize, setTradeSize] = useState(0)
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
   const translate = useTranslate()

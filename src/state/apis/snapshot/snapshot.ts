@@ -5,12 +5,12 @@ import snapshot from '@snapshot-labs/snapshot.js'
 import axios from 'axios'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
+import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type { Strategy } from './validators'
 import { SnapshotSchema, VotingPowerSchema } from './validators'
 
-type SnapshotVotingPowerArgs = AccountId[]
 type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
@@ -48,8 +48,10 @@ export const snapshotApi = createApi({
         }
       },
     }),
-    getVotingPower: build.query<FoxVotingPowerCryptoBalance, SnapshotVotingPowerArgs>({
-      queryFn: async (accountIds, { dispatch }) => {
+    getVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
+      queryFn: async (_, { dispatch, getState }) => {
+        const accountIds: AccountId[] =
+          (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
         const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
         const strategies = strategiesResult?.data
         if (!strategies) {
@@ -81,7 +83,6 @@ export const snapshotApi = createApi({
           }),
         )
         const data = BigNumber.sum(...votingPowerResults).toString()
-        console.log('addresses', evmAddresses, 'FOX voting power', data)
         return { data }
       },
     }),

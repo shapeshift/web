@@ -23,8 +23,6 @@ import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
 import { FeeSliders } from './FeeSliders'
@@ -292,8 +290,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
 const feeExplainerCardBody = { base: 4, md: 8 }
 
 export const FeeExplainer = () => {
-  const walletAccountIds = useAppSelector(selectWalletAccountIds)
-  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery(walletAccountIds)
+  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
   const [tradeSize, setTradeSize] = useState(0)
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
   const translate = useTranslate()

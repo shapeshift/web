@@ -1,4 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
@@ -131,7 +132,7 @@ export const useGetTradeQuotes = () => {
   const mixpanel = getMixPanel()
 
   useEffect(() => {
-    if (wallet && sellAccountMetadata && receiveAddress) {
+    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
@@ -154,6 +155,7 @@ export const useGetTradeQuotes = () => {
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
+          pubKey: fromAccountId(sellAccountId).account,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args

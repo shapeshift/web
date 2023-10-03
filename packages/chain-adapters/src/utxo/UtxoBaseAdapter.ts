@@ -230,7 +230,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           : account.chainSpecific.nextReceiveAddressIndex
 
         if (index === undefined)
-          throw new Error(`UtxoBaseAdapter: Could not fetch nextReceiveIndex from unchained`)
+          throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
         if (!account.chainSpecific.addresses)
           throw new Error(`UtxoBaseAdapter: Could not fetch addresses from unchained`)
         const address = account.chainSpecific.addresses[index].pubkey

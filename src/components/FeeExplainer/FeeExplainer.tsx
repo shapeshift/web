@@ -1,23 +1,13 @@
-import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
-  Center,
   Divider,
   Flex,
   Heading,
-  Skeleton,
-  Slider,
-  SliderFilledTrack,
-  SliderMark,
-  SliderThumb,
-  SliderTrack,
   Stack,
   useToken,
-  VStack,
 } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -37,7 +27,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
@@ -45,6 +35,9 @@ import { isSome } from 'lib/utils'
 import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
+
+import { CHART_TRADE_SIZE_MAX_USD } from './common'
+import { FeeSliders } from './FeeSliders'
 
 type FeeChartProps = {
   tradeSize: number
@@ -54,9 +47,6 @@ type FeeChartProps = {
 
 // how many points to generate for the chart, higher is more accurate but slower
 const CHART_GRANULARITY = 100
-const CHART_TRADE_SIZE_MAX_USD = 400_000
-const CHART_TRADE_SIZE_MAX_FOX = 1_100_000 // let them go a bit past a million
-
 // Generate data for tradeSize and foxHolding
 const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
   i => i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
@@ -253,100 +243,13 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   )
 }
 
-type FeeSlidersProps = {
+export type FeeSlidersProps = {
   tradeSize: number
   setTradeSize: (val: number) => void
   foxHolding: number
   setFoxHolding: (val: number) => void
   currentFoxHoldings: string
   isLoading?: boolean
-}
-
-const labelStyles = {
-  fontSize: 'sm',
-  mt: '2',
-  ml: '-2.5',
-  color: 'text.subtle',
-}
-
-const FeeSliders: React.FC<FeeSlidersProps> = ({
-  tradeSize,
-  setTradeSize,
-  foxHolding,
-  setFoxHolding,
-  isLoading,
-  currentFoxHoldings,
-}) => {
-  return (
-    <VStack height='100%' spacing={0} mb={8} divider={<Divider />}>
-      <Card width='full' variant='unstyled' boxShadow='none'>
-        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
-          <Text translation='foxDiscounts.foxPower' />
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value={foxHolding.toString()} symbol='FOX' />
-          </Skeleton>
-        </CardHeader>
-        <CardBody width='100%'>
-          <Slider
-            min={0}
-            max={CHART_TRADE_SIZE_MAX_FOX}
-            value={foxHolding}
-            onChange={setFoxHolding}
-          >
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-            <SliderMark value={250000} {...labelStyles}>
-              250k
-            </SliderMark>
-            <SliderMark value={500000} {...labelStyles}>
-              500k
-            </SliderMark>
-            <SliderMark value={750000} {...labelStyles}>
-              750k
-            </SliderMark>
-            <SliderMark value={1000000} {...labelStyles}>
-              1MM
-            </SliderMark>
-            <SliderMark value={Number(currentFoxHoldings)} top='-10px !important' color='blue.500'>
-              <TriangleDownIcon />
-            </SliderMark>
-          </Slider>
-        </CardBody>
-        <CardFooter display='flex' width='full' alignItems='center' justifyContent='space-between'>
-          <Flex gap={2} alignItems='center'>
-            <Center boxSize={2} bg='blue.500' borderRadius='full' />
-            <RawText>Current FOX Power</RawText>
-          </Flex>
-          <Amount.Crypto value={currentFoxHoldings} symbol='FOX' maximumFractionDigits={0} />
-        </CardFooter>
-      </Card>
-      <Card width='full' variant='unstyled' boxShadow='none'>
-        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
-          <Text translation='foxDiscounts.tradeSize' />
-          <Amount.Fiat value={tradeSize} />
-        </CardHeader>
-        <CardBody width='100%' pb={8}>
-          <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
-            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
-            </SliderMark>
-            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.5} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.5} abbreviated />
-            </SliderMark>
-            <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.8} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.8} abbreviated={true} />
-            </SliderMark>
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
-        </CardBody>
-      </Card>
-    </VStack>
-  )
 }
 
 type FeeOutputProps = {

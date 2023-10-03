@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
+import type { GlyphProps } from '@visx/xychart'
 import {
   AnimatedAreaSeries,
   AnimatedAxis,
@@ -83,7 +84,6 @@ const lineProps = {
   stroke: foxBlue,
 }
 
-const labelProps = (fill: string) => ({ fill, fontSize: 12, fontWeight: 'bold' })
 const xScale = { type: 'linear' as const }
 const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
@@ -138,6 +138,22 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
 
   const tickFormat = useCallback((x: number) => `$${formatMetricSuffix(x)}`, [])
 
+  const labelProps = useCallback((fill: string) => ({ fill, fontSize: 12, fontWeight: 'bold' }), [])
+
+  const renderGlyph = useCallback(
+    ({ x, y }: GlyphProps<{ x: number; y: number }>) => (
+      <circle
+        cx={x}
+        cy={y}
+        r={6} // radius
+        strokeWidth={4} // stroke width
+        stroke={circleStroke}
+        fill={circleBg}
+      />
+    ),
+    [circleBg, circleStroke],
+  )
+
   return (
     <ScaleSVG width={width} height={height}>
       <XYChart xScale={xScale} yScale={yScale} width={width} height={height}>
@@ -175,16 +191,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
           {...accessors}
           dataKey='Current Point'
           data={currentPoint}
-          renderGlyph={({ x, y }) => (
-            <circle
-              cx={x}
-              cy={y}
-              r={6} // radius
-              strokeWidth={4} // stroke width
-              stroke={circleStroke}
-              fill={circleBg}
-            />
-          )}
+          renderGlyph={renderGlyph}
           /* additional styling here */
         />
 

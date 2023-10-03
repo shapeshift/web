@@ -84,10 +84,10 @@ const lineProps = {
 }
 
 const labelProps = (fill: string) => ({ fill, fontSize: 12, fontWeight: 'bold' })
+const xScale = { type: 'linear' as const }
+const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
-  const xScale = { type: 'linear' as const }
-  const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
   const width = 450
   const height = 250
   const textColor = useToken('colors', 'text.subtle')
@@ -97,7 +97,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
 
   const [debouncedFoxHolding, setDebouncedFoxHolding] = useState(foxHolding)
 
-  const DEBOUNCE_MS = 150
+  const DEBOUNCE_MS = 150 // tune me to make the curve changing shape "feel" right
 
   // Debounce foxHolding updates
   useEffect(() => {

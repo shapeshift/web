@@ -8230,6 +8230,7 @@ __metadata:
     "@types/react-datepicker": ^4.4.2
     "@types/react-dom": ^18.0.5
     "@types/react-infinite-scroller": ^1.2.3
+    "@types/react-plotly.js": ^2.6.0
     "@types/react-redux": ^7.1.24
     "@types/react-router-dom": ^5.3.2
     "@types/react-table": ^7.7.12
@@ -9738,6 +9739,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/plotly.js@npm:*":
+  version: 2.12.27
+  resolution: "@types/plotly.js@npm:2.12.27"
+  checksum: f59c27a2b86ccfe680bd0441e84b59d5281dcc74ae9a90f88d51429b8885c2fb9cbf0e7144fc963ad1230a9ac1b7c156e7a6375cde2cf8332159a05e234b66e5
+  languageName: node
+  linkType: hard
+
 "@types/pngjs@npm:^6.0.1":
   version: 6.0.1
   resolution: "@types/pngjs@npm:6.0.1"
@@ -9818,6 +9826,16 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: ae11063b5e114bff1f06e9d3d2ca0948a3a224f13b4a30fbfe56f84e535ee6232de9667456695bbbb409de51887d701f8558fd28c36a2ea172e8593346de85d1
+  languageName: node
+  linkType: hard
+
+"@types/react-plotly.js@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "@types/react-plotly.js@npm:2.6.0"
+  dependencies:
+    "@types/plotly.js": "*"
+    "@types/react": "*"
+  checksum: 91ab4eb8f1ab68add2884f01419884ce9746121681e6c9e883c8ce26e9a549108bf61cdeb2008b64bd1886934d4ac106af4c3c61d1d159e13236b4a1858e6ea8
   languageName: node
   linkType: hard
 

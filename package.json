@@ -109,6 +109,7 @@
     "@snapshot-labs/snapshot.js": "^0.6.1",
     "@sniptt/monads": "^0.5.10",
     "@types/bip21": "^2.0.0",
+    "@types/react-plotly.js": "^2.6.0",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^8.3.3",
     "@visx/gradient": "^2.10.0",

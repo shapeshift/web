@@ -44,6 +44,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { SwapperName } from 'lib/swapper/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import {
   selectSwappersApiTradeQuotePending,
@@ -76,6 +77,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
+import { DonationCheckbox } from './components/DonationCheckbox'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
@@ -110,6 +112,7 @@ export const TradeInput = memo(() => {
   const sellAsset = useAppSelector(selectSellAsset)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
+  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -312,6 +315,10 @@ export const TradeInput = memo(() => {
             <Text translation={activeQuoteStatus.quoteStatusTranslation} />
           </Button>
         </Tooltip>
+        {hasUserEnteredAmount &&
+          activeSwapperName !== SwapperName.CowSwap &&
+          (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) &&
+          !isFoxDiscountsEnabled && <DonationCheckbox isLoading={isLoading} />}
       </CardFooter>
     ),
     [
@@ -321,10 +328,12 @@ export const TradeInput = memo(() => {
       activeQuoteStatus.quoteErrors,
       activeQuoteStatus.quoteStatusTranslation,
       activeSwapperName,
+      applyThorSwapAffiliateFees,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       buyAsset.symbol,
       hasUserEnteredAmount,
+      isFoxDiscountsEnabled,
       isLoading,
       isModeratePriceImpact,
       priceImpactPercentage,

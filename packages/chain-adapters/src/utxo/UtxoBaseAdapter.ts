@@ -225,15 +225,18 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       if (pubKey) {
         const account = await this.getAccount(pubKey)
-        const nextReceiveIndex = account.chainSpecific.nextReceiveAddressIndex
-        if (!nextReceiveIndex)
+        const index = bip44Params.isChange
+          ? account.chainSpecific.nextChangeAddressIndex
+          : account.chainSpecific.nextReceiveAddressIndex
+
+        if (index === undefined)
           throw new Error(`UtxoBaseAdapter: Could not fetch nextReceiveIndex from unchained`)
         if (!account.chainSpecific.addresses)
           throw new Error(`UtxoBaseAdapter: Could not fetch addresses from unchained`)
-        const address = account.chainSpecific.addresses[nextReceiveIndex].pubkey
+        const address = account.chainSpecific.addresses[index].pubkey
         if (!address)
           throw new Error(
-            `UtxoBaseAdapter: Could not fetch address from unchained at index ${nextReceiveIndex}`,
+            `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,
           )
 
         return address

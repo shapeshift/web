@@ -266,7 +266,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   ])
 
   // automatically reject requests that are received without wallet connected
-  if (!isConnected) {
+  if (activeModal !== undefined && !isConnected) {
     void handleRejectRequestAndClose()
     return null
   }

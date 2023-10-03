@@ -10,7 +10,7 @@ export const WalletConnectV2Config: Omit<SupportedWalletInfo, 'routes'> = {
   adapters: [WalletConnectV2Adapter],
   supportsMobile: 'both',
   icon: WalletConnectIcon,
-  name: 'WalletConnectV2',
+  name: 'WalletConnect',
   description: 'v2',
 }
 

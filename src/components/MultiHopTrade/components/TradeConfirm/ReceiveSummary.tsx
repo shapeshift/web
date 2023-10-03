@@ -15,6 +15,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/types'
@@ -40,6 +41,7 @@ type ReceiveSummaryProps = {
   }
   slippageDecimalPercentage: string
   swapperName: string
+  donationAmount?: string
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
@@ -54,6 +56,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     slippageDecimalPercentage,
     swapperName,
     isLoading,
+    donationAmount,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -62,6 +65,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
+    const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -210,18 +214,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 </Skeleton>
               </Row.Value>
             </Row>
-            {/* <Row>
-              <HelperTooltip label={translate('trade.tooltip.donation')}>
-                <Row.Label>
-                  <Text translation='trade.donation' />
-                </Row.Label>
-              </HelperTooltip>
-              <Row.Value>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat value={donationAmount} />
-                </Skeleton>
-              </Row.Value>
-            </Row> */}
+            {!isFoxDiscountsEnabled && donationAmount && donationAmount !== '0' && (
+              <Row>
+                <HelperTooltip label={translate('trade.tooltip.donation')}>
+                  <Row.Label>
+                    <Text translation='trade.donation' />
+                  </Row.Label>
+                </HelperTooltip>
+                <Row.Value>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Fiat value={donationAmount} />
+                  </Skeleton>
+                </Row.Value>
+              </Row>
+            )}
             <>
               <Divider borderColor='border.base' />
               <Row>

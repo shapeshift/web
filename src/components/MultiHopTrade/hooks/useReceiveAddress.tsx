@@ -41,8 +41,9 @@ export const getReceiveAddress = pMemoize(
   },
 )
 
-// TODO(gomes): give these args a better name
-export const useReceiveAddress = ({ useUnchained }: { useUnchained?: boolean } = {}) => {
+export const useReceiveAddress = ({
+  fetchUnchainedAddress,
+}: { fetchUnchainedAddress?: boolean } = {}) => {
   // Hooks
   const wallet = useWallet().state.wallet
   // TODO: this should live in redux
@@ -75,11 +76,11 @@ export const useReceiveAddress = ({ useUnchained }: { useUnchained?: boolean } =
         wallet,
         accountMetadata: buyAccountMetadata,
         deviceId: await wallet.getDeviceID(),
-        ...(useUnchained && { pubKey: fromAccountId(buyAccountId).account }),
+        ...(fetchUnchainedAddress && { pubKey: fromAccountId(buyAccountId).account }),
       })
       return receiveAddress
     },
-    [buyAccountId, buyAccountMetadata, useUnchained, wallet],
+    [buyAccountId, buyAccountMetadata, fetchUnchainedAddress, wallet],
   )
 
   // Set the receiveAddress when the buy asset changes

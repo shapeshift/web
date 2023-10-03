@@ -104,7 +104,7 @@ export const useGetTradeQuotes = () => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const useReceiveAddressArgs = useMemo(
     () => ({
-      useUnchained: Boolean(wallet && isLedger(wallet)),
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
     }),
     [wallet],
   )

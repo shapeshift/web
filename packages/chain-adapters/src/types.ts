@@ -238,6 +238,7 @@ export type GetAddressInputBase = {
    * Request that the address be shown to the user by the device, if supported
    */
   showOnDevice?: boolean
+  pubKey?: string
 }
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput

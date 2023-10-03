@@ -20,13 +20,14 @@ export const getReceiveAddress = pMemoize(
     asset,
     wallet,
     accountMetadata,
+    pubKey,
   }: GetReceiveAddressArgs): Promise<string | undefined> => {
     const { chainId } = fromAssetId(asset.assetId)
     const { accountType, bip44Params } = accountMetadata
     const chainAdapter = getChainAdapterManager().get(chainId)
     if (!(chainAdapter && wallet)) return
     const { accountNumber } = bip44Params
-    const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType })
+    const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType, pubKey })
     return address
   },
   {
@@ -40,7 +41,8 @@ export const getReceiveAddress = pMemoize(
   },
 )
 
-export const useReceiveAddress = () => {
+// TODO(gomes): give these args a better name
+export const useReceiveAddress = ({ useUnchained }: { useUnchained?: boolean } = {}) => {
   // Hooks
   const wallet = useWallet().state.wallet
   // TODO: this should live in redux
@@ -73,10 +75,11 @@ export const useReceiveAddress = () => {
         wallet,
         accountMetadata: buyAccountMetadata,
         deviceId: await wallet.getDeviceID(),
+        ...(useUnchained && { pubKey: fromAccountId(buyAccountId).account }),
       })
       return receiveAddress
     },
-    [buyAccountId, buyAccountMetadata, wallet],
+    [buyAccountId, buyAccountMetadata, useUnchained, wallet],
   )
 
   // Set the receiveAddress when the buy asset changes

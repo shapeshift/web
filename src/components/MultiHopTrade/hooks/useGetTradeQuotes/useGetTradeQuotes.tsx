@@ -1,5 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
@@ -100,7 +101,13 @@ export const useGetTradeQuotes = () => {
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
-  const receiveAddress = useReceiveAddress()
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      useUnchained: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const userWillDonate = useAppSelector(selectWillDonate)
 

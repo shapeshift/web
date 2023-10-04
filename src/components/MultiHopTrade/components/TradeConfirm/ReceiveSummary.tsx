@@ -2,15 +2,24 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
   Collapse,
   Divider,
+  Modal,
+  ModalContent,
+  ModalOverlay,
   Skeleton,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, memo, useCallback, useMemo } from 'react'
+import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -43,6 +52,8 @@ type ReceiveSummaryProps = {
   donationAmount?: string
 } & RowProps
 
+const ShapeShiftFeeModalRowHover = { textDecoration: 'underline' }
+
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   ({
     symbol,
@@ -60,6 +71,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+    const [showFeeModal, setShowFeeModal] = useState(false)
     const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
@@ -108,6 +120,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
       return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
     }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+
+    const handleFeeModal = useCallback(() => {
+      setShowFeeModal(!showFeeModal)
+    }, [showFeeModal])
 
     return (
       <>
@@ -202,7 +218,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   <RawText>&nbsp;{` (${shapeShiftFee.amountBps} bps)`}</RawText>
                 )}
               </Row.Label>
-              <Row.Value>
+              <Row.Value onClick={handleFeeModal} _hover={ShapeShiftFeeModalRowHover}>
                 <Skeleton isLoaded={!isLoading}>
                   {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
                     <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
@@ -268,6 +284,25 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             </>
           </Stack>
         </Collapse>
+        <Modal isOpen={showFeeModal} onClose={handleFeeModal}>
+          <ModalOverlay />
+          <ModalContent>
+            <Tabs>
+              <TabList>
+                <Tab>Fee Summary</Tab>
+                <Tab>Simulate Fee</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <p>Fee Breakdown</p>
+                </TabPanel>
+                <TabPanel>
+                  <FeeExplainer />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </ModalContent>
+        </Modal>
       </>
     )
   },

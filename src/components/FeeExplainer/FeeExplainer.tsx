@@ -291,7 +291,7 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 
 export const FeeExplainer = () => {
   const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
-  const [tradeSize, setTradeSize] = useState(0)
+  const [tradeSize, setTradeSize] = useState(999) // default to max below free so we have a value
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
   const translate = useTranslate()
 

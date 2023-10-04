@@ -65,7 +65,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectQuoteDonationAmountUserCurrency,
+  selectQuoteFeeAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -83,7 +83,6 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
-  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -146,11 +145,12 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteFeeAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const {
     executeTrade,
@@ -198,19 +198,23 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
-      return {
-        shapeShiftFee: {
+  const { shapeShiftFee } = useMemo(() => {
+    if (tradeQuote) {
+      if (isFoxDiscountsEnabled) {
+        return {
           amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
           amountBps: tradeQuote.affiliateBps ?? '0',
-        },
-        donationAmount: undefined,
+        }
+      } else {
+        return {
+          amountFiatPrecision: '0',
+          amountBps: '0',
+        }
       }
     }
 
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
-  }, [applyThorSwapAffiliateFees, swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
+    return { shapeShiftFee: undefined }
+  }, [tradeQuote, isFoxDiscountsEnabled, quoteAffiliateFeeFiatPrecision])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -385,7 +389,6 @@ export const TradeConfirm = () => {
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
-          donationAmount={donationAmount}
         />
       </>
     ),
@@ -403,7 +406,6 @@ export const TradeConfirm = () => {
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
-      donationAmount,
     ],
   )
 

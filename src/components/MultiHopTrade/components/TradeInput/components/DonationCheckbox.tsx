@@ -14,7 +14,7 @@ import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectSellAsset, selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
-  selectPotentialDonationAmountUserCurrency,
+  selectPotentialFeeAmountUserCurrency,
   selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -56,7 +56,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
       number: { toFiat },
     } = useLocaleFormatter()
 
-    const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountUserCurrency)
+    const potentialDonationAmountFiat = useAppSelector(selectPotentialFeeAmountUserCurrency)
 
     const handleDonationToggle = useCallback(() => {
       dispatch(swappers.actions.toggleWillDonate())

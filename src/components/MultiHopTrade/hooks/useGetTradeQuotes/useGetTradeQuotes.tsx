@@ -2,16 +2,18 @@ import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/types'
 import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
+import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
 import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
@@ -21,6 +23,7 @@ import {
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
   selectWillDonate,
 } from 'state/slices/selectors'
@@ -123,8 +126,14 @@ export const useGetTradeQuotes = () => {
 
   const mixpanel = getMixPanel()
 
+  const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
+
+  const { data: foxHeld, isLoading: isFoxHeldLoading } = useGetVotingPowerQuery()
+
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
+
   useEffect(() => {
-    if (wallet && sellAccountMetadata && receiveAddress) {
+    if (wallet && sellAccountMetadata && receiveAddress && !isFoxHeldLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
@@ -133,6 +142,27 @@ export const useGetTradeQuotes = () => {
         const isFromEvm = isEvmChainId(sellAsset.chainId)
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
         const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
+
+        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
+        const affiliateBps = (() => {
+          let affiliateBps = willDonate
+            ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(foxHeld) }).feeBps.toFixed(0)
+            : '0'
+
+          // free trades if there's an error getting foxHeld
+          if (foxHeld === undefined) affiliateBps = '0'
+
+          // feature flag - free trades if it's off
+          if (!isFoxDiscountsEnabled) affiliateBps = '0'
+          return affiliateBps
+        })()
+
+        console.log({
+          isFoxHeldLoading,
+          foxHeld,
+          tradeAmountUsd: tradeAmountUsd.toString(),
+          affiliateBps,
+        })
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -144,7 +174,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
+          affiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
         })
@@ -156,7 +186,6 @@ export const useGetTradeQuotes = () => {
             : setTradeQuoteInput(skipToken)
 
           // If only the affiliateBps or the userSlippageTolerancePercentage changed, we've either:
-          // - toggled the donation checkbox
           // - switched swappers where one has a different default slippageTolerancePercentage
           // In either case, we don't want to reset the selected swapper
           if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
@@ -180,11 +209,15 @@ export const useGetTradeQuotes = () => {
     sellAccountMetadata,
     sellAmountCryptoPrecision,
     sellAsset,
+    foxHeld,
+    isFoxHeldLoading,
     tradeQuoteInput,
     wallet,
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentage,
+    isFoxDiscountsEnabled,
+    sellAssetUsdRate,
   ])
 
   useEffect(() => {

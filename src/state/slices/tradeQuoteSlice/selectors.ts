@@ -375,13 +375,15 @@ export const selectSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectActiveQuoteDonationBps: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
+export const selectActiveQuoteFeeBps: Selector<ReduxState, string | undefined> = createSelector(
+  selectActiveQuote,
+  activeQuote => {
     if (!activeQuote) return
     return activeQuote.affiliateBps
-  })
+  },
+)
 
-export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, string | undefined> =
+export const selectPotentialFeeAmountUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(
     selectActiveQuote,
     selectSellAmountUserCurrency,
@@ -391,28 +393,28 @@ export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, str
         const affiliatePercentage = convertBasisPointsToDecimalPercentage(
           activeQuote.affiliateBps ?? '0',
         )
-        // The donation amount is a percentage of the sell amount
+        // The fee amount is a percentage of the sell amount
         return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
       }
     },
   )
 
-export const selectQuoteDonationAmountUserCurrency = createSelector(
+export const selectQuoteFeeAmountUserCurrency = createSelector(
   selectActiveQuote,
   selectSellAmountUserCurrency,
   (activeQuote, sellAmountUserCurrency) => {
-    if (!activeQuote) return
+    if (!activeQuote) return '0'
     const affiliatePercentage = activeQuote.affiliateBps
       ? convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
       : 0
-    // The donation amount is a percentage of the sell amount
+    // The fee amount is a percentage of the sell amount
     return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
   },
 )
-export const selectQuoteDonationAmountUsd = createSelector(
-  selectQuoteDonationAmountUserCurrency,
+export const selectQuoteFeeAmountUsd = createSelector(
+  selectQuoteFeeAmountUserCurrency,
   selectUserCurrencyToUsdRate,
-  (donationAmountUserCurrency, userCurrencyToUsdRate) => {
-    return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
+  (feeAmountUserCurrency, userCurrencyToUsdRate) => {
+    return bnOrZero(feeAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )

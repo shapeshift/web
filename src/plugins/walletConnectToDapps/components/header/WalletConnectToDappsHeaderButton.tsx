@@ -51,7 +51,7 @@ const WalletConnectV2ConnectedButton = () => {
     [sessions],
   )
   return (
-    <Menu autoSelect={false} isLazy>
+    <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={

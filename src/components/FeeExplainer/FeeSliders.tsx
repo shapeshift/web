@@ -1,11 +1,6 @@
 import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
   Center,
-  Divider,
   Flex,
   Skeleton,
   Slider,

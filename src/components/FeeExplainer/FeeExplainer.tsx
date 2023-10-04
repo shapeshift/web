@@ -1,14 +1,4 @@
-import {
-  Box,
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Flex,
-  Heading,
-  Stack,
-  useToken,
-} from '@chakra-ui/react'
+import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
 import { ParentSize, ScaleSVG } from '@visx/responsive'

@@ -14,6 +14,7 @@ import {
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
+import { FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
 import type { FeeSlidersProps } from './FeeExplainer'
@@ -76,7 +77,12 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           <Amount.Fiat value={tradeSize} fontWeight='bold' />
         </Flex>
         <Stack width='100%' pb={8}>
-          <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
+          <Slider
+            min={FEE_CURVE_NO_FEE_THRESHOLD_USD}
+            max={CHART_TRADE_SIZE_MAX_USD}
+            value={tradeSize}
+            onChange={setTradeSize}
+          >
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
             </SliderMark>
@@ -93,17 +99,24 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           </Slider>
         </Stack>
       </Stack>
-      <Flex gap={2} alignItems='center' justifyContent='space-between' fontSize='sm'>
-        <Flex gap={2} alignItems='center'>
-          <Center boxSize={2} bg='yellow.500' borderRadius='full' />
-          <RawText>{translate('foxDiscounts.currentFoxPower')}</RawText>
+      <Flex alignItems='center' justifyContent='space-between' width='full'>
+        <RawText fontSize='sm'>
+          {translate('foxDiscounts.freeUnderThreshold', {
+            threshold: FEE_CURVE_NO_FEE_THRESHOLD_USD,
+          })}
+        </RawText>
+        <Flex gap={2} alignItems='center' justifyContent='space-between' fontSize='sm'>
+          <Flex gap={2} alignItems='center'>
+            <Center boxSize={2} bg='yellow.500' borderRadius='full' />
+            <RawText>{translate('foxDiscounts.currentFoxPower')}</RawText>
+          </Flex>
+          <Amount.Crypto
+            fontWeight='bold'
+            value={currentFoxHoldings}
+            symbol='FOX'
+            maximumFractionDigits={0}
+          />
         </Flex>
-        <Amount.Crypto
-          fontWeight='bold'
-          value={currentFoxHoldings}
-          symbol='FOX'
-          maximumFractionDigits={0}
-        />
       </Flex>
     </VStack>
   )

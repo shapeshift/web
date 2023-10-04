@@ -1,8 +1,10 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Collapse,
   Divider,
+  Flex,
   Modal,
+  ModalCloseButton,
   ModalContent,
   ModalOverlay,
   Skeleton,
@@ -35,6 +37,8 @@ import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
+
+import { FeeBreakdown } from './FeeBreakdown'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -222,11 +226,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row.Label>
               <Row.Value onClick={handleFeeModal} _hover={ShapeShiftFeeModalRowHover}>
                 <Skeleton isLoaded={!isLoading}>
-                  {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
-                    <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
-                  ) : (
-                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  )}
+                  <Flex alignItems='center' gap={2}>
+                    {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
+                      <>
+                        <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
+                        <QuestionIcon />
+                      </>
+                    ) : (
+                      <>
+                        <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                        <QuestionIcon color={greenColor} />
+                      </>
+                    )}
+                  </Flex>
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -289,17 +301,25 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
         <Modal isOpen={showFeeModal} onClose={handleFeeModal}>
           <ModalOverlay />
           <ModalContent>
-            <Tabs>
-              <TabList>
-                <Tab>Fee Summary</Tab>
-                <Tab>Simulate Fee</Tab>
+            <ModalCloseButton />
+            <Tabs variant='button'>
+              <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
+                <Tab>{translate('foxDiscounts.feeSummary')}</Tab>
+                <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
               </TabList>
               <TabPanels>
-                <TabPanel>
-                  <p>Fee Breakdown</p>
+                <TabPanel p={8}>
+                  <FeeBreakdown
+                    feeBps={shapeShiftFee?.amountBps || '0'}
+                    feeUsd={shapeShiftFee?.amountFiatPrecision || '0'}
+                    foxDiscountPercent={'69.420'}
+                    feeUsdBeforeDiscount={'8.00'}
+                    feeUsdDiscount={'10.00'}
+                    feeBpsBeforeDiscount={'20'}
+                  />
                 </TabPanel>
-                <TabPanel>
-                  <FeeExplainer />
+                <TabPanel px={0} py={0}>
+                  <FeeExplainer borderRadius='none' bg='transparent' boxShadow='none' />
                 </TabPanel>
               </TabPanels>
             </Tabs>

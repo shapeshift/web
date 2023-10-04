@@ -1,3 +1,4 @@
+import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
@@ -35,15 +36,16 @@ type FeeChartProps = {
 
 // how many points to generate for the chart, higher is more accurate but slower
 const CHART_GRANULARITY = 100
-// Generate data for tradeSize and foxHolding
 const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
-  i => i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
+  i => FEE_CURVE_NO_FEE_THRESHOLD_USD + i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
 )
 
 const accessors = {
-  xAccessor: ({ x }: { x: number }) => x,
-  yAccessor: ({ y }: { y: number }) => y,
+  xAccessor: (data: { x: number }) => data?.x,
+  yAccessor: (data: { y: number }) => data?.y,
 }
+
+const xTickValues = [1001, 100_000, 200_000, 300_000, 400_000]
 
 type ChartData = {
   x: number
@@ -98,7 +100,10 @@ const lineProps = {
   stroke: foxBlue,
 }
 
-const xScale = { type: 'linear' as const }
+const xScale = {
+  type: 'linear' as const,
+  domain: [FEE_CURVE_NO_FEE_THRESHOLD_USD, CHART_TRADE_SIZE_MAX_USD],
+}
 const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
@@ -123,7 +128,6 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   const data = useMemo(() => {
     return tradeSizeData
       .map(trade => {
-        if (trade < FEE_CURVE_NO_FEE_THRESHOLD_USD) return null
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
           foxHeld: bn(debouncedFoxHolding),
@@ -134,8 +138,6 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
   }, [debouncedFoxHolding])
 
   const currentPoint = useMemo(() => {
-    if (tradeSize < FEE_CURVE_NO_FEE_THRESHOLD_USD) return []
-
     const feeBps = calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(debouncedFoxHolding),
@@ -186,6 +188,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
                 numTicks={3}
                 tickLabelProps={tickLabelProps}
                 tickFormat={tickFormat}
+                tickValues={xTickValues}
                 labelProps={labelProps(textColor)}
                 stroke={borderColor}
                 strokeWidth={0}
@@ -289,9 +292,11 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
 
 const feeExplainerCardBody = { base: 4, md: 8 }
 
-export const FeeExplainer = () => {
+type FeeExplainerProps = CardProps
+
+export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
-  const [tradeSize, setTradeSize] = useState(999) // default to max below free so we have a value
+  const [tradeSize, setTradeSize] = useState(FEE_CURVE_NO_FEE_THRESHOLD_USD) // default to max below free so we have a value
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings) || 0)
   const translate = useTranslate()
 
@@ -307,7 +312,7 @@ export const FeeExplainer = () => {
 
   return (
     <Stack maxWidth='600px' width='full' mx='auto' spacing={0}>
-      <Card flexDir='column' borderBottomRadius={0}>
+      <Card flexDir='column' borderBottomRadius={0} {...props}>
         <CardBody flex='1' p={feeExplainerCardBody}>
           <Heading as='h5' mb={2}>
             {translate('foxDiscounts.simulateTitle')}
@@ -322,7 +327,7 @@ export const FeeExplainer = () => {
           />
         </CardBody>
       </Card>
-      <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base'>
+      <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
           <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />

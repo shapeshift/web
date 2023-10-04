@@ -152,8 +152,6 @@ export const useGetTradeQuotes = () => {
           // free trades if there's an error getting foxHeld
           if (foxHeld === undefined) affiliateBps = '0'
 
-          // feature flag - free trades if it's off
-          if (!isFoxDiscountsEnabled) affiliateBps = '0'
           return affiliateBps
         })()
 

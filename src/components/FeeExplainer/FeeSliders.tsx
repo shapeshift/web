@@ -1,11 +1,6 @@
 import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
   Center,
-  Divider,
   Flex,
   Skeleton,
   Slider,
@@ -13,6 +8,7 @@ import {
   SliderMark,
   SliderThumb,
   SliderTrack,
+  Stack,
   VStack,
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
@@ -32,15 +28,15 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
 }) => {
   const translate = useTranslate()
   return (
-    <VStack height='100%' spacing={0} mb={8} divider={<Divider />}>
-      <Card width='full' variant='unstyled' boxShadow='none'>
-        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
+    <VStack height='100%' spacing={8} mt={6}>
+      <Stack spacing={4} width='full'>
+        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value={foxHolding.toString()} symbol='FOX' />
+            <Amount.Crypto value={foxHolding.toString()} symbol='FOX' fontWeight='bold' />
           </Skeleton>
-        </CardHeader>
-        <CardBody width='100%'>
+        </Flex>
+        <Stack width='100%'>
           <Slider
             min={0}
             max={CHART_TRADE_SIZE_MAX_FOX}
@@ -49,7 +45,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             onChange={setFoxHolding}
           >
             <SliderTrack>
-              <SliderFilledTrack />
+              <SliderFilledTrack bg='blue.500' />
             </SliderTrack>
             <SliderThumb />
             <SliderMark value={250000} {...labelStyles}>
@@ -64,25 +60,22 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             <SliderMark value={1000000} {...labelStyles}>
               1MM
             </SliderMark>
-            <SliderMark value={Number(currentFoxHoldings)} top='-10px !important' color='blue.500'>
+            <SliderMark
+              value={Number(currentFoxHoldings)}
+              top='-14px !important'
+              color='yellow.500'
+            >
               <TriangleDownIcon />
             </SliderMark>
           </Slider>
-        </CardBody>
-        <CardFooter display='flex' width='full' alignItems='center' justifyContent='space-between'>
-          <Flex gap={2} alignItems='center'>
-            <Center boxSize={2} bg='blue.500' borderRadius='full' />
-            <RawText>{translate('foxDiscounts.currentFoxPower')}</RawText>
-          </Flex>
-          <Amount.Crypto value={currentFoxHoldings} symbol='FOX' maximumFractionDigits={0} />
-        </CardFooter>
-      </Card>
-      <Card width='full' variant='unstyled' boxShadow='none'>
-        <CardHeader display='flex' width='full' justifyContent='space-between' fontWeight='medium'>
+        </Stack>
+      </Stack>
+      <Stack width='full' spacing={4}>
+        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
           <Text translation='foxDiscounts.tradeSize' />
-          <Amount.Fiat value={tradeSize} />
-        </CardHeader>
-        <CardBody width='100%' pb={8}>
+          <Amount.Fiat value={tradeSize} fontWeight='bold' />
+        </Flex>
+        <Stack width='100%' pb={8}>
           <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
@@ -94,12 +87,24 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.8} abbreviated={true} />
             </SliderMark>
             <SliderTrack>
-              <SliderFilledTrack />
+              <SliderFilledTrack bg='blue.500' />
             </SliderTrack>
             <SliderThumb />
           </Slider>
-        </CardBody>
-      </Card>
+        </Stack>
+      </Stack>
+      <Flex gap={2} alignItems='center' justifyContent='space-between' fontSize='sm'>
+        <Flex gap={2} alignItems='center'>
+          <Center boxSize={2} bg='yellow.500' borderRadius='full' />
+          <RawText>{translate('foxDiscounts.currentFoxPower')}</RawText>
+        </Flex>
+        <Amount.Crypto
+          fontWeight='bold'
+          value={currentFoxHoldings}
+          symbol='FOX'
+          maximumFractionDigits={0}
+        />
+      </Flex>
     </VStack>
   )
 }

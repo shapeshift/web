@@ -292,7 +292,7 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 export const FeeExplainer = () => {
   const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
   const [tradeSize, setTradeSize] = useState(999) // default to max below free so we have a value
-  const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings))
+  const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings) || 0)
   const translate = useTranslate()
 
   const onHover = (hoverTradeSize: number, hoverFoxHolding: number) => {
@@ -302,7 +302,7 @@ export const FeeExplainer = () => {
 
   useEffect(() => {
     if (isLoading) return
-    if (currentFoxHoldings) setFoxHolding(Number(currentFoxHoldings))
+    if (currentFoxHoldings) setFoxHolding(Number(currentFoxHoldings) || 0)
   }, [currentFoxHoldings, isLoading])
 
   return (

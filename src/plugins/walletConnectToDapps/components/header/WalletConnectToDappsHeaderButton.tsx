@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
-import { DappHeaderMenuSummary } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
+import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -51,7 +51,7 @@ const WalletConnectV2ConnectedButton = () => {
     [sessions],
   )
   return (
-    <Menu autoSelect={false} isLazy>
+    <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={
@@ -100,7 +100,7 @@ const WalletConnectV2ConnectedButton = () => {
         flexDir='column'
         pb={0}
       >
-        <DappHeaderMenuSummary />
+        <DappHeaderMenuSummaryV2 />
       </MenuList>
     </Menu>
   )

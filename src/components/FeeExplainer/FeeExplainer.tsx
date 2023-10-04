@@ -264,7 +264,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
   })
 
   return (
-    <CardHeader fontWeight='medium' pb={0}>
+    <Flex fontWeight='medium' pb={0}>
       <Stack width='full'>
         <Flex gap={4}>
           <Box flex={1} textAlign='center'>
@@ -292,9 +292,10 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
           color='text.subtle'
           fontSize='sm'
           textAlign='center'
+          mb={4}
         />
       </Stack>
-    </CardHeader>
+    </Flex>
   )
 }
 
@@ -318,22 +319,13 @@ export const FeeExplainer = () => {
   }, [currentFoxHoldings, isLoading])
 
   return (
-    <Card flexDir='column' maxWidth='600px' width='full' mx='auto'>
-      <CardBody flex='1' p={feeExplainerCardBody}>
-        <Heading as='h5'>{translate('foxDiscounts.simulateTitle')}</Heading>
-        <Text color='text.subtle' translation='foxDiscounts.simulateBody' />
-      </CardBody>
-      <CardBody
-        flex='1'
-        flexDir='column'
-        justifyContent='center'
-        alignItems='center'
-        p={feeExplainerCardBody}
-      >
-        <Card>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
-          <Divider />
+    <Stack maxWidth='600px' width='full' mx='auto' spacing={0}>
+      <Card flexDir='column' borderBottomRadius={0}>
+        <CardBody flex='1' p={feeExplainerCardBody}>
+          <Heading as='h5' mb={2}>
+            {translate('foxDiscounts.simulateTitle')}
+          </Heading>
+          <Text color='text.subtle' translation='foxDiscounts.simulateBody' />
           <FeeSliders
             tradeSize={tradeSize}
             setTradeSize={setTradeSize}
@@ -341,8 +333,14 @@ export const FeeExplainer = () => {
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={currentFoxHoldings ?? '0'}
           />
-        </Card>
-      </CardBody>
-    </Card>
+        </CardBody>
+      </Card>
+      <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base'>
+        <CardBody p={feeExplainerCardBody}>
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
+        </CardBody>
+      </Card>
+    </Stack>
   )
 }

@@ -158,6 +158,11 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      const currentConnectedType = state.connectedType
+      if (currentConnectedType === 'walletconnectv2') {
+        state.wallet?.disconnect?.()
+        clearLocalWallet()
+      }
       const deviceId = action?.payload?.deviceId
       // set walletId in redux store
       const walletMeta = { walletId: deviceId, walletName: action?.payload?.name }
@@ -780,7 +785,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
-    // remove existing dapp or wallet connections
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),

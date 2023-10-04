@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -24,6 +25,10 @@ export const isKeplrHDWallet = (wallet: HDWallet): wallet is KeplrHDWallet => {
 
 export const isNativeHDWallet = (wallet: HDWallet): wallet is NativeHDWallet => {
   return wallet.getVendor() === 'Native'
+}
+
+export const isWalletConnectWallet = (wallet: HDWallet): wallet is WalletConnectV2HDWallet => {
+  return wallet.getVendor() === 'WalletConnectV2'
 }
 
 // we don't want utils to mutate by default, so spreading here is ok

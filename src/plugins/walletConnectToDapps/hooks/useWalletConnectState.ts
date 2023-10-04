@@ -14,6 +14,7 @@ import {
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
+import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,17 +35,17 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const connectedAccounts = extractAllConnectedAccounts(sessionsByTopic)
 
-  const address = (() => {
+  const address = useMemo(() => {
     if (requestParams && isEthSignParams(requestParams))
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams) return requestParams.signerAddress
     else return undefined
-  })()
+  }, [connectedAccounts, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
-  const accountId = (() => {
+  const accountId = useMemo(() => {
     if (
       requestParams &&
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
@@ -52,7 +53,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams)
     if (requestParams) return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
     else return undefined
-  })()
+  }, [connectedAccounts, requestParams])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

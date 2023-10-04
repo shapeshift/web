@@ -22,16 +22,22 @@ export const AccountSelectionByChainId: FC<IProps> = ({
 }) => {
   const translate = useTranslate()
   const [allChecked, setAllChecked] = useState(false)
-  const translateKey = (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`
+  const translateKey = useCallback(
+    (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`,
+    [],
+  )
   const filter = useMemo(() => ({ chainId }), [chainId])
   const accountIdsByAccountNumberChainId = useAppSelector(s =>
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
-  const accountIds = Object.entries(accountIdsByAccountNumberChainId).flatMap(
-    ([_, accountIds]) => accountIds,
+  const accountIds = useMemo(
+    () => Object.entries(accountIdsByAccountNumberChainId).flatMap(([_, accountIds]) => accountIds),
+    [accountIdsByAccountNumberChainId],
   )
-  const selectedAccountIdsByChainId = accountIds.filter(accountId =>
-    selectedAccountIds.includes(accountId),
+
+  const selectedAccountIdsByChainId = useMemo(
+    () => accountIds.filter(accountId => selectedAccountIds.includes(accountId)),
+    [accountIds, selectedAccountIds],
   )
 
   const renderAccounts = useMemo(() => {

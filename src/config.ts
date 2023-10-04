@@ -150,6 +150,7 @@ const validators = {
   REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
+  REACT_APP_FEATURE_FOX_DISCOUNTS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

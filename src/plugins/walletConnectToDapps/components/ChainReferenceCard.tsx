@@ -14,7 +14,7 @@ import {
 import { Tag } from '@chakra-ui/tag'
 import { AccountSelectionByChainId } from 'plugins/walletConnectToDapps/components/AccountSelectionByChainId'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
@@ -30,6 +30,10 @@ type ChainReferenceCardProps = {
   toggleAccountId: (accountId: string) => void
 }
 
+const borderRadiusProp = { base: 'lg', md: 'xl' }
+const pxProp = { base: 4, md: 4 }
+const pProp = { base: 0, md: 0 }
+
 export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
   methods,
   events,
@@ -42,7 +46,10 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
   const translate = useTranslate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.200')
-  const translateKey = (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`
+  const translateKey = useCallback(
+    (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`,
+    [],
+  )
 
   const renderEvents = useMemo(() => {
     return events.map(event => (
@@ -59,21 +66,20 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
       </Tag>
     ))
   }, [methods])
+
+  const hoverBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+  const hoverProp = useMemo(() => ({ bg: hoverBg }), [hoverBg])
+
   return (
-    <Card
-      borderColor={borderColor}
-      overflow='hidden'
-      width='full'
-      borderRadius={{ base: 'lg', md: 'xl' }}
-    >
+    <Card borderColor={borderColor} overflow='hidden' width='full' borderRadius={borderRadiusProp}>
       <CardHeader
-        px={{ base: 4, md: 4 }}
+        px={pxProp}
         display='flex'
         alignItems='center'
         justifyContent='space-between'
         onClick={onToggle}
         cursor='pointer'
-        _hover={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50') }}
+        _hover={hoverProp}
       >
         <Heading display='flex' alignItems='center' gap={2}>
           <AssetIcon src={asset?.networkIcon ?? asset?.icon} size='xs' />
@@ -85,7 +91,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
         </Flex>
       </CardHeader>
       <Collapse in={isOpen}>
-        <CardBody p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
+        <CardBody p={pProp} bg='whiteAlpha.50'>
           <Stack spacing={0} divider={<Divider />}>
             <Row gap={4} variant='gutter' py={3}>
               <Row.Label>{translate(translateKey('methods'))}</Row.Label>

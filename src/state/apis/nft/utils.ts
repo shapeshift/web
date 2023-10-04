@@ -141,8 +141,12 @@ export const getAlchemyNftsUserData = async (
 
         const alchemy = getAlchemyInstanceByChainId(chainId)
         const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
-          // spam filter not implemented for optimism
-          excludeFilters: chainId !== KnownChainIds.OptimismMainnet ? [NftFilters.SPAM] : [],
+          // spam filter only supported for Ethereum and Polygon
+          excludeFilters: [KnownChainIds.EthereumMainnet, KnownChainIds.PolygonMainnet].includes(
+            chainId as KnownChainIds,
+          )
+            ? [NftFilters.SPAM]
+            : [],
         })
         return Promise.all(
           ownedNfts.map(ownedNft =>

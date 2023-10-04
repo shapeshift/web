@@ -147,7 +147,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
           )}
           {maybeFeeAsset && (
             <Image
-              src={maybeFeeAsset.icon}
+              src={maybeFeeAsset.networkIcon ?? maybeFeeAsset.icon}
               boxSize='17px'
               ml='8px'
               style={{

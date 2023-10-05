@@ -1,4 +1,4 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -12,10 +12,8 @@ import {
   convertBasisPointsToPercentage,
 } from 'state/slices/tradeQuoteSlice/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { ONE_INCH_NATIVE_ASSET_ADDRESS } from '../utils/constants'
-import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
+import { assertValidTrade, getAdapter, getOneInchTokenAddress, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
@@ -40,12 +38,8 @@ export async function getTradeQuote(
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
   const params: OneInchQuoteApiInput = {
-    fromTokenAddress: isNativeEvmAsset(sellAsset.assetId)
-      ? ONE_INCH_NATIVE_ASSET_ADDRESS
-      : fromAssetId(sellAsset.assetId).assetReference,
-    toTokenAddress: isNativeEvmAsset(buyAsset.assetId)
-      ? ONE_INCH_NATIVE_ASSET_ADDRESS
-      : fromAssetId(buyAsset.assetId).assetReference,
+    fromTokenAddress: getOneInchTokenAddress(sellAsset),
+    toTokenAddress: getOneInchTokenAddress(buyAsset),
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     fee: buyTokenPercentageFee,
   }

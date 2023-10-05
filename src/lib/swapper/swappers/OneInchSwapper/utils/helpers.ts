@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
@@ -13,6 +14,8 @@ import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { ONE_INCH_NATIVE_ASSET_ADDRESS } from './constants'
 import type { OneInchBaseResponse, OneInchSupportedChainId } from './types'
 import { oneInchSupportedChainIds } from './types'
 
@@ -83,4 +86,10 @@ export const getAdapter = (
   }
 
   return Ok(adapter)
+}
+
+export const getOneInchTokenAddress = (asset: Asset): string => {
+  return isNativeEvmAsset(asset.assetId)
+    ? ONE_INCH_NATIVE_ASSET_ADDRESS
+    : fromAssetId(asset.assetId).assetReference
 }

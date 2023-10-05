@@ -8,7 +8,6 @@ import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const WalletConnectV2Config: Omit<SupportedWalletInfo, 'routes'> = {
   adapters: [WalletConnectV2Adapter],
-  supportsMobile: 'browser',
   icon: WalletConnectIcon,
   name: 'WalletConnect',
   description: 'v2',

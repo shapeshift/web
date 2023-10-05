@@ -13,7 +13,6 @@ import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { OneInchBaseResponse, OneInchSupportedChainId } from './types'
 import { oneInchSupportedChainIds } from './types'
 
@@ -49,16 +48,6 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[OneInch: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
-  if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[OneInch: assetValidTrade] - no support for native assets',
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAsset, sellAsset },
       }),

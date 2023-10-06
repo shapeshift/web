@@ -34,7 +34,7 @@ export const useWalletConnectV2EventHandler = (
     if (ethereumProvider) {
       ethereumProvider.on('disconnect', handleDisconnect)
       return () => {
-        ethereumProvider.off('disconnect', handleDisconnect)
+        ethereumProvider.off?.('disconnect', handleDisconnect)
       }
     }
   }, [dispatch, ethereumProvider, handleDisconnect, state.wallet])

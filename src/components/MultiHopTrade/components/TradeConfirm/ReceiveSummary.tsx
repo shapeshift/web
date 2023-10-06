@@ -1,16 +1,27 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Collapse,
   Divider,
+  Flex,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Skeleton,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, memo, useCallback, useMemo } from 'react'
+import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -26,6 +37,8 @@ import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
+
+import { FeeBreakdown } from './FeeBreakdown'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -44,6 +57,8 @@ type ReceiveSummaryProps = {
   donationAmount?: string
 } & RowProps
 
+const ShapeShiftFeeModalRowHover = { textDecoration: 'underline' }
+
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   ({
     symbol,
@@ -61,6 +76,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+    const [showFeeModal, setShowFeeModal] = useState(false)
     const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
@@ -110,6 +126,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
       return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
     }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+
+    const handleFeeModal = useCallback(() => {
+      setShowFeeModal(!showFeeModal)
+    }, [showFeeModal])
 
     return (
       <>
@@ -201,16 +221,24 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <Row.Label display='flex'>
                 <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
                 {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
-                  <RawText>&nbsp;{` (${shapeShiftFee.amountBps} bps)`}</RawText>
+                  <RawText>&nbsp;{`(${shapeShiftFee.amountBps} bps)`}</RawText>
                 )}
               </Row.Label>
-              <Row.Value>
+              <Row.Value onClick={handleFeeModal} _hover={ShapeShiftFeeModalRowHover}>
                 <Skeleton isLoaded={!isLoading}>
-                  {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
-                    <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
-                  ) : (
-                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  )}
+                  <Flex alignItems='center' gap={2}>
+                    {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
+                      <>
+                        <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
+                        <QuestionIcon />
+                      </>
+                    ) : (
+                      <>
+                        <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                        <QuestionIcon color={greenColor} />
+                      </>
+                    )}
+                  </Flex>
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -270,6 +298,33 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             </>
           </Stack>
         </Collapse>
+        <Modal isOpen={showFeeModal} onClose={handleFeeModal}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalCloseButton />
+            <Tabs variant='button'>
+              <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
+                <Tab>{translate('foxDiscounts.feeSummary')}</Tab>
+                <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel p={8}>
+                  <FeeBreakdown
+                    feeBps={shapeShiftFee?.amountBps || '0'}
+                    feeUsd={shapeShiftFee?.amountFiatPrecision || '0'}
+                    foxDiscountPercent={'69.420'}
+                    feeUsdBeforeDiscount={'8.00'}
+                    feeUsdDiscount={'10.00'}
+                    feeBpsBeforeDiscount={'20'}
+                  />
+                </TabPanel>
+                <TabPanel px={0} py={0}>
+                  <FeeExplainer borderRadius='none' bg='transparent' boxShadow='none' />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </ModalContent>
+        </Modal>
       </>
     )
   },

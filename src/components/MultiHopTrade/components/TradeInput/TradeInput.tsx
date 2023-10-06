@@ -294,6 +294,7 @@ export const TradeInput = memo(() => {
                 donationAmount={shapeShiftFee?.amountFiatPrecision}
                 slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
+                defaultIsOpen={true}
               />
             ) : null}
             {isModeratePriceImpact && (

@@ -2116,6 +2116,10 @@
     "basedOnFee": "Based on a fee of: %{fee}",
     "feeSummary": "Fee Summary",
     "simulateFee": "Simulate Fee",
-    "freeUnderThreshold": "Trades under %{threshold} are always FREE"
+    "freeUnderThreshold": "Trades under %{threshold} are always FREE",
+    "breakdownHeader": "Your FOX Power Discount",
+    "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
+    "tradeFee": "Trade Fee",
+    "totalTradeFee": "Total Trade Fee"
   }
 }

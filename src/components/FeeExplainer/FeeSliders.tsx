@@ -14,6 +14,8 @@ import {
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
@@ -28,13 +30,21 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   currentFoxHoldings,
 }) => {
   const translate = useTranslate()
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
   return (
     <VStack height='100%' spacing={8} mt={6}>
       <Stack spacing={4} width='full'>
         <Flex width='full' justifyContent='space-between' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value={foxHolding.toString()} symbol='FOX' fontWeight='bold' />
+            <Amount.Crypto
+              value={foxHolding.toString()}
+              symbol='FOX'
+              fontWeight='bold'
+              maximumFractionDigits={0}
+            />
           </Skeleton>
         </Flex>
         <Stack width='100%'>
@@ -62,9 +72,14 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               1MM
             </SliderMark>
             <SliderMark
-              value={Number(currentFoxHoldings)}
+              value={
+                bn(currentFoxHoldings).gt(CHART_TRADE_SIZE_MAX_FOX)
+                  ? CHART_TRADE_SIZE_MAX_FOX
+                  : Number(currentFoxHoldings)
+              }
               top='-14px !important'
               color='yellow.500'
+              left='-2.5'
             >
               <TriangleDownIcon />
             </SliderMark>
@@ -99,10 +114,10 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           </Slider>
         </Stack>
       </Stack>
-      <Flex alignItems='center' justifyContent='space-between' width='full'>
+      <Flex alignItems='center' justifyContent='center' width='full' flexWrap='wrap' gap={2}>
         <RawText fontSize='sm'>
           {translate('foxDiscounts.freeUnderThreshold', {
-            threshold: FEE_CURVE_NO_FEE_THRESHOLD_USD,
+            threshold: toFiat(FEE_CURVE_NO_FEE_THRESHOLD_USD),
           })}
         </RawText>
         <Flex gap={2} alignItems='center' justifyContent='space-between' fontSize='sm'>

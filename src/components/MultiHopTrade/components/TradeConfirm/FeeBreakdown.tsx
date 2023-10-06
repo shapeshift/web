@@ -24,28 +24,30 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
 }) => {
   const translate = useTranslate()
   return (
-    <Stack spacing={6}>
-      <Stack spacing={2}>
-        <Heading as='h5'>Your FOX Power Discount</Heading>
-        <RawText color='text.subtle'>Something about your FOX discount and trade fee.</RawText>
+    <Stack spacing={0}>
+      <Stack spacing={2} px={8} pt={8} mb={8}>
+        <Heading as='h5'>{translate('foxDiscounts.breakdownHeader')}</Heading>
+        <RawText color='text.subtle'>{translate('foxDiscounts.breakdownBody')}</RawText>
       </Stack>
-      <Row>
-        <Row.Label>Trade Fee</Row.Label>
-        <Row.Value textAlign='right'>
-          <Amount.Fiat value={feeUsdBeforeDiscount} />
-          <Amount fontSize='sm' value={feeBpsBeforeDiscount} suffix='bps' />
-        </Row.Value>
-      </Row>
-      <Row>
-        <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
-        <Row.Value textAlign='right'>
-          <Amount.Fiat value={feeUsdDiscount} />
-          <Amount.Percent fontSize='sm' value={foxDiscountPercent} color='text.success' />
-        </Row.Value>
-      </Row>
+      <Stack px={8} mb={6} spacing={4} divider={<Divider />}>
+        <Row>
+          <Row.Label>{translate('foxDiscounts.tradeFee')}</Row.Label>
+          <Row.Value textAlign='right'>
+            <Amount.Fiat value={feeUsdBeforeDiscount} />
+            <Amount color='text.subtle' fontSize='sm' value={feeBpsBeforeDiscount} suffix='bps' />
+          </Row.Value>
+        </Row>
+        <Row>
+          <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
+          <Row.Value textAlign='right'>
+            <Amount.Fiat value={feeUsdDiscount} />
+            <Amount.Percent fontSize='sm' value={foxDiscountPercent} color='text.success' />
+          </Row.Value>
+        </Row>
+      </Stack>
       <Divider />
-      <Row>
-        <Row.Label>Total Trade Fee</Row.Label>
+      <Row px={8} py={4}>
+        <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
           {bnOrZero(feeUsd).eq(0) ? (
             <Text translation='common.free' color='text.success' />

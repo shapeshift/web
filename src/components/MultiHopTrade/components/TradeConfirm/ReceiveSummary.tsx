@@ -55,9 +55,10 @@ type ReceiveSummaryProps = {
   slippageDecimalPercentage: string
   swapperName: string
   donationAmount?: string
+  defaultIsOpen?: boolean
 } & RowProps
 
-const ShapeShiftFeeModalRowHover = { textDecoration: 'underline' }
+const ShapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   ({
@@ -72,10 +73,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     swapperName,
     isLoading,
     donationAmount,
+    defaultIsOpen = false,
     ...rest
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure()
+    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
     const [showFeeModal, setShowFeeModal] = useState(false)
     const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
@@ -298,7 +300,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             </>
           </Stack>
         </Collapse>
-        <Modal isOpen={showFeeModal} onClose={handleFeeModal}>
+        <Modal isOpen={showFeeModal} onClose={handleFeeModal} size='lg'>
           <ModalOverlay />
           <ModalContent>
             <ModalCloseButton />
@@ -308,7 +310,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
               </TabList>
               <TabPanels>
-                <TabPanel p={8}>
+                <TabPanel p={0}>
                   <FeeBreakdown
                     feeBps={shapeShiftFee?.amountBps || '0'}
                     feeUsd={shapeShiftFee?.amountFiatPrecision || '0'}

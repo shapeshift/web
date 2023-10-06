@@ -4,6 +4,8 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
+import { Web3Modal } from '@web3modal/react'
+import { getConfig } from 'config'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -22,7 +24,6 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
-import { Web3ModalProvider } from 'context/WalletProvider/WalletConnectV2/Web3ModalProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -56,6 +57,7 @@ export function AppProviders({ children }: ProvidersProps) {
         <PluginProvider>
           <ColorModeScript storageKey='ss-theme' />
           <ChatwootWidget />
+          <Web3Modal projectId={getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID} />
           <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
             <ToastContainer />
             <PersistGate loading={<SplashScreen />} persistor={persistor}>
@@ -63,25 +65,23 @@ export function AppProviders({ children }: ProvidersProps) {
                 <ScrollToTop />
                 <BrowserRouterProvider>
                   <I18nProvider>
-                    <Web3ModalProvider>
-                      <WalletProvider>
-                        <WalletConnectV2Provider>
-                          <KeepKeyProvider>
-                            <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                              <ModalProvider>
-                                <TransactionsProvider>
-                                  <AppProvider>
-                                    <FoxEthProvider>
-                                      <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </FoxEthProvider>
-                                  </AppProvider>
-                                </TransactionsProvider>
-                              </ModalProvider>
-                            </ErrorBoundary>
-                          </KeepKeyProvider>
-                        </WalletConnectV2Provider>
-                      </WalletProvider>
-                    </Web3ModalProvider>
+                    <WalletProvider>
+                      <WalletConnectV2Provider>
+                        <KeepKeyProvider>
+                          <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                            <ModalProvider>
+                              <TransactionsProvider>
+                                <AppProvider>
+                                  <FoxEthProvider>
+                                    <DefiManagerProvider>{children}</DefiManagerProvider>
+                                  </FoxEthProvider>
+                                </AppProvider>
+                              </TransactionsProvider>
+                            </ModalProvider>
+                          </ErrorBoundary>
+                        </KeepKeyProvider>
+                      </WalletConnectV2Provider>
+                    </WalletProvider>
                   </I18nProvider>
                 </BrowserRouterProvider>
               </HashRouter>

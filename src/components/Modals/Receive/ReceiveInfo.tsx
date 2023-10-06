@@ -34,7 +34,7 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { viemClient } from 'lib/viem-client'
+import { viemEthMainnetClient } from 'lib/viem-client'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -82,7 +82,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   useEffect(() => {
     if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return
-    viemClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
+    viemEthMainnetClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
   }, [asset.chainId, receiveAddress])
 
   const handleVerify = async () => {

@@ -1,5 +1,6 @@
 import type { LifiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
@@ -42,7 +43,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const l1GasLimit = await (async () => {
     if (chainId !== KnownChainIds.OptimismMainnet) return
 
-    const provider = getEthersProvider(chainId)
+    const provider = getEthersProvider(chainId as EvmChainId)
 
     const abi = [
       {

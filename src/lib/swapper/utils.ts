@@ -137,17 +137,25 @@ export const createTradeAmountTooSmallErr = (details?: {
   })
 
 export const isValidSwapAddress = async (address: string): Promise<boolean> => {
-  type ChainalysisResponse = {
-    identifications: []
-  }
-  const response: ChainalysisResponse = await axios.get(
-    `${getConfig().REACT_APP_CHAINALYSIS_API_URL}/address/${address}`,
+  type trmResponse = [
+    {
+      address: string
+      isSanctioned: boolean
+    },
+  ]
+
+  const response = await axios.post<trmResponse>(
+    getConfig().REACT_APP_TRM_LABS_API_URL,
+    [
+      {
+        address,
+      },
+    ],
     {
       headers: {
-        'X-API-Key': getConfig().REACT_APP_CHAINALYSIS_API_KEY,
-        Accept: 'application/json'
+        Accept: 'application/json',
       },
     },
   )
-  return response.identifications.length === 0 // any identifications mean this is a "bad" address.
+  return !response.data[0].isSanctioned
 }

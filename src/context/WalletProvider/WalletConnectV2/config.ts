@@ -1,3 +1,4 @@
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { getConfig } from 'config'
@@ -41,8 +42,18 @@ const walletConnectV2OptionalChainIds: AtLeastOneNumber = (() => {
   return chainIds as AtLeastOneNumber
 })()
 
+const {
+  REACT_APP_WALLET_CONNECT_PROJECT_ID,
+  REACT_APP_AVALANCHE_NODE_URL,
+  REACT_APP_OPTIMISM_NODE_URL,
+  REACT_APP_BNBSMARTCHAIN_NODE_URL,
+  REACT_APP_POLYGON_NODE_URL,
+  REACT_APP_GNOSIS_NODE_URL,
+  REACT_APP_ETHEREUM_NODE_URL,
+} = getConfig()
+
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
-  projectId: getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID,
+  projectId: REACT_APP_WALLET_CONNECT_PROJECT_ID,
   chains: walletConnectV2RequiredChainIds,
   optionalChains: walletConnectV2OptionalChainIds,
   optionalMethods: [
@@ -55,4 +66,12 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     'eth_signTransaction',
   ],
   showQrModal: true,
+  rpcMap: {
+    [CHAIN_REFERENCE.AvalancheCChain]: REACT_APP_AVALANCHE_NODE_URL,
+    [CHAIN_REFERENCE.OptimismMainnet]: REACT_APP_OPTIMISM_NODE_URL,
+    [CHAIN_REFERENCE.BnbSmartChainMainnet]: REACT_APP_BNBSMARTCHAIN_NODE_URL,
+    [CHAIN_REFERENCE.PolygonMainnet]: REACT_APP_POLYGON_NODE_URL,
+    [CHAIN_REFERENCE.GnosisMainnet]: REACT_APP_GNOSIS_NODE_URL,
+    [CHAIN_REFERENCE.EthereumMainnet]: REACT_APP_ETHEREUM_NODE_URL,
+  },
 }

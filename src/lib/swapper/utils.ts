@@ -2,8 +2,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
+import { getConfig } from 'config'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
@@ -133,3 +135,19 @@ export const createTradeAmountTooSmallErr = (details?: {
     message: 'Sell amount is too small',
     details,
   })
+
+export const isValidSwapAddress = async (address: string): Promise<boolean> => {
+  type ChainalysisResponse = {
+    identifications: []
+  }
+  const response: ChainalysisResponse = await axios.get(
+    `${getConfig().REACT_APP_CHAINALYSIS_API_URL}/address/${address}`,
+    {
+      headers: {
+        'X-API-Key': getConfig().REACT_APP_CHAINALYSIS_API_KEY,
+        Accept: 'application/json'
+      },
+    },
+  )
+  return response.identifications.length === 0 // any identifications mean this is a "bad" address.
+}

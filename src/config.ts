@@ -147,6 +147,8 @@ const validators = {
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
   REACT_APP_FEATURE_FOX_DISCOUNTS: bool({ default: false }),
+  REACT_APP_CHAINALYSIS_API_URL: url(),
+  REACT_APP_CHAINALYSIS_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

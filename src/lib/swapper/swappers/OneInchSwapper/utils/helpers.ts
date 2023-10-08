@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
@@ -14,6 +15,7 @@ import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { ONE_INCH_NATIVE_ASSET_ADDRESS } from './constants'
 import type { OneInchBaseResponse, OneInchSupportedChainId } from './types'
 import { oneInchSupportedChainIds } from './types'
 
@@ -55,16 +57,6 @@ export const assertValidTrade = ({
     )
   }
 
-  if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[OneInch: assetValidTrade] - no support for native assets',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
   if (!receiveAddress) {
     return Err(
       makeSwapErrorRight({
@@ -94,4 +86,10 @@ export const getAdapter = (
   }
 
   return Ok(adapter)
+}
+
+export const getOneInchTokenAddress = (asset: Asset): string => {
+  return isNativeEvmAsset(asset.assetId)
+    ? ONE_INCH_NATIVE_ASSET_ADDRESS
+    : fromAssetId(asset.assetId).assetReference
 }

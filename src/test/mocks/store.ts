@@ -94,6 +94,7 @@ export const mockStore: ReduxState = {
       CustomSendNonce: false,
       Snaps: false,
       FoxDiscounts: false,
+      ThorchainLending: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

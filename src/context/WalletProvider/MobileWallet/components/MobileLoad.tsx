@@ -11,7 +11,8 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -29,6 +30,86 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
+
+type WalletProps = {
+  wallet: RevocableWallet
+  onSelect: (wallet: RevocableWallet) => void
+  onRename: (wallet: RevocableWallet) => void
+  onDelete: (wallet: RevocableWallet) => void
+}
+
+const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
+  const translate = useTranslate()
+  const handleSelect = useCallback(() => onSelect(wallet), [onSelect, wallet])
+  const handleRename = useCallback(() => onRename(wallet), [onRename, wallet])
+  const handleDelete = useCallback(() => onDelete(wallet), [onDelete, wallet])
+  const createdTranslation = useMemo(
+    (): [string, InterpolationOptions] => [
+      'common.created',
+      { date: dayjs(wallet.createdAt).fromNow() },
+    ],
+    [wallet.createdAt],
+  )
+  return (
+    <Row
+      key={wallet.id}
+      mx={-4}
+      py={2}
+      alignItems='center'
+      justifyContent='space-between'
+      variant='btn-ghost'
+      colorScheme='blue'
+      data-test='native-saved-wallet'
+    >
+      <Button
+        px={4}
+        variant='unstyled'
+        display='flex'
+        pl={4}
+        leftIcon={
+          <IconCircle boxSize={10}>
+            <FaWallet />
+          </IconCircle>
+        }
+        onClick={handleSelect}
+        data-test='native-saved-wallet-button'
+      >
+        <Box textAlign='left'>
+          <RawText
+            fontWeight='medium'
+            maxWidth='260px'
+            lineHeight='1.2'
+            mb={1}
+            noOfLines={1}
+            data-test='native-saved-wallet-name'
+          >
+            {wallet.label}
+          </RawText>
+          <Text
+            fontSize='xs'
+            lineHeight='1.2'
+            color='text.subtle'
+            translation={createdTranslation}
+          />
+        </Box>
+      </Button>
+      <Box display='flex'>
+        <IconButton
+          aria-label={translate('common.rename')}
+          variant='ghost'
+          icon={<EditIcon />}
+          onClick={handleRename}
+        />
+        <IconButton
+          aria-label={translate('common.forget')}
+          variant='ghost'
+          icon={<DeleteIcon />}
+          onClick={handleDelete}
+        />
+      </Box>
+    </Row>
+  )
+}
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
@@ -54,7 +135,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
     })()
   }, [wallets])
 
-  const handleWalletSelect = async (item: RevocableWallet) => {
+  const handleWalletSelect = useCallback(async (item: RevocableWallet) => {
     const adapter = await getAdapter(KeyManager.Native)
     const deviceId = item?.id
     if (adapter && deviceId) {
@@ -68,49 +149,38 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         if (!(await wallet.isInitialized())) {
           await wallet.initialize()
         }
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: {
-            wallet,
-            name,
-            icon,
-            deviceId,
-            meta: { label: item.label },
-            connectedType: KeyManager.Mobile,
-          },
-        })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
-        setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
-        setLocalNativeWalletName(item?.label ?? 'label')
-      } catch (e) {
-        console.log(e)
+      } else {
         setError('walletProvider.shapeShift.load.error.pair')
       }
-    } else {
-      setError('walletProvider.shapeShift.load.error.pair')
     }
-  }
+  },
+    [dispatch, state.adapters],
+  )
 
-  const handleDelete = async (wallet: RevocableWallet) => {
-    const result = window.confirm(
-      translate('walletProvider.shapeShift.load.confirmForget', {
-        wallet: wallet.label ?? wallet.id,
-      }),
-    )
-    if (result && wallet?.id) {
-      try {
-        await deleteWallet(wallet.id)
-        setWallets([])
-      } catch (e) {
-        console.log(e)
-        setError('walletProvider.shapeShift.load.error.delete')
+  const handleDelete = useCallback(
+    async (wallet: RevocableWallet) => {
+      const result = window.confirm(
+        translate('walletProvider.shapeShift.load.confirmForget', {
+          wallet: wallet.label ?? wallet.id,
+        }),
+      )
+      if (result && wallet?.id) {
+        try {
+          await deleteWallet(wallet.id)
+          setWallets([])
+        } catch (e) {
+          console.log(e)
+          setError('walletProvider.shapeShift.load.error.delete')
+        }
       }
-    }
-  }
+    },
+    [translate],
+  )
 
-  const handleRename = (vault: RevocableWallet) => history.push('/mobile/rename', { vault })
+  const handleRename = useCallback(
+    (vault: RevocableWallet) => history.push('/mobile/rename', { vault }),
+    [history],
+  )
 
   return (
     <>
@@ -121,63 +191,13 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         <VStack mx={-4} spacing={0}>
           {wallets.map(wallet => {
             return (
-              <Row
+              <Wallet
                 key={wallet.id}
-                mx={-4}
-                py={2}
-                alignItems='center'
-                justifyContent='space-between'
-                variant='btn-ghost'
-                colorScheme='blue'
-                data-test='native-saved-wallet'
-              >
-                <Button
-                  px={4}
-                  variant='unstyled'
-                  display='flex'
-                  pl={4}
-                  leftIcon={
-                    <IconCircle boxSize={10}>
-                      <FaWallet />
-                    </IconCircle>
-                  }
-                  onClick={() => handleWalletSelect(wallet)}
-                  data-test='native-saved-wallet-button'
-                >
-                  <Box textAlign='left'>
-                    <RawText
-                      fontWeight='medium'
-                      maxWidth='260px'
-                      lineHeight='1.2'
-                      mb={1}
-                      noOfLines={1}
-                      data-test='native-saved-wallet-name'
-                    >
-                      {wallet.label}
-                    </RawText>
-                    <Text
-                      fontSize='xs'
-                      lineHeight='1.2'
-                      color='text.subtle'
-                      translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
-                    />
-                  </Box>
-                </Button>
-                <Box display='flex'>
-                  <IconButton
-                    aria-label={translate('common.rename')}
-                    variant='ghost'
-                    icon={<EditIcon />}
-                    onClick={() => handleRename(wallet)}
-                  />
-                  <IconButton
-                    aria-label={translate('common.forget')}
-                    variant='ghost'
-                    icon={<DeleteIcon />}
-                    onClick={() => handleDelete(wallet)}
-                  />
-                </Box>
-              </Row>
+                wallet={wallet}
+                onSelect={handleWalletSelect}
+                onRename={handleRename}
+                onDelete={handleDelete}
+              />
             )
           })}
           {error && (

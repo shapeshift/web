@@ -13,10 +13,10 @@ export type RedirectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
-  onClickAction(): () => any
   loading: boolean
   error: string | null
   children?: ReactNode
+  onClickAction: () => void
 }
 
 export const RedirectModal: React.FC<RedirectModalProps> = props => {

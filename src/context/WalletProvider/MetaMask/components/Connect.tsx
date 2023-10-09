@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -31,18 +31,18 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
 
-  // eslint-disable-next-line no-sequences
-  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const setErrorLoading = useCallback((e: string | null) => {
+    setError(e)
+    setLoading(false)
+  }, [])
 
   useEffect(() => {
-    ;(async () => {
-      await onProviderChange(KeyManager.MetaMask)
-    })()
+    void onProviderChange(KeyManager.MetaMask)
   }, [onProviderChange])
 
   const isSnapsEnabled = useFeatureFlag('Snaps')
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
@@ -96,14 +96,26 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [
+    dispatch,
+    history,
+    isSnapsEnabled,
+    setErrorLoading,
+    showSnapModal,
+    state.adapters,
+    state.provider,
+  ])
 
-  // This constructs the MetaMask deep-linking target from the currently-loaded
-  // window.location. The port will be blank if not specified, in which case it
-  // should be omitted.
-  const mmDeeplinkTarget = [window.location.hostname, window.location.port]
-    .filter(x => !!x)
-    .join(':')
+  const handleRedirect = useCallback((): void => {
+    // This constructs the MetaMask deep-linking target from the currently-loaded
+    // window.location. The port will be blank if not specified, in which case it
+    // should be omitted.
+    const mmDeeplinkTarget = [window.location.hostname, window.location.port]
+      .filter(x => !!x)
+      .join(':')
+
+    return window.location.assign(`https://metamask.app.link/dapp/${mmDeeplinkTarget}`)
+  }, [])
 
   // The MM mobile app itself injects a provider, so we'll use pairDevice once
   // we've reopened ourselves in that environment.
@@ -112,12 +124,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}
       buttonText={'walletProvider.metaMask.redirect.button'}
-      onClickAction={(): any => {
-        window.location.assign(`https://metamask.app.link/dapp/${mmDeeplinkTarget}`)
-      }}
+      onClickAction={handleRedirect}
       loading={loading}
       error={error}
-    ></RedirectModal>
+    />
   ) : (
     <ConnectModal
       headerText={'walletProvider.metaMask.connect.header'}
@@ -126,6 +136,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
-    ></ConnectModal>
+    />
   )
 }

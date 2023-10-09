@@ -231,9 +231,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
         if (index === undefined)
           throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
-        if (!account.chainSpecific.addresses)
-          throw new Error(`UtxoBaseAdapter: Could not fetch addresses from unchained`)
-        const address = account.chainSpecific.addresses[index].pubkey
+        const address = account.chainSpecific.addresses?.[index]?.pubkey
         if (!address)
           throw new Error(
             `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,

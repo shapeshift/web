@@ -28,7 +28,7 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   if (!isSnapsEnabled) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={() => close()} isCentered size='sm'>
+    <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
       <ModalContent minW='450px'>
         <ModalCloseButton />

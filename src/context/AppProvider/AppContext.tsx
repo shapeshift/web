@@ -215,12 +215,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case bchChainId:
           case cosmosChainId:
           case bscChainId:
-            ;(async () => {
-              await fetchAllOpportunitiesIdsByChainId(chainId)
-              await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserDataByAccountId(accountId)
-            })()
-            break
           case avalancheChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)

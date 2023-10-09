@@ -1292,7 +1292,8 @@
       "connectMetaMask": "Connect MetaMask",
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
+      "dontAskAgain": "Don't ask again"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",

@@ -50,6 +50,7 @@ const {
   REACT_APP_POLYGON_NODE_URL,
   REACT_APP_GNOSIS_NODE_URL,
   REACT_APP_ETHEREUM_NODE_URL,
+  REACT_APP_ARBITRUM_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
@@ -73,5 +74,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.PolygonMainnet]: REACT_APP_POLYGON_NODE_URL,
     [CHAIN_REFERENCE.GnosisMainnet]: REACT_APP_GNOSIS_NODE_URL,
     [CHAIN_REFERENCE.EthereumMainnet]: REACT_APP_ETHEREUM_NODE_URL,
+    [CHAIN_REFERENCE.ArbitrumMainnet]: REACT_APP_ARBITRUM_NODE_URL,
   },
 }

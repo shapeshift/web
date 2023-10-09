@@ -62,6 +62,7 @@ export const mockStore: ReduxState = {
       Optimism: false,
       Polygon: false,
       Gnosis: false,
+      Arbitrum: false,
       BnbSmartChain: false,
       ZrxSwap: false,
       ThorSwap: false,

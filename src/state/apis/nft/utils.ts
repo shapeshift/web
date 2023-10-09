@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   avalancheChainId,
   bscChainId,
   deserializeNftAssetReference,
@@ -41,8 +42,8 @@ export enum SupportedOpenseaNetwork {
   Ethereum = 'ethereum',
   BinanceSmartChain = 'bsc',
   Avalanche = 'avalanche',
+  Arbitrum = 'arbitrum',
   // Klaytn = 'klaytn',
-  // Arbitrum = 'arbitrum',
   // Solana = 'solana',
 }
 
@@ -54,6 +55,7 @@ export const OPENSEA_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedOpenseaNetwork, C
   [SupportedOpenseaNetwork.Ethereum]: ethChainId,
   [SupportedOpenseaNetwork.Optimism]: optimismChainId,
   [SupportedOpenseaNetwork.Polygon]: polygonChainId,
+  [SupportedOpenseaNetwork.Arbitrum]: arbitrumChainId,
 } as const
 
 export const CHAIN_ID_TO_OPENSEA_NETWORK_MAP = invert(OPENSEA_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
@@ -139,8 +141,12 @@ export const getAlchemyNftsUserData = async (
 
         const alchemy = getAlchemyInstanceByChainId(chainId)
         const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
-          // spam filter not implemented for optimism
-          excludeFilters: chainId !== KnownChainIds.OptimismMainnet ? [NftFilters.SPAM] : [],
+          // spam filter only supported for Ethereum and Polygon
+          excludeFilters: [KnownChainIds.EthereumMainnet, KnownChainIds.PolygonMainnet].includes(
+            chainId as KnownChainIds,
+          )
+            ? [NftFilters.SPAM]
+            : [],
         })
         return Promise.all(
           ownedNfts.map(ownedNft =>

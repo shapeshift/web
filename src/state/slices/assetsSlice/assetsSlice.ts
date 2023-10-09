@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   bscChainId,
   fromAssetId,
   gnosisChainId,
@@ -130,6 +131,7 @@ export const assetApi = createApi({
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
             if (!flags.Polygon && asset.chainId === polygonChainId) return prev
             if (!flags.Gnosis && asset.chainId === gnosisChainId) return prev
+            if (!flags.Arbitrum && asset.chainId === arbitrumChainId) return prev
             prev[assetId] = asset
             return prev
           },

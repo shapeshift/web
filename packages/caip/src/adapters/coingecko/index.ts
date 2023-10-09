@@ -18,13 +18,13 @@ export enum CoingeckoAssetPlatform {
   Thorchain = 'thorchain',
   Optimism = 'optimistic-ethereum',
   BnbSmartChain = 'binance-smart-chain',
+  Arbitrum = 'arbitrum-one',
 }
 
 type CoinGeckoId = string
 
 // markets.shapeshift.com is a coingecko proxy maintained by the fox foundation
 export const coingeckoBaseUrl = 'https://markets.shapeshift.com/api/v3'
-// export const coingeckoBaseUrl = 'http://localhost:1137/api/v3'
 export const coingeckoProBaseUrl = coingeckoBaseUrl
 export const coingeckoUrl = `${coingeckoBaseUrl}/coins/list?include_platform=true`
 
@@ -63,6 +63,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Polygon
         case CHAIN_REFERENCE.GnosisMainnet:
           return CoingeckoAssetPlatform.Gnosis
+        case CHAIN_REFERENCE.ArbitrumMainnet:
+          return CoingeckoAssetPlatform.Arbitrum
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,

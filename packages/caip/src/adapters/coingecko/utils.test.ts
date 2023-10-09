@@ -20,6 +20,7 @@ const makeWethMockCoingeckoResponse = () => ({
     'binance-smart-chain': '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
     'polygon-pos': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
     xdai: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
+    'arbitrum-one': '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   },
 })
 
@@ -72,6 +73,7 @@ const makeThorchainMockCoingeckoResponse = () => ({
 jest.mock('fs', () => ({
   promises: {
     writeFile: jest.fn(() => undefined),
+    mkdir: jest.fn(() => undefined),
   },
 }))
 
@@ -147,6 +149,10 @@ describe('adapters:coingecko:utils', () => {
           'eip155:100/slip44:60': 'xdai',
           'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1': 'weth',
         },
+        'eip155:42161': {
+          'eip155:42161/slip44:60': 'ethereum',
+          'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 'weth',
+        },
       }
       expect(result).toEqual(expected)
     })
@@ -168,10 +174,20 @@ describe('adapters:coingecko:utils', () => {
       const barAssetIds = JSON.stringify(data.bar)
       console.info = jest.fn()
       await writeFiles(data)
+      expect(realFs.promises.mkdir).toHaveBeenNthCalledWith(
+        1,
+        './src/adapters/coingecko/generated/foo',
+        { recursive: true },
+      )
       expect(realFs.promises.writeFile).toHaveBeenNthCalledWith(
         1,
         './src/adapters/coingecko/generated/foo/adapter.json',
         fooAssetIds,
+      )
+      expect(realFs.promises.mkdir).toHaveBeenNthCalledWith(
+        2,
+        './src/adapters/coingecko/generated/bar',
+        { recursive: true },
       )
       expect(realFs.promises.writeFile).toHaveBeenNthCalledWith(
         2,

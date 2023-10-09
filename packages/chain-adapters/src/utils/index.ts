@@ -46,6 +46,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
         case CHAIN_REFERENCE.PolygonMainnet:
         case CHAIN_REFERENCE.GnosisMainnet:
+        case CHAIN_REFERENCE.ArbitrumMainnet:
           return 'ethereum' // all evm chains use the same validator (https://github.com/christsim/multicoin-address-validator/blob/master/src/ethereum_validator.js)
         default:
           throw new Error(

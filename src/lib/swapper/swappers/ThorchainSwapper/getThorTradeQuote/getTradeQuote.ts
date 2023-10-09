@@ -94,17 +94,6 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const thorSwapStreamingSwaps = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
-
-  const maybeSwapQuote = await getQuote({
-    sellAsset,
-    buyAssetId: buyAsset.assetId,
-    sellAmountCryptoBaseUnit,
-    receiveAddress,
-    streaming: false,
-    affiliateBps: requestedAffiliateBps,
-  })
-
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/lcd/thorchain/pools`,
@@ -116,6 +105,7 @@ export const getThorTradeQuote = async (
 
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
+
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
@@ -153,7 +143,19 @@ export const getThorTradeQuote = async (
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
 
-  const maybeStreamingSwapQuote = thorSwapStreamingSwaps
+  const maybeSwapQuote = await getQuote({
+    sellAsset,
+    buyAssetId: buyAsset.assetId,
+    sellAmountCryptoBaseUnit,
+    receiveAddress,
+    streaming: false,
+    affiliateBps: requestedAffiliateBps,
+  })
+
+  if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
+  const swapQuote = maybeSwapQuote.unwrap()
+
+  const maybeStreamingSwapQuote = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
     ? await getQuote({
         sellAsset,
         buyAssetId: buyAsset.assetId,
@@ -165,10 +167,7 @@ export const getThorTradeQuote = async (
       })
     : undefined
 
-  if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
   if (maybeStreamingSwapQuote?.isErr()) return Err(maybeStreamingSwapQuote.unwrapErr())
-
-  const swapQuote = maybeSwapQuote.unwrap()
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
 
   // recommended_min_amount_in should be the same value for both types of swaps

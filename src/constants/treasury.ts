@@ -11,6 +11,7 @@ export const evmTreasuryChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
 ] as const
 
 export type EvmTreasuryChainId = (typeof evmTreasuryChainIds)[number]
@@ -26,6 +27,7 @@ export const DAO_TREASURY_AVALANCHE = '0x74d63F31C2335b5b3BA7ad2812357672b2624cE
 export const DAO_TREASURY_POLYGON = '0xB5F944600785724e31Edb90F9DFa16dBF01Af000'
 export const DAO_TREASURY_GNOSIS = '0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3'
 export const DAO_TREASURY_BSC = '0x8b92b1698b57bEDF2142297e9397875ADBb2297E'
+export const DAO_TREASURY_ARBITRUM = '0x38276553F8fbf2A027D901F8be45f00373d8Dd48'
 
 // Multisigs
 export const DAO_TREASURY_COSMOS = 'cosmos1qgmqsmytnwm6mhyxwjeur966lv9jacfexgfzxs'

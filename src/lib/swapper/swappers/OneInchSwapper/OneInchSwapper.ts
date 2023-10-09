@@ -4,7 +4,7 @@ import type { BuyAssetBySellIdInput, Swapper } from 'lib/swapper/types'
 import { executeEvmTransaction } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export const oneInchSwapper: Swapper = {
   executeEvmTransaction,
@@ -14,6 +14,8 @@ export const oneInchSwapper: Swapper = {
   },
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    return Promise.resolve(filterBuyAssetsBySellAssetId(input))
+    return Promise.resolve(
+      filterSameChainEvmBuyAssetsBySellAssetId(input).map(asset => asset.assetId),
+    )
   },
 }

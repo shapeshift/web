@@ -2,8 +2,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
+import { getConfig } from 'config'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
@@ -133,3 +135,27 @@ export const createTradeAmountTooSmallErr = (details?: {
     message: 'Sell amount is too small',
     details,
   })
+
+export const isValidSwapAddress = async (address: string): Promise<boolean> => {
+  type trmResponse = [
+    {
+      address: string
+      isSanctioned: boolean
+    },
+  ]
+
+  const response = await axios.post<trmResponse>(
+    getConfig().REACT_APP_TRM_LABS_API_URL,
+    [
+      {
+        address,
+      },
+    ],
+    {
+      headers: {
+        Accept: 'application/json',
+      },
+    },
+  )
+  return !response.data[0].isSanctioned
+}

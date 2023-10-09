@@ -3,6 +3,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -213,6 +214,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case dogeChainId:
           case bchChainId:
           case cosmosChainId:
+          case bscChainId:
           case avalancheChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)

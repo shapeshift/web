@@ -8,6 +8,8 @@ export const csp: Csp = {
     'https://eth-mainnet.g.alchemy.com/nft/v2/',
     // Alchemy SDK NFT resolution on Optimism mainnet
     'https://opt-mainnet.g.alchemy.com/nft/v2/',
+    // Alchemy SDK NFT resolution on Arbitrum mainnet
+    'https://arb-mainnet.g.alchemy.com/nft/v2/',
     // Mercle IPNS gateway for NFT resolution
     'https://backend.mercle.xyz/ipns/',
   ],

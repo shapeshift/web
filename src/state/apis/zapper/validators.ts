@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   bscChainId,
@@ -19,11 +20,11 @@ export enum SupportedZapperNetwork {
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
-  // Unsupported networks - uncomment as we implement them
   Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
   Gnosis = 'gnosis',
+  Arbitrum = 'arbitrum',
+  // Unsupported networks - uncomment as we implement them
   // Fantom = 'fantom',
-  // Artbitrum = 'arbitrum',
   // Celo = 'celo',
   // Harmony = 'harmony',
   // Moonriver = 'moonriver',
@@ -59,6 +60,7 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, Cha
   [SupportedZapperNetwork.Optimism]: optimismChainId,
   [SupportedZapperNetwork.Polygon]: polygonChainId,
   [SupportedZapperNetwork.Gnosis]: gnosisChainId,
+  [SupportedZapperNetwork.Arbitrum]: arbitrumChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<

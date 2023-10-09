@@ -148,6 +148,19 @@
           "useSingleRequestParameter": true
         }
       },
+      "arbitrum": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/arbitrum/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/arbitrum",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "thorchain": {
         "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain/api/swagger.json",
         "generatorName": "typescript-fetch",

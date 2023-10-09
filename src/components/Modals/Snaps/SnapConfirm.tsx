@@ -34,6 +34,20 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
     getMixPanel()?.track(MixPanelEvents.SnapInstalled)
   }, [])
 
+  const handlePinkySwearSeedPhraseIsBackedUp = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) =>
+      setHasPinkySworeSeedPhraseIsBackedUp(event.target.checked),
+    [],
+  )
+
+  const handleAgree = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => setHasAgreed(event.target.checked),
+    [],
+  )
+
+  // TODO: ackchually cancel, not use placebo
+  const handleCancel = useCallback(() => setIsInstalling(false), [])
+
   if (isInstalling) {
     return (
       <ModalBody
@@ -45,7 +59,8 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
         py={6}
       >
         <CircularProgress />
-        <Button variant='ghost' onClick={() => setIsInstalling(false)}>
+        {/* TODO: ackchually cancel, not use placebo - disabled for now */}
+        <Button variant='ghost' isDisabled={true} onClick={handleCancel}>
           {translate('common.cancel')}
         </Button>
       </ModalBody>
@@ -87,13 +102,10 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
           <ListItem>{translate('walletProvider.metaMaskSnapConfirm.agreeItem3')}</ListItem>
           <ListItem>{translate('walletProvider.metaMaskSnapConfirm.agreeItem4')}</ListItem>
         </UnorderedList>
-        <Checkbox onChange={e => setHasAgreed(e.target.checked)} fontWeight='bold'>
+        <Checkbox onChange={handleAgree} fontWeight='bold'>
           {translate('walletProvider.metaMaskSnapConfirm.readAndUnderstood')}
         </Checkbox>
-        <Checkbox
-          onChange={e => setHasPinkySworeSeedPhraseIsBackedUp(e.target.checked)}
-          fontWeight='bold'
-        >
+        <Checkbox onChange={handlePinkySwearSeedPhraseIsBackedUp} fontWeight='bold'>
           {translate('walletProvider.metaMaskSnapConfirm.seedBackedUp')}
         </Checkbox>
       </ModalBody>

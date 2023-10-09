@@ -5,7 +5,7 @@ import { TypedMessageInfo } from 'plugins/walletConnectToDapps/components/modals
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
-import type { FC } from 'react'
+import { type FC, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
@@ -14,9 +14,12 @@ import { assertIsDefined } from 'lib/utils'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+
 export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
-> = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
+> = ({ onConfirm, onReject, state }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address, message, chainId } = useWalletConnectState(state)
   assertIsDefined(message)
 
@@ -27,6 +30,18 @@ export const EIP155SignTypedDataConfirmation: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
+
+  const handleConfirm = useCallback(async () => {
+    setIsLoading(true)
+    await onConfirm()
+    setIsLoading(false)
+  }, [onConfirm])
+
+  const handleReject = useCallback(async () => {
+    setIsLoading(true)
+    await onReject()
+    setIsLoading(false)
+  }, [onReject])
 
   return (
     <>
@@ -44,10 +59,24 @@ export const EIP155SignTypedDataConfirmation: FC<
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={handleConfirm}>
+        <Button
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          type='submit'
+          onClick={handleConfirm}
+          _disabled={disabledProp}
+          isLoading={isLoading}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button size='lg' width='full' onClick={handleReject}>
+        <Button
+          size='lg'
+          width='full'
+          onClick={handleReject}
+          isDisabled={isLoading}
+          _disabled={disabledProp}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>

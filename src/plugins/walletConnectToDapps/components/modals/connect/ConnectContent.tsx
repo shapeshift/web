@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { isWalletConnectV2Uri } from 'plugins/walletConnectToDapps/components/modals/connect/utils'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { QRCodeIcon } from 'components/Icons/QRCode'
@@ -36,7 +36,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
   const [isQrCodeView, setIsQrCodeView] = useState<boolean>(false)
   const toggleQrCodeView = useCallback(() => setIsQrCodeView(v => !v), [])
 
-  const handleForm = (values: FormValues) => handleConnect(values.uri)
+  const handleForm = useCallback((values: FormValues) => handleConnect(values.uri), [handleConnect])
 
   const { register, handleSubmit, control, formState, setValue } = useForm<FormValues>({
     mode: 'onChange',
@@ -54,10 +54,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
   const uri = useWatch({ control, name: 'uri' })
   const isValidUri = isWalletConnectV2Uri(uri)
 
-  if (isQrCodeView)
-    return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />
-
-  const connectTranslation = (() => {
+  const connectTranslation = useMemo(() => {
     const commonString = 'plugins.walletConnectToDapps.modal.connect'
     switch (true) {
       case uri === '':
@@ -67,7 +64,11 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
       default:
         return `${commonString}.connect`
     }
-  })()
+  }, [isValidUri, uri])
+
+  if (isQrCodeView) {
+    return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />
+  }
 
   return (
     <Box p={8}>

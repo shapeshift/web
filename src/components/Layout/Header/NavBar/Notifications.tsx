@@ -9,6 +9,7 @@ import {
   ThemeMode,
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
+import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -75,7 +76,7 @@ export const Notifications = () => {
       try {
         const signedMsg = await wallet.ethSignMessage({
           addressNList,
-          message,
+          message: utils.hexlify(utils.toUtf8Bytes(message)),
         })
 
         return signedMsg?.signature

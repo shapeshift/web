@@ -85,7 +85,12 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
             <Row>
               <Row.Label>{translate('nft.chain')}</Row.Label>
               <Row.Value display='flex' alignItems='center'>
-                <AssetIcon src={maybeFeeAsset?.icon} size='2xs' mr={2} /> {chainDisplayName}
+                <AssetIcon
+                  src={maybeFeeAsset?.networkIcon ?? maybeFeeAsset?.icon}
+                  size='2xs'
+                  mr={2}
+                />{' '}
+                {chainDisplayName}
               </Row.Value>
             </Row>
           )}

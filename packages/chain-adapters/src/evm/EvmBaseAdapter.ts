@@ -8,6 +8,7 @@ import type {
   HDWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsArbitrum,
   supportsAvalanche,
   supportsBSC,
   supportsETH,
@@ -46,7 +47,7 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
+import type { arbitrum, avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
@@ -63,6 +64,7 @@ export const evmChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
 ] as const
 
 export type EvmChainId = (typeof evmChainIds)[number]
@@ -74,6 +76,7 @@ export type EvmChainAdapter =
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
   | gnosis.ChainAdapter
+  | arbitrum.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -159,6 +162,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsPolygon(wallet)
       case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
         return supportsGnosis(wallet)
+      case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
+        return supportsArbitrum(wallet)
       default:
         return false
     }
@@ -211,6 +216,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://optimistic.etherscan.io',
+      },
+      [KnownChainIds.ArbitrumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://arbiscan.io',
       },
     }[this.chainId]
 

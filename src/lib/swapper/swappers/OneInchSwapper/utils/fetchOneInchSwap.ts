@@ -1,10 +1,11 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getOneInchTokenAddress } from './helpers'
 import { oneInchService } from './oneInchService'
 import type { OneInchSwapApiInput, OneInchSwapResponse } from './types'
 
@@ -32,13 +33,19 @@ export const fetchOneInchSwap = async ({
   // so we need to multiply it by 100 when calling 1inch swap endpoint
   const maximumSlippagePercentage = bnOrZero(maximumSlippageDecimalPercentage).times(100).toNumber()
 
+  const maybeTreasuryAddress = (() => {
+    try {
+      return getTreasuryAddressFromChainId(buyAsset.chainId)
+    } catch (err) {}
+  })()
+
   const buyTokenPercentageFee = affiliateBps
     ? convertBasisPointsToPercentage(affiliateBps).toNumber()
     : 0
 
   const params: OneInchSwapApiInput = {
-    fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
-    toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
+    fromTokenAddress: getOneInchTokenAddress(sellAsset),
+    toTokenAddress: getOneInchTokenAddress(buyAsset),
     // HACK: use the receive address as the send address
     // 1inch uses this to check allowance on their side
     // this swapper is not cross-account so this works
@@ -46,9 +53,11 @@ export const fetchOneInchSwap = async ({
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippage: maximumSlippagePercentage,
     allowPartialFill: false,
-    referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),
     disableEstimate: false,
-    fee: buyTokenPercentageFee,
+    ...(maybeTreasuryAddress && {
+      referrerAddress: maybeTreasuryAddress,
+      fee: buyTokenPercentageFee,
+    }),
   }
 
   const { chainReference } = fromChainId(sellAsset.chainId)

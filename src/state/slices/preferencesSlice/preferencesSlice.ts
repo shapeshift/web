@@ -14,6 +14,7 @@ export type FeatureFlags = {
   BnbSmartChain: boolean
   Polygon: boolean
   Gnosis: boolean
+  Arbitrum: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   ThorSwapAffiliateFees: boolean
@@ -44,6 +45,7 @@ export type FeatureFlags = {
   WalletConnectV2: boolean
   CustomSendNonce: boolean
   Snaps: boolean
+  FoxDiscounts: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -76,6 +78,7 @@ const initialState: Preferences = {
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
+    Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
@@ -105,6 +108,7 @@ const initialState: Preferences = {
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
+    FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -148,7 +152,7 @@ export const preferences = createSlice({
     setShowConsentBanner(state, { payload }: { payload: boolean }) {
       state.showConsentBanner = payload
     },
-    setShowSnapssModal(state, { payload }: { payload: boolean }) {
+    setShowSnapsModal(state, { payload }: { payload: boolean }) {
       state.showSnapsModal = payload
     },
     setSnapInstalled(state, { payload }: { payload: boolean }) {

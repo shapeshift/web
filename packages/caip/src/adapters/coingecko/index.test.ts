@@ -42,7 +42,13 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Optimism,
       })
-      expect(coingeckoToAssetIds('ethereum')).toEqual([ethOnEthereum, ethOnOptimism])
+      const ethOnArbitrum = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Arbitrum,
+      })
+      expect(coingeckoToAssetIds('ethereum')).toEqual([ethOnEthereum, ethOnOptimism, ethOnArbitrum])
     })
 
     it('can get AssetIds id for FOX', () => {
@@ -115,7 +121,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference: CHAIN_REFERENCE.OptimismMainnet,
         assetNamespace,
-        assetReference: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+        assetReference: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
       })
       const usdcOnBsc = toAssetId({
         chainNamespace,
@@ -135,6 +141,12 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
       })
+      const usdcOnArbitrum = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
+        assetNamespace,
+        assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -142,6 +154,7 @@ describe('adapters:coingecko', () => {
         usdcOnBsc,
         usdcOnPolygon,
         usdcOnGnosis,
+        usdcOnArbitrum,
       ])
     })
   })

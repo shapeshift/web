@@ -8,7 +8,7 @@ import type {
   WalletConnectRequest,
 } from 'plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
-import { getTypeGuardAssertion, isTruthy } from 'lib/utils'
+import { isTruthy } from 'lib/utils'
 
 export const isTransactionParamsArray = (
   transactions: RequestParams | undefined,
@@ -48,14 +48,8 @@ export const isTransactionParams = (
   transaction: TransactionParams | string | undefined,
 ): transaction is TransactionParams =>
   typeof transaction === 'object' &&
-  !!transaction?.from &&
-  !!transaction?.to &&
-  !!transaction?.data &&
-  ((!!transaction?.gasLimit && !!transaction?.gasPrice) || !!transaction?.gas)
-
-export const assertIsTransactionParams: (
-  transaction: TransactionParams | string | undefined,
-) => asserts transaction is TransactionParams = getTypeGuardAssertion(
-  isTransactionParams,
-  'Transaction has no transaction params',
-)
+  transaction !== null &&
+  !!transaction.from &&
+  !!transaction.to &&
+  !!transaction.data &&
+  ((!!transaction.gasLimit && !!transaction.gasPrice) || !!transaction.gas)

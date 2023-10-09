@@ -1,6 +1,7 @@
 import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
+import { isHexString } from 'ethers/lib/utils.js'
 import type { Asset } from 'lib/asset-service'
 import type {
   BuyAssetBySellIdInput,
@@ -27,7 +28,11 @@ export const cowSwapper: Swapper = {
     // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
     // For more info, check hashOrder method implementation
     const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
-    const messageToSign = ethers.utils.arrayify(orderDigest)
+    // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
+    const messageToSign = orderDigest
+
+    if (!isHexString(messageToSign)) throw new Error('messageToSign is not an hex string')
+
     const signatureOrderDigest = await signMessage(messageToSign)
 
     // Passing the signature through split/join to normalize the `v` byte.

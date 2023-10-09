@@ -12,6 +12,8 @@ export const optimismAssetId: AssetId = 'eip155:10/slip44:60'
 export const bscAssetId: AssetId = 'eip155:56/slip44:60'
 export const polygonAssetId: AssetId = 'eip155:137/slip44:60'
 export const gnosisAssetId: AssetId = 'eip155:100/slip44:60'
+export const arbitrumAssetId: AssetId = 'eip155:42161/slip44:60'
+
 export const foxOnGnosisAssetId: AssetId =
   'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -37,6 +39,7 @@ export const optimismChainId: ChainId = 'eip155:10'
 export const bscChainId: ChainId = 'eip155:56'
 export const polygonChainId: ChainId = 'eip155:137'
 export const gnosisChainId: ChainId = 'eip155:100'
+export const arbitrumChainId: ChainId = 'eip155:42161'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v1'
@@ -83,6 +86,7 @@ export const CHAIN_REFERENCE = {
   BnbSmartChainMainnet: '56', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   PolygonMainnet: '137', // https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/
   GnosisMainnet: '100', // https://docs.gnosischain.com/tools/wallets/metamask/
+  ArbitrumMainnet: '42161', // https://chainlist.org/chain/42161
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -116,6 +120,7 @@ export const ASSET_REFERENCE = {
   BnbSmartChain: '60', // evm chain which uses ethereum derivation path as common practice
   Polygon: '60', // evm chain which uses ethereum derivation path as common practice
   Gnosis: '60', // evm chain which uses ethereum derivation path as common practice
+  Arbitrum: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -135,6 +140,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BnbSmartChainMainnet,
     CHAIN_REFERENCE.PolygonMainnet,
     CHAIN_REFERENCE.GnosisMainnet,
+    CHAIN_REFERENCE.ArbitrumMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -185,4 +191,5 @@ export const FEE_ASSET_IDS = [
   bscAssetId,
   polygonAssetId,
   gnosisAssetId,
+  arbitrumAssetId,
 ]

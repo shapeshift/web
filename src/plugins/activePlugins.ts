@@ -1,3 +1,4 @@
+import arbitrum from 'plugins/arbitrum'
 import arkeoAirdrop from 'plugins/arkeo'
 import avalanche from 'plugins/avalanche'
 import bitcoin from 'plugins/bitcoin'
@@ -32,4 +33,5 @@ export const activePlugins = [
   optimism,
   arkeoAirdrop,
   bnbsmartchain,
+  arbitrum,
 ]

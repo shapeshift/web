@@ -14,6 +14,7 @@ import {
   fromChainId,
   ltcAssetId,
   ltcChainId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
@@ -40,7 +41,7 @@ export const LedgerChains = () => {
   const walletChainIds = useAppSelector(selectWalletChainIds)
 
   const availableAssetIds = useMemo(
-    () => [btcAssetId, dogeAssetId, bchAssetId, ltcAssetId, ethAssetId],
+    () => [btcAssetId, dogeAssetId, bchAssetId, ltcAssetId, ethAssetId, thorchainAssetId],
     [],
   )
 

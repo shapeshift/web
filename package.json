@@ -116,6 +116,7 @@
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^8.3.3",
     "@visx/gradient": "^2.10.0",
+    "@visx/grid": "^3.3.0",
     "@visx/responsive": "^2.10.0",
     "@visx/xychart": "^2.12.2",
     "@wagmi/core": "^1.4.2",

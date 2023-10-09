@@ -20,6 +20,8 @@ type CalculateFeeBpsReturn = {
   feeUsd: BigNumber
   feeUsdDiscount: BigNumber
   foxDiscountPercent: BigNumber
+  feeUsdBeforeDiscount: BigNumber
+  feeBpsBeforeDiscount: BigNumber
 }
 type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
@@ -41,6 +43,8 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
       feeUsd: bn(0),
       feeUsdDiscount: bn(0),
       foxDiscountPercent,
+      feeUsdBeforeDiscount: bn(0),
+      feeBpsBeforeDiscount: bn(0),
     }
   }
 
@@ -66,5 +70,12 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const feeUsdDiscount = feeUsdBeforeDiscount.multipliedBy(foxDiscountPercent.div(100))
   const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
 
-  return { feeBps, feeUsd, feeUsdDiscount, foxDiscountPercent }
+  return {
+    feeBps,
+    feeUsd,
+    feeUsdDiscount,
+    foxDiscountPercent,
+    feeUsdBeforeDiscount,
+    feeBpsBeforeDiscount,
+  }
 }

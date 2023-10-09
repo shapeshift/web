@@ -7,7 +7,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import EthereumProvider from '@walletconnect/ethereum-provider'
 import type {
   EthereumProvider as EthereumProviderType,
   EthereumProviderOptions,
@@ -160,6 +159,11 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      const currentConnectedType = state.connectedType
+      if (currentConnectedType === 'walletconnectv2') {
+        state.wallet?.disconnect?.()
+        clearLocalWallet()
+      }
       const deviceId = action?.payload?.deviceId
       // set walletId in redux store
       const walletMeta = { walletId: deviceId, walletName: action?.payload?.name }
@@ -691,7 +695,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (!walletType) return
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
-          if (KeyManager.MetaMask === walletType) {
+          if (walletType === KeyManager.MetaMask) {
             return (await detectEthereumProvider()) as MetaMaskLikeProvider
           }
           if (walletType === KeyManager.XDefi) {
@@ -701,11 +705,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               throw new Error('walletProvider.xdefi.errors.connectFailure')
             }
           }
+
           if (walletType === KeyManager.WalletConnectV2) {
-            return await EthereumProvider.init({
-              ...walletConnectV2ProviderConfig,
-              showQrModal: false,
-            })
+            // provider is created when getting the wallet in WalletConnectV2Connect pairDevice
+            return null
           }
 
           return null
@@ -788,7 +791,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
-    // remove existing dapp or wallet connections
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),

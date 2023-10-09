@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Free",
     "back": "Back",
     "balance": "Balance",
     "next": "Next",
@@ -1319,7 +1320,7 @@
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled"
     },
-    "metaMaskSnapConfirm":{
+    "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",
       "warningExperimental": "The ShapeShift Multichain Snap is a new, experimental feature, provided \"as is\"",
       "warningBackup": "Ensure you have backed up your MetaMask seed phrase. Any funds you send to non-EVM chains using this Snap will be directed to the default account you set up with MetaMask.",
@@ -2129,5 +2130,15 @@
       "title": "Set a New Avatar",
       "restoreDefault": "Restore default"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Current FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "Simulate your FOX Savings",
+    "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your trade. Simply adjust the sliders below to indicate your FOX holder amount and the trade size in fiat, and watch your potential savings unfold!",
+    "tradeSize": "Trade Size",
+    "totalFee": "Total Fee",
+    "foxPowerDiscount": "FOX Power Discount",
+    "basedOnFee": "Based on a fee of: %{fee}"
   }
 }

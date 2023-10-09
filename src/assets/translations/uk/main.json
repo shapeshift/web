@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "Інформація про dApp",
-          "permissions": "Дозволи",
           "accountSelection": "Виберіть акаунти",
           "unsupportedChain": "Непідтримуваний ланцюжок імен у пропозиції сеансу.",
           "methods": "Способи",

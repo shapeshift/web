@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "Информация dApp",
-          "permissions": "Разрешения",
           "accountSelection": "Выберите счета",
           "unsupportedChain": "Неподдерживаемое пространство имен цепочки в предложении сессии.",
           "methods": "Методы",

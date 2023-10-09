@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",
-          "permissions": "Berechtigungen",
           "accountSelection": "Konten auswählen",
           "unsupportedChain": "Nicht unterstützter Kettenname im Session Versuch.",
           "methods": "Methoden",

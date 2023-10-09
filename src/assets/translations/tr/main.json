@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Bilgisi",
-          "permissions": "İzinler",
           "accountSelection": "Hesapları seçin",
           "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
           "methods": "Yöntemler",

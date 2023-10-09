@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info de la dApp",
-          "permissions": "Permissions",
           "accountSelection": "Choisir des comptes",
           "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
           "methods": "Méthodes",

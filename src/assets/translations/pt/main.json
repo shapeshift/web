@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "Informação do dApp",
-          "permissions": "Permissões",
           "accountSelection": "Escolha as contas",
           "unsupportedChain": "Rede não suportada.",
           "methods": "Métodos",

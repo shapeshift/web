@@ -1817,7 +1817,6 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp 信息",
-          "permissions": "权限",
           "accountSelection": "选择账户",
           "unsupportedChain": "会话提案中不支持链命名空间。",
           "methods": "方法",

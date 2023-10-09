@@ -120,29 +120,25 @@ export const LedgerChains = () => {
 
   const chainsRows = useMemo(
     () =>
-      availableAssets
-        .sort(a => (walletChainIds.includes(a.chainId) ? 1 : -1))
-        .map(asset => {
-          return (
-            <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
-              <Flex alignItems='center' gap={2}>
-                <AssetIcon assetId={asset.assetId} size='sm' />
-                <RawText fontWeight='bold'>{asset.name}</RawText>
-              </Flex>
-              <Button
-                isLoading={loadingChains[asset.chainId]}
-                onClick={() => handleConnectClick(asset.chainId)}
-                colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
-                isDisabled={walletChainIds.includes(asset.chainId)}
-                {...(walletChainIds.includes(asset.chainId)
-                  ? { leftIcon: <CheckCircleIcon /> }
-                  : {})}
-              >
-                {walletChainIds.includes(asset.chainId) ? 'Added' : 'Connect'}
-              </Button>
+      availableAssets.map(asset => {
+        return (
+          <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+            <Flex alignItems='center' gap={2}>
+              <AssetIcon assetId={asset.assetId} size='sm' />
+              <RawText fontWeight='bold'>{asset.name}</RawText>
             </Flex>
-          )
-        }),
+            <Button
+              isLoading={loadingChains[asset.chainId]}
+              onClick={() => handleConnectClick(asset.chainId)}
+              colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
+              isDisabled={walletChainIds.includes(asset.chainId)}
+              leftIcon={walletChainIds.includes(asset.chainId) ? <CheckCircleIcon /> : undefined}
+            >
+              {walletChainIds.includes(asset.chainId) ? 'Added' : 'Connect'}
+            </Button>
+          </Flex>
+        )
+      }),
     [availableAssets, handleConnectClick, loadingChains, walletChainIds],
   )
 

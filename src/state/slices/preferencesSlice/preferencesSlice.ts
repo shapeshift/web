@@ -152,7 +152,7 @@ export const preferences = createSlice({
     setShowConsentBanner(state, { payload }: { payload: boolean }) {
       state.showConsentBanner = payload
     },
-    setShowSnapssModal(state, { payload }: { payload: boolean }) {
+    setShowSnapsModal(state, { payload }: { payload: boolean }) {
       state.showSnapsModal = payload
     },
     setSnapInstalled(state, { payload }: { payload: boolean }) {

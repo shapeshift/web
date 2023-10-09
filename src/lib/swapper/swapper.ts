@@ -11,6 +11,7 @@ import type {
   SwapperName,
   TradeQuote,
 } from './types'
+import { isValidSwapAddress } from './utils'
 
 export const getTradeQuotes = async (
   getTradeQuoteInput: GetTradeQuoteInput,
@@ -18,6 +19,24 @@ export const getTradeQuotes = async (
 ): Promise<QuoteResult[]> => {
   if (bnOrZero(getTradeQuoteInput.affiliateBps).lt(0)) return []
   if (getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return []
+
+  try {
+    if (getTradeQuoteInput.sendAddress !== undefined) {
+      const isSenderValid = await isValidSwapAddress(getTradeQuoteInput.sendAddress)
+      if (!isSenderValid) {
+        return [] // no quotes available for this address
+      }
+    }
+
+    if (getTradeQuoteInput.sendAddress !== getTradeQuoteInput.receiveAddress) {
+      const isReceiverValid = await isValidSwapAddress(getTradeQuoteInput.receiveAddress)
+      if (!isReceiverValid) {
+        return [] // no quotes available for this address
+      }
+    }
+  } catch (e) {
+    console.error(e) // log error but don't fail
+  }
 
   const quotes = await Promise.allSettled(
     swappers

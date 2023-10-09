@@ -1,4 +1,4 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -14,7 +14,7 @@ import {
 
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
+import { assertValidTrade, getAdapter, getOneInchTokenAddress, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
@@ -45,8 +45,8 @@ export async function getTradeQuote(
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
   const params: OneInchQuoteApiInput = {
-    fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
-    toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
+    fromTokenAddress: getOneInchTokenAddress(sellAsset),
+    toTokenAddress: getOneInchTokenAddress(buyAsset),
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     ...(maybeTreasuryAddress && {
       fee: buyTokenPercentageFee,

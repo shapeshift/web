@@ -71,7 +71,7 @@ const makeGetAccountMockResponse = (balance: {
   nonce: 2,
   tokens: [
     {
-      assetId: `eip155:137/erc20:${contractAddress}`,
+      assetId: `eip155:42161/erc20:${contractAddress}`,
       balance: balance.tokenBalance,
       type: 'ERC20',
       contract: contractAddress,

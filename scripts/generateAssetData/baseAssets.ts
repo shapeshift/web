@@ -174,3 +174,20 @@ export const gnosis: AssetWithNetworkName = {
   explorerAddressLink: 'https://gnosisscan.io/address/',
   explorerTxLink: 'https://gnosisscan.io/tx/',
 }
+
+export const arbitrum: AssetWithNetworkName = {
+  assetId: caip.arbitrumAssetId,
+  chainId: caip.arbitrumChainId,
+  name: 'Ethereum',
+  networkName: 'Arbitrum One',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#213147',
+  icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg?1680097630',
+  explorer: 'https://arbiscan.io',
+  explorerAddressLink: 'https://arbiscan.io/address/',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+}

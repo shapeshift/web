@@ -7789,7 +7789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.52.0":
+"@shapeshiftoss/hdwallet-coinbase@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.52.0"
   dependencies:
@@ -7827,7 +7827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.52.0":
+"@shapeshiftoss/hdwallet-core@npm:1.52.0, @shapeshiftoss/hdwallet-core@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.52.0"
   dependencies:
@@ -7841,7 +7841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.0":
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.0"
   dependencies:
@@ -7851,7 +7851,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.52.0":
+"@shapeshiftoss/hdwallet-keepkey@npm:1.52.0, @shapeshiftoss/hdwallet-keepkey@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.52.0"
   dependencies:
@@ -7876,7 +7876,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.52.0":
+"@shapeshiftoss/hdwallet-keplr@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.52.0"
   dependencies:
@@ -7890,7 +7890,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask@npm:1.52.0":
+"@shapeshiftoss/hdwallet-metamask@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-metamask@npm:1.52.0"
   dependencies:
@@ -7903,7 +7903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.52.0":
+"@shapeshiftoss/hdwallet-native-vault@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.52.0"
   dependencies:
@@ -7920,7 +7920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.52.0":
+"@shapeshiftoss/hdwallet-native@npm:1.52.0, @shapeshiftoss/hdwallet-native@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-native@npm:1.52.0"
   dependencies:
@@ -7982,7 +7982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.0":
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.0"
   dependencies:
@@ -7998,7 +7998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.0":
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.0"
   dependencies:
@@ -8010,7 +8010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-xdefi@npm:1.52.0":
+"@shapeshiftoss/hdwallet-xdefi@npm:^1.52.0":
   version: 1.52.0
   resolution: "@shapeshiftoss/hdwallet-xdefi@npm:1.52.0"
   dependencies:
@@ -8186,17 +8186,17 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.52.0
-    "@shapeshiftoss/hdwallet-core": 1.52.0
-    "@shapeshiftoss/hdwallet-keepkey": 1.52.0
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.52.0
-    "@shapeshiftoss/hdwallet-keplr": 1.52.0
-    "@shapeshiftoss/hdwallet-metamask": 1.52.0
-    "@shapeshiftoss/hdwallet-native": 1.52.0
-    "@shapeshiftoss/hdwallet-native-vault": 1.52.0
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": 1.52.0
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.52.0
-    "@shapeshiftoss/hdwallet-xdefi": 1.52.0
+    "@shapeshiftoss/hdwallet-coinbase": ^1.52.0
+    "@shapeshiftoss/hdwallet-core": ^1.52.0
+    "@shapeshiftoss/hdwallet-keepkey": ^1.52.0
+    "@shapeshiftoss/hdwallet-keepkey-webusb": ^1.52.0
+    "@shapeshiftoss/hdwallet-keplr": ^1.52.0
+    "@shapeshiftoss/hdwallet-metamask": ^1.52.0
+    "@shapeshiftoss/hdwallet-native": ^1.52.0
+    "@shapeshiftoss/hdwallet-native-vault": ^1.52.0
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": ^1.52.0
+    "@shapeshiftoss/hdwallet-walletconnectv2": ^1.52.0
+    "@shapeshiftoss/hdwallet-xdefi": ^1.52.0
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@snapshot-labs/snapshot.js": ^0.6.1
@@ -9903,12 +9903,12 @@ __metadata:
   linkType: hard
 
 "@types/react-plotly.js@npm:^2.6.0":
-  version: 2.6.1
-  resolution: "@types/react-plotly.js@npm:2.6.1"
+  version: 2.6.0
+  resolution: "@types/react-plotly.js@npm:2.6.0"
   dependencies:
     "@types/plotly.js": "*"
     "@types/react": "*"
-  checksum: f88107d64d260e31ad395dc5bfe9a5c7812bda77ed293b2cfc1f3f58137323804c8f26812b37a251b9c1643b392cd404ff0b8a51ee104ed99f45f36463374ce0
+  checksum: 91ab4eb8f1ab68add2884f01419884ce9746121681e6c9e883c8ce26e9a549108bf61cdeb2008b64bd1886934d4ac106af4c3c61d1d159e13236b4a1858e6ea8
   languageName: node
   linkType: hard
 
@@ -19552,9 +19552,9 @@ __metadata:
   linkType: hard
 
 "get-func-name@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "get-func-name@npm:2.0.0"
-  checksum: 8d82e69f3e7fab9e27c547945dfe5cc0c57fc0adf08ce135dddb01081d75684a03e7a0487466f478872b341d52ac763ae49e660d01ab83741f74932085f693c3
+  version: 2.0.2
+  resolution: "get-func-name@npm:2.0.2"
+  checksum: 3f62f4c23647de9d46e6f76d2b3eafe58933a9b3830c60669e4180d6c601ce1b4aa310ba8366143f55e52b139f992087a9f0647274e8745621fa2af7e0acf13b
   languageName: node
   linkType: hard
 

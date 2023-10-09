@@ -141,10 +141,6 @@ export const useGetTradeQuotes = () => {
         const isFromEvm = isEvmChainId(sellAsset.chainId)
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
         const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
-        const maybePubKey = (() => {
-          if (!isLedger(wallet)) return {}
-          return { pubKey: fromAccountId(sellAccountId).account }
-        })()
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -159,7 +155,7 @@ export const useGetTradeQuotes = () => {
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
-          ...maybePubKey,
+          pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -198,6 +194,7 @@ export const useGetTradeQuotes = () => {
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentage,
+    sellAccountId,
   ])
 
   useEffect(() => {

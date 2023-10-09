@@ -69,17 +69,15 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!accountMetadata) return
       if (!wallet) return
-      const maybePubKey = (() => {
-        if (!isLedger(wallet)) return {}
-        if (!selectedAccountId) return {}
-        return { pubKey: fromAccountId(selectedAccountId as AccountId).account }
-      })()
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
         deviceId: await wallet.getDeviceID(),
         accountMetadata,
-        ...maybePubKey,
+        pubKey:
+          isLedger(wallet) && selectedAccountId
+            ? fromAccountId(selectedAccountId as AccountId).account
+            : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
     })()

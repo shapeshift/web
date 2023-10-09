@@ -76,7 +76,7 @@ export const useReceiveAddress = ({
         wallet,
         accountMetadata: buyAccountMetadata,
         deviceId: await wallet.getDeviceID(),
-        ...(fetchUnchainedAddress && { pubKey: fromAccountId(buyAccountId).account }),
+        pubKey: fetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
       })
       return receiveAddress
     },

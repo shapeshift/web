@@ -25,7 +25,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { viemClient } from 'lib/viem-client'
+import { viemEthMainnetClient } from 'lib/viem-client'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -81,7 +81,9 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   useEffect(() => {
     if (!walletInfo?.meta?.address) return
-    viemClient.getEnsName({ address: walletInfo.meta.address as Address }).then(setEnsName)
+    viemEthMainnetClient
+      .getEnsName({ address: walletInfo.meta.address as Address })
+      .then(setEnsName)
   }, [walletInfo?.meta?.address])
 
   useEffect(() => {

@@ -7,6 +7,7 @@ export enum AxelarChainNames {
   Fantom = 'Fantom',
   Moonbeam = 'Moonbeam',
   Polygon = 'Polygon',
+  Arbitrum = 'arbitrum',
   Axelarnet = 'Axelarnet',
   Cosmoshub = 'cosmoshub',
   Crescent = 'crescent',

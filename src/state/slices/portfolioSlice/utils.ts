@@ -1,6 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   accountIdToChainId,
+  arbitrumChainId,
   avalancheChainId,
   bchChainId,
   bscChainId,
@@ -25,6 +26,7 @@ import {
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsArbitrum,
   supportsAvalanche,
   supportsBSC,
   supportsBTC,
@@ -74,6 +76,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case polygonChainId:
     case gnosisChainId:
     case bscChainId:
+    case arbitrumChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
     case btcChainId:
@@ -294,6 +297,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPolygon(wallet)
     case gnosisChainId:
       return supportsGnosis(wallet)
+    case arbitrumChainId:
+      return supportsArbitrum(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

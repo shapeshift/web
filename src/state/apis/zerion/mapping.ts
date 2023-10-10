@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   bscChainId,
@@ -18,8 +19,8 @@ export const ZERION_CHAINS = [
   'ethereum',
   'optimism',
   'polygon',
+  'arbitrum',
   // not yet
-  // 'arbitrum',
   // 'aurora',
   // 'fantom',
   // 'solana',
@@ -34,6 +35,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   ethereum: ethChainId,
   optimism: optimismChainId,
   polygon: polygonChainId,
+  arbitrum: arbitrumChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

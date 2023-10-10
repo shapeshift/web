@@ -33,6 +33,12 @@ export const fetchOneInchSwap = async ({
   // so we need to multiply it by 100 when calling 1inch swap endpoint
   const maximumSlippagePercentage = bnOrZero(maximumSlippageDecimalPercentage).times(100).toNumber()
 
+  const maybeTreasuryAddress = (() => {
+    try {
+      return getTreasuryAddressFromChainId(buyAsset.chainId)
+    } catch (err) {}
+  })()
+
   const buyTokenPercentageFee = affiliateBps
     ? convertBasisPointsToPercentage(affiliateBps).toNumber()
     : 0
@@ -47,9 +53,11 @@ export const fetchOneInchSwap = async ({
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippage: maximumSlippagePercentage,
     allowPartialFill: false,
-    referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),
     disableEstimate: false,
-    fee: buyTokenPercentageFee,
+    ...(maybeTreasuryAddress && {
+      referrerAddress: maybeTreasuryAddress,
+      fee: buyTokenPercentageFee,
+    }),
   }
 
   const { chainReference } = fromChainId(sellAsset.chainId)

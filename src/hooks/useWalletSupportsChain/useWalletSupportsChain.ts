@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   avalancheChainId,
   bchChainId,
   bscChainId,
@@ -15,6 +16,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsArbitrum,
   supportsAvalanche,
   supportsBSC,
   supportsBTC,
@@ -64,6 +66,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({
       return supportsPolygon(wallet)
     case gnosisChainId:
       return supportsGnosis(wallet)
+    case arbitrumChainId:
+      return supportsArbitrum(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet) && shortCircuitFeatureDetection
     case thorchainChainId:

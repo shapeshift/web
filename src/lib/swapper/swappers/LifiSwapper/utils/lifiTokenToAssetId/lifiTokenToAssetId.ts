@@ -53,6 +53,11 @@ export const lifiTokenToAssetId = (lifiToken: Token): AssetId => {
           assetReference: ASSET_REFERENCE.Gnosis,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.ArbitrumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Arbitrum,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${lifiToken.chainId}' not supported`)
     }

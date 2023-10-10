@@ -1,6 +1,6 @@
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
-import { viemClient } from 'lib/viem-client'
+import { viemEthMainnetClient } from 'lib/viem-client'
 
 import type {
   ResolveVanityAddress,
@@ -16,7 +16,7 @@ export const validateEnsDomain: ValidateVanityAddress = ({ maybeAddress }) =>
   Promise.resolve(/^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(maybeAddress))
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
-  const address = await viemClient.getEnsAddress({
+  const address = await viemEthMainnetClient.getEnsAddress({
     name: domain,
   })
   if (!address) return ''
@@ -27,7 +27,7 @@ export const ensReverseLookup = memoize(
   async (
     address: Address,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
-    const lookupName = await viemClient.getEnsName({
+    const lookupName = await viemEthMainnetClient.getEnsName({
       address,
     })
     if (!lookupName) return { name: null, error: true }

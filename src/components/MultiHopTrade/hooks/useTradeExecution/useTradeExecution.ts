@@ -104,6 +104,7 @@ export const useTradeExecution = ({
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
       const stepSellAssetChainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
+      const stepSellAssetAssetId = tradeQuote.steps[activeStepOrDefault].sellAsset.assetId
       const stepBuyAssetAssetId = tradeQuote.steps[activeStepOrDefault].buyAsset.assetId
 
       if (swapperName === SwapperName.CowSwap) {
@@ -174,7 +175,12 @@ export const useTradeExecution = ({
           if (accountType === undefined) throw Error('Missing UTXO account type')
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const senderAddress = await adapter.getAddress({ accountNumber, wallet })
+          const _senderAddress = await adapter.getAddress({ accountNumber, wallet })
+          const senderAddress =
+            stepSellAssetAssetId === bchAssetId
+              ? _senderAddress.replace('bitcoincash:', '')
+              : _senderAddress
+
           const output = await execution.execUtxoTransaction({
             swapperName,
             tradeQuote,

@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
@@ -103,10 +103,11 @@ export const useTradeExecution = ({
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
-      const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
+      const stepSellAssetChainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
+      const stepBuyAssetAssetId = tradeQuote.steps[activeStepOrDefault].buyAsset.assetId
 
       if (swapperName === SwapperName.CowSwap) {
-        const adapter = assertGetEvmChainAdapter(chainId)
+        const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
         const output = await execution.execEvmMessage({
           swapperName,
@@ -133,12 +134,18 @@ export const useTradeExecution = ({
         return
       }
 
-      const { chainNamespace } = fromChainId(chainId)
+      const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
 
-      switch (chainNamespace) {
+      const receiverAddress =
+        tradeQuote.receiveAddress && stepBuyAssetAssetId === bchAssetId
+          ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
+          : tradeQuote.receiveAddress
+
+      switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          const adapter = assertGetEvmChainAdapter(chainId)
+          const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
+
           const output = await execution.execEvmTransaction({
             swapperName,
             tradeQuote,
@@ -156,7 +163,7 @@ export const useTradeExecution = ({
                 txToSign,
                 wallet,
                 senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
+                receiverAddress,
               })
             },
           })
@@ -165,7 +172,7 @@ export const useTradeExecution = ({
         }
         case CHAIN_NAMESPACE.Utxo: {
           if (accountType === undefined) throw Error('Missing UTXO account type')
-          const adapter = assertGetUtxoChainAdapter(chainId)
+          const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const senderAddress = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execUtxoTransaction({
@@ -182,7 +189,7 @@ export const useTradeExecution = ({
               })
               return adapter.broadcastTransaction({
                 senderAddress,
-                receiverAddress: tradeQuote.receiveAddress,
+                receiverAddress,
                 hex: signedTx,
               })
             },
@@ -191,7 +198,7 @@ export const useTradeExecution = ({
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
-          const adapter = assertGetCosmosSdkChainAdapter(chainId)
+          const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
@@ -230,7 +237,7 @@ export const useTradeExecution = ({
           return
         }
         default:
-          assertUnreachable(chainNamespace)
+          assertUnreachable(stepSellAssetChainNamespace)
       }
     })
   }, [
@@ -240,8 +247,8 @@ export const useTradeExecution = ({
     swapperName,
     sellAssetAccountId,
     activeStepOrDefault,
-    slippageTolerancePercentageDecimal,
     dispatch,
+    slippageTolerancePercentageDecimal,
   ])
 
   useEffect(() => {

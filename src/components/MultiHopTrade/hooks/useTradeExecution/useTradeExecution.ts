@@ -167,6 +167,7 @@ export const useTradeExecution = ({
           if (accountType === undefined) throw Error('Missing UTXO account type')
           const adapter = assertGetUtxoChainAdapter(chainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
+          const senderAddress = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execUtxoTransaction({
             swapperName,
             tradeQuote,
@@ -180,7 +181,7 @@ export const useTradeExecution = ({
                 wallet,
               })
               return adapter.broadcastTransaction({
-                senderAddress: xpub,
+                senderAddress,
                 receiverAddress: tradeQuote.receiveAddress,
                 hex: signedTx,
               })

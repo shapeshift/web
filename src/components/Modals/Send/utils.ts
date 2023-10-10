@@ -129,7 +129,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, to, memo, from, accountId } = sendInput
+    const { estimatedFees, feeType, to, memo, from } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)

@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratuit",
     "back": "Retour",
     "balance": "Solde",
     "next": "Suivant",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
     "learnMore": "En savoir plus",
     "showAll": "Montrer tout",
-    "showLess": "Montrer moins"
+    "showLess": "Montrer moins",
+    "yourBalance": "Votre solde"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "Connecter MetaMask",
       "andMore": "... et plus",
       "snapInstalledToast": "Snap ShapeShift MultiChain pour MetaMask installé",
-      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé"
+      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé",
+      "dontAskAgain": "Ne plus demander"
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info de la dApp",
+          "permissions": "Permissions requises",
+          "optionalPermissions": "Permissions optionnelles",
           "accountSelection": "Choisir des comptes",
           "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
           "methods": "Méthodes",
           "events": "Événements",
           "selectedAccounts": "Comptes sélectionnés",
-          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne."
+          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne.",
+          "optionalPermissionMessage": "Les permissions suivantes sont optionnelles."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Définir un nouvel avatar",
       "restoreDefault": "Restaurer à la valeur par défaut"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Puissance FOX actuelle",
+    "foxPower": "Puissance FOX",
+    "simulateTitle": "Simulez vos économies FOX",
+    "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
+    "tradeSize": "Montant de l'échange",
+    "totalFee": "Total des frais",
+    "foxPowerDiscount": "Remise Puissance FOX",
+    "basedOnFee": "Basé sur des frais de : %{fee}"
   }
 }

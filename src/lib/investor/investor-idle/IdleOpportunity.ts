@@ -463,15 +463,24 @@ export class IdleOpportunity
       addressNList: toAddressNList(bip44Params),
     }
 
+    const from = await chainAdapter.getAddress({
+      accountNumber: bip44Params.accountNumber,
+      wallet,
+    })
+
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await chainAdapter.signTransaction({ txToSign, wallet })
       if (this.#internals.dryRun) return signedTx
-      return chainAdapter.broadcastTransaction(signedTx)
+      return chainAdapter.broadcastTransaction({ from, to: tx.to, hex: signedTx })
     } else if (wallet.supportsBroadcast() && chainAdapter.signAndBroadcastTransaction) {
       if (this.#internals.dryRun) {
         throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
       }
-      return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
+      return chainAdapter.signAndBroadcastTransaction({
+        from,
+        to: tx.to,
+        signTxInput: { txToSign, wallet },
+      })
     } else {
       throw new Error('Invalid HDWallet configuration')
     }

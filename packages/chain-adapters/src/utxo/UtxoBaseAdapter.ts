@@ -19,10 +19,12 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BroadcastTransactionInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetBIP44ParamsInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
   SubscribeError,
@@ -43,6 +45,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
 import { utxoSelect } from './utxoSelect'
@@ -402,15 +405,21 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string> {
+  async signAndBroadcastTransaction({
+    from,
+    to,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<T>): Promise<string> {
+    await Promise.all([validateAddress(from), validateAddress(to)])
     try {
       const { wallet } = signTxInput
 
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
-      const signedTx = await this.signTransaction(signTxInput)
-      return this.broadcastTransaction(signedTx)
+      const hex = await this.signTransaction(signTxInput)
+
+      return this.broadcastTransaction({ from, to, hex })
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -485,7 +494,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
+  async broadcastTransaction({ from, to, hex }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([validateAddress(from), validateAddress(to)])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 

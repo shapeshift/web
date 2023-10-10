@@ -3,8 +3,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
-import type { Yearn } from '@yfi/sdk'
-import { type ChainId, type Vault, type VaultMetadata } from '@yfi/sdk'
+import type { ChainId, Vault, VaultMetadata, Yearn } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
 import toLower from 'lodash/toLower'
@@ -196,15 +195,24 @@ export class YearnOpportunity
       addressNList: toAddressNList(bip44Params),
     }
 
+    const from = await chainAdapter.getAddress({
+      accountNumber: bip44Params.accountNumber,
+      wallet,
+    })
+
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await chainAdapter.signTransaction({ txToSign, wallet })
       if (this.#internals.dryRun) return signedTx
-      return chainAdapter.broadcastTransaction(signedTx)
+      return chainAdapter.broadcastTransaction({ from, to: tx.to, hex: signedTx })
     } else if (wallet.supportsBroadcast() && chainAdapter.signAndBroadcastTransaction) {
       if (this.#internals.dryRun) {
         throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
       }
-      return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
+      return chainAdapter.signAndBroadcastTransaction({
+        from,
+        to: tx.to,
+        signTxInput: { txToSign, wallet },
+      })
     } else {
       throw new Error('Invalid HDWallet configuration')
     }

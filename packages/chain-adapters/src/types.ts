@@ -316,3 +316,15 @@ export enum ChainAdapterDisplayName {
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
 }
+
+export type BroadcastTransactionInput = {
+  from: string
+  to: string
+  hex: string
+}
+
+export type SignAndBroadcastTransactionInput<T extends ChainId> = {
+  from: string
+  to: string
+  signTxInput: SignTxInput<SignTx<T>>
+}

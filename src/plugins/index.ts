@@ -20,4 +20,8 @@ export class PluginManager {
   keys() {
     return [...this.#pluginManager.keys()]
   }
+
+  values() {
+    return [...this.#pluginManager.values()]
+  }
 }

@@ -17,10 +17,12 @@ import type {
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
 import { bn, calcFee, toAddressNList } from '../../utils'
+import { validateAddress } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { Message, ValidatorAction } from '../types'
@@ -280,7 +282,13 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<CosmosSignTx>): Promise<string> {
+  async signAndBroadcastTransaction({
+    from,
+    to,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<KnownChainIds.CosmosMainnet>): Promise<string> {
+    await Promise.all([validateAddress(from), validateAddress(to)])
+
     const { wallet } = signTxInput
     try {
       if (supportsCosmos(wallet)) {

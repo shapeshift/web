@@ -16,6 +16,10 @@ import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
+jest.mock('../utils/validatePubkey', () => ({
+  validatePubkey: jest.fn(),
+}))
+
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 const VALID_CHAIN_ID = 'bip122:00000000001a91e3dace36e2be3bf030'
 const VALID_ASSET_ID = 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
@@ -318,7 +322,11 @@ describe('DogecoinChainAdapter', () => {
       } as any
       const adapter = new dogecoin.ChainAdapter(args)
       const mockTx = '0x123'
-      const result = await adapter.broadcastTransaction(mockTx)
+      const result = await adapter.broadcastTransaction({
+        from: '0x1234',
+        to: '0x1234',
+        hex: mockTx,
+      })
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
       expect(result).toEqual(sendDataResult)
     })

@@ -215,7 +215,10 @@ export const handleSend = async ({
 
     const txToSign = result.txToSign
 
-    const { account } = fromAccountId(accountId)
+    const senderAddress = await adapter.getAddress({
+      accountNumber: accountMetadata.bip44Params.accountNumber,
+      wallet,
+    })
 
     const broadcastTXID = await (async () => {
       if (wallet.supportsOfflineSigning()) {
@@ -224,7 +227,7 @@ export const handleSend = async ({
           wallet,
         })
         return adapter.broadcastTransaction({
-          senderAddress: from ?? account,
+          senderAddress,
           receiverAddress: to,
           hex: signedTx,
         })
@@ -237,7 +240,7 @@ export const handleSend = async ({
           throw new Error('signAndBroadcastTransaction undefined for wallet')
         }
         return adapter.signAndBroadcastTransaction({
-          senderAddress: from ?? account,
+          senderAddress,
           receiverAddress: to,
           signTxInput: { txToSign, wallet },
         })

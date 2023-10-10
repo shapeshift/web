@@ -93,10 +93,10 @@ export const useStakingAction = () => {
             throw new Error(`unsupported staking action: ${action}`)
         }
       })()
-      const from = await adapter.getAddress({ accountNumber, wallet })
+      const senderAddress = await adapter.getAddress({ accountNumber, wallet })
       return adapter.signAndBroadcastTransaction({
-        from,
-        to: validator,
+        senderAddress,
+        receiverAddress: undefined, // no receiver for this contract call
         signTxInput: { txToSign, wallet },
       })
     } catch (error) {

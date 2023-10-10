@@ -221,7 +221,11 @@ export const handleSend = async ({
           txToSign,
           wallet,
         })
-        return adapter.broadcastTransaction({ from, to, hex: signedTx })
+        return adapter.broadcastTransaction({
+          senderAddress: from,
+          receiverAddress: to,
+          hex: signedTx,
+        })
       } else if (wallet.supportsBroadcast()) {
         /**
          * signAndBroadcastTransaction is an optional method on the HDWallet interface.
@@ -230,7 +234,11 @@ export const handleSend = async ({
         if (!adapter.signAndBroadcastTransaction) {
           throw new Error('signAndBroadcastTransaction undefined for wallet')
         }
-        return adapter.signAndBroadcastTransaction({ from, to, signTxInput: { txToSign, wallet } })
+        return adapter.signAndBroadcastTransaction({
+          senderAddress: from,
+          receiverAddress: to,
+          signTxInput: { txToSign, wallet },
+        })
       } else {
         throw new Error('Bad hdwallet config')
       }

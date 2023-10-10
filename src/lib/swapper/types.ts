@@ -215,7 +215,8 @@ export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionAr
 export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
 
 export type ExecuteTradeArgs = {
-  accountNumber: number
+  senderAddress: string
+  receiverAddress: string
   txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId

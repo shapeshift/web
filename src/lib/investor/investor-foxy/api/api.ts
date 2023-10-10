@@ -143,7 +143,7 @@ export class FoxyApi {
       ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
     })
 
-    const from = await this.adapter.getAddress({
+    const senderAddress = await this.adapter.getAddress({
       accountNumber: payload.bip44Params.accountNumber,
       wallet,
     })
@@ -156,7 +156,11 @@ export class FoxyApi {
           const sendSignedTx = await this.provider.sendTransaction(signedTx)
           return sendSignedTx?.blockHash ?? ''
         }
-        return this.adapter.broadcastTransaction({ from, to: payload.to, hex: signedTx })
+        return this.adapter.broadcastTransaction({
+          senderAddress,
+          receiverAddress: undefined, // no receiver for this contract call
+          hex: signedTx,
+        })
       } catch (e) {
         throw new Error(`Failed to broadcast: ${e}`)
       }
@@ -165,8 +169,8 @@ export class FoxyApi {
         throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
       }
       return this.adapter.signAndBroadcastTransaction({
-        from,
-        to: payload.to,
+        senderAddress,
+        receiverAddress: undefined, // no receiver for this contract call
         signTxInput: { txToSign, wallet },
       })
     } else {

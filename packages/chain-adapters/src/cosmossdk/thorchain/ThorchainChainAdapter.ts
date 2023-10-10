@@ -207,11 +207,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async signAndBroadcastTransaction({
-    from,
-    to,
+    senderAddress,
+    receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
 
     const { wallet } = signTxInput
 

@@ -406,11 +406,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async signAndBroadcastTransaction({
-    from,
-    to,
+    senderAddress,
+    receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     try {
       const { wallet } = signTxInput
 
@@ -419,7 +423,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
       const hex = await this.signTransaction(signTxInput)
 
-      return this.broadcastTransaction({ from, to, hex })
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -494,8 +498,16 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async broadcastTransaction({ from, to, hex }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 

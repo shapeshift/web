@@ -325,7 +325,11 @@ describe('GnosisChainAdapter', () => {
       const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(
-        adapter.signAndBroadcastTransaction({ from: '0x1234', to: '0x1234', signTxInput }),
+        adapter.signAndBroadcastTransaction({
+          senderAddress: '0x1234',
+          receiverAddress: '0x1234',
+          signTxInput,
+        }),
       ).rejects.toThrow(/Error signing & broadcasting tx/)
     })
 
@@ -341,7 +345,11 @@ describe('GnosisChainAdapter', () => {
       const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(
-        adapter.signAndBroadcastTransaction({ from: '0x1234', to: '0x1234', signTxInput }),
+        adapter.signAndBroadcastTransaction({
+          senderAddress: '0x1234',
+          receiverAddress: '0x1234',
+          signTxInput,
+        }),
       ).resolves.toEqual('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
     })
   })
@@ -397,8 +405,8 @@ describe('GnosisChainAdapter', () => {
 
       const mockTx = '0x123'
       const result = await adapter.broadcastTransaction({
-        from: '0x1234',
-        to: '0x1234',
+        senderAddress: '0x1234',
+        receiverAddress: '0x1234',
         hex: mockTx,
       })
 

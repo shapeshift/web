@@ -318,13 +318,13 @@ export enum ChainAdapterDisplayName {
 }
 
 export type BroadcastTransactionInput = {
-  from: string
-  to: string
+  senderAddress: string
+  receiverAddress: string | undefined // this is not defined for staking etc
   hex: string
 }
 
 export type SignAndBroadcastTransactionInput<T extends ChainId> = {
-  from: string
-  to: string
+  senderAddress: string
+  receiverAddress: string | undefined // this is not defined for staking etc
   signTxInput: SignTxInput<SignTx<T>>
 }

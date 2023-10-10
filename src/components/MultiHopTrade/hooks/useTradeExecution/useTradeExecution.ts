@@ -151,7 +151,13 @@ export const useTradeExecution = ({
                 wallet,
                 accountNumber,
               } as BuildCustomTxInput)
-              return await signAndBroadcast({ adapter, txToSign, wallet, accountNumber })
+              return await signAndBroadcast({
+                adapter,
+                txToSign,
+                wallet,
+                senderAddress: from,
+                receiverAddress: tradeQuote.receiveAddress,
+              })
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -174,8 +180,8 @@ export const useTradeExecution = ({
                 wallet,
               })
               return adapter.broadcastTransaction({
-                from: xpub,
-                to: tradeQuote.receiveAddress,
+                senderAddress: xpub,
+                receiverAddress: tradeQuote.receiveAddress,
                 hex: signedTx,
               })
             },
@@ -213,8 +219,8 @@ export const useTradeExecution = ({
                 wallet,
               })
               return adapter.broadcastTransaction({
-                from,
-                to: tradeQuote.receiveAddress,
+                senderAddress: from,
+                receiverAddress: tradeQuote.receiveAddress,
                 hex: signedTx,
               })
             },

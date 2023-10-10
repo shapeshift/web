@@ -283,11 +283,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async signAndBroadcastTransaction({
-    from,
-    to,
+    senderAddress,
+    receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.CosmosMainnet>): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
 
     const { wallet } = signTxInput
     try {

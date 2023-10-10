@@ -88,7 +88,7 @@ export const approveEIP155Request = async ({
       const didUserChangeNonce =
         maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== sendTransaction.nonce
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
-      const from = await chainAdapter.getAddress({ accountNumber, wallet })
+      const senderAddress = await chainAdapter.getAddress({ accountNumber, wallet })
       const gasData = getGasData(customTransactionData, fees)
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
         wallet,
@@ -109,8 +109,8 @@ export const approveEIP155Request = async ({
         wallet,
       })
       const txHash = await chainAdapter.broadcastTransaction({
-        from,
-        to: txToSign.to,
+        senderAddress,
+        receiverAddress: txToSign.to,
         hex: signedTx,
       })
       return formatJsonRpcResult(id, txHash)

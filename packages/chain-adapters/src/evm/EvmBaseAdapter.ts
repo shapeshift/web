@@ -446,11 +446,14 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async signAndBroadcastTransaction({
-    from,
-    to,
+    senderAddress,
+    receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
 
     try {
       const { txToSign, wallet } = signTxInput
@@ -470,8 +473,15 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async broadcastTransaction({ from, to, hex }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 

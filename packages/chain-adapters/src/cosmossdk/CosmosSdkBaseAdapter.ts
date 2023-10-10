@@ -155,11 +155,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   abstract getAddress(input: GetAddressInput): Promise<string>
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
-  abstract signAndBroadcastTransaction({
-    from,
-    to,
-    signTxInput,
-  }: SignAndBroadcastTransactionInput<T>): Promise<string>
+  abstract signAndBroadcastTransaction(input: SignAndBroadcastTransactionInput<T>): Promise<string>
 
   getChainId(): ChainId {
     return this.chainId
@@ -336,8 +332,15 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     return { txToSign }
   }
 
-  async broadcastTransaction({ from, to, hex }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([validateAddress(from), validateAddress(to)])
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
 
     try {
       return this.providers.http.sendTx({ body: { rawTx: hex } })

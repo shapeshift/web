@@ -195,7 +195,7 @@ export class YearnOpportunity
       addressNList: toAddressNList(bip44Params),
     }
 
-    const from = await chainAdapter.getAddress({
+    const senderAddress = await chainAdapter.getAddress({
       accountNumber: bip44Params.accountNumber,
       wallet,
     })
@@ -203,14 +203,18 @@ export class YearnOpportunity
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await chainAdapter.signTransaction({ txToSign, wallet })
       if (this.#internals.dryRun) return signedTx
-      return chainAdapter.broadcastTransaction({ from, to: tx.to, hex: signedTx })
+      return chainAdapter.broadcastTransaction({
+        senderAddress,
+        receiverAddress: undefined, // no receiver for this contract call
+        hex: signedTx,
+      })
     } else if (wallet.supportsBroadcast() && chainAdapter.signAndBroadcastTransaction) {
       if (this.#internals.dryRun) {
         throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
       }
       return chainAdapter.signAndBroadcastTransaction({
-        from,
-        to: tx.to,
+        senderAddress,
+        receiverAddress: undefined, // no receiver for this contract call
         signTxInput: { txToSign, wallet },
       })
     } else {

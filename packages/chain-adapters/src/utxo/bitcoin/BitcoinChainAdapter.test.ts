@@ -315,8 +315,8 @@ describe('BitcoinChainAdapter', () => {
       const adapter = new bitcoin.ChainAdapter(args)
       const mockTx = '0x123'
       const result = await adapter.broadcastTransaction({
-        from: '0x1234',
-        to: '0x1234',
+        senderAddress: '0x1234',
+        receiverAddress: '0x1234',
         hex: mockTx,
       })
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })

@@ -9143,15 +9143,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.52.3-thorchain.8"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: afea245983e5010b6625415f32e735af640a7edc94b48a76c831bba50c12d85a5613cb124fc9c867cd683432f19f4ae02139d32681e221dac416a3f2a6d73354
+  checksum: 927d91daea89b4fd84f25c5750bfe3ff50e21685855aad9c3db9a78d8319c523cf6d8ece5732f70e94b529d14be6f157cbe013aaee5b5bfeaf96b8fbbd9eb3ab
   languageName: node
   linkType: hard
 
@@ -9181,9 +9181,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.52.3-thorchain.7, @shapeshiftoss/hdwallet-core@npm:^1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-core@npm:1.52.3-thorchain.8, @shapeshiftoss/hdwallet-core@npm:^1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.52.3-thorchain.8"
   dependencies:
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     eip-712: ^1.0.0
@@ -9191,29 +9191,29 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: ceb9b29281c15e9e791415fe247b434bad492cf2942d5c9f372a1112bd238c1537487e9dd81d1ec2813267927da4844206ba47422a8ce8aec9025c729ce64eb5
+  checksum: bbdd1ceec66203e4173863dfccc6c57a8c4aaaf83cf1ad19e73d0f916838dfa64da84087d2ecb31639232c227c8ee7afa949015c7474e12a8e371202d24f9028
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.52.3-thorchain.8"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-keepkey": ^1.52.3-thorchain.7
-  checksum: 7ba44b1be156770f9436fd7182b438f7837c8c27f49cea08901feea7d7614c8f42ed804e4e549858f603306f034c0b79462cf420b980a1f662562e81fa6e85cc
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-keepkey": ^1.52.3-thorchain.8
+  checksum: 125495767a88e13e32c9adb3961a655cf6ed815a855540e0cb36c0d2de534388966e48b027612e28e2db60ae453f9bf029c9c758c27a8a2c6999a877f0432d76
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.52.3-thorchain.7, @shapeshiftoss/hdwallet-keepkey@npm:^1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.52.3-thorchain.8, @shapeshiftoss/hdwallet-keepkey@npm:^1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.52.3-thorchain.8"
   dependencies:
     "@ethereumjs/common": ^2.4.0
     "@ethereumjs/tx": ^3.3.0
     "@keepkey/device-protocol": ^7.12.2
     "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: ^2.16.14
@@ -9226,43 +9226,43 @@ __metadata:
     p-lazy: ^3.1.0
     semver: ^7.3.8
     tiny-secp256k1: ^1.1.6
-  checksum: b8cfac9af502b927437e1a9769df23f20fb8a158368d3036849e1d6939fa799ffca7db9d3c0dfe1b6a31b99dbf8efd4d3abf6e951f2dcdb21f82842f082b7643
+  checksum: d5fed735fb81f31b4e21dd0523298827a04c6bd12a651ee1c5d2b49e0723431140ca0569901eafda6a23f4c51a7adf17ce2681f846d57eefc2985b79cefa364d
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-keplr@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.52.3-thorchain.8"
   dependencies:
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: 2a856c32f82052c3f33c5a40ac2199d88643b9a412afdbb8e113158ac794417a9f84b7dbb439eed26fedd31cac89cc6c71527f8f257eeaf6321b2d4e99b744e1
+  checksum: 2a2963772f35835c14bea19d02850cdc2c326bbb8e239a1d8a7e97b55ac3b0a67cd4a94a9d1b961bf845ebc8f3191158c89026a89c3cdde89dd5ccdf6f29efff
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.3-thorchain.8"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.0.8
     "@ledgerhq/hw-app-eth": ^6.9.0
     "@ledgerhq/hw-transport": ^6.7.0
     "@ledgerhq/hw-transport-webhid": ^6.7.0
     "@ledgerhq/live-common": ^21.8.2
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-ledger": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-ledger": ^1.52.3-thorchain.8
     "@types/w3c-web-hid": ^1.0.2
-  checksum: 5dd474786499bddebe176bb7e151dbeaf6c385275cac7d4190eaf1e4727265e034ce90026fdcee15953524957172c15fa2e75af264f4ac0e2243432cdf3822e3
+  checksum: 67a0408172fc781c2232d0ac80931cb7d2a8cfb4713adbcbe1256899c0bb33a5122a152a245ede0b609a882d6f8169b1fa95fd16f41f2f823386e097d53b88bb
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.3-thorchain.8"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.0.8
     "@ledgerhq/hw-app-eth": ^6.9.0
@@ -9270,22 +9270,22 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": ^6.7.0
     "@ledgerhq/live-common": ^21.8.2
     "@ledgerhq/logs": ^6.10.1
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-ledger": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-ledger": ^1.52.3-thorchain.8
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: 836d4276593ca265e3c5f088b25f98e9e08993666d5148c843faaca7bd5f851eac0a0937201021068c9ecfbb465c581dbc1cc7c6055febdfa6f775e43ee1eed2
+  checksum: 9ee1e1ebefffff85c2948f1edabd9ee09b881744ffb76ca945532e3d87fbbb52a4a027fd4a1f1fe2d5e68948fb7604b550cc52199577e466790078d4024aa367
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.52.3-thorchain.7, @shapeshiftoss/hdwallet-ledger@npm:^1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-ledger@npm:1.52.3-thorchain.8, @shapeshiftoss/hdwallet-ledger@npm:^1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.52.3-thorchain.8"
   dependencies:
     "@ethereumjs/common": ^2.4.0
     "@ethereumjs/tx": ^3.3.0
     "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@types/ripemd160": ^2.0.1
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -9295,28 +9295,28 @@ __metadata:
     ethereumjs-util: ^6.1.0
     lodash: ^4.17.21
     ripemd160: ^2.0.2
-  checksum: 57f63789892d60e8481afa303c0f17c77dc88b38e1271400e488ea9ed5dac0280da9185cb6f28554a0e1c8f05ee9640f39b77b65735aec9df6b793bfe36df3ae
+  checksum: f9de4f80cac8462c4525c6f90a1113bb337b5f8f800d99f1a6ddff536307b0bc2dbdd8d9a14c380a5cd698ff3f1fb3b1e020803ad6743b3b5f65108f42aeac35
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-metamask@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-metamask@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-metamask@npm:1.52.3-thorchain.8"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: aa60ea2c9c7a4fbcd946915644789eb16a5d6c03020d1b698b62410de044933df79e7aacfa3dc5a13bd4b61a715e6b9b3284c8f0f90100a50005d1a35bce308c
+  checksum: a62585baea3321f0fbdc88524e47ef15e020b14e902025c0b6c8658538eea2791938e0a9905cedecef13b5554cfc889abd687105a35003576965cfb1c3f2fe3b
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.52.3-thorchain.8"
   dependencies:
-    "@shapeshiftoss/hdwallet-native": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-native": ^1.52.3-thorchain.8
     bip39: ^3.0.4
     hash-wasm: ^4.9.0
     idb-keyval: ^6.0.3
@@ -9325,17 +9325,17 @@ __metadata:
     type-assertions: ^1.1.0
     uuid: ^8.3.2
     web-encoding: ^1.1.0
-  checksum: ea70fc044849ec07935ab7e78992fd4f43aa169f1ab1b265355d7fdbd9438d85b55557d43c0773868a1668e65bc3060a77dce7350967c7287848993ca6950406
+  checksum: 5c6d3b1d14853b2837221b1657d0e5de9cb639464edcd008653aa7f0e858bb5b8985e2b82d89db9d239246ead8f22461f41b1e137277c2ec630712e58db68aac
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.52.3-thorchain.7, @shapeshiftoss/hdwallet-native@npm:^1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-native@npm:1.52.3-thorchain.8, @shapeshiftoss/hdwallet-native@npm:^1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.52.3-thorchain.8"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
     "@shapeshiftoss/fiosdk": 1.2.1-shapeshift.6
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
@@ -9356,7 +9356,7 @@ __metadata:
     tendermint-tx-builder: ^1.0.9
     tiny-secp256k1: ^1.1.6
     web-encoding: ^1.1.0
-  checksum: e8d338214c5df18b3b4caff41f64599cc6e0e279ea349901ed7e4fcfc6d342a15b2bacb2dd18fd96a2bb1f91f07fa164b74ca0681e778eae31ea9c82c8b77366
+  checksum: c43201737c161a6dc06be0f5d0ec530ccc796f35d837360c9d0470aac431472288f437434b2b17908de7585960d8442011f9e90e1af85cfb7fea656faa891512
   languageName: node
   linkType: hard
 
@@ -9391,41 +9391,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-shapeshift-multichain@npm:1.52.3-thorchain.8"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.8
     "@shapeshiftoss/metamask-snaps-types": ^1.0.8
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: a7c17ef47095cf4eb96065d740e44caaf5f8f09b999f65e91b9b3ea746ab14fb0f666ba9d04f40c4dc64eb6b03df56c6c1cf20c36f56769988edae7ac61ce7f5
+  checksum: e8b3142dfd700b5f59fa6311f77492255e6607ed314995c3d34713a2a7a3d4e16bd85aa17229d7d52390ff8957be4371538c6ce739bf7b58a1f2ee816310525a
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.52.3-thorchain.8"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: a61ec81323b876087cc357cfde6eb3d258fafca601ed1daac17dceb1f93e873737a6000dd873d5065ad694fd39cb7e2e7c95b05304ff9856bff57a31311436dc
+  checksum: dc919bdef68a704ed2dd69020faa4a19f597ffaf3cd443598e72305297ec2a6c083e1becfbba4275b4ab298b60d8261e98f168a17b590d9229c7d4c024e2a5d4
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-xdefi@npm:1.52.3-thorchain.7":
-  version: 1.52.3-thorchain.7
-  resolution: "@shapeshiftoss/hdwallet-xdefi@npm:1.52.3-thorchain.7"
+"@shapeshiftoss/hdwallet-xdefi@npm:1.52.3-thorchain.8":
+  version: 1.52.3-thorchain.8
+  resolution: "@shapeshiftoss/hdwallet-xdefi@npm:1.52.3-thorchain.8"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.8
     lodash: ^4.17.21
-  checksum: ff37ba2af95313e264b71fb56a0d285895172a2cb55452256da4f27d82298b32182c62bb70e9489e7bca3e15c3990817f8cb3dbd45a4150baac0f6224b4f12aa
+  checksum: 6873b23144d097a46abe6aa46afb4add3697fcd9582b83afeba6074e93ae5ef6d324f0d5d0c0ecedcf37fb243cccfc1c0e686d7b4b79b734d96da2778f58eb3f
   languageName: node
   linkType: hard
 
@@ -9595,20 +9595,20 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-core": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-keepkey": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-keplr": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-ledger": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-metamask": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-native": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-native-vault": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-shapeshift-multichain": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.52.3-thorchain.7
-    "@shapeshiftoss/hdwallet-xdefi": 1.52.3-thorchain.7
+    "@shapeshiftoss/hdwallet-coinbase": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-core": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-keepkey": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-keplr": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-ledger": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-metamask": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-native": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-native-vault": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-shapeshift-multichain": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.52.3-thorchain.8
+    "@shapeshiftoss/hdwallet-xdefi": 1.52.3-thorchain.8
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10

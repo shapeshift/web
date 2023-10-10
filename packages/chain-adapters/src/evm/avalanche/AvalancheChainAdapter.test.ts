@@ -26,8 +26,8 @@ import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
-jest.mock('../utils/validatePubkey', () => ({
-  validatePubkey: jest.fn(),
+jest.mock('../../utils/validateAddress', () => ({
+  validateAddress: jest.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'

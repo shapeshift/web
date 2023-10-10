@@ -22,8 +22,8 @@ import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as bitcoincash from './BitcoinCashChainAdapter'
 
-jest.mock('../utils/validatePubkey', () => ({
-  validatePubkey: jest.fn(),
+jest.mock('../../utils/validateAddress', () => ({
+  validateAddress: jest.fn(),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'

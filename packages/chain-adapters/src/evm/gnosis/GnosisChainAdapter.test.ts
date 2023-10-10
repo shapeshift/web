@@ -22,8 +22,8 @@ import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as gnosis from './GnosisChainAdapter'
 
-jest.mock('../utils/validatePubkey', () => ({
-  validatePubkey: jest.fn(),
+jest.mock('../../utils/validateAddress', () => ({
+  validateAddress: jest.fn(),
 }))
 
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'

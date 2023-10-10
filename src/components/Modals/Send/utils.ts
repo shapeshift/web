@@ -129,7 +129,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, to, memo, from } = sendInput
+    const { estimatedFees, feeType, to, memo, from, accountId } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -215,6 +215,8 @@ export const handleSend = async ({
 
     const txToSign = result.txToSign
 
+    const { account } = fromAccountId(accountId)
+
     const broadcastTXID = await (async () => {
       if (wallet.supportsOfflineSigning()) {
         const signedTx = await adapter.signTransaction({
@@ -222,7 +224,7 @@ export const handleSend = async ({
           wallet,
         })
         return adapter.broadcastTransaction({
-          senderAddress: from,
+          senderAddress: from ?? account,
           receiverAddress: to,
           hex: signedTx,
         })
@@ -235,7 +237,7 @@ export const handleSend = async ({
           throw new Error('signAndBroadcastTransaction undefined for wallet')
         }
         return adapter.signAndBroadcastTransaction({
-          senderAddress: from,
+          senderAddress: from ?? account,
           receiverAddress: to,
           signTxInput: { txToSign, wallet },
         })

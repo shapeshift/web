@@ -115,7 +115,9 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
 
 const formDataEnsAddress = { ...formData, [SendFormFields.To]: 'willywonka.eth' }
 
-const textTxToSign = {
+const testSendAddress = '0x3155ba85d5f96b2d030a4966af206230e46849cb'
+
+const testTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
   value: '0x0',
   to: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
@@ -165,7 +167,8 @@ describe.each([
       }
     })
     const mockAdapter = {
-      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      getAddress: () => Promise.resolve(testSendAddress),
+      buildSendTransaction: () => Promise.resolve(testTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
       broadcastTransaction: () => Promise.resolve(expectedTx),
     }
@@ -229,7 +232,8 @@ describe.each([
       }
     })
     const mockAdapter = {
-      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      getAddress: () => Promise.resolve(testSendAddress),
+      buildSendTransaction: () => Promise.resolve(testTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
       broadcastTransaction: () => Promise.resolve(expectedTx),
     }
@@ -290,7 +294,8 @@ describe.each([
       }
     })
     const mockAdapter = {
-      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      getAddress: () => Promise.resolve(testSendAddress),
+      buildSendTransaction: () => Promise.resolve(testTxToSign),
       signAndBroadcastTransaction,
     }
 
@@ -356,7 +361,8 @@ describe.each([
       }
     })
     const mockAdapter = {
-      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      getAddress: () => Promise.resolve(testSendAddress),
+      buildSendTransaction: () => Promise.resolve(testTxToSign),
       signAndBroadcastTransaction,
     }
 
@@ -410,6 +416,7 @@ describe.each([
     })
 
     const mockAdapter = {
+      getAddress: () => Promise.resolve(testSendAddress),
       buildSendTransaction: () => Promise.reject('All these calls failed'),
       signTransaction: () => Promise.reject('All these calls failed'),
       broadcastTransaction: () => Promise.reject('All these calls failed'),

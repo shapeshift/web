@@ -74,7 +74,11 @@ export const useFoxFarming = (
           wallet,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({
+          adapter,
+          buildCustomTxInput,
+          receiverAddress: undefined, // no receiver for this contract call
+        })
 
         return txid
       } catch (err) {
@@ -115,7 +119,11 @@ export const useFoxFarming = (
           wallet,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({
+          adapter,
+          buildCustomTxInput,
+          receiverAddress: undefined, // no receiver for this contract call
+        })
 
         return txid
       } catch (err) {
@@ -236,6 +244,7 @@ export const useFoxFarming = (
 
     const txid = await buildAndBroadcast({
       adapter,
+      receiverAddress: undefined, // no receiver for this contract call
       buildCustomTxInput: {
         accountNumber,
         to: uniV2LPContract.address,
@@ -265,7 +274,11 @@ export const useFoxFarming = (
       wallet,
     })
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    const txid = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput,
+      receiverAddress: undefined, // no receiver for this contract call
+    })
 
     return txid
   }, [accountNumber, adapter, ethAsset.chainId, contractAddress, foxFarmingContract, skip, wallet])

@@ -153,7 +153,6 @@ const validators = {
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
   REACT_APP_FEATURE_FOX_DISCOUNTS: bool({ default: false }),
-  REACT_APP_TRM_LABS_API_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

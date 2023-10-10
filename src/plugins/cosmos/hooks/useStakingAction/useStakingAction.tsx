@@ -60,8 +60,8 @@ export const useStakingAction = () => {
 
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
-      const { accountNumber } = bip44Params
       const { txToSign } = await (() => {
+        const { accountNumber } = bip44Params
         switch (action) {
           case StakingAction.Claim:
             return adapter.buildClaimRewardsTransaction({
@@ -93,12 +93,8 @@ export const useStakingAction = () => {
             throw new Error(`unsupported staking action: ${action}`)
         }
       })()
-      const senderAddress = await adapter.getAddress({ accountNumber, wallet })
-      return adapter.signAndBroadcastTransaction({
-        senderAddress,
-        receiverAddress: undefined, // no receiver for this contract call
-        signTxInput: { txToSign, wallet },
-      })
+
+      return adapter.signAndBroadcastTransaction({ txToSign, wallet })
     } catch (error) {
       console.error(error)
     }

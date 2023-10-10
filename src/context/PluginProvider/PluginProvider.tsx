@@ -62,7 +62,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<ChainId> } = {}
 
     // register providers from each plugin
-    for (const plugin of pluginManager.values()) {
+    for (const [, plugin] of pluginManager.entries()) {
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       const featureFlagEnabled =

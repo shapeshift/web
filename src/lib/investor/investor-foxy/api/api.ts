@@ -142,12 +142,6 @@ export class FoxyApi {
       accountNumber: payload.bip44Params.accountNumber,
       ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
     })
-
-    const senderAddress = await this.adapter.getAddress({
-      accountNumber: payload.bip44Params.accountNumber,
-      wallet,
-    })
-
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
       if (dryRun) return signedTx
@@ -156,11 +150,7 @@ export class FoxyApi {
           const sendSignedTx = await this.provider.sendTransaction(signedTx)
           return sendSignedTx?.blockHash ?? ''
         }
-        return this.adapter.broadcastTransaction({
-          senderAddress,
-          receiverAddress: undefined, // no receiver for this contract call
-          hex: signedTx,
-        })
+        return this.adapter.broadcastTransaction(signedTx)
       } catch (e) {
         throw new Error(`Failed to broadcast: ${e}`)
       }
@@ -168,11 +158,7 @@ export class FoxyApi {
       if (dryRun) {
         throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
       }
-      return this.adapter.signAndBroadcastTransaction({
-        senderAddress,
-        receiverAddress: undefined, // no receiver for this contract call
-        signTxInput: { txToSign, wallet },
-      })
+      return this.adapter.signAndBroadcastTransaction({ txToSign, wallet })
     } else {
       throw new Error('Invalid HDWallet configuration ')
     }

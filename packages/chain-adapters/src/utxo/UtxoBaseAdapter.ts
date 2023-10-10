@@ -19,12 +19,10 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
-  BroadcastTransactionInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetBIP44ParamsInput,
   GetFeeDataInput,
-  SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
   SubscribeError,
@@ -45,7 +43,6 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
 import { utxoSelect } from './utxoSelect'
@@ -423,25 +420,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async signAndBroadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    signTxInput,
-  }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
-    ])
-
+  async signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string> {
     try {
       const { wallet } = signTxInput
 
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
-      const hex = await this.signTransaction(signTxInput)
-
-      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
+      const signedTx = await this.signTransaction(signTxInput)
+      return this.broadcastTransaction(signedTx)
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -516,16 +503,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async broadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    hex,
-  }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
-    ])
-
+  broadcastTransaction(hex: string): Promise<string> {
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 

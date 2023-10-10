@@ -26,10 +26,6 @@ import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
-}))
-
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
@@ -327,15 +323,11 @@ describe('AvalancheChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(
-        adapter.signAndBroadcastTransaction({
-          senderAddress: '0x1234',
-          receiverAddress: '0x1234',
-          signTxInput,
-        }),
-      ).rejects.toThrow(/Error signing & broadcasting tx/)
+      await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
+        /Error signing & broadcasting tx/,
+      )
     })
 
     it('should return the hash returned by wallet.ethSendTx', async () => {
@@ -347,15 +339,11 @@ describe('AvalancheChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(
-        adapter.signAndBroadcastTransaction({
-          senderAddress: '0x1234',
-          receiverAddress: '0x1234',
-          signTxInput,
-        }),
-      ).resolves.toEqual('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
+      await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
+        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
+      )
     })
   })
 
@@ -409,11 +397,7 @@ describe('AvalancheChainAdapter', () => {
       const adapter = new avalanche.ChainAdapter(args)
 
       const mockTx = '0x123'
-      const result = await adapter.broadcastTransaction({
-        senderAddress: '0x1234',
-        receiverAddress: '0x1234',
-        hex: mockTx,
-      })
+      const result = await adapter.broadcastTransaction(mockTx)
 
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
       expect(result).toEqual(expectedResult)

@@ -199,11 +199,7 @@ export const useUniV2LiquidityPool = ({
           wallet,
         })
 
-        const txid = await buildAndBroadcast({
-          adapter,
-          buildCustomTxInput,
-          receiverAddress: undefined, // no receiver
-        })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -313,11 +309,7 @@ export const useUniV2LiquidityPool = ({
           wallet,
         })
 
-        const txid = await buildAndBroadcast({
-          adapter,
-          buildCustomTxInput,
-          receiverAddress: undefined, // no receiver
-        })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -585,7 +577,6 @@ export const useUniV2LiquidityPool = ({
 
       const txid = await buildAndBroadcast({
         adapter,
-        receiverAddress: undefined, // no receiver
         buildCustomTxInput: {
           accountNumber,
           to: contractAddress,

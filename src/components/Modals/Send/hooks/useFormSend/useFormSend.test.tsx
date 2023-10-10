@@ -110,14 +110,12 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,
-  [SendFormFields.AccountId]: 'eip155:1:0x3155ba85d5f96b2d030a4966af206230e46849cb',
+  [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
 }
 
 const formDataEnsAddress = { ...formData, [SendFormFields.To]: 'willywonka.eth' }
 
-const testSendAddress = '0x3155ba85d5f96b2d030a4966af206230e46849cb'
-
-const testTxToSign = {
+const textTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
   value: '0x0',
   to: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
@@ -167,8 +165,7 @@ describe.each([
       }
     })
     const mockAdapter = {
-      getAddress: () => Promise.resolve(testSendAddress),
-      buildSendTransaction: () => Promise.resolve(testTxToSign),
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
       broadcastTransaction: () => Promise.resolve(expectedTx),
     }
@@ -232,8 +229,7 @@ describe.each([
       }
     })
     const mockAdapter = {
-      getAddress: () => Promise.resolve(testSendAddress),
-      buildSendTransaction: () => Promise.resolve(testTxToSign),
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
       broadcastTransaction: () => Promise.resolve(expectedTx),
     }
@@ -294,8 +290,7 @@ describe.each([
       }
     })
     const mockAdapter = {
-      getAddress: () => Promise.resolve(testSendAddress),
-      buildSendTransaction: () => Promise.resolve(testTxToSign),
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
     }
 
@@ -361,8 +356,7 @@ describe.each([
       }
     })
     const mockAdapter = {
-      getAddress: () => Promise.resolve(testSendAddress),
-      buildSendTransaction: () => Promise.resolve(testTxToSign),
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
     }
 
@@ -416,7 +410,6 @@ describe.each([
     })
 
     const mockAdapter = {
-      getAddress: () => Promise.resolve(testSendAddress),
       buildSendTransaction: () => Promise.reject('All these calls failed'),
       signTransaction: () => Promise.reject('All these calls failed'),
       broadcastTransaction: () => Promise.reject('All these calls failed'),

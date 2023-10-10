@@ -22,10 +22,6 @@ import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as bitcoincash from './BitcoinCashChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
-}))
-
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 const VALID_CHAIN_ID = bchChainId
 const VALID_ASSET_ID = bchAssetId
@@ -333,11 +329,7 @@ describe('BitcoinCashChainAdapter', () => {
       } as any
       const adapter = new bitcoincash.ChainAdapter(args)
       const mockTx = '0x123'
-      const result = await adapter.broadcastTransaction({
-        senderAddress: '0x1234',
-        receiverAddress: '0x1234',
-        hex: mockTx,
-      })
+      const result = await adapter.broadcastTransaction(mockTx)
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
       expect(result).toEqual(sendDataResult)
     })

@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
@@ -103,12 +103,10 @@ export const useTradeExecution = ({
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
-      const stepSellAssetChainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
-      const stepSellAssetAssetId = tradeQuote.steps[activeStepOrDefault].sellAsset.assetId
-      const stepBuyAssetAssetId = tradeQuote.steps[activeStepOrDefault].buyAsset.assetId
+      const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
 
       if (swapperName === SwapperName.CowSwap) {
-        const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
+        const adapter = assertGetEvmChainAdapter(chainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
         const output = await execution.execEvmMessage({
           swapperName,
@@ -135,18 +133,12 @@ export const useTradeExecution = ({
         return
       }
 
-      const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
+      const { chainNamespace } = fromChainId(chainId)
 
-      const receiverAddress =
-        tradeQuote.receiveAddress && stepBuyAssetAssetId === bchAssetId
-          ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
-          : tradeQuote.receiveAddress
-
-      switch (stepSellAssetChainNamespace) {
+      switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
+          const adapter = assertGetEvmChainAdapter(chainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
-
           const output = await execution.execEvmTransaction({
             swapperName,
             tradeQuote,
@@ -159,13 +151,7 @@ export const useTradeExecution = ({
                 wallet,
                 accountNumber,
               } as BuildCustomTxInput)
-              return await signAndBroadcast({
-                adapter,
-                txToSign,
-                wallet,
-                senderAddress: from,
-                receiverAddress,
-              })
+              return await signAndBroadcast({ adapter, txToSign, wallet })
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -173,14 +159,8 @@ export const useTradeExecution = ({
         }
         case CHAIN_NAMESPACE.Utxo: {
           if (accountType === undefined) throw Error('Missing UTXO account type')
-          const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
+          const adapter = assertGetUtxoChainAdapter(chainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const _senderAddress = await adapter.getAddress({ accountNumber, wallet })
-          const senderAddress =
-            stepSellAssetAssetId === bchAssetId
-              ? _senderAddress.replace('bitcoincash:', '')
-              : _senderAddress
-
           const output = await execution.execUtxoTransaction({
             swapperName,
             tradeQuote,
@@ -193,18 +173,14 @@ export const useTradeExecution = ({
                 txToSign,
                 wallet,
               })
-              return adapter.broadcastTransaction({
-                senderAddress,
-                receiverAddress,
-                hex: signedTx,
-              })
+              return adapter.broadcastTransaction(signedTx)
             },
           })
           cancelPollingRef.current = output?.cancelPolling
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
-          const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
+          const adapter = assertGetCosmosSdkChainAdapter(chainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
@@ -232,18 +208,14 @@ export const useTradeExecution = ({
                 txToSign,
                 wallet,
               })
-              return adapter.broadcastTransaction({
-                senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
-                hex: signedTx,
-              })
+              return adapter.broadcastTransaction(signedTx)
             },
           })
           cancelPollingRef.current = output?.cancelPolling
           return
         }
         default:
-          assertUnreachable(stepSellAssetChainNamespace)
+          assertUnreachable(chainNamespace)
       }
     })
   }, [
@@ -253,8 +225,8 @@ export const useTradeExecution = ({
     swapperName,
     sellAssetAccountId,
     activeStepOrDefault,
-    dispatch,
     slippageTolerancePercentageDecimal,
+    dispatch,
   ])
 
   useEffect(() => {

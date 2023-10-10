@@ -3,13 +3,11 @@ import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type {
   Account,
-  BroadcastTransactionInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
-  SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
   SubscribeError,
@@ -67,11 +65,11 @@ export type ChainAdapter<T extends ChainId> = {
 
   signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
 
-  signAndBroadcastTransaction?(input: SignAndBroadcastTransactionInput<T>): Promise<string>
+  signAndBroadcastTransaction?(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
 
   getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
 
-  broadcastTransaction(input: BroadcastTransactionInput): Promise<string>
+  broadcastTransaction(hex: string): Promise<string>
 
   validateAddress(address: string): Promise<ValidAddressResult>
 

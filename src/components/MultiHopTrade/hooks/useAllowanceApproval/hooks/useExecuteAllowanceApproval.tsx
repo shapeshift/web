@@ -36,11 +36,7 @@ export const useExecuteAllowanceApproval = (
     }
 
     try {
-      const txId = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: undefined, // no receiver for this contract call
-      })
+      const txId = await buildAndBroadcast({ buildCustomTxInput, adapter })
 
       setTxId(txId)
 

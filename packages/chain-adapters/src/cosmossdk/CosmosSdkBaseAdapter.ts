@@ -17,14 +17,12 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
-  BroadcastTransactionInput,
   BuildSendApiTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
-  SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
   SubscribeError,
@@ -37,7 +35,6 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
 import type { cosmos, thorchain } from './'
 import type {
   BuildTransactionInput,
@@ -155,7 +152,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   abstract getAddress(input: GetAddressInput): Promise<string>
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
-  abstract signAndBroadcastTransaction(input: SignAndBroadcastTransactionInput<T>): Promise<string>
+  abstract signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
 
   getChainId(): ChainId {
     return this.chainId
@@ -332,16 +329,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     return { txToSign }
   }
 
-  async broadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    hex,
-  }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
-    ])
-
+  broadcastTransaction(hex: string): Promise<string> {
     try {
       return this.providers.http.sendTx({ body: { rawTx: hex } })
     } catch (err) {

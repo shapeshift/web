@@ -14,13 +14,11 @@ import type {
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
-  SignAndBroadcastTransactionInput,
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
-import { validateAddress } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { Message } from '../types'
@@ -206,18 +204,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signAndBroadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    signTxInput,
-  }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
-    ])
-
+  async signAndBroadcastTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
     const { wallet } = signTxInput
-
     try {
       if (supportsThorchain(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)

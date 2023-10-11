@@ -49,6 +49,7 @@ export type GetReceiveAddressArgs = {
   wallet: HDWallet
   deviceId: string
   accountMetadata: AccountMetadata
+  pubKey?: string
 }
 
 export type TradeQuoteInputCommonArgs = Pick<

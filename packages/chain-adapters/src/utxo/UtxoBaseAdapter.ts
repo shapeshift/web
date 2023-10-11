@@ -212,6 +212,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     index,
     isChange = false,
     showOnDevice = false,
+    pubKey,
   }: GetAddressInput): Promise<string> {
     try {
       this.assertIsAccountTypeSupported(accountType)
@@ -221,6 +222,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
+
+      if (pubKey) {
+        const account = await this.getAccount(pubKey)
+        const index = bip44Params.isChange
+          ? account.chainSpecific.nextChangeAddressIndex
+          : account.chainSpecific.nextReceiveAddressIndex
+
+        if (index === undefined)
+          throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
+        const address = account.chainSpecific.addresses?.[index]?.pubkey
+        if (!address)
+          throw new Error(
+            `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,
+          )
+
+        return address
+      }
 
       const getNextIndex = async () => {
         const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)

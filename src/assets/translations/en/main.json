@@ -1278,7 +1278,8 @@
       "failure": {
         "header": "Error",
         "body": "Unable to connect Ledger wallet"
-      }
+      },
+      "connectWarning": "Before connecting a chain, make sure you have the app open on your device."
     },
     "metaMask": {
       "errors": {

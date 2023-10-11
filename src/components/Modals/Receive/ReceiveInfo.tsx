@@ -21,7 +21,8 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -73,6 +74,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         wallet,
         deviceId: await wallet.getDeviceID(),
         accountMetadata,
+        pubKey:
+          isLedger(wallet) && selectedAccountId
+            ? fromAccountId(selectedAccountId as AccountId).account
+            : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
     })()
@@ -85,6 +90,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     chainAdapter,
     bip44Params,
     accountMetadata,
+    selectedAccountId,
   ])
 
   useEffect(() => {

@@ -1,4 +1,5 @@
-import { Box, Button, Flex, ModalBody, Spinner, Text as CText } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Alert, AlertDescription, AlertIcon, Box, Button, Flex, ModalBody } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   bchAssetId,
@@ -17,7 +18,7 @@ import {
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
@@ -119,23 +120,25 @@ export const LedgerChains = () => {
 
   const chainsRows = useMemo(
     () =>
-      availableAssets.map(asset => (
-        <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
-          <Flex alignItems='center'>
-            <AssetIcon assetId={asset.assetId} mr={2} />
-            <CText>{asset.name}</CText>
-          </Flex>
-          {walletChainIds.includes(asset.chainId) ? (
-            <CText>Added</CText>
-          ) : loadingChains[asset.chainId] ? (
-            <Spinner />
-          ) : (
-            <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
-              Connect
+      availableAssets.map(asset => {
+        return (
+          <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+            <Flex alignItems='center' gap={2}>
+              <AssetIcon assetId={asset.assetId} size='sm' />
+              <RawText fontWeight='bold'>{asset.name}</RawText>
+            </Flex>
+            <Button
+              isLoading={loadingChains[asset.chainId]}
+              onClick={() => handleConnectClick(asset.chainId)}
+              colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
+              isDisabled={walletChainIds.includes(asset.chainId)}
+              leftIcon={walletChainIds.includes(asset.chainId) ? <CheckCircleIcon /> : undefined}
+            >
+              {walletChainIds.includes(asset.chainId) ? 'Added' : 'Connect'}
             </Button>
-          )}
-        </Flex>
-      )),
+          </Flex>
+        )
+      }),
     [availableAssets, handleConnectClick, loadingChains, walletChainIds],
   )
 
@@ -151,6 +154,12 @@ export const LedgerChains = () => {
           />
           <Text color='text.subtle' translation={'walletProvider.ledger.chains.body'} />
         </Box>
+        <Alert status='info' mb={4}>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation='walletProvider.ledger.connectWarning' />
+          </AlertDescription>
+        </Alert>
         <Box mb={4}>
           <Text
             fontSize='md'

@@ -137,25 +137,23 @@ export const LedgerChains = () => {
             mb={2}
           />
           <Box>
-            {availableAssets
-              .sort(a => (walletChainIds.includes(a.chainId) ? 1 : -1))
-              .map(asset => (
-                <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
-                  <Flex alignItems='center'>
-                    <AssetIcon assetId={asset.assetId} mr={2} />
-                    <CText>{asset.name}</CText>
-                  </Flex>
-                  {walletChainIds.includes(asset.chainId) ? (
-                    <CText>Added</CText>
-                  ) : loadingChains[asset.chainId] ? (
-                    <Spinner />
-                  ) : (
-                    <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
-                      Connect
-                    </Button>
-                  )}
+            {availableAssets.map(asset => (
+              <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+                <Flex alignItems='center'>
+                  <AssetIcon assetId={asset.assetId} mr={2} />
+                  <CText>{asset.name}</CText>
                 </Flex>
-              ))}
+                {walletChainIds.includes(asset.chainId) ? (
+                  <CText>Added</CText>
+                ) : loadingChains[asset.chainId] ? (
+                  <Spinner />
+                ) : (
+                  <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
+                    Connect
+                  </Button>
+                )}
+              </Flex>
+            ))}
           </Box>
         </Box>
       </ModalBody>

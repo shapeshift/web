@@ -117,6 +117,28 @@ export const LedgerChains = () => {
     [availableChainIds, dispatch, walletState.adapters, walletState.wallet],
   )
 
+  const chainsRows = useMemo(
+    () =>
+      availableAssets.map(asset => (
+        <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+          <Flex alignItems='center'>
+            <AssetIcon assetId={asset.assetId} mr={2} />
+            <CText>{asset.name}</CText>
+          </Flex>
+          {walletChainIds.includes(asset.chainId) ? (
+            <CText>Added</CText>
+          ) : loadingChains[asset.chainId] ? (
+            <Spinner />
+          ) : (
+            <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
+              Connect
+            </Button>
+          )}
+        </Flex>
+      )),
+    [availableAssets, handleConnectClick, loadingChains, walletChainIds],
+  )
+
   return (
     <>
       <ModalBody textAlign='left' pb={8}>
@@ -136,25 +158,7 @@ export const LedgerChains = () => {
             translation={'walletProvider.ledger.chains.availableChains'}
             mb={2}
           />
-          <Box>
-            {availableAssets.map(asset => (
-              <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
-                <Flex alignItems='center'>
-                  <AssetIcon assetId={asset.assetId} mr={2} />
-                  <CText>{asset.name}</CText>
-                </Flex>
-                {walletChainIds.includes(asset.chainId) ? (
-                  <CText>Added</CText>
-                ) : loadingChains[asset.chainId] ? (
-                  <Spinner />
-                ) : (
-                  <Button colorScheme='blue' onClick={() => handleConnectClick(asset.chainId)}>
-                    Connect
-                  </Button>
-                )}
-              </Flex>
-            ))}
-          </Box>
+          <Box>{chainsRows}</Box>
         </Box>
       </ModalBody>
     </>

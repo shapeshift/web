@@ -1,5 +1,5 @@
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -23,10 +23,12 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // eslint-disable-next-line no-sequences
-  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const setErrorLoading = useCallback((e: string | null) => {
+    setError(e)
+    setLoading(false)
+  }, [])
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
     if (state.adapters) {
@@ -68,7 +70,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [history, setErrorLoading, state.adapters, state.keyring, walletDispatch])
 
   return (
     <ConnectModal
@@ -78,6 +80,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
-    ></ConnectModal>
+    />
   )
 }

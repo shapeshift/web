@@ -79,7 +79,10 @@ export const LedgerChains = () => {
         const accountResults = await Promise.allSettled(accountPromises)
 
         const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
-          if (res.status === 'rejected') return acc
+          if (res.status === 'rejected') {
+            console.error(`Failed to fetch account ${accountIds[idx]}`, res.reason)
+            return acc
+          }
           const { data: account } = res.value
           if (!account) return acc
 

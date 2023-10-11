@@ -9479,6 +9479,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-ledger@npm:^1.52.3-ledger-improvements.2":
+  version: 1.52.3-thorchain.11
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.52.3-thorchain.11"
+  dependencies:
+    "@ethereumjs/common": ^2.4.0
+    "@ethereumjs/tx": ^3.3.0
+    "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
+    "@shapeshiftoss/hdwallet-core": ^1.52.3-thorchain.11
+    "@types/ripemd160": ^2.0.1
+    base64-js: ^1.5.1
+    bchaddrjs: ^0.4.4
+    bitcoinjs-message: ^2.0.0
+    bs58check: 2.1.2
+    ethereumjs-tx: 1.3.7
+    ethereumjs-util: ^6.1.0
+    lodash: ^4.17.21
+    ripemd160: ^2.0.2
+  checksum: 46e2649c18e249f44a904950ce41ffe736f53b014cf459f13eb402531075077c4be855cce6d868451ffa7c30a063f7e1f55bf933ca83b3d7492107d954015326
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-metamask@npm:1.52.3-ledger-improvements.2":
   version: 1.52.3-ledger-improvements.2
   resolution: "@shapeshiftoss/hdwallet-metamask@npm:1.52.3-ledger-improvements.2"

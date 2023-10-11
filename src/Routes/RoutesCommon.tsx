@@ -108,7 +108,7 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Wallet,
     priority: 4,
     mobileNav: false,
-    disable: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    disable: !(getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING),
   },
   {
     path: '/earn',

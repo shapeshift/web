@@ -1,4 +1,5 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import stableStringify from 'fast-json-stable-stringify'
 import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
@@ -30,7 +31,7 @@ export const getReceiveAddress = pMemoize(
   },
   {
     cacheKey: ([{ asset, accountMetadata, deviceId }]) => {
-      return JSON.stringify({
+      return stableStringify({
         assetId: asset.assetId,
         accountMetadata,
         deviceId,

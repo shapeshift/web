@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratis",
     "back": "Atrás",
     "balance": "Balance",
     "next": "Siguiente",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Solicitar una función",
     "learnMore": "Aprende más",
     "showAll": "Mostrar todo",
-    "showLess": "Muestra menos"
+    "showLess": "Muestra menos",
+    "yourBalance": "Tu balance"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "Conectar MetaMask",
       "andMore": "...y más",
       "snapInstalledToast": "Snap MetaMask Multicadena ShapeShift instalado",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado",
+      "dontAskAgain": "No volver a preguntar"
     },
     "metaMaskSnapConfirm": {
       "title": "Instalar Snap Multicadena",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info dApp",
+          "permissions": "Permisos Requeridos",
+          "optionalPermissions": "Permisos Opcionales",
           "accountSelection": "Elige cuentas",
           "unsupportedChain": "Cadena no admitida en la sesión propuesta.",
           "methods": "Métodos",
           "events": "Eventos",
           "selectedAccounts": "Cuentas seleccionadas",
-          "permissionMessage": "Seleccione al menos una cuenta por cadena."
+          "permissionMessage": "Seleccione al menos una cuenta por cadena.",
+          "optionalPermissionMessage": "Los siguientes permisos son opcionales."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Establecer Avatar",
       "restoreDefault": "Restaurar predeterminado"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Potencia FOX actual",
+    "foxPower": "Poder FOX",
+    "simulateTitle": "Simule sus Ahorros FOX",
+    "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
+    "tradeSize": "Tamaño de intercambio",
+    "totalFee": "Costo total",
+    "foxPowerDiscount": "Descuento poder FOX",
+    "basedOnFee": "Basado en tarifa de: %{fee}"
   }
 }

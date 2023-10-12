@@ -300,7 +300,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         ...fees,
       } as SignTx<T>
 
-      const addresses = [from, input.to].filter(
+      const addresses = [from, to, contractAddress].filter(
         (address): address is string => address !== undefined,
       )
 

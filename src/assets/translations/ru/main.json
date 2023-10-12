@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Бесплатно",
     "back": "Назад",
     "balance": "Баланс",
     "next": "Следующий",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Отправить запрос на добавление функции",
     "learnMore": "Подробнее",
     "showAll": "Показать больше",
-    "showLess": "Показать меньше"
+    "showLess": "Показать меньше",
+    "yourBalance": "Ваш баланс"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "Подключить MetaMask",
       "andMore": "...и многое другое",
       "snapInstalledToast": "Установлена привязка ShapeShift Multichain MetaMask",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не установлен"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не установлен",
+      "dontAskAgain": "Больше не спрашивайте"
     },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Информация dApp",
+          "permissions": "Необходимые разрешения",
+          "optionalPermissions": "Дополнительные разрешения",
           "accountSelection": "Выберите счета",
           "unsupportedChain": "Неподдерживаемое пространство имен цепочки в предложении сессии.",
           "methods": "Методы",
           "events": "События",
           "selectedAccounts": "Выбранные счета",
-          "permissionMessage": "Пожалуйста, выберите хотя бы один счет для каждой цепочки."
+          "permissionMessage": "Пожалуйста, выберите хотя бы один счет для каждой цепочки.",
+          "optionalPermissionMessage": "Следующие разрешения являются необязательными."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Установить новый аватар",
       "restoreDefault": "Восстановление по умолчанию"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Текущая FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "Моделирование сбережений FOX",
+    "simulateBody": "Используйте этот удобный калькулятор для определения общей суммы комиссионных и скидки, которую вы получите при совершении сделки. Просто установите ползунки ниже, чтобы указать сумму держателя FOX и размер сделки в фиате, и наблюдайте за потенциальной экономией!",
+    "tradeSize": "Торговый размер",
+    "totalFee": "Общая комиссия",
+    "foxPowerDiscount": "Скидка FOX Power",
+    "basedOnFee": "На основе вознаграждения в размере: %{fee}"
   }
 }

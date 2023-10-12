@@ -1,5 +1,14 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Alert, AlertDescription, AlertIcon, Box, Button, Flex, ModalBody } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  ModalBody,
+  ModalFooter,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   bchAssetId,
@@ -17,8 +26,10 @@ import {
 } from '@shapeshiftoss/caip'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
@@ -30,7 +41,8 @@ import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
-  const { state: walletState } = useWallet()
+  const translate = useTranslate()
+  const { state: walletState, dispatch: walletDispatch } = useWallet()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -142,6 +154,10 @@ export const LedgerChains = () => {
     [availableAssets, handleConnectClick, loadingChains, walletChainIds],
   )
 
+  const handleClose = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+  }, [walletDispatch])
+
   return (
     <>
       <ModalBody textAlign='left' pb={8}>
@@ -170,6 +186,9 @@ export const LedgerChains = () => {
           <Box>{chainsRows}</Box>
         </Box>
       </ModalBody>
+      <Flex justifyContent='center'>
+        <Button onClick={handleClose}>{translate('common.close')}</Button>
+      </Flex>
     </>
   )
 }

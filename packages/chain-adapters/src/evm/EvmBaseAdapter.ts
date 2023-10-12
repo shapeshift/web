@@ -8,6 +8,7 @@ import type {
   HDWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsArbitrum,
   supportsAvalanche,
   supportsBSC,
   supportsETH,
@@ -26,12 +27,14 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BroadcastTransactionInput,
   BuildSendApiTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignMessageInput,
   SignTx,
   SignTxInput,
@@ -46,7 +49,8 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
+import { validateAddress } from '../utils/validateAddress'
+import type { arbitrum, avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
@@ -63,6 +67,7 @@ export const evmChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
 ] as const
 
 export type EvmChainId = (typeof evmChainIds)[number]
@@ -74,6 +79,7 @@ export type EvmChainAdapter =
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
   | gnosis.ChainAdapter
+  | arbitrum.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -159,6 +165,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsPolygon(wallet)
       case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
         return supportsGnosis(wallet)
+      case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
+        return supportsArbitrum(wallet)
       default:
         return false
     }
@@ -211,6 +219,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://optimistic.etherscan.io',
+      },
+      [KnownChainIds.ArbitrumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://arbiscan.io',
       },
     }[this.chainId]
 
@@ -432,7 +445,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
+  async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<T>): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     try {
       const { txToSign, wallet } = signTxInput
 
@@ -451,7 +473,15 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
@@ -497,6 +527,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async getAddress(input: GetAddressInput): Promise<string> {
     const { accountNumber, wallet, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
+
+    if (input.pubKey) {
+      return input.pubKey
+    }
+
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),
       showDisplay: showOnDevice,

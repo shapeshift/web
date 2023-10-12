@@ -12,5 +12,6 @@ export const csp: Csp = {
     'https://optimism.api.0x.org',
     'https://polygon.api.0x.org',
     'https://bsc.api.0x.org',
+    'https://arbitrum.api.0x.org/',
   ],
 }

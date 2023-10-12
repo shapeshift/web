@@ -17,6 +17,12 @@ jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   },
 }))
 
+jest.mock('@shapeshiftoss/hdwallet-ledger-webusb', () => ({
+  WebUSBLedgerAdapter: {
+    useKeyring: jest.fn(),
+  },
+}))
+
 jest.mock('friendly-challenge', () => ({
   WidgetInstance: {},
 }))

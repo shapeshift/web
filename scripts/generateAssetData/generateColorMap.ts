@@ -5,6 +5,7 @@ import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 import type { Asset } from 'lib/asset-service'
 
+import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -25,6 +26,7 @@ const generateColorMap = async () => {
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
+  const arbitrumAssets = await arbitrum.getAssets()
   const cosmosAssets = await cosmos.getAssets()
 
   // all assets, included assets to be blacklisted
@@ -42,6 +44,7 @@ const generateColorMap = async () => {
     ...bnbsmartchainAssets,
     ...polygonAssets,
     ...gnosisAssets,
+    ...arbitrumAssets,
   ]
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)

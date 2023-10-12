@@ -172,7 +172,7 @@ describe('CoinGecko market service', () => {
         .mockResolvedValueOnce({ data: [eth] })
         .mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(3)
+      expect(Object.keys(result).length).toEqual(4)
     })
 
     it('can sort by market cap', async () => {
@@ -202,7 +202,7 @@ describe('CoinGecko market service', () => {
         .mockResolvedValueOnce({ status: 429 })
         .mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(2)
+      expect(Object.keys(result).length).toEqual(3)
     })
 
     it('can use default args', async () => {
@@ -233,9 +233,9 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
-      const [btcKey, ethKey, ethOptimismKey] = Object.keys(result)
+      const [btcKey, ethKey, ethOptimismKey, ethOnArbitrumKey] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
-      expect(ethAssetId).toEqual([ethKey, ethOptimismKey])
+      expect(ethAssetId).toEqual([ethKey, ethOptimismKey, ethOnArbitrumKey])
     })
 
     it('can map CoinGecko id to multiple assetIds', async () => {

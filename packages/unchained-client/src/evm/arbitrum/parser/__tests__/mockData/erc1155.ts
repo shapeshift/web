@@ -1,0 +1,39 @@
+import type { Tx } from '../../../index'
+import { mempoolMock } from './mempoolMock'
+
+const erc1155: Tx = {
+  txid: '0xed7b217d0dd1d365bb2c63fea95caa58b1aa366767d7036048d0f8f811e9a31c',
+  blockHash: '0xfaf64aec6ad10967660ccbcfb33a1bbae9c20ae9de16f8a2b509df6db77cd70d',
+  blockHeight: 136274088,
+  timestamp: 1696119999,
+  status: 1,
+  from: '0x51DC8038b19d5E72C003011cB9A58c299058734C',
+  to: '0x6f10A5370dCC90Ef77e7Ea34742B986509e0018A',
+  confirmations: 563367,
+  value: '0',
+  fee: '37873900000000',
+  gasLimit: '586835',
+  gasUsed: '378739',
+  gasPrice: '100000000',
+  inputData:
+    '0xf242432a00000000000000000000000051dc8038b19d5e72c003011cb9a58c299058734c000000000000000000000000dddda6f358eaceb800c82d41ccc53676b5cc6f6c0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000360c6ebe',
+  tokenTransfers: [
+    {
+      contract: '0x6f10A5370dCC90Ef77e7Ea34742B986509e0018A',
+      decimals: 18,
+      name: 'Mystery Stone',
+      symbol: 'Mystery Stone',
+      type: 'ERC1155',
+      from: '0x51DC8038b19d5E72C003011cB9A58c299058734C',
+      to: '0xDddDA6f358EACeB800C82D41CcC53676b5CC6F6c',
+      value: '1',
+      id: '4',
+    },
+  ],
+  internalTxs: [],
+}
+
+export default {
+  tx: erc1155,
+  txMempool: mempoolMock(erc1155),
+}

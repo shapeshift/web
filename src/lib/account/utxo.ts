@@ -33,10 +33,11 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       }
       for (const accountType of supportedAccountTypes) {
         const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, accountNumber)
+        const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getCoinName(),
-            addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
+            addressNList,
             curve: 'secp256k1',
             scriptType,
           },

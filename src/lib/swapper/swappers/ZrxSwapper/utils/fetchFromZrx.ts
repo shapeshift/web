@@ -36,6 +36,12 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   const baseUrl = baseUrlFromChainId(buyAsset.chainId as ZrxSupportedChainId)
   const zrxService = zrxServiceFactory({ baseUrl })
 
+  const maybeTreasuryAddress = (() => {
+    try {
+      return getTreasuryAddressFromChainId(buyAsset.chainId)
+    } catch (err) {}
+  })()
+
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeZrxPriceResponse = await zrxService.get<
     T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse
@@ -50,8 +56,10 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
       slippagePercentage:
         slippageTolerancePercentage ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
-      feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
-      buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
+      ...(maybeTreasuryAddress && {
+        feeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent
+        buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
+      }),
     },
   })
 

@@ -179,23 +179,6 @@ export const VerifyAddresses = () => {
         <CardBody>
           <Row my={3}>
             <Row.Label fontWeight='medium'>
-              <CText>Sell Address:</CText>
-            </Row.Label>
-            <Row.Value flex={1} mr={4} fontWeight='light' wordBreak='break-all'>
-              {sellAddress || 'Fetching...'}
-            </Row.Value>
-            <Button
-              colorScheme={sellVerified ? 'green' : 'blue'}
-              onClick={() => handleVerify('sell')}
-              isDisabled={sellVerified}
-              isLoading={isSellVerifying}
-            >
-              {sellVerified ? 'Verified' : 'Verify'}
-            </Button>
-          </Row>
-
-          <Row my={3}>
-            <Row.Label fontWeight='medium'>
               <CText>Buy Address:</CText>
             </Row.Label>
             <Row.Value flex={1} mr={4} fontWeight='light' wordBreak='break-all'>
@@ -208,6 +191,22 @@ export const VerifyAddresses = () => {
               isLoading={isBuyVerifying}
             >
               {buyVerified ? 'Verified' : 'Verify'}
+            </Button>
+          </Row>
+          <Row my={3}>
+            <Row.Label fontWeight='medium'>
+              <CText>Sell Address:</CText>
+            </Row.Label>
+            <Row.Value flex={1} mr={4} fontWeight='light' wordBreak='break-all'>
+              {sellAddress || 'Fetching...'}
+            </Row.Value>
+            <Button
+              colorScheme={sellVerified ? 'green' : 'blue'}
+              onClick={() => handleVerify('sell')}
+              isDisabled={sellVerified}
+              isLoading={isSellVerifying}
+            >
+              {sellVerified ? 'Verified' : 'Verify'}
             </Button>
           </Row>
         </CardBody>

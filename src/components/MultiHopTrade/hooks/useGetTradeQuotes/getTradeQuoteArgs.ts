@@ -83,6 +83,7 @@ export const getTradeQuoteArgs = async ({
       accountNumber: sellAccountNumber,
       wallet,
       accountType: sellAccountType,
+      pubKey,
     })
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,

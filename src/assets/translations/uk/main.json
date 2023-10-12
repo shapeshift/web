@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Безкоштовно",
     "back": "Назад",
     "balance": "Баланс",
     "next": "Далі",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Подати запит на функціонал",
     "learnMore": "Дізнатись більше",
     "showAll": "Показати більше",
-    "showLess": "Показати менше"
+    "showLess": "Показати менше",
+    "yourBalance": "Ваш баланс"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "Підключити MetaMask",
       "andMore": "...та багато іншого",
       "snapInstalledToast": "Встановлено Multichain MetaMask Snap для ShapeShift ",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не встановлено"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не встановлено",
+      "dontAskAgain": "Не запитуйте більше"
     },
     "metaMaskSnapConfirm": {
       "title": "Встановити Multichain Snap",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Інформація про dApp",
+          "permissions": "Необхідні дозволи",
+          "optionalPermissions": "Додаткові дозволи",
           "accountSelection": "Виберіть акаунти",
           "unsupportedChain": "Непідтримуваний ланцюжок імен у пропозиції сеансу.",
           "methods": "Способи",
           "events": "Події",
           "selectedAccounts": "Вибрані акаунти",
-          "permissionMessage": "Будь ласка, оберіть принаймні один рахунок для кожного ланцюжка."
+          "permissionMessage": "Будь ласка, оберіть принаймні один рахунок для кожного ланцюжка.",
+          "optionalPermissionMessage": "Наступні дозволи є необов'язковими."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Встановити новий аватар",
       "restoreDefault": "Відновити налаштування за замовчуванням"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Поточна FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "Змоделюйте свої заощадження FOX",
+    "simulateBody": "Скористайтеся цим зручним калькулятором, щоб визначити загальну суму комісійних та знижку, яку ви отримаєте за угодою. Просто відрегулюйте повзунки нижче, щоб вказати кількість власників FOX і суму угоди у фіаті, і спостерігайте за потенційною економією!",
+    "tradeSize": "Розмір торгівлі",
+    "totalFee": "Загальна комісія",
+    "foxPowerDiscount": "Знижка FOX Power",
+    "basedOnFee": "На основі комісії: %{fee}"
   }
 }

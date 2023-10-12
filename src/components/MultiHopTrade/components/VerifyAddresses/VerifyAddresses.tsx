@@ -1,4 +1,12 @@
-import { Box, Button, CardBody, CardFooter, CardHeader, Text as CText } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Flex,
+  Text as CText,
+} from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
@@ -204,17 +212,20 @@ export const VerifyAddresses = () => {
           </Row>
         </CardBody>
         <CardFooter mt={4}>
-          <CText color='red.500' textAlign='center'>
-            Ensure your addresses are correct before proceeding.
-          </CText>
-          <Button
-            onClick={handleContinue}
-            size='lg-multiline'
-            isDisabled={!(sellVerified && buyVerified)}
-            mx={-2}
-          >
-            <Text translation='common.continue' />
-          </Button>
+          <Flex direction='column' alignItems='center' justifyContent='space-between' width='full'>
+            <CText color='red.500' textAlign='center' mb={4}>
+              Ensure your addresses are correct before proceeding.
+            </CText>
+
+            <Button
+              onClick={handleContinue}
+              size='lg'
+              isDisabled={!(sellVerified && buyVerified)}
+              width='full'
+            >
+              <Text translation='common.continue' />
+            </Button>
+          </Flex>
         </CardFooter>
       </Box>
     </SlideTransition>

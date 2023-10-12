@@ -1,7 +1,6 @@
 import type { AxiosStatic } from 'axios'
 import type { CowSwapOrder } from 'lib/swapper/types'
 
-import { DEFAULT_APP_DATA } from '../constants'
 import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 
 jest.mock('../cowService', () => {
@@ -39,7 +38,7 @@ describe('utils', () => {
         sellAmount: '20200000000000000',
         buyAmount: '272522025311597443544',
         validTo: 1656667297,
-        appData: DEFAULT_APP_DATA,
+        appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
         feeAmount: '3514395197690019',
         kind: 'sell',
         partiallyFillable: false,

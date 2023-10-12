@@ -1,7 +1,11 @@
+import { MetadataApi } from '@cowprotocol/app-data'
+import type { OrderClass } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
 import { AddressZero } from '@ethersproject/constants'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { CowChainId } from '../types'
+
+export const metadataApi = new MetadataApi()
 
 export const MIN_COWSWAP_USD_TRADE_VALUES_BY_CHAIN_ID: Record<CowChainId, string> = {
   [KnownChainIds.EthereumMainnet]: '20',
@@ -9,7 +13,23 @@ export const MIN_COWSWAP_USD_TRADE_VALUES_BY_CHAIN_ID: Record<CowChainId, string
 }
 
 export const DEFAULT_ADDRESS = AddressZero
-export const DEFAULT_APP_DATA = '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970'
+// See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
+export const getDefaultAppData = async () => {
+  const APP_CODE = 'shapeshift'
+  const orderClass: OrderClass = { orderClass: 'market' }
+  const quote = { slippageBips: '50' }
+
+  const appDataDoc = await metadataApi.generateAppDataDoc({
+    appCode: APP_CODE,
+    metadata: {
+      quote,
+      orderClass,
+    },
+  })
+
+  const { appDataHex } = await metadataApi.appDataToCid(appDataDoc)
+  return appDataHex
+}
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
 

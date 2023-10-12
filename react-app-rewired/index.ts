@@ -260,6 +260,14 @@ const reactAppRewireConfig = {
             module: {
               rules: [
                 ...(config.module?.rules ?? []),
+                // Packages importing non-fully-specific module paths will fail at runtime - this loosens checks so @cowprotocol/appdata is happy
+                // see https://github.com/search?q=repo:cowprotocol/app-data%20ethers/lib/utils&type=code
+                {
+                  test: /\.(m|c)?js$/,
+                  resolve: {
+                    fullySpecified: false,
+                  },
+                },
                 {
                   // This rule causes the (placeholder) contents of `src/env/env.json` to be thrown away
                   // and replaced with `stableStringify(env)`, which is then written out to `build/env.json`.
@@ -319,6 +327,7 @@ const reactAppRewireConfig = {
             // we want to happen in the browser during the build of the webpack bundle.
             resolve: {
               alias: {
+                'ethers/lib/utils': 'ethers/lib/utils.js',
                 [path.join(buildPath, 'src/env/index.ts')]: path.join(
                   buildPath,
                   'src/env/webpack.ts',

@@ -8,7 +8,6 @@ import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
-  DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
@@ -39,7 +38,7 @@ jest.mock('../../utils/helpers/helpers', () => {
 })
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
-  appData: DEFAULT_APP_DATA,
+  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -51,7 +50,7 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
-  appData: DEFAULT_APP_DATA,
+  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -63,7 +62,7 @@ const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
-  appData: DEFAULT_APP_DATA,
+  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -75,7 +74,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
-  appData: DEFAULT_APP_DATA,
+  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
   buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',

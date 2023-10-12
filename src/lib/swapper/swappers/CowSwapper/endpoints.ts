@@ -25,8 +25,8 @@ import type {
 } from './types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
+  getDefaultAppData,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
@@ -75,7 +75,7 @@ export const cowApi: SwapperApi = {
         buyToken: buyTokenAddress,
         receiver: receiveAddress,
         validTo: getNowPlusThirtyMinutesTimestamp(),
-        appData: DEFAULT_APP_DATA,
+        appData: await getDefaultAppData(),
         partiallyFillable: false,
         from,
         kind: ORDER_KIND_SELL,

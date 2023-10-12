@@ -1,6 +1,11 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainId,
+  SignMessageInput,
+  SignTx,
+  Verified,
+} from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -146,11 +151,14 @@ export const useTradeExecution = ({
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
-              const { txToSign } = await adapter.buildCustomTx({
-                ...transactionRequest,
-                wallet,
-                accountNumber,
-              } as BuildCustomTxInput)
+              const txToSign = await adapter.buildCustomTx(
+                {
+                  ...transactionRequest,
+                  wallet,
+                  accountNumber,
+                } as BuildCustomTxInput,
+                tradeQuote.receiveAddress,
+              )
               return await signAndBroadcast({ adapter, txToSign, wallet })
             },
           })
@@ -169,8 +177,9 @@ export const useTradeExecution = ({
             xpub,
             accountType,
             signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
+              const verifiedTxToSign = await await adapter.verifySignTx(txToSign)
               const signedTx = await adapter.signTransaction({
-                txToSign,
+                txToSign: verifiedTxToSign,
                 wallet,
               })
               return adapter.broadcastTransaction(signedTx)
@@ -189,7 +198,7 @@ export const useTradeExecution = ({
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
-              const txToSign: ThorchainSignTx = {
+              const txToSign: Verified<SignTx<CosmosSdkChainId>> = await adapter.verifySignTx({
                 addressNList: toAddressNList(bip44Params),
                 tx: {
                   fee: {
@@ -203,9 +212,9 @@ export const useTradeExecution = ({
                 sequence: transactionRequest.sequence,
                 account_number: transactionRequest.account_number,
                 chain_id: transactionRequest.chain_id,
-              }
+              })
               const signedTx = await adapter.signTransaction({
-                txToSign,
+                txToSign: txToSign as Verified<ThorchainSignTx>, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting
                 wallet,
               })
               return adapter.broadcastTransaction(signedTx)

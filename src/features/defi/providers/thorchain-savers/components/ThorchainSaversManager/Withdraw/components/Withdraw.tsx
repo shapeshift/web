@@ -1,7 +1,7 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -21,7 +21,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -29,7 +28,7 @@ import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
-import { isToken } from 'lib/utils'
+import { getSupportedChainIds, isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
@@ -178,7 +177,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [accountId, asset, translate],
   )
 
-  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+  const supportedEvmChainIds = useMemo(() => getSupportedChainIds()[CHAIN_NAMESPACE.Evm], [])
 
   const saversRouterContractAddress = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',

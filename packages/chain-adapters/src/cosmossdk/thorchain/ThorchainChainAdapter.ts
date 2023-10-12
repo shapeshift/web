@@ -17,11 +17,14 @@ import type {
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
+import type { Verified } from '../../utils'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
+import { _internalUnwrap, _internalWrap } from '../../utils/verify'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { Message } from '../types'
+import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
@@ -100,15 +103,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
+  async signTransaction(
+    signTxInput: SignTxInput<Verified<ThorchainSignTx>>,
+  ): Promise<Verified<string>> {
     try {
       const { txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
-        const signedTx = await wallet.thorchainSignTx(txToSign)
+        const signedTx = await wallet.thorchainSignTx(_internalUnwrap(txToSign))
 
         if (!signedTx) throw new Error('Error signing tx')
 
-        return signedTx.serialized
+        return _internalWrap(signedTx.serialized)
       } else {
         throw new Error('Wallet does not support Thorchain.')
       }
@@ -119,7 +124,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.ThorchainMainnet>,
-  ): Promise<{ txToSign: ThorchainSignTx }> {
+  ): Promise<Verified<ThorchainSignTx>> {
     try {
       const { sendMax, to, value, from, chainSpecific } = input
       const { fee } = chainSpecific
@@ -129,8 +134,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
-      const msg: Message = {
-        type: 'thorchain/MsgSend',
+      const msg: ThorchainMsgSend = {
+        type: ThorchainMessageType.MsgSend,
         value: {
           amount: [{ amount, denom: this.denom }],
           from_address: from,
@@ -152,7 +157,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   async buildSendTransaction(
     input: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
-  ): Promise<{ txToSign: ThorchainSignTx }> {
+  ): Promise<Verified<ThorchainSignTx>> {
     const { accountNumber, wallet } = input
     const from = await this.getAddress({ accountNumber, wallet })
     return this.buildSendApiTransaction({ ...input, from })
@@ -161,7 +166,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   /* MsgDeposit is used for thorchain swap/lp operations */
   async buildDepositTransaction(
     input: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
-  ): Promise<{ txToSign: ThorchainSignTx }> {
+  ): Promise<Verified<ThorchainSignTx>> {
     try {
       // TODO memo validation
       const { from, value, memo, chainSpecific } = input
@@ -172,8 +177,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const account = await this.getAccount(from)
 
       // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
-      const msg: Message = {
-        type: 'thorchain/MsgDeposit',
+      const msg: ThorchainMsgDeposit = {
+        type: ThorchainMessageType.MsgDeposit,
         value: {
           coins: [{ asset: 'THOR.RUNE', amount: bnOrZero(value).toString() }],
           memo,
@@ -204,12 +209,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
+  async signAndBroadcastTransaction(
+    signTxInput: SignTxInput<Verified<ThorchainSignTx>>,
+  ): Promise<string> {
     const { wallet } = signTxInput
     try {
       if (supportsThorchain(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)
-        return this.providers.http.sendTx({ body: { rawTx: signedTx } })
+        return this.providers.http.sendTx({ body: { rawTx: _internalUnwrap(signedTx) } })
       } else {
         throw new Error('Wallet does not support Thorchain.')
       }

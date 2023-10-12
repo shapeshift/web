@@ -133,21 +133,25 @@ export class FoxyApi {
       maxFeePerGas !== undefined &&
       maxPriorityFeePerGas !== undefined
 
-    const { txToSign } = await this.adapter.buildCustomTx({
-      to: payload.to,
-      value: payload.value,
-      gasLimit,
-      wallet,
-      data: payload.data,
-      accountNumber: payload.bip44Params.accountNumber,
-      ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-    })
+    const txToSign = await this.adapter.buildCustomTx(
+      {
+        to: payload.to,
+        value: payload.value,
+        gasLimit,
+        wallet,
+        data: payload.data,
+        accountNumber: payload.bip44Params.accountNumber,
+        ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
+      },
+      undefined,
+    )
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
-      if (dryRun) return signedTx
+      if (dryRun) return signedTx.unwrap()
       try {
+        // TODO: remove this as we should never be broadcasting outside the safety of chain adapters (due to address blocking)
         if (this.providerUrl.includes('localhost') || this.providerUrl.includes('127.0.0.1')) {
-          const sendSignedTx = await this.provider.sendTransaction(signedTx)
+          const sendSignedTx = await this.provider.sendTransaction(signedTx.unwrap())
           return sendSignedTx?.blockHash ?? ''
         }
         return this.adapter.broadcastTransaction(signedTx)

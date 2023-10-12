@@ -612,12 +612,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!wallet) return
     const buildCustomTxInput = await getCustomTxInput()
     if (!buildCustomTxInput) return
+    if (accountNumber === undefined) return
 
     const adapter = assertGetEvmChainAdapter(chainId)
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    const txid = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput,
+      receiveAddress: await adapter.getAddress({ accountNumber, wallet }),
+    })
     return txid
-  }, [wallet, getCustomTxInput, chainId])
+  }, [wallet, getCustomTxInput, chainId, accountNumber])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return

@@ -1,4 +1,4 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 // import https from 'https'
 import { find } from 'lodash'
@@ -15,7 +15,7 @@ import { IdleOpportunity } from './IdleOpportunity'
 import { IdleSdk } from './IdleSdk'
 
 type ConstructorArgs = {
-  chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+  chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   dryRun?: true
   network?: number
   providerUrl: string
@@ -25,7 +25,7 @@ const idleSdk = new IdleSdk()
 
 export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
   readonly #deps: {
-    chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+    chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
     contract: Contract
     network?: number

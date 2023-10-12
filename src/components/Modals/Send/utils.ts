@@ -13,16 +13,17 @@ import {
   type FeeData,
   type UtxoBaseAdapter,
   type UtxoChainId,
-  utxoChainIds,
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { tokenOrUndefined } from 'lib/utils'
+import { getSupportedChainIds, tokenOrUndefined } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -105,7 +106,7 @@ export const handleSend = async ({
   wallet: HDWallet
 }): Promise<string> => {
   const chainAdapterManager = getChainAdapterManager()
-  const supportedEvmChainIds = getSupportedEvmChainIds()
+  const supportedChainIds = getSupportedChainIds()
 
   try {
     const state = store.getState()
@@ -129,8 +130,6 @@ export const handleSend = async ({
       .times(bn(10).exponentiatedBy(asset.precision))
       .toFixed(0)
 
-    const chainId = adapter.getChainId()
-
     const { estimatedFees, feeType, to, memo, from } = sendInput
 
     if (!accountMetadata)
@@ -140,8 +139,9 @@ export const handleSend = async ({
       throw new Error(`useFormSend: no bip44Params for accountId ${sendInput.accountId}`)
     }
 
-    const result = await (async () => {
-      if (supportedEvmChainIds.includes(chainId)) {
+    const txToSign = await (async () => {
+      const adapter = assertGetEvmChainAdapter(asset.chainId)
+      if (supportedChainIds[CHAIN_NAMESPACE.Evm].includes(asset.chainId)) {
         if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
         const fees = estimatedFees[feeType] as FeeData<EvmChainId>
         const {
@@ -156,7 +156,8 @@ export const handleSend = async ({
         }
         const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
         const { accountNumber } = bip44Params
-        return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
+
+        return await adapter.buildSendTransaction({
           memo,
           to,
           value,
@@ -172,7 +173,8 @@ export const handleSend = async ({
         })
       }
 
-      if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
+      if (supportedChainIds[CHAIN_NAMESPACE.Utxo].includes(asset.chainId)) {
+        const adapter = assertGetUtxoChainAdapter(asset.chainId)
         const fees = estimatedFees[feeType] as FeeData<UtxoChainId>
 
         if (!accountType) {
@@ -181,7 +183,7 @@ export const handleSend = async ({
           )
         }
         const { accountNumber } = bip44Params
-        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
+        return adapter.buildSendTransaction({
           to,
           value,
           wallet,
@@ -196,7 +198,8 @@ export const handleSend = async ({
         })
       }
 
-      if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
+      if (supportedChainIds[CHAIN_NAMESPACE.CosmosSdk].includes(asset.chainId)) {
+        const adapter = assertGetCosmosSdkChainAdapter(asset.chainId)
         const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
         const { accountNumber } = bip44Params
         const params = {
@@ -212,10 +215,8 @@ export const handleSend = async ({
         return adapter.buildSendTransaction(params)
       }
 
-      throw new Error(`${chainId} not supported`)
+      throw new Error(`${asset.chainId} not supported`)
     })()
-
-    const txToSign = result.txToSign
 
     const broadcastTXID = await (async () => {
       if (wallet.supportsOfflineSigning()) {

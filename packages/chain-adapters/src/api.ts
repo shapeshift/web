@@ -17,6 +17,7 @@ import type {
   TxHistoryResponse,
   ValidAddressResult,
 } from './types'
+import type { Verified } from './utils/verify'
 
 /**
  * Type alias for a Map that can be used to manage instances of ChainAdapters
@@ -44,7 +45,7 @@ export type ChainAdapter<T extends ChainId> = {
    * For UTXO coins, that's the list of UTXO account types
    * For other networks, this is unimplemented, and left as a responsibility of the consumer.
    */
-  getSupportedAccountTypes?(): UtxoAccountType[]
+  getSupportedAccountTypes?: () => UtxoAccountType[]
   /**
    * Get the balance of an address
    */
@@ -57,19 +58,17 @@ export type ChainAdapter<T extends ChainId> = {
 
   getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse>
 
-  buildSendTransaction(input: BuildSendTxInput<T>): Promise<{
-    txToSign: SignTx<T>
-  }>
+  buildSendTransaction(input: BuildSendTxInput<T>): Promise<Verified<SignTx<T>>>
 
   getAddress(input: GetAddressInput): Promise<string>
 
-  signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
+  signTransaction(signTxInput: SignTxInput<Verified<SignTx<T>>>): Promise<Verified<string>>
 
-  signAndBroadcastTransaction?(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
+  signAndBroadcastTransaction?: (signTxInput: SignTxInput<Verified<SignTx<T>>>) => Promise<string>
 
   getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
 
-  broadcastTransaction(hex: string): Promise<string>
+  broadcastTransaction(hex: Verified<string>): Promise<string>
 
   validateAddress(address: string): Promise<ValidAddressResult>
 

@@ -1,5 +1,5 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, Verified } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
@@ -24,7 +24,7 @@ import { erc20Abi } from 'lib/investor/constants'
 import { ssRouterContractAddress, yv2VaultAbi } from './constants'
 
 type YearnOpportunityDeps = {
-  chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+  chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   contract: Contract
   dryRun?: true
   web3: Web3
@@ -53,7 +53,7 @@ export class YearnOpportunity
     ApprovalRequired<PreparedTransaction>
 {
   readonly #internals: {
-    chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+    chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
     routerContract: Contract
     vault: Vault
@@ -186,19 +186,22 @@ export class YearnOpportunity
     const chainAdapter = this.#internals.chainAdapter
 
     const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultiplier[feeSpeed]).toString())
-    const txToSign: ETHSignTx = {
-      ...tx,
-      gasPrice,
-      // Gas limit safety factor of 50% to prevent out of gas errors on chain.
-      gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
-      nonce: numberToHex(tx.nonce),
-      value: numberToHex(tx.value),
-      addressNList: toAddressNList(bip44Params),
-    }
+    const txToSign: Verified<ETHSignTx> = await chainAdapter.verifySignTx(
+      {
+        ...tx,
+        gasPrice,
+        // Gas limit safety factor of 50% to prevent out of gas errors on chain.
+        gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
+        nonce: numberToHex(tx.nonce),
+        value: numberToHex(tx.value),
+        addressNList: toAddressNList(bip44Params),
+      },
+      { wallet, accountNumber: bip44Params.accountNumber, receiveAddress: undefined },
+    )
 
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await chainAdapter.signTransaction({ txToSign, wallet })
-      if (this.#internals.dryRun) return signedTx
+      if (this.#internals.dryRun) return signedTx.unwrap()
       return chainAdapter.broadcastTransaction(signedTx)
     } else if (wallet.supportsBroadcast() && chainAdapter.signAndBroadcastTransaction) {
       if (this.#internals.dryRun) {

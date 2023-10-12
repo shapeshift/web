@@ -11,6 +11,7 @@ import type { V1Api as CosmosV1Api } from '@shapeshiftoss/unchained-client/dist/
 import { V1Api as ThorchainV1Api } from '@shapeshiftoss/unchained-client/dist/cosmossdk/thorchain'
 import type { Validator as CosmosSdkValidator } from '@shapeshiftoss/unchained-client/dist/cosmossdk/types'
 import type { Client } from '@shapeshiftoss/unchained-client/dist/websocket'
+import assert from 'assert'
 import { bech32 } from 'bech32'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -33,21 +34,27 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
+import type { Verified } from '../utils'
 import { toAddressNList, toRootDerivationPath } from '../utils'
+import { assertUnreachable } from '../utils/assertUnreachable'
 import { bnOrZero } from '../utils/bignumber'
+import { _internalUnwrap, verify } from '../utils/verify'
 import type { cosmos, thorchain } from './'
-import type {
-  BuildTransactionInput,
-  CosmosSDKToken,
-  Delegation,
-  Redelegation,
-  RedelegationEntry,
-  Reward,
-  Undelegation,
-  UndelegationEntry,
-  Validator,
-  ValidatorAction,
-  ValidatorReward,
+import {
+  type BuildTransactionInput,
+  CosmosSdkMessageType,
+  type CosmosSDKToken,
+  type Delegation,
+  type Message,
+  type Redelegation,
+  type RedelegationEntry,
+  type Reward,
+  ThorchainMessageType,
+  type Undelegation,
+  type UndelegationEntry,
+  type Validator,
+  type ValidatorAction,
+  type ValidatorReward,
 } from './types'
 
 const CHAIN_ID_TO_BECH32_ADDR_PREFIX = {
@@ -114,6 +121,29 @@ export interface CosmosSdkBaseAdapterArgs extends ChainAdapterArgs {
   supportedChainIds: ChainId[]
 }
 
+// note: the correctness of this function is critical as it can result in allowing blocked addresses
+const getAddressesFromMsg = (msg: Message): string[] => {
+  const { type, value } = msg
+  switch (type) {
+    case ThorchainMessageType.MsgDeposit:
+      return [value.signer]
+    case ThorchainMessageType.MsgSend:
+      return [value.from_address, value.to_address]
+    case CosmosSdkMessageType.MsgBeginRedelegate:
+      return [value.delegator_address, value.validator_dst_address, value.validator_src_address]
+    case CosmosSdkMessageType.MsgDelegate:
+      return [value.delegator_address, value.validator_address]
+    case CosmosSdkMessageType.MsgSend:
+      return [value.from_address, value.to_address]
+    case CosmosSdkMessageType.MsgUndelegate:
+      return [value.delegator_address, value.validator_address]
+    case CosmosSdkMessageType.MsgWithdrawDelegationReward:
+      return [value.delegator_address, value.validator_address]
+    default:
+      assertUnreachable(type)
+  }
+}
+
 export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implements IChainAdapter<T> {
   protected readonly chainId: CosmosSdkChainId
   protected readonly coinName: string
@@ -147,12 +177,14 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   abstract getFeeAssetId(): AssetId
   abstract getName(): string
   abstract getDisplayName(): string
-  abstract buildSendApiTransaction(tx: BuildSendApiTxInput<T>): Promise<{ txToSign: SignTx<T> }>
-  abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }>
+  abstract buildSendApiTransaction(tx: BuildSendApiTxInput<T>): Promise<Verified<SignTx<T>>>
+  abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<Verified<SignTx<T>>>
   abstract getAddress(input: GetAddressInput): Promise<string>
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
-  abstract signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
-  abstract signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
+  abstract signTransaction(signTxInput: SignTxInput<Verified<SignTx<T>>>): Promise<Verified<string>>
+  abstract signAndBroadcastTransaction(
+    signTxInput: SignTxInput<Verified<SignTx<T>>>,
+  ): Promise<string>
 
   getChainId(): ChainId {
     return this.chainId
@@ -305,7 +337,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   protected buildTransaction<U extends CosmosSdkChainId>(
     input: BuildTransactionInput<CosmosSdkChainId>,
-  ): { txToSign: SignTx<U> } {
+  ): Promise<Verified<SignTx<U>>> {
     const { account, accountNumber, msg, memo = '', chainSpecific } = input
     const { gas, fee } = chainSpecific
 
@@ -326,12 +358,14 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       sequence: account.chainSpecific.sequence,
     } as unknown as SignTx<U>
 
-    return { txToSign }
+    const addresses = getAddressesFromMsg(msg)
+
+    return verify(addresses, txToSign)
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
+  broadcastTransaction(hex: Verified<string>): Promise<string> {
     try {
-      return this.providers.http.sendTx({ body: { rawTx: hex } })
+      return this.providers.http.sendTx({ body: { rawTx: _internalUnwrap(hex) } })
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -412,5 +446,12 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  verifySignTx(signTx: SignTx<T>): Promise<Verified<SignTx<T>>> {
+    assert(signTx.tx.msg.length === 1)
+    const msg: Message = signTx.tx.msg[0] as Message
+    const addresses = getAddressesFromMsg(msg)
+    return verify(addresses, signTx)
   }
 }

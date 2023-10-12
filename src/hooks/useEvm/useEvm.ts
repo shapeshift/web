@@ -2,9 +2,9 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
+import { getSupportedChainIds } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,11 +17,6 @@ const chainIdFromEthNetwork = (
   return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
 }
 
-export const getSupportedEvmChainIds = () =>
-  Array.from(getChainAdapterManager().keys()).filter(
-    chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm,
-  )
-
 export const useEvm = () => {
   const {
     state: { wallet },
@@ -30,7 +25,7 @@ export const useEvm = () => {
   const [ethNetwork, setEthNetwork] = useState<string>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
-    () => getSupportedEvmChainIds(),
+    () => getSupportedChainIds()[CHAIN_NAMESPACE.Evm],
     // We want to explicitly react on featureFlags to get a new reference here
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],

@@ -60,7 +60,7 @@ export const useStakingAction = () => {
 
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
-      const { txToSign } = await (() => {
+      const txToSign = await (() => {
         const { accountNumber } = bip44Params
         switch (action) {
           case StakingAction.Claim:

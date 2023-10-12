@@ -1,4 +1,4 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { type ChainId, type VaultMetadata, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
@@ -13,7 +13,7 @@ import type { PreparedTransaction } from './YearnOpportunity'
 import { YearnOpportunity } from './YearnOpportunity'
 
 type ConstructorArgs = {
-  chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+  chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   dryRun?: true
   network?: ChainId
   providerUrl: string
@@ -21,7 +21,7 @@ type ConstructorArgs = {
 
 export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadata> {
   readonly #deps: {
-    chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+    chainAdapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
     contract: Contract
     dryRun?: true
     web3: Web3

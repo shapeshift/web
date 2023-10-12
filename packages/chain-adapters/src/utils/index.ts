@@ -7,6 +7,9 @@ export * from './bip44'
 export * from './fees'
 export * from './utxoUtils'
 
+// only export the public verify helper and the utility type - don't export others to prevent accidental misuse
+export { verify, type Verified } from './verify'
+
 export const getAssetNamespace = (type: string): AssetNamespace => {
   if (type === 'ERC20') return 'erc20'
   if (type === 'ERC721') return 'erc721'

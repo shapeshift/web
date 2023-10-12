@@ -16,10 +16,18 @@ import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
+import type { Verified } from '../../utils'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
+import { _internalWrap } from '../../utils/verify'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as polygon from './PolygonChainAdapter'
+
+jest.mock('../../utils/verify', () => ({
+  verify: (_addresses: string[], input: any) => input,
+  _internalWrap: (input: any) => input,
+  _internalUnwrap: (input: any) => input,
+}))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -276,7 +284,7 @@ describe('PolygonChainAdapter', () => {
           gasPrice: '0x12a05f200',
           gasLimit: '0x5208',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).resolves.toEqual(
         '0xf8678085012a05f20082520894d8da6bf26964af9d7eed9e03e53415d37aa9604581f080820136a01d0f5eaf174310462ce9a3db0fd75a6133758a29b4bf3073099b156084697d00a0066f4b117b1c7acbcbb4d9491a3f9528f8fa6fdf24193a33d33235a7a521df33',
@@ -305,7 +313,7 @@ describe('PolygonChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
     })
@@ -318,7 +326,7 @@ describe('PolygonChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -334,7 +342,7 @@ describe('PolygonChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -391,7 +399,7 @@ describe('PolygonChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new polygon.ChainAdapter(args)
 
-      const mockTx = '0x123'
+      const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
 
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })

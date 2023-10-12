@@ -16,6 +16,7 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
+  nonce?: string
 } & Fees
 
 export type BuildCustomApiTxInput = Omit<BuildCustomTxInput, 'wallet'> & { from: string }

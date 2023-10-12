@@ -1,6 +1,14 @@
-import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
+import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type {
+  CosmosSdkMsgSend,
+  ThorchainMsgDeposit,
+} from '@shapeshiftoss/chain-adapters/src/cosmossdk/types'
+import {
+  CosmosSdkMessageType,
+  ThorchainMessageType,
+} from '@shapeshiftoss/chain-adapters/src/cosmossdk/types'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -162,8 +170,8 @@ export const thorchainApi: SwapperApi = {
           }
 
           // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
-          const msg: AminoMsg = {
-            type: 'thorchain/MsgDeposit',
+          const msg: ThorchainMsgDeposit = {
+            type: ThorchainMessageType.MsgDeposit,
             value: {
               coins: [
                 { asset: 'THOR.RUNE', amount: sellAmountIncludingProtocolFeesCryptoBaseUnit },
@@ -195,8 +203,8 @@ export const thorchainApi: SwapperApi = {
           const gaiaAddressData = maybeGaiaAddressData.unwrap()
           const vault = gaiaAddressData.address
 
-          const msg: AminoMsg = {
-            type: 'cosmos-sdk/MsgSend',
+          const msg: CosmosSdkMsgSend = {
+            type: CosmosSdkMessageType.MsgSend,
             value: {
               amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'uatom' }],
               from_address: from,

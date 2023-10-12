@@ -16,10 +16,18 @@ import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
+import type { Verified } from '../../utils'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
+import { _internalWrap } from '../../utils/verify'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as optimism from './OptimismChainAdapter'
+
+jest.mock('../../utils/verify', () => ({
+  verify: (_addresses: string[], input: any) => input,
+  _internalWrap: (input: any) => input,
+  _internalUnwrap: (input: any) => input,
+}))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -287,7 +295,7 @@ describe('OptimismChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).resolves.toEqual(
         '0xf86c808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000038a01ff661b204766e56722f945c5fb5c8ba53b29938dc1bd6a0cb756d5f35a6b958a0432b008d8b23db1b6fd25434a4bd5f512c93e3c125364a87ed0f8c785cf29dee',
@@ -316,7 +324,7 @@ describe('OptimismChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
     })
@@ -329,7 +337,7 @@ describe('OptimismChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -345,7 +353,7 @@ describe('OptimismChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -402,7 +410,7 @@ describe('OptimismChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
 
-      const mockTx = '0x123'
+      const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
 
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })

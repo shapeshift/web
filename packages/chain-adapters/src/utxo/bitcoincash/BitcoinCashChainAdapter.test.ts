@@ -19,8 +19,16 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
+import type { Verified } from '../../utils/verify'
+import { _internalWrap } from '../../utils/verify'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as bitcoincash from './BitcoinCashChainAdapter'
+
+jest.mock('../../utils/verify', () => ({
+  verify: (_addresses: string[], input: any) => input,
+  _internalWrap: (input: any) => input,
+  _internalUnwrap: (input: any) => input,
+}))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 const VALID_CHAIN_ID = bchChainId
@@ -282,7 +290,7 @@ describe('BitcoinCashChainAdapter', () => {
 
       const adapter = new bitcoincash.ChainAdapter(args)
 
-      const txToSign: BTCSignTx = {
+      const txToSign: Verified<BTCSignTx> = _internalWrap({
         coin: 'BitcoinCash',
         inputs: [
           {
@@ -308,7 +316,7 @@ describe('BitcoinCashChainAdapter', () => {
             isChange: true,
           },
         ],
-      }
+      })
 
       const signedTx = await adapter.signTransaction({
         wallet,
@@ -328,7 +336,7 @@ describe('BitcoinCashChainAdapter', () => {
         sendTx: jest.fn().mockResolvedValue(sendDataResult),
       } as any
       const adapter = new bitcoincash.ChainAdapter(args)
-      const mockTx = '0x123'
+      const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
       expect(result).toEqual(sendDataResult)

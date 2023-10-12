@@ -1,7 +1,7 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter, CosmosSdkChainId, Verified } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { getSdkError } from '@walletconnect/utils'
@@ -11,6 +11,7 @@ import type {
 } from 'plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
 import { assertIsDefined } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveCosmosRequestArgs = {
@@ -41,8 +42,12 @@ export const approveCosmosRequest = async ({
 
   switch (request.method) {
     case CosmosSigningMethod.COSMOS_SIGN_AMINO:
+      const adapter = assertGetCosmosSdkChainAdapter(request.params.signDoc.chain_id)
+
+      // TODO: this will fail for unrecognised msg types, which is intentional to prevent allowing
+      // blocked addresses from transacting
       // TODO: Implement
-      const txToSign: CosmosSignTx = {
+      const txToSign: Verified<CosmosSignTx> = await adapter.verifySignTx({
         addressNList,
         tx: {
           // FIXME: proto-tx-builder requires a message length of 1, but sign messages have 0
@@ -55,12 +60,12 @@ export const approveCosmosRequest = async ({
         account_number: accountNumber.toString(),
         sequence: request.params.signDoc.sequence,
         fee: 0, // fixme
-      }
+      })
       const signedMessage = await chainAdapter.signTransaction({
         txToSign,
         wallet,
       })
-      return formatJsonRpcResult(id, signedMessage)
+      return formatJsonRpcResult(id, signedMessage.unwrap())
 
     case CosmosSigningMethod.COSMOS_SIGN_DIRECT: {
       // TODO: Implement

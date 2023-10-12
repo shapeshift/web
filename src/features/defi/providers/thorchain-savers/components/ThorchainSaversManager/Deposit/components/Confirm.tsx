@@ -1,6 +1,12 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  bchChainId,
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type {
   FeeData,
   FeeDataEstimate,
@@ -34,7 +40,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -44,7 +49,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { SwapperName } from 'lib/swapper/types'
-import { isToken, tokenOrUndefined } from 'lib/utils'
+import { getSupportedChainIds, isToken, tokenOrUndefined } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -105,7 +110,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainId,
   ) as unknown as UtxoBaseAdapter<UtxoChainId>
 
-  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+  const supportedEvmChainIds = useMemo(() => getSupportedChainIds()[CHAIN_NAMESPACE.Evm], [])
 
   const assetId = toAssetId({
     chainId,
@@ -563,7 +568,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     const adapter = assertGetEvmChainAdapter(chainId)
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    const txid = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput,
+      receiveAddress: undefined, // no receiver for this contract call
+    })
     return txid
   }, [wallet, getCustomTxInput, chainId])
 

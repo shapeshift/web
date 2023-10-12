@@ -161,7 +161,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         wallet,
       })
 
-      await buildAndBroadcast({ adapter, buildCustomTxInput })
+      await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiveAddress: undefined, // no receiver for this contract call
+      })
       await poll({
         fn: () =>
           getErc20Allowance({

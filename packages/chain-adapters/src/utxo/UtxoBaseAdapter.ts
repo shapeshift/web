@@ -34,6 +34,7 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
+import type { Verified } from '../utils'
 import {
   accountTypeToOutputScriptType,
   accountTypeToScriptType,
@@ -41,8 +42,10 @@ import {
   convertXpubVersion,
   toAddressNList,
   toRootDerivationPath,
+  verify,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { _internalUnwrap, _internalWrap } from '../utils/verify'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
 import { utxoSelect } from './utxoSelect'
@@ -344,7 +347,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
+  async buildSendTransaction(input: BuildSendTxInput<T>): Promise<Verified<SignTx<T>>> {
     try {
       const { wallet, accountNumber, chainSpecific } = input
 
@@ -354,8 +357,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
       const txToSign = await this.buildSendApiTransaction({ ...input, xpub })
-
-      return { txToSign }
+      return this.verifySignTx(txToSign)
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -404,23 +406,28 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     } as FeeDataEstimate<T>
   }
 
-  async signTransaction({ txToSign, wallet }: SignTxInput<SignTx<T>>): Promise<string> {
+  async signTransaction({
+    txToSign,
+    wallet,
+  }: SignTxInput<Verified<SignTx<T>>>): Promise<Verified<string>> {
     try {
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
-      const signedTx = await wallet.btcSignTx(txToSign)
+      const signedTx = await wallet.btcSignTx(_internalUnwrap(txToSign))
 
       if (!signedTx) throw new Error('UtxoBaseAdapter: error signing tx')
 
-      return signedTx.serializedTx
+      return _internalWrap(signedTx.serializedTx)
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string> {
+  async signAndBroadcastTransaction(
+    signTxInput: SignTxInput<Verified<SignTx<T>>>,
+  ): Promise<string> {
     try {
       const { wallet } = signTxInput
 
@@ -503,8 +510,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
-    return this.providers.http.sendTx({ sendTxBody: { hex } })
+  broadcastTransaction(hex: Verified<string>): Promise<string> {
+    return this.providers.http.sendTx({ sendTxBody: { hex: _internalUnwrap(hex) } })
   }
 
   async subscribeTxs(
@@ -597,5 +604,19 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     return publicKeys[0]
+  }
+
+  async verifySignTx(tx: SignTx<T>) {
+    const addresses = (
+      await Promise.all(
+        tx.inputs.map(async input => {
+          const tx = await this.providers.http.getTransaction(input)
+          // assumes input.vout is an index to tx.vout[]
+          return tx.vout[input.vout].addresses ?? []
+        }),
+      )
+    ).flat()
+
+    return verify(addresses, tx)
   }
 }

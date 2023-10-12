@@ -5,9 +5,10 @@ import type {
   EvmChainId,
   GetFeeDataInput,
   SignTx,
+  Verified,
 } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -17,11 +18,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  EvmTransactionExecutionProps,
-  EvmTransactionRequest,
-  ExecuteTradeArgs,
-} from 'lib/swapper/types'
+import type { EvmTransactionExecutionProps, EvmTransactionRequest } from 'lib/swapper/types'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -31,11 +28,12 @@ type GetApproveContractDataArgs = {
 
 type BuildArgs = {
   buildCustomTxInput: evm.BuildCustomTxInput
+  receiveAddress: string | undefined
 }
 
 type BroadcastArgs = {
   adapter: EvmChainAdapter
-  txToSign: SignTx<EvmChainId>
+  txToSign: Verified<SignTx<EvmChainId>>
   wallet: HDWallet
 }
 
@@ -167,8 +165,12 @@ export const createBuildCustomApiTxInput = async (
   return { ...args, ...fees }
 }
 
-export const buildAndBroadcast = async ({ adapter, buildCustomTxInput }: BuildAndBroadcastArgs) => {
-  const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
+export const buildAndBroadcast = async ({
+  adapter,
+  buildCustomTxInput,
+  receiveAddress,
+}: BuildAndBroadcastArgs) => {
+  const txToSign = await adapter.buildCustomTx(buildCustomTxInput, receiveAddress)
   return signAndBroadcast({ adapter, txToSign, wallet: buildCustomTxInput.wallet })
 }
 
@@ -223,11 +225,6 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
   }
 
   return adapter
-}
-
-export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
-  const adapter = assertGetEvmChainAdapter(chainId)
-  return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }
 
 export const executeEvmTransaction = (

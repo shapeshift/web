@@ -18,8 +18,16 @@ import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput }
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
+import type { Verified } from '../../utils/verify'
+import { _internalWrap } from '../../utils/verify'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
+
+jest.mock('../../utils/verify', () => ({
+  verify: (_addresses: string[], input: any) => input,
+  _internalWrap: (input: any) => input,
+  _internalUnwrap: (input: any) => input,
+}))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -316,7 +324,7 @@ describe('EthereumChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).resolves.toEqual(
         '0xf86c808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000025a04db6f6d27b6e7de2a627d7a7a213915db14d0d811e97357f1b4e3b3b25584dfaa07e4e329f23f33e1b21b3f443a80fad3255b2c968820d02b57752b4c91a9345c5',
@@ -344,7 +352,7 @@ describe('EthereumChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
-      } as unknown as SignTxInput<ETHSignTx>
+      } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
     })
@@ -357,7 +365,7 @@ describe('EthereumChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -373,7 +381,7 @@ describe('EthereumChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -430,7 +438,7 @@ describe('EthereumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
-      const mockTx = '0x123'
+      const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
 
       expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
@@ -735,7 +743,7 @@ describe('EthereumChainAdapter', () => {
         networkFeeCryptoBaseUnit: '424242424242',
       }
 
-      const output = await adapter.buildCustomTx(txArgs)
+      const output = await adapter.buildCustomTx(txArgs, undefined)
 
       const expectedOutput = {
         txToSign: {
@@ -777,7 +785,7 @@ describe('EthereumChainAdapter', () => {
         networkFeeCryptoBaseUnit: '424242424242',
       }
 
-      const output = await adapter.buildCustomTx(txArgs)
+      const output = await adapter.buildCustomTx(txArgs, undefined)
 
       const expectedOutput = {
         txToSign: {

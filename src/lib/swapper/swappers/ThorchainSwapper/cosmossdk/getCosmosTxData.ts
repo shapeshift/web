@@ -1,7 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+  SignTx,
+  thorchain,
+  Verified,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -29,7 +34,7 @@ type GetCosmosTxDataInput = {
 
 export const getCosmosTxData = async (
   input: GetCosmosTxDataInput,
-): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
+): Promise<Result<Verified<SignTx<CosmosSdkChainId>>, SwapErrorRight>> => {
   const { accountNumber, sellAmountCryptoBaseUnit, sellAsset, quote, from, sellAdapter, memo } =
     input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
@@ -99,7 +104,7 @@ export const getCosmosTxData = async (
   })()
 
   if (maybeBuiltTxResponse.isErr()) return Err(maybeBuiltTxResponse.unwrapErr())
-  const builtTxResponse = await maybeBuiltTxResponse.unwrap()
+  const txToSign = await maybeBuiltTxResponse.unwrap()
 
-  return Ok(builtTxResponse.txToSign)
+  return Ok(txToSign)
 }

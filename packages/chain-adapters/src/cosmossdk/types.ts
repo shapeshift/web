@@ -14,10 +14,90 @@ export type Account = {
   assets: CosmosSDKToken[]
 }
 
-export type Message = {
-  type: string
-  value: Record<string, unknown>
+export enum ThorchainMessageType {
+  MsgDeposit = 'thorchain/MsgDeposit',
+  MsgSend = 'thorchain/MsgSend',
 }
+
+export enum CosmosSdkMessageType {
+  MsgBeginRedelegate = 'cosmos-sdk/MsgBeginRedelegate',
+  MsgDelegate = 'cosmos-sdk/MsgDelegate',
+  MsgSend = 'cosmos-sdk/MsgSend',
+  MsgUndelegate = 'cosmos-sdk/MsgUndelegate',
+  MsgWithdrawDelegationReward = 'cosmos-sdk/MsgWithdrawDelegationReward',
+}
+
+export type ThorchainMsgDeposit = {
+  type: ThorchainMessageType.MsgDeposit
+  value: {
+    coins: [{ asset: 'THOR.RUNE'; amount: string }]
+    memo: string
+    signer: string
+  }
+}
+
+export type ThorchainMsgSend = {
+  type: ThorchainMessageType.MsgSend
+  value: {
+    amount: [{ amount: string; denom: string }]
+    from_address: string
+    to_address: string
+  }
+}
+
+export type CosmosSdkMsgBeginRedelegate = {
+  type: CosmosSdkMessageType.MsgBeginRedelegate
+  value: {
+    amount: { amount: string; denom: string }
+    delegator_address: string
+    validator_src_address: string
+    validator_dst_address: string
+  }
+}
+
+export type CosmosSdkMsgDelegate = {
+  type: CosmosSdkMessageType.MsgDelegate
+  value: {
+    amount: { amount: string; denom: string }
+    delegator_address: string
+    validator_address: string
+  }
+}
+
+export type CosmosSdkMsgSend = {
+  type: CosmosSdkMessageType.MsgSend
+  value: {
+    amount: [{ amount: string; denom: string }]
+    from_address: string
+    to_address: string
+  }
+}
+
+export type CosmosSdkMsgUndelegate = {
+  type: CosmosSdkMessageType.MsgUndelegate
+  value: {
+    amount: { amount: string; denom: string }
+    delegator_address: string
+    validator_address: string
+  }
+}
+
+export type CosmosSdkMsgWithdrawDelegationReward = {
+  type: CosmosSdkMessageType.MsgWithdrawDelegationReward
+  value: {
+    delegator_address: string
+    validator_address: string
+  }
+}
+
+export type Message =
+  | ThorchainMsgDeposit
+  | ThorchainMsgSend
+  | CosmosSdkMsgBeginRedelegate
+  | CosmosSdkMsgDelegate
+  | CosmosSdkMsgSend
+  | CosmosSdkMsgUndelegate
+  | CosmosSdkMsgWithdrawDelegationReward
 
 export type ValidatorAction = {
   address: string

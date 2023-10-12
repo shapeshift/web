@@ -3,7 +3,7 @@ import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList, verify } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -89,20 +89,21 @@ export const approveEIP155Request = async ({
         maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== sendTransaction.nonce
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
       const gasData = getGasData(customTransactionData, fees)
-      const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
-        wallet,
-        accountNumber,
-        to: sendTransaction.to,
-        data: sendTransaction.data,
-        value: sendTransaction.value ?? '0',
-        // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
-        gasLimit: customTransactionData.gasLimit ?? sendTransaction.gasLimit ?? '90000',
-        ...gasData,
-      })
-      const txToSign = {
-        ...txToSignWithPossibleWrongNonce,
-        nonce: didUserChangeNonce ? maybeAdvancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
-      }
+      const txToSign = await chainAdapter.buildCustomTx(
+        {
+          wallet,
+          accountNumber,
+          to: sendTransaction.to,
+          data: sendTransaction.data,
+          value: sendTransaction.value ?? '0',
+          // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
+          gasLimit: customTransactionData.gasLimit ?? sendTransaction.gasLimit ?? '90000',
+          nonce: didUserChangeNonce ? maybeAdvancedParamsNonce : undefined,
+          ...gasData,
+        },
+        sendTransaction.to,
+      )
+
       const signedTx = await chainAdapter.signTransaction({
         txToSign,
         wallet,
@@ -120,14 +121,19 @@ export const approveEIP155Request = async ({
         ? convertNumberToHex(customTransactionData.nonce)
         : signTransaction.nonce
       if (!nonce) throw new Error('approveEIP155Request: missing nonce')
+      if (!accountNumber) throw new Error('approveEIP155Request: missing accountNumber')
       const gasLimit =
         (customTransactionData.gasLimit
           ? convertNumberToHex(customTransactionData.gasLimit)
           : signTransaction.gasLimit) ?? convertNumberToHex(90000) // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
       const fees = await getFeesForTx(signTransaction, chainAdapter, accountId)
       const gasData = getGasData(customTransactionData, fees)
+      const verifyAddresses = [
+        signTransaction.to,
+        await chainAdapter.getAddress({ accountNumber, wallet }),
+      ]
       const signature = await chainAdapter.signTransaction({
-        txToSign: {
+        txToSign: await verify(verifyAddresses, {
           addressNList,
           chainId: parseInt(fromAccountId(accountId).chainReference),
           data: signTransaction.data,
@@ -136,10 +142,10 @@ export const approveEIP155Request = async ({
           to: signTransaction.to,
           value: signTransaction.value ?? convertNumberToHex(0),
           ...gasData,
-        },
+        }),
         wallet,
       })
-      return formatJsonRpcResult(id, signature)
+      return formatJsonRpcResult(id, signature.unwrap())
     }
 
     default:

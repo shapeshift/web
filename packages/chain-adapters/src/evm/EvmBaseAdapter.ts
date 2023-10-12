@@ -47,6 +47,8 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import type { Verified } from '../utils/verify'
+import { _internalUnwrap, _internalWrap, verify } from '../utils/verify'
 import type { arbitrum, avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type {
   BuildCustomApiTxInput,
@@ -304,9 +306,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{
-    txToSign: SignTx<T>
-  }> {
+  async buildSendTransaction(input: BuildSendTxInput<T>): Promise<Verified<SignTx<T>>> {
     try {
       if (!this.supportsChain(input.wallet)) {
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
@@ -317,7 +317,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign }
+      // TODO: simulate the tx to introspect contract interactions for detailed address list
+      const addresses = [from, input.to].filter(
+        (address): address is string => address !== undefined,
+      )
+
+      return verify(addresses, txToSign)
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -425,9 +430,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async signTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
+  async signTransaction(signTxInput: SignTxInput<Verified<ETHSignTx>>): Promise<Verified<string>> {
     try {
-      const { txToSign, wallet } = signTxInput
+      const { txToSign: _txToSign, wallet } = signTxInput
+      const txToSign = _internalUnwrap(_txToSign)
 
       if (!this.supportsChain(wallet, txToSign.chainId))
         throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
@@ -436,15 +442,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       if (!signedTx) throw new Error('Error signing tx')
 
-      return signedTx.serialized
+      return _internalWrap(signedTx.serialized)
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
+  async signAndBroadcastTransaction(
+    signTxInput: SignTxInput<Verified<ETHSignTx>>,
+  ): Promise<string> {
     try {
-      const { txToSign, wallet } = signTxInput
+      const { txToSign: _txToSign, wallet } = signTxInput
+      const txToSign = _internalUnwrap(_txToSign)
 
       if (!this.supportsChain(wallet, txToSign.chainId))
         throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
@@ -461,8 +470,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
-    return this.providers.http.sendTx({ sendTxBody: { hex } })
+  broadcastTransaction(hex: Verified<string>): Promise<string> {
+    return this.providers.http.sendTx({ sendTxBody: { hex: _internalUnwrap(hex) } })
   }
 
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {
@@ -482,7 +491,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async signTypedData(input: SignTypedDataInput<ETHSignTypedData>): Promise<string> {
+  async signTypedData(
+    input: SignTypedDataInput<Verified<ETHSignTypedData>>,
+  ): Promise<Verified<string>> {
     try {
       const { typedDataToSign, wallet } = input
 
@@ -494,11 +505,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         throw new Error('wallet does not support signing typed data')
       }
 
-      const result = await wallet.ethSignTypedData(typedDataToSign)
+      const result = await wallet.ethSignTypedData(_internalUnwrap(typedDataToSign))
 
       if (!result) throw new Error('EvmBaseAdapter: error signing typed data')
 
-      return result.signature
+      return _internalWrap(result.signature)
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -589,7 +600,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildCustomApiTx(input: BuildCustomApiTxInput): Promise<SignTx<T>> {
     try {
-      const { to, from, accountNumber, data, value } = input
+      const { to, from, accountNumber, data, value, nonce } = input
       const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = input
 
       const account = await this.getAccount(from)
@@ -609,7 +620,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,
-        nonce: numberToHex(account.chainSpecific.nonce),
+        nonce: nonce ?? numberToHex(account.chainSpecific.nonce),
         gasLimit: numberToHex(gasLimit),
         ...fees,
       } as SignTx<T>
@@ -620,7 +631,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
+  async buildCustomTx(
+    input: BuildCustomTxInput,
+    receiveAddress: string | undefined,
+  ): Promise<Verified<SignTx<T>>> {
     try {
       const { wallet, accountNumber } = input
 
@@ -633,7 +647,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const from = await this.getAddress({ accountNumber, wallet })
       const txToSign = await this.buildCustomApiTx({ ...input, from })
 
-      return { txToSign }
+      const addresses = [from, input.to, receiveAddress].filter(
+        (address): address is string => address !== undefined,
+      )
+
+      return verify(addresses, txToSign)
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -677,5 +695,22 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   get wsProvider(): unchained.ws.Client<unchained.evm.types.Tx> {
     return this.providers.ws
+  }
+
+  async verifySignTx(
+    tx: SignTx<T>,
+    {
+      wallet,
+      accountNumber,
+      receiveAddress,
+    }: GetAddressInput & { receiveAddress: string | undefined },
+  ) {
+    const addresses = [
+      await this.getAddress({ wallet, accountNumber }),
+      tx.to,
+      receiveAddress,
+    ].filter((address): address is string => address !== undefined)
+
+    return verify(addresses, tx)
   }
 }

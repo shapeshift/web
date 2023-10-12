@@ -6,6 +6,7 @@ import {
   bchChainId,
   btcAssetId,
   btcChainId,
+  CHAIN_NAMESPACE,
   dogeAssetId,
   dogeChainId,
   ethAssetId,
@@ -19,12 +20,11 @@ import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
+import { getSupportedChainIds, isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -62,7 +62,8 @@ export const LedgerChains = () => {
 
       try {
         const { chainNamespace } = fromChainId(chainId)
-        const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
+        const chainIds =
+          chainId === ethChainId ? getSupportedChainIds()[CHAIN_NAMESPACE.Evm] : [chainId]
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
           chainNamespace
         ]({

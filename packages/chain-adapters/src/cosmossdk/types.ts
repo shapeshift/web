@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type * as unchained from '@shapeshiftoss/unchained-client'
+import type { cosmossdk } from '@shapeshiftoss/unchained-client'
 
-import type * as types from '../types'
+import type { Account as _Account, ChainSpecificBuildTxData } from '../types'
 import type { CosmosSdkChainId } from './CosmosSdkBaseAdapter'
 
 export type Account = {
@@ -105,11 +105,11 @@ export type ValidatorAction = {
 }
 
 export type BuildTransactionInput<T extends CosmosSdkChainId> = {
-  account: types.Account<T>
+  account: _Account<T>
   accountNumber: number
   msg: Message
   memo?: string
-} & types.ChainSpecificBuildTxData<T>
+} & ChainSpecificBuildTxData<T>
 
 export type BuildTxInput = { gas: string; fee: string; denom?: string }
 
@@ -174,4 +174,4 @@ export type CosmosSDKToken = {
   amount: string
 }
 
-export type TransactionMetadata = unchained.cosmossdk.TxMetadata
+export type TransactionMetadata = cosmossdk.TxMetadata

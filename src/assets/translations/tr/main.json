@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Uygun",
     "back": "Geri",
     "balance": "Bakiye",
     "next": "Sonraki",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Özellik Talebi Gönderin",
     "learnMore": "Daha fazla bilgi edin",
     "showAll": "Hepsini Göster",
-    "showLess": "Daha Az"
+    "showLess": "Daha Az",
+    "yourBalance": "Bakiyeniz"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "MetaMask'ı bağlayın",
       "andMore": "...ve dahası",
       "snapInstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Yüklendi",
-      "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı"
+      "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı",
+      "dontAskAgain": "Bir daha sorma"
     },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Bilgisi",
+          "permissions": "Gerekli İzinler",
+          "optionalPermissions": "İsteğe Bağlı İzinler",
           "accountSelection": "Hesapları seçin",
           "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
           "methods": "Yöntemler",
           "events": "Etkinlikler",
           "selectedAccounts": "Bir Hesap Seçin",
-          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin."
+          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin.",
+          "optionalPermissionMessage": "Aşağıdaki izinler isteğe bağlıdır."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Yeni Avatar Ayarla",
       "restoreDefault": "Varsayılan"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Güncel FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "FOX Savings Simüle Edin",
+    "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
+    "tradeSize": "Takas Boyutu",
+    "totalFee": "Toplam Ücret",
+    "foxPowerDiscount": "FOX Power İndirimi",
+    "basedOnFee": "Şu ücrete dayalıdır: %{fee}"
   }
 }

@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "kostenlos",
     "back": "Zurück",
     "balance": "Kontostand",
     "next": "Weiter",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Senden Sie einen Funktionswunsch",
     "learnMore": "Erfahre mehr",
     "showAll": "Zeige alles",
-    "showLess": "Zeige weniger"
+    "showLess": "Zeige weniger",
+    "yourBalance": "Ihr Kontostand"
   },
   "consentBanner": {
     "body": {
@@ -1290,7 +1292,8 @@
       "connectMetaMask": "MetaMask verbinden",
       "andMore": "...und mehr",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap installiert",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap deinstalliert"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap deinstalliert",
+      "dontAskAgain": "Nicht nochmals fragen"
     },
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
@@ -1817,12 +1820,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",
+          "permissions": "Erforderliche Berechtigungen",
+          "optionalPermissions": "Optionale Berechtigungen",
           "accountSelection": "Konten auswählen",
           "unsupportedChain": "Nicht unterstützter Kettenname im Session Versuch.",
           "methods": "Methoden",
           "events": "Vorgänge",
           "selectedAccounts": "Ausgewählte Konten",
-          "permissionMessage": "Bitte wählen Sie mindestens ein Konto pro Kette aus."
+          "permissionMessage": "Bitte wählen Sie mindestens ein Konto pro Kette aus.",
+          "optionalPermissionMessage": "Die folgenden Berechtigungen sind optional."
         }
       },
       "registry": {
@@ -2099,5 +2105,15 @@
       "title": "Legen Sie einen neuen Avatar fest",
       "restoreDefault": "Standard wiederherstellen"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Aktuelle FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "Simuliere FOX-Ersparnisse",
+    "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihren Handel erhalten. Passen Sie einfach die Schieberegler unten an, um die Anzahl Ihrer FOX und die Handelsgröße in Fiat anzugeben, und sehen Sie, wie sich Ihre potenziellen Einsparungen vermehren!",
+    "tradeSize": "Handelsgröße",
+    "totalFee": "Gesamtgebühr",
+    "foxPowerDiscount": "FOX Power Rabatt",
+    "basedOnFee": "Basierend auf einer Gebühr von: %{fee}"
   }
 }

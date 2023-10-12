@@ -1,14 +1,5 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Box,
-  Button,
-  Flex,
-  ModalBody,
-  ModalFooter,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Button, Flex, ModalBody } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   bchAssetId,

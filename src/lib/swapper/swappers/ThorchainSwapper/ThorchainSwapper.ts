@@ -1,6 +1,7 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Verified } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import {
@@ -31,7 +32,7 @@ export const thorchainSwapper: Swapper = {
   },
 
   executeUtxoTransaction: async (
-    txToSign: BTCSignTx,
+    txToSign: Verified<BTCSignTx>,
     { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
   ): Promise<string> => {
     return await signAndBroadcastTransaction(txToSign)

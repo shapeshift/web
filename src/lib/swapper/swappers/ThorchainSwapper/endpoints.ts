@@ -1,6 +1,7 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Verified } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -113,7 +114,7 @@ export const thorchainApi: SwapperApi = {
     chainId,
     xpub,
     accountType,
-  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+  }: GetUnsignedUtxoTransactionArgs): Promise<Verified<BTCSignTx>> => {
     const utxoChainAdapter = assertGetUtxoChainAdapter(chainId)
 
     // TODO: pull these from db using id so we don't have type zoo and casting hell

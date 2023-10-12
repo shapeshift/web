@@ -176,10 +176,9 @@ export const useTradeExecution = ({
             slippageTolerancePercentageDecimal,
             xpub,
             accountType,
-            signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
-              const verifiedTxToSign = await await adapter.verifySignTx(txToSign)
+            signAndBroadcastTransaction: async (txToSign: Verified<BTCSignTx>) => {
               const signedTx = await adapter.signTransaction({
-                txToSign: verifiedTxToSign,
+                txToSign,
                 wallet,
               })
               return adapter.broadcastTransaction(signedTx)

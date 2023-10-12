@@ -1,6 +1,11 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainId,
+  EvmChainId,
+  UtxoChainId,
+  Verified,
+} from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -185,7 +190,7 @@ export type EvmMessageExecutionProps = {
 }
 
 export type UtxoTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<string>
+  signAndBroadcastTransaction: (transactionRequest: Verified<BTCSignTx>) => Promise<string>
 }
 
 export type CosmosSdkTransactionExecutionProps = {
@@ -268,7 +273,7 @@ export type Swapper = {
     callbacks: EvmMessageExecutionProps,
   ) => Promise<string>
   executeUtxoTransaction?: (
-    txToSign: BTCSignTx,
+    txToSign: Verified<BTCSignTx>,
     callbacks: UtxoTransactionExecutionProps,
   ) => Promise<string>
   executeCosmosSdkTransaction?: (
@@ -288,7 +293,9 @@ export type SwapperApi = {
     input: GetUnsignedEvmTransactionArgs,
   ) => Promise<EvmTransactionRequest>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
-  getUnsignedUtxoTransaction?: (input: GetUnsignedUtxoTransactionArgs) => Promise<BTCSignTx>
+  getUnsignedUtxoTransaction?: (
+    input: GetUnsignedUtxoTransactionArgs,
+  ) => Promise<Verified<BTCSignTx>>
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<StdSignDoc>

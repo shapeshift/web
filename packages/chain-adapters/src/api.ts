@@ -60,6 +60,8 @@ export type ChainAdapter<T extends ChainId> = {
 
   buildSendTransaction(input: BuildSendTxInput<T>): Promise<Verified<SignTx<T>>>
 
+  buildSendApiTransaction(input: unknown): Promise<Verified<SignTx<T>>>
+
   getAddress(input: GetAddressInput): Promise<string>
 
   signTransaction(signTxInput: SignTxInput<Verified<SignTx<T>>>): Promise<Verified<string>>

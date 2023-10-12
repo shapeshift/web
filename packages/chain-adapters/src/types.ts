@@ -148,7 +148,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   customNonce?: string
 } & ChainSpecificBuildTxData<T>
 
-export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
+export type BuildSendApiTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   from: string
 }
 

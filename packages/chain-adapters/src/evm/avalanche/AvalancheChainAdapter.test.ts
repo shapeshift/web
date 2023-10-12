@@ -29,9 +29,9 @@ import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
 jest.mock('../../utils/verify', () => ({
-  verify: (_addresses: string[], input: any) => input,
-  _internalWrap: (input: any) => input,
-  _internalUnwrap: (input: any) => input,
+  verify: (_addresses: string[], input: any) => ({ unwrap: () => input }),
+  assertIsVerified: () => {},
+  _internalWrap: (input: any) => ({ unwrap: () => input }),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -279,7 +279,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
-        txToSign: {
+        txToSign: _internalWrap({
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
@@ -288,10 +288,12 @@ describe('AvalancheChainAdapter', () => {
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
-        },
+        }),
       } as unknown as SignTxInput<Verified<ETHSignTx>>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      const result = await adapter.signTransaction(tx)
+
+      expect(result.unwrap()).toEqual(
         '0xf86e808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa9604580880000000000000000830150f7a0223295981df317a15971efd35e19cab02f680ff1185de044dd5b2914b49d83489f9e23396841e1364e2518806970d217a2019270a83d0dc2f4a2bc9e060e2e54',
       )
     })
@@ -308,7 +310,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
-        txToSign: {
+        txToSign: _internalWrap({
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
@@ -317,7 +319,7 @@ describe('AvalancheChainAdapter', () => {
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
-        },
+        }),
       } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
@@ -331,7 +333,9 @@ describe('AvalancheChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
+      const tx = { wallet, txToSign: _internalWrap({}) } as unknown as SignTxInput<
+        Verified<ETHSignTx>
+      >
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -347,7 +351,9 @@ describe('AvalancheChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
+      const tx = { wallet, txToSign: _internalWrap({}) } as unknown as SignTxInput<
+        Verified<ETHSignTx>
+      >
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -407,7 +413,9 @@ describe('AvalancheChainAdapter', () => {
       const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
 
-      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({
+        sendTxBody: { hex: mockTx.unwrap() },
+      })
       expect(result).toEqual(expectedResult)
     })
   })
@@ -466,17 +474,17 @@ describe('AvalancheChainAdapter', () => {
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(avalancheChainId).chainReference),
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: numberToHex(value),
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(avalancheChainId).chainReference),
+        data: '',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: EOA_ADDRESS,
+        value: numberToHex(value),
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -528,17 +536,17 @@ describe('AvalancheChainAdapter', () => {
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(avalancheChainId).chainReference),
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: expectedValue,
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(avalancheChainId).chainReference),
+        data: '',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: EOA_ADDRESS,
+        value: expectedValue,
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -564,17 +572,17 @@ describe('AvalancheChainAdapter', () => {
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(avalancheChainId).chainReference),
-          data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          value: '0x0',
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(avalancheChainId).chainReference),
+        data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+        value: '0x0',
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -601,17 +609,17 @@ describe('AvalancheChainAdapter', () => {
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(avalancheChainId).chainReference),
-          data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          value: '0x0',
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(avalancheChainId).chainReference),
+        data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+        value: '0x0',
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)

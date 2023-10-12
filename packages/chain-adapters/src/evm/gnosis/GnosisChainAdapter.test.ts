@@ -25,9 +25,9 @@ import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as gnosis from './GnosisChainAdapter'
 
 jest.mock('../../utils/verify', () => ({
-  verify: (_addresses: string[], input: any) => input,
-  _internalWrap: (input: any) => input,
-  _internalUnwrap: (input: any) => input,
+  verify: (_addresses: string[], input: any) => ({ unwrap: () => input }),
+  assertIsVerified: () => {},
+  _internalWrap: (input: any) => ({ unwrap: () => input }),
 }))
 
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -274,7 +274,7 @@ describe('GnosisChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
-        txToSign: {
+        txToSign: _internalWrap({
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0xf0',
           to: EOA_ADDRESS,
@@ -283,10 +283,12 @@ describe('GnosisChainAdapter', () => {
           nonce: '0x0',
           gasPrice: '0x12a05f200',
           gasLimit: '0x5208',
-        },
+        }),
       } as unknown as SignTxInput<Verified<ETHSignTx>>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      const result = await adapter.signTransaction(tx)
+
+      expect(result.unwrap()).toEqual(
         '0xf8668085012a05f20082520894d8da6bf26964af9d7eed9e03e53415d37aa9604581f08081eba0287a3a5138192eec60f58abff2ffb45633ecf26fe65264b715926645b6f4191da07a61e13283f6b4332b54a9412974987e6b089a113085269c59821317eb90a36e',
       )
     })
@@ -303,7 +305,7 @@ describe('GnosisChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
-        txToSign: {
+        txToSign: _internalWrap({
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
@@ -312,7 +314,7 @@ describe('GnosisChainAdapter', () => {
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
-        },
+        }),
       } as unknown as SignTxInput<Verified<ETHSignTx>>
 
       await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
@@ -326,7 +328,9 @@ describe('GnosisChainAdapter', () => {
 
       wallet.ethSendTx = async () => await Promise.resolve(null)
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
+      const tx = { wallet, txToSign: _internalWrap({}) } as unknown as SignTxInput<
+        Verified<ETHSignTx>
+      >
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -342,7 +346,9 @@ describe('GnosisChainAdapter', () => {
           hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
         })
 
-      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<Verified<ETHSignTx>>
+      const tx = { wallet, txToSign: _internalWrap({}) } as unknown as SignTxInput<
+        Verified<ETHSignTx>
+      >
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -402,7 +408,9 @@ describe('GnosisChainAdapter', () => {
       const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
 
-      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({
+        sendTxBody: { hex: mockTx.unwrap() },
+      })
       expect(result).toEqual(expectedResult)
     })
   })
@@ -461,17 +469,17 @@ describe('GnosisChainAdapter', () => {
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: numberToHex(value),
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(gnosisChainId).chainReference),
+        data: '',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: EOA_ADDRESS,
+        value: numberToHex(value),
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -523,17 +531,17 @@ describe('GnosisChainAdapter', () => {
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: expectedValue,
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(gnosisChainId).chainReference),
+        data: '',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: EOA_ADDRESS,
+        value: expectedValue,
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -559,17 +567,17 @@ describe('GnosisChainAdapter', () => {
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: contractAddress,
-          value: '0x0',
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(gnosisChainId).chainReference),
+        data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: contractAddress,
+        value: '0x0',
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -596,17 +604,17 @@ describe('GnosisChainAdapter', () => {
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: contractAddress,
-          value: '0x0',
-        },
+      const result = await adapter.buildSendTransaction(tx)
+
+      expect(result.unwrap()).toStrictEqual({
+        addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+        chainId: Number(fromChainId(gnosisChainId).chainReference),
+        data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
+        gasLimit: numberToHex(gasLimit),
+        gasPrice: numberToHex(gasPrice),
+        nonce: '0x2',
+        to: contractAddress,
+        value: '0x0',
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)

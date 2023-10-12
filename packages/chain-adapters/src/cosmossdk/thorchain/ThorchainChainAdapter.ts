@@ -20,7 +20,7 @@ import { ChainAdapterDisplayName } from '../../types'
 import type { Verified } from '../../utils'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
-import { _internalUnwrap, _internalWrap } from '../../utils/verify'
+import { _internalWrap, assertIsVerified } from '../../utils/verify'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
@@ -103,13 +103,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signTransaction(
-    signTxInput: SignTxInput<Verified<ThorchainSignTx>>,
-  ): Promise<Verified<string>> {
+  async signTransaction({
+    txToSign,
+    wallet,
+  }: SignTxInput<Verified<ThorchainSignTx>>): Promise<Verified<string>> {
+    assertIsVerified(txToSign)
+
     try {
-      const { txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
-        const signedTx = await wallet.thorchainSignTx(_internalUnwrap(txToSign))
+        const signedTx = await wallet.thorchainSignTx(txToSign.unwrap())
 
         if (!signedTx) throw new Error('Error signing tx')
 
@@ -212,11 +214,13 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   async signAndBroadcastTransaction(
     signTxInput: SignTxInput<Verified<ThorchainSignTx>>,
   ): Promise<string> {
-    const { wallet } = signTxInput
+    const { txToSign, wallet } = signTxInput
+    assertIsVerified(txToSign)
+
     try {
       if (supportsThorchain(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)
-        return this.providers.http.sendTx({ body: { rawTx: _internalUnwrap(signedTx) } })
+        return this.providers.http.sendTx({ body: { rawTx: signedTx.unwrap() } })
       } else {
         throw new Error('Wallet does not support Thorchain.')
       }

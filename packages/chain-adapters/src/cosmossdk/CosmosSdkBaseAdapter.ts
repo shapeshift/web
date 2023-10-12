@@ -38,7 +38,7 @@ import type { Verified } from '../utils'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertUnreachable } from '../utils/assertUnreachable'
 import { bnOrZero } from '../utils/bignumber'
-import { _internalUnwrap, verify } from '../utils/verify'
+import { assertIsVerified, verify } from '../utils/verify'
 import type { cosmos, thorchain } from './'
 import {
   type BuildTransactionInput,
@@ -364,8 +364,10 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   broadcastTransaction(hex: Verified<string>): Promise<string> {
+    assertIsVerified(hex)
+
     try {
-      return this.providers.http.sendTx({ body: { rawTx: _internalUnwrap(hex) } })
+      return this.providers.http.sendTx({ body: { rawTx: hex.unwrap() } })
     } catch (err) {
       return ErrorHandler(err)
     }

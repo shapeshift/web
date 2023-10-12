@@ -22,7 +22,7 @@ import type {
 import { ChainAdapterDisplayName } from '../../types'
 import type { Verified } from '../../utils'
 import { bn, calcFee, toAddressNList } from '../../utils'
-import { _internalUnwrap, _internalWrap } from '../../utils/verify'
+import { _internalWrap, assertIsVerified } from '../../utils/verify'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type {
@@ -256,13 +256,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     }
   }
 
-  async signTransaction(
-    signTxInput: SignTxInput<Verified<CosmosSignTx>>,
-  ): Promise<Verified<string>> {
+  async signTransaction({
+    txToSign,
+    wallet,
+  }: SignTxInput<Verified<CosmosSignTx>>): Promise<Verified<string>> {
+    assertIsVerified(txToSign)
+
     try {
-      const { txToSign, wallet } = signTxInput
       if (supportsCosmos(wallet)) {
-        const signedTx = await wallet.cosmosSignTx(_internalUnwrap(txToSign))
+        const signedTx = await wallet.cosmosSignTx(txToSign.unwrap())
 
         if (!signedTx) throw new Error('Error signing tx')
 
@@ -294,11 +296,13 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   async signAndBroadcastTransaction(
     signTxInput: SignTxInput<Verified<CosmosSignTx>>,
   ): Promise<string> {
-    const { wallet } = signTxInput
+    const { txToSign, wallet } = signTxInput
+    assertIsVerified(txToSign)
+
     try {
       if (supportsCosmos(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)
-        return this.providers.http.sendTx({ body: { rawTx: _internalUnwrap(signedTx) } })
+        return this.providers.http.sendTx({ body: { rawTx: signedTx.unwrap() } })
       } else {
         throw new Error('Wallet does not support Cosmos.')
       }

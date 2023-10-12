@@ -18,9 +18,9 @@ import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
 jest.mock('../../utils/verify', () => ({
-  verify: (_addresses: string[], input: any) => input,
-  _internalWrap: (input: any) => input,
-  _internalUnwrap: (input: any) => input,
+  verify: (_addresses: string[], input: any) => ({ unwrap: () => input }),
+  assertIsVerified: () => {},
+  _internalWrap: (input: any) => ({ unwrap: () => input }),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
@@ -240,39 +240,39 @@ describe('DogecoinChainAdapter', () => {
         },
       }
 
-      await expect(adapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
-        txToSign: {
-          coin: 'Dogecoin',
-          inputs: [
-            {
-              addressNList: [2147483692, 2147483651, 2147483648, 1, 13],
-              scriptType: 'p2pkh',
-              amount: '7132554366',
-              vout: 1,
-              txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
-              hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
-            },
-          ],
-          opReturnData: undefined,
-          outputs: [
-            {
-              addressType: 'spend',
-              amount: '400',
-              address: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
-            },
-            {
-              addressType: 'change',
-              amount: '7132553740',
-              addressNList: [2147483692, 2147483651, 2147483648, 1, 0],
-              scriptType: 'p2pkh',
-              isChange: true,
-            },
-          ],
-        },
+      const result = await adapter.buildSendTransaction(txInput)
+
+      expect(result.unwrap()).toStrictEqual({
+        coin: 'Dogecoin',
+        inputs: [
+          {
+            addressNList: [2147483692, 2147483651, 2147483648, 1, 13],
+            scriptType: 'p2pkh',
+            amount: '7132554366',
+            vout: 1,
+            txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
+            hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
+          },
+        ],
+        opReturnData: undefined,
+        outputs: [
+          {
+            addressType: 'spend',
+            amount: '400',
+            address: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
+          },
+          {
+            addressType: 'change',
+            amount: '7132553740',
+            addressNList: [2147483692, 2147483651, 2147483648, 1, 0],
+            scriptType: 'p2pkh',
+            isChange: true,
+          },
+        ],
       })
       expect(args.providers.http.getUtxos).toHaveBeenCalledTimes(1)
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-      expect(args.providers.http.getTransaction).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getTransaction).toHaveBeenCalledTimes(2) // 1 call during buildSendApiTransaction, 1 call during verifySignTx
     })
   })
 
@@ -326,7 +326,9 @@ describe('DogecoinChainAdapter', () => {
       const adapter = new dogecoin.ChainAdapter(args)
       const mockTx = _internalWrap('0x123')
       const result = await adapter.broadcastTransaction(mockTx)
-      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({
+        sendTxBody: { hex: mockTx.unwrap() },
+      })
       expect(result).toEqual(sendDataResult)
     })
   })

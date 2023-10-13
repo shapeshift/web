@@ -26,7 +26,7 @@ import type {
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   ERC20_TOKEN_BALANCE,
-  getDefaultAppData,
+  getFullAppData,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
@@ -67,6 +67,7 @@ export const cowApi: SwapperApi = {
     const network = maybeNetwork.unwrap()
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
+    const { appData, appDataHash } = await getFullAppData()
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
       `${baseUrl}/${network}/api/v1/quote/`,
@@ -75,7 +76,8 @@ export const cowApi: SwapperApi = {
         buyToken: buyTokenAddress,
         receiver: receiveAddress,
         validTo: getNowPlusThirtyMinutesTimestamp(),
-        appData: await getDefaultAppData(),
+        appData,
+        appDataHash,
         partiallyFillable: false,
         from,
         kind: ORDER_KIND_SELL,

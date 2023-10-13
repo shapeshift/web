@@ -24,6 +24,16 @@ export const cowSwapper: Swapper = {
     const { chainReference } = fromChainId(chainId)
     const signingDomain = Number(chainReference)
 
+    const appData = orderToSign.appData
+    const appDataHash = orderToSign.appDataHash
+    // The order we're signing requires the appData to be a hash, not the stringified doc
+    // it also does *not* accept appDataHash
+    // However, the request we're making to *send* the order to the API requires both appData and appDataHash in their original form
+    // see https://github.com/cowprotocol/cowswap/blob/a11703f4e93df0247c09d96afa93e13669a3c244/apps/cowswap-frontend/src/legacy/utils/trade.ts#L236
+    if (appDataHash) {
+      orderToSign.appData = appDataHash
+      delete orderToSign.appDataHash
+    }
     // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
     // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
     // For more info, check hashOrder method implementation
@@ -52,6 +62,8 @@ export const cowSwapper: Swapper = {
         ...orderToSign,
         signingScheme: SIGNING_SCHEME,
         signature,
+        appData,
+        appDataHash,
       },
     )
 

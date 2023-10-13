@@ -38,7 +38,7 @@ describe('utils', () => {
         sellAmount: '20200000000000000',
         buyAmount: '272522025311597443544',
         validTo: 1656667297,
-        appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
+        appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
         feeAmount: '3514395197690019',
         kind: 'sell',
         partiallyFillable: false,

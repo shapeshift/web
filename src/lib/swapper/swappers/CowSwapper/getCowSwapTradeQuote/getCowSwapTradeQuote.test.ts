@@ -38,7 +38,7 @@ jest.mock('../../utils/helpers/helpers', () => {
 })
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
-  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
+  appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -50,7 +50,7 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
-  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
+  appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -62,7 +62,7 @@ const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
-  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
+  appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -74,7 +74,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
-  appData: '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970',
+  appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
   buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',

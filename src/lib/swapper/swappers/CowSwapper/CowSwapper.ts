@@ -12,7 +12,7 @@ import type {
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
+import { COW_SWAP_SETTLEMENT_ADDRESS, getFullAppData, SIGNING_SCHEME } from './utils/constants'
 import { cowService } from './utils/cowService'
 import { domain, getCowswapNetwork, hashOrder } from './utils/helpers/helpers'
 
@@ -24,20 +24,18 @@ export const cowSwapper: Swapper = {
     const { chainReference } = fromChainId(chainId)
     const signingDomain = Number(chainReference)
 
-    const appData = orderToSign.appData
-    const appDataHash = orderToSign.appDataHash
-    // The order we're signing requires the appData to be a hash, not the stringified doc
-    // it also does *not* accept appDataHash
-    // However, the request we're making to *send* the order to the API requires both appData and appDataHash in their original form
-    // see https://github.com/cowprotocol/cowswap/blob/a11703f4e93df0247c09d96afa93e13669a3c244/apps/cowswap-frontend/src/legacy/utils/trade.ts#L236
-    if (appDataHash) {
-      orderToSign.appData = appDataHash
-      delete orderToSign.appDataHash
-    }
+    const { appData, appDataHash } = await getFullAppData()
     // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
     // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
     // For more info, check hashOrder method implementation
-    const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
+    const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), {
+      ...orderToSign,
+      // The order we're signing requires the appData to be a hash, not the stringified doc
+      // it also does *not* accept appDataHash
+      // However, the request we're making to *send* the order to the API requires both appData and appDataHash in their original form
+      // see https://github.com/cowprotocol/cowswap/blob/a11703f4e93df0247c09d96afa93e13669a3c244/apps/cowswap-frontend/src/legacy/utils/trade.ts#L236
+      appData: appDataHash,
+    })
     // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
     const messageToSign = orderDigest
 

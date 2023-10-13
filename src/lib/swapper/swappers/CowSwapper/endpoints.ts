@@ -26,11 +26,14 @@ import type {
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   ERC20_TOKEN_BALANCE,
-  getFullAppData,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
-import { getCowswapNetwork, getNowPlusThirtyMinutesTimestamp } from './utils/helpers/helpers'
+import {
+  getCowswapNetwork,
+  getFullAppData,
+  getNowPlusThirtyMinutesTimestamp,
+} from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 

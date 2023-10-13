@@ -12,9 +12,9 @@ import type {
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { COW_SWAP_SETTLEMENT_ADDRESS, getFullAppData, SIGNING_SCHEME } from './utils/constants'
+import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
 import { cowService } from './utils/cowService'
-import { domain, getCowswapNetwork, hashOrder } from './utils/helpers/helpers'
+import { domain, getCowswapNetwork, getFullAppData, hashOrder } from './utils/helpers/helpers'
 
 export const cowSwapper: Swapper = {
   executeEvmMessage: async (
@@ -31,7 +31,6 @@ export const cowSwapper: Swapper = {
     const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), {
       ...orderToSign,
       // The order we're signing requires the appData to be a hash, not the stringified doc
-      // it also does *not* accept appDataHash
       // However, the request we're making to *send* the order to the API requires both appData and appDataHash in their original form
       // see https://github.com/cowprotocol/cowswap/blob/a11703f4e93df0247c09d96afa93e13669a3c244/apps/cowswap-frontend/src/legacy/utils/trade.ts#L236
       appData: appDataHash,

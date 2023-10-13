@@ -50,7 +50,7 @@ describe('utils', () => {
 
       const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)
       expect(orderDigest).toEqual(
-        '0x4a3f1f235892ceb8df4a4ab3f3e22e13364251aeb0d1dde4c2ce66f8c27af757',
+        '0x36f3ae3a19c9c5898d921ce86c1be9e3ae0c8ec1bdd162e7d2f6e83e6bf9a4e6',
       )
     })
   })

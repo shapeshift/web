@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "免费",
     "back": "后退",
     "balance": "余额",
     "next": "下一个",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "提交功能请求",
     "learnMore": "了解更多",
     "showAll": "显示全部",
-    "showLess": "显示较少"
+    "showLess": "显示较少",
+    "yourBalance": "你的余额"
   },
   "consentBanner": {
     "body": {
@@ -405,7 +407,7 @@
     "apy": "投资回报率",
     "apr": "APR",
     "ended": "已结束",
-    "balance": "Balance",
+    "balance": "余额",
     "startEarning": "开始赚钱",
     "eligibleOpportunities": "符合条件的机会",
     "defiBody": "探索不断增长的 DeFi 机会。",
@@ -1289,7 +1291,8 @@
       "connectMetaMask": "连接 MetaMask",
       "andMore": "...和更多",
       "snapInstalledToast": "ShapeShift 多链 MetaMask Snap 已安装 ",
-      "snapUninstalledToast": "ShapeShift 多链 MetaMask Snap 已卸载"
+      "snapUninstalledToast": "ShapeShift 多链 MetaMask Snap 已卸载",
+      "dontAskAgain": "不要再问"
     },
     "metaMaskSnapConfirm": {
       "title": "安装多链 Snap",
@@ -1816,13 +1819,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp 信息",
-          "permissions": "权限",
+          "permissions": "所需权限",
+          "optionalPermissions": "可选权限",
           "accountSelection": "选择账户",
           "unsupportedChain": "会话提案中不支持链命名空间。",
           "methods": "方法",
           "events": "活动",
           "selectedAccounts": "所选账户",
-          "permissionMessage": "请为每个链至少选择一个账户。"
+          "permissionMessage": "请为每个链至少选择一个账户。",
+          "optionalPermissionMessage": "以下权限是可选的。"
         }
       },
       "registry": {
@@ -2099,5 +2104,15 @@
       "title": "设置一个新的头像",
       "restoreDefault": "恢复默认"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "当前 FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "模拟你i的 FOX 储蓄",
+    "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",
+    "tradeSize": "交易规模",
+    "totalFee": "总费用",
+    "foxPowerDiscount": "FOX Power 折扣",
+    "basedOnFee": "基于费用：%{fee}"
   }
 }

@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratuito",
     "back": "Voltar",
     "balance": "Saldo",
     "next": "Avançar",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Requerer Uma Nova Funcionalidade",
     "learnMore": "Aprender mais",
     "showAll": "Mostrar tudo",
-    "showLess": "Mostrar menos"
+    "showLess": "Mostrar menos",
+    "yourBalance": "Seu saldo"
   },
   "consentBanner": {
     "body": {
@@ -1289,7 +1291,8 @@
       "connectMetaMask": "Conecte a MetaMask",
       "andMore": "...e mais",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap instalado",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado",
+      "dontAskAgain": "Não pergunte novamente"
     },
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
@@ -1816,13 +1819,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Informação do dApp",
-          "permissions": "Permissões",
+          "permissions": "Permissões necessárias",
+          "optionalPermissions": "Permissões opcionais",
           "accountSelection": "Escolha as contas",
           "unsupportedChain": "Rede não suportada.",
           "methods": "Métodos",
           "events": "Eventos",
           "selectedAccounts": "Contas selecionadas",
-          "permissionMessage": "Selecione pelo menos uma conta por rede."
+          "permissionMessage": "Selecione pelo menos uma conta por rede.",
+          "optionalPermissionMessage": "As seguintes permissões são opcionais."
         }
       },
       "registry": {
@@ -2099,5 +2104,15 @@
       "title": "Definir um Novo Avatar",
       "restoreDefault": "Restaurar padrão"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Poder atual em FOX",
+    "foxPower": "Poder FOX",
+    "simulateTitle": "Simule suas poupança FOX",
+    "simulateBody": "Use esta calculadora para determinar o total de taxas e o desconto que você receberá em sua negociação. Basta ajustar os controles abaixo para indicar quando você tem de FOX e a quantidade do trade em moeda fiduciárias. Depois, é só o potencial do ganho da sua poupança!",
+    "tradeSize": "Tamanho do trade",
+    "totalFee": "Taxa total",
+    "foxPowerDiscount": "Desconto do poder FOX",
+    "basedOnFee": "Com base em uma taxa de: %{fee}"
   }
 }

@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { type ETHWallet, type HDWallet, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -77,7 +77,7 @@ export const getApprovalTxData = async ({
     ...(from
       ? {
           from,
-          supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+          supportsEIP1559: await wallet.ethSupportsEIP1559(),
         }
       : { accountNumber: tradeQuoteStep.accountNumber, wallet }),
   })

@@ -73,7 +73,10 @@ import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
-  adapters: any[]
+  adapters: {
+    // TODO(gomes): can we type this?
+    loadAdapter: () => Promise<any>
+  }[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
@@ -83,7 +86,6 @@ export interface SupportedWalletInfo {
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
 }
-
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Mobile]: {
     ...MobileConfig,

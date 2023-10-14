@@ -26,7 +26,7 @@ import { store } from 'state/store'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
-import { SUPPORTED_WALLETS } from './config'
+import { getKeyManagerOptions, SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { setupKeepKeySDK } from './KeepKey/setupKeepKeySdk'
@@ -372,7 +372,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
-          adapterInstance = Adapter.useKeyring(state.keyring)
+          adapterInstance = Adapter.useKeyring(state.keyring, getKeyManagerOptions(keyManager))
 
           if (adapterInstance) {
             currentAdapters.set(keyManager, [adapterInstance])

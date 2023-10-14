@@ -36,7 +36,7 @@ type VaultInfo = {
 }
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { state, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
@@ -69,40 +69,40 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
+    const adapter = await getAdapter(KeyManager.Native)
     const deviceId = item.id
-    const { name, icon } = NativeConfig
-    try {
-      const Adapter = await NativeConfig.adapters[0].loadAdapter()
-      // eslint is drunk, this isn't a hook
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const adapter = Adapter.useKeyring(state.keyring)
-      // TODO(gomes): SET_ADAPTERS
-      const wallet = await adapter.pairDevice(deviceId)
-      if (!(await wallet.isInitialized())) {
-        // This will trigger the password modal and the modal will set the wallet on state
-        // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
-        // return null, and we don't have a retry mechanism
-        await wallet.initialize()
-      } else {
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: {
-            wallet,
-            name,
-            icon,
-            deviceId,
-            meta: { label: item.name },
-            connectedType: KeyManager.Native,
-          },
-        })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        // The wallet is already initialized so we can close the modal
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      }
+    if (adapter) {
+      const { name, icon } = NativeConfig
+      try {
+        const wallet = await adapter.pairDevice(deviceId)
+        if (!(await wallet.isInitialized())) {
+          // This will trigger the password modal and the modal will set the wallet on state
+          // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
+          // return null, and we don't have a retry mechanism
+          await wallet.initialize()
+        } else {
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: item.name },
+              connectedType: KeyManager.Native,
+            },
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          // The wallet is already initialized so we can close the modal
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        }
 
-      setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
-      setLocalNativeWalletName(item.name)
-    } catch (e) {
+        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        setLocalNativeWalletName(item.name)
+      } catch (e) {
+        setError('walletProvider.shapeShift.load.error.pair')
+      }
+    } else {
       setError('walletProvider.shapeShift.load.error.pair')
     }
   }

@@ -7,6 +7,7 @@ import type { DeviceState, InitialState, KeyManagerWithProvider } from './Wallet
 
 export interface IWalletContext {
   state: InitialState
+  getAdapter: (keyManager: KeyManager) => Promise<any>
   dispatch: React.Dispatch<ActionTypes>
   connect: (adapter: KeyManager) => void
   create: (adapter: KeyManager) => void

@@ -384,6 +384,37 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
+  const getAdapter = useCallback(
+    async (keyManager: KeyManager) => {
+      let currentAdapters = state.adapters ?? new Map()
+
+      // Check if adapter is already in the state
+      let adapterInstance = currentAdapters.get(keyManager)?.[0]
+
+      if (!adapterInstance) {
+        // If not, create a new instance of the adapter
+        try {
+          const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[0].loadAdapter()
+          // eslint is drunk, this isn't a hook
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          adapterInstance = Adapter.useKeyring(state.keyring)
+
+          if (adapterInstance) {
+            currentAdapters.set(keyManager, [adapterInstance])
+            // Set it in wallet state for later use
+            dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+          }
+        } catch (e) {
+          console.error(e)
+          return null
+        }
+      }
+
+      return adapterInstance
+    },
+    [state.adapters, state.keyring],
+  )
+
   const disconnect = useCallback(() => {
     /**
      * in case of KeepKey placeholder wallet,
@@ -882,6 +913,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const value: IWalletContext = useMemo(
     () => ({
       state,
+      getAdapter,
       dispatch,
       connect,
       create,
@@ -891,7 +923,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       onProviderChange,
       connectDemo,
     }),
-    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
+    [
+      state,
+      getAdapter,
+      connect,
+      create,
+      disconnect,
+      load,
+      setDeviceState,
+      onProviderChange,
+      connectDemo,
+    ],
   )
 
   return (

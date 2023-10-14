@@ -1,4 +1,7 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
+import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
+import { getConfig } from 'config'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
@@ -8,6 +11,7 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 import { WalletConnectV2Connect } from 'context/WalletProvider/WalletConnectV2/components/Connect'
+import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConnect } from './Coinbase/components/Connect'
 import { CoinbaseFailure } from './Coinbase/components/Failure'
@@ -198,4 +202,26 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/walletconnectv2/create', component: WalletConnectV2Create },
     ],
   },
+}
+
+// TODO(gomes): these types are imported from HdWallet and should be lazy loaded as well
+// else, @shapeshiftoss/hdwallet-coinbase and @walletconnect/ethereum-provider will be imported every time we import from this module
+type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
+type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
+
+export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
+  switch (keyManager) {
+    case KeyManager.WalletConnectV2:
+      return walletConnectV2ProviderConfig
+    case KeyManager.Coinbase:
+      return {
+        appName: 'ShapeShift',
+        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultChainId: 1,
+        darkMode: isDarkMode,
+      }
+    default:
+      return undefined
+  }
 }

@@ -1,18 +1,13 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
-import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import type {
-  EthereumProvider as EthereumProviderType,
-  EthereumProviderOptions,
-} from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
+import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
-import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
@@ -25,7 +20,6 @@ import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/use
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
@@ -139,25 +133,6 @@ const initialState: InitialState = {
   keepKeyPinRequestType: null,
   deviceState: initialDeviceState,
   disconnectOnCloseModal: false,
-}
-
-type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
-type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
-export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
-  switch (keyManager) {
-    case KeyManager.WalletConnectV2:
-      return walletConnectV2ProviderConfig
-    case KeyManager.Coinbase:
-      return {
-        appName: 'ShapeShift',
-        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
-        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-        defaultChainId: 1,
-        darkMode: isDarkMode,
-      }
-    default:
-      return undefined
-  }
 }
 
 export const isKeyManagerWithProvider = (

@@ -23,7 +23,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
   // This is a bit blunt, and we might want to consider a more targeted approach.
   // https://github.com/orgs/WalletConnect/discussions/3010
   clearWalletConnectLocalStorage()
-  const { dispatch, state, onProviderChange } = useWallet()
+  const { dispatch, state, getAdapter, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
 
   const pairDevice = useCallback(async () => {
@@ -32,13 +32,14 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
 
     await onProviderChange(KeyManager.WalletConnectV2)
 
+    const adapter = await getAdapter(KeyManager.WalletConnectV2)
     try {
-      if (state.adapters && state.adapters?.has(KeyManager.WalletConnectV2)) {
+      if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {
           setLoading(true)
 
           // trigger the web3 modal
-          const wallet = await state.adapters.get(KeyManager.WalletConnectV2)?.[0]?.pairDevice()
+          const wallet = adapter.pairDevice()
 
           if (!wallet) throw new WalletNotFoundError()
 
@@ -67,7 +68,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
         history.push('/walletconnect/failure')
       }
     }
-  }, [dispatch, history, onProviderChange, state])
+  }, [dispatch, getAdapter, history, onProviderChange, state.wallet])
 
   return (
     <ConnectModal

@@ -385,7 +385,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   const getAdapter = useCallback(
-    async (keyManager: KeyManager) => {
+    async (keyManager: KeyManager, index: number = 0) => {
       let currentAdapters = state.adapters ?? new Map()
 
       // Check if adapter is already in the state
@@ -394,7 +394,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (!adapterInstance) {
         // If not, create a new instance of the adapter
         try {
-          const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[0].loadAdapter()
+          const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
           adapterInstance = Adapter.useKeyring(state.keyring)

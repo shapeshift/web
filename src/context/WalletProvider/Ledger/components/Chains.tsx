@@ -55,7 +55,6 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      if (!walletState.adapters) return
       if (!walletState?.wallet) return
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
@@ -115,7 +114,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, walletState.adapters, walletState.wallet],
+    [availableChainIds, dispatch, walletState.wallet],
   )
 
   const chainsRows = useMemo(

@@ -141,6 +141,25 @@ const initialState: InitialState = {
   disconnectOnCloseModal: false,
 }
 
+type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
+type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
+export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
+  switch (keyManager) {
+    case KeyManager.WalletConnectV2:
+      return walletConnectV2ProviderConfig
+    case KeyManager.Coinbase:
+      return {
+        appName: 'ShapeShift',
+        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultChainId: 1,
+        darkMode: isDarkMode,
+      }
+    default:
+      return undefined
+  }
+}
+
 export const isKeyManagerWithProvider = (
   keyManager: KeyManager | null,
 ): keyManager is KeyManagerWithProvider =>
@@ -378,21 +397,30 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const load = useCallback(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
-    if (localWalletType && localWalletDeviceId && state.adapters) {
+    if (localWalletType && localWalletDeviceId) {
       ;(async () => {
-        if (state.adapters?.has(localWalletType)) {
+        const currentAdapters = state.adapters ?? new Map()
+        const Adapter = await SUPPORTED_WALLETS[localWalletType].adapters[0].loadAdapter()
+        // eslint is drunk, this isn't a hook
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const adapterInstance = Adapter.useKeyring(state.keyring)
+
+        if (adapterInstance) {
+          try {
+            currentAdapters.set(localWalletType, [adapterInstance])
+            dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+          } catch (e) {
+            console.error(e)
+          }
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
-
-          const nativeAdapters = state.adapters.get(KeyManager.Native)
 
           switch (localWalletType) {
             case KeyManager.Mobile:
               try {
                 const w = await getWallet(localWalletDeviceId)
                 if (w && w.mnemonic && w.label) {
-                  const localMobileWallet =
-                    await nativeAdapters?.[0]?.pairDevice(localWalletDeviceId)
+                  const localMobileWallet = await adapterInstance.pairDevice(localWalletDeviceId)
 
                   if (localMobileWallet) {
                     localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
@@ -424,7 +452,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               break
             case KeyManager.Native:
-              const localNativeWallet = await nativeAdapters?.[0]?.pairDevice(localWalletDeviceId)
+              const localNativeWallet = await adapterInstance.pairDevice(localWalletDeviceId)
               if (localNativeWallet) {
                 /**
                  * This will eventually fire an event, which the ShapeShift wallet
@@ -486,9 +514,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.MetaMask:
-              const localMetaMaskWallet = await state.adapters
-                .get(KeyManager.MetaMask)?.[0]
-                ?.pairDevice()
+              const localMetaMaskWallet = await adapterInstance?.pairDevice()
               if (localMetaMaskWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {
@@ -515,9 +541,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Coinbase:
-              const localCoinbaseWallet = await state.adapters
-                .get(KeyManager.Coinbase)?.[0]
-                ?.pairDevice()
+              const localCoinbaseWallet = await adapterInstance?.pairDevice()
               if (localCoinbaseWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
                 try {
@@ -544,7 +568,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.XDefi:
-              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()
+              const localXDEFIWallet = await adapterInstance?.pairDevice()
               if (localXDEFIWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
                 try {
@@ -570,7 +594,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Keplr:
-              const localKeplrWallet = await state.adapters.get(KeyManager.Keplr)?.[0]?.pairDevice()
+              const localKeplrWallet = await adapterInstance?.pairDevice()
               if (localKeplrWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Keplr]
                 try {
@@ -598,9 +622,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.WalletConnectV2: {
               // Re-trigger the modal on refresh
               await onProviderChange(KeyManager.WalletConnectV2)
-              const localWalletConnectWallet = await state.adapters
-                .get(KeyManager.WalletConnectV2)?.[0]
-                ?.pairDevice()
+              const localWalletConnectWallet = await adapterInstance?.pairDevice()
               if (localWalletConnectWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
                 try {
@@ -737,61 +759,43 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })()
   }, [state.wallet, onProviderChange])
 
-  useEffect(() => {
-    if (state.keyring) {
-      ;(async () => {
-        const adapters: Adapters = new Map()
-        for (const keyManager of Object.values(KeyManager)) {
-          try {
-            type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
-
-            type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
-
-            const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
-              switch (keyManager) {
-                case KeyManager.WalletConnectV2:
-                  return walletConnectV2ProviderConfig
-                case KeyManager.Coinbase:
-                  return {
-                    appName: 'ShapeShift',
-                    appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
-                    defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-                    defaultChainId: 1,
-                    darkMode: isDarkMode,
-                  }
-                default:
-                  return undefined
-              }
-            }
-
-            const walletAdapters = await SUPPORTED_WALLETS[keyManager]?.adapters.reduce<
-              Promise<GenericAdapter[]>
-            >(async (acc, cur) => {
-              const adapters = await acc
-              const options = getKeyManagerOptions(keyManager)
-              try {
-                const { loadAdapter } = cur
-                const Adapter = await loadAdapter()
-                // eslint is drunk, this isn't a hook
-                // eslint-disable-next-line react-hooks/rules-of-hooks
-                const adapter = Adapter.useKeyring(state.keyring, options)
-                adapters.push(adapter)
-              } catch (e) {
-                console.error(e)
-              }
-              return acc
-            }, Promise.resolve([]))
-
-            if (walletAdapters.length) adapters.set(keyManager, walletAdapters)
-          } catch (e) {
-            console.error(e)
-          }
-        }
-
-        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-      })()
-    }
-  }, [isDarkMode, state.keyring])
+  // useEffect(() => {
+  // if (state.keyring) {
+  // ;(async () => {
+  // const adapters: Adapters = new Map()
+  // for (const keyManager of Object.values(KeyManager)) {
+  // try {
+  //
+  //
+  //
+  // const walletAdapters = await SUPPORTED_WALLETS[keyManager]?.adapters.reduce<
+  // Promise<GenericAdapter[]>
+  // >(async (acc, cur) => {
+  // const adapters = await acc
+  // const options = getKeyManagerOptions(keyManager)
+  // try {
+  // const { loadAdapter } = cur
+  // const Adapter = await loadAdapter()
+  // eslint is drunk, this isn't a hook
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // const adapter = Adapter.useKeyring(state.keyring, options)
+  // adapters.push(adapter)
+  // } catch (e) {
+  // console.error(e)
+  // }
+  // return acc
+  // }, Promise.resolve([]))
+  //
+  // if (walletAdapters.length) adapters.set(keyManager, walletAdapters)
+  // } catch (e) {
+  // console.error(e)
+  // }
+  // }
+  //
+  // dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+  // })()
+  // }
+  // }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

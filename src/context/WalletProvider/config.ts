@@ -1,6 +1,4 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
-import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { getConfig } from 'config'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
@@ -72,6 +70,7 @@ import { KeepKeyRoutes } from './routes'
 import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
 import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
+import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
@@ -204,8 +203,16 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   },
 }
 
-// TODO(gomes): these types are imported from HdWallet and should be lazy loaded as well
-// else, @shapeshiftoss/hdwallet-coinbase and @walletconnect/ethereum-provider will be imported every time we import from this module
+// Copied from hdwallet-coinbase so we don't have to import the whole package just for the sake of this type
+// and can lazy load it instead
+type CoinbaseProviderConfig = {
+  appName: string
+  appLogoUrl: string
+  defaultJsonRpcUrl: string
+  defaultChainId: number
+  darkMode: boolean
+}
+
 type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
 type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
 

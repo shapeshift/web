@@ -30,9 +30,9 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     setLoading(true)
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
+    const adapter = await getAdapter(KeyManager.WalletConnectV2)
     await onProviderChange(KeyManager.WalletConnectV2)
 
-    const adapter = await getAdapter(KeyManager.WalletConnectV2)
     try {
       if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {

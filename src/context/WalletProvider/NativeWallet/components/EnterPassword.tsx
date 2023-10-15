@@ -37,8 +37,7 @@ const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
-  const { deviceId } = state
-  const wallet = state.keyring.get<NativeHDWallet>(deviceId)
+  const { deviceId, keyring } = state
 
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -53,6 +52,7 @@ export const EnterPassword = () => {
   const onSubmit = useCallback(
     async (values: FieldValues) => {
       try {
+        const wallet = keyring.get<NativeHDWallet>(deviceId)
         const vault = await Vault.open(deviceId, values.password)
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
@@ -86,7 +86,7 @@ export const EnterPassword = () => {
         )
       }
     },
-    [deviceId, dispatch, setError, translate, wallet],
+    [deviceId, dispatch, setError, translate, keyring],
   )
 
   const handleSubmit = useMemo(() => handleFormSubmit(onSubmit), [handleFormSubmit, onSubmit])

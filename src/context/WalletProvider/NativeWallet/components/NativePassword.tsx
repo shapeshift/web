@@ -12,7 +12,7 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -26,24 +26,6 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const [showPw, setShowPw] = useState<boolean>(false)
   const [showConfirmPw, setShowConfirmPw] = useState<boolean>(false)
 
-  const handleShowPwClick = () => setShowPw(!showPw)
-  const handleShowConfirmPwClick = () => setShowConfirmPw(state => !state)
-  const onSubmit = async (values: FieldValues) => {
-    try {
-      const vault = location.state.vault
-      vault.seal()
-      await vault.setPassword(values.password)
-      vault.meta.set('name', values.name)
-      history.push('/native/success', { vault })
-    } catch (e) {
-      console.error(e)
-      setError('password', {
-        type: 'manual',
-        message: translate('modal.shapeShift.password.error.invalid'),
-      })
-    }
-  }
-
   const {
     setError,
     handleSubmit,
@@ -52,10 +34,65 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
     formState: { errors, isSubmitting },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
+  const handleShowPwClick = useCallback(() => setShowPw(!showPw), [showPw])
+  const handleShowConfirmPwClick = useCallback(() => setShowConfirmPw(state => !state), [])
+  const onSubmit = useCallback(
+    async (values: FieldValues) => {
+      try {
+        const vault = location.state.vault
+        vault.seal()
+        await vault.setPassword(values.password)
+        vault.meta.set('name', values.name)
+        history.push('/native/success', { vault })
+      } catch (e) {
+        console.error(e)
+        setError('password', {
+          type: 'manual',
+          message: translate('modal.shapeShift.password.error.invalid'),
+        })
+      }
+    },
+    [history, location.state.vault, setError, translate],
+  )
+
   const watchPassword = watch('password')
 
   const warningColor = useColorModeValue('yellow.500', 'yellow.200')
   const warningBackgroundColor = '#FAF08933'
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const nameInputProps = useMemo(
+    () =>
+      register('name', {
+        maxLength: {
+          value: 64,
+          message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
+        },
+      }),
+    [register, translate],
+  )
+
+  const passwordInputProps = useMemo(
+    () =>
+      register('password', {
+        required: translate('modals.shapeShift.password.error.required'),
+        minLength: {
+          value: 8,
+          message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+        },
+      }),
+    [register, translate],
+  )
+
+  const confirmPasswordInputProps = useMemo(
+    () =>
+      register('confirmPassword', {
+        required: translate('modals.shapeShift.confirmPassword.error.required'),
+        validate: value =>
+          value === watchPassword || translate('modals.shapeShift.confirmPassword.error.invalid'),
+      }),
+    [register, translate, watchPassword],
+  )
 
   return (
     <>
@@ -75,15 +112,10 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <AlertIcon color={warningColor} />
           <Text fontWeight='bold' translation={'walletProvider.shapeShift.password.warning'} />
         </Alert>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input
-              {...register('name', {
-                maxLength: {
-                  value: 64,
-                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
-                },
-              })}
+              {...nameInputProps}
               size='lg'
               variant='filled'
               id='name'
@@ -95,13 +127,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <FormControl mb={6} isInvalid={Boolean(errors.password)}>
             <InputGroup size='lg' variant='filled'>
               <Input
-                {...register('password', {
-                  required: translate('modals.shapeShift.password.error.required'),
-                  minLength: {
-                    value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
-                  },
-                })}
+                {...passwordInputProps}
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.password.placeholder')}
@@ -125,12 +151,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <FormControl mb={6} isInvalid={Boolean(errors.confirmPassword)}>
             <InputGroup size='lg' variant='filled'>
               <Input
-                {...register('confirmPassword', {
-                  required: translate('modals.shapeShift.confirmPassword.error.required'),
-                  validate: value =>
-                    value === watchPassword ||
-                    translate('modals.shapeShift.confirmPassword.error.invalid'),
-                })}
+                {...confirmPasswordInputProps}
                 pr='4.5rem'
                 type={showConfirmPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.confirmPassword.placeholder')}

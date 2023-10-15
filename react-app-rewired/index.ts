@@ -330,6 +330,18 @@ const reactAppRewireConfig = {
             },
           }
         : {},
+
+      // resolve bundling issue with @cowprotocol/app-data where it produces the compilation error:
+      // Module not found: Error: Can't resolve 'ethers/lib/utils' in 'web/node_modules/@cowprotocol/app-data/dist'
+      // BREAKING CHANGE: The request 'ethers/lib/utils' failed to resolve only because it was resolved as fully specified
+      // (probably because the origin is strict EcmaScript Module, e. g. a module with javascript mimetype, a '*.mjs' file, or a '*.js' file where the package.json contains '"type": "module"').
+      _.merge(config, {
+        resolve: {
+          alias: {
+            'ethers/lib/utils': 'ethers/lib/utils.js',
+          },
+        },
+      }),
     )
 
     const MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES = 50 * 1024 * 1024 // 50MB

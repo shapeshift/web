@@ -411,14 +411,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (localWalletType && localWalletDeviceId) {
       ;(async () => {
         const currentAdapters = state.adapters ?? new Map()
-        const Adapter = await SUPPORTED_WALLETS[localWalletType].adapters[0].loadAdapter()
-        // eslint is drunk, this isn't a hook
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const adapterInstance = Adapter.useKeyring(state.keyring)
+        const adapter = await getAdapter(localWalletType)
 
-        if (adapterInstance) {
+        if (adapter) {
           try {
-            currentAdapters.set(localWalletType, [adapterInstance])
+            currentAdapters.set(localWalletType, [adapter])
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
           } catch (e) {
             console.error(e)
@@ -431,7 +428,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               try {
                 const w = await getWallet(localWalletDeviceId)
                 if (w && w.mnemonic && w.label) {
-                  const localMobileWallet = await adapterInstance.pairDevice(localWalletDeviceId)
+                  const localMobileWallet = await adapter.pairDevice(localWalletDeviceId)
 
                   if (localMobileWallet) {
                     localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
@@ -463,7 +460,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               break
             case KeyManager.Native:
-              const localNativeWallet = await adapterInstance.pairDevice(localWalletDeviceId)
+              const localNativeWallet = await adapter.pairDevice(localWalletDeviceId)
               if (localNativeWallet) {
                 /**
                  * This will eventually fire an event, which the ShapeShift wallet
@@ -525,7 +522,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.MetaMask:
-              const localMetaMaskWallet = await adapterInstance?.pairDevice()
+              const localMetaMaskWallet = await adapter?.pairDevice()
               if (localMetaMaskWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {
@@ -552,7 +549,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Coinbase:
-              const localCoinbaseWallet = await adapterInstance?.pairDevice()
+              const localCoinbaseWallet = await adapter?.pairDevice()
               if (localCoinbaseWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
                 try {
@@ -579,7 +576,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.XDefi:
-              const localXDEFIWallet = await adapterInstance?.pairDevice()
+              const localXDEFIWallet = await adapter?.pairDevice()
               if (localXDEFIWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
                 try {
@@ -605,7 +602,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Keplr:
-              const localKeplrWallet = await adapterInstance?.pairDevice()
+              const localKeplrWallet = await adapter?.pairDevice()
               if (localKeplrWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Keplr]
                 try {
@@ -633,7 +630,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.WalletConnectV2: {
               // Re-trigger the modal on refresh
               await onProviderChange(KeyManager.WalletConnectV2)
-              const localWalletConnectWallet = await adapterInstance?.pairDevice()
+              const localWalletConnectWallet = await adapter?.pairDevice()
               if (localWalletConnectWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
                 try {

@@ -1,4 +1,3 @@
-import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -19,7 +18,7 @@ export interface LedgerSetupProps
 }
 
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
-  const { dispatch: walletDispatch, state, getAdapter } = useWallet()
+  const { dispatch: walletDispatch, getAdapter } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

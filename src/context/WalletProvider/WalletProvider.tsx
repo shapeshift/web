@@ -373,7 +373,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
-          adapterInstance = Adapter.useKeyring(state.keyring, getKeyManagerOptions(keyManager))
+          adapterInstance = Adapter.useKeyring(
+            state.keyring,
+            getKeyManagerOptions(keyManager, isDarkMode),
+          )
 
           if (adapterInstance) {
             currentKeyManagerAdapters[index] = adapterInstance
@@ -389,7 +392,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [state.adapters, state.keyring],
+    [isDarkMode, state.adapters, state.keyring],
   )
 
   const disconnect = useCallback(() => {
@@ -766,44 +769,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       await onProviderChange(localWalletType)
     })()
   }, [state.wallet, onProviderChange])
-
-  // useEffect(() => {
-  // if (state.keyring) {
-  // ;(async () => {
-  // const adapters: Adapters = new Map()
-  // for (const keyManager of Object.values(KeyManager)) {
-  // try {
-  //
-  //
-  //
-  // const walletAdapters = await SUPPORTED_WALLETS[keyManager]?.adapters.reduce<
-  // Promise<GenericAdapter[]>
-  // >(async (acc, cur) => {
-  // const adapters = await acc
-  // const options = getKeyManagerOptions(keyManager)
-  // try {
-  // const { loadAdapter } = cur
-  // const Adapter = await loadAdapter()
-  // eslint is drunk, this isn't a hook
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  // const adapter = Adapter.useKeyring(state.keyring, options)
-  // adapters.push(adapter)
-  // } catch (e) {
-  // console.error(e)
-  // }
-  // return acc
-  // }, Promise.resolve([]))
-  //
-  // if (walletAdapters.length) adapters.set(keyManager, walletAdapters)
-  // } catch (e) {
-  // console.error(e)
-  // }
-  // }
-  //
-  // dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-  // })()
-  // }
-  // }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

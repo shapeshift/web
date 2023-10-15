@@ -207,9 +207,9 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
 // TODO(gomes): these types are imported from HdWallet and should be lazy loaded as well
 // else, @shapeshiftoss/hdwallet-coinbase and @walletconnect/ethereum-provider will be imported every time we import from this module
 type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
-type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
+type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
 
-export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
+export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
   switch (keyManager) {
     case KeyManager.WalletConnectV2:
       return walletConnectV2ProviderConfig

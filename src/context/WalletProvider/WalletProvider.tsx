@@ -364,7 +364,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       let currentAdapters = state.adapters ?? new Map()
 
       // Check if adapter is already in the state
-      let adapterInstance = currentAdapters.get(keyManager)?.[0]
+      let adapterInstance = currentAdapters.get(keyManager)?.[index]
 
       if (!adapterInstance) {
         // If not, create a new instance of the adapter

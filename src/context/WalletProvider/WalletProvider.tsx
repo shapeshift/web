@@ -361,10 +361,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const getAdapter = useCallback(
     async (keyManager: KeyManager, index: number = 0) => {
-      let currentAdapters = state.adapters ?? new Map()
+      let currentStateAdapters = state.adapters ?? new Map<KeyManager, any[]>()
 
       // Check if adapter is already in the state
-      let adapterInstance = currentAdapters.get(keyManager)?.[index]
+      let adapterInstance = currentStateAdapters.get(keyManager)?.[index]
+      const currentKeyManagerAdapters = currentStateAdapters.get(keyManager) ?? []
 
       if (!adapterInstance) {
         // If not, create a new instance of the adapter
@@ -375,9 +376,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           adapterInstance = Adapter.useKeyring(state.keyring, getKeyManagerOptions(keyManager))
 
           if (adapterInstance) {
-            currentAdapters.set(keyManager, [adapterInstance])
+            currentKeyManagerAdapters[index] = adapterInstance
+            currentStateAdapters.set(keyManager, currentKeyManagerAdapters)
             // Set it in wallet state for later use
-            dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+            dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentStateAdapters })
           }
         } catch (e) {
           console.error(e)

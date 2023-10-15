@@ -39,7 +39,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
           setLoading(true)
 
           // trigger the web3 modal
-          const wallet = adapter.pairDevice()
+          const wallet = await adapter.pairDevice()
 
           if (!wallet) throw new WalletNotFoundError()
 

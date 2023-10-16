@@ -1,3 +1,6 @@
+import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
+import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
+import type { OrderClass } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -6,6 +9,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
+import { keccak256, toUtf8Bytes } from 'ethers/lib/utils.js'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -38,6 +42,7 @@ export declare type TypedDataTypes = Record<string, TypedDataField[]>
 
 export type CowSwapQuoteApiInputBase = {
   appData: string
+  appDataHash?: string
   buyToken: string
   from: string
   kind: string
@@ -206,4 +211,39 @@ export const getSupportedChainIds = (): ChainId[] => {
   return isGnosisEnabled
     ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
     : [KnownChainIds.EthereumMainnet]
+}
+
+type AppDataInfo = {
+  doc: LatestAppDataDocVersion
+  fullAppData: string
+  appDataKeccak256: string
+  env?: string
+}
+
+const generateAppDataFromDoc = async (
+  doc: LatestAppDataDocVersion,
+): Promise<Pick<AppDataInfo, 'fullAppData' | 'appDataKeccak256'>> => {
+  const appData = await stringifyDeterministic(doc)
+  const appDataKeccak256 = keccak256(toUtf8Bytes(appData))
+
+  return { fullAppData: appData, appDataKeccak256 }
+}
+
+const metadataApi = new MetadataApi()
+// See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
+export const getFullAppData = async () => {
+  const APP_CODE = 'shapeshift'
+  const orderClass: OrderClass = { orderClass: 'market' }
+  const quote = { slippageBips: '50' }
+
+  const appDataDoc = await metadataApi.generateAppDataDoc({
+    appCode: APP_CODE,
+    metadata: {
+      quote,
+      orderClass,
+    },
+  })
+
+  const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
+  return { appDataHash: appDataKeccak256, appData: fullAppData }
 }

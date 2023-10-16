@@ -158,6 +158,7 @@ export type CowSwapOrder = {
   buyAmount: string
   validTo: number
   appData: string
+  appDataHash?: string
   feeAmount: string
   kind: string
   partiallyFillable: boolean

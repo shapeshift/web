@@ -771,7 +771,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               const options = getKeyManagerOptions(keyManager)
               const adapter = cur.useKeyring(state.keyring, options)
               try {
-                await adapter?.initialize?.()
                 adapters.push(adapter)
               } catch (e) {
                 console.error(e)

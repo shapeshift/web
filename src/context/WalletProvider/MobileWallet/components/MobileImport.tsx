@@ -21,7 +21,7 @@ type FormValues = { mnemonic: string; name: string }
 export const MobileImport = ({ history }: RouteComponentProps) => {
   const {
     setError,
-    handleSubmit: formHandleSumit,
+    handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ shouldUnregister: true })
@@ -70,7 +70,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
     })
   }, [register, translate])
 
-  const handleSubmit = useMemo(() => formHandleSumit(onSubmit), [formHandleSumit, onSubmit])
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   return (
     <>
@@ -79,7 +79,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea
               variant='filled'

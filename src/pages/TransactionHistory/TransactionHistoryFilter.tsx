@@ -27,6 +27,7 @@ import { Text } from 'components/Text'
 import { DatePicker } from './components/DatePicker/DatePicker'
 
 const customRangeOption: string = 'customRange'
+const hoverProp = { bg: 'transparent' }
 
 export enum FilterFormFields {
   FromDate = 'fromDate',
@@ -135,6 +136,8 @@ export const TransactionHistoryFilter = memo(
       [],
     )
 
+    const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
     return (
       <Popover closeOnBlur={false} isOpen={isOpen}>
         <>
@@ -172,14 +175,14 @@ export const TransactionHistoryFilter = memo(
                   p={2}
                   isDisabled={!hasAppliedFilter}
                   colorScheme='blue'
-                  _hover={{ bg: 'transparent' }}
+                  _hover={hoverProp}
                   onClick={onResetFilters}
                 >
                   <Text translation='transactionHistory.filters.resetFilters' />
                 </Button>
               </Flex>
               <Divider />
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleFormSubmit}>
                 <FilterGroup
                   name={FilterFormFields.DayRange}
                   control={control}

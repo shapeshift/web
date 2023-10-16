@@ -14,7 +14,7 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { PropsWithChildren, ReactNode } from 'react'
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -136,49 +136,60 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const fiatError = errors?.fiatAmount?.message ?? null
   const fieldError = cryptoError || fiatError
 
-  const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (isFiat) {
-      const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
-      setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount, {
-        shouldValidate: true,
-      })
-      onChange && onChange(value, cryptoAmount)
-    } else {
-      const fiatAmount = bnOrZero(value).times(marketData.price).toString()
-      setValue(Field.FiatAmount, fiatAmount, {
-        shouldValidate: true,
-      })
-      setValue(Field.CryptoAmount, value, {
-        shouldValidate: true,
-      })
-      onChange && onChange(fiatAmount, value)
-    }
-    if (onInputChange) onInputChange(value, isFiat)
-  }
+  const handleInputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      if (isFiat) {
+        const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
+        setValue(Field.FiatAmount, value, { shouldValidate: true })
+        setValue(Field.CryptoAmount, cryptoAmount, {
+          shouldValidate: true,
+        })
+        onChange && onChange(value, cryptoAmount)
+      } else {
+        const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+        setValue(Field.FiatAmount, fiatAmount, {
+          shouldValidate: true,
+        })
+        setValue(Field.CryptoAmount, value, {
+          shouldValidate: true,
+        })
+        onChange && onChange(fiatAmount, value)
+      }
+      if (onInputChange) onInputChange(value, isFiat)
+    },
+    [marketData.price, onChange, onInputChange, setValue],
+  )
 
-  const handleSlippageChange = (value: string | number) => {
-    setValue(Field.Slippage, String(value))
-  }
+  const handleSlippageChange = useCallback(
+    (value: string | number) => {
+      setValue(Field.Slippage, String(value))
+    },
+    [setValue],
+  )
 
-  const onSubmit = (values: FieldValues) => {
-    if (!isConnected) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
-    onContinue(values)
-  }
+  const onSubmit = useCallback(
+    (values: FieldValues) => {
+      if (!isConnected) {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+      onContinue(values)
+    },
+    [dispatch, isConnected, onContinue],
+  )
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   if (!asset) return null
 
   return (
-    <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
+    <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleFormSubmit}>
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
           accountId={accountId}
           cryptoAmount={cryptoAmount?.value}
           onAccountIdChange={handleAccountIdChange}
-          onChange={(value, isFiat) => handleInputChange(value, isFiat)}
+          onChange={handleInputChange}
           fiatAmount={fiatAmount?.value}
           showFiatAmount={true}
           assetId={asset.assetId}

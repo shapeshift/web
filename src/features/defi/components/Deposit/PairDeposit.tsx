@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { ControllerProps } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -228,16 +228,21 @@ export const PairDeposit = ({
     setValue(otherFiatInput, otherFiatValue, { shouldValidate: true })
   }
 
-  const onSubmit = (values: DepositValues) => {
-    onContinue(values)
-  }
+  const onSubmit = useCallback(
+    (values: DepositValues) => {
+      onContinue(values)
+    },
+    [onContinue],
+  )
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
   const fiatYield = bnOrZero(cryptoYield).times(marketData1.price).toFixed(2)
 
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
   return (
     <>
-      <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={6} as='form' width='full' onSubmit={handleFormSubmit}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             {...(accountId ? { accountId } : {})}

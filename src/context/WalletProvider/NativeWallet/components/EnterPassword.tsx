@@ -43,7 +43,7 @@ export const EnterPassword = () => {
 
   const {
     setError,
-    handleSubmit: handleFormSubmit,
+    handleSubmit,
     register,
     formState: { errors, isSubmitting, isValid },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
@@ -89,11 +89,23 @@ export const EnterPassword = () => {
     [deviceId, dispatch, setError, translate, keyring],
   )
 
-  const handleSubmit = useMemo(() => handleFormSubmit(onSubmit), [handleFormSubmit, onSubmit])
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
   const handleDisconnect = useCallback(() => {
     disconnect()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [disconnect, dispatch])
+
+  const passwordInputProps = useMemo(
+    () =>
+      register('password', {
+        required: translate('modals.shapeShift.password.error.required'),
+        minLength: {
+          value: 8,
+          message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+        },
+      }),
+    [register, translate],
+  )
 
   return (
     <>
@@ -130,17 +142,11 @@ export const EnterPassword = () => {
         ) : (
           <Text mb={6} color='text.subtle' translation={'modals.shapeShift.password.body'} />
         )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.password)} mb={6}>
             <InputGroup size='lg' variant='filled'>
               <Input
-                {...register('password', {
-                  required: translate('modals.shapeShift.password.error.required'),
-                  minLength: {
-                    value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
-                  },
-                })}
+                {...passwordInputProps}
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.password.placeholder')}

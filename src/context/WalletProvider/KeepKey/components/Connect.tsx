@@ -57,6 +57,7 @@ export const KeepKeyConnect = () => {
       const wallet = await (async () => {
         try {
           const sdk = await setupKeepKeySDK()
+          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           const wallet = await firstAdapter.pairDevice(sdk)
           if (!wallet) {
             setErrorLoading('walletProvider.errors.walletNotFound')
@@ -65,7 +66,8 @@ export const KeepKeyConnect = () => {
           return wallet
         } catch (e) {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
-          const wallet = await secondAdapter?.pairDevice().catch((err: Error) => {
+          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
+          const wallet = await secondAdapter?.pairDevice().catch(err => {
             if (err.name === 'ConflictingApp') {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return

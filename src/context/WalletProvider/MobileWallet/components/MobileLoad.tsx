@@ -62,11 +62,12 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
       try {
         const revoker = await getWallet(deviceId)
         if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
+        if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
 
         const wallet = await adapter.pairDevice(revoker.id)
-        await wallet.loadDevice({ mnemonic: revoker.mnemonic })
-        if (!(await wallet.isInitialized())) {
-          await wallet.initialize()
+        await wallet?.loadDevice({ mnemonic: revoker.mnemonic })
+        if (!(await wallet?.isInitialized())) {
+          await wallet?.initialize()
         }
         dispatch({
           type: WalletActions.SET_WALLET,

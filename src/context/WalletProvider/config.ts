@@ -1,4 +1,14 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
+import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
+import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
+import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 import { getConfig } from 'config'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
@@ -75,10 +85,9 @@ import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
-export interface SupportedWalletInfo {
+export type SupportedWalletInfo<T> = {
   adapters: {
-    // TODO(gomes): can we type this?
-    loadAdapter: () => Promise<any>
+    loadAdapter: () => Promise<T>
   }[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
@@ -89,7 +98,26 @@ export interface SupportedWalletInfo {
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
 }
-export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
+
+export type SupportedWalletInfoByKeyManager = {
+  [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
+  // Native, Mobile, and Demo wallets are all native wallets
+  [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
+  [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
+  [KeyManager.Demo]: SupportedWalletInfo<typeof NativeAdapter>
+  // TODO(gomes): export WebUSBKeepKeyAdapter as a type in hdwallet, not a declare const
+  // this effectively means we keep on importing the akschual package for now
+  [KeyManager.KeepKey]: SupportedWalletInfo<typeof WebUSBKeepKeyAdapter | typeof KkRestAdapter>
+  [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
+  [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
+  [KeyManager.MetaMask]: SupportedWalletInfo<
+    typeof MetaMaskAdapter | typeof MetaMaskMultiChainAdapter
+  >
+  [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
+  [KeyManager.XDefi]: SupportedWalletInfo<typeof XDEFIAdapter>
+}
+
+export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Mobile]: {
     ...MobileConfig,
     routes: [
@@ -150,6 +178,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.KeepKey,
   },
+  // @ts-ignore TODO(gomes): FIXME
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,
     routes: [

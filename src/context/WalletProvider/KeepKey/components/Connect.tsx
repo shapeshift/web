@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -52,9 +53,7 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
 
-    const keepKeyAdapters = await getAdapter(KeyManager.KeepKey)
-    if (!keepKeyAdapters) return
-    const { rest: firstAdapter, usb: secondAdapter } = keepKeyAdapters
+    const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
     if (firstAdapter) {
       const wallet = await (async () => {
         try {
@@ -67,7 +66,7 @@ export const KeepKeyConnect = () => {
           }
           return wallet
         } catch (e) {
-          // const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+          const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
           // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           const wallet = await secondAdapter.pairDevice().catch(err => {
             if (err.name === 'ConflictingApp') {

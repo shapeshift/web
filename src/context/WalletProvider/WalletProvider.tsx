@@ -354,7 +354,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   const getAdapter: GetAdapter = useCallback(
-    async (keyManager, index) => {
+    async (keyManager, index = 0) => {
       let currentStateAdapters = state.adapters //  ?? ({} as AdaptersByKeyManager)
 
       // Check if adapter is already in the state
@@ -380,6 +380,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           return null
         }
       }
+
+      if (!adapterInstance) return null
 
       return adapterInstance
     },

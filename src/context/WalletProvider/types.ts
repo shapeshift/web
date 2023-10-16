@@ -25,5 +25,5 @@ export type AdaptersByKeyManager = {
 
 export type GetAdapter = <K extends keyof AdaptersByKeyManager>(
   keyManager: K,
-  index: K extends KeyManager.KeepKey ? 0 | 1 : 0, // only used for keepkey
+  index?: K extends KeyManager.KeepKey ? 0 | 1 : 0, // only used for keepkey
 ) => Promise<AdaptersByKeyManager[K] | null>

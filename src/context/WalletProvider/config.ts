@@ -178,7 +178,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     ],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.KeepKey,
   },
-  // @ts-ignore TODO(gomes): FIXME
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,
     routes: [

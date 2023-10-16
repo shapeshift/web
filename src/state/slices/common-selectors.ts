@@ -1,4 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
@@ -25,6 +26,18 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
   (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
+
+export const selectWalletChainIds = createDeepEqualOutputSelector(
+  selectWalletAccountIds,
+  accountIds => {
+    const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
+      const { chainId } = fromAccountId(accountId)
+      if (!acc.includes(chainId)) acc.push(chainId)
+      return acc
+    }, [])
+    return chainIds
+  },
 )
 
 export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelector(

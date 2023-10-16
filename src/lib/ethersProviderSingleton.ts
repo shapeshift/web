@@ -1,36 +1,37 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheChainId,
-  bscChainId,
-  ethChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-} from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { providers } from 'ethers'
 
-export const rpcUrlByChainId = (chainId: ChainId): string => {
+import { assertUnreachable } from './utils'
+
+export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   switch (chainId) {
-    case avalancheChainId:
+    case KnownChainIds.AvalancheMainnet:
       return getConfig().REACT_APP_AVALANCHE_NODE_URL
-    case optimismChainId:
+    case KnownChainIds.OptimismMainnet:
       return getConfig().REACT_APP_OPTIMISM_NODE_URL
-    case bscChainId:
+    case KnownChainIds.BnbSmartChainMainnet:
       return getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL
-    case polygonChainId:
+    case KnownChainIds.PolygonMainnet:
       return getConfig().REACT_APP_POLYGON_NODE_URL
-    case gnosisChainId:
+    case KnownChainIds.GnosisMainnet:
       return getConfig().REACT_APP_GNOSIS_NODE_URL
-    case ethChainId:
-    default:
+    case KnownChainIds.EthereumMainnet:
       return getConfig().REACT_APP_ETHEREUM_NODE_URL
+    case KnownChainIds.ArbitrumMainnet:
+      return getConfig().REACT_APP_ARBITRUM_NODE_URL
+    default:
+      assertUnreachable(chainId)
   }
 }
 
 const ethersProviders: Map<ChainId, providers.JsonRpcBatchProvider> = new Map()
 
-export const getEthersProvider = (chainId = ethChainId): providers.JsonRpcBatchProvider => {
+export const getEthersProvider = (
+  chainId: EvmChainId = KnownChainIds.EthereumMainnet,
+): providers.JsonRpcBatchProvider => {
   if (!ethersProviders.has(chainId)) {
     const provider = new providers.JsonRpcBatchProvider(rpcUrlByChainId(chainId))
     ethersProviders.set(chainId, provider)

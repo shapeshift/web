@@ -37,6 +37,7 @@ import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { setupKeepKeySDK } from './KeepKey/setupKeepKeySdk'
 import { KeyManager } from './KeyManager'
+import { useLedgerEventHandler } from './Ledger/hooks/useLedgerEventHandler'
 import {
   clearLocalWallet,
   getLocalWalletDeviceId,
@@ -434,6 +435,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
               break
+            // We don't want to pairDevice() for ledger here - this will run on app load and won't work, as WebUSB `requestPermission` must be
+            // called from a user gesture. Instead, we'll pair the device when the user clicks the "Pair Device` button in Ledger `<Connect />`
+            // case KeyManager.Ledger:
+            // const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
+            // return ledgerWallet
             case KeyManager.KeepKey:
               try {
                 const localKeepKeyWallet = await (async () => {
@@ -765,7 +771,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               const options = getKeyManagerOptions(keyManager)
               const adapter = cur.useKeyring(state.keyring, options)
               try {
-                await adapter?.initialize?.()
                 adapters.push(adapter)
               } catch (e) {
                 console.error(e)
@@ -773,7 +778,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               return acc
             }, Promise.resolve([]))
 
-            adapters.set(keyManager, walletAdapters)
+            if (walletAdapters.length) adapters.set(keyManager, walletAdapters)
           } catch (e) {
             console.error(e)
           }
@@ -854,6 +859,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useNativeEventHandler(state, dispatch)
   useWalletConnectV2EventHandler(state, dispatch)
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
+  useLedgerEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({

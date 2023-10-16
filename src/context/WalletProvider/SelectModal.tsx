@@ -15,6 +15,7 @@ import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 
@@ -53,6 +54,10 @@ const WalletSelectItem = ({
   }, [option.supportsMobile])
 
   const handleConnect = useCallback(() => connect(walletType), [connect, walletType])
+
+  const isLedgerEnabled = useFeatureFlag('LedgerWallet')
+
+  if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
 
   if (!isSupported) return null
 

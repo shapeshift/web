@@ -46,8 +46,10 @@ export enum TradeRoutePaths {
 
 export type GetReceiveAddressArgs = {
   asset: Asset
-  wallet: HDWallet | null
+  wallet: HDWallet
+  deviceId: string
   accountMetadata: AccountMetadata
+  pubKey?: string
 }
 
 export type TradeQuoteInputCommonArgs = Pick<

@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratuit",
     "back": "Retour",
     "balance": "Solde",
     "next": "Suivant",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
     "learnMore": "En savoir plus",
     "showAll": "Montrer tout",
-    "showLess": "Montrer moins"
+    "showLess": "Montrer moins",
+    "yourBalance": "Votre solde"
   },
   "consentBanner": {
     "body": {
@@ -434,7 +436,6 @@
     "byAsset": "Par actif",
     "byProvider": "Par fournisseur",
     "claimableRewards": "Récompenses réclamables",
-    "reawrds": "Récompenses",
     "stakingPosition": "Position de mises",
     "liquidityPool": "Pool de liquidités",
     "noActivePositions": "Aucune position active",
@@ -636,7 +637,7 @@
     "feeExceedsSend": "Les frais dépassent le montant à envoyer",
     "receiveAddress": "Adresse de réception",
     "route": "Route",
-    "waitTimeLabel": "Temps d'attent approx.",
+    "waitTimeLabel": "Temps d'attente approx.",
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
   },
@@ -1290,7 +1291,8 @@
       "connectMetaMask": "Connecter MetaMask",
       "andMore": "... et plus",
       "snapInstalledToast": "Snap ShapeShift MultiChain pour MetaMask installé",
-      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé"
+      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé",
+      "dontAskAgain": "Ne plus demander"
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
@@ -1461,8 +1463,8 @@
         "password": "Mot de passe",
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
-        "invalidCaptcha": "Le Capcha est invalide",
-        "captchaRequired": "Le Capcha est requis",
+        "invalidCaptcha": "Le Captcha est invalide",
+        "captchaRequired": "Le Captcha est requis",
         "tooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard.",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
@@ -1817,13 +1819,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info de la dApp",
-          "permissions": "Permissions",
+          "permissions": "Permissions requises",
+          "optionalPermissions": "Permissions optionnelles",
           "accountSelection": "Choisir des comptes",
           "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
           "methods": "Méthodes",
           "events": "Événements",
           "selectedAccounts": "Comptes sélectionnés",
-          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne."
+          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne.",
+          "optionalPermissionMessage": "Les permissions suivantes sont optionnelles."
         }
       },
       "registry": {
@@ -2100,5 +2104,15 @@
       "title": "Définir un nouvel avatar",
       "restoreDefault": "Restaurer à la valeur par défaut"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Puissance FOX actuelle",
+    "foxPower": "Puissance FOX",
+    "simulateTitle": "Simulez vos économies FOX",
+    "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
+    "tradeSize": "Montant de l'échange",
+    "totalFee": "Total des frais",
+    "foxPowerDiscount": "Remise Puissance FOX",
+    "basedOnFee": "Basé sur des frais de : %{fee}"
   }
 }

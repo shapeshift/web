@@ -261,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "The rate of %{assetName} you earn, the Annual Percentage Return (APR), typically fluctuates between 7% - 20%.",
-          "amountStakingInfo": "You can stake any amount of %{assetName} and they’ll immediately beginning earning rewards.",
-          "withdrawInfo": "You can withdraw your rewards at anytime, which requires a small gas fee around ~$.01.",
+          "amountStakingInfo": "You can stake any amount of %{assetName} and they’ll immediately begin earning rewards.",
+          "withdrawInfo": "You can withdraw your rewards at any time, which requires a small gas fee around ~$.01.",
           "unbondingInfo": "When you unstake your tokens, they’ll remain locked for %{unbondingDays} days, during which time they won’t earn rewards. After the %{unbondingDays} days, your %{assetName} will return to your Primary Wallet.",
           "slashingInfo": "Staking is done through a validator. It’s incredibly rare, but if the validator you’ve staked with messes up by allowing false or incorrect transactions to go through, you could lose a part of your assets.",
           "partnerInfo": "We’ve mitigated this risk by partnering with a reputable validator—which has a secure, reliable, and audited infrastructure."
@@ -436,7 +436,6 @@
     "byAsset": "By Asset",
     "byProvider": "By Provider",
     "claimableRewards": "Claimable Rewards",
-    "reawrds": "Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
     "noActivePositions": "No Active Positions",
@@ -658,7 +657,7 @@
       "auto": "Auto",
       "custom": "Custom",
       "warning": "High slippage tolerances can result in unfavorable trades.",
-      "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
+      "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
     "from": "From",
     "to": "To",
@@ -822,7 +821,7 @@
       "recoverySentence": {
         "header": "Write Down Your Recovery Sentence",
         "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
-        "infoFirst": "Its critical you write it down exactly as it appears on the KeepKey.",
+        "infoFirst": "It's critical you write it down exactly as it appears on the KeepKey.",
         "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
         "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
       },
@@ -855,7 +854,7 @@
       },
       "disconnect": {
         "header": "Disconnect KeepKey device",
-        "body": "Unfortunately, an error occured while recovering/setting up your KeepKey device. Please disconnect and reconnect your device and try setting up your KeepKey device again. If problem persists, please contact KeepKey support."
+        "body": "Unfortunately, an error occurred while recovering/setting up your KeepKey device. Please disconnect and reconnect your device and try setting up your KeepKey device again. If problem persists, please contact KeepKey support."
       }
     },
     "shapeShift": {
@@ -1254,6 +1253,33 @@
         "header": "Error",
         "body": "Unable to connect Keplr wallet"
       }
+    },
+    "ledger": {
+      "chains": {
+        "header": "Import Ledger Accounts",
+        "body": "To see your balances for each chain, you'll need to connect each app.",
+        "availableChains": "Available Chains",
+        "error": "There was an error connecting your wallet"
+      },
+      "success": {
+        "header": "Ledger Connected",
+        "success": "You can now close this window or it will auto-close shortly",
+        "error": "There was an error connecting your wallet"
+      },
+      "errors": {
+        "connectFailure": "Unable to connect Ledger wallet",
+        "unknown": "An unexpected error occurred communicating with Ledger wallet"
+      },
+      "connect": {
+        "header": "Pair Ledger",
+        "body": "Click Pair then select your Ledger from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Ledger wallet"
+      },
+      "connectWarning": "Before connecting a chain, make sure you have the app open on your device."
     },
     "metaMask": {
       "errors": {
@@ -1911,7 +1937,7 @@
           "title": "Junior Best Yield strategies:",
           "bullets": {
             "one": "Automation and optimization of the yield generation across multiple Junior Tranches, providing boosted yields by design",
-            "two": "Offer maximized returns without the user constantly constantly checking rates and burning gas on every transfer"
+            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
           }
         }
       },

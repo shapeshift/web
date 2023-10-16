@@ -27,6 +27,8 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
       return 'https://bsc.api.0x.org/'
     case KnownChainIds.PolygonMainnet:
       return 'https://polygon.api.0x.org/'
+    case KnownChainIds.ArbitrumMainnet:
+      return 'https://arbitrum.api.0x.org/'
     default:
       assertUnreachable(chainId)
   }

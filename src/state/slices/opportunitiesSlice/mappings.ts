@@ -1,6 +1,7 @@
 import {
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -173,6 +174,13 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
       defiType: DefiType.Staking,
     },
   ],
+  [bscChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+
   [cosmosChainId]: [
     {
       defiProvider: DefiProvider.CosmosSdk,

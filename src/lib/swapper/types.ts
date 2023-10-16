@@ -158,6 +158,7 @@ export type CowSwapOrder = {
   buyAmount: string
   validTo: number
   appData: string
+  appDataHash?: string
   feeAmount: string
   kind: string
   partiallyFillable: boolean
@@ -215,6 +216,8 @@ export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionAr
 export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
 
 export type ExecuteTradeArgs = {
+  senderAddress: string
+  receiverAddress: string
   txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId

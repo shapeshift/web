@@ -25,12 +25,15 @@ import type {
 } from './types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
-import { getCowswapNetwork, getNowPlusThirtyMinutesTimestamp } from './utils/helpers/helpers'
+import {
+  getCowswapNetwork,
+  getFullAppData,
+  getNowPlusThirtyMinutesTimestamp,
+} from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
@@ -67,6 +70,7 @@ export const cowApi: SwapperApi = {
     const network = maybeNetwork.unwrap()
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
+    const { appData, appDataHash } = await getFullAppData()
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
       `${baseUrl}/${network}/api/v1/quote/`,
@@ -75,7 +79,8 @@ export const cowApi: SwapperApi = {
         buyToken: buyTokenAddress,
         receiver: receiveAddress,
         validTo: getNowPlusThirtyMinutesTimestamp(),
-        appData: DEFAULT_APP_DATA,
+        appData,
+        appDataHash,
         partiallyFillable: false,
         from,
         kind: ORDER_KIND_SELL,

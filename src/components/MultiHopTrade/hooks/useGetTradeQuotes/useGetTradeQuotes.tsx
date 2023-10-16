@@ -1,5 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
@@ -100,7 +102,13 @@ export const useGetTradeQuotes = () => {
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
-  const receiveAddress = useReceiveAddress()
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const userWillDonate = useAppSelector(selectWillDonate)
 
@@ -124,7 +132,7 @@ export const useGetTradeQuotes = () => {
   const mixpanel = getMixPanel()
 
   useEffect(() => {
-    if (wallet && sellAccountMetadata && receiveAddress) {
+    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
@@ -147,6 +155,7 @@ export const useGetTradeQuotes = () => {
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
+          pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -185,6 +194,7 @@ export const useGetTradeQuotes = () => {
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentage,
+    sellAccountId,
   ])
 
   useEffect(() => {

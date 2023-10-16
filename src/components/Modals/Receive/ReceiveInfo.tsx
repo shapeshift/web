@@ -21,7 +21,8 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,12 +30,13 @@ import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { viemClient } from 'lib/viem-client'
+import { viemEthMainnetClient } from 'lib/viem-client'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,24 +67,35 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const bip44Params = accountMetadata?.bip44Params
   useEffect(() => {
     ;(async () => {
-      if (!(wallet && chainAdapter)) return
-      if (!bip44Params) return
-      // if (chainAdapter.isAccountTypeRequired() && !accountType) return
-      const { chainNamespace } = fromChainId(asset.chainId)
-      if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
-      const { accountNumber } = bip44Params
-      const selectedAccountAddress = await chainAdapter.getAddress({
+      if (!accountMetadata) return
+      if (!wallet) return
+      const selectedAccountAddress = await getReceiveAddress({
+        asset,
         wallet,
-        accountType,
-        accountNumber,
+        deviceId: await wallet.getDeviceID(),
+        accountMetadata,
+        pubKey:
+          isLedger(wallet) && selectedAccountId
+            ? fromAccountId(selectedAccountId as AccountId).account
+            : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
     })()
-  }, [setReceiveAddress, setEnsName, accountType, asset, wallet, chainAdapter, bip44Params])
+  }, [
+    setReceiveAddress,
+    setEnsName,
+    accountType,
+    asset,
+    wallet,
+    chainAdapter,
+    bip44Params,
+    accountMetadata,
+    selectedAccountId,
+  ])
 
   useEffect(() => {
     if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return
-    viemClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
+    viemEthMainnetClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
   }, [asset.chainId, receiveAddress])
 
   const handleVerify = async () => {

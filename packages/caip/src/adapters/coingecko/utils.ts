@@ -5,6 +5,8 @@ import type { AssetId } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
+  arbitrumAssetId,
+  arbitrumChainId,
   avalancheAssetId,
   avalancheChainId,
   bchChainId,
@@ -132,6 +134,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Arbitrum)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Arbitrum],
+          })
+          prev[arbitrumChainId][assetId] = id
+        } catch (err) {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -141,6 +157,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
       [polygonChainId]: { [polygonAssetId]: 'matic-network' },
       [gnosisChainId]: { [gnosisAssetId]: 'xdai' },
+      [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
     },
   )
 
@@ -159,6 +176,7 @@ export const writeFiles = async (data: AssetMap) => {
   await Promise.all(
     Object.entries(data).map(async ([chainId, assets]) => {
       const dirPath = `./src/adapters/coingecko/generated/${chainId}`.replace(':', '_')
+      await fs.promises.mkdir(dirPath, { recursive: true })
       await fs.promises.writeFile(`${dirPath}/adapter.json`, JSON.stringify(assets))
     }),
   )

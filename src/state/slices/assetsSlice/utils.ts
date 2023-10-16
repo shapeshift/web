@@ -53,6 +53,8 @@ export const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.Polygon
           case CHAIN_REFERENCE.GnosisMainnet:
             return ASSET_REFERENCE.Gnosis
+          case CHAIN_REFERENCE.ArbitrumMainnet:
+            return ASSET_REFERENCE.Arbitrum
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

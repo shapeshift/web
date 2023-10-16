@@ -1,7 +1,9 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import stableStringify from 'fast-json-stable-stringify'
 import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -31,7 +33,10 @@ export const getReceiveAddress = pMemoize(
     return address
   },
   {
-    cacheKey: ([{ asset, accountMetadata, deviceId }]) => {
+    cacheKey: ([{ asset, accountMetadata, deviceId, wallet }]) => {
+      // Bust cache for all wallets other than Ledger.
+      // This will mean a few more runs of this for other wallets, which is fine.
+      if (!isLedger(wallet)) return uuid()
       return stableStringify({
         assetId: asset.assetId,
         accountMetadata,

@@ -5,7 +5,6 @@ import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 
@@ -19,7 +18,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.Ledger]: [WebUSBLedgerAdapter]
   [KeyManager.Keplr]: [KeplrAdapter]
   [KeyManager.WalletConnectV2]: [WalletConnectV2Adapter]
-  [KeyManager.MetaMask]: [MetaMaskAdapter | MetaMaskMultiChainAdapter]
+  [KeyManager.MetaMask]: [MetaMaskAdapter]
   [KeyManager.Coinbase]: [CoinbaseAdapter]
   [KeyManager.XDefi]: [XDEFIAdapter]
 }

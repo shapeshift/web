@@ -261,8 +261,6 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Kazandığınız %{assetName} oranı, Yıllık Yüzde Getiri (APR), genellikle %7 - %20 arasında dalgalanır.",
-          "amountStakingInfo": "Herhangi bir miktarda %{assetName} yatırabilirsiniz ve anında ödül kazanmaya başlarlar.",
-          "withdrawInfo": "Ödüllerinizi istediğiniz zaman çekebilirsiniz, bu da ~$.01 civarında küçük bir gas ücreti gerektirir.",
           "unbondingInfo": "Jetonlarınızı geri aldığınızda, %{unbondingDays} gün boyunca kilitli kalacaklar ve bu süre zarfında ödül kazanamayacaklar. %{unbondingDays} gün sonra, %{assetName} hesabınız Birincil Cüzdanınıza geri dönecektir.",
           "slashingInfo": "Staking bir doğrulayıcı aracılığıyla yapılır. Oldukça nadirdir, ancak stake ettiğiniz doğrulayıcı yanlış veya hatalı işlemlerin geçmesine izin vererek hata yaparsa, varlıklarınızın bir kısmını kaybedebilirsiniz.",
           "partnerInfo": "Güvenli, güvenilir ve denetlenmiş bir altyapıya sahip saygın bir doğrulayıcı ile iş ortaklığı yaparak bu riski azalttık."
@@ -656,8 +654,7 @@
       "maxSlippage": "Maks. Kayma",
       "auto": "Otomatik",
       "custom": "Özel",
-      "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
-      "lowSlippage": "0,05%'in altındaki kaymalar işlemin başarısız olmasına neden olur."
+      "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir."
     },
     "from": "'dan",
     "to": "'a",
@@ -821,7 +818,6 @@
       "recoverySentence": {
         "header": "Kurtarma Cümlenizi Yazın",
         "body": "KeepKey ekranınızda kurtarma cümlenizi göreceksiniz. Bunu Yazın. Cihaza erişimi kaybederseniz, varlıklarınıza YALNIZCA bu cümleyle erişilebilir.",
-        "infoFirst": "Tam olarak KeepKey'de göründüğü gibi yazmanız çok önemlidir.",
         "infoSecond": "Kurtarma cümlenizi asla paylaşmayın, tüm fonlarınıza erişim sağlar.",
         "awaitingButtonPress": "Kurtarma cümlenizi görüntülemek için KeepKey'inizdeki adımları izleyin. Bunu Yazın!"
       },
@@ -853,8 +849,7 @@
         "wrongPlatform": "%{platform}? kullanmıyor musunuz? Buraya Tıklayın"
       },
       "disconnect": {
-        "header": "KeepKey cihazının bağlantısını kesin",
-        "body": "Maalesef, KeepKey cihazınızı kurtarırken/kurarken bir hata oluştu. Lütfen cihazınızın bağlantısını kesin ve yeniden bağlayın ve KeepKey cihazınızı yeniden kurmayı deneyin. Sorun devam ederse, lütfen KeepKey desteği ile iletişime geçin."
+        "header": "KeepKey cihazının bağlantısını kesin"
       }
     },
     "shapeShift": {
@@ -1909,8 +1904,7 @@
         "page-2": {
           "title": "Junior Best Yield stratejileri:",
           "bullets": {
-            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
-            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar"
           }
         }
       },

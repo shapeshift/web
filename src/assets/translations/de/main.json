@@ -261,8 +261,6 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Der Betrag von %{assetName}, den Sie verdienen, die jährliche prozentuale Rendite (APR), schwankt normalerweise zwischen 7 % und 20 %.",
-          "amountStakingInfo": "Sie können einen beliebigen Betrag von %{assetName} staken und sie beginnen sofort mit dem Verdienen von Belohnungen.",
-          "withdrawInfo": "Sie können Ihre Belohnungen jederzeit abheben, was eine kleine Gasgebühr von etwa 0,01 $ erfordert.",
           "unbondingInfo": "Wenn Sie Ihre Token aus Staking entfernen, bleiben sie für %{unbondingDays} Tage gesperrt, während dieser Zeit erhalten sie keine Belohnungen. Nach %{unbondingDays} Tagen wird Ihr %{assetName} zu Ihrem primären Wallet übertragen.",
           "slashingInfo": "Das Staking erfolgt über einen Validator. Es ist sehr selten, aber wenn der Validator, mit dem Sie gestaket haben, durcheinander kommt, indem er falsche oder nicht korrekte Transaktionen zulässt, könnten Sie einen Teil Ihres Vermögens verlieren.",
           "partnerInfo": "Wir haben dieses Risiko verringert, indem wir mit einem seriösen Prüfer zusammenarbeiten, der über eine sichere, zuverlässige und geprüfte Infrastruktur verfügt."
@@ -656,8 +654,7 @@
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
       "custom": "Benutzerdefiniert",
-      "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
-      "lowSlippage": "Ein Slippage unter 0,05 % führt zu einer fehlgeschlagenen Transaktion."
+      "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen."
     },
     "from": "von",
     "to": "zu",
@@ -821,7 +818,6 @@
       "recoverySentence": {
         "header": "Schreiben Sie Ihren Wiederherstellungssatz auf",
         "body": "Auf Ihrem KeepKey-Bildschirm sehen Sie Ihren Wiederherstellungssatz. Schreib ihn auf. Wenn Sie den Zugriff auf das Gerät verlieren, sind Ihre Guthaben NUR mit diesem Satz zugänglich.",
-        "infoFirst": "Es ist wichtig, dass Sie es genau so aufschreiben, wie es auf dem KeepKey erscheint.",
         "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
       },
@@ -853,8 +849,7 @@
         "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
       },
       "disconnect": {
-        "header": "Trennen Sie das KeepKey-Gerät",
-        "body": "Leider ist beim Wiederherstellen/Einrichten Ihres KeepKey-Geräts ein Fehler aufgetreten. Bitte trennen Sie Ihr Gerät, schließen Sie es wieder an und versuchen Sie erneut, Ihr KeepKey-Gerät einzurichten. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den KeepKey-Support."
+        "header": "Trennen Sie das KeepKey-Gerät"
       }
     },
     "shapeShift": {
@@ -1909,8 +1904,7 @@
         "page-2": {
           "title": "Junior Best Yield Strategien:",
           "bullets": {
-            "one": "Automatisierung und Optimierung der Ertragsgenerierung über mehrere Junior-Tranchen hinweg, wodurch die Erträge durch deren Art gesteigert werden",
-            "two": "Bietenmaximierte Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt"
+            "one": "Automatisierung und Optimierung der Ertragsgenerierung über mehrere Junior-Tranchen hinweg, wodurch die Erträge durch deren Art gesteigert werden"
           }
         }
       },

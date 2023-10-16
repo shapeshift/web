@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -52,12 +53,12 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
 
-    const firstAdapter = await getAdapter(KeyManager.KeepKey)
+    const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
     if (firstAdapter) {
       const wallet = await (async () => {
         try {
           const sdk = await setupKeepKeySDK()
-          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
+          if (!sdk) throw new Error('Failed to setup KeepKey SDK')
           const wallet = await firstAdapter.pairDevice(sdk)
           if (!wallet) {
             setErrorLoading('walletProvider.errors.walletNotFound')

@@ -31,7 +31,7 @@ export enum WalletActions {
 }
 
 export type ActionTypes =
-  | { type: WalletActions.SET_ADAPTERS; payload: AdaptersByKeyManager }
+  | { type: WalletActions.SET_ADAPTERS; payload: Partial<AdaptersByKeyManager> }
   | {
       type: WalletActions.SET_WALLET
       payload: WalletInfo & {

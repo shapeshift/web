@@ -89,7 +89,7 @@ export type KeyManagerWithProvider =
 
 export interface InitialState {
   keyring: Keyring
-  adapters: AdaptersByKeyManager | null
+  adapters: Partial<AdaptersByKeyManager>
   wallet: HDWallet | null
   modalType: KeyManager | null
   connectedType: KeyManager | null
@@ -110,7 +110,7 @@ export interface InitialState {
 
 const initialState: InitialState = {
   keyring: new Keyring(),
-  adapters: null,
+  adapters: {},
   wallet: null,
   modalType: null,
   connectedType: null,
@@ -354,12 +354,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   const getAdapter: GetAdapter = useCallback(
-    async (keyManager, index: number = 0) => {
-      let currentStateAdapters = state.adapters ?? ({} as AdaptersByKeyManager)
+    async (keyManager, index) => {
+      let currentStateAdapters = state.adapters //  ?? ({} as AdaptersByKeyManager)
 
       // Check if adapter is already in the state
-      let adapterInstance = currentStateAdapters[keyManager]?.[index]
-      const currentKeyManagerAdapters = currentStateAdapters[keyManager] ?? []
+      let adapterInstance = currentStateAdapters[keyManager]
 
       if (!adapterInstance) {
         // If not, create a new instance of the adapter
@@ -372,8 +371,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           adapterInstance = Adapter.useKeyring(state.keyring, keyManagerOptions)
 
           if (adapterInstance) {
-            currentKeyManagerAdapters[index] = adapterInstance
-            currentStateAdapters[keyManager] = currentKeyManagerAdapters
+            currentStateAdapters[keyManager] = adapterInstance
             // Set it in wallet state for later use
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentStateAdapters })
           }
@@ -409,10 +407,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           case KeyManager.Mobile:
             try {
               // Get the adapter again in each switch case to narrow down the adapter type
-              const mobileAdapter = await getAdapter(localWalletType)
+              const mobileAdapter = await getAdapter(localWalletType, 0)
 
               if (mobileAdapter) {
-                currentAdapters[localWalletType] = [mobileAdapter]
+                currentAdapters[localWalletType] = mobileAdapter
                 dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
                 // Fixes issue with wallet `type` being null when the wallet is loaded from state
                 dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -454,7 +452,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             // Get the adapter again in each switch case to narrow down the adapter type
             const nativeAdapter = await getAdapter(localWalletType)
             if (nativeAdapter) {
-              currentAdapters[localWalletType] = [nativeAdapter]
+              currentAdapters[localWalletType] = nativeAdapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -485,7 +483,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const keepKeyAdapter = await getAdapter(KeyManager.KeepKey)
                 if (!keepKeyAdapter) return
 
-                currentAdapters[localWalletType] = [keepKeyAdapter]
+                currentAdapters[localWalletType] = keepKeyAdapter
                 dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
                 // Fixes issue with wallet `type` being null when the wallet is loaded from state
                 dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -534,7 +532,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const metamaskAdapter = await getAdapter(localWalletType)
 
             if (metamaskAdapter) {
-              currentAdapters[localWalletType] = [metamaskAdapter]
+              currentAdapters[localWalletType] = metamaskAdapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -571,7 +569,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const coinbaseAdapter = await getAdapter(localWalletType)
 
             if (coinbaseAdapter) {
-              currentAdapters[localWalletType] = [coinbaseAdapter]
+              currentAdapters[localWalletType] = coinbaseAdapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -608,7 +606,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const xdefiAdapter = await getAdapter(localWalletType)
 
             if (xdefiAdapter) {
-              currentAdapters[localWalletType] = [xdefiAdapter]
+              currentAdapters[localWalletType] = xdefiAdapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -644,7 +642,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const keplrAdapter = await getAdapter(localWalletType)
 
             if (keplrAdapter) {
-              currentAdapters[localWalletType] = [keplrAdapter]
+              currentAdapters[localWalletType] = keplrAdapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -680,7 +678,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const walletConnectV2Adapter = await getAdapter(localWalletType)
 
             if (walletConnectV2Adapter) {
-              currentAdapters[localWalletType] = [walletConnectV2Adapter]
+              currentAdapters[localWalletType] = walletConnectV2Adapter
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })

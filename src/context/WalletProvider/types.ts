@@ -11,19 +11,19 @@ import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 import type { KeyManager } from './KeyManager'
 
 export type AdaptersByKeyManager = {
-  [KeyManager.Mobile]: [NativeAdapter]
-  [KeyManager.Native]: [NativeAdapter]
-  [KeyManager.Demo]: [NativeAdapter]
-  [KeyManager.KeepKey]: [KkRestAdapter | typeof WebUSBKeepKeyAdapter]
-  [KeyManager.Ledger]: [WebUSBLedgerAdapter]
-  [KeyManager.Keplr]: [KeplrAdapter]
-  [KeyManager.WalletConnectV2]: [WalletConnectV2Adapter]
-  [KeyManager.MetaMask]: [MetaMaskAdapter]
-  [KeyManager.Coinbase]: [CoinbaseAdapter]
-  [KeyManager.XDefi]: [XDEFIAdapter]
+  [KeyManager.Mobile]: NativeAdapter
+  [KeyManager.Native]: NativeAdapter
+  [KeyManager.Demo]: NativeAdapter
+  [KeyManager.KeepKey]: KkRestAdapter | typeof WebUSBKeepKeyAdapter
+  [KeyManager.Ledger]: WebUSBLedgerAdapter
+  [KeyManager.Keplr]: KeplrAdapter
+  [KeyManager.WalletConnectV2]: WalletConnectV2Adapter
+  [KeyManager.MetaMask]: MetaMaskAdapter
+  [KeyManager.Coinbase]: CoinbaseAdapter
+  [KeyManager.XDefi]: XDEFIAdapter
 }
 
 export type GetAdapter = <K extends keyof AdaptersByKeyManager>(
   keyManager: K,
-  index?: number,
-) => Promise<AdaptersByKeyManager[K][number] | null>
+  index: K extends KeyManager.KeepKey ? 0 | 1 : 0, // only used for keepkey
+) => Promise<AdaptersByKeyManager[K] | null>

@@ -769,8 +769,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             >(async (acc, cur) => {
               const adapters = await acc
               const options = getKeyManagerOptions(keyManager)
-              const adapter = cur.useKeyring(state.keyring, options)
               try {
+                const { loadAdapter } = cur
+                const Adapter = await loadAdapter()
+                // eslint is drunk, this isn't a hook
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const adapter = Adapter.useKeyring(state.keyring, options)
                 adapters.push(adapter)
               } catch (e) {
                 console.error(e)
@@ -809,28 +813,38 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setLocalWalletTypeAndDeviceId(KeyManager.Demo, deviceId)
     setLocalNativeWalletName(name)
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
-    const adapterInstance = adapters[0].useKeyring(state.keyring)
-    const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
-    const { create } = Dummy.BIP39.Mnemonic
-    await wallet.loadDevice({
-      mnemonic: await create(PublicWalletXpubs),
-      deviceId,
-    })
-    await wallet.initialize()
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        isDemoWallet: true,
-        wallet,
-        name,
-        icon,
+
+    try {
+      const Adapter = await adapters[0].loadAdapter()
+      // eslint is drunk, this isn't a hook
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const adapterInstance = Adapter.useKeyring(state.keyring)
+
+      const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
+      const { create } = Dummy.BIP39.Mnemonic
+      await wallet.loadDevice({
+        mnemonic: await create(PublicWalletXpubs),
         deviceId,
-        meta: { label: name },
-        connectedType: KeyManager.Demo,
-      },
-    })
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
-    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+      })
+      await wallet.initialize()
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          isDemoWallet: true,
+          wallet,
+          name,
+          icon,
+          deviceId,
+          meta: { label: name },
+          connectedType: KeyManager.Demo,
+        },
+      })
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+    }
   }, [state.keyring])
 
   const create = useCallback((type: KeyManager) => {

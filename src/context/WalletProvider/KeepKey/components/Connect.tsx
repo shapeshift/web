@@ -37,7 +37,7 @@ const translateError = (event: Event) => {
 }
 
 export const KeepKeyConnect = () => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, getAdapter, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -51,20 +51,21 @@ export const KeepKeyConnect = () => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters) {
-      const adapters = state.adapters.get(KeyManager.KeepKey)
-      if (!adapters) return
+
+    const firstAdapter = await getAdapter(KeyManager.KeepKey)
+    if (firstAdapter) {
       const wallet = await (async () => {
         try {
           const sdk = await setupKeepKeySDK()
-          const wallet = await adapters[0]?.pairDevice(sdk)
+          const wallet = await firstAdapter.pairDevice(sdk)
           if (!wallet) {
             setErrorLoading('walletProvider.errors.walletNotFound')
             return
           }
           return wallet
         } catch (e) {
-          const wallet = await adapters[1]?.pairDevice().catch(err => {
+          const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+          const wallet = await secondAdapter?.pairDevice().catch((err: Error) => {
             if (err.name === 'ConflictingApp') {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return

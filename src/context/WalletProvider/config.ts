@@ -1,4 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { getConfig } from 'config'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
@@ -8,6 +9,7 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 import { WalletConnectV2Connect } from 'context/WalletProvider/WalletConnectV2/components/Connect'
+import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConnect } from './Coinbase/components/Connect'
 import { CoinbaseFailure } from './Coinbase/components/Failure'
@@ -68,12 +70,16 @@ import { KeepKeyRoutes } from './routes'
 import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
 import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
+import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
-  adapters: any[]
+  adapters: {
+    // TODO(gomes): can we type this?
+    loadAdapter: () => Promise<any>
+  }[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
@@ -83,7 +89,6 @@ export interface SupportedWalletInfo {
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
 }
-
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Mobile]: {
     ...MobileConfig,
@@ -196,4 +201,34 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/walletconnectv2/create', component: WalletConnectV2Create },
     ],
   },
+}
+
+// Copied from hdwallet-coinbase so we don't have to import the whole package just for the sake of this type
+// and can lazy load it instead
+type CoinbaseProviderConfig = {
+  appName: string
+  appLogoUrl: string
+  defaultJsonRpcUrl: string
+  defaultChainId: number
+  darkMode: boolean
+}
+
+type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
+type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
+
+export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
+  switch (keyManager) {
+    case KeyManager.WalletConnectV2:
+      return walletConnectV2ProviderConfig
+    case KeyManager.Coinbase:
+      return {
+        appName: 'ShapeShift',
+        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultChainId: 1,
+        darkMode: isDarkMode,
+      }
+    default:
+      return undefined
+  }
 }

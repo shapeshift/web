@@ -52,6 +52,7 @@ const fontSizeProp = { base: 'sm', md: 'md' }
 const paddingTopProp1 = { base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }
 const pxProp = { base: 0, xl: 4 }
 const displayProp = { base: 'block', md: 'none' }
+const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
 
 export const Header = memo(() => {
@@ -224,15 +225,15 @@ export const Header = memo(() => {
               <GlobalSeachButton />
               {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
               {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
-                <Box display={displayProp}>
+                <Box display={displayProp2}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              {isLargerThanMd && <ChainMenu display={displayProp} />}
+              {isLargerThanMd && <ChainMenu display={displayProp2} />}
               <TxWindow />
               <Notifications />
               {isLargerThanMd && (
-                <Box display={displayProp}>
+                <Box display={displayProp2}>
                   <UserMenu />
                 </Box>
               )}

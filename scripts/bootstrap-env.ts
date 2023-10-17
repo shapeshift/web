@@ -25,6 +25,7 @@ const VALID_BRANCHES = [
   'gome',
   'cafe',
   'arkeo',
+  'fleek',
 ] as const
 type Branch = (typeof VALID_BRANCHES)[number]
 
@@ -45,6 +46,7 @@ const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
   yeet: 'develop', // free for all
   develop: 'develop',
   release: 'app', // for operations testing production releases
+  fleek: 'app',
   // production environments
   main: 'app',
   private: 'private',

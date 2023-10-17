@@ -50,7 +50,7 @@ jobs:
       - name: Build Packages
         run: yarn build:packages
       - name: Build Web
-        run: yarn env app && yarn build:web
+        run: yarn env && yarn build:web
       - name: Install Fleek CLI
         run: npm i -g @fleekxyz/cli
       - name: Deploy

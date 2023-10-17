@@ -45,6 +45,11 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
     return Array.from(groups.entries())
   }, [isLargerThanMd, pluginRoutes])
 
+  const displayProp = useMemo(
+    () => ({ base: isCompact ? 'none' : 'block', '2xl': 'block' }),
+    [isCompact],
+  )
+
   const renderNavGroups = useMemo(() => {
     return navItemGroups.map((group, id) => {
       const [name, values] = group
@@ -58,7 +63,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
               textTransform='uppercase'
               fontWeight='bold'
               letterSpacing='wider'
-              display={{ base: isCompact ? 'none' : 'block', '2xl': 'block' }}
+              display={displayProp}
               translation={`navBar.${name}`}
             />
           )}
@@ -88,16 +93,12 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
         </Stack>
       )
     })
-  }, [groupColor, isCompact, navItemGroups, onClick, pathname, translate])
+  }, [displayProp, groupColor, isCompact, navItemGroups, onClick, pathname, translate])
+
+  const divider = useMemo(() => <Divider borderColor={dividerColor} />, [dividerColor])
 
   return (
-    <Stack
-      width='full'
-      flex='1 1 0%'
-      spacing={6}
-      divider={<Divider borderColor={dividerColor} />}
-      {...rest}
-    >
+    <Stack width='full' flex='1 1 0%' spacing={6} divider={divider} {...rest}>
       {renderNavGroups}
       {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
     </Stack>

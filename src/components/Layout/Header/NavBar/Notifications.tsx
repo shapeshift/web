@@ -10,7 +10,7 @@ import {
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -18,7 +18,7 @@ import { breakpoints, theme } from 'theme/theme'
 
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 
-export const Notifications = () => {
+export const Notifications = memo(() => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
@@ -107,6 +107,16 @@ export const Notifications = () => {
     [wallet, addressNList],
   )
 
+  const customSignerProp = useMemo(
+    () => ({
+      address: ethAddress,
+      chainId: 1,
+      signMessage,
+      signTypedData,
+    }),
+    [ethAddress, signMessage, signTypedData],
+  )
+
   if (
     !isWhereverEnabled ||
     !ethAddress ||
@@ -119,17 +129,12 @@ export const Notifications = () => {
   return (
     <Box>
       <NotificationFeedProvider
-        customSigner={{
-          address: ethAddress,
-          chainId: 1,
-          signMessage,
-          signTypedData,
-        }}
+        customSigner={customSignerProp}
         partnerKey={partnerKey}
         theme={themeObj}
         disableAnalytics={disableAnalytics}
       >
-        <NotificationFeed gapFromBell={10} placement={'bottom-end'}>
+        <NotificationFeed gapFromBell={10} placement='bottom-end'>
           <IconButton aria-label='Open notifications'>
             <NotificationBell size={20} />
           </IconButton>
@@ -137,4 +142,4 @@ export const Notifications = () => {
       </NotificationFeedProvider>
     </Box>
   )
-}
+})

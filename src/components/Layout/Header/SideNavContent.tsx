@@ -2,7 +2,7 @@ import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
@@ -35,6 +35,10 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
     onClose && onClose()
   }, [onClose, feedbackSupport])
 
+  const closeIcon = useMemo(() => <CloseIcon boxSize={3} />, [])
+  const settingsIcon = useMemo(() => <SettingsIcon />, [])
+  const chatIcon = useMemo(() => <ChatIcon />, [])
+
   return (
     <Flex
       width='full'
@@ -45,7 +49,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
       data-test='full-width-header'
       flexDir='column'
       overflowY='auto'
-      paddingTop={`calc(1.5rem + env(safe-area-inset-top))`}
+      paddingTop='calc(1.5rem + env(safe-area-inset-top))'
       p={4}
     >
       {!isLargerThanMd && (
@@ -54,7 +58,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
             ml='auto'
             aria-label='Close Nav'
             variant='ghost'
-            icon={<CloseIcon boxSize={3} />}
+            icon={closeIcon}
             onClick={onClose}
           />
           <Flex gap={2}>
@@ -78,7 +82,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           size='sm'
           onClick={handleClickSettings}
           label={translate('common.settings')}
-          leftIcon={<SettingsIcon />}
+          leftIcon={settingsIcon}
           data-test='navigation-settings-button'
         />
         <MainNavLink
@@ -86,7 +90,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           size='sm'
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
-          leftIcon={<ChatIcon />}
+          leftIcon={chatIcon}
         />
       </Stack>
     </Flex>

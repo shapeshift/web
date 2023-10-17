@@ -175,7 +175,7 @@ export const useTradeExecution = ({
           if (accountType === undefined) throw Error('Missing UTXO account type')
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const _senderAddress = await adapter.getAddress({ accountNumber, wallet })
+          const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
           const senderAddress =
             stepSellAssetAssetId === bchAssetId
               ? _senderAddress.replace('bitcoincash:', '')

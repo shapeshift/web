@@ -65,7 +65,7 @@ export const KeepKeyConnect = () => {
           return wallet
         } catch (e) {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
-          const wallet = await secondAdapter?.pairDevice().catch(err => {
+          const wallet = await secondAdapter?.pairDevice().catch((err: Error) => {
             if (err.name === 'ConflictingApp') {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return

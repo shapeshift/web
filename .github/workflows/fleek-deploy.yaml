@@ -1,0 +1,55 @@
+on:
+  push:
+    branches: [fleek]
+
+jobs:
+  deploy:
+    env:
+      FLEEK_TOKEN: ${{ secrets.FLEEK_TOKEN }}
+      FLEEK_PROJECT_ID: ${{ secrets.FLEEK_PROJECT_ID }}
+    runs-on: size-bertha
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Environment (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        # github actions run in the context of a special magical merge commit between the head of the PR
+        # and the base branch. this means that the commit hash is not the same as the head of the PR.
+        # we have to conditionally grab the head of the PR and truncate it to 7 characters.
+        # in a `pull_request`` event trigger, base_ref is target branch name, head_ref is current
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "CURRENT_BRANCH_NAME=${{ github.head_ref }}" >> ${GITHUB_ENV}
+        # in a `pull` event trigger, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
+        # of the branch and we can use that directly.
+        # ref_name is the name of the branch, e.g. develop, main, etc.
+      - name: Setup Environment (Push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+      - name: Debug GitHub Context
+        env: { CONTENT : "${{ toJson(github) }}" }
+        run: "echo $CONTENT"
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Yarn Install
+        run: yarn install --immutable
+      - name: Build Packages
+        run: yarn build:packages
+      - name: Build Web
+        run: yarn env app && yarn build:web
+      - name: Deploy
+        run: fleek sites deploy

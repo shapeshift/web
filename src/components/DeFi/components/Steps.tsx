@@ -49,6 +49,7 @@ export const Steps: React.FC<StepsProps> = ({
             const Step = steps[step as DefiStep]
             if (!Step) return null
             const Component = Step.component
+            const isActive = currentStep === index
             return (
               <StepRow
                 label={Step.label}
@@ -56,9 +57,9 @@ export const Steps: React.FC<StepsProps> = ({
                 description={Step?.description}
                 stepNumber={`${index + 1}`}
                 isComplete={currentStep > index}
-                isActive={currentStep === index}
+                isActive={isActive}
               >
-                <Component onNext={handleNext} {...Step.props} />
+                {isActive && <Component onNext={handleNext} {...Step.props} />}
               </StepRow>
             )
           })}

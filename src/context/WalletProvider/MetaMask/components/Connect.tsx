@@ -26,7 +26,7 @@ export interface MetaMaskSetupProps
 }
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
-  const { dispatch, state, onProviderChange } = useWallet()
+  const { dispatch, state, getAdapter, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
@@ -50,8 +50,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
-    if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
-      const wallet = await state.adapters.get(KeyManager.MetaMask)?.[0].pairDevice()
+    const adapter = await getAdapter(KeyManager.MetaMask)
+    if (adapter) {
+      const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')

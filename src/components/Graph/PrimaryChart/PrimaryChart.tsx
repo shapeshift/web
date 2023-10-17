@@ -2,15 +2,14 @@ import { useColorModeValue } from '@chakra-ui/color-mode'
 import { Stack as CStack } from '@chakra-ui/react'
 import { useToken } from '@chakra-ui/system'
 import type { HistoryData } from '@shapeshiftoss/types'
-import { LinearGradient } from '@visx/gradient'
-import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear } from '@visx/scale'
-import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
+import type { AxisScale } from '@visx/xychart'
+import type { BaseAreaSeriesProps } from '@visx/xychart/lib/components/series/private/BaseAreaSeries'
+import type { RenderTooltipParams, TooltipProps } from '@visx/xychart/lib/components/Tooltip'
 import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import { useCallback, useMemo } from 'react'
+import { lazy, useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -20,6 +19,28 @@ import { colors } from 'theme/colors'
 
 import { MaxPrice } from '../MaxPrice'
 import { MinPrice } from '../MinPrice'
+
+const LinearGradient = lazy(() =>
+  import('@visx/gradient').then(({ LinearGradient }) => ({ default: LinearGradient })),
+)
+const ScaleSVG = lazy(() =>
+  import('@visx/responsive').then(({ ScaleSVG }) => ({ default: ScaleSVG })),
+)
+
+type AnimatedAreaSeriesType = React.ComponentType<
+  BaseAreaSeriesProps<AxisScale, AxisScale, HistoryData>
+>
+const AnimatedAreaSeries = lazy<AnimatedAreaSeriesType>(() =>
+  import('@visx/xychart').then(({ AnimatedAreaSeries }) => ({ default: AnimatedAreaSeries })),
+)
+const AnimatedAxis = lazy(() =>
+  import('@visx/xychart').then(({ AnimatedAxis }) => ({ default: AnimatedAxis })),
+)
+type TooltipType = React.ComponentType<TooltipProps<HistoryData>>
+const Tooltip = lazy<TooltipType>(() =>
+  import('@visx/xychart').then(({ Tooltip }) => ({ default: Tooltip })),
+)
+const XYChart = lazy(() => import('@visx/xychart').then(({ XYChart }) => ({ default: XYChart })))
 
 export interface PrimaryChartProps {
   data: HistoryData[]

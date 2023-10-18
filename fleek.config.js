@@ -1,10 +1,9 @@
-import { FleekConfig } from '@fleekxyz/cli';
-
-export default {
+/** @type {import('@fleekxyz/cli').FleekConfig} */
+module.exports = {
   "sites": [
     {
       "slug": "square-caravan-big",
       "distDir": "build"
     }
   ]
-} satisfies FleekConfig;
+};

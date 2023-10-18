@@ -124,19 +124,23 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const hasPendingUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isAfter(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
   const hasAvailableUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isBefore(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
-  const claimDisabled = !canClaim && !hasAvailableUndelegation
+  const claimDisabled = !canClaim || !hasAvailableUndelegation
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })

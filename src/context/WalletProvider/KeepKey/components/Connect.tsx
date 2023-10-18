@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -54,11 +55,12 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
 
-    const firstAdapter = await getAdapter(KeyManager.KeepKey)
+    const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
     if (firstAdapter) {
       const wallet = await (async () => {
         try {
           const sdk = await setupKeepKeySDK()
+          if (!sdk) throw new Error('Failed to setup KeepKey SDK')
           const wallet = await firstAdapter.pairDevice(sdk)
           if (!wallet) {
             setErrorLoading('walletProvider.errors.walletNotFound')
@@ -67,7 +69,8 @@ export const KeepKeyConnect = () => {
           return wallet
         } catch (e) {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
-          const wallet = await secondAdapter?.pairDevice().catch((err: Error) => {
+          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
+          const wallet = await secondAdapter.pairDevice().catch(err => {
             if (err.name === 'ConflictingApp') {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return

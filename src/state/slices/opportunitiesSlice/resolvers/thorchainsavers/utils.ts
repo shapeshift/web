@@ -124,7 +124,7 @@ export const getAccountAddresses = memoize(
 
 export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/pools`,
   )
 
   if (!opportunitiesData) return []
@@ -140,7 +140,7 @@ export const getAllThorchainSaversPositions = async (
   if (!poolId) return []
 
   const { data: opportunitiesData } = await axios.get<ThorchainSaverPositionResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/pool/${poolId}/savers`,
   )
 
   if (!opportunitiesData) return []
@@ -151,7 +151,7 @@ export const getAllThorchainSaversPositions = async (
 export const getThorchainTransactionStatus = async (txHash: string) => {
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/tx/status/${thorTxHash}`,
     // We don't want to throw on 404s, we're parsing these ourselves
     { validateStatus: () => true },
   )
@@ -222,7 +222,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
+    }/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)
@@ -266,7 +266,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
+    }/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
   )
 
   if (!quoteData || 'error' in quoteData)

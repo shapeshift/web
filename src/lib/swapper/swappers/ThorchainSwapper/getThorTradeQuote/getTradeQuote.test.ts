@@ -122,18 +122,18 @@ describe('getTradeQuote', () => {
   it('should get a thorchain quote for a thorchain trade', async () => {
     ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
       switch (url) {
-        case '/lcd/thorchain/pools':
+        case '/thorchain/pools':
           return Promise.resolve(
             Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse>),
           )
-        case '/lcd/thorchain/inbound_addresses':
+        case '/thorchain/inbound_addresses':
           return Promise.resolve(
             Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
               InboundAddressResponse[]
             >),
           )
         default: {
-          // '/lcd/thorchain/quote/swap/<swapQueryParams>' fallthrough
+          // '/thorchain/quote/swap/<swapQueryParams>' fallthrough
           const mockThorQuote: { data: ThornodeQuoteResponseSuccess } = {
             data: {
               expected_amount_out: '10232161',

@@ -109,7 +109,6 @@
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.2",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
-    "@snapshot-labs/snapshot.js": "^0.6.1",
     "@sniptt/monads": "^0.5.10",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^8.3.3",

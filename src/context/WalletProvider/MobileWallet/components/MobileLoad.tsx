@@ -135,26 +135,46 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
     })()
   }, [wallets])
 
-  const handleWalletSelect = useCallback(async (item: RevocableWallet) => {
-    const adapter = await getAdapter(KeyManager.Native)
-    const deviceId = item?.id
-    if (adapter && deviceId) {
-      const { name, icon } = MobileConfig
-      try {
-        const revoker = await getWallet(deviceId)
-        if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
+  const handleWalletSelect = useCallback(
+    async (item: RevocableWallet) => {
+      const adapter = await getAdapter(KeyManager.Native)
+      const deviceId = item?.id
+      if (adapter && deviceId) {
+        const { name, icon } = MobileConfig
+        try {
+          const revoker = await getWallet(deviceId)
+          if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
 
-        const wallet = await adapter.pairDevice(revoker.id)
-        await wallet.loadDevice({ mnemonic: revoker.mnemonic })
-        if (!(await wallet.isInitialized())) {
-          await wallet.initialize()
+          const wallet = await adapter.pairDevice(revoker.id)
+          await wallet.loadDevice({ mnemonic: revoker.mnemonic })
+          if (!(await wallet.isInitialized())) {
+            await wallet.initialize()
+          }
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: item.label },
+              connectedType: KeyManager.Mobile,
+            },
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
+          setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          setLocalNativeWalletName(item?.label ?? 'label')
+        } catch (e) {
+          console.log(e)
+          setError('walletProvider.shapeShift.load.error.pair')
         }
       } else {
         setError('walletProvider.shapeShift.load.error.pair')
       }
-    }
-  },
-    [dispatch, state.adapters],
+    },
+    [dispatch, getAdapter],
   )
 
   const handleDelete = useCallback(

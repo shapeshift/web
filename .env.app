@@ -29,8 +29,8 @@ REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL=https://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_WS_URL=wss://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.thorchain.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.ninerealms.com
+REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.ninerealms.com
 
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com
@@ -42,7 +42,7 @@ REACT_APP_POLYGON_NODE_URL=https://daemon.polygon.shapeshift.com
 REACT_APP_GNOSIS_NODE_URL=https://daemon.gnosis.shapeshift.com
 REACT_APP_ARBITRUM_NODE_URL=https://daemon.arbitrum.shapeshift.com
 REACT_APP_COSMOS_NODE_URL=https://daemon.cosmos.shapeshift.com
-REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
+REACT_APP_THORCHAIN_NODE_URL=https://thornode.ninerealms.com
 
 # thorchain
-REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
+REACT_APP_MIDGARD_URL=https://midgard.ninerealms.com/v2

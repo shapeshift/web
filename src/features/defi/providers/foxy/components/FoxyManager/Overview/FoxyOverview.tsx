@@ -57,7 +57,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     stakingAssetId,
   } = useFoxyQuery()
   const foxyApi = getFoxyApi()
-  const [canClaim, setCanClaim] = useState<boolean>(false)
+  const [canClaim, setCanClaim] = useState<boolean | null>(null)
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
@@ -209,6 +209,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
+          isLoading: canClaim === null,
           isDisabled: claimDisabled,
           toolTip: translate('defi.modals.overview.noWithdrawals'),
         },

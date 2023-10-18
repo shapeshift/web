@@ -209,6 +209,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
+          isLoading: canClaim === null,
           isDisabled: claimDisabled,
           toolTip: translate('defi.modals.overview.noWithdrawals'),
         },

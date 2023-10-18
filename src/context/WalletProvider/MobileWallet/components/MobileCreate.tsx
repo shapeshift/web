@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -30,16 +30,18 @@ type MobileCreateProps = {
   HeaderComponent?: React.ComponentType<any>
 }
 
+const lengthProp = { length: 64 }
+
 export const MobileCreate: React.FC<MobileCreateProps> = props => {
   const { HeaderComponent } = props
   const history = useHistory()
   const location = useLocation<MobileLocationState | undefined>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
-  const handleShow = () => {
+  const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
-  }
+  }, [revealed])
   const [words, setWords] = useState<ReactNode[] | null>(null)
   const [vault, setVault] = useState<RevocableWallet | null>(null)
   const [label, setLabel] = useState('')
@@ -104,6 +106,25 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
     }
   }, [setWords, revoker, vault])
 
+  const handleChangeLabel = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value),
+    [],
+  )
+
+  const handleCreate = useCallback(() => {
+    if (vault?.mnemonic && label) {
+      try {
+        setIsSaving(true)
+        vault.label = label
+        history.push('/mobile/create-test', { vault, isLegacyWallet: false })
+      } catch (e) {
+        console.log(e)
+      } finally {
+        setIsSaving(false)
+      }
+    }
+  }, [history, label, vault])
+
   return (
     <>
       <ModalHeader>
@@ -124,7 +145,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         <FormControl mb={6} isInvalid={label.length > 64}>
           <Input
             value={label}
-            onChange={e => setLabel(e.target.value)}
+            onChange={handleChangeLabel}
             size='lg'
             variant='filled'
             id='name'
@@ -132,7 +153,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
             data-test='wallet-native-set-name-input'
           />
           <FormErrorMessage>
-            {translate('modals.shapeShift.password.error.maxLength', { length: 64 })}
+            {translate('modals.shapeShift.password.error.maxLength', lengthProp)}
           </FormErrorMessage>
         </FormControl>
       </ModalBody>
@@ -147,19 +168,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
           size='lg'
           isLoading={isSaving}
           isDisabled={isSaving || !(words && revealedOnce.current && label)}
-          onClick={() => {
-            if (vault?.mnemonic && label) {
-              try {
-                setIsSaving(true)
-                vault.label = label
-                history.push('/mobile/create-test', { vault, isLegacyWallet: false })
-              } catch (e) {
-                console.log(e)
-              } finally {
-                setIsSaving(false)
-              }
-            }
-          }}
+          onClick={handleCreate}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>

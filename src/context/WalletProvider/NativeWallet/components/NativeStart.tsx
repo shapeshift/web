@@ -1,11 +1,16 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import { useEffect } from 'react'
+import type { Property } from 'csstype'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+
+const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
+const mlProp = [0, 1.5]
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -23,6 +28,11 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
+  const handleLoad = useCallback(() => history.push('/native/load'), [history])
+  const handleCreate = useCallback(() => history.push('/native/create'), [history])
+  const handleImport = useCallback(() => history.push('/native/import'), [history])
+  const handleLogin = useCallback(() => history.push('/native/legacy/login'), [history])
+
   return (
     <>
       <ModalHeader>
@@ -39,7 +49,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
             isDisabled={!hasLocalWallet}
-            onClick={() => history.push('/native/load')}
+            onClick={handleLoad}
             data-test='wallet-native-load-button'
           >
             <Text translation={'walletProvider.shapeShift.start.load'} />
@@ -52,7 +62,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/native/create')}
+            onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />
@@ -64,26 +74,20 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/native/import')}
+            onClick={handleImport}
             data-test='wallet-native-import-button'
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
           <Divider mt={4} />
-          <Flex
-            direction={['column', 'row']}
-            mt={2}
-            pt={4}
-            justifyContent='center'
-            alignItems='center'
-          >
+          <Flex direction={directionProp} mt={2} pt={4} justifyContent='center' alignItems='center'>
             <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
             <Button
               variant='link'
-              ml={[0, 1.5]}
+              ml={mlProp}
               borderTopRadius='none'
               colorScheme='blue'
-              onClick={() => history.push('/native/legacy/login')}
+              onClick={handleLogin}
             >
               {translate('common.login')}
             </Button>

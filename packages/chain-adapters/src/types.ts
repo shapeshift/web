@@ -87,6 +87,7 @@ export type SubscribeTxsInput = {
   wallet: HDWallet
   accountNumber: number
   accountType?: UtxoAccountType
+  pubKey?: string
 }
 
 export type GetBIP44ParamsInput = {

@@ -83,12 +83,12 @@ export const getTradeQuoteArgs = async ({
       accountNumber: sellAccountNumber,
       wallet,
       accountType: sellAccountType,
+      pubKey,
     })
-    const { xpub } = await sellAssetChainAdapter.getPublicKey(
-      wallet,
-      sellAccountNumber,
-      sellAccountType,
-    )
+
+    const xpub =
+      pubKey ??
+      (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,

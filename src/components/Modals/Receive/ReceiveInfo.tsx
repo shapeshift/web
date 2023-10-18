@@ -110,7 +110,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       accountNumber,
     })
 
-    setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)
+    setVerified(
+      Boolean(deviceAddress) && deviceAddress.toLowerCase() === receiveAddress.toLowerCase(),
+    )
   }
 
   const translate = useTranslate()

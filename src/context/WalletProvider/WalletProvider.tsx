@@ -355,7 +355,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
-      let currentStateAdapters = state.adapters //  ?? ({} as AdaptersByKeyManager)
+      let currentStateAdapters = state.adapters
 
       // Check if adapter is already in the state
       let adapterInstance = currentStateAdapters[keyManager]

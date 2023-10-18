@@ -83,7 +83,6 @@ const validators = {
   REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
-  REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),

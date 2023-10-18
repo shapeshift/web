@@ -13,6 +13,7 @@ import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,6 +27,9 @@ type MatchParams = {
 }
 
 export const Buy = () => {
+  // load fiat ramps
+  useGetFiatRampsQuery()
+
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
   const {

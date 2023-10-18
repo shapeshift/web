@@ -25,7 +25,7 @@ export const getInboundAddressDataForChain = async (
   const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
 
   return (
-    await thorService.get<InboundAddressResponse[]>(`${daemonUrl}/lcd/thorchain/inbound_addresses`)
+    await thorService.get<InboundAddressResponse[]>(`${daemonUrl}/thorchain/inbound_addresses`)
   )
     .andThen(({ data: inboundAddresses }) => {
       const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)

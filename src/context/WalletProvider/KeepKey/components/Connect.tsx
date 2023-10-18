@@ -124,7 +124,7 @@ export const KeepKeyConnect = () => {
       }
     }
     setLoading(false)
-  }, [dispatch, setErrorLoading, state.adapters, state.keyring])
+  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
 
   return (
     <>

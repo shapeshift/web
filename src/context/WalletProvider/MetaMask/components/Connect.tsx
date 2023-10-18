@@ -98,11 +98,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }, [
     dispatch,
+    getAdapter,
     history,
     isSnapsEnabled,
     setErrorLoading,
     showSnapModal,
-    state.adapters,
     state.provider,
   ])
 

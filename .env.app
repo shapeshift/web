@@ -29,8 +29,8 @@ REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL=https://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_WS_URL=wss://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.ninerealms.com
-REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.ninerealms.com
+REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://rpc.ninerealms.com
+REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://rpc.ninerealms.com
 
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com

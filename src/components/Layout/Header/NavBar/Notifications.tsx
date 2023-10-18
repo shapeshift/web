@@ -1,24 +1,36 @@
 import { Box, IconButton, useColorMode } from '@chakra-ui/react'
 import type { BIP32Path, ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { CustomTheme } from '@wherever/react-notification-feed'
-import {
-  NotificationBell,
-  NotificationFeed,
-  NotificationFeedProvider,
-  ThemeMode,
-} from '@wherever/react-notification-feed'
+import type { CustomTheme, ThemeMode as ThemeModeType } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints, theme } from 'theme/theme'
 
+const NotificationBell = lazy(() =>
+  import('@wherever/react-notification-feed').then(({ NotificationBell }) => ({
+    default: NotificationBell,
+  })),
+)
+
+const NotificationFeed = lazy(() =>
+  import('@wherever/react-notification-feed').then(({ NotificationFeed }) => ({
+    default: NotificationFeed,
+  })),
+)
+
+const NotificationFeedProvider = lazy(() =>
+  import('@wherever/react-notification-feed').then(({ NotificationFeedProvider }) => ({
+    default: NotificationFeedProvider,
+  })),
+)
+
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 
-export const Notifications = () => {
+export const Notifications = memo(() => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
@@ -36,7 +48,7 @@ export const Notifications = () => {
     const baseTheme =
       colorMode === 'light'
         ? {
-            mode: ThemeMode.Light,
+            mode: 'light' as ThemeModeType,
             primaryColor: theme.colors.primary,
             backgroundColor: theme.colors.gray[100],
             textColor: theme.colors.gray[800],
@@ -107,6 +119,16 @@ export const Notifications = () => {
     [wallet, addressNList],
   )
 
+  const customSignerProp = useMemo(
+    () => ({
+      address: ethAddress,
+      chainId: 1,
+      signMessage,
+      signTypedData,
+    }),
+    [ethAddress, signMessage, signTypedData],
+  )
+
   if (
     !isWhereverEnabled ||
     !ethAddress ||
@@ -118,23 +140,20 @@ export const Notifications = () => {
 
   return (
     <Box>
-      <NotificationFeedProvider
-        customSigner={{
-          address: ethAddress,
-          chainId: 1,
-          signMessage,
-          signTypedData,
-        }}
-        partnerKey={partnerKey}
-        theme={themeObj}
-        disableAnalytics={disableAnalytics}
-      >
-        <NotificationFeed gapFromBell={10} placement={'bottom-end'}>
-          <IconButton aria-label='Open notifications'>
-            <NotificationBell size={20} />
-          </IconButton>
-        </NotificationFeed>
-      </NotificationFeedProvider>
+      <Suspense fallback={<div />}>
+        <NotificationFeedProvider
+          customSigner={customSignerProp}
+          partnerKey={partnerKey}
+          theme={themeObj}
+          disableAnalytics={disableAnalytics}
+        >
+          <NotificationFeed gapFromBell={10} placement='bottom-end'>
+            <IconButton aria-label='Open notifications'>
+              <NotificationBell size={20} />
+            </IconButton>
+          </NotificationFeed>
+        </NotificationFeedProvider>
+      </Suspense>
     </Box>
   )
-}
+})

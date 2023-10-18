@@ -40,7 +40,7 @@ export const thorchainSwapper: Swapper = {
   filterAssetIdsBySellable: async (): Promise<AssetId[]> => {
     let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
     const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-      `${daemonUrl}/lcd/thorchain/pools`,
+      `${daemonUrl}/thorchain/pools`,
     )
     if (poolResponse.isOk()) {
       const allPools = poolResponse.unwrap().data
@@ -64,7 +64,7 @@ export const thorchainSwapper: Swapper = {
     let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
     let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
     const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-      `${daemonUrl}/lcd/thorchain/pools`,
+      `${daemonUrl}/thorchain/pools`,
     )
     if (poolResponse.isOk()) {
       const allPools = poolResponse.unwrap().data

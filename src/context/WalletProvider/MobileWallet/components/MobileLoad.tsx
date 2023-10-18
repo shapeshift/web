@@ -31,7 +31,7 @@ import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
-  const { state, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const translate = useTranslate()
@@ -55,15 +55,15 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: RevocableWallet) => {
-    const adapters = state.adapters?.get(KeyManager.Native)
+    const adapter = await getAdapter(KeyManager.Native)
     const deviceId = item?.id
-    if (adapters && deviceId) {
+    if (adapter && deviceId) {
       const { name, icon } = MobileConfig
       try {
         const revoker = await getWallet(deviceId)
         if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
 
-        const wallet = await adapters[0].pairDevice(revoker.id)
+        const wallet = await adapter.pairDevice(revoker.id)
         await wallet.loadDevice({ mnemonic: revoker.mnemonic })
         if (!(await wallet.isInitialized())) {
           await wallet.initialize()

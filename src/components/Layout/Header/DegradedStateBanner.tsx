@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { entries, isEmpty, uniq } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -26,7 +26,7 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
-export const DegradedStateBanner = () => {
+export const DegradedStateBanner = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -131,4 +131,4 @@ export const DegradedStateBanner = () => {
       </PopoverContent>
     </Popover>
   )
-}
+})

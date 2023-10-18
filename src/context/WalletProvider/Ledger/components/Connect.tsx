@@ -1,4 +1,3 @@
-import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -19,7 +18,7 @@ export interface LedgerSetupProps
 }
 
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
-  const { dispatch: walletDispatch, state } = useWallet()
+  const { dispatch: walletDispatch, getAdapter } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,21 +30,11 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters) {
-      const currentAdapters = state.adapters
-      // eslint is drunk, this isn't a hook
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const ledgerAdapter = WebUSBLedgerAdapter.useKeyring(state.keyring)
-      // This is conventionally done in WalletProvider effect, but won't work here, as `requestDevice()` needs to be called from a user interaction
-      // So we do it in this pairDevice() method instead and set the adapters the same as we would do in WalletProvider
+
+    const adapter = await getAdapter(KeyManager.Ledger)
+    if (adapter) {
       try {
-        const wallet = await ledgerAdapter.pairDevice()
-        try {
-          currentAdapters.set(KeyManager.Ledger, [ledgerAdapter])
-          walletDispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
-        } catch (e) {
-          console.error(e)
-        }
+        const wallet = await adapter.pairDevice()
 
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
@@ -70,7 +59,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
     }
     setLoading(false)
-  }, [history, setErrorLoading, state.adapters, state.keyring, walletDispatch])
+  }, [getAdapter, history, setErrorLoading, walletDispatch])
 
   return (
     <ConnectModal

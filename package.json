@@ -17,7 +17,7 @@
     "clean:packages": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run clean && rm -rf tsconfig.packages.tsbuildinfo",
     "deadcode": "yarn ts-prune",
     "dev": "yarn concurrently -n \"packages,web\" \"yarn dev:packages\" \"yarn dev:web\"",
-    "dev:web": "BROWSER=none NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
+    "dev:web": "BROWSER=none NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired --openssl-legacy-provider start",
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
     "tenderly:spawn": "tenderly devnet spawn-rpc --template \"e2e-latest\" --project \"project\" --output json 2> ./tenderly/.tenderly.json",
     "tenderly:rpc-proxy": "yarn ts-node --skipProject ./tenderly/rpcProxy.ts",

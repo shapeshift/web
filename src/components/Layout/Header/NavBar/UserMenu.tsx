@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
@@ -28,6 +28,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { viemEthMainnetClient } from 'lib/viem-client'
 
 export const entries = [WalletConnectedRoutes.Connected]
+
+const maxWidthProp = { base: 'full', md: 'xs' }
+const minWidthProp = { base: 0, md: 'xs' }
+const widthProp = { base: '100%', lg: 'auto' }
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
@@ -106,20 +110,25 @@ const WalletButton: FC<WalletButtonProps> = ({
     return setWalletLabel(walletInfo?.meta?.address ?? '')
   }, [ensName, walletInfo])
 
+  const rightIcon = useMemo(() => <ChevronDownIcon />, [])
+  const leftIcon = useMemo(
+    () => (
+      <HStack>
+        {!(isConnected || isDemoWallet) && <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+        <WalletImage walletInfo={walletInfo} />
+      </HStack>
+    ),
+    [isConnected, isDemoWallet, walletInfo],
+  )
+  const connectIcon = useMemo(() => <FaWallet />, [])
+
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <MenuButton
       as={Button}
-      width={{ base: '100%', lg: 'auto' }}
+      width={widthProp}
       justifyContent='flex-start'
-      rightIcon={<ChevronDownIcon />}
-      leftIcon={
-        <HStack>
-          {!(isConnected || isDemoWallet) && (
-            <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />
-          )}
-          <WalletImage walletInfo={walletInfo} />
-        </HStack>
-      }
+      rightIcon={rightIcon}
+      leftIcon={leftIcon}
     >
       <Flex>
         {walletLabel ? (
@@ -139,13 +148,13 @@ const WalletButton: FC<WalletButtonProps> = ({
       </Flex>
     </MenuButton>
   ) : (
-    <Button onClick={onConnect} leftIcon={<FaWallet />}>
+    <Button onClick={onConnect} leftIcon={connectIcon}>
       <Text translation='common.connectWallet' />
     </Button>
   )
 }
 
-export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
+export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
     state
@@ -168,8 +177,8 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList
-          maxWidth={{ base: 'full', md: 'xs' }}
-          minWidth={{ base: 0, md: 'xs' }}
+          maxWidth={maxWidthProp}
+          minWidth={minWidthProp}
           overflow='hidden'
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
@@ -189,4 +198,4 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
       </Menu>
     </ButtonGroup>
   )
-}
+})

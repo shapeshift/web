@@ -217,6 +217,7 @@ export const handleSend = async ({
 
     const senderAddress = await adapter.getAddress({
       accountNumber: accountMetadata.bip44Params.accountNumber,
+      accountType: accountMetadata.accountType,
       wallet,
     })
 

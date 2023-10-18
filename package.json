@@ -110,7 +110,6 @@
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.2",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
-    "@snapshot-labs/snapshot.js": "^0.6.1",
     "@sniptt/monads": "^0.5.10",
     "@types/bip21": "^2.0.0",
     "@types/react-plotly.js": "^2.6.0",

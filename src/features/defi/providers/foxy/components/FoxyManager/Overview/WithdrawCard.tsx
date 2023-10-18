@@ -1,4 +1,4 @@
-import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import type {
   DefiParams,
@@ -20,7 +20,7 @@ import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers
 type WithdrawCardProps = {
   asset: Asset
   undelegation: UserUndelegation | undefined
-  canClaimWithdraw: boolean
+  canClaimWithdraw: boolean | null
 }
 
 export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: WithdrawCardProps) => {
@@ -31,6 +31,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
   } = useWallet()
   const hasClaim = bnOrZero(undelegation?.undelegationAmountCryptoBaseUnit).gt(0)
   const textColor = useColorModeValue('black', 'white')
+  const canClaimWithdrawLoading = canClaimWithdraw === null
   const isUndelegationAvailable =
     canClaimWithdraw && undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
@@ -106,21 +107,23 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />
-            {isUndelegationAvailable ? (
-              <Stack direction='row' alignItems='center' color='blue.500'>
-                <Text translation='defi.modals.claim.claimNow' />
-                <FaArrowRight />
-              </Stack>
-            ) : (
-              <Text
-                fontWeight='normal'
-                lineHeight='shorter'
-                translation={[
-                  'defi.modals.foxyOverview.availableDate',
-                  { date: dayjs(dayjs.unix(undelegation.completionTime)).fromNow() },
-                ]}
-              />
-            )}
+            <Skeleton isLoaded={!canClaimWithdrawLoading}>
+              {isUndelegationAvailable ? (
+                <Stack direction='row' alignItems='center' color='blue.500'>
+                  <Text translation='defi.modals.claim.claimNow' />
+                  <FaArrowRight />
+                </Stack>
+              ) : (
+                <Text
+                  fontWeight='normal'
+                  lineHeight='shorter'
+                  translation={[
+                    'defi.modals.foxyOverview.availableDate',
+                    { date: dayjs(dayjs.unix(undelegation.completionTime)).fromNow() },
+                  ]}
+                />
+              )}
+            </Skeleton>
           </Stack>
         </Button>
       )}

@@ -42,14 +42,16 @@ export const KeepKeyConnect = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // eslint-disable-next-line no-sequences
-  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const setErrorLoading = useCallback((e: string | null) => {
+    setError(e)
+    setLoading(false)
+  }, [])
 
   const handleDownloadButtonClick = useCallback(() => {
     dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
   }, [dispatch])
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
@@ -125,7 +127,7 @@ export const KeepKeyConnect = () => {
       }
     }
     setLoading(false)
-  }
+  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
 
   return (
     <>

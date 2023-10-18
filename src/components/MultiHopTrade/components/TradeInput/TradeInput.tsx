@@ -12,6 +12,7 @@ import {
   Tooltip,
   useToken,
 } from '@chakra-ui/react'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
@@ -211,6 +212,11 @@ export const TradeInput = memo(() => {
 
       const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
 
+      if (isLedger(wallet)) {
+        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        return
+      }
+
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return
@@ -347,10 +353,12 @@ export const TradeInput = memo(() => {
     ],
   )
 
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
           <CardHeader px={6}>
             <Flex alignItems='center' justifyContent='space-between'>
               <Heading as='h5' fontSize='md'>

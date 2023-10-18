@@ -4,7 +4,7 @@ import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
@@ -24,14 +24,40 @@ type TestState = {
   correctAnswerIndex: number
 }
 
+type RevokableWordProps = {
+  index: number
+  invalidTries: number[]
+  word: string
+  addRevoker: (revoker: () => void) => void
+  onClick: (index: number) => void
+}
+
+const RevokableWord = ({ index, invalidTries, word, addRevoker, onClick }: RevokableWordProps) => {
+  const handleClick = useCallback(() => onClick(index), [index, onClick])
+  const isDisabled = useMemo(() => invalidTries.includes(index), [index, invalidTries])
+  return revocable(
+    <Button
+      key={index}
+      flex='1'
+      minW='30%'
+      variant='ghost-filled'
+      colorScheme={isDisabled ? 'gray' : 'blue'}
+      isDisabled={isDisabled}
+      onClick={handleClick}
+    >
+      {word}
+    </Button>,
+    addRevoker,
+  )
+}
+
 export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
-  const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
-  const [, setError] = useState<string | null>(null)
-  const [revoker] = useState(new (Revocable(class {}))())
+  const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
+  const revoker = useMemo(() => new (Revocable(class {}))(), [])
 
   const { vault } = location.state
 
@@ -62,7 +88,6 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
       )
     } catch (e) {
       console.log(e)
-      setError('walletProvider.shapeShift.create.error')
     }
   }, [revoker, shuffledNumbers, testCount, vault])
 
@@ -85,14 +110,17 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
     }
   }, [testCount, history, vault, revoker])
 
-  const handleClick = (index: number) => {
-    if (index === testState?.correctAnswerIndex) {
-      setInvalidTries([])
-      setTestCount(testCount + 1)
-    } else {
-      setInvalidTries([...invalidTries, index])
-    }
-  }
+  const handleClick = useCallback(
+    (index: number) => {
+      if (index === testState?.correctAnswerIndex) {
+        setInvalidTries([])
+        setTestCount(testCount + 1)
+      } else {
+        setInvalidTries([...invalidTries, index])
+      }
+    },
+    [invalidTries, testCount, testState?.correctAnswerIndex],
+  )
 
   return !testState ? null : (
     <>
@@ -123,22 +151,15 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         <SimpleGrid columns={3} spacing={2} mt={12} mb={6}>
           {vault &&
             testState &&
-            testState.randomWords.map((word: string, index: number) =>
-              revocable(
-                <Button
-                  key={index}
-                  flex='1'
-                  minW='30%'
-                  variant='ghost-filled'
-                  colorScheme={invalidTries.includes(index) ? 'gray' : 'blue'}
-                  isDisabled={invalidTries.includes(index)}
-                  onClick={() => handleClick(index)}
-                >
-                  {word}
-                </Button>,
-                revoker.addRevoker.bind(revoker),
-              ),
-            )}
+            testState.randomWords.map((word: string, index: number) => (
+              <RevokableWord
+                index={index}
+                invalidTries={invalidTries}
+                word={word}
+                addRevoker={revoker.addRevoker.bind(revoker)}
+                onClick={handleClick}
+              />
+            ))}
         </SimpleGrid>
       </ModalBody>
     </>

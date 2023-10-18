@@ -537,8 +537,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const { wallet, accountNumber, accountType = this.defaultUtxoAccountType } = input
 
     const bip44Params = this.getBIP44Params({ accountNumber, accountType })
-    const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
-    const account = await this.getAccount(xpub)
+    const account = await this.getAccount(
+      input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
+    )
     const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 

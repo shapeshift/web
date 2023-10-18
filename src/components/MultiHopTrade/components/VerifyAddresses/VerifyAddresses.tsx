@@ -168,6 +168,9 @@ export const VerifyAddresses = () => {
     [sellAsset, buyAsset, sellAccountMetadata, buyAccountMetadata, sellAddress, buyAddress, wallet],
   )
 
+  const handleBuyVerify = useCallback(() => handleVerify('buy'), [handleVerify])
+  const handleSellVerify = useCallback(() => handleVerify('sell'), [handleVerify])
+
   return (
     <SlideTransition>
       <Box>
@@ -186,7 +189,7 @@ export const VerifyAddresses = () => {
             </Row.Value>
             <Button
               colorScheme={buyVerified ? 'green' : 'blue'}
-              onClick={() => handleVerify('buy')}
+              onClick={handleBuyVerify}
               isDisabled={buyVerified}
               isLoading={isBuyVerifying}
             >
@@ -202,7 +205,7 @@ export const VerifyAddresses = () => {
             </Row.Value>
             <Button
               colorScheme={sellVerified ? 'green' : 'blue'}
-              onClick={() => handleVerify('sell')}
+              onClick={handleSellVerify}
               isDisabled={sellVerified}
               isLoading={isSellVerifying}
             >

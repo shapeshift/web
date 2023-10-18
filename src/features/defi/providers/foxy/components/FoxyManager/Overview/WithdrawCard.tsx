@@ -67,7 +67,6 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
           justifyContent='flex-start'
           textAlign='left'
           isDisabled={!isUndelegationAvailable}
-          isLoading={canClaimWithdrawLoading}
           gap={4}
           flexDir={{ base: 'column', md: 'row' }}
           py={2}

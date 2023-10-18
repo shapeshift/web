@@ -140,7 +140,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       ),
   )
 
-  const claimDisabled = !canClaim || !hasAvailableUndelegation || !hasPendingUndelegation
+  const claimDisabled = !canClaim || !hasAvailableUndelegation
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })

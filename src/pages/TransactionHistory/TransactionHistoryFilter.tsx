@@ -42,6 +42,8 @@ type TransactionHistoryFilterProps = {
   hasAppliedFilter?: boolean
 }
 
+const ioOptionsOutlineIcon = <IoOptionsOutline size='1.5em' />
+
 export const TransactionHistoryFilter = memo(
   ({ setFilters, resetFilters, hasAppliedFilter = false }: TransactionHistoryFilterProps) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -146,7 +148,7 @@ export const TransactionHistoryFilter = memo(
               <Button
                 colorScheme='blue'
                 variant='ghost-filled'
-                leftIcon={<IoOptionsOutline size='1.5em' />}
+                leftIcon={ioOptionsOutlineIcon}
                 onClick={handleToggle}
               >
                 <Text translation='transactionHistory.filter' />

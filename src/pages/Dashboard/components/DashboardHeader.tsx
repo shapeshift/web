@@ -58,6 +58,7 @@ const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
+const swapIcon = <SwapIcon />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -245,7 +246,7 @@ export const DashboardHeader = () => {
         <Flex width='full' display={ButtonRowDisplay}>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<ArrowUpIcon />}
+              icon={arrowUpIcon}
               size='lg'
               isRound
               aria-label={translate('common.send')}
@@ -269,7 +270,7 @@ export const DashboardHeader = () => {
           </Flex>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<SwapIcon />}
+              icon={swapIcon}
               size='lg'
               isRound
               aria-label={translate('navBar.tradeShort')}
@@ -280,7 +281,7 @@ export const DashboardHeader = () => {
           </Flex>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<QRCodeIcon />}
+              icon={qrCodeIcon}
               size='lg'
               isRound
               aria-label={translate('modals.send.qrCode')}

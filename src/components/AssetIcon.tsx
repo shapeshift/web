@@ -1,8 +1,8 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import { Avatar, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -80,16 +80,10 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
   const chainAdapterManager = getChainAdapterManager()
   const chainId = assetId && fromAssetId(assetId).chainId
   const nativeAssetId = chainAdapterManager.get(chainId ?? '')?.getFeeAssetId()
+  const foxIcon = useMemo(() => <FoxIcon boxSize='16px' color={assetIconColor} />, [assetIconColor])
 
   if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
-    return (
-      <Avatar
-        src={asset.networkIcon}
-        bg={assetIconBg}
-        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-        {...rest}
-      />
-    )
+    return <Avatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
   }
 
   if (assetId) {
@@ -97,13 +91,7 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (
-            <Avatar
-              key={i}
-              src={iconSrc}
-              ml={i === 0 ? '0' : '-2.5'}
-              icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-              {...rest}
-            />
+            <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
           ))}
         </Flex>
       )
@@ -113,7 +101,7 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
       <AssetWithNetwork
         assetId={assetId}
         src={src}
-        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        icon={foxIcon}
         showNetworkIcon={showNetworkIcon}
         {...rest}
       />
@@ -129,30 +117,3 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
     />
   )
 })
-
-type WrappedIconProps = {
-  wrapColor?: string
-  glow?: boolean
-} & AssetIconProps
-
-export const WrappedIcon: React.FC<WrappedIconProps> = ({ wrapColor, glow, ...rest }) => {
-  const styles = useMultiStyleConfig('Avatar', rest)
-  return (
-    <Circle
-      __css={styles.container}
-      borderColor={wrapColor}
-      borderWidth={2}
-      bg='transparent'
-      display='flex'
-      alignItems='center'
-      justifyContent='center'
-    >
-      <AssetIcon
-        {...rest}
-        width='80%'
-        height='80%'
-        boxShadow={glow ? `${wrapColor} 0 0 25px` : 'none'}
-      />
-    </Circle>
-  )
-}

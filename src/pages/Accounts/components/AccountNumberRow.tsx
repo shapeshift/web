@@ -52,6 +52,11 @@ type UtxoAccountEntriesProps = {
   chainId: ChainId
 }
 
+const mdOutlineMoreVertIcon = <MdOutlineMoreVert />
+const riWindow2LineIcon = <RiWindow2Line />
+const arrowDownIcon = <ArrowDownIcon />
+const arrowUpIcon = <ArrowUpIcon />
+
 const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const assetId = feeAsset?.assetId
@@ -96,6 +101,7 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
   )
 }
 
+const accountNumberRowButtonFontSizeProps = { base: 'sm', md: 'md' }
 export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   accountIds,
   accountNumber,
@@ -113,6 +119,11 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const color = feeAsset?.networkColor ?? feeAsset?.color ?? ''
+  const accountNumberRowLeftIcon = useMemo(
+    // space in string interpolation is not a bug - see Chakra UI Avatar docs
+    () => <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />,
+    [accountNumber, color],
+  )
 
   /**
    * for UTXO chains, we want to display accounts aggregated by accountNumber first,
@@ -151,11 +162,8 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
           height='auto'
           iconSpacing={4}
           data-test='account-row-button'
-          fontSize={{ base: 'sm', md: 'md' }}
-          leftIcon={
-            // space in string interpolation is not a bug - see Chakra UI Avatar docs
-            <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />
-          }
+          fontSize={accountNumberRowButtonFontSizeProps}
+          leftIcon={accountNumberRowLeftIcon}
           {...buttonProps}
           onClick={onToggle}
         >
@@ -178,7 +186,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
               size='sm'
               variant='ghost'
               aria-label='Expand Account'
-              icon={<MdOutlineMoreVert />}
+              icon={mdOutlineMoreVertIcon}
             />
             <MenuList>
               <MenuGroup
@@ -186,12 +194,12 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
                 color='text.subtle'
               >
                 <MenuItem
-                  icon={<RiWindow2Line />}
+                  icon={riWindow2LineIcon}
                   onClick={buttonProps.onClick && buttonProps.onClick}
                 >
                   {translate('accounts.viewAccount')}
                 </MenuItem>
-                <MenuItem onClick={onToggle} icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}>
+                <MenuItem onClick={onToggle} icon={isOpen ? arrowUpIcon : arrowDownIcon}>
                   {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}
                 </MenuItem>
               </MenuGroup>

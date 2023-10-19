@@ -55,80 +55,66 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
 
-    const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
-    if (firstAdapter) {
-      const wallet = await (async () => {
-        try {
-          const sdk = await setupKeepKeySDK()
-          if (!sdk) throw new Error('Failed to setup KeepKey SDK')
-          const wallet = await firstAdapter.pairDevice(sdk)
-          if (!wallet) {
-            setErrorLoading('walletProvider.errors.walletNotFound')
-            return
-          }
-          return wallet
-        } catch (e) {
+    const wallet = await (async () => {
+      try {
+        const sdk = await setupKeepKeySDK()
+
+        // There is no need to instantiate KkRestAdapter and attempt pairing if SDK is undefined
+        // It will only be defined in the context of KK desktop app, and is irrelevant otherwise
+        if (sdk) {
+          const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
+          return await firstAdapter?.pairDevice(sdk)
+        } else {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
           // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
-          const wallet = await secondAdapter.pairDevice().catch(err => {
-            if (err.name === 'ConflictingApp') {
-              setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
-              return
-            }
-            console.error(e)
-            setErrorLoading('walletProvider.errors.walletNotFound')
-            return
-          })
-          if (!wallet) {
-            setErrorLoading('walletProvider.errors.walletNotFound')
-            return
-          }
-          return wallet
+          return await secondAdapter?.pairDevice()
         }
-      })()
-      if (!wallet) return
-      const { name, icon } = KeepKeyConfig
-      try {
-        const deviceId = await wallet.getDeviceID()
-        // This gets the firmware version needed for some KeepKey "supportsX" functions
-        await wallet.getFeatures()
-        // Show the label from the wallet instead of a generic name
-        const label = (await wallet.getLabel()) || name
-        state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
-          if (e[1].message_enum === MessageType.FAILURE) {
-            setErrorLoading(translateError(e[1]))
-          }
-        })
-
-        await wallet.initialize()
-
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: {
-            wallet,
-            name,
-            icon,
-            deviceId,
-            meta: { label },
-            connectedType: KeyManager.KeepKey,
-          },
-        })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        /**
-         * The real deviceId of KeepKey wallet could be different from the
-         * deviceId received from the wallet, so we need to keep
-         * aliases[deviceId] in the local wallet storage.
-         */
-        setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error(e)
-        setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
+    })()
+
+    if (!wallet) {
+      setErrorLoading('walletProvider.errors.walletNotFound')
+      setLoading(false)
+      return
     }
+
+    try {
+      const { name, icon } = KeepKeyConfig
+      const deviceId = await wallet.getDeviceID()
+      await wallet.getFeatures()
+      const label = (await wallet.getLabel()) || name
+
+      state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
+        if (e[1].message_enum === MessageType.FAILURE) {
+          setErrorLoading(translateError(e[1]))
+        }
+      })
+
+      await wallet.initialize()
+
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet,
+          name,
+          icon,
+          deviceId,
+          meta: { label },
+          connectedType: KeyManager.KeepKey,
+        },
+      })
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+      setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    } catch (e) {
+      console.error(e)
+      setErrorLoading('walletProvider.keepKey.errors.unknown')
+    }
+
     setLoading(false)
   }, [dispatch, getAdapter, setErrorLoading, state.keyring])
-
   return (
     <>
       <ModalHeader>

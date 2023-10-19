@@ -7,7 +7,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
-import type { Event } from '@shapeshiftoss/hdwallet-core'
+import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
@@ -71,13 +71,14 @@ export const KeepKeyConnect = () => {
         }
       } catch (err) {
         console.error(err)
-        if (err.name === 'ConflictingApp') {
+        if ((err as HDWalletError).name === 'ConflictingApp') {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
 
         console.error(err)
         setErrorLoading('walletProvider.errors.walletNotFound')
+        return
       }
     })()
 

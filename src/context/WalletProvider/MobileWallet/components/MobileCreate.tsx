@@ -31,6 +31,7 @@ type MobileCreateProps = {
 }
 
 const lengthProp = { length: 64 }
+const faEyeIcon = <FaEye />
 
 export const MobileCreate: React.FC<MobileCreateProps> = props => {
   const { HeaderComponent } = props
@@ -158,7 +159,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         </FormControl>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button variant='ghost' onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

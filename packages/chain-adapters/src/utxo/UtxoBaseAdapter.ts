@@ -7,6 +7,7 @@ import type {
 } from '@shapeshiftoss/hdwallet-core'
 import {
   bip32ToAddressNList,
+  BTCInputScriptType,
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
@@ -253,7 +254,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       const address = await wallet.btcGetAddress({
         addressNList: toAddressNList({ ...bip44Params, index: maybeNextIndex }),
         coin: this.coinName,
-        scriptType: accountTypeToScriptType[accountType],
+        scriptType:
+          this.coinName === 'BitcoinCash'
+            ? BTCInputScriptType.CashAddr
+            : accountTypeToScriptType[accountType],
         showDisplay: showOnDevice,
       })
 

@@ -9659,8 +9659,6 @@ __metadata:
     "@walletconnect/utils": ^2.10.1
     "@walletconnect/web3-provider": ^1.8.0
     "@walletconnect/web3wallet": ^1.9.1
-    "@web3modal/ethereum": ^2.7.1
-    "@web3modal/react": ^2.7.1
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.4.4
     alchemy-sdk: ^2.8.3
@@ -13496,50 +13494,6 @@ __metadata:
     "@walletconnect/window-getters": ^1.0.1
     tslib: 1.14.1
   checksum: e82aea7195c6fe95c00e87bb38051c5549838c2e8302da94f1afa48206f79f0b620166c9820f847494505d282d1568e2086a1561b0493d2d0a1fa115f9106aef
-  languageName: node
-  linkType: hard
-
-"@web3modal/core@npm:2.7.1":
-  version: 2.7.1
-  resolution: "@web3modal/core@npm:2.7.1"
-  dependencies:
-    valtio: 1.11.0
-  checksum: 5f41bf44047e48a717b04167b482dc12d48ac5c4af5acc183c1dbfb400d945eb6139e894ecfd9875541c587d3323e219026328d260d01d50c3116f9ff373ec85
-  languageName: node
-  linkType: hard
-
-"@web3modal/ethereum@npm:^2.7.1":
-  version: 2.7.1
-  resolution: "@web3modal/ethereum@npm:2.7.1"
-  peerDependencies:
-    "@wagmi/core": ">=1"
-    viem: ">=1"
-  checksum: 272aca6b3d4647183b3bcd2ab126101b7b42bc70d13ebb744d8386ddb00105bdc6f31ca0feb2e339179fc66b95865836d24f31c3d3f5c0e0c0a636c66329f6d8
-  languageName: node
-  linkType: hard
-
-"@web3modal/react@npm:^2.7.1":
-  version: 2.7.1
-  resolution: "@web3modal/react@npm:2.7.1"
-  dependencies:
-    "@web3modal/core": 2.7.1
-    "@web3modal/ui": 2.7.1
-  peerDependencies:
-    react: ">=17"
-    react-dom: ">=17"
-  checksum: 14793cf61ccea770b0b07a999d4f667f712fd24748eed0a664c5a43df493b87b6fc7f3001daa580cecd1c00ef85102257548209bffdf270ffba1fc8c21ce064f
-  languageName: node
-  linkType: hard
-
-"@web3modal/ui@npm:2.7.1":
-  version: 2.7.1
-  resolution: "@web3modal/ui@npm:2.7.1"
-  dependencies:
-    "@web3modal/core": 2.7.1
-    lit: 2.7.6
-    motion: 10.16.2
-    qrcode: 1.5.3
-  checksum: 1bb8fa415f7b22a4e9da75d55bab80e7a36429ed2f686f4c4ee55379cd41205a17913dc30a82e374d74238111cd37ed5e737d00b6b62f6aff5fffefc2336a9fc
   languageName: node
   linkType: hard
 
@@ -25620,23 +25574,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lit-html@npm:^2.7.0, lit-html@npm:^2.8.0":
+"lit-html@npm:^2.8.0":
   version: 2.8.0
   resolution: "lit-html@npm:2.8.0"
   dependencies:
     "@types/trusted-types": ^2.0.2
   checksum: 2d70df07248bcb2f502a3afb1e91d260735024fa669669ffb1417575aa39c3092779725ac1b90f5f39e4ce78c63f431f51176bc67f532389f0285a6991573255
-  languageName: node
-  linkType: hard
-
-"lit@npm:2.7.6":
-  version: 2.7.6
-  resolution: "lit@npm:2.7.6"
-  dependencies:
-    "@lit/reactive-element": ^1.6.0
-    lit-element: ^3.3.0
-    lit-html: ^2.7.0
-  checksum: 984a7fb9c0fa387f20177a07de22ea1c9cdc01a7dc7cb1c400d1df5b43a8956908460482a3259ea173555c6f0f13457d2ddc5c84d4c365007afd86e7ca58b384
   languageName: node
   linkType: hard
 
@@ -34993,21 +34936,6 @@ pvutils@latest:
   version: 13.9.0
   resolution: "validator@npm:13.9.0"
   checksum: e2c936f041f61faa42bafd17c6faddf939498666cd82e88d733621c286893730b008959f4cb12ab3e236148a4f3805c30b85e3dcf5e0efd8b0cbcd36c02bfc0c
-  languageName: node
-  linkType: hard
-
-"valtio@npm:1.11.0":
-  version: 1.11.0
-  resolution: "valtio@npm:1.11.0"
-  dependencies:
-    proxy-compare: 2.5.1
-    use-sync-external-store: 1.2.0
-  peerDependencies:
-    react: ">=16.8"
-  peerDependenciesMeta:
-    react:
-      optional: true
-  checksum: 77e42f5841054ba3e41b456fbb96b679eaeb6d9dbb46b7ce9aee6acf1352de73969858dea837a706c969ca908155d6cb97966e33be10b69b097744dd99b5174a
   languageName: node
   linkType: hard
 

@@ -11,6 +11,7 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -255,7 +256,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         addressNList: toAddressNList({ ...bip44Params, index: maybeNextIndex }),
         coin: this.coinName,
         scriptType:
-          this.coinName === 'BitcoinCash'
+          this.coinName === 'BitcoinCash' && isLedger(wallet)
             ? BTCInputScriptType.CashAddr
             : accountTypeToScriptType[accountType],
         showDisplay: showOnDevice,

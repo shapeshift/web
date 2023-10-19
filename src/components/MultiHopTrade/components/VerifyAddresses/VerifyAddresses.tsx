@@ -45,8 +45,7 @@ export const VerifyAddresses = () => {
   const [isSellVerifying, setIsSellVerifying] = useState(false)
   const [isBuyVerifying, setIsBuyVerifying] = useState(false)
 
-  const [sellVerified, setSellVerified] = useState(false)
-  const [buyVerified, setBuyVerified] = useState(false)
+  const [verifiedAddresses, setVerifiedAddresses] = useState(new Set<string>())
 
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
@@ -67,6 +66,19 @@ export const VerifyAddresses = () => {
   )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
+  )
+
+  const isAddressVerified = useCallback(
+    (address: string) => verifiedAddresses.has(address.toLowerCase()),
+    [verifiedAddresses],
+  )
+  const sellVerified = useMemo(
+    () => isAddressVerified(sellAddress ?? ''),
+    [isAddressVerified, sellAddress],
+  )
+  const buyVerified = useMemo(
+    () => isAddressVerified(buyAddress ?? ''),
+    [buyAddress, isAddressVerified],
   )
 
   const handleContinue = useCallback(async () => {
@@ -158,11 +170,7 @@ export const VerifyAddresses = () => {
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
-          if (type === 'sell') {
-            setSellVerified(true)
-          } else if (type === 'buy') {
-            setBuyVerified(true)
-          }
+          setVerifiedAddresses(new Set([...verifiedAddresses, _address.toLowerCase()]))
         }
       } catch (e) {
         console.error(e)
@@ -174,7 +182,16 @@ export const VerifyAddresses = () => {
         }
       }
     },
-    [sellAsset, buyAsset, sellAccountMetadata, buyAccountMetadata, sellAddress, buyAddress, wallet],
+    [
+      sellAsset,
+      buyAsset,
+      sellAccountMetadata,
+      buyAccountMetadata,
+      sellAddress,
+      buyAddress,
+      wallet,
+      verifiedAddresses,
+    ],
   )
 
   const renderButton = useMemo(() => {

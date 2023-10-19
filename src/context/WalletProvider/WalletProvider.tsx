@@ -481,8 +481,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               const localKeepKeyWallet = await (async () => {
                 const maybeWallet = state.keyring.get(localWalletDeviceId)
                 if (maybeWallet) return maybeWallet
+                const sdk = await setupKeepKeySDK()
                 // Get the adapter again in each switch case to narrow down the adapter type
-                const keepKeyAdapter = await getAdapter(KeyManager.KeepKey)
+                // If the SDK is defined, we're in the context of KK desktop and should load the first (REST) adapter
+                // Else we should load the second adapter i.e the regular KK WebUSB one
+                const keepKeyAdapter = await getAdapter(KeyManager.KeepKey, sdk ? 0 : 1)
                 if (!keepKeyAdapter) return
 
                 currentAdapters[localWalletType] = keepKeyAdapter
@@ -490,7 +493,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 // Fixes issue with wallet `type` being null when the wallet is loaded from state
                 dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
 
-                const sdk = await setupKeepKeySDK()
                 // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
                 return await keepKeyAdapter.pairDevice(sdk)
               })()

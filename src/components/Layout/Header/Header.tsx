@@ -55,6 +55,8 @@ const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
 
+const hamburgerIcon = <HamburgerIcon />
+
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
@@ -207,7 +209,7 @@ export const Header = memo(() => {
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
             <Box flex={1} display={displayProp}>
-              <IconButton aria-label='Open menu' onClick={onToggle} icon={<HamburgerIcon />} />
+              <IconButton aria-label='Open menu' onClick={onToggle} icon={hamburgerIcon} />
             </Box>
 
             <Box display={displayProp} mx='auto'>

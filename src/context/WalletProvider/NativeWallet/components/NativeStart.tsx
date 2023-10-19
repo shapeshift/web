@@ -11,6 +11,7 @@ import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 const mlProp = [0, 1.5]
+const arrowForwardIcon = <ArrowForwardIcon />
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -47,7 +48,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             isDisabled={!hasLocalWallet}
             onClick={handleLoad}
             data-test='wallet-native-load-button'
@@ -61,7 +62,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
@@ -73,7 +74,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleImport}
             data-test='wallet-native-import-button'
           >

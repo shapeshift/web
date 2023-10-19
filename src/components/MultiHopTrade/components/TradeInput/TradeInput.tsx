@@ -353,10 +353,12 @@ export const TradeInput = memo(() => {
     ],
   )
 
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
           <CardHeader px={6}>
             <Flex alignItems='center' justifyContent='space-between'>
               <Heading as='h5' fontSize='md'>

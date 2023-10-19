@@ -12,7 +12,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
@@ -50,25 +50,30 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
     formState: { errors, isSubmitting },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
-  const handleShowClick = () => setShowPw(!showPw)
-  const onSubmit = async (values: FieldValues) => {
-    try {
-      const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
-      revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')
-      vault.seal()
-      history.push(BackupPassphraseRoutes.Info)
-    } catch (e) {
-      console.error(e)
-      setError(
-        'password',
-        {
-          type: 'manual',
-          message: translate('modals.shapeShift.password.error.invalid'),
-        },
-        { shouldFocus: true },
-      )
-    }
-  }
+  const handleShowClick = useCallback(() => setShowPw(!showPw), [showPw])
+  const onSubmit = useCallback(
+    async (values: FieldValues) => {
+      try {
+        const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
+        revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')
+        vault.seal()
+        history.push(BackupPassphraseRoutes.Info)
+      } catch (e) {
+        console.error(e)
+        setError(
+          'password',
+          {
+            type: 'manual',
+            message: translate('modals.shapeShift.password.error.invalid'),
+          },
+          { shouldFocus: true },
+        )
+      }
+    },
+    [history, revocableWallet, setError, translate, walletInfo?.deviceId],
+  )
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   return (
     <SlideTransition>
@@ -103,7 +108,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
             </RawText>
           </Box>
         </Button>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.password)} mb={6}>
             <InputGroup size='lg' variant='filled'>
               <Input

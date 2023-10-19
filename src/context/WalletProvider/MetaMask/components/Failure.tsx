@@ -5,6 +5,6 @@ export const MetaMaskFailure = () => {
     <FailureModal
       headerText={'walletProvider.metaMask.failure.header'}
       bodyText={'walletProvider.metaMask.failure.body'}
-    ></FailureModal>
+    />
   )
 }

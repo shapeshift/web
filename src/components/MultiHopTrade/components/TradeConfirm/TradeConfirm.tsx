@@ -459,11 +459,13 @@ export const TradeConfirm = () => {
     ],
   )
 
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
   if (!tradeQuoteStep) return null
 
   return (
     <SlideTransition>
-      <Box as='form' onSubmit={handleSubmit(onSubmit)}>
+      <Box as='form' onSubmit={handleFormSubmit}>
         {header}
         <CardBody px={0}>
           <Stack

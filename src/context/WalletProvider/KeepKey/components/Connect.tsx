@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -41,22 +42,25 @@ export const KeepKeyConnect = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // eslint-disable-next-line no-sequences
-  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const setErrorLoading = useCallback((e: string | null) => {
+    setError(e)
+    setLoading(false)
+  }, [])
 
   const handleDownloadButtonClick = useCallback(() => {
     dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
   }, [dispatch])
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
-    const firstAdapter = await getAdapter(KeyManager.KeepKey)
+    const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
     if (firstAdapter) {
       const wallet = await (async () => {
         try {
           const sdk = await setupKeepKeySDK()
+          if (!sdk) throw new Error('Failed to setup KeepKey SDK')
           const wallet = await firstAdapter.pairDevice(sdk)
           if (!wallet) {
             setErrorLoading('walletProvider.errors.walletNotFound')
@@ -65,7 +69,8 @@ export const KeepKeyConnect = () => {
           return wallet
         } catch (e) {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
-          const wallet = await secondAdapter?.pairDevice().catch((err: Error) => {
+          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
+          const wallet = await secondAdapter.pairDevice().catch(err => {
             if (err.name === 'ConflictingApp') {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return
@@ -122,7 +127,7 @@ export const KeepKeyConnect = () => {
       }
     }
     setLoading(false)
-  }
+  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
 
   return (
     <>

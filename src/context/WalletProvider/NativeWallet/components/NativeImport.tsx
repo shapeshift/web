@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
+import { useCallback, useMemo } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -20,17 +21,6 @@ import type { NativeWalletValues } from '../types'
 
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const mixpanel = getMixPanel()
-  const onSubmit = async (values: FieldValues) => {
-    try {
-      const vault = await Vault.create()
-      vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
-      history.push('/native/password', { vault })
-      mixpanel?.track(MixPanelEvents.NativeImport)
-    } catch (e) {
-      setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
-    }
-  }
 
   const {
     setError,
@@ -39,8 +29,40 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     formState: { errors, isSubmitting },
   } = useForm<NativeWalletValues>({ shouldUnregister: true })
 
-  const translate = useTranslate()
+  const onSubmit = useCallback(
+    async (values: FieldValues) => {
+      try {
+        const vault = await Vault.create()
+        vault.meta.set('createdAt', Date.now())
+        vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
+        history.push('/native/password', { vault })
+        mixpanel?.track(MixPanelEvents.NativeImport)
+      } catch (e) {
+        setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
+      }
+    },
+    [history, mixpanel, setError],
+  )
 
+  const translate = useTranslate()
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
+  const seedInputProps = useMemo(
+    () =>
+      register('mnemonic', {
+        required: translate('walletProvider.shapeShift.import.secretRecoveryPhraseRequired'),
+        minLength: {
+          value: 47,
+          message: translate('walletProvider.shapeShift.import.secretRecoveryPhraseTooShort'),
+        },
+        validate: {
+          validMnemonic: value =>
+            bip39.validateMnemonic(value.toLowerCase().trim()) ||
+            translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
+        },
+      }),
+    [register, translate],
+  )
   return (
     <>
       <ModalHeader>
@@ -48,7 +70,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea
               variant='filled'
@@ -56,22 +78,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               autoComplete='off'
               autoCorrect='off'
               textTransform='lowercase'
-              {...register('mnemonic', {
-                required: translate(
-                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
-                ),
-                minLength: {
-                  value: 47,
-                  message: translate(
-                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort',
-                  ),
-                },
-                validate: {
-                  validMnemonic: value =>
-                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
-                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
-                },
-              })}
+              {...seedInputProps}
               data-test='wallet-native-seed-input'
             />
             <FormErrorMessage data-test='wallet-native-seed-validation-message'>

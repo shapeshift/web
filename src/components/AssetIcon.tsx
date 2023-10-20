@@ -108,12 +108,5 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
     )
   }
 
-  return (
-    <Avatar
-      src={src}
-      bg={assetIconBg}
-      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-      {...rest}
-    />
-  )
+  return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
 })

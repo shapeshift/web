@@ -82,6 +82,8 @@ export type WithdrawValues = {
 
 const DEFAULT_SLIPPAGE = '0.5'
 
+const sliderIcon = <SliderIcon />
+
 export const Withdraw: React.FC<WithdrawProps> = ({
   accountId,
   asset,
@@ -214,7 +216,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                 size='sm'
                 aria-label='Slippage Settings'
                 variant='ghost'
-                icon={<SliderIcon />}
+                icon={sliderIcon}
               />
             </PopoverTrigger>
             <PopoverContent width='sm'>

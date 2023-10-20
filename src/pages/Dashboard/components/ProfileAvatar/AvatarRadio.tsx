@@ -1,7 +1,7 @@
 import { CheckIcon } from '@chakra-ui/icons'
 import type { RadioProps } from '@chakra-ui/react'
 import { Box, chakra, Image, Skeleton, useColorModeValue, useRadio } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 type AvatarRadioProps = {
   src: string
@@ -13,12 +13,13 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
   const checkboxProps = getCheckboxProps()
   const borderColor = useColorModeValue('gray.200', 'white')
   const [isLoaded, setIsLoaded] = useState(false)
+  const handleOnLoad = useCallback(() => setIsLoaded(true), [])
   const renderImage = useMemo(() => {
     return (
       <Box borderRadius='xl' overflow='hidden' width='full' style={{ aspectRatio: '4/4' }}>
         <Skeleton width='100%' height='100%' position='absolute' isLoaded={isLoaded}>
           <Image
-            onLoad={() => setIsLoaded(true)}
+            onLoad={handleOnLoad}
             src={src}
             width='100%'
             height='100%'

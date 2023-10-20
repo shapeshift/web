@@ -33,6 +33,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
@@ -46,6 +47,12 @@ type ReceivePropsType = {
   asset: Asset
   accountId?: AccountId
 }
+
+const arrowBackIcon = <ArrowBackIcon />
+const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
+const receiveAddressHover = { color: 'blue.500' }
+const receiveAddressActive = { color: 'blue.800' }
+const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'white' }
 
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
@@ -98,7 +105,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     viemEthMainnetClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
   }, [asset.chainId, receiveAddress])
 
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
     if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
     const { chainNamespace } = fromChainId(asset.chainId)
     if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
@@ -113,7 +120,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     setVerified(
       Boolean(deviceAddress) && deviceAddress.toLowerCase() === receiveAddress.toLowerCase(),
     )
-  }
+  }, [accountType, asset.chainId, bip44Params, chainAdapter, receiveAddress, wallet])
 
   const translate = useTranslate()
   const toast = useToast()
@@ -141,11 +148,18 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
+  const onBackClick = useCallback(() => history.push(ReceiveRoutes.Select), [history])
+  const onlySendTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
+    [name, symbol],
+  )
+  const buttonHover = useMemo(() => ({ textDecoration: 'none', color: hoverColor }), [hoverColor])
+
   return (
     <>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}
@@ -153,7 +167,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(ReceiveRoutes.Select)}
+        onClick={onBackClick}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.receive.receiveAsset', { asset: name })}
@@ -170,21 +184,14 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 alignItems='center'
                 isLoaded={!!receiveAddress}
               >
-                <Text
-                  translation={[
-                    'modals.receive.onlySend',
-                    { asset: name, symbol: symbol.toUpperCase() },
-                  ]}
-                  color='text.subtle'
-                  textAlign='center'
-                />
+                <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
               </SkeletonText>
             </Box>
             <AccountDropdown
               assetId={asset.assetId}
               defaultAccountId={selectedAccountId || undefined}
               onChange={setSelectedAccountId}
-              buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
+              buttonProps={accountDropdownButtonProps}
             />
             <Flex justifyContent='center'>
               {ensName && (
@@ -217,8 +224,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       justifyContent='center'
                       fontSize='sm'
                       onClick={handleCopyClick}
-                      _hover={{ color: 'blue.500' }}
-                      _active={{ color: 'blue.800' }}
+                      _hover={receiveAddressHover}
+                      _active={receiveAddressActive}
                       cursor='pointer'
                     >
                       <MiddleEllipsis
@@ -241,13 +248,13 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
-                _hover={{ textDecoration: 'none', color: hoverColor }}
+                _hover={buttonHover}
               >
                 <Circle
                   bg='background.button.secondary.base'
                   mb={2}
                   size='40px'
-                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                  _groupHover={circleGroupHover}
                 >
                   <CopyIcon />
                 </Circle>
@@ -260,14 +267,14 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                   role='group'
                   variant='link'
                   isDisabled={!receiveAddress}
-                  _hover={{ textDecoration: 'none', color: hoverColor }}
+                  _hover={buttonHover}
                   onClick={handleVerify}
                 >
                   <Circle
                     bg='background.button.secondary.base'
                     mb={2}
                     size='40px'
-                    _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                    _groupHover={circleGroupHover}
                   >
                     {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
@@ -288,13 +295,13 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
-                _hover={{ textDecoration: 'none', color: hoverColor }}
+                _hover={buttonHover}
               >
                 <Circle
                   bg='background.button.secondary.base'
                   mb={2}
                   size='40px'
-                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                  _groupHover={circleGroupHover}
                 >
                   <ExternalLinkIcon />
                 </Circle>

@@ -173,6 +173,8 @@ export const FoxPage = () => {
       : undefined,
   )
 
+  const totalIcons = useMemo(() => [assetFox.icon, assetFoxy.icon], [assetFox, assetFoxy])
+
   const handleTabClick = useCallback(
     (assetId: AssetId, assetName: string) => {
       if (assetId === activeAssetId) {
@@ -215,6 +217,39 @@ export const FoxPage = () => {
     })
   }, [allAssets, assetFoxy.chainId, dispatch, foxyEarnOpportunityData, history, location, wallet])
 
+  const mdFoxTabs = useMemo(
+    () =>
+      assets.map((asset, index) => (
+        <FoxTab
+          key={asset.assetId}
+          assetSymbol={asset.symbol}
+          assetIcon={asset.icon}
+          cryptoAmount={cryptoHumanBalances[index]}
+          fiatAmount={fiatBalances[index]}
+          // eslint-disable-next-line react-memo/require-usememo
+          onClick={() => handleTabClick(asset.assetId, asset.name)}
+        />
+      )),
+    [assets, cryptoHumanBalances, fiatBalances, handleTabClick],
+  )
+
+  const smFoxTabs = useMemo(
+    () =>
+      assets.map((asset, index) => (
+        // eslint-disable-next-line react-memo/require-usememo
+        <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId, asset.name)}>
+          <FoxTab
+            assetSymbol={asset.symbol}
+            assetIcon={asset.icon}
+            cryptoAmount={cryptoHumanBalances[index]}
+            fiatAmount={fiatBalances[index]}
+            as={Box}
+          />
+        </MenuItem>
+      )),
+    [assets, cryptoHumanBalances, fiatBalances, handleTabClick],
+  )
+
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
   if (wallet && supportsETH(wallet) && !foxyEarnOpportunityData) return null
 
@@ -234,18 +269,8 @@ export const FoxPage = () => {
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>
           <SimpleGrid gridTemplateColumns={gridTemplateColumns} gridGap={4} mb={4} width='full'>
-            <Total fiatAmount={totalFiatBalance} icons={[assetFox.icon, assetFoxy.icon]} />
-            {isLargerThanMd &&
-              assets.map((asset, index) => (
-                <FoxTab
-                  key={asset.assetId}
-                  assetSymbol={asset.symbol}
-                  assetIcon={asset.icon}
-                  cryptoAmount={cryptoHumanBalances[index]}
-                  fiatAmount={fiatBalances[index]}
-                  onClick={() => handleTabClick(asset.assetId, asset.name)}
-                />
-              ))}
+            <Total fiatAmount={totalFiatBalance} icons={totalIcons} />
+            {isLargerThanMd && mdFoxTabs}
             {!isLargerThanMd && (
               <Box mb={4}>
                 <Menu matchWidth>
@@ -269,22 +294,7 @@ export const FoxPage = () => {
                       )}
                     </MenuButton>
                   </Box>
-                  <MenuList zIndex={3}>
-                    {assets.map((asset, index) => (
-                      <MenuItem
-                        key={asset.assetId}
-                        onClick={() => handleTabClick(asset.assetId, asset.name)}
-                      >
-                        <FoxTab
-                          assetSymbol={asset.symbol}
-                          assetIcon={asset.icon}
-                          cryptoAmount={cryptoHumanBalances[index]}
-                          fiatAmount={fiatBalances[index]}
-                          as={Box}
-                        />
-                      </MenuItem>
-                    ))}
-                  </MenuList>
+                  <MenuList zIndex={3}>{smFoxTabs}</MenuList>
                 </Menu>
               </Box>
             )}

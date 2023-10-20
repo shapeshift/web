@@ -1,3 +1,4 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
@@ -9,6 +10,7 @@ import {
   SkeletonCircle,
   Tag,
 } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { Amount } from 'components/Amount/Amount'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
@@ -32,6 +34,15 @@ import { useAppSelector } from 'state/store'
 type ProviderCardProps = {
   isLoading?: boolean
 } & AggregatedOpportunitiesByProviderReturn
+
+const borderTopLeftRadius = { base: 0, md: '2xl' }
+const borderTopRightRadius = { base: 0, md: '2xl' }
+const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const alignItemsMdCenter = { base: 'flex-start', md: 'center' }
+const fontSize = { base: 'md', md: 'xl' }
+const flexGap = { base: 2, md: 4 }
+const listItemPaddingX = { base: 4, md: 6 }
+const displayMdBlock = { base: 'none', md: 'block' }
 
 export const ProviderCard: React.FC<ProviderCardProps> = ({
   provider,
@@ -74,29 +85,20 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       <CardHeader
         display='flex'
         bg='background.surface.raised.base'
-        borderTopLeftRadius={{ base: 0, md: '2xl' }}
-        borderTopRightRadius={{ base: '0', md: '2xl' }}
-        flexDir={{ base: 'column', md: 'row' }}
+        borderTopLeftRadius={borderTopLeftRadius}
+        borderTopRightRadius={borderTopRightRadius}
+        flexDir={flexDirMdRow}
         gap={4}
-        alignItems={{ base: 'flex-start', md: 'center' }}
-        fontSize={{ base: 'md', md: 'xl' }}
+        alignItems={alignItemsMdCenter}
+        fontSize={fontSize}
         fontWeight='bold'
       >
-        <Flex
-          width='full'
-          gap={{ base: 2, md: 4 }}
-          alignItems='center'
-          justifyContent='space-between'
-        >
+        <Flex width='full' gap={flexGap} alignItems='center' justifyContent='space-between'>
           <SkeletonCircle isLoaded={isLoaded}>
             <LazyLoadAvatar src={icon} size='sm' />
           </SkeletonCircle>
           <RawText textTransform='capitalize'>{provider}</RawText>
-          <Amount.Fiat
-            fontSize='lg'
-            value={netProviderFiatAmount}
-            display={{ base: 'none', md: 'block' }}
-          />
+          <Amount.Fiat fontSize='lg' value={netProviderFiatAmount} display={displayMdBlock} />
           <Tag colorScheme='green' ml='auto'>
             <Amount.Percent value={apy} suffix='Net APY' />
           </Tag>
@@ -142,7 +144,7 @@ export const ProviderCardLoading: React.FC = () => {
               display='grid'
               columnGap={4}
               gridTemplateColumns={opportunityRowGrid}
-              px={{ base: 4, md: 6 }}
+              px={listItemPaddingX}
               py={4}
             >
               <Flex alignItems='center' gap={4}>
@@ -153,7 +155,7 @@ export const ProviderCardLoading: React.FC = () => {
                   <RawText textTransform='capitalize'>I'm a pirate arggg!</RawText>
                 </Skeleton>
               </Flex>
-              <Skeleton display={{ base: 'none', md: 'block' }}>
+              <Skeleton display={displayMdBlock}>
                 <RawText textTransform='capitalize'>Loading</RawText>
               </Skeleton>
               <Skeleton>

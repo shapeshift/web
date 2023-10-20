@@ -111,6 +111,11 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     })
   }, [asset.chainId, history, location])
 
+  const handleCoinbaseButtonClick = useCallback(
+    () => getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' }),
+    [],
+  )
+
   return (
     <Card display='block' borderRadius={8}>
       <CardBody p={0}>
@@ -153,9 +158,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     as={Link}
                     leftIcon={externalLinkIcon}
                     href={BuyFoxCoinbaseUrl}
-                    onClick={() =>
-                      getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' })
-                    }
+                    onClick={handleCoinbaseButtonClick}
                     isExternal
                   >
                     <CText>

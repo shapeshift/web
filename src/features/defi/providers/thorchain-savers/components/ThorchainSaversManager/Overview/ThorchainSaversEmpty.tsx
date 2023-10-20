@@ -8,6 +8,7 @@ import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
@@ -40,6 +41,16 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     openFiatRamp({ assetId, fiatRampAction: FiatRampAction.Buy })
   }, [assetId, openFiatRamp])
 
+  const needAssetTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['common.needAsset', { asset: asset?.name }],
+    [asset?.name],
+  )
+
+  const saversVaultDescriptionTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['defi.modals.saversVaults.description', { asset: asset?.symbol }],
+    [asset?.symbol],
+  )
+
   const renderFooter = useMemo(() => {
     return (
       <Flex flexDir='column' gap={4} width='full'>
@@ -47,11 +58,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
         <Alert status='info' justifyContent='space-between' borderRadius='xl'>
           <Flex gap={2} alignItems='center'>
             <AssetIcon assetId={asset?.assetId} size='sm' />
-            <Text
-              fontWeight='bold'
-              letterSpacing='-0.02em'
-              translation={['common.needAsset', { asset: asset?.name }]}
-            />
+            <Text fontWeight='bold' letterSpacing='-0.02em' translation={needAssetTranslation} />
           </Flex>
           <Button variant='ghost' size='sm' colorScheme='blue' onClick={handleAssetBuyClick}>
             {translate('common.buyNow')}
@@ -64,13 +71,15 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     )
   }, [
     asset?.assetId,
-    asset?.name,
     assetSupportsBuy,
     cryptoBalance,
     handleAssetBuyClick,
+    needAssetTranslation,
     onClick,
     translate,
   ])
+
+  const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])
 
   if (!asset) return null
 
@@ -81,7 +90,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
       backgroundPosition='center -160px'
       backgroundRepeat='no-repeat'
     >
-      <EmptyOverview assets={[asset]} footer={renderFooter}>
+      <EmptyOverview assets={emptyOverviewAssets} footer={renderFooter}>
         <Stack spacing={4} justifyContent='center' mb={4}>
           <Text
             fontWeight='bold'
@@ -93,7 +102,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
 
           <Text
             fontSize='lg'
-            translation={['defi.modals.saversVaults.description', { asset: asset?.symbol }]}
+            translation={saversVaultDescriptionTranslation}
             textShadow={`0 2px 2px var(${textShadow})`}
             letterSpacing='0.009em'
           />

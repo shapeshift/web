@@ -8,7 +8,7 @@ import {
   Switch,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { RadioOption } from 'components/Radio/Radio'
@@ -42,6 +42,13 @@ const sentenceLengthOptions: readonly RadioOption<Entropy>[] = Object.freeze([
   },
 ])
 
+const buttonGroupProps = {
+  borderRadius: 'lg',
+  display: 'flex',
+  width: 'full',
+  spacing: '0',
+}
+
 export const KeepKeyRecoverySettings = () => {
   const translate = useTranslate()
   const history = useHistory()
@@ -54,44 +61,43 @@ export const KeepKeyRecoverySettings = () => {
   const grayTextColor = useColorModeValue('gray.900', 'gray.400')
   const grayBackgroundColor = useColorModeValue('gray.100', 'gray.700')
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     setDeviceState({
       recoverWithPassphrase: useRecoveryPassphrase,
       recoveryEntropy: sentenceLengthSelection,
     })
     history.push(KeepKeyRoutes.NewLabel)
-  }
+  }, [history, sentenceLengthSelection, setDeviceState, useRecoveryPassphrase])
 
-  const handlePassphraseToggle = () => setUseRecoveryPassphrase(current => !current)
+  const handlePassphraseToggle = useCallback(
+    () => setUseRecoveryPassphrase(current => !current),
+    [],
+  )
 
-  const radioButtonProps = {
-    width: 'full',
-    pt: 5,
-    pb: 5,
-    mb: 8,
-    borderRadius: 'none',
-    _first: {
-      borderTopLeftRadius: 'lg',
-      borderBottomLeftRadius: 'lg',
-    },
-    bg: grayBackgroundColor,
-    color: grayTextColor,
-    _last: {
-      borderTopRightRadius: 'lg',
-      borderBottomRightRadius: 'lg',
-    },
-    _checked: {
-      bg: 'blue.500',
-      color: 'white',
-    },
-  }
-
-  const buttonGroupProps = {
-    borderRadius: 'lg',
-    display: 'flex',
-    width: 'full',
-    spacing: '0',
-  }
+  const radioButtonProps = useMemo(
+    () => ({
+      width: 'full',
+      pt: 5,
+      pb: 5,
+      mb: 8,
+      borderRadius: 'none',
+      _first: {
+        borderTopLeftRadius: 'lg',
+        borderBottomLeftRadius: 'lg',
+      },
+      bg: grayBackgroundColor,
+      color: grayTextColor,
+      _last: {
+        borderTopRightRadius: 'lg',
+        borderBottomRightRadius: 'lg',
+      },
+      _checked: {
+        bg: 'blue.500',
+        color: 'white',
+      },
+    }),
+    [grayBackgroundColor, grayTextColor],
+  )
 
   return (
     <>

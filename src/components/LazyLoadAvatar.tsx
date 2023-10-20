@@ -4,8 +4,6 @@ import { useState } from 'react'
 
 export type LazyLoadAvatarProps = SkeletonProps & Pick<AvatarProps, 'src' | 'size'>
 
-const emptyJsx = <></>
-
 export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
   src,
   size = 'sm',

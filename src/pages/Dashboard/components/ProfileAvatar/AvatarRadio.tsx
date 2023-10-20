@@ -31,7 +31,7 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
         </Skeleton>
       </Box>
     )
-  }, [isLoaded, src])
+  }, [handleOnLoad, isLoaded, src])
 
   return (
     <chakra.label

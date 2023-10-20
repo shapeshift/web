@@ -3,6 +3,8 @@ import { IconButton, useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+const copyIcon = <CopyIcon />
+
 export const CopyButton = ({ value }: { value: string }) => {
   const translate = useTranslate()
   const toast = useToast()
@@ -28,7 +30,7 @@ export const CopyButton = ({ value }: { value: string }) => {
       variant='ghost'
       size='small'
       aria-label='Copy'
-      icon={<CopyIcon />}
+      icon={copyIcon}
       p={2}
       onClick={handleCopyClick}
     />

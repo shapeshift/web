@@ -28,6 +28,9 @@ type ConnectContentProps = {
   initialUri?: string
   handleConnect: (uri: string) => void
 }
+
+const qrCodeIcon = <QRCodeIcon />
+
 export const ConnectContent: React.FC<ConnectContentProps> = ({
   initialUri = '',
   handleConnect,
@@ -89,7 +92,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
               <InputRightElement>
                 <IconButton
                   aria-label={translate('modals.send.scanQrCode')}
-                  icon={<QRCodeIcon />}
+                  icon={qrCodeIcon}
                   onClick={toggleQrCodeView}
                   size='sm'
                   variant='ghost'

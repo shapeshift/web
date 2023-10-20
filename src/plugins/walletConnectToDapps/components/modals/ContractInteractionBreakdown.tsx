@@ -27,6 +27,8 @@ const EncodedText = ({ value }: { value: string }) => (
   </Flex>
 )
 
+const faCodeIcon = <FaCode />
+
 export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps> = ({
   request,
   feeAsset,
@@ -85,7 +87,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
           {transaction?.name}
         </Box>
       }
-      icon={<FaCode />}
+      icon={faCodeIcon}
     >
       <Box pl={6} pt={2}>
         {request.value && (

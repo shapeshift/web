@@ -261,6 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "您赚取的 %{assetName} 的比率，即年度回报率 (APR)，通常在 7% - 20% 之间波动。",
+          "amountStakingInfo": "你可以质押任意数量的 %{assetName}，并且他们将立即开始赚取奖励。",
+          "withdrawInfo": "你可以随时提取你的奖励，这需要大约 0.01 美元左右的手续费。",
           "unbondingInfo": "当你取消质押代币时，它们将保持锁定状态 %{unbondingDays} 天，在此期间它们不会获得奖励。 %{unbondingDays} 天后，你的 %{assetName} 将返回到你的主钱包。",
           "slashingInfo": "质押是通过验证器完成的。这种情况非常罕见，但如果你质押的验证器因允许虚假或不正确的交易而发生混乱，你可能会损失部分资产。",
           "partnerInfo": "我们通过与信誉良好的验证者合作来降低这种风险，该验证者拥有安全、可靠且经过审计的基础设施。"
@@ -654,7 +656,8 @@
       "maxSlippage": "最大滑点",
       "auto": "自动",
       "custom": "定制",
-      "warning": "高滑点容忍度可能会导致不利的交易。"
+      "warning": "高滑点容忍度可能会导致不利的交易。",
+      "lowSlippage": "滑点低于 0.05% 可能会导致交易失败。"
     },
     "from": "从",
     "to": "到",
@@ -818,6 +821,7 @@
       "recoverySentence": {
         "header": "写下你的恢复句子",
         "body": "在 KeepKey 屏幕上，你将看到恢复语句。写下来。如果你无法访问设备，你的资产将只能通过这句话访问。",
+        "infoFirst": "请务必按照 KeepKey 上显示的内容准确地写下来。",
         "infoSecond": "切勿分享你的恢复句子，它会授予你使用所有资金的权限。",
         "awaitingButtonPress": "按照 KeepKey 上的步骤查看你的恢复句子。写下来！"
       },
@@ -849,7 +853,8 @@
         "wrongPlatform": "不使用 %{platform} ？点击这里"
       },
       "disconnect": {
-        "header": "断开 KeepKey 设备"
+        "header": "断开 KeepKey 设备",
+        "body": "不幸的是，在恢复/设置的 你的 KeepKey 设备时发生错误。请断开并重新连接你的设备，然后尝试再次设置你的 KeepKey 设备。如果问题仍然存在，请联系 KeepKey 技术支持。"
       }
     },
     "shapeShift": {
@@ -1248,6 +1253,33 @@
         "header": "错误",
         "body": "无法连接 Keplr 钱包"
       }
+    },
+    "ledger": {
+      "chains": {
+        "header": "导入 Ledger 账户",
+        "body": "要查看每个链的余额，你需要连接每个应用程序。",
+        "availableChains": "可用的链",
+        "error": "连接你的钱包时出错"
+      },
+      "success": {
+        "header": "Ledger 已连接",
+        "success": "你现在可以关闭此窗口，否则它很快就会自动关闭",
+        "error": "连接你的钱包时出错"
+      },
+      "errors": {
+        "connectFailure": "无法连接Ledger钱包",
+        "unknown": "与 Ledger 钱包通信时发生意外错误"
+      },
+      "connect": {
+        "header": "匹配 Ledger",
+        "body": "单击“匹配”，然后从弹出窗口中选择你的 Ledger",
+        "button": "匹配"
+      },
+      "failure": {
+        "header": "错误",
+        "body": "无法连接Ledger钱包"
+      },
+      "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。"
     },
     "metaMask": {
       "errors": {
@@ -1904,7 +1936,8 @@
         "page-2": {
           "title": "初级最佳收益策略：",
           "bullets": {
-            "one": "跨多个Junior Tranches的收益生成的自动化和优化，通过设计提供更高的收益"
+            "one": "跨多个Junior Tranches的收益生成的自动化和优化，通过设计提供更高的收益",
+            "two": "提供最大化的回报，而无需用户在每次转账时不断检查费率和燃烧gas费用"
           }
         }
       },

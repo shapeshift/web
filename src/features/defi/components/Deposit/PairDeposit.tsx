@@ -201,32 +201,60 @@ export const PairDeposit = ({
     [calculateOtherAssetAmount, marketData0, marketData1, setValue],
   )
 
-  const handlePercentClick = (percent: number, isForAsset0: boolean) => {
-    const assetMarketData = isForAsset0 ? marketData0 : marketData1
-    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+  const handleAsset0InputChange = useCallback(
+    (value: string, isFiat?: boolean) => handleInputChange(value, true, isFiat),
+    [handleInputChange],
+  )
+  const handleAsset1InputChange = useCallback(
+    (value: string, isFiat?: boolean) => handleInputChange(value, false, isFiat),
+    [handleInputChange],
+  )
 
-    const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-    const otherAssetMarketData = !isForAsset0 ? marketData0 : marketData1
+  const handlePercentClick = useCallback(
+    (percent: number, isForAsset0: boolean) => {
+      const assetMarketData = isForAsset0 ? marketData0 : marketData1
+      const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+      const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
 
-    const cryptoAmount = bnOrZero(
-      isForAsset0 ? cryptoAmountAvailable0 : cryptoAmountAvailable1,
-    ).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
-    setValue(fiatField, fiatAmount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(cryptoField, cryptoAmount.toString(), {
-      shouldValidate: true,
-    })
+      const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+      const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+      const otherAssetMarketData = !isForAsset0 ? marketData0 : marketData1
 
-    const otherCryptoValue = calculateOtherAssetAmount(cryptoAmount.toString(), isForAsset0)
-    setValue(otherCryptoInput, otherCryptoValue, { shouldValidate: true })
+      const cryptoAmount = bnOrZero(
+        isForAsset0 ? cryptoAmountAvailable0 : cryptoAmountAvailable1,
+      ).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+      setValue(fiatField, fiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      setValue(cryptoField, cryptoAmount.toString(), {
+        shouldValidate: true,
+      })
 
-    const otherFiatValue = bnOrZero(otherCryptoValue).times(otherAssetMarketData.price).toString()
-    setValue(otherFiatInput, otherFiatValue, { shouldValidate: true })
-  }
+      const otherCryptoValue = calculateOtherAssetAmount(cryptoAmount.toString(), isForAsset0)
+      setValue(otherCryptoInput, otherCryptoValue, { shouldValidate: true })
+
+      const otherFiatValue = bnOrZero(otherCryptoValue).times(otherAssetMarketData.price).toString()
+      setValue(otherFiatInput, otherFiatValue, { shouldValidate: true })
+    },
+    [
+      calculateOtherAssetAmount,
+      cryptoAmountAvailable0,
+      cryptoAmountAvailable1,
+      marketData0,
+      marketData1,
+      setValue,
+    ],
+  )
+
+  const handleAsset0PercentClick = useCallback(
+    (percent: number) => handlePercentClick(percent, true),
+    [handlePercentClick],
+  )
+  const handleAsset1PercentClick = useCallback(
+    (percent: number) => handlePercentClick(percent, false),
+    [handlePercentClick],
+  )
 
   const onSubmit = useCallback(
     (values: DepositValues) => {
@@ -247,7 +275,7 @@ export const PairDeposit = ({
           <AssetInput
             {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount0?.value}
-            onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
+            onChange={handleAsset0InputChange}
             fiatAmount={fiatAmount0?.value}
             showFiatAmount={true}
             assetId={asset0.assetId}
@@ -256,14 +284,14 @@ export const PairDeposit = ({
             balance={cryptoAmountAvailable0}
             fiatBalance={fiatAmountAvailable0}
             onAccountIdChange={handleAccountIdChange}
-            onPercentOptionClick={value => handlePercentClick(value, true)}
+            onPercentOptionClick={handleAsset0PercentClick}
             percentOptions={percentOptions}
             errors={cryptoError0 || fiatError0}
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount1?.value}
-            onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
+            onChange={handleAsset1InputChange}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
             assetId={asset1.assetId}
@@ -272,7 +300,7 @@ export const PairDeposit = ({
             balance={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
-            onPercentOptionClick={value => handlePercentClick(value, false)}
+            onPercentOptionClick={handleAsset1PercentClick}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
           />

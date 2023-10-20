@@ -17,6 +17,8 @@ type KeepKeyPinProps = {
   gridProps?: SimpleGridProps
 }
 
+const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
+
 export const KeepKeyPin = ({
   translationType,
   gridMaxWidth,
@@ -40,8 +42,6 @@ export const KeepKeyPin = ({
 
   const pinFieldRef = useRef<HTMLInputElement | null>(null)
 
-  const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
-
   const handlePinPress = useCallback(
     (value: number) => {
       if (pinFieldRef?.current) {
@@ -51,7 +51,7 @@ export const KeepKeyPin = ({
     [pinFieldRef],
   )
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setError(null)
     setDeviceState({
       isDeviceLoading: true,
@@ -86,28 +86,31 @@ export const KeepKeyPin = ({
         setLoading(false)
       }
     }
-  }
+  }, [dispatch, disposition, setDeviceState, wallet])
 
-  const handleKeyboardInput = (e: KeyboardEvent) => {
-    // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
-    if (e.key === 'Tab') e.preventDefault()
+  const handleKeyboardInput = useCallback(
+    (e: KeyboardEvent) => {
+      // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
+      if (e.key === 'Tab') e.preventDefault()
 
-    if (e.key === 'Backspace') return
+      if (e.key === 'Backspace') return
 
-    if (e.key === 'Enter') {
-      handleSubmit()
-      return
-    }
+      if (e.key === 'Enter') {
+        handleSubmit()
+        return
+      }
 
-    if (!pinNumbers.includes(Number(e.key))) {
-      e.preventDefault()
-      return
-    } else {
-      e.preventDefault()
-      handlePinPress(Number(e.key))
-      return
-    }
-  }
+      if (!pinNumbers.includes(Number(e.key))) {
+        e.preventDefault()
+        return
+      } else {
+        e.preventDefault()
+        handlePinPress(Number(e.key))
+        return
+      }
+    },
+    [handlePinPress, handleSubmit],
+  )
 
   useEffect(() => {
     /**
@@ -163,6 +166,8 @@ export const KeepKeyPin = ({
             key={number}
             size={'lg'}
             p={8}
+            // we need to pass an arg here, so we need an anonymous function wrapper
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => {
               handlePinPress(number)
               setIsPinEmpty(!pinFieldRef.current?.value)
@@ -181,6 +186,8 @@ export const KeepKeyPin = ({
         mb={6}
         autoComplete='one-time-code'
         onKeyDown={handleKeyboardInput}
+        // we need to pass an arg here, so we need an anonymous function wrapper
+        // eslint-disable-next-line react-memo/require-usememo
         onKeyUp={() => setIsPinEmpty(!pinFieldRef.current?.value)}
       />
       {error && (

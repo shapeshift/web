@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useCallback } from 'react'
 import type { ControllerProps } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -185,117 +186,164 @@ export const PairDepositWithAllocation = ({
     control,
   })
 
-  if (!(asset0 && asset1 && destAsset)) return null
-
   const cryptoError0 = get(errors, 'cryptoAmount0.message', null)
   const cryptoError1 = get(errors, 'cryptoAmount1.message', null)
   const fiatError0 = get(errors, 'fiatAmount0.message', null)
   const fiatError1 = get(errors, 'fiatAmount1.message', null)
   const fieldError = cryptoError0 || cryptoError1 || fiatError0 || fiatError1
 
-  const handleInputChange = (value: string, isForAsset0: boolean, isFiat?: boolean) => {
-    const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
-    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-    const selectedAsset = isForAsset0 ? asset0 : asset1
+  const handleInputChange = useCallback(
+    (value: string, isForAsset0: boolean, isFiat?: boolean) => {
+      const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
+      const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+      const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+      const selectedAsset = isForAsset0 ? asset0 : asset1
 
-    // for keeping inputs synced
-    const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-    const otherAssetMarketData = !isForAsset0 ? asset0MarketData : asset1MarketData
-    const otherAsset = !isForAsset0 ? asset0 : asset1
-    if (isFiat) {
-      setValue(fiatField, value, { shouldValidate: true })
-      setValue(
-        cryptoField,
-        bnOrZero(value).div(assetMarketData.price).toFixed(selectedAsset.precision),
-        {
-          shouldValidate: true,
-        },
-      )
-      if (syncPair) {
-        setValue(otherFiatInput, value, { shouldValidate: true })
-        setValue(
-          otherCryptoInput,
-          value
-            ? bnOrZero(value).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
-            : '',
-          {
-            shouldValidate: true,
-          },
-        )
-      }
-    } else {
-      setValue(fiatField, bnOrZero(value).times(assetMarketData.price).toString(), {
-        shouldValidate: true,
-      })
-      setValue(cryptoField, value, {
-        shouldValidate: true,
-      })
-      if (syncPair) {
-        const fiatValue = bnOrZero(value).times(assetMarketData.price).toString()
-        setValue(otherFiatInput, fiatValue, {
-          shouldValidate: true,
-        })
-        setValue(
-          otherCryptoInput,
-          value
-            ? bnOrZero(fiatValue).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
-            : '',
-          {
-            shouldValidate: true,
-          },
-        )
-      }
-    }
-    if (!calculateAllocations) return
+      if (!selectedAsset) return
 
-    const allocations = calculateAllocations(selectedAsset, value)
-    if (!allocations) return
-
-    setValue(Field.AllocationFraction, allocations.allocationFraction)
-    setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
-  }
-
-  const handlePercentClick = (percent: number, isForAsset0: boolean) => {
-    const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
-    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-    const selectedAsset = isForAsset0 ? asset0 : asset1
-
-    const cryptoAmount = bnOrZero(
-      isForAsset0
-        ? underlyingAsset0CryptoAmountAvailablePrecision
-        : underlyingAsset1CryptoAmountAvailablePrecision,
-    ).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
-    setValue(fiatField, fiatAmount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(cryptoField, cryptoAmount.toString(), {
-      shouldValidate: true,
-    })
-    if (syncPair) {
       // for keeping inputs synced
       const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
       const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
       const otherAssetMarketData = !isForAsset0 ? asset0MarketData : asset1MarketData
-      setValue(otherFiatInput, fiatAmount.toString(), {
-        shouldValidate: true,
-      })
-      setValue(otherCryptoInput, fiatAmount.div(otherAssetMarketData.price).toString(), {
-        shouldValidate: true,
-      })
-    }
-    if (!calculateAllocations) return
-    ;(() => {
-      const allocations = calculateAllocations(selectedAsset, cryptoAmount.toString())
+      const otherAsset = !isForAsset0 ? asset0 : asset1
+      if (!otherAsset) return
+      if (isFiat) {
+        setValue(fiatField, value, { shouldValidate: true })
+        setValue(
+          cryptoField,
+          bnOrZero(value).div(assetMarketData.price).toFixed(selectedAsset.precision),
+          {
+            shouldValidate: true,
+          },
+        )
+        if (syncPair) {
+          setValue(otherFiatInput, value, { shouldValidate: true })
+          setValue(
+            otherCryptoInput,
+            value
+              ? bnOrZero(value).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
+              : '',
+            {
+              shouldValidate: true,
+            },
+          )
+        }
+      } else {
+        setValue(fiatField, bnOrZero(value).times(assetMarketData.price).toString(), {
+          shouldValidate: true,
+        })
+        setValue(cryptoField, value, {
+          shouldValidate: true,
+        })
+        if (syncPair) {
+          const fiatValue = bnOrZero(value).times(assetMarketData.price).toString()
+          setValue(otherFiatInput, fiatValue, {
+            shouldValidate: true,
+          })
+          setValue(
+            otherCryptoInput,
+            value
+              ? bnOrZero(fiatValue).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
+              : '',
+            {
+              shouldValidate: true,
+            },
+          )
+        }
+      }
+      if (!calculateAllocations) return
+
+      const allocations = calculateAllocations(selectedAsset, value)
       if (!allocations) return
 
       setValue(Field.AllocationFraction, allocations.allocationFraction)
       setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
-    })()
-  }
+    },
+    [asset0, asset0MarketData, asset1, asset1MarketData, calculateAllocations, setValue, syncPair],
+  )
+
+  const handleAsset0InputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      handleInputChange(value, true, isFiat)
+    },
+    [handleInputChange],
+  )
+
+  const handleAsset1InputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      handleInputChange(value, false, isFiat)
+    },
+    [handleInputChange],
+  )
+
+  const handlePercentClick = useCallback(
+    (percent: number, isForAsset0: boolean) => {
+      const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
+      const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+      const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+      const selectedAsset = isForAsset0 ? asset0 : asset1
+
+      if (!selectedAsset) return
+
+      const cryptoAmount = bnOrZero(
+        isForAsset0
+          ? underlyingAsset0CryptoAmountAvailablePrecision
+          : underlyingAsset1CryptoAmountAvailablePrecision,
+      ).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+      setValue(fiatField, fiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      setValue(cryptoField, cryptoAmount.toString(), {
+        shouldValidate: true,
+      })
+      if (syncPair) {
+        // for keeping inputs synced
+        const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+        const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+        const otherAssetMarketData = !isForAsset0 ? asset0MarketData : asset1MarketData
+        setValue(otherFiatInput, fiatAmount.toString(), {
+          shouldValidate: true,
+        })
+        setValue(otherCryptoInput, fiatAmount.div(otherAssetMarketData.price).toString(), {
+          shouldValidate: true,
+        })
+      }
+      if (!calculateAllocations) return
+      ;(() => {
+        const allocations = calculateAllocations(selectedAsset, cryptoAmount.toString())
+        if (!allocations) return
+
+        setValue(Field.AllocationFraction, allocations.allocationFraction)
+        setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
+      })()
+    },
+    [
+      asset0,
+      asset0MarketData,
+      asset1,
+      asset1MarketData,
+      calculateAllocations,
+      setValue,
+      syncPair,
+      underlyingAsset0CryptoAmountAvailablePrecision,
+      underlyingAsset1CryptoAmountAvailablePrecision,
+    ],
+  )
+
+  const handleAsset0PercentClick = useCallback(
+    (percent: number) => {
+      handlePercentClick(percent, true)
+    },
+    [handlePercentClick],
+  )
+
+  const handleAsset1PercentClick = useCallback(
+    (percent: number) => {
+      handlePercentClick(percent, false)
+    },
+    [handlePercentClick],
+  )
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount0)
   const fiatYield = bnOrZero(cryptoYield).times(asset0MarketData.price).toFixed(2)
@@ -306,6 +354,8 @@ export const PairDepositWithAllocation = ({
     .times(asset1MarketData.price)
     .toString()
 
+  if (!(asset0 && asset1 && destAsset)) return null
+
   return (
     <>
       <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onContinue)}>
@@ -313,7 +363,7 @@ export const PairDepositWithAllocation = ({
           <AssetInput
             {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount0?.value}
-            onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
+            onChange={handleAsset0InputChange}
             fiatAmount={fiatAmount0?.value}
             showFiatAmount={true}
             assetId={asset0.assetId}
@@ -322,14 +372,14 @@ export const PairDepositWithAllocation = ({
             balance={underlyingAsset0CryptoAmountAvailablePrecision}
             fiatBalance={fiatAmountAvailable0}
             onAccountIdChange={handleAccountIdChange}
-            onPercentOptionClick={value => handlePercentClick(value, true)}
+            onPercentOptionClick={handleAsset0PercentClick}
             percentOptions={percentOptions}
             errors={cryptoError0 || fiatError0}
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount1?.value}
-            onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
+            onChange={handleAsset1InputChange}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
             assetId={asset1.assetId}
@@ -338,7 +388,7 @@ export const PairDepositWithAllocation = ({
             balance={underlyingAsset1CryptoAmountAvailablePrecision}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
-            onPercentOptionClick={value => handlePercentClick(value, false)}
+            onPercentOptionClick={handleAsset1PercentClick}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
           />

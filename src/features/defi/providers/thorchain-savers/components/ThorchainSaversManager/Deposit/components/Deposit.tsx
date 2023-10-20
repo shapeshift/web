@@ -73,6 +73,8 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -595,9 +597,9 @@ export const Deposit: React.FC<DepositProps> = ({
     return debounced.cancel
   }, [accountId, asset, feeAsset, inputValues, isTokenDeposit, opportunityData?.apy])
 
-  const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
+  const handleInputChange = useCallback((fiatAmount: string, cryptoAmount: string) => {
     setInputValues({ fiatAmount, cryptoAmount })
-  }
+  }, [])
 
   const handleBack = useCallback(() => {
     history.push({
@@ -609,6 +611,22 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
   if (!state || !contextDispatch || !opportunityData) return null
 
   return (
@@ -618,22 +636,16 @@ export const Deposit: React.FC<DepositProps> = ({
       asset={asset}
       apy={bnOrZero(opportunityData?.apy).toString()}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
+      cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
+      fiatInputValidation={fiatInputValidation}
       marketData={marketData}
       onCancel={handleCancel}
       onPercentClick={handlePercentClick}
       onContinue={handleContinue}
       onBack={handleBack}
       onChange={handleInputChange}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
+      percentOptions={percentOptions}
       enableSlippage={false}
       isLoading={state.loading}
     >

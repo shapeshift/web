@@ -1,3 +1,4 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
@@ -17,6 +18,10 @@ export type MatchParams = {
   assetId: AssetId
 }
 
+const stackDirection: StackDirection = { base: 'column', xl: 'row' }
+const flexMaxWidth = { base: 'full', xl: 'sm' }
+const multiHopTradeDisplay = { base: 'none', md: 'block' }
+
 export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
 
@@ -34,12 +39,7 @@ export const AccountToken = () => {
   const id = assetId ? decodeURIComponent(assetId) : null
   if (!id) return null
   return (
-    <Stack
-      alignItems='flex-start'
-      spacing={4}
-      width='full'
-      direction={{ base: 'column', xl: 'row' }}
-    >
+    <Stack alignItems='flex-start' spacing={4} width='full' direction={stackDirection}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance assetId={id} accountId={accountId} />
         <Equity assetId={id} accountId={accountId} />
@@ -47,14 +47,8 @@ export const AccountToken = () => {
         <EarnOpportunities assetId={id} accountId={accountId} />
         <AssetTransactionHistory assetId={id} accountId={accountId} />
       </Stack>
-      <Flex
-        flexDir='column'
-        flex='1 1 0%'
-        width='full'
-        maxWidth={{ base: 'full', xl: 'sm' }}
-        gap={4}
-      >
-        <MultiHopTrade display={{ base: 'none', md: 'block' }} />
+      <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={flexMaxWidth} gap={4}>
+        <MultiHopTrade display={multiHopTradeDisplay} />
       </Flex>
     </Stack>
   )

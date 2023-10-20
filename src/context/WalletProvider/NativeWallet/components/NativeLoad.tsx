@@ -37,6 +37,11 @@ type VaultInfo = {
 
 const editIcon = <EditIcon />
 const deleteIcon = <DeleteIcon />
+const walletButtonLeftIcon = (
+  <IconCircle boxSize={10}>
+    <FaWallet />
+  </IconCircle>
+)
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
@@ -158,11 +163,9 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                   variant='unstyled'
                   display='flex'
                   pl={4}
-                  leftIcon={
-                    <IconCircle boxSize={10}>
-                      <FaWallet />
-                    </IconCircle>
-                  }
+                  leftIcon={walletButtonLeftIcon}
+                  // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
                   onClick={() => handleWalletSelect(wallet)}
                   data-test='native-saved-wallet-button'
                 >
@@ -181,6 +184,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                       fontSize='xs'
                       lineHeight='1.2'
                       color='text.subtle'
+                      // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                      // eslint-disable-next-line react-memo/require-usememo
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
                     />
                   </Box>
@@ -190,12 +195,16 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                     aria-label={translate('common.rename')}
                     variant='ghost'
                     icon={editIcon}
+                    // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => handleRename(wallet)}
                   />
                   <IconButton
                     aria-label={translate('common.forget')}
                     variant='ghost'
                     icon={deleteIcon}
+                    // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => handleDelete(wallet)}
                   />
                 </Box>

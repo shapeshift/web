@@ -8,6 +8,7 @@ import { RawText } from 'components/Text'
 
 const alignItems = { base: 'flex-start', md: 'center' }
 const padding = { base: 4, xl: 0 }
+const arrowForwardIcon = <ArrowForwardIcon />
 
 const RewardsHeader = () => {
   const translate = useTranslate()
@@ -21,7 +22,7 @@ const RewardsHeader = () => {
           as={NavLink}
           to='/earn'
           size='sm'
-          rightIcon={<ArrowForwardIcon />}
+          rightIcon={arrowForwardIcon}
         >
           {translate('defi.viewAllPositions')}
         </Button>

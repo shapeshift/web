@@ -20,6 +20,8 @@ import { SUPPORTED_WALLETS } from './config'
 import { clearLocalWallet } from './local-wallet'
 import { SelectModal } from './SelectModal'
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
@@ -132,7 +134,7 @@ export const WalletViewsSwitch = () => {
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
             {!match?.isExact && showBackButton && (
               <IconButton
-                icon={<ArrowBackIcon />}
+                icon={arrowBackIcon}
                 aria-label='Back'
                 variant='ghost'
                 fontSize='xl'

@@ -1,22 +1,29 @@
+import { CheckCircleIcon } from '@chakra-ui/icons'
 import {
-  Box,
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
+  Card,
   CardBody,
   CardFooter,
   CardHeader,
   Flex,
-  Text as CText,
+  Heading,
+  Skeleton,
+  Spinner,
+  Stack,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
+import { AssetIcon } from 'components/AssetIcon'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -27,6 +34,8 @@ import {
 import { selectFirstHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+import { WithBackButton } from '../WithBackButton'
+
 export const VerifyAddresses = () => {
   const wallet = useWallet().state.wallet
   const history = useHistory()
@@ -36,8 +45,7 @@ export const VerifyAddresses = () => {
   const [isSellVerifying, setIsSellVerifying] = useState(false)
   const [isBuyVerifying, setIsBuyVerifying] = useState(false)
 
-  const [sellVerified, setSellVerified] = useState(false)
-  const [buyVerified, setBuyVerified] = useState(false)
+  const [verifiedAddresses, setVerifiedAddresses] = useState(new Set<string>())
 
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
@@ -58,6 +66,19 @@ export const VerifyAddresses = () => {
   )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
+  )
+
+  const isAddressVerified = useCallback(
+    (address: string) => verifiedAddresses.has(address.toLowerCase()),
+    [verifiedAddresses],
+  )
+  const sellVerified = useMemo(
+    () => isAddressVerified(sellAddress ?? ''),
+    [isAddressVerified, sellAddress],
+  )
+  const buyVerified = useMemo(
+    () => isAddressVerified(buyAddress ?? ''),
+    [buyAddress, isAddressVerified],
   )
 
   const handleContinue = useCallback(async () => {
@@ -149,11 +170,7 @@ export const VerifyAddresses = () => {
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
-          if (type === 'sell') {
-            setSellVerified(true)
-          } else if (type === 'buy') {
-            setBuyVerified(true)
-          }
+          setVerifiedAddresses(new Set([...verifiedAddresses, _address.toLowerCase()]))
         }
       } catch (e) {
         console.error(e)
@@ -165,68 +182,131 @@ export const VerifyAddresses = () => {
         }
       }
     },
-    [sellAsset, buyAsset, sellAccountMetadata, buyAccountMetadata, sellAddress, buyAddress, wallet],
+    [
+      sellAsset,
+      buyAsset,
+      sellAccountMetadata,
+      buyAccountMetadata,
+      sellAddress,
+      buyAddress,
+      wallet,
+      verifiedAddresses,
+    ],
   )
+
+  const renderButton = useMemo(() => {
+    if (!buyVerified) {
+      return (
+        <Button
+          size='lg'
+          colorScheme='blue'
+          onClick={() => handleVerify('buy')}
+          isLoading={isBuyVerifying}
+          loadingText='Confirm on device'
+        >
+          <Text translation={['trade.verifyAsset', { asset: buyAsset.symbol }]} />
+        </Button>
+      )
+    }
+
+    if (!sellVerified) {
+      return (
+        <Button
+          size='lg'
+          colorScheme='blue'
+          onClick={() => handleVerify('sell')}
+          isLoading={isSellVerifying}
+          loadingText='Confirm on device'
+        >
+          <Text translation={['trade.verifyAsset', { asset: sellAsset.symbol }]} />
+        </Button>
+      )
+    }
+    return (
+      <Button
+        onClick={handleContinue}
+        size='lg'
+        colorScheme='blue'
+        isDisabled={!(sellVerified && buyVerified)}
+        width='full'
+      >
+        <Text translation='common.continue' />
+      </Button>
+    )
+  }, [
+    buyAsset.symbol,
+    buyVerified,
+    handleContinue,
+    handleVerify,
+    isBuyVerifying,
+    isSellVerifying,
+    sellAsset.symbol,
+    sellVerified,
+  ])
+
+  const handleBack = useCallback(() => {
+    history.push(TradeRoutePaths.Input)
+  }, [history])
 
   return (
     <SlideTransition>
-      <Box>
-        <CardHeader>
-          <CText fontSize='xl' fontWeight='bold' mb={4}>
-            Verify Addresses
-          </CText>
-        </CardHeader>
-        <CardBody>
-          <Row my={3}>
-            <Row.Label fontWeight='medium'>
-              <CText>Buy Address:</CText>
-            </Row.Label>
-            <Row.Value flex={1} mr={4} fontWeight='light' wordBreak='break-all'>
-              {buyAddress || 'Fetching...'}
-            </Row.Value>
-            <Button
-              colorScheme={buyVerified ? 'green' : 'blue'}
-              onClick={() => handleVerify('buy')}
-              isDisabled={buyVerified}
-              isLoading={isBuyVerifying}
-            >
-              {buyVerified ? 'Verified' : 'Verify'}
-            </Button>
-          </Row>
-          <Row my={3}>
-            <Row.Label fontWeight='medium'>
-              <CText>Sell Address:</CText>
-            </Row.Label>
-            <Row.Value flex={1} mr={4} fontWeight='light' wordBreak='break-all'>
-              {sellAddress || 'Fetching...'}
-            </Row.Value>
-            <Button
-              colorScheme={sellVerified ? 'green' : 'blue'}
-              onClick={() => handleVerify('sell')}
-              isDisabled={sellVerified}
-              isLoading={isSellVerifying}
-            >
-              {sellVerified ? 'Verified' : 'Verify'}
-            </Button>
-          </Row>
-        </CardBody>
-        <CardFooter mt={4}>
-          <Flex direction='column' alignItems='center' justifyContent='space-between' width='full'>
-            <CText color='red.500' textAlign='center' mb={4}>
-              Ensure your addresses are correct before proceeding.
-            </CText>
+      <CardHeader>
+        <WithBackButton handleBack={handleBack}>
+          <Heading as='h5' textAlign='center'>
+            <Text translation='trade.verifyAddresses' />
+          </Heading>
+        </WithBackButton>
+      </CardHeader>
 
-            <Button
-              onClick={handleContinue}
-              size='lg'
-              isDisabled={!(sellVerified && buyVerified)}
-              width='full'
-            >
-              <Text translation='common.continue' />
-            </Button>
-          </Flex>
-        </CardFooter>
-      </Box>
+      <CardBody display='flex' flexDir='column' gap={4}>
+        <Card overflow='hidden'>
+          <CardHeader display='flex' alignItems='center' gap={2}>
+            <AssetIcon size='xs' assetId={buyAsset.assetId} />
+            <Text translation={['trade.assetAddress', { asset: buyAsset.symbol }]} />
+          </CardHeader>
+          <CardBody bg='background.surface.raised.base'>
+            <Stack>
+              <Flex alignItems='center' gap={2} justifyContent='space-between'>
+                <Flex alignItems='center' gap={2}>
+                  <Skeleton isLoaded={!!buyAddress}>
+                    <RawText>{buyAddress}</RawText>
+                  </Skeleton>
+                </Flex>
+                {isBuyVerifying && <Spinner boxSize={5} />}
+                {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
+              </Flex>
+            </Stack>
+          </CardBody>
+        </Card>
+        <Card overflow='hidden'>
+          <CardHeader display='flex' alignItems='center' gap={2}>
+            <AssetIcon size='xs' assetId={sellAsset.assetId} />
+            <Text translation={['trade.assetAddress', { asset: sellAsset.symbol }]} />
+          </CardHeader>
+          <CardBody bg='background.surface.raised.base'>
+            <Stack>
+              <Flex alignItems='center' gap={2} justifyContent='space-between'>
+                <Flex alignItems='center' gap={2}>
+                  <Skeleton isLoaded={!!sellAddress}>
+                    <RawText>{sellAddress}</RawText>
+                  </Skeleton>
+                </Flex>
+                {isSellVerifying && <Spinner boxSize={5} />}
+                {sellVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
+              </Flex>
+            </Stack>
+          </CardBody>
+        </Card>
+      </CardBody>
+      <CardFooter flexDir='column' gap={4}>
+        <Alert status='warning'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation='trade.verifyAddressMessage' />
+          </AlertDescription>
+        </Alert>
+        {renderButton}
+      </CardFooter>
     </SlideTransition>
   )
 }

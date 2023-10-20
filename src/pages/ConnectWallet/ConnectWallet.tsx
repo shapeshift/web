@@ -55,6 +55,8 @@ const display = { base: 'none', lg: 'flex' }
 const width = { base: '100%', lg: 'auto' }
 const maxWidth = { base: '100%', lg: '500px' }
 
+const metamaskIcon = <MetaMaskIcon />
+
 export const ConnectWallet = () => {
   const { state, dispatch, connectDemo, connect } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
@@ -205,7 +207,7 @@ export const ConnectWallet = () => {
                     width='full'
                     size='lg'
                     onClick={handleMetaMaskConnect}
-                    leftIcon={<MetaMaskIcon />}
+                    leftIcon={metamaskIcon}
                   >
                     {translate('walletProvider.metaMaskSnap.connectMetaMask')}
                   </Button>

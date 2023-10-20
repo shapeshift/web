@@ -40,6 +40,11 @@ import { NftRow } from './NftRow'
 type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
   Pick<ModalProps, 'onClose'> & { walletImage: string }
 
+const narwhalIcon = <NarwhalIcon color='pink.200' />
+const modalSizeProp = { base: 'full', md: 'lg' }
+const boxMinHeightProp = { base: '100%', md: '500px' }
+const buttonWidthProp = { base: 'full', md: 'auto' }
+
 export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const [selected, setSelected] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -87,7 +92,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
 
   const group = getRootProps()
 
-  const handleSaveChanges = useCallback(
+  const handleChangeAvatar = useCallback(
     (selectedAvatar: string | null) => {
       if (selectedAvatar && walletId) {
         dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selectedAvatar, walletId }))
@@ -97,20 +102,21 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     [dispatch, props, walletId],
   )
 
+  const handleSaveChanges = useCallback(() => {
+    if (selected && walletId) {
+      dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selected, walletId }))
+    }
+    props.onClose()
+  }, [dispatch, props, walletId, selected])
+
   const handleRestoreDefault = useCallback(() => {
     setValue('')
-    handleSaveChanges(defaultWalletImage)
-  }, [defaultWalletImage, handleSaveChanges, setValue])
+    handleChangeAvatar(defaultWalletImage)
+  }, [defaultWalletImage, handleChangeAvatar, setValue])
 
   const renderBody = useMemo(() => {
     if (!isLoading && !nftItems?.length) {
-      return (
-        <ResultsEmpty
-          title='nft.emptyTitle'
-          body='nft.emptyBody'
-          icon={<NarwhalIcon color='pink.200' />}
-        />
-      )
+      return <ResultsEmpty title='nft.emptyTitle' body='nft.emptyBody' icon={narwhalIcon} />
     }
     return isSearching && !filteredNfts?.length ? (
       <SearchEmpty searchQuery={searchQuery} />
@@ -145,7 +151,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   ])
 
   return (
-    <Modal scrollBehavior='inside' size={{ base: 'full', md: 'lg' }} {...props}>
+    <Modal scrollBehavior='inside' size={modalSizeProp} {...props}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -162,13 +168,13 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
         ) : (
           <>
             <ModalBody pb={4} display='flex' flexDir='column' gap={4} overflow='hidden'>
-              <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
+              <Box flex={1} minHeight={boxMinHeightProp} {...group}>
                 {renderBody}
               </Box>
             </ModalBody>
             <ModalFooter gap={4}>
               <Button
-                width={{ base: 'full', md: 'auto' }}
+                width={buttonWidthProp}
                 height='100%'
                 size='sm-multiline'
                 onClick={handleRestoreDefault}
@@ -177,11 +183,11 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 {translate('avatar.modal.restoreDefault')}
               </Button>
               <Button
-                width={{ base: 'full', md: 'auto' }}
+                width={buttonWidthProp}
                 height='100%'
                 colorScheme='blue'
                 size='sm-multiline'
-                onClick={() => handleSaveChanges(selected)}
+                onClick={handleSaveChanges}
               >
                 {translate('common.saveChanges')}
               </Button>

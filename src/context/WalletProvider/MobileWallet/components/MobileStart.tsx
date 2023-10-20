@@ -33,6 +33,8 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
   const handleImport = useCallback(() => history.push('/mobile/import'), [history])
   const handleLogin = useCallback(() => history.push('/mobile/legacy/login'), [history])
 
+  const arrowForwardIcon = <ArrowForwardIcon />
+
   return (
     <>
       <ModalHeader>
@@ -47,7 +49,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             isDisabled={!hasLocalWallet}
             onClick={handleLoad}
             data-test='wallet-native-load-button'
@@ -61,7 +63,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
@@ -73,7 +75,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleImport}
             data-test='wallet-native-import-button'
           >

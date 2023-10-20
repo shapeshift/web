@@ -31,6 +31,8 @@ import { useAppSelector } from 'state/store'
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
@@ -206,7 +208,7 @@ export const Status = () => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

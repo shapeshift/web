@@ -17,7 +17,7 @@ import type {
   EthSignCallRequest,
 } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
-import { type FC, useCallback, useState } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
@@ -41,6 +41,7 @@ export const EIP155SignMessageConfirmationModal: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
+  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
   const cardBg = useColorModeValue('white', 'gray.850')
 
   const handleConfirm = useCallback(async () => {
@@ -62,7 +63,7 @@ export const EIP155SignMessageConfirmationModal: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
-          icon={<WalletIcon w='full' h='full' />}
+          icon={walletIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>

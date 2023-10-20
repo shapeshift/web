@@ -42,6 +42,7 @@ export const CosmosSignMessageConfirmationModal: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
+  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
   const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
 
@@ -147,7 +148,7 @@ export const CosmosSignMessageConfirmationModal: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
-          icon={<WalletIcon w='full' h='full' />}
+          icon={walletIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>

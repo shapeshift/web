@@ -36,6 +36,9 @@ type NftNetworkFilterProps = {
 
 const hoverProp = { bg: 'transparent' }
 
+const ioOptionsOutlineIcon = <IoOptionsOutline size='1.5em' />
+const closeIcon = <CloseIcon w={3} h={3} />
+
 export const NftNetworkFilter = ({
   setFilters,
   resetFilters,
@@ -106,7 +109,7 @@ export const NftNetworkFilter = ({
             <Button
               colorScheme='blue'
               variant='ghost-filled'
-              leftIcon={<IoOptionsOutline size='1.5em' />}
+              leftIcon={ioOptionsOutlineIcon}
               onClick={toggleIsOpen}
             >
               <Text translation='transactionHistory.filter' />
@@ -115,7 +118,7 @@ export const NftNetworkFilter = ({
               variant='ghost-filled'
               colorScheme='blue'
               aria-label={translate('transactionHistory.filters.resetFilters')}
-              icon={<CloseIcon w={3} h={3} />}
+              icon={closeIcon}
               onClick={handleResetFilters}
             />
           </ButtonGroup>

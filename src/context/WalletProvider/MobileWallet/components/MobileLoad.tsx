@@ -38,6 +38,14 @@ type WalletProps = {
   onDelete: (wallet: RevocableWallet) => void
 }
 
+const walletIcon = (
+  <IconCircle boxSize={10}>
+    <FaWallet />
+  </IconCircle>
+)
+const editIcon = <EditIcon />
+const deleteIcon = <DeleteIcon />
+
 const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
   const translate = useTranslate()
   const handleSelect = useCallback(() => onSelect(wallet), [onSelect, wallet])
@@ -66,11 +74,7 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
         variant='unstyled'
         display='flex'
         pl={4}
-        leftIcon={
-          <IconCircle boxSize={10}>
-            <FaWallet />
-          </IconCircle>
-        }
+        leftIcon={walletIcon}
         onClick={handleSelect}
         data-test='native-saved-wallet-button'
       >
@@ -97,13 +101,13 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
         <IconButton
           aria-label={translate('common.rename')}
           variant='ghost'
-          icon={<EditIcon />}
+          icon={editIcon}
           onClick={handleRename}
         />
         <IconButton
           aria-label={translate('common.forget')}
           variant='ghost'
-          icon={<DeleteIcon />}
+          icon={deleteIcon}
           onClick={handleDelete}
         />
       </Box>

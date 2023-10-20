@@ -23,6 +23,8 @@ type PromoCardProps = {
   data: PromoItem[]
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',
@@ -111,7 +113,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                   colorScheme={colorScheme}
                   mt={4}
                   onClick={() => handleClick({ href, walletRequired, isExternal, id })}
-                  rightIcon={<ArrowForwardIcon />}
+                  rightIcon={arrowForwardIcon}
                   data-test={`${id}-button`}
                   letterSpacing='0.012em'
                 >

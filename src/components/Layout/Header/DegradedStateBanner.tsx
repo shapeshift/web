@@ -26,6 +26,9 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
+const warningIcon = <WarningIcon />
+const idMdRefreshIcon = <IoMdRefresh />
+
 export const DegradedStateBanner = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -104,7 +107,7 @@ export const DegradedStateBanner = memo(() => {
           variant='ghost-filled'
           colorScheme='yellow'
           aria-label='Degraded State'
-          icon={<WarningIcon />}
+          icon={warningIcon}
         />
       </PopoverTrigger>
       <PopoverContent overflow='hidden'>
@@ -119,7 +122,7 @@ export const DegradedStateBanner = memo(() => {
         <PopoverFooter borderWidth={0} bg={footerBg} p={4}>
           <Button
             bg={buttonBg}
-            leftIcon={<IoMdRefresh />}
+            leftIcon={idMdRefreshIcon}
             onClick={handleRetry}
             size='sm'
             borderRadius='lg'

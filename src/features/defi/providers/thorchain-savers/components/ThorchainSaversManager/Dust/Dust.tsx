@@ -25,6 +25,11 @@ type DustProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const arrowDownIcon = <ArrowDownIcon />
+
+const minWidthProps = { base: '100%', md: '500px' }
+const maxWidthProps = { base: 'full', md: '500px' }
+
 export const Dust: React.FC<DustProps> = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
@@ -52,18 +57,13 @@ export const Dust: React.FC<DustProps> = () => {
   }, [history, location.pathname, mixpanel, query])
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', md: '500px' }}
-      maxWidth={{ base: 'full', md: '500px' }}
-      flexDir='column'
-    >
+    <Flex width='full' minWidth={minWidthProps} maxWidth={maxWidthProps} flexDir='column'>
       <DefiModalHeader title={translate('defi.modals.saversVaults.sendDust')} onBack={handleBack} />
       <Stack spacing={0} divider={<Divider />}>
         <Row variant='vert-gutter' gap={2} alignItems='center'>
           <Row.Label>
             <Avatar
-              icon={<ArrowDownIcon />}
+              icon={arrowDownIcon}
               colorScheme='blue'
               bg={useColorModeValue('gray.200', 'gray.700')}
               color={useColorModeValue('blue.500', 'blue.200')}

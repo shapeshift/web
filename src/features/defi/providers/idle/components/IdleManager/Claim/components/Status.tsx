@@ -39,6 +39,8 @@ import { ClaimContext } from '../ClaimContext'
 import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
@@ -284,7 +286,7 @@ export const Status = () => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

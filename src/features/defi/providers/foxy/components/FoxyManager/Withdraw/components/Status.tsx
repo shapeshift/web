@@ -45,11 +45,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.push('/earn')
   }, [browserHistory])
 
-  if (!state || !dispatch) return null
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
+
+  if (!state || !dispatch) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {

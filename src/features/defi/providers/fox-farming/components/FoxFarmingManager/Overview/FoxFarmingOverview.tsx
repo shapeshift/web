@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -172,6 +172,18 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   )
   const hasClaim = rewardAmountAvailable.gt(0)
 
+  const handleFoxFarmingEmptyClick = useCallback(
+    () =>
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          ...query,
+          modal: DefiAction.Deposit,
+        }),
+      }),
+    [history, location.pathname, query],
+  )
+
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (
       <DefiModalContent>
@@ -188,15 +200,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         assets={underlyingAssets}
         apy={opportunityData.apy.toString() ?? ''}
         opportunityName={opportunityData.name ?? ''}
-        onClick={() =>
-          history.push({
-            pathname: location.pathname,
-            search: qs.stringify({
-              ...query,
-              modal: DefiAction.Deposit,
-            }),
-          })
-        }
+        onClick={handleFoxFarmingEmptyClick}
       />
     )
   }

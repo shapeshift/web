@@ -18,6 +18,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -169,6 +170,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assets,
   ])
 
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch || !lpOpportunity) return null
 
   return (
@@ -247,7 +253,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={notEnoughGasTranslation} />
           </Alert>
         )}
       </Summary>

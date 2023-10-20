@@ -15,6 +15,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -150,11 +151,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch || !underlyingAsset || !opportunity) return null
 
   return (
     <ReusableConfirm
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
       isDisabled={!hasEnoughBalanceForGas}
@@ -206,7 +213,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={notEnoughGasTranslation} />
         </Alert>
       )}
     </ReusableConfirm>

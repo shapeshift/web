@@ -26,6 +26,7 @@ type DustProps = {
 }
 
 const arrowDownIcon = <ArrowDownIcon />
+const divider = <Divider />
 
 const minWidthProps = { base: '100%', md: '500px' }
 const maxWidthProps = { base: 'full', md: '500px' }
@@ -59,7 +60,7 @@ export const Dust: React.FC<DustProps> = () => {
   return (
     <Flex width='full' minWidth={minWidthProps} maxWidth={maxWidthProps} flexDir='column'>
       <DefiModalHeader title={translate('defi.modals.saversVaults.sendDust')} onBack={handleBack} />
-      <Stack spacing={0} divider={<Divider />}>
+      <Stack spacing={0} divider={divider}>
         <Row variant='vert-gutter' gap={2} alignItems='center'>
           <Row.Label>
             <Avatar

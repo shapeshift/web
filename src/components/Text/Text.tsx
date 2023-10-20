@@ -7,8 +7,10 @@ export type TextPropTypes = TextProps & {
   translation: string | null | [string, number | Polyglot.InterpolationOptions]
 }
 
+const cTextStyle = { fontFeatureSettings: `'zero' on, 'ss01' on` }
+
 export const RawText = forwardRef<TextProps, 'p'>((props, ref) => {
-  return <CText sx={{ fontFeatureSettings: `'zero' on, 'ss01' on` }} ref={ref} {...props} />
+  return <CText sx={cTextStyle} ref={ref} {...props} />
 })
 
 export const Text = forwardRef<TextPropTypes, 'p'>((props, ref) => {

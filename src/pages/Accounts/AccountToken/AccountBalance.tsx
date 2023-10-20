@@ -1,6 +1,8 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -23,6 +25,7 @@ type AccountBalanceProps = {
 }
 
 const arrowBackIcon = <ArrowBackIcon />
+const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
@@ -63,7 +66,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         gap={4}
         fontWeight='bold'
         display='flex'
-        flexDir={{ base: 'column', md: 'row' }}
+        flexDir={flexDirMdRow}
         alignItems='flex-start'
       >
         <Flex flexDir='column'>

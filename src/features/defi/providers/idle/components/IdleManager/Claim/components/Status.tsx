@@ -157,6 +157,8 @@ export const Status = () => {
         assetId: rewardAsset.assetId,
         amount: rewardAsset.amountCryptoHuman,
       }
+      // we need to pass a local scope arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
   }, [claimAmounts])

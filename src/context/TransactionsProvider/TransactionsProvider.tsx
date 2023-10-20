@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -209,7 +210,12 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         // subscribe to new transactions for all supported accounts
         try {
           return adapter?.subscribeTxs(
-            { wallet, accountType, accountNumber },
+            {
+              wallet,
+              accountType,
+              accountNumber,
+              pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+            },
             msg => {
               const { getAccount } = portfolioApi.endpoints
               const { onMessage } = txHistory.actions

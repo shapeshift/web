@@ -14,7 +14,7 @@ export type ConnectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
-  onPairDeviceClick(): any
+  onPairDeviceClick: () => void
   loading: boolean
   error: string | null
   children?: ReactNode

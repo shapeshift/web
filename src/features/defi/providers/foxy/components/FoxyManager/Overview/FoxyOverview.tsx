@@ -57,7 +57,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     stakingAssetId,
   } = useFoxyQuery()
   const foxyApi = getFoxyApi()
-  const [canClaim, setCanClaim] = useState<boolean>(false)
+  const [canClaim, setCanClaim] = useState<boolean | null>(null)
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
@@ -124,19 +124,23 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const hasPendingUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isAfter(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
   const hasAvailableUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isBefore(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
-  const claimDisabled = !canClaim && !hasAvailableUndelegation
+  const claimDisabled = !canClaim || !(hasAvailableUndelegation || hasPendingUndelegation)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -209,6 +213,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
+          isLoading: canClaim === null,
           isDisabled: claimDisabled,
           toolTip: translate('defi.modals.overview.noWithdrawals'),
         },

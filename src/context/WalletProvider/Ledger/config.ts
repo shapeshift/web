@@ -1,7 +1,10 @@
+import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import { LedgerIcon } from 'components/Icons/LedgerIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const LedgerConfig: Omit<SupportedWalletInfo, 'routes'> = {
+type LedgerConfigType = Omit<SupportedWalletInfo<typeof WebUSBLedgerAdapter>, 'routes'>
+
+export const LedgerConfig: LedgerConfigType = {
   adapters: [
     {
       loadAdapter: () =>

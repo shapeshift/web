@@ -17,6 +17,8 @@ type AccountCardProps = {
   onClick?: () => void
 } & ButtonProps
 
+const chevronRightIcon = <ChevronRightIcon boxSize={6} />
+
 export const AccountCard = ({
   asset,
   isLoaded,
@@ -40,7 +42,7 @@ export const AccountCard = ({
           <AssetIcon assetId={asset.assetId} boxSize='40px' />
         </SkeletonCircle>
       }
-      rightIcon={<ChevronRightIcon boxSize={6} />}
+      rightIcon={chevronRightIcon}
       {...rest}
     >
       <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto'>

@@ -5,9 +5,9 @@ import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 // Important: maxAge should be small because inbound address info must be recent
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = [
-  '/lcd/thorchain/pools',
-  '/lcd/thorchain/inbound_addresses',
-  '/lcd/thorchain/pool/',
+  '/thorchain/pools',
+  '/thorchain/inbound_addresses',
+  '/thorchain/pool/',
   '/v2/pools',
   '/v2/pool/',
 ]

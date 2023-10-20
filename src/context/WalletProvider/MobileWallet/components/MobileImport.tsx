@@ -8,6 +8,7 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
+import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -18,20 +19,6 @@ import { addWallet } from '../mobileMessageHandlers'
 type FormValues = { mnemonic: string; name: string }
 
 export const MobileImport = ({ history }: RouteComponentProps) => {
-  const onSubmit = async (values: FormValues) => {
-    try {
-      // Save the wallet in the mobile app
-      const vault = await addWallet({
-        mnemonic: values.mnemonic.toLowerCase().trim(),
-        label: values.name.trim(),
-      })
-      history.push('/mobile/success', { vault })
-    } catch (e) {
-      console.log(e)
-      setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
-    }
-  }
-
   const {
     setError,
     handleSubmit,
@@ -39,7 +26,51 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ shouldUnregister: true })
 
+  const onSubmit = useCallback(
+    async (values: FormValues) => {
+      try {
+        // Save the wallet in the mobile app
+        const vault = await addWallet({
+          mnemonic: values.mnemonic.toLowerCase().trim(),
+          label: values.name.trim(),
+        })
+        history.push('/mobile/success', { vault })
+      } catch (e) {
+        console.log(e)
+        setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
+      }
+    },
+    [history, setError],
+  )
+
   const translate = useTranslate()
+
+  const textareaFormProps = useMemo(() => {
+    return register('mnemonic', {
+      required: translate('walletProvider.shapeShift.import.secretRecoveryPhraseRequired'),
+      minLength: {
+        value: 47,
+        message: translate('walletProvider.shapeShift.import.secretRecoveryPhraseTooShort'),
+      },
+      validate: {
+        validMnemonic: value =>
+          bip39.validateMnemonic(value.toLowerCase().trim()) ||
+          translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
+      },
+    })
+  }, [register, translate])
+
+  const inputFormProps = useMemo(() => {
+    return register('name', {
+      required: translate('modals.shapeShift.password.error.walletNameRequired'),
+      maxLength: {
+        value: 64,
+        message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
+      },
+    })
+  }, [register, translate])
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   return (
     <>
@@ -48,7 +79,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea
               variant='filled'
@@ -56,22 +87,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
               autoComplete='off'
               autoCorrect='off'
               textTransform='lowercase'
-              {...register('mnemonic', {
-                required: translate(
-                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
-                ),
-                minLength: {
-                  value: 47,
-                  message: translate(
-                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort',
-                  ),
-                },
-                validate: {
-                  validMnemonic: value =>
-                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
-                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
-                },
-              })}
+              {...textareaFormProps}
               data-test='wallet-native-seed-input'
             />
             <FormErrorMessage data-test='wallet-native-seed-validation-message'>
@@ -80,13 +96,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
           </FormControl>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input
-              {...register('name', {
-                required: translate('modals.shapeShift.password.error.walletNameRequired'),
-                maxLength: {
-                  value: 64,
-                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
-                },
-              })}
+              {...inputFormProps}
               size='lg'
               variant='filled'
               id='name'

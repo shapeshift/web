@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -35,8 +35,11 @@ type VaultInfo = {
   createdAt: number
 }
 
+const editIcon = <EditIcon />
+const deleteIcon = <DeleteIcon />
+
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { state, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
@@ -69,17 +72,17 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
-    const adapters = state.adapters?.get(KeyManager.Native)
+    const adapter = await getAdapter(KeyManager.Native)
     const deviceId = item.id
-    if (adapters?.length) {
+    if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        const wallet = await adapters[0].pairDevice(deviceId)
-        if (!(await wallet.isInitialized())) {
+        const wallet = await adapter.pairDevice(deviceId)
+        if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
           // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
           // return null, and we don't have a retry mechanism
-          await wallet.initialize()
+          await wallet?.initialize()
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
@@ -107,23 +110,29 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     }
   }
 
-  const handleDelete = async (wallet: VaultInfo) => {
-    const result = window.confirm(
-      translate('walletProvider.shapeShift.load.confirmForget', {
-        wallet: wallet.name ?? wallet.id,
-      }),
-    )
-    if (result) {
-      try {
-        await Vault.delete(wallet.id)
-        setWallets([])
-      } catch (e) {
-        setError('walletProvider.shapeShift.load.error.delete')
+  const handleDelete = useCallback(
+    async (wallet: VaultInfo) => {
+      const result = window.confirm(
+        translate('walletProvider.shapeShift.load.confirmForget', {
+          wallet: wallet.name ?? wallet.id,
+        }),
+      )
+      if (result) {
+        try {
+          await Vault.delete(wallet.id)
+          setWallets([])
+        } catch (e) {
+          setError('walletProvider.shapeShift.load.error.delete')
+        }
       }
-    }
-  }
+    },
+    [translate],
+  )
 
-  const handleRename = (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet })
+  const handleRename = useCallback(
+    (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet }),
+    [history],
+  )
 
   return (
     <>
@@ -180,13 +189,13 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                   <IconButton
                     aria-label={translate('common.rename')}
                     variant='ghost'
-                    icon={<EditIcon />}
+                    icon={editIcon}
                     onClick={() => handleRename(wallet)}
                   />
                   <IconButton
                     aria-label={translate('common.forget')}
                     variant='ghost'
-                    icon={<DeleteIcon />}
+                    icon={deleteIcon}
                     onClick={() => handleDelete(wallet)}
                   />
                 </Box>

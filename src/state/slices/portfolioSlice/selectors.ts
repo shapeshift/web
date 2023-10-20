@@ -10,7 +10,6 @@ import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
-import type { BridgeAsset } from 'components/Bridge/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -736,24 +735,6 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
       [],
     )
     return assetRows
-  },
-)
-
-export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
-  selectPortfolioAccountRows,
-  (portfolioAssets): BridgeAsset[] => {
-    return Object.entries(portfolioAssets).map(([_, v]) => {
-      const implementations = undefined // TODO: implement here
-      return {
-        assetId: v.assetId,
-        symbol: v.symbol,
-        icon: v.icon,
-        name: v.name,
-        cryptoAmount: v.cryptoAmount,
-        fiatAmount: v.fiatAmount,
-        implementations,
-      }
-    })
   },
 )
 

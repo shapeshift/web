@@ -1,3 +1,4 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -13,7 +14,8 @@ import {
 } from '@chakra-ui/react'
 import type { crypto, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import { useState } from 'react'
+import type { Property } from 'csstype'
+import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
@@ -28,11 +30,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { NativeWalletValues } from '../types'
 
+const mbProp = [3]
+const mlProp = [0, 1.5]
+const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
+
 export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
-  const { deviceId } = state
-  const wallet = state.keyring.get<NativeHDWallet>(deviceId)
+  const { deviceId, keyring } = state
 
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -43,42 +48,64 @@ export const EnterPassword = () => {
     formState: { errors, isSubmitting, isValid },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
-  const handleShowClick = () => setShowPw(!showPw)
-  const onSubmit = async (values: FieldValues) => {
-    try {
-      const vault = await Vault.open(deviceId, values.password)
-      const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
-      mnemonic.addRevoker?.(() => vault.revoke())
-      await wallet?.loadDevice({
-        mnemonic,
-        deviceId,
-      })
-      const { name, icon } = NativeConfig
-      dispatch({
-        type: WalletActions.SET_WALLET,
-        payload: {
-          wallet,
-          name,
-          icon,
+  const handleShowClick = useCallback(() => setShowPw(!showPw), [showPw])
+  const onSubmit = useCallback(
+    async (values: FieldValues) => {
+      try {
+        const wallet = keyring.get<NativeHDWallet>(deviceId)
+        const vault = await Vault.open(deviceId, values.password)
+        const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
+        mnemonic.addRevoker?.(() => vault.revoke())
+        await wallet?.loadDevice({
+          mnemonic,
           deviceId,
-          connectedType: KeyManager.Native,
-          meta: { label: vault.meta.get('name') as string },
+        })
+        const { name, icon } = NativeConfig
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet,
+            name,
+            icon,
+            deviceId,
+            connectedType: KeyManager.Native,
+            meta: { label: vault.meta.get('name') as string },
+          },
+        })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      } catch (e) {
+        setError(
+          'password',
+          {
+            type: 'manual',
+            message: translate('modals.shapeShift.password.error.invalid'),
+          },
+          { shouldFocus: true },
+        )
+      }
+    },
+    [deviceId, dispatch, setError, translate, keyring],
+  )
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const handleDisconnect = useCallback(() => {
+    disconnect()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [disconnect, dispatch])
+
+  const passwordInputProps = useMemo(
+    () =>
+      register('password', {
+        required: translate('modals.shapeShift.password.error.required'),
+        minLength: {
+          value: 8,
+          message: translate('modals.shapeShift.password.error.length', { length: 8 }),
         },
-      })
-      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-      dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-    } catch (e) {
-      setError(
-        'password',
-        {
-          type: 'manual',
-          message: translate('modals.shapeShift.password.error.invalid'),
-        },
-        { shouldFocus: true },
-      )
-    }
-  }
+      }),
+    [register, translate],
+  )
 
   return (
     <>
@@ -97,7 +124,6 @@ export const EnterPassword = () => {
                 <FaWallet />
               </IconCircle>
             }
-            onClick={() => {}}
             data-test='native-saved-wallet-button'
           >
             <Box textAlign='left'>
@@ -116,17 +142,11 @@ export const EnterPassword = () => {
         ) : (
           <Text mb={6} color='text.subtle' translation={'modals.shapeShift.password.body'} />
         )}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.password)} mb={6}>
             <InputGroup size='lg' variant='filled'>
               <Input
-                {...register('password', {
-                  required: translate('modals.shapeShift.password.error.required'),
-                  minLength: {
-                    value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
-                  },
-                })}
+                {...passwordInputProps}
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.password.placeholder')}
@@ -159,18 +179,15 @@ export const EnterPassword = () => {
           </Button>
         </form>
         {state.isLoadingLocalWallet && (
-          <Flex direction={['column', 'row']} mt={4} justifyContent='center' alignItems='center'>
-            <Text mb={[3]} color='text.subtle' translation={'common.or'} />
+          <Flex direction={directionProp} mt={4} justifyContent='center' alignItems='center'>
+            <Text mb={mbProp} color='text.subtle' translation={'common.or'} />
             <Button
               variant='link'
-              mb={[3]}
-              ml={[0, 1.5]}
+              mb={mbProp}
+              ml={mlProp}
               borderTopRadius='none'
               colorScheme='blue'
-              onClick={() => {
-                disconnect()
-                dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-              }}
+              onClick={handleDisconnect}
             >
               {translate('walletProvider.shapeShift.password.connect')}
             </Button>

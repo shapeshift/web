@@ -1,11 +1,16 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import type { Property } from 'csstype'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 
 import { getWalletCount } from '../mobileMessageHandlers'
+
+const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
+const mlProp = [0, 1.5]
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
@@ -23,6 +28,13 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
+  const handleLoad = useCallback(() => history.push('/mobile/load'), [history])
+  const handleCreate = useCallback(() => history.push('/mobile/create'), [history])
+  const handleImport = useCallback(() => history.push('/mobile/import'), [history])
+  const handleLogin = useCallback(() => history.push('/mobile/legacy/login'), [history])
+
+  const arrowForwardIcon = <ArrowForwardIcon />
+
   return (
     <>
       <ModalHeader>
@@ -37,9 +49,9 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             isDisabled={!hasLocalWallet}
-            onClick={() => history.push('/mobile/load')}
+            onClick={handleLoad}
             data-test='wallet-native-load-button'
           >
             <Text translation={'walletProvider.shapeShift.start.load'} />
@@ -51,8 +63,8 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/mobile/create')}
+            rightIcon={arrowForwardIcon}
+            onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />
@@ -63,27 +75,21 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/mobile/import')}
+            rightIcon={arrowForwardIcon}
+            onClick={handleImport}
             data-test='wallet-native-import-button'
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
           <Divider mt={4} />
-          <Flex
-            direction={['column', 'row']}
-            mt={2}
-            pt={4}
-            justifyContent='center'
-            alignItems='center'
-          >
+          <Flex direction={directionProp} mt={2} pt={4} justifyContent='center' alignItems='center'>
             <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
             <Button
               variant='link'
-              ml={[0, 1.5]}
+              ml={mlProp}
               borderTopRadius='none'
               colorScheme='blue'
-              onClick={() => history.push('/mobile/legacy/login')}
+              onClick={handleLogin}
             >
               {translate('common.login')}
             </Button>

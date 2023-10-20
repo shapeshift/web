@@ -4,8 +4,6 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
-import { Web3Modal } from '@web3modal/react'
-import { getConfig } from 'config'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -57,7 +55,6 @@ export function AppProviders({ children }: ProvidersProps) {
         <PluginProvider>
           <ColorModeScript storageKey='ss-theme' />
           <ChatwootWidget />
-          <Web3Modal projectId={getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID} />
           <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
             <ToastContainer />
             <PersistGate loading={<SplashScreen />} persistor={persistor}>

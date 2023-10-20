@@ -1,19 +1,26 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
+import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { getConfig } from 'config'
 import type { Chain } from 'viem/chains'
 import { arbitrum, avalanche, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const WalletConnectV2Config: Omit<SupportedWalletInfo, 'routes'> = {
-  adapters: [WalletConnectV2Adapter],
+import type { EthereumProviderOptions } from './constants'
+
+type WalletConnectV2ConfigType = Omit<SupportedWalletInfo<typeof WalletConnectV2Adapter>, 'routes'>
+
+export const WalletConnectV2Config: WalletConnectV2ConfigType = {
+  adapters: [
+    {
+      loadAdapter: () =>
+        import('@shapeshiftoss/hdwallet-walletconnectv2').then(m => m.WalletConnectV2Adapter),
+    },
+  ],
   icon: WalletConnectIcon,
   name: 'WalletConnect',
   description: 'v2',
 }
-
 type ViemChain = Chain
 type AtLeastOneViemChain = [ViemChain, ...ViemChain[]]
 type AtLeastOneNumber = [number, ...number[]]

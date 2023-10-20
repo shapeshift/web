@@ -17,7 +17,7 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useMemo, useState } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
@@ -26,7 +26,9 @@ import { TransactionsGroupByDate } from 'components/TransactionHistory/Transacti
 import { selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const padding = { base: 4, md: 6 }
+const paddingProp = { base: 4, md: 6 }
+const selectedProp = { color: 'text.base' }
+const hoverProp = { cursor: 'pointer' }
 
 const CustomTab: React.FC<TabProps> = props => (
   <Tab
@@ -34,8 +36,8 @@ const CustomTab: React.FC<TabProps> = props => (
     fontWeight='medium'
     color='text.subtle'
     cursor='pointer'
-    _selected={{ color: 'text.base' }}
-    _hover={{ cursor: 'pointer' }}
+    _selected={selectedProp}
+    _hover={hoverProp}
     {...props}
   />
 )
@@ -53,7 +55,7 @@ const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
 
   if (limitTxIds.length === 0) {
     return (
-      <RawText px={padding} color='text.subtle'>
+      <RawText px={paddingProp} color='text.subtle'>
         {translate('transactionRow.emptyMessage', { status: txStatus })}
       </RawText>
     )
@@ -61,20 +63,26 @@ const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   return <TransactionsGroupByDate txIds={limitTxIds} useCompactMode />
 }
 
-export const TxWindow = () => {
+export const TxWindow = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
   const [limit, setLimit] = useState('25')
   const translate = useTranslate()
   const filter = useMemo(() => ({ txStatus: TxStatus.Pending }), [])
   const pendingTxIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
   const hasPendingTxs = useMemo(() => pendingTxIds.length > 0, [pendingTxIds])
+  const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
+  const handleClose = useCallback(() => setIsOpen(false), [])
+  const handleSetLimit = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => setLimit(e.target.value),
+    [],
+  )
   return (
     <>
       <Box position='relative'>
         <IconButton
           aria-label='Pending Transactions'
           icon={hasPendingTxs ? <CircularProgress size='18px' /> : <TxHistoryIcon />}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggleIsOpen}
         />
         <Circle
           position='absolute'
@@ -92,16 +100,16 @@ export const TxWindow = () => {
           {pendingTxIds.length}
         </Circle>
       </Box>
-      <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} size='sm'>
+      <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
         <DrawerContent
           minHeight='100vh'
           maxHeight='100vh'
           overflow='auto'
-          paddingTop={`env(safe-area-inset-top)`}
+          paddingTop='env(safe-area-inset-top)'
         >
-          <DrawerCloseButton top={'calc(var(--chakra-space-2) + env(safe-area-inset-top))'} />
-          <DrawerHeader px={padding} display='flex' alignItems='center' gap={2}>
+          <DrawerCloseButton top='calc(var(--chakra-space-2) + env(safe-area-inset-top))' />
+          <DrawerHeader px={paddingProp} display='flex' alignItems='center' gap={2}>
             <TxHistoryIcon color='text.subtle' />
             {translate('navBar.transactions')}
           </DrawerHeader>
@@ -109,7 +117,7 @@ export const TxWindow = () => {
             <Flex
               gap={4}
               justifyContent='space-between'
-              px={padding}
+              px={paddingProp}
               bg='background.surface.overlay.base'
               position='sticky'
               top={0}
@@ -129,7 +137,7 @@ export const TxWindow = () => {
                   size='sm'
                   variant='filled'
                   value={limit}
-                  onChange={e => setLimit(e.target.value)}
+                  onChange={handleSetLimit}
                   borderRadius='lg'
                   fontWeight='medium'
                 >
@@ -155,4 +163,4 @@ export const TxWindow = () => {
       </Drawer>
     </>
   )
-}
+})

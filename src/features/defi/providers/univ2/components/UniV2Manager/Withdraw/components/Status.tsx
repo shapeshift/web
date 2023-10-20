@@ -36,6 +36,7 @@ import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined }
+const externalLinkIcon = <ExternalLinkIcon />
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
@@ -267,7 +268,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset0.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}

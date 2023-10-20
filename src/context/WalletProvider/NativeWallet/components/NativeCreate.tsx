@@ -25,6 +25,8 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
 
+const faEyeIcon = <FaEye />
+
 const getVault = async (): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
@@ -156,7 +158,7 @@ export const NativeCreate = () => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

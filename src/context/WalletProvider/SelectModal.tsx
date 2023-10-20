@@ -99,7 +99,7 @@ const WalletSelectItem = ({
 
 export const SelectModal = () => {
   const {
-    state: { adapters, walletInfo },
+    state: { walletInfo },
     connect,
     create,
   } = useWallet()
@@ -123,7 +123,7 @@ export const SelectModal = () => {
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          {adapters &&
+          {
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(walletType => (
@@ -133,7 +133,8 @@ export const SelectModal = () => {
                 walletInfo={walletInfo}
                 connect={connect}
               />
-            ))}
+            ))
+          }
         </Grid>
         <Flex direction={flexDirProp} mt={2} justifyContent='center' alignItems='center'>
           <Text

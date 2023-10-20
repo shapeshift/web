@@ -28,6 +28,9 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
+const arrowBackIcon = <ArrowBackIcon />
+const faEyeIcon = <FaEye />
+
 export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
@@ -100,7 +103,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         fontSize='xl'
         size='sm'
@@ -132,7 +135,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

@@ -1,7 +1,7 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
@@ -22,6 +22,10 @@ type AccountEntryRowProps = {
   accountId: AccountId
   assetId: AssetId
 } & ButtonProps
+
+const fontSizeProps = { base: 'sm', md: 'md' }
+const flexDisplayProps = { base: 'none', md: 'flex' }
+const cryptoDisplayProps = { base: 'block', md: 'none' }
 
 export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
@@ -57,6 +61,16 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
     [asset?.icons, assetId, icon],
   )
 
+  const AccountEntryRowLeftIcon = useMemo(
+    () => <AssetIcon size='sm' {...assetIdOrIconSrcProps} />,
+    [assetIdOrIconSrcProps],
+  )
+
+  const onClick = useCallback(
+    () => history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter)),
+    [history, filter],
+  )
+
   return (
     <ListItem>
       <Button
@@ -66,11 +80,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         height='auto'
         iconSpacing={4}
         data-test='account-asset-row-button'
-        fontSize={{ base: 'sm', md: 'md' }}
-        leftIcon={<AssetIcon size='sm' {...assetIdOrIconSrcProps} />}
-        onClick={() =>
-          history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter))
-        }
+        fontSize={fontSizeProps}
+        leftIcon={AccountEntryRowLeftIcon}
+        onClick={onClick}
         {...buttonProps}
       >
         <Stack alignItems='flex-start' spacing={0} flex={1}>
@@ -79,7 +91,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             {subtitle}
           </RawText>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }} gap={2}>
+        <Flex flex={1} justifyContent='flex-end' display={flexDisplayProps} gap={2}>
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
           {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
@@ -89,7 +101,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             value={cryptoBalance}
             symbol={symbol ?? ''}
             fontSize='sm'
-            display={{ base: 'block', md: 'none' }}
+            display={cryptoDisplayProps}
           />
         </Flex>
       </Button>

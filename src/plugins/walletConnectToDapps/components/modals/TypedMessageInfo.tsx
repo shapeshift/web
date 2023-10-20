@@ -6,6 +6,8 @@ import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 
+const faCodeIcon = <FaCode />
+
 /**
  * yes, this is recursive jsx
  */
@@ -47,7 +49,7 @@ export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
               {translate('plugins.walletConnectToDapps.modal.signMessage.messageData')}
             </Box>
           }
-          icon={<FaCode />}
+          icon={faCodeIcon}
         >
           <PresentKeyValues object={parsedMessage.message} />
         </ModalCollapsableSection>
@@ -61,7 +63,7 @@ export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
                 {translate('plugins.walletConnectToDapps.modal.signMessage.domain')}
               </Box>
             }
-            icon={<FaCode />}
+            icon={faCodeIcon}
           >
             <PresentKeyValues object={parsedMessage.domain} />
           </ModalCollapsableSection>

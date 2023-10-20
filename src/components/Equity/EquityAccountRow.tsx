@@ -22,6 +22,8 @@ type EquityAccountRowProps = {
   color?: string
 }
 
+const accountsIcon = <AccountsIcon boxSize='18px' />
+
 export const EquityAccountRow = ({
   accountId,
   assetId,
@@ -62,7 +64,7 @@ export const EquityAccountRow = ({
           color={asset.color}
           size='sm'
           borderRadius='lg'
-          icon={<AccountsIcon boxSize='18px' />}
+          icon={accountsIcon}
         />
       }
       label={translate('accounts.accountNumber', { accountNumber })}

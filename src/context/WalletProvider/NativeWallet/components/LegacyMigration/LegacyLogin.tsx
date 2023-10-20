@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -35,6 +35,12 @@ type LegacyLoginProps = {
   onLoginSuccess: OnLoginSuccess
 }
 
+type LoginResponse = {
+  success: boolean
+  data: string
+  error: any
+}
+
 export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<boolean | string>(false)
   const [isTwoFactorRequired, setTwoFactorRequired] = useState(false)
@@ -49,91 +55,109 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
 
   const translate = useTranslate()
 
-  const isLoginError = (err: any): err is LoginResponseError =>
-    typeof err?.response?.data?.error?.msg === 'string' && typeof err.response.status === 'number'
+  const isLoginError = useCallback(
+    (err: any): err is LoginResponseError =>
+      typeof err?.response?.data?.error?.msg === 'string' &&
+      typeof err.response.status === 'number',
+    [],
+  )
 
-  const isRateLimitError = (err: any): err is RateLimitError =>
-    typeof err?.response?.data === 'string' && err?.response?.status === 429
+  const isRateLimitError = useCallback(
+    (err: any): err is RateLimitError =>
+      typeof err?.response?.data === 'string' && err?.response?.status === 429,
+    [],
+  )
 
-  const isDecryptionError = (err: any): err is Error =>
-    typeof err?.message === 'string' && err.message.startsWith('Native wallet decryption failed')
-
-  type LoginResponse = {
-    success: boolean
-    data: string
-    error: any
-  }
+  const isDecryptionError = useCallback(
+    (err: any): err is Error =>
+      typeof err?.message === 'string' && err.message.startsWith('Native wallet decryption failed'),
+    [],
+  )
 
   const MIGRATE_URL = getConfig().REACT_APP_WALLET_MIGRATION_URL
 
-  const onSubmit = async (values: FieldValues) => {
-    try {
-      const hashedPassword = await getPasswordHash(values.email, values.password)
-      const { data: response } = await axios.post<LoginResponse>(MIGRATE_URL, {
-        email: values.email,
-        password: hashedPassword,
-        twoFactorCode: values.twoFactorCode || undefined,
-        captchaSolution,
-      })
-      const { data: encryptedWallet } = response
-      // Callback to allow the wallet to save differently based on the platform
-      await onLoginSuccess({
-        encryptedWallet,
-        email: values.email,
-        password: values.password,
-      })
-      reset()
-    } catch (err) {
-      console.error(err)
-      setError(false)
-      setCaptchaSolution(null)
-      if (isRateLimitError(err)) {
-        setError(translate('walletProvider.shapeShift.legacy.tooManyAttempts'))
-        return
+  const onSubmit = useCallback(
+    async (values: FieldValues) => {
+      try {
+        const hashedPassword = await getPasswordHash(values.email, values.password)
+        const { data: response } = await axios.post<LoginResponse>(MIGRATE_URL, {
+          email: values.email,
+          password: hashedPassword,
+          twoFactorCode: values.twoFactorCode || undefined,
+          captchaSolution,
+        })
+        const { data: encryptedWallet } = response
+        // Callback to allow the wallet to save differently based on the platform
+        await onLoginSuccess({
+          encryptedWallet,
+          email: values.email,
+          password: values.password,
+        })
+        reset()
+      } catch (err) {
+        console.error(err)
+        setError(false)
+        setCaptchaSolution(null)
+        if (isRateLimitError(err)) {
+          setError(translate('walletProvider.shapeShift.legacy.tooManyAttempts'))
+          return
+        }
+        if (isLoginError(err)) {
+          if (
+            err.response.status === LoginErrors.twoFactorRequired.httpCode &&
+            err.response.data.error?.msg === LoginErrors.twoFactorRequired.msg
+          ) {
+            setTwoFactorRequired(true)
+            return
+          }
+
+          if (
+            err.response.status === LoginErrors.invalidCaptcha.httpCode &&
+            err.response.data.error.msg === LoginErrors.invalidCaptcha.msg
+          ) {
+            setError(translate('walletProvider.shapeShift.legacy.invalidCaptcha'))
+            return
+          }
+
+          if (
+            err.response.status === LoginErrors.twoFactorInvalid.httpCode &&
+            err.response.data.error.msg === LoginErrors.twoFactorInvalid.msg
+          ) {
+            setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
+            return
+          }
+
+          // Successful account login, but no ShapeShift Wallet for account.
+          if (
+            err.response.status === LoginErrors.noWallet.httpCode &&
+            err.response.data.error.msg.startsWith(LoginErrors.noWallet.msg)
+          ) {
+            setError(translate('walletProvider.shapeShift.legacy.noWallet'))
+            return
+          }
+        }
+
+        if (isDecryptionError(err)) {
+          setError(translate('walletProvider.shapeShift.legacy.decryptionError'))
+          return
+        }
+
+        setError(translate('walletProvider.shapeShift.legacy.invalidLogin'))
       }
-      if (isLoginError(err)) {
-        if (
-          err.response.status === LoginErrors.twoFactorRequired.httpCode &&
-          err.response.data.error?.msg === LoginErrors.twoFactorRequired.msg
-        ) {
-          setTwoFactorRequired(true)
-          return
-        }
+    },
+    [
+      MIGRATE_URL,
+      captchaSolution,
+      isDecryptionError,
+      isLoginError,
+      isRateLimitError,
+      onLoginSuccess,
+      reset,
+      translate,
+    ],
+  )
 
-        if (
-          err.response.status === LoginErrors.invalidCaptcha.httpCode &&
-          err.response.data.error.msg === LoginErrors.invalidCaptcha.msg
-        ) {
-          setError(translate('walletProvider.shapeShift.legacy.invalidCaptcha'))
-          return
-        }
-
-        if (
-          err.response.status === LoginErrors.twoFactorInvalid.httpCode &&
-          err.response.data.error.msg === LoginErrors.twoFactorInvalid.msg
-        ) {
-          setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
-          return
-        }
-
-        // Successful account login, but no ShapeShift Wallet for account.
-        if (
-          err.response.status === LoginErrors.noWallet.httpCode &&
-          err.response.data.error.msg.startsWith(LoginErrors.noWallet.msg)
-        ) {
-          setError(translate('walletProvider.shapeShift.legacy.noWallet'))
-          return
-        }
-      }
-
-      if (isDecryptionError(err)) {
-        setError(translate('walletProvider.shapeShift.legacy.decryptionError'))
-        return
-      }
-
-      setError(translate('walletProvider.shapeShift.legacy.invalidLogin'))
-    }
-  }
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   return (
     <>
@@ -147,7 +171,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
         />
       </ModalHeader>
       <ModalBody pt={0}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleFormSubmit}>
           <Box display={!isTwoFactorRequired ? 'block' : 'none'}>
             <Text
               color='text.subtle'

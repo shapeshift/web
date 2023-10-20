@@ -40,6 +40,9 @@ type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
+
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -261,6 +264,22 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
   if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   const handleCancel = browserHistory.goBack
@@ -273,21 +292,15 @@ export const Deposit: React.FC<DepositProps> = ({
       inputIcons={foxFarmingOpportunity?.icons}
       apy={String(foxFarmingOpportunity?.apy)}
       cryptoAmountAvailable={cryptoHumanAmountAvailable}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
+      cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
+      fiatInputValidation={fiatInputValidation}
       marketData={marketData}
       onCancel={handleCancel}
       onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
       onBack={handleBack}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
+      percentOptions={percentOptions}
       enableSlippage={false}
       isLoading={state.loading || !lpTokenPrice}
     />

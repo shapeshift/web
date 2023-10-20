@@ -27,7 +27,6 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
         onLoad={() => setImageLoaded(true)}
         src={src}
         size={size}
-        icon={emptyJsx}
         borderRadius={borderRadius}
       />
     </SkeletonCircle>

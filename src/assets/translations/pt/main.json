@@ -261,6 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "A taxa de %{assetName} que você ganha, o Retorno Percentual Anual (APR), normalmente oscila entre 7% e 20%.",
+          "amountStakingInfo": "Você pode depositar qualquer quantia de %{assetName} e eles vão lhe gerar recompensas imediatamente.",
+          "withdrawInfo": "Você pode sacar suas recompensas a qualquer momento, exigindo uma pequena taxa de gás em torno de aproximadamente US$ 0,01.",
           "unbondingInfo": "Quando você retirar seus tokens, eles permanecerão bloqueados por %{unbondingDays} dias, durante os quais não ganharão recompensas. Após os %{unbondingDays} dias, seu %{assetName} retornará à sua Carteira.",
           "slashingInfo": "O staking é feito através de um validador. É incrivelmente raro, mas se o validador com o qual você realizou o stake errar ao permitir transações falsas ou incorretas, você poderá perder uma parte de seus ativos.",
           "partnerInfo": "Reduzimos esse risco em parceria com validadores confiáveis, que possuem uma infraestrutura segura e auditada."
@@ -654,7 +656,8 @@
       "maxSlippage": "Slippage máximo. ",
       "auto": "Automático",
       "custom": "Personalizado",
-      "warning": "Alta tolerância a slippage pode resultar em negociações ineficientes. "
+      "warning": "Alta tolerância a slippage pode resultar em negociações ineficientes. ",
+      "lowSlippage": "Slippage abaixo de 0,05% pode resultar em falha na transação."
     },
     "from": "De",
     "to": "Para",
@@ -818,6 +821,7 @@
       "recoverySentence": {
         "header": "Anote sua frase de recuperação",
         "body": "Na tela da KeepKey, você verá sua frase de recuperação. Armazene-a em local seguro. Se você perder o acesso ao dispositivo, seus ativos SOMENTE estarão acessíveis por esta frase.",
+        "infoFirst": "É fundamental que você anote exatamente como aparece na KeepKey.",
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
       },
@@ -849,7 +853,8 @@
         "wrongPlatform": "Não está utilizando %{platform}? Clique aqui."
       },
       "disconnect": {
-        "header": "Disconecte seu dispositivo KeepKey"
+        "header": "Disconecte seu dispositivo KeepKey",
+        "body": "Infelizmente, ocorreu um erro ao recuperar/configurar seu dispositivo KeepKey. Desconecte e reconecte seu dispositivo e tente configurar seu dispositivo KeepKey novamente. Se o problema persistir, entre em contato com o suporte KeepKey."
       }
     },
     "shapeShift": {
@@ -1248,6 +1253,33 @@
         "header": "Erro",
         "body": "Não foi possível conectar sua carteira Keplr"
       }
+    },
+    "ledger": {
+      "chains": {
+        "header": "Importar contas da Ledger",
+        "body": "Para ver seus saldos de cada rede, você precisará conectar cada aplicativo.",
+        "availableChains": "Redes disponíveis",
+        "error": "Ocorreu um erro ao conectar sua carteira"
+      },
+      "success": {
+        "header": "Ledger conectada",
+        "success": "Agora você pode fechar esta janela ou ela será fechada automaticamente em breve",
+        "error": "Ocorreu um erro ao conectar sua carteira"
+      },
+      "errors": {
+        "connectFailure": "Não foi possível conectar a Ledger",
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Ledger"
+      },
+      "connect": {
+        "header": "Emparelhar a Ledger",
+        "body": "Clique em Emparelhar e selecione sua Ledger na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar a Ledger"
+      },
+      "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo."
     },
     "metaMask": {
       "errors": {
@@ -1904,7 +1936,8 @@
         "page-2": {
           "title": "Estratégias Junior Best Yield:",
           "bullets": {
-            "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários"
+            "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários",
+            "two": "Ofereça retornos maximizados sem que o usuário verifique constantemente as taxas e gaste com taxas em cada transferência"
           }
         }
       },

@@ -24,6 +24,9 @@ import { AddressLinks } from './AddressLinks'
 import { DappAvatar } from './DappAvatar'
 import { Networks } from './Networks'
 
+const checkIcon = <CheckIcon />
+const smallCloseIcon = <SmallCloseIcon />
+
 export const Session = ({ session }: { session: SessionTypes.Struct }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
@@ -105,7 +108,7 @@ export const Session = ({ session }: { session: SessionTypes.Struct }) => {
                 colorScheme='green'
                 size='sm'
                 onClick={handleReconnect}
-                leftIcon={<CheckIcon />}
+                leftIcon={checkIcon}
                 mt={2}
                 variant={'outline'}
               >
@@ -115,7 +118,7 @@ export const Session = ({ session }: { session: SessionTypes.Struct }) => {
                 colorScheme='red'
                 size='sm'
                 onClick={handleDisconnect}
-                leftIcon={<SmallCloseIcon />}
+                leftIcon={smallCloseIcon}
                 mt={2}
               >
                 <Text translation='plugins.walletConnectToDapps.header.menu.disconnect' />
@@ -126,7 +129,7 @@ export const Session = ({ session }: { session: SessionTypes.Struct }) => {
               colorScheme='red'
               size='sm'
               onClick={handleDisconnect}
-              leftIcon={<SmallCloseIcon />}
+              leftIcon={smallCloseIcon}
               mt={2}
             >
               <Text translation='plugins.walletConnectToDapps.header.menu.disconnect' />

@@ -10,6 +10,8 @@ type ExpandedMenuItemProps = {
   onBackClick?: () => void
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const SubmenuHeader = ({
   title,
   description,
@@ -27,7 +29,7 @@ export const SubmenuHeader = ({
           size='sm'
           onClick={handleBackClick ?? handleBackClickDefault}
           aria-label='Go Back'
-          icon={<ArrowBackIcon />}
+          icon={arrowBackIcon}
         />
         <Center fontWeight='bold' color={headerColor} fontSize='sm' flex={1} pr={7}>
           {upperFirst(title)}

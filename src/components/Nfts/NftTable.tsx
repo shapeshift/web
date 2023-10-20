@@ -32,6 +32,8 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
   />
 )
 
+const narwalIcon = <NarwhalIcon color='pink.200' />
+
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -80,6 +82,16 @@ export const NftTable = () => {
     return filteredNfts?.map(nft => <NftCard nftAssetId={nft.assetId} key={nft.assetId} />)
   }, [nftItems?.length, filteredNfts])
 
+  const handleResetFilters = useCallback(() => setNetworkFilters([]), [])
+
+  const nftNetworkFilterSetFilters = useCallback(
+    ({ network: networks }: { network?: ChainId[] }) => {
+      if (!networks?.length) return setNetworkFilters([])
+      setNetworkFilters(networks)
+    },
+    [],
+  )
+
   if (isLoading)
     return (
       <NftGrid>
@@ -89,13 +101,7 @@ export const NftTable = () => {
       </NftGrid>
     )
   if (!isLoading && !nftItems?.length)
-    return (
-      <ResultsEmpty
-        title='nft.emptyTitle'
-        body='nft.emptyBody'
-        icon={<NarwhalIcon color='pink.200' />}
-      />
-    )
+    return <ResultsEmpty title='nft.emptyTitle' body='nft.emptyBody' icon={narwalIcon} />
 
   return (
     <>
@@ -103,11 +109,8 @@ export const NftTable = () => {
         <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}
-            resetFilters={() => setNetworkFilters([])}
-            setFilters={({ network: networks }: { network?: ChainId[] }) => {
-              if (!networks?.length) return setNetworkFilters([])
-              setNetworkFilters(networks)
-            }}
+            resetFilters={handleResetFilters}
+            setFilters={nftNetworkFilterSetFilters}
             hasAppliedFilter={Boolean(networkFilters.length)}
           />
           <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />

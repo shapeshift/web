@@ -77,8 +77,6 @@ import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
 import { KeepKeyRoutes } from './routes'
-import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
-import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConnect } from './XDEFI/components/Connect'
@@ -223,11 +221,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,
-    routes: [
-      { path: '/walletconnectv2/connect', component: WalletConnectV2Connect },
-      { path: '/walletconnectv2/load', component: WalletConnectV2Load },
-      { path: '/walletconnectv2/create', component: WalletConnectV2Create },
-    ],
+    routes: [{ path: '/walletconnectv2/connect', component: WalletConnectV2Connect }],
   },
 }
 

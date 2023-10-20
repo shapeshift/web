@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
@@ -22,6 +22,8 @@ type AccountBalanceProps = {
   backLabel?: string
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
   accountId,
@@ -40,16 +42,16 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
+  const handleClick = useCallback(
+    () => history.push(backPath ?? `/dashboard/accounts/${accountId}`),
+    [history, backPath, accountId],
+  )
   const accountLabel = accountIdToLabel(accountId)
   if (!asset) return null
   return (
     <Card overflow='hidden'>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
-        <Button
-          size='sm'
-          leftIcon={<ArrowBackIcon />}
-          onClick={() => history.push(backPath ?? `/dashboard/accounts/${accountId}`)}
-        >
+        <Button size='sm' leftIcon={arrowBackIcon} onClick={handleClick}>
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>

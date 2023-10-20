@@ -7,6 +7,8 @@ type DefiModalHeaderProps = {
   onBack?: () => void
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const DefiModalHeader: React.FC<DefiModalHeaderProps> = ({ title, onBack }) => {
   return (
     <ModalHeader py={2} display='flex' justifyContent='space-between' alignItems='center'>
@@ -18,7 +20,7 @@ export const DefiModalHeader: React.FC<DefiModalHeaderProps> = ({ title, onBack 
           variant='ghost'
           aria-label='Back'
           onClick={onBack}
-          icon={<ArrowBackIcon />}
+          icon={arrowBackIcon}
         />
       )}
 

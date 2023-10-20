@@ -12,6 +12,8 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const CurrencyFormat = () => {
   const dispatch = useAppDispatch()
   const currentCurrencyFormat = useAppSelector(selectCurrencyFormat)
@@ -28,7 +30,7 @@ export const CurrencyFormat = () => {
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}

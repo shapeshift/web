@@ -3,6 +3,7 @@ import { Avatar, SkeletonCircle } from '@chakra-ui/react'
 import { useState } from 'react'
 
 export type LazyLoadAvatarProps = SkeletonProps & Pick<AvatarProps, 'src' | 'size'>
+
 export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
   src,
   size = 'sm',
@@ -24,7 +25,6 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
         onLoad={() => setImageLoaded(true)}
         src={src}
         size={size}
-        icon={<></>}
         borderRadius={borderRadius}
       />
     </SkeletonCircle>

@@ -28,6 +28,7 @@ import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/types'
 import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { FC } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -40,6 +41,8 @@ import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const faGasPumpIcon = <FaGasPump />
+const faWrenchIcon = <FaWrench />
 
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
@@ -60,6 +63,11 @@ export const EIP155TransactionConfirmation: FC<
     state: { walletInfo },
   } = useWallet()
   const WalletIcon = walletInfo?.icon ?? FoxIcon
+  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
+  const addressSummaryCardIcon = useMemo(
+    () => <Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />,
+    [feeAsset?.icon],
+  )
 
   const form = useForm<CustomTransactionData>({
     defaultValues: {
@@ -98,7 +106,7 @@ export const EIP155TransactionConfirmation: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
-          icon={<WalletIcon w='full' h='full' />}
+          icon={walletIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
@@ -110,7 +118,7 @@ export const EIP155TransactionConfirmation: FC<
         <AddressSummaryCard
           address={transaction.to}
           showWalletProviderName={false}
-          icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
+          icon={addressSummaryCardIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
@@ -135,7 +143,7 @@ export const EIP155TransactionConfirmation: FC<
             <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
           </HStack>
         }
-        icon={<FaGasPump />}
+        icon={faGasPumpIcon}
         defaultOpen={false}
       >
         <Box pt={2}>
@@ -146,7 +154,7 @@ export const EIP155TransactionConfirmation: FC<
         title={translate(
           'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.title',
         )}
-        icon={<FaWrench />}
+        icon={faWrenchIcon}
         defaultOpen={false}
       >
         <TransactionAdvancedParameters />

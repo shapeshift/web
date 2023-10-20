@@ -1,4 +1,4 @@
-import type { TabProps } from '@chakra-ui/react'
+import type { ResponsiveValue, TabProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -36,6 +36,7 @@ import {
 } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
+import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { FaExclamationTriangle, FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -58,6 +59,7 @@ import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
 import { NftOverview } from './components/NftOverview'
+
 const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')
   return (
@@ -74,6 +76,17 @@ const NftTab: React.FC<TabProps> = props => {
 export type NftModalProps = {
   nftAssetId: AssetId
 }
+
+const faSyncIcon = <FaSync />
+const arrowRightUpIcon = <ArrowRightUp />
+const faExclamationTriangleIcon = <FaExclamationTriangle />
+
+const modalContentFlexDirProps: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  md: 'row',
+}
+const justifyContextProps = { base: 'flex-start', md: 'center' }
+const flexPositionProps: ResponsiveValue<Property.Position> = { base: 'static', md: 'absolute' }
 
 export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const dispatch = useAppDispatch()
@@ -207,7 +220,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
             direction='row'
             alignItems='center'
             p={{ base: 8, md: 20 }}
-            justifyContent={{ base: 'flex-start', md: 'center' }}
+            justifyContent={justifyContextProps}
             bg='blackAlpha.500'
             transition='all 1s ease-in-out'
             backdropFilter='auto'
@@ -217,12 +230,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
             flexDir='column'
             gap={4}
           >
-            <Flex position={{ base: 'static', md: 'absolute' }} right='1em' top='1em' gap='1em'>
+            <Flex position={flexPositionProps} right='1em' top='1em' gap='1em'>
               <IconButton
                 size='sm'
                 colorScheme='whiteAlpha'
                 onClick={handleRefreshClick}
-                icon={<FaSync />}
+                icon={faSyncIcon}
                 aria-label='Refresh'
               />
               {customizeLink && (
@@ -232,7 +245,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                   href={customizeLink.url}
                   size='sm'
                   colorScheme='whiteAlpha'
-                  rightIcon={<ArrowRightUp />}
+                  rightIcon={arrowRightUpIcon}
                 >
                   {translate(`nft.${customizeLink.key}`)}
                 </Button>
@@ -244,7 +257,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                   href={assetLink}
                   size='sm'
                   colorScheme='whiteAlpha'
-                  rightIcon={<ArrowRightUp />}
+                  rightIcon={arrowRightUpIcon}
                 >
                   OpenSea
                 </Button>
@@ -253,7 +266,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                 as={Link}
                 size='sm'
                 colorScheme='whiteAlpha'
-                rightIcon={<FaExclamationTriangle />}
+                rightIcon={faExclamationTriangleIcon}
                 onClick={handleReportSpamClick}
               >
                 {translate('nft.reportSpam')}
@@ -315,7 +328,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                 variant='link'
                 color='blue.200'
                 fontSize='xs'
-                rightIcon={<ArrowRightUp />}
+                rightIcon={arrowRightUpIcon}
               >
                 {collectionName}
               </Button>
@@ -414,7 +427,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
         overflow='hidden'
         bg={modalBg}
         borderWidth={0}
-        flexDir={{ base: 'column', md: 'row' }}
+        flexDir={modalContentFlexDirProps}
       >
         <ModalCloseButton zIndex='sticky' />
         {nftModalMedia}

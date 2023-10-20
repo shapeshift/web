@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -34,6 +34,9 @@ type VaultInfo = {
   name: string
   createdAt: number
 }
+
+const editIcon = <EditIcon />
+const deleteIcon = <DeleteIcon />
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
@@ -107,23 +110,29 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     }
   }
 
-  const handleDelete = async (wallet: VaultInfo) => {
-    const result = window.confirm(
-      translate('walletProvider.shapeShift.load.confirmForget', {
-        wallet: wallet.name ?? wallet.id,
-      }),
-    )
-    if (result) {
-      try {
-        await Vault.delete(wallet.id)
-        setWallets([])
-      } catch (e) {
-        setError('walletProvider.shapeShift.load.error.delete')
+  const handleDelete = useCallback(
+    async (wallet: VaultInfo) => {
+      const result = window.confirm(
+        translate('walletProvider.shapeShift.load.confirmForget', {
+          wallet: wallet.name ?? wallet.id,
+        }),
+      )
+      if (result) {
+        try {
+          await Vault.delete(wallet.id)
+          setWallets([])
+        } catch (e) {
+          setError('walletProvider.shapeShift.load.error.delete')
+        }
       }
-    }
-  }
+    },
+    [translate],
+  )
 
-  const handleRename = (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet })
+  const handleRename = useCallback(
+    (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet }),
+    [history],
+  )
 
   return (
     <>
@@ -180,13 +189,13 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                   <IconButton
                     aria-label={translate('common.rename')}
                     variant='ghost'
-                    icon={<EditIcon />}
+                    icon={editIcon}
                     onClick={() => handleRename(wallet)}
                   />
                   <IconButton
                     aria-label={translate('common.forget')}
                     variant='ghost'
-                    icon={<DeleteIcon />}
+                    icon={deleteIcon}
                     onClick={() => handleDelete(wallet)}
                   />
                 </Box>

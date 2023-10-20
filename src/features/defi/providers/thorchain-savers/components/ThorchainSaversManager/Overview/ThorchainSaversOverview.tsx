@@ -71,6 +71,8 @@ type OverviewProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const faTwitterIcon = <FaTwitter />
+
 export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -328,7 +330,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
                   isExternal
                   mt={4}
                   colorScheme='twitter'
-                  rightIcon={<FaTwitter />}
+                  rightIcon={faTwitterIcon}
                 >
                   @THORChain
                 </Button>

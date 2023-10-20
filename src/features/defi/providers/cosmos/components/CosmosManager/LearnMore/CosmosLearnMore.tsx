@@ -49,6 +49,11 @@ type LearnMoreProps = {
   onClose: () => void
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
+const minWidthProps = { base: '100%', md: '500px' }
+const maxWidthProps = { base: 'full', md: '500px' }
+
 export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
   const history = useHistory()
 
@@ -89,7 +94,7 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
     <>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={'common.back'}
         position='absolute'
         top={2}
@@ -103,8 +108,8 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
         pb='20px'
         px='24px'
         width='full'
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
+        minWidth={minWidthProps}
+        maxWidth={maxWidthProps}
       >
         <Flex direction='column' height='520px' alignItems='center' justifyContent='space-between'>
           <SlideTransition key={activeStep}>

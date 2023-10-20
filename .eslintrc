@@ -16,7 +16,8 @@
   "plugins": [
     "jest",
     "prettier",
-    "simple-import-sort"
+    "simple-import-sort",
+    "eslint-plugin-react-memo"
   ],
   "parserOptions": {
     "sourceType": "module"
@@ -79,7 +80,8 @@
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-handler-names": "error",
     "require-await": "error",
-    "import/no-duplicates": "error"
+    "import/no-duplicates": "error",
+    "react-memo/require-usememo": "warn"
   },
   "overrides": [
     {

@@ -9693,6 +9693,7 @@ __metadata:
     eslint-plugin-cypress: ^2.14.0
     eslint-plugin-import: ^2.28.0
     eslint-plugin-prettier: ^5.0.0
+    eslint-plugin-react-memo: ^0.0.3
     eslint-plugin-simple-import-sort: ^10.0.0
     eth-url-parser: ^1.0.4
     ethers: ^5.7.2
@@ -19965,6 +19966,13 @@ __metadata:
   peerDependencies:
     eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
   checksum: 0ba1566ba0780bbc75a5921f49188edf232db2085ab32c8d3889592f0db9d6fadc97fcf639775e0101dec6b5409ca3c803ec44213b90c8bacaf0bdf921871c2e
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-react-memo@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "eslint-plugin-react-memo@npm:0.0.3"
+  checksum: fe144c34993ba1ca9fdaeee7a0eb85179b450d289891eb79ab73e25981b194e0951491bb4fe04814b176de57c7949db6c2f206390300b5b085837286692b990e
   languageName: node
   linkType: hard
 

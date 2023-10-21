@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -30,6 +30,8 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
   const history = useHistory()
@@ -45,25 +47,67 @@ export const Address = () => {
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const isYatSupportedChain = asset?.chainId === ethChainId // yat only supports eth mainnet
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
+  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+
   useEffect(() => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-
   const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
 
+  const handleClick = useCallback(
+    () =>
+      history.push(SendRoutes.Select, {
+        toRoute: SelectAssetRoutes.Search,
+        assetId: asset?.assetId ?? '',
+      }),
+    [history, asset],
+  )
+
+  const addressInputRules = useMemo(
+    () => ({
+      required: true,
+      validate: {
+        validateAddress: async (rawInput: string) => {
+          if (!asset) return
+
+          const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
+          setIsValidating(true)
+          setValue(SendFormFields.To, '')
+          setValue(SendFormFields.VanityAddress, '')
+          const { assetId, chainId } = asset
+          // this does not throw, everything inside is handled
+          const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
+          const { address, vanityAddress } = await parseAddressInputWithChainId(
+            parseAddressInputWithChainIdArgs,
+          )
+          setIsValidating(false)
+          // set returned values
+          setValue(SendFormFields.To, address)
+          setValue(SendFormFields.VanityAddress, vanityAddress)
+          const invalidMessage = isYatSupported
+            ? 'common.invalidAddressOrYat'
+            : 'common.invalidAddress'
+          return address ? true : invalidMessage
+        },
+      },
+    }),
+    [asset, isYatSupported, setValue],
+  )
+
+  const handleCancel = useCallback(() => send.close(), [send])
+
   if (!asset) return null
-  const { chainId } = asset
-  const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
-  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
-  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}
@@ -71,12 +115,7 @@ export const Address = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() =>
-          history.push(SendRoutes.Select, {
-            toRoute: SelectAssetRoutes.Search,
-            assetId: asset.assetId,
-          })
-        }
+        onClick={handleClick}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
@@ -88,31 +127,7 @@ export const Address = () => {
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>
           <AddressInput
-            rules={{
-              required: true,
-              validate: {
-                validateAddress: async (rawInput: string) => {
-                  const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
-                  setIsValidating(true)
-                  setValue(SendFormFields.To, '')
-                  setValue(SendFormFields.VanityAddress, '')
-                  const { assetId } = asset
-                  // this does not throw, everything inside is handled
-                  const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
-                  const { address, vanityAddress } = await parseAddressInputWithChainId(
-                    parseAddressInputWithChainIdArgs,
-                  )
-                  setIsValidating(false)
-                  // set returned values
-                  setValue(SendFormFields.To, address)
-                  setValue(SendFormFields.VanityAddress, vanityAddress)
-                  const invalidMessage = isYatSupported
-                    ? 'common.invalidAddressOrYat'
-                    : 'common.invalidAddress'
-                  return address ? true : invalidMessage
-                },
-              },
-            }}
+            rules={addressInputRules}
             enableQr={true}
             placeholder={translate(
               isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
@@ -134,7 +149,7 @@ export const Address = () => {
           >
             <Text translation={addressError || 'common.next'} />
           </Button>
-          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={handleCancel}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

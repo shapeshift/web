@@ -59,6 +59,8 @@ export const Languages = () => {
               key={locale.key}
               variant='ghost'
               data-test={`locale-${locale.key}-button`}
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => {
                 dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
               }}

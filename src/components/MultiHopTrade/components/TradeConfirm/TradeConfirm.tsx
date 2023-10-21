@@ -38,6 +38,7 @@ import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -76,6 +77,8 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from '../../types'
 import { PriceImpact } from '../PriceImpact'
+
+const stackDivider = <StackDivider />
 
 export const TradeConfirm = () => {
   const history = useHistory()
@@ -407,6 +410,14 @@ export const TradeConfirm = () => {
     ],
   )
 
+  const gasFeeExceedsTradeAmountThresholdTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'trade.gasFeeExceedsTradeAmountThreshold',
+      { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
+    ],
+    [networkFeeToTradeRatioPercentage],
+  )
+
   const footer: JSX.Element = useMemo(
     () => (
       <CardFooter flexDir='column' gap={2} px={4}>
@@ -423,12 +434,7 @@ export const TradeConfirm = () => {
               <Alert status='warning' size='sm'>
                 <AlertIcon />
                 <AlertDescription>
-                  <Text
-                    translation={[
-                      'trade.gasFeeExceedsTradeAmountThreshold',
-                      { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
-                    ]}
-                  />
+                  <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
                 </AlertDescription>
               </Alert>
             )}
@@ -454,7 +460,7 @@ export const TradeConfirm = () => {
       swapperName,
       translate,
       isFeeRatioOverThreshold,
-      networkFeeToTradeRatioPercentage,
+      gasFeeExceedsTradeAmountThresholdTranslation,
       isModeratePriceImpact,
     ],
   )
@@ -471,7 +477,7 @@ export const TradeConfirm = () => {
           <Stack
             spacing={4}
             borderColor={borderColor}
-            divider={<StackDivider />}
+            divider={stackDivider}
             fontSize='sm'
             fontWeight='medium'
           >

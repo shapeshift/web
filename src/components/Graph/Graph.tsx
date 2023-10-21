@@ -14,6 +14,8 @@ const PrimaryChart = lazy(() =>
   import('./PrimaryChart/PrimaryChart').then(({ PrimaryChart }) => ({ default: PrimaryChart })),
 )
 
+const suspenseFallback = <div />
+
 type GraphProps = {
   data: BalanceChartData
   isLoaded?: boolean
@@ -49,7 +51,7 @@ export const Graph: React.FC<GraphProps> = ({
         </Fade>
       ) : !isEmpty(data) ? (
         isRainbowChart ? (
-          <Suspense fallback={<div />}>
+          <Suspense fallback={suspenseFallback}>
             <RainbowChart
               height={height}
               width={width}

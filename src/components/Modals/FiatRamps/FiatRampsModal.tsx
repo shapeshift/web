@@ -12,6 +12,10 @@ export type FiatRampsModalProps = {
   fiatRampAction: FiatRampAction
 }
 
+const modalContentBorderRadius = { base: 0, md: 'xl' }
+const modalContentMinWidth = { base: '100%', md: '500px' }
+const modalContentMaxWidth = { base: 'full', md: '500px' }
+
 export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
   fiatRampAction,
   assetId,
@@ -32,9 +36,9 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
 
       <ModalContent
         width='full'
-        borderRadius={{ base: 0, md: 'xl' }}
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
+        borderRadius={modalContentBorderRadius}
+        minWidth={modalContentMinWidth}
+        maxWidth={modalContentMaxWidth}
       >
         <FiatForm assetId={assetId} fiatRampAction={fiatRampAction} accountId={accountId} />
       </ModalContent>

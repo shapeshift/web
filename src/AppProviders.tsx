@@ -36,6 +36,8 @@ type ProvidersProps = {
 
 const manager = createLocalStorageManager('ss-theme')
 
+const splashScreen = <SplashScreen />
+
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(
@@ -57,7 +59,7 @@ export function AppProviders({ children }: ProvidersProps) {
           <ChatwootWidget />
           <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
             <ToastContainer />
-            <PersistGate loading={<SplashScreen />} persistor={persistor}>
+            <PersistGate loading={splashScreen} persistor={persistor}>
               <HashRouter basename='/'>
                 <ScrollToTop />
                 <BrowserRouterProvider>

@@ -13,6 +13,8 @@ import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './AssetChainDropdown'
 
+const chevronDownIcon = <ChevronDownIcon />
+
 const TradeAssetAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
   return (
@@ -75,7 +77,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         size='sm'
         borderRadius='full'
         onClick={onAssetClick}
-        rightIcon={<ChevronDownIcon />}
+        rightIcon={chevronDownIcon}
         flexGrow={0}
         flexShrink={0}
       >

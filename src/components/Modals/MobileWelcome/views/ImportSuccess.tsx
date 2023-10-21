@@ -6,6 +6,8 @@ import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const ImportSuccess = () => {
   const history = useHistory()
   const translate = useTranslate()
@@ -33,7 +35,7 @@ export const ImportSuccess = () => {
           size='lg'
           colorScheme='blue'
           onClick={handleContinueClick}
-          rightIcon={<ArrowForwardIcon />}
+          rightIcon={arrowForwardIcon}
         >
           {translate('modals.mobileWelcome.success.primaryCta')}
         </Button>

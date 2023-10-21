@@ -28,6 +28,8 @@ const NotificationFeedProvider = lazy(() =>
   })),
 )
 
+const suspenseFallback = <div />
+
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 
 export const Notifications = memo(() => {
@@ -140,7 +142,7 @@ export const Notifications = memo(() => {
 
   return (
     <Box>
-      <Suspense fallback={<div />}>
+      <Suspense fallback={suspenseFallback}>
         <NotificationFeedProvider
           customSigner={customSignerProp}
           partnerKey={partnerKey}

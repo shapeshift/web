@@ -38,6 +38,8 @@ type StakingPositionsByProviderProps = {
   assetId: AssetId
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export type RowProps = Row<StakingEarnOpportunityType>
 
 type CalculateRewardFiatAmountArgs = {
@@ -241,7 +243,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               height='auto'
               borderRadius='lg'
               px={2}
-              rightIcon={<ArrowForwardIcon />}
+              rightIcon={arrowForwardIcon}
               onClick={() => handleClick(row, DefiAction.Claim)}
             >
               <Amount.Fiat value={fiatAmount} />

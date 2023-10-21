@@ -34,6 +34,12 @@ const mbProp = [3]
 const mlProp = [0, 1.5]
 const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 
+const leftIcon = (
+  <IconCircle boxSize={10}>
+    <FaWallet />
+  </IconCircle>
+)
+
 export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
@@ -119,11 +125,7 @@ export const EnterPassword = () => {
             variant='unstyled'
             display='flex'
             mb={4}
-            leftIcon={
-              <IconCircle boxSize={10}>
-                <FaWallet />
-              </IconCircle>
-            }
+            leftIcon={leftIcon}
             data-test='native-saved-wallet-button'
           >
             <Box textAlign='left'>

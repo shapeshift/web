@@ -1,10 +1,16 @@
 import { Search2Icon } from '@chakra-ui/icons'
 import { Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 
 export const SearchEmpty = ({ searchQuery }: { searchQuery?: string }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
+  const noResultsBodyTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['common.noResultsBody', { searchQuery: `"${searchQuery}"` }],
+    [searchQuery],
+  )
   return (
     <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
       <Flex>
@@ -19,11 +25,7 @@ export const SearchEmpty = ({ searchQuery }: { searchQuery?: string }) => {
           letterSpacing='0.02em'
           translation='common.noResultsFound'
         />
-        <Text
-          color='text.subtle'
-          letterSpacing='0.012em'
-          translation={['common.noResultsBody', { searchQuery: `"${searchQuery}"` }]}
-        />
+        <Text color='text.subtle' letterSpacing='0.012em' translation={noResultsBodyTranslation} />
       </Flex>
     </Flex>
   )

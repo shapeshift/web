@@ -44,10 +44,10 @@ export const NativeCreate = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
-  const handleShow = () => {
+  const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
-  }
+  }, [revealed])
   const [vault, setVault] = useState<Vault | null>(null)
   const [words, setWords] = useState<ReactNode[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())

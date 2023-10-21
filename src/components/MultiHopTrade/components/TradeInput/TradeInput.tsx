@@ -89,6 +89,8 @@ const formControlProps = {
   paddingBottom: 0,
 }
 
+const arrowDownIcon = <ArrowDownIcon />
+
 const percentOptions = [1]
 
 export const TradeInput = memo(() => {
@@ -355,6 +357,64 @@ export const TradeInput = memo(() => {
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
+  const countdownCircleTimerIcon = useMemo(
+    () => (
+      <CountdownCircleTimer
+        isPlaying
+        duration={20}
+        size={20}
+        strokeWidth={3}
+        trailColor={themeTrackColor as ColorFormat}
+        colors={themeIndicatorColor as ColorFormat}
+      />
+    ),
+    [themeIndicatorColor, themeTrackColor],
+  )
+
+  const sellTradeAssetSelect = useMemo(
+    () => (
+      <TradeAssetSelect
+        accountId={sellAssetAccountId}
+        onAccountIdChange={setSellAssetAccountId}
+        assetId={sellAsset.assetId}
+        onAssetClick={handleSellAssetClick}
+        label={translate('trade.from')}
+        onAssetChange={setSellAsset}
+      />
+    ),
+    [
+      handleSellAssetClick,
+      sellAsset.assetId,
+      sellAssetAccountId,
+      setSellAsset,
+      setSellAssetAccountId,
+      translate,
+    ],
+  )
+
+  const buyTradeAssetSelect = useMemo(
+    () => (
+      <TradeAssetSelect
+        accountId={buyAssetAccountId}
+        assetId={buyAsset.assetId}
+        onAssetClick={handleBuyAssetClick}
+        onAccountIdChange={setBuyAssetAccountId}
+        accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+        label={translate('trade.to')}
+        onAssetChange={setBuyAsset}
+      />
+    ),
+    [
+      buyAsset.assetId,
+      buyAssetAccountId,
+      handleBuyAssetClick,
+      setBuyAsset,
+      setBuyAssetAccountId,
+      swapperSupportsCrossAccountTrade,
+      translate,
+    ],
+  )
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
@@ -371,16 +431,7 @@ export const TradeInput = memo(() => {
                       <IconButton
                         variant='ghost'
                         aria-label='Quote status'
-                        icon={
-                          <CountdownCircleTimer
-                            isPlaying
-                            duration={20}
-                            size={20}
-                            strokeWidth={3}
-                            trailColor={themeTrackColor as ColorFormat}
-                            colors={themeIndicatorColor as ColorFormat}
-                          />
-                        }
+                        icon={countdownCircleTimerIcon}
                       />
                     </FadeTransition>
                   )}
@@ -398,16 +449,7 @@ export const TradeInput = memo(() => {
               asset={sellAsset}
               label={translate('trade.payWith')}
               onAccountIdChange={setSellAssetAccountId}
-              labelPostFix={
-                <TradeAssetSelect
-                  accountId={sellAssetAccountId}
-                  onAccountIdChange={setSellAssetAccountId}
-                  assetId={sellAsset.assetId}
-                  onAssetClick={handleSellAssetClick}
-                  label={translate('trade.from')}
-                  onAssetChange={setSellAsset}
-                />
-              }
+              labelPostFix={sellTradeAssetSelect}
             />
             <Flex alignItems='center' justifyContent='center' my={-2}>
               <Divider />
@@ -420,7 +462,7 @@ export const TradeInput = memo(() => {
                 borderColor='border.base'
                 zIndex={1}
                 aria-label='Switch Assets'
-                icon={<ArrowDownIcon />}
+                icon={arrowDownIcon}
               />
               <Divider />
             </Flex>
@@ -445,17 +487,7 @@ export const TradeInput = memo(() => {
               label={translate('trade.youGet')}
               onAccountIdChange={setBuyAssetAccountId}
               formControlProps={formControlProps}
-              labelPostFix={
-                <TradeAssetSelect
-                  accountId={buyAssetAccountId}
-                  assetId={buyAsset.assetId}
-                  onAssetClick={handleBuyAssetClick}
-                  onAccountIdChange={setBuyAssetAccountId}
-                  accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-                  label={translate('trade.to')}
-                  onAssetChange={setBuyAsset}
-                />
-              }
+              labelPostFix={buyTradeAssetSelect}
             >
               <Collapse in={!!sortedQuotes.length && hasUserEnteredAmount}>
                 {MaybeRenderedTradeQuotes}

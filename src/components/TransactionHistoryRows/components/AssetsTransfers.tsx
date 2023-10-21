@@ -24,6 +24,12 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
     variant: 'ghost-filled',
   })
 
+  const stackMt = useMemo(() => ({ base: 2, md: 0, xl: compactMode ? 2 : 0 }), [compactMode])
+  const circleBoxSize = useMemo(
+    () => ({ base: '24px', lg: compactMode ? '24px' : '40px' }),
+    [compactMode],
+  )
+
   const aggregatedFiatValue = useMemo(() => {
     const fiatValue = transfers.reduce((acc, transfer) => {
       const precision = transfer.asset?.precision ?? FALLBACK_PRECISION
@@ -39,13 +45,13 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
       alignItems='center'
       key={index}
       flex={1}
-      mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+      mt={stackMt}
       direction={index === 0 ? 'row' : 'row-reverse'}
       textAlign={index === 0 ? 'left' : 'right'}
     >
       <Circle
         // @ts-ignore boxSize is a valid prop for <Circle />
-        boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+        boxSize={circleBoxSize}
         color={circleColor}
         bg={circleBgColor}
       >

@@ -12,6 +12,8 @@ import { getWalletCount } from '../mobileMessageHandlers'
 const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 const mlProp = [0, 1.5]
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
   const translate = useTranslate()
@@ -32,8 +34,6 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
   const handleCreate = useCallback(() => history.push('/mobile/create'), [history])
   const handleImport = useCallback(() => history.push('/mobile/import'), [history])
   const handleLogin = useCallback(() => history.push('/mobile/legacy/login'), [history])
-
-  const arrowForwardIcon = <ArrowForwardIcon />
 
   return (
     <>

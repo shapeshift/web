@@ -18,18 +18,17 @@ import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
 
+const gridTemplateColumns = {
+  base: 'repeat(auto-fit, minmax(150px, 1fr))',
+  sm: 'repeat(2, 1fr)',
+  md: 'repeat(3, 1fr)',
+  lg: 'repeat(4, 1fr)',
+}
+const gridPaddingX = { base: 4, xl: 0 }
+const boxPaddingX = { base: 4, xl: 0 }
+
 const NftGrid: React.FC<SimpleGridProps> = props => (
-  <SimpleGrid
-    gridGap={4}
-    gridTemplateColumns={{
-      base: 'repeat(auto-fit, minmax(150px, 1fr))',
-      sm: 'repeat(2, 1fr)',
-      md: 'repeat(3, 1fr)',
-      lg: 'repeat(4, 1fr)',
-    }}
-    px={{ base: 4, xl: 0 }}
-    {...props}
-  />
+  <SimpleGrid gridGap={4} gridTemplateColumns={gridTemplateColumns} px={gridPaddingX} {...props} />
 )
 
 const narwalIcon = <NarwhalIcon color='pink.200' />
@@ -105,7 +104,7 @@ export const NftTable = () => {
 
   return (
     <>
-      <Box mb={4} px={{ base: 4, xl: 0 }}>
+      <Box mb={4} px={boxPaddingX}>
         <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}

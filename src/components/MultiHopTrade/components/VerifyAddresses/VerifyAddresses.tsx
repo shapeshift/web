@@ -24,6 +24,7 @@ import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -194,17 +195,39 @@ export const VerifyAddresses = () => {
     ],
   )
 
+  const handleBuyVerify = useCallback(() => handleVerify('buy'), [handleVerify])
+  const handleSellVerify = useCallback(() => handleVerify('sell'), [handleVerify])
+
+  const verifyBuyAssetTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['trade.verifyAsset', { asset: buyAsset.symbol }],
+    [buyAsset.symbol],
+  )
+
+  const verifySellAssetTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['trade.verifyAsset', { asset: sellAsset.symbol }],
+    [sellAsset.symbol],
+  )
+
+  const buyAssetAddressTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['trade.assetAddress', { asset: buyAsset.symbol }],
+    [buyAsset.symbol],
+  )
+  const sellAssetAddressTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['trade.assetAddress', { asset: sellAsset.symbol }],
+    [sellAsset.symbol],
+  )
+
   const renderButton = useMemo(() => {
     if (!buyVerified) {
       return (
         <Button
           size='lg'
           colorScheme='blue'
-          onClick={() => handleVerify('buy')}
+          onClick={handleBuyVerify}
           isLoading={isBuyVerifying}
           loadingText='Confirm on device'
         >
-          <Text translation={['trade.verifyAsset', { asset: buyAsset.symbol }]} />
+          <Text translation={verifyBuyAssetTranslation} />
         </Button>
       )
     }
@@ -214,11 +237,11 @@ export const VerifyAddresses = () => {
         <Button
           size='lg'
           colorScheme='blue'
-          onClick={() => handleVerify('sell')}
+          onClick={handleSellVerify}
           isLoading={isSellVerifying}
           loadingText='Confirm on device'
         >
-          <Text translation={['trade.verifyAsset', { asset: sellAsset.symbol }]} />
+          <Text translation={verifySellAssetTranslation} />
         </Button>
       )
     }
@@ -234,14 +257,15 @@ export const VerifyAddresses = () => {
       </Button>
     )
   }, [
-    buyAsset.symbol,
     buyVerified,
+    handleBuyVerify,
     handleContinue,
-    handleVerify,
+    handleSellVerify,
     isBuyVerifying,
     isSellVerifying,
-    sellAsset.symbol,
     sellVerified,
+    verifyBuyAssetTranslation,
+    verifySellAssetTranslation,
   ])
 
   const handleBack = useCallback(() => {
@@ -262,7 +286,7 @@ export const VerifyAddresses = () => {
         <Card overflow='hidden'>
           <CardHeader display='flex' alignItems='center' gap={2}>
             <AssetIcon size='xs' assetId={buyAsset.assetId} />
-            <Text translation={['trade.assetAddress', { asset: buyAsset.symbol }]} />
+            <Text translation={buyAssetAddressTranslation} />
           </CardHeader>
           <CardBody bg='background.surface.raised.base'>
             <Stack>
@@ -281,7 +305,7 @@ export const VerifyAddresses = () => {
         <Card overflow='hidden'>
           <CardHeader display='flex' alignItems='center' gap={2}>
             <AssetIcon size='xs' assetId={sellAsset.assetId} />
-            <Text translation={['trade.assetAddress', { asset: sellAsset.symbol }]} />
+            <Text translation={sellAssetAddressTranslation} />
           </CardHeader>
           <CardBody bg='background.surface.raised.base'>
             <Stack>

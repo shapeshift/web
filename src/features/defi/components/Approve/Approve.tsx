@@ -11,12 +11,14 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import isUndefined from 'lodash/isUndefined'
+import { useCallback, useMemo } from 'react'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
@@ -44,6 +46,8 @@ type ApproveProps = {
   onCancel(): void
 }
 
+const divider = <Divider />
+
 export const Approve = ({
   asset,
   spenderContractAddress,
@@ -58,9 +62,9 @@ export const Approve = ({
   learnMoreLink,
   loading,
   loadingText,
-  onCancel,
-  onConfirm,
-  onToggle,
+  onCancel: handleCancel,
+  onConfirm: handleConfirm,
+  onToggle: handleToggle,
   preFooter,
   providerIcon,
 }: ApproveProps) => {
@@ -74,8 +78,20 @@ export const Approve = ({
     dispatch,
   } = useWallet()
 
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+
+  const approveHeaderTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.approve.header', { asset: asset.name, spenderName }],
+    [asset.name, spenderName],
+  )
+
+  const handleApproveClick = useCallback(
+    () => (isConnected ? handleConfirm() : handleWalletModalOpen()),
+    [handleConfirm, handleWalletModalOpen, isConnected],
+  )
 
   return (
     <Stack
@@ -83,7 +99,7 @@ export const Approve = ({
       borderColor={borderColor}
       borderRadius='xl'
       borderWidth={1}
-      divider={<Divider />}
+      divider={divider}
     >
       <Stack flex={1} spacing={6} p={4} textAlign='center'>
         <Stack
@@ -103,10 +119,7 @@ export const Approve = ({
           )}
         </Stack>
         <Stack>
-          <Text
-            fontWeight='bold'
-            translation={['modals.approve.header', { asset: asset.name, spenderName }]}
-          />
+          <Text fontWeight='bold' translation={approveHeaderTranslation} />
           <CText color='text.subtle'>
             <Link
               href={`${asset.explorerAddressLink}${spenderContractAddress}`}
@@ -140,7 +153,7 @@ export const Approve = ({
                 translation='trade.unlimited'
                 fontWeight='bold'
               />
-              <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onToggle} />
+              <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={handleToggle} />
               <Text
                 color={isExactAllowance ? 'white' : 'text.subtle'}
                 translation='trade.exact'
@@ -151,7 +164,7 @@ export const Approve = ({
         )}
         <Stack justifyContent='space-between'>
           <Button
-            onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+            onClick={handleApproveClick}
             disabled={isApproved || disabled || loading}
             size='lg'
             colorScheme={isApproved ? 'green' : 'blue'}
@@ -162,7 +175,13 @@ export const Approve = ({
           >
             {translate(!isApproved ? 'common.approve' : 'modals.approve.approved')}
           </Button>
-          <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
+          <Button
+            onClick={handleCancel}
+            size='lg'
+            width='full'
+            colorScheme='gray'
+            isDisabled={loading}
+          >
             {translate('modals.approve.reject')}
           </Button>
         </Stack>

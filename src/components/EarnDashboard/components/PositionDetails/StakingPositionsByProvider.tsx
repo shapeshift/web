@@ -49,6 +49,9 @@ type CalculateRewardFiatAmountArgs = {
 
 type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
 
+const widthMdAuto = { base: 'full', md: 'auto' }
+const widthMdFlexStart = { base: 'flex-end', md: 'flex-start' }
+
 const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   rewardsCryptoBaseUnit,
   rewardAssetIds,
@@ -199,7 +202,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                 .toFixed()
 
           return hasValue ? (
-            <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+            <Flex flexDir='column' alignItems={widthMdFlexStart}>
               <Amount.Fiat value={row.original.fiatAmount} />
               <Amount.Crypto
                 variant='sub-text'
@@ -244,6 +247,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               borderRadius='lg'
               px={2}
               rightIcon={arrowForwardIcon}
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(row, DefiAction.Claim)}
             >
               <Amount.Fiat value={fiatAmount} />
@@ -277,8 +282,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               variant='ghost'
               size='sm'
               colorScheme='blue'
-              width={{ base: 'full', md: 'auto' }}
+              width={widthMdAuto}
               rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
               {translate('common.manage')}

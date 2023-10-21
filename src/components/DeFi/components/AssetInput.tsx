@@ -4,8 +4,9 @@ import { Button, FormControl, FormErrorMessage, Input, Skeleton, Stack } from '@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
+import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import {
@@ -22,6 +23,9 @@ import { colors } from 'theme/colors'
 import { Balance } from './Balance'
 import { PercentOptionsButtonGroup } from './PercentOptionsButtonGroup'
 
+const inputStyle = { caretColor: colors.blue[200] }
+const accountDropdownButtonProps = { variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }
+
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
   return (
@@ -35,7 +39,7 @@ const CryptoInput = (props: InputProps) => {
       textAlign='right'
       variant='inline'
       placeholder={translate('common.enterAmount')}
-      style={{ caretColor: colors.blue[200] }}
+      style={inputStyle}
       autoComplete='off'
       {...props}
     />
@@ -100,6 +104,8 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const amountRef = useRef<string | null>(null)
   const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
+  const handleBlur = useCallback(() => setIsFocused(false), [])
+  const handleFocus = useCallback(() => setIsFocused(true), [])
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
@@ -107,13 +113,31 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     ? cryptoAmount
     : bnOrZero(cryptoAmount).toFixed(3)
 
+  const formcontrolHover = useMemo(
+    () => ({ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }),
+    [isReadOnly],
+  )
+
+  const handleValueChange = useCallback((values: NumberFormatValues) => {
+    // This fires anytime value changes including setting it on max click
+    // Store the value in a ref to send when we actually want the onChange to fire
+    amountRef.current = values.value
+  }, [])
+
+  const handleChange = useCallback(() => {
+    // onChange will send us the formatted value
+    // To get around this we need to get the value from the onChange using a ref
+    // Now when the max buttons are clicked the onChange will not fire
+    onChange(amountRef.current ?? '', isFiat)
+  }, [isFiat, onChange])
+
   return (
     <FormControl
       borderWidth={2}
       borderColor={isFocused ? 'border.focused' : 'border.input.base'}
       bg={isFocused ? 'background.input.pressed' : 'background.input.base'}
       borderRadius='xl'
-      _hover={{ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }}
+      _hover={formcontrolHover}
       isInvalid={!!errors}
       pt={3}
       pb={2}
@@ -148,19 +172,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               inputMode='decimal'
               thousandSeparator={localeParts.group}
               value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
-              onValueChange={values => {
-                // This fires anytime value changes including setting it on max click
-                // Store the value in a ref to send when we actually want the onChange to fire
-                amountRef.current = values.value
-              }}
-              onChange={() => {
-                // onChange will send us the formatted value
-                // To get around this we need to get the value from the onChange using a ref
-                // Now when the max buttons are clicked the onChange will not fire
-                onChange(amountRef.current ?? '', isFiat)
-              }}
-              onBlur={() => setIsFocused(false)}
-              onFocus={() => setIsFocused(true)}
+              onValueChange={handleValueChange}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
             />
           </Skeleton>
         </Stack>
@@ -212,7 +227,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           {...(accountId ? { defaultAccountId: accountId } : {})}
           assetId={assetId}
           onChange={handleAccountIdChange}
-          buttonProps={{ variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }}
+          buttonProps={accountDropdownButtonProps}
           disabled={accountSelectionDisabled}
           autoSelectHighestBalance
         />

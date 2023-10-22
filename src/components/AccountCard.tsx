@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Asset } from 'lib/asset-service'
 
@@ -29,6 +30,15 @@ export const AccountCard = ({
   ...rest
 }: AccountCardProps) => {
   const translate = useTranslate()
+  const buttonLeftIcon = useMemo(
+    () => (
+      <SkeletonCircle isLoaded={isLoaded} boxSize='40px'>
+        <AssetIcon assetId={asset.assetId} boxSize='40px' />
+      </SkeletonCircle>
+    ),
+    [asset.assetId, isLoaded],
+  )
+
   return (
     <Button
       onClick={onClick}
@@ -37,11 +47,7 @@ export const AccountCard = ({
       py={4}
       height='auto'
       textAlign='left'
-      leftIcon={
-        <SkeletonCircle isLoaded={isLoaded} boxSize='40px'>
-          <AssetIcon assetId={asset.assetId} boxSize='40px' />
-        </SkeletonCircle>
-      }
+      leftIcon={buttonLeftIcon}
       rightIcon={chevronRightIcon}
       {...rest}
     >

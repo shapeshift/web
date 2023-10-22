@@ -67,6 +67,17 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
       ))
     }, [opportunity?.apy, opportunity?.cryptoAmountBaseUnit, opportunity?.type])
 
+    const assetCellSubText = useMemo(
+      () => (
+        // this node is already useMemoized
+        // eslint-disable-next-line react-memo/require-usememo
+        <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+          {subTextJoined}
+        </Flex>
+      ),
+      [subTextJoined],
+    )
+
     if (!opportunity || !asset) return null
     return (
       <ResultButton ref={ref} aria-selected={selected ? true : undefined} onClick={handleClick}>
@@ -76,11 +87,7 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
             assetId={opportunity.underlyingAssetId}
             icons={opportunity.icons}
             justifyContent='flex-start'
-            subText={
-              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-                {subTextJoined}
-              </Flex>
-            }
+            subText={assetCellSubText}
           />
         </Flex>
         {!bnOrZero(opportunity.fiatAmount).isZero() && (

@@ -39,6 +39,8 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Deposit: React.FC<DepositProps> = ({
   onNext,
   accountId,
@@ -182,26 +184,48 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  if (!state || !dispatch) return null
-
   const handleCancel = history.goBack
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset.precision, balance],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const fiat = crypto.times(marketData.price)
-    const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const fiat = crypto.times(marketData.price)
+      const _value = bnOrZero(value)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset.precision, balance, marketData.price],
+  )
+
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableDeposit
@@ -211,20 +235,14 @@ export const Deposit: React.FC<DepositProps> = ({
       isLoading={state.loading}
       apy={apy}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
+      cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2, BigNumber.ROUND_DOWN)}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
+      fiatInputValidation={fiatInputValidation}
       marketData={marketData}
       onCancel={handleCancel}
       onContinue={handleContinue}
       onMaxClick={handleMaxClick}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
+      percentOptions={percentOptions}
       enableSlippage={false}
     />
   )

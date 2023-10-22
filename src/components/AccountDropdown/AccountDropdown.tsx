@@ -261,6 +261,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
                 )}
                 symbol={asset?.symbol ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
+                // we need to pass an arg here, so we need an anonymous function wrapper
+                // eslint-disable-next-line react-memo/require-usememo
                 onClick={() => handleClick(iterAccountId)}
                 isDisabled={disabled}
                 {...listProps}

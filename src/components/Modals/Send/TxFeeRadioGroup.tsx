@@ -1,6 +1,8 @@
+import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Box, Button, Radio, Spinner, Stack, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { Property } from 'csstype'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
@@ -15,6 +17,12 @@ import type { FeePrice } from './views/Confirm'
 type TxFeeRadioGroupProps = {
   fees: FeePrice | null
 }
+
+const stackDirectionMdRow: StackDirection = { base: 'column', md: 'row' }
+const flexDirMdColumn: ResponsiveValue<Property.FlexDirection> = { base: 'row', md: 'column' }
+const alignItemsMdFlexStart = { base: 'center', md: 'flex-start' }
+const alignItemsMdFlexStart2 = { base: 'flex-end', md: 'flex-start' }
+const marginBottomMb2 = { base: 0, md: 2 }
 
 function getFeeColor(key: FeeDataKey): string {
   switch (key) {
@@ -76,7 +84,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   return (
     <Stack
       width='full'
-      direction={{ base: 'column', md: 'row' }}
+      direction={stackDirectionMdRow}
       bg={bg}
       borderWidth={1}
       borderColor={borderColor}
@@ -92,19 +100,21 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
         return (
           <Button
             display='flex'
-            flexDir={{ base: 'row', md: 'column' }}
+            flexDir={flexDirMdColumn}
             variant='ghost'
             textAlign='left'
-            alignItems={{ base: 'center', md: 'flex-start' }}
+            alignItems={alignItemsMdFlexStart}
             justifyContent='space-between'
             key={`fee-${key}`}
             py={2}
             width='full'
             height='auto'
+            // we need to pass an arg here, so we need an anonymous function wrapper
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => field.onChange(key)}
             isActive={activeFee === key}
           >
-            <Box fontSize='sm' mb={{ base: 0, md: 2 }} display='flex' alignItems='center'>
+            <Box fontSize='sm' mb={marginBottomMb2} display='flex' alignItems='center'>
               <Radio
                 colorScheme={color}
                 id={key}
@@ -114,7 +124,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               />
               <Text translation={translation} />
             </Box>
-            <Stack spacing={0} alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+            <Stack spacing={0} alignItems={alignItemsMdFlexStart2}>
               <Amount.Crypto
                 fontSize='sm'
                 fontWeight='normal'

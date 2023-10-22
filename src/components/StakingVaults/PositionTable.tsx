@@ -31,6 +31,10 @@ import { SearchEmpty } from './SearchEmpty'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
+const cellFlexJustifyContent = { base: 'flex-end', md: 'flex-start' }
+const cellTagSize = { base: 'sm', md: 'md' }
+const initialState = { pageSize: 30 }
+
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
@@ -136,8 +140,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         accessor: 'apy',
         textAlign: 'right',
         Cell: ({ row }: { row: RowProps }) => (
-          <Flex justifyContent={{ base: 'flex-end', md: 'flex-start' }}>
-            <Tag colorScheme='green' size={{ base: 'sm', md: 'md' }}>
+          <Flex justifyContent={cellFlexJustifyContent}>
+            <Tag colorScheme='green' size={cellTagSize}>
               <Amount.Percent value={row.original.apy} />
             </Tag>
           </Flex>
@@ -193,24 +197,31 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
   }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
 
+  const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
+
+  const renderSubComponent = useCallback(
+    ({ original }: RowProps) => <PositionDetails key={original.assetId} {...original} />,
+    [],
+  )
+
+  const renderEmptyComponent = useCallback(() => {
+    if (!(includeEarnBalances || includeRewardsBalances)) return null
+    return searchQuery ? (
+      <SearchEmpty searchQuery={searchQuery} />
+    ) : (
+      <ResultsEmpty ctaHref='/earn' />
+    )
+  }, [includeEarnBalances, includeRewardsBalances, searchQuery])
+
   return (
     <ReactTable
-      onRowClick={row => row.toggleRowExpanded()}
+      onRowClick={handleRowClick}
       data={rows}
       columns={columns}
       isLoading={isLoading}
-      renderSubComponent={({ original }) => (
-        <PositionDetails key={original.assetId} {...original} />
-      )}
-      renderEmptyComponent={() => {
-        if (!(includeEarnBalances || includeRewardsBalances)) return null
-        return searchQuery ? (
-          <SearchEmpty searchQuery={searchQuery} />
-        ) : (
-          <ResultsEmpty ctaHref='/earn' />
-        )
-      }}
-      initialState={{ pageSize: 30 }}
+      renderSubComponent={renderSubComponent}
+      renderEmptyComponent={renderEmptyComponent}
+      initialState={initialState}
     />
   )
 }

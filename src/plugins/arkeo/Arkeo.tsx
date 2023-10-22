@@ -3,6 +3,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Flex, Grid, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
@@ -46,10 +47,11 @@ export const ArkeoPage = () => {
   const { create, dispatch } = useWallet()
   const bgImage = useColorModeValue('none', ArkeoBg)
 
-  const handleCreateCtaClick = () => {
+  const handleCreateCtaClick = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)
-  }
+  }, [create, dispatch])
+
   return (
     <Main backgroundImage={bgImage} backgroundSize='cover' px={8}>
       <SEO title={translate('navBar.arkeo')} />

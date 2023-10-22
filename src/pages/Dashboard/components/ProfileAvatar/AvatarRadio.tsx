@@ -7,6 +7,8 @@ type AvatarRadioProps = {
   src: string
 } & RadioProps
 
+const boxStyle = { aspectRatio: '4/4' }
+
 export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
   const { getInputProps, getCheckboxProps } = useRadio(rest)
   const inputProps = getInputProps()
@@ -16,7 +18,7 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
   const handleOnLoad = useCallback(() => setIsLoaded(true), [])
   const renderImage = useMemo(() => {
     return (
-      <Box borderRadius='xl' overflow='hidden' width='full' style={{ aspectRatio: '4/4' }}>
+      <Box borderRadius='xl' overflow='hidden' width='full' style={boxStyle}>
         <Skeleton width='100%' height='100%' position='absolute' isLoaded={isLoaded}>
           <Image
             onLoad={handleOnLoad}

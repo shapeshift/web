@@ -12,6 +12,8 @@ type SelectAssetsProps = {
   onBack?: () => void
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
   const translate = useTranslate()
   const handleClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
@@ -20,7 +22,7 @@ export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps)
       <Stack direction='row' width='full' alignItems='center' px={4}>
         <IconButton
           variant='ghost'
-          icon={<ArrowBackIcon />}
+          icon={arrowBackIcon}
           aria-label={translate('common.back')}
           fontSize='xl'
           size='sm'

@@ -15,6 +15,8 @@ export type StepRowProps = {
   rightElement?: ReactNode
 } & StackProps
 
+const stackPx = { base: 6, md: 8 }
+
 export const StepRow: React.FC<StepRowProps> = ({
   label,
   description,
@@ -29,7 +31,7 @@ export const StepRow: React.FC<StepRowProps> = ({
   const successColor = useColorModeValue('green.500', 'green.200')
   const bgColor = useColorModeValue('gray.100', 'gray.700')
   return (
-    <Stack spacing={4} py={6} px={{ base: 6, md: 8 }} {...rest}>
+    <Stack spacing={4} py={6} px={stackPx} {...rest}>
       <Stack
         direction='row'
         alignItems='center'

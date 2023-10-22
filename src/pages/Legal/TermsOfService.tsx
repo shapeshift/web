@@ -2,10 +2,14 @@ import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
+const flexPx = { base: 2, lg: 4 }
+const flexPy = { base: 4, lg: 8 }
+const marginInlineStart = { base: 2, lg: 4 }
+
 export const TermsOfService = () => {
   return (
     <Main>
-      <Flex px={{ base: 2, lg: 4 }} py={{ base: 4, lg: 8 }} direction={'column'} rowGap={4}>
+      <Flex px={flexPx} py={flexPy} direction={'column'} rowGap={4}>
         <DarkMode>
           <Center flexDirection={'column'}>
             <Text as='h3' translation={'connectWalletPage.shapeshift'} />
@@ -97,7 +101,7 @@ export const TermsOfService = () => {
               wallet software provider who has extensive documentation and tutorials on how to use
               their software.
             </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
+            <RawText as='dd' marginInlineStart={marginInlineStart}>
               <RawText as='strong'>Important Note on wallets:</RawText> Our Platform is fully
               noncustodial meaning we never take access to your wallet, your secret seed phrase,
               your private keys, or any related passwords. While this enables you to have full
@@ -111,7 +115,7 @@ export const TermsOfService = () => {
               wallet involves a level of inherent risk, and you should make your own informed
               decision as to which one is right for you.
             </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
+            <RawText as='dd' marginInlineStart={marginInlineStart}>
               <RawText as='strong'>The ShapeShift Wallet:</RawText> Similar to the Platform, the
               ShapeShift wallet (&quot;
               <RawText as='strong'>ShapeShift Wallet</RawText>&quot;) was originally designed and
@@ -133,7 +137,7 @@ export const TermsOfService = () => {
               <RawText as='strong'>NFTs</RawText>&quot;) may not be viewable on the Platform's
               dashboard.
             </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
+            <RawText as='dd' marginInlineStart={marginInlineStart}>
               <RawText as='strong'>
                 Quick note on cryptocurrency pricing information on the Platform:
               </RawText>{' '}
@@ -170,7 +174,7 @@ export const TermsOfService = () => {
               be able to view it on the respective blockchain explorer by clicking the applicable
               link on the confirmation screen.
             </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
+            <RawText as='dd' marginInlineStart={marginInlineStart}>
               <RawText as='strong'>Quick Note on Miner Fees:</RawText> Most cryptocurrency
               transactions incur a miner fee, which is sometimes known as a gas fee or a network
               fee. This fee is paid to the miners who confirm the transaction on the blockchain.
@@ -203,7 +207,7 @@ export const TermsOfService = () => {
               maintained by third-parties that are not affiliated with us, so again, please do your
               own due diligence before interacting with any DeFi functions on our Platform.
             </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
+            <RawText as='dd' marginInlineStart={marginInlineStart}>
               <RawText as='strong'>Quick note on &quot;APR&quot;:</RawText> When you see &quot;
               <RawText as='strong'>APR</RawText>&quot; on the Platform, it means the estimated
               annual percentage for a particular smart contract function. The APR for a given smart

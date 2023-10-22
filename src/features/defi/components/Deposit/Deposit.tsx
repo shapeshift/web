@@ -177,6 +177,11 @@ export const Deposit = ({
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
+  const handleAssetInputChange = useCallback(
+    (value: string, isFiat?: boolean) => handleInputChange(value, isFiat),
+    [handleInputChange],
+  )
+
   return (
     <>
       <Stack spacing={6} as='form' width='full' onSubmit={handleFormSubmit}>
@@ -186,7 +191,7 @@ export const Deposit = ({
             cryptoAmount={cryptoAmount?.value}
             assetId={asset.assetId}
             onAccountIdChange={handleAccountIdChange}
-            onChange={(value, isFiat) => handleInputChange(value, isFiat)}
+            onChange={handleAssetInputChange}
             {...(onMaxClick ? { onMaxClick: handleMaxClick } : {})}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}

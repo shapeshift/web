@@ -1,5 +1,7 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Stack, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
@@ -14,10 +16,19 @@ type TransferColumnProps = {
 
 export const TransferColumn = (transfer: TransferColumnProps) => {
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
+  const stackDirection: StackDirection = useMemo(
+    () => ({ base: 'column', lg: transfer.compactMode ? 'column' : 'row' }),
+    [transfer.compactMode],
+  )
+  const stackJustify = useMemo(
+    () => ({ base: 4, lg: transfer.compactMode ? 4 : 6 }),
+    [transfer.compactMode],
+  )
+
   return (
     <Stack
-      direction={{ base: 'column', lg: transfer.compactMode ? 'column' : 'row' }}
-      spacing={{ base: 4, lg: transfer.compactMode ? 4 : 6 }}
+      direction={stackDirection}
+      spacing={stackJustify}
       justifyContent='flex-start'
       bg={bgColor}
       borderRadius='lg'

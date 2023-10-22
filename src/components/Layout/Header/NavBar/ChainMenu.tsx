@@ -29,6 +29,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const menuButtonWidth = { base: 'full', md: 'auto' }
+
 const ChainMenuItem: React.FC<{
   chainId: ChainId
   onClick: (chainId: ChainId) => void
@@ -156,7 +158,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
           )}
           isDisabled={!canSwitchChains}
         >
-          <MenuButton as={Button} iconSpacing={2} px={2} width={{ base: 'full', md: 'auto' }}>
+          <MenuButton as={Button} iconSpacing={2} px={2} width={menuButtonWidth}>
             <Flex alignItems='center' justifyContent='center'>
               {currentChainNativeAsset ? (
                 <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon size='xs' />

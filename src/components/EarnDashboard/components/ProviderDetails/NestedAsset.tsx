@@ -21,6 +21,9 @@ type NestedAssetProps = {
   onClick: () => void
 }
 
+const buttonDisabledStyle = { opacity: 1, cursor: 'default' }
+const alignItemsMdFlexStart = { base: 'flex-end', md: 'flex-start' }
+
 export const NestedAsset: React.FC<NestedAssetProps> = ({
   assetId,
   balances,
@@ -45,6 +48,35 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
     ))
   }, [isClaimableRewards, type])
 
+  const subText = useMemo(
+    () => (
+      // this node is already memoized
+      // eslint-disable-next-line react-memo/require-usememo
+      <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+        {subTextJoined}
+      </Flex>
+    ),
+    [subTextJoined],
+  )
+  const assetCellAfter = useMemo(
+    () => ({
+      content: '""',
+      position: 'absolute',
+      left: 'calc(-1 * 2rem - 1px)',
+      display: {
+        base: 'none',
+        md: 'block',
+      },
+      height: '50%',
+      marginTop: '-1em',
+      width: '1em',
+      borderBottomWidth: 2,
+      borderLeftWidth: 2,
+      borderColor,
+    }),
+    [borderColor],
+  )
+
   if (!asset) return null
   return (
     <NestedListItem>
@@ -58,34 +90,16 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
         alignItems='center'
         textAlign='left'
         isDisabled={!isClaimableRewards}
-        _disabled={{ opacity: 1, cursor: 'default' }}
+        _disabled={buttonDisabledStyle}
         onClick={onClick}
       >
         <AssetCell
           className='reward-asset'
           assetId={assetId}
-          subText={
-            <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-              {subTextJoined}
-            </Flex>
-          }
+          subText={subText}
           position='relative'
           isExternal={isExternal}
-          _after={{
-            content: '""',
-            position: 'absolute',
-            left: 'calc(-1 * 2rem - 1px)',
-            display: {
-              base: 'none',
-              md: 'block',
-            },
-            height: '50%',
-            marginTop: '-1em',
-            width: '1em',
-            borderBottomWidth: 2,
-            borderLeftWidth: 2,
-            borderColor,
-          }}
+          _after={assetCellAfter}
         />
         <Amount.Crypto
           value={balances.cryptoBalancePrecision}
@@ -96,7 +110,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
           display={{ base: 'none', md: 'block ' }}
           whiteSpace='break-spaces'
         />
-        <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+        <Flex flexDir='column' alignItems={alignItemsMdFlexStart}>
           <Amount.Fiat
             color='chakra-body-text'
             fontSize='sm'

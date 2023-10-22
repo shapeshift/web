@@ -1,6 +1,8 @@
 import type { InputProps } from '@chakra-ui/react'
 import { Icon, Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
+import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -25,9 +27,13 @@ export const BalanceThresholdInput = () => {
   const {
     number: { localeParts },
   } = useLocaleFormatter()
-  const onChange = (value: string) => {
-    dispatch(preferences.actions.setBalanceThreshold({ threshold: value }))
-  }
+
+  const handleChange = useCallback(
+    ({ value }: NumberFormatValues) => {
+      dispatch(preferences.actions.setBalanceThreshold({ threshold: value }))
+    },
+    [dispatch],
+  )
   return (
     <InputGroup alignItems='center' justifyContent='space-between' width='100px'>
       <InputLeftElement fontSize='12px' height='100%' pointerEvents='none'>
@@ -41,9 +47,7 @@ export const BalanceThresholdInput = () => {
         isNumericString={true}
         value={balanceThreshold}
         prefix={localeParts.prefix}
-        onValueChange={e => {
-          onChange(e.value)
-        }}
+        onValueChange={handleChange}
       />
     </InputGroup>
   )

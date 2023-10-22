@@ -16,6 +16,10 @@ type SparkLineProps = {
   percentChange: number
 }
 
+const xyChartMargin = { top: 0, left: 0, right: 0, bottom: 0 }
+const xyChartxScale = { type: 'utc' } as const
+const xyChartYScale = { type: 'log' } as const
+
 export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) => {
   const assetIds = useMemo(() => [assetId], [assetId])
   const timeframe = HistoryTimeframe.DAY
@@ -46,11 +50,11 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
         </Center>
       ) : (
         <XYChart
-          margin={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          margin={xyChartMargin}
           width={100}
           height={50}
-          xScale={{ type: 'utc' }}
-          yScale={{ type: 'log' }}
+          xScale={xyChartxScale}
+          yScale={xyChartYScale}
         >
           <LineSeries
             dataKey={`${assetId}-series`}

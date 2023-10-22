@@ -1,8 +1,9 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import type { ContainerProps } from '@chakra-ui/react'
+import type { ContainerProps, ResponsiveValue } from '@chakra-ui/react'
 import { Container, Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import type { Property } from 'csstype'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,6 +30,11 @@ type AssetHeaderProps = {
   assetId?: AssetId
   accountId?: AccountId
 } & ContainerProps
+
+const externalLinkIcon = <ExternalLinkIcon />
+const displayMdFlex = { base: 'none', md: 'flex' }
+const fontSizeMd2xl = { base: 'xl', md: '2xl' }
+const flexDirLgRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ...rest }) => {
   const translate = useTranslate()
@@ -79,12 +85,12 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
 
   return (
     <Container width='full' maxWidth='container.4xl' px={paddingX} pb={4} pt={6} {...rest}>
-      <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1}>
+      <Flex alignItems='center' flexDir={flexDirLgRow} flex={1}>
         <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
         <Flex alignItems='center' mr='auto' flex={1}>
           <AssetIcon assetId={asset.assetId} boxSize='40px' />
           <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
-            <Heading fontSize={{ base: 'xl', md: '2xl' }} lineHeight='shorter'>
+            <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
               {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
             </Heading>
 
@@ -95,12 +101,12 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
               colorScheme='blue'
               aria-label={translate('defi.viewOnChain')}
               variant='ghost'
-              icon={<ExternalLinkIcon />}
+              icon={externalLinkIcon}
             />
           </Flex>
         </Flex>
         {walletSupportsChain ? (
-          <Flex display={{ base: 'none', md: 'flex' }}>
+          <Flex display={displayMdFlex}>
             <AssetActions
               assetId={assetId}
               accountId={accountId ? accountId : singleAccount}

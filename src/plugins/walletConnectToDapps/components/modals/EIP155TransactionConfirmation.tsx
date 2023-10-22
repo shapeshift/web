@@ -84,6 +84,16 @@ export const EIP155TransactionConfirmation: FC<
     },
   })
 
+  const estimatedGasTitle = useMemo(
+    () => (
+      <HStack flex={1} justify='space-between'>
+        <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
+        <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
+      </HStack>
+    ),
+    [fees, feeAsset, feeAssetPrice],
+  )
+
   if (isLoading || isInteractingWithContract === null)
     return (
       <Center p={8}>
@@ -136,16 +146,7 @@ export const EIP155TransactionConfirmation: FC<
           {feeAsset && <AmountCard value={transaction.value ?? '0'} assetId={feeAsset.assetId} />}
         </ModalSection>
       )}
-      <ModalCollapsableSection
-        title={
-          <HStack flex={1} justify='space-between'>
-            <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-            <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
-          </HStack>
-        }
-        icon={faGasPumpIcon}
-        defaultOpen={false}
-      >
+      <ModalCollapsableSection title={estimatedGasTitle} icon={faGasPumpIcon} defaultOpen={false}>
         <Box pt={2}>
           <GasInput fees={fees} />
         </Box>

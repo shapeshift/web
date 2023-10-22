@@ -32,6 +32,8 @@ import { WithdrawContext } from '../WithdrawContext'
 
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
@@ -190,6 +192,34 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [amountAvailableCryptoPrecision, assetMarketData],
   )
 
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
+  const marketData = useMemo(
+    () => ({
+      // The vault asset doesnt have market data.
+      // We're making our own market data object for the withdraw view
+      price: assetMarketData.price,
+      marketCap: '0',
+      volume: '0',
+      changePercent24Hr: 0,
+    }),
+    [assetMarketData],
+  )
+
   if (!state) return null
 
   return (
@@ -197,27 +227,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       <ReusableWithdraw
         asset={asset}
         cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
-        cryptoInputValidation={{
-          required: true,
-          validate: { validateCryptoAmount },
-        }}
+        cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
-        fiatInputValidation={{
-          required: true,
-          validate: { validateFiatAmount },
-        }}
-        marketData={{
-          // The vault asset doesnt have market data.
-          // We're making our own market data object for the withdraw view
-          price: assetMarketData.price,
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-        }}
+        fiatInputValidation={fiatInputValidation}
+        marketData={marketData}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
-        percentOptions={[0.25, 0.5, 0.75, 1]}
+        percentOptions={percentOptions}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
       />

@@ -54,6 +54,7 @@ const spacing = { base: 6, lg: 8 }
 const display = { base: 'none', lg: 'flex' }
 const width = { base: '100%', lg: 'auto' }
 const maxWidth = { base: '100%', lg: '500px' }
+const hover = { color: 'white' }
 
 const metamaskIcon = <MetaMaskIcon />
 
@@ -125,6 +126,12 @@ export const ConnectWallet = () => {
   const renderEvmChainText = useMemo(() => {
     return evmChains.map(asset => asset.networkName).join(', ')
   }, [evmChains])
+
+  const handleConnectClick = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+
   return (
     <Page>
       <SEO title={translate('common.connectWallet')} />
@@ -238,7 +245,7 @@ export const ConnectWallet = () => {
               zIndex={1}
               colorScheme='blue'
               width='full'
-              onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+              onClick={handleConnectClick}
               data-test='connect-wallet-button'
             >
               <Text translation='connectWalletPage.cta' />
@@ -258,14 +265,10 @@ export const ConnectWallet = () => {
             </Flex>
           </Stack>
           <Flex width='full' alignItems='center' justifyContent={flexRightAlign} gap={8} mt={4}>
-            <Link
-              href='/#/legal/terms-of-service'
-              color='whiteAlpha.500'
-              _hover={{ color: 'white' }}
-            >
+            <Link href='/#/legal/terms-of-service' color='whiteAlpha.500' _hover={hover}>
               <Text translation='common.terms' />
             </Link>
-            <Link href='/#/legal/privacy-policy' color='whiteAlpha.500' _hover={{ color: 'white' }}>
+            <Link href='/#/legal/privacy-policy' color='whiteAlpha.500' _hover={hover}>
               <Text translation='common.privacy' />
             </Link>
           </Flex>

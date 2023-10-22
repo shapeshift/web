@@ -1,5 +1,7 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Card, CardBody, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import type { Property } from 'csstype'
+import { memo, useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -22,6 +24,9 @@ type StatCardProps = {
   isLoading?: boolean
 }
 
+const flexGap = { base: 0, xl: 6 }
+const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+
 const BreakdownCard: React.FC<StatCardProps> = ({
   percentage,
   value,
@@ -31,8 +36,10 @@ const BreakdownCard: React.FC<StatCardProps> = ({
   isLoading,
 }) => {
   const hoverBg = useColorModeValue('gray.100', 'gray.750')
+  const cardHover = useMemo(() => ({ bg: hoverBg }), [hoverBg])
+
   return (
-    <Card flex={1} cursor='pointer' onClick={onClick} _hover={{ bg: hoverBg }}>
+    <Card flex={1} cursor='pointer' onClick={onClick} _hover={cardHover}>
       <CardBody display='flex' gap={4} alignItems='center'>
         <CircularProgress
           isIndeterminate={isLoading}
@@ -74,23 +81,27 @@ export const PortfolioBreakdown = memo(() => {
   )
 
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+
+  const handleWalletBalanceClick = useCallback(() => history.push('/accounts'), [history])
+  const handleEarnBalanceClick = useCallback(() => history.push('/earn'), [history])
+
   // *don't* show these if the DefiDashboard feature flag is enabled
   if (isDefiDashboardEnabled) return null
 
   return (
-    <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
+    <Flex gap={flexGap} flexDir={flexDirection}>
       <BreakdownCard
         value={portfolioTotalUserCurrencyBalance}
         percentage={bnOrZero(portfolioTotalUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.walletBalance'
-        onClick={() => history.push('/accounts')}
+        onClick={handleWalletBalanceClick}
       />
       <BreakdownCard
         value={earnUserCurrencyBalance}
         percentage={bnOrZero(earnUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
-        onClick={() => history.push('/earn')}
+        onClick={handleEarnBalanceClick}
       />
     </Flex>
   )

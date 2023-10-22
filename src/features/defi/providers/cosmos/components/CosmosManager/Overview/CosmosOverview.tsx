@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -116,6 +116,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const cosmosEmptyAssets = useMemo(() => (stakingAsset ? [stakingAsset] : []), [stakingAsset])
+
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   const userStakingOpportunity = useAppSelector(state =>
@@ -137,7 +139,76 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
+  const handleStakeClick = useCallback(
+    () =>
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          ...query,
+          modal: DefiAction.Deposit,
+        }),
+      }),
+    [history, location.pathname, query],
+  )
+
+  const handleLearnMoreClick = useCallback(
+    () => () =>
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          ...query,
+          modal: DefiAction.GetStarted,
+        }),
+      }),
+    [history, location.pathname, query],
+  )
+
+  const underlyingAssetsCryptoPrecision = useMemo(
+    () => [
+      {
+        ...stakingAsset,
+        cryptoBalancePrecision: cryptoAmountAvailable.toFixed(stakingAsset.precision),
+        allocationPercentage: '1',
+      },
+    ],
+    [stakingAsset, cryptoAmountAvailable],
+  )
+
   const claimDisabled = !hasClaim
+
+  const overviewMenu = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+      {
+        label: 'common.claim',
+        icon: <FaGift />,
+        action: DefiAction.Claim,
+        variant: 'ghost-filled',
+        colorScheme: 'green',
+        isDisabled: claimDisabled,
+        toolTip: translate('defi.modals.overview.noWithdrawals'),
+      },
+    ],
+    [claimDisabled, translate],
+  )
+
+  const overviewDescription = useMemo(
+    () => ({
+      description: stakingAsset.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: stakingAsset.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, stakingAsset.description, stakingAsset.isTrustedDescription],
+  )
 
   if (!loaded) {
     return (
@@ -152,26 +223,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   if (totalBondings.eq(0)) {
     return (
       <CosmosEmpty
-        assets={[stakingAsset]}
+        assets={cosmosEmptyAssets}
         apy={defaultOpportunityMetadata?.apy ?? ''}
-        onStakeClick={() =>
-          history.push({
-            pathname: location.pathname,
-            search: qs.stringify({
-              ...query,
-              modal: DefiAction.Deposit,
-            }),
-          })
-        }
-        onLearnMoreClick={() =>
-          history.push({
-            pathname: location.pathname,
-            search: qs.stringify({
-              ...query,
-              modal: DefiAction.GetStarted,
-            }),
-          })
-        }
+        onStakeClick={handleStakeClick}
+        onLearnMoreClick={handleLearnMoreClick}
       />
     )
   }
@@ -186,43 +241,13 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       name={opportunityData.name!}
       icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={[
-        {
-          ...stakingAsset,
-          cryptoBalancePrecision: cryptoAmountAvailable.toFixed(stakingAsset.precision),
-          allocationPercentage: '1',
-        },
-      ]}
+      underlyingAssetsCryptoPrecision={underlyingAssetsCryptoPrecision}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
         assetName: stakingAsset.name,
       })}
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-        {
-          label: 'common.claim',
-          icon: <FaGift />,
-          action: DefiAction.Claim,
-          variant: 'ghost-filled',
-          colorScheme: 'green',
-          isDisabled: claimDisabled,
-          toolTip: translate('defi.modals.overview.noWithdrawals'),
-        },
-      ]}
-      description={{
-        description: stakingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: stakingAsset.isTrustedDescription,
-      }}
+      menu={overviewMenu}
+      description={overviewDescription}
       tvl={bnOrZero(opportunityData?.tvl).toFixed(2)}
       apy={bnOrZero(opportunityData?.apy).toString()}
     >

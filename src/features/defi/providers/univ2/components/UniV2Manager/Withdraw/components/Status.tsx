@@ -9,7 +9,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -102,13 +102,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [confirmedTransaction, dispatch, asset0.precision, lpAsset.precision])
 
-  const handleViewPosition = () => {
+  const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')
-  }
+  }, [browserHistory])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
   useEffect(() => {
     if (!lpOpportunity) return

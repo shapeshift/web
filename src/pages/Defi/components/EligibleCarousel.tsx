@@ -1,6 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
 import { Carousel } from 'components/Carousel/Carousel'
@@ -47,11 +47,13 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
     ))
   }, [filteredEligibleOpportunities])
 
+  const renderHeader = useCallback((props: CarouselHeaderProps) => <Header {...props} />, [])
+
   if (!filteredEligibleOpportunities.length) return null
 
   return (
     <Card variant='unstyled' px={cardPadding}>
-      <Carousel autoPlay slideSize='100%' renderHeader={props => <Header {...props} />} {...props}>
+      <Carousel autoPlay slideSize='100%' renderHeader={renderHeader} {...props}>
         {renderEligibleCards}
       </Carousel>
     </Card>

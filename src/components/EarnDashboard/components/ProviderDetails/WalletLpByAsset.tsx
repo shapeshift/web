@@ -25,6 +25,9 @@ type WalletLpByAssetProps = {
 
 export type RowProps = Row<LpEarnOpportunityType>
 
+const flexPx = { base: 0, md: 2 }
+const textDisplay = { base: 'none', md: 'block' }
+
 export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities }) => {
   const location = useLocation()
   const history = useHistory()
@@ -105,7 +108,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
         {data.map((item, index) => {
           return typeof item === 'object' ? (
             <Flex
-              px={{ base: 0, md: 2 }}
+              px={flexPx}
               flexDirection='column'
               key={`${item.provider}-${item.assetId}-${item.apy}`}
             >
@@ -118,9 +121,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
           ) : data.length === index + 1 ? null : (
             <OpportunityTableHeader key={`group-${item}`}>
               <RawText>{item}</RawText>
-              <RawText display={{ base: 'none', md: 'block' }}>
-                {translate('common.balance')}
-              </RawText>
+              <RawText display={textDisplay}>{translate('common.balance')}</RawText>
               <RawText>{translate('common.value')}</RawText>
             </OpportunityTableHeader>
           )
@@ -129,13 +130,15 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
     )
   }, [data, handleClick, translate])
 
+  const handleLoadMoreClick = useCallback(() => next(), [next])
+
   if (!opportunities.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>
       {renderRows}
       {hasMore && (
-        <Button mx={2} onClick={() => next()}>
+        <Button mx={2} onClick={handleLoadMoreClick}>
           {translate('common.loadMore')}
         </Button>
       )}

@@ -357,6 +357,19 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     underlyingAsset?.symbol,
   ])
 
+  const description = useMemo(
+    () => ({
+      description: translate('defi.modals.saversVaults.description', {
+        asset: underlyingAsset?.symbol ?? '',
+      }),
+      isLoaded: !!underlyingAsset?.symbol,
+      isTrustedDescription: true,
+    }),
+    [translate, underlyingAsset?.symbol],
+  )
+
+  const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
+
   if (!earnOpportunityData || isTradingActiveQueryPending) {
     return (
       <Center minW='500px' minH='350px'>
@@ -370,7 +383,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
 
   if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
-    return <ThorchainSaversEmpty assetId={assetId} onClick={() => setHideEmptyState(true)} />
+    return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
 
   return (
@@ -385,13 +398,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         provider: earnOpportunityData.provider,
         assetName: asset.name,
       })}
-      description={{
-        description: translate('defi.modals.saversVaults.description', {
-          asset: underlyingAsset?.symbol ?? '',
-        }),
-        isLoaded: !!underlyingAsset?.symbol,
-        isTrustedDescription: true,
-      }}
+      description={description}
       tvl={bnOrZero(earnOpportunityData.tvl).toFixed(2)}
       apy={earnOpportunityData.apy}
       menu={menu}

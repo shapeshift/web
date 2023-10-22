@@ -32,6 +32,8 @@ const RewardsHeader = () => {
   )
 }
 
+const rewardsHeader = <RewardsHeader />
+
 export const RewardsDashboard = memo(() => {
-  return <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
+  return <DeFiEarn includeRewardsBalances header={rewardsHeader} />
 })

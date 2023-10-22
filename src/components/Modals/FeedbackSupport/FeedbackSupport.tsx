@@ -16,6 +16,10 @@ import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
+const chatIcon = <ChatIcon />
+const discordIcon = <DiscordIcon />
+const editIcon = <EditIcon />
+
 export const FeedbackAndSupport = () => {
   const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
@@ -40,7 +44,7 @@ export const FeedbackAndSupport = () => {
                 size='sm'
                 onClick={handleChatWoot}
                 label={translate('common.getSupport')}
-                leftIcon={<ChatIcon />}
+                leftIcon={chatIcon}
               />
             )}
             <MainNavLink
@@ -50,11 +54,11 @@ export const FeedbackAndSupport = () => {
               size='sm'
               href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
               label={translate('common.joinDiscord')}
-              leftIcon={<DiscordIcon />}
+              leftIcon={discordIcon}
               data-test='navigation-join-discord-button'
             />
             <MainNavLink
-              leftIcon={<EditIcon />}
+              leftIcon={editIcon}
               as={Link}
               size='sm'
               label={translate('common.submitFeatureRequest')}

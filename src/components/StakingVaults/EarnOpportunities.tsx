@@ -3,7 +3,7 @@ import { Box, Button, Card, CardBody, CardHeader, Heading, HStack } from '@chakr
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -26,6 +26,8 @@ type EarnOpportunitiesProps = {
   accountId?: AccountId
   isLoaded?: boolean
 }
+
+const arrowForwardIcon = <ArrowForwardIcon />
 
 export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const history = useHistory()
@@ -64,37 +66,40 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     [asset, lpOpportunities, stakingOpportunities],
   )
 
-  const handleClick = (opportunity: EarnOpportunityType) => {
-    const { isReadOnly, type, provider, contractAddress, chainId, assetId, rewardAddress } =
-      opportunity
+  const handleClick = useCallback(
+    (opportunity: EarnOpportunityType) => {
+      const { isReadOnly, type, provider, contractAddress, chainId, assetId, rewardAddress } =
+        opportunity
 
-    if (isReadOnly) {
-      const url = getMetadataForProvider(opportunity.provider)?.url
-      url && window.open(url, '_blank')
-    }
+      if (isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+      }
 
-    const { assetReference, assetNamespace } = fromAssetId(assetId)
-    if (!isConnected) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
+      const { assetReference, assetNamespace } = fromAssetId(assetId)
+      if (!isConnected) {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
 
-    history.push({
-      pathname: location.pathname,
-      search: qs.stringify({
-        chainId,
-        contractAddress,
-        assetNamespace,
-        assetReference,
-        highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
-        rewardId: rewardAddress,
-        provider,
-        type,
-        modal: 'overview',
-      }),
-      state: { background: location },
-    })
-  }
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          chainId,
+          contractAddress,
+          assetNamespace,
+          assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
+          rewardId: rewardAddress,
+          provider,
+          type,
+          modal: 'overview',
+        }),
+        state: { background: location },
+      })
+    },
+    [dispatch, history, isConnected, location],
+  )
 
   if (!asset) return null
   if (allRows.length === 0) return null
@@ -117,7 +122,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
               ml='auto'
               as={NavLink}
               to='/earn'
-              rightIcon={<ArrowForwardIcon />}
+              rightIcon={arrowForwardIcon}
             >
               <Text translation='common.seeAll' />
             </Button>

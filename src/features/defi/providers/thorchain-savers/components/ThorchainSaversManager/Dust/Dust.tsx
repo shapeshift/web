@@ -9,7 +9,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
@@ -26,6 +26,8 @@ type DustProps = {
 }
 
 const arrowDownIcon = <ArrowDownIcon />
+const divider = <Divider />
+const summaryDivider = <></>
 
 const minWidthProps = { base: '100%', md: '500px' }
 const maxWidthProps = { base: 'full', md: '500px' }
@@ -59,7 +61,7 @@ export const Dust: React.FC<DustProps> = () => {
   return (
     <Flex width='full' minWidth={minWidthProps} maxWidth={maxWidthProps} flexDir='column'>
       <DefiModalHeader title={translate('defi.modals.saversVaults.sendDust')} onBack={handleBack} />
-      <Stack spacing={0} divider={<Divider />}>
+      <Stack spacing={0} divider={divider}>
         <Row variant='vert-gutter' gap={2} alignItems='center'>
           <Row.Label>
             <Avatar
@@ -88,7 +90,7 @@ export const Dust: React.FC<DustProps> = () => {
             <Amount.Fiat fontSize='2xl' value='5.00' color='text.subtle' prefix='≈' />
           </Row.Label>
         </Row>
-        <Summary bg='transparent' borderWidth={0} px={8} py={6} divider={<></>}>
+        <Summary bg='transparent' borderWidth={0} px={8} py={6} divider={summaryDivider}>
           <Row variant='gutter' px={0}>
             <Row.Label>{translate('defi.modals.saversVaults.addressToSendTo')}</Row.Label>
             <Row.Value fontSize='md'>

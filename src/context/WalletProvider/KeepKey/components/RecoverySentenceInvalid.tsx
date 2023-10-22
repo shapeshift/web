@@ -1,6 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -13,13 +13,13 @@ export const KeepKeyRecoverySentenceInvalid = () => {
   } = useWallet()
   const recoverKeepKey = useKeepKeyRecover()
 
-  const handleRetryClick = async () => {
+  const handleRetryClick = useCallback(async () => {
     const label = await wallet?.getLabel()
     setLoading(true)
     // Due to security/firmware limitations, we are not able to pass in the previously collected PIN,
     // we are forced to start the whole recover process again.
     await recoverKeepKey(label)
-  }
+  }, [recoverKeepKey, wallet])
 
   return (
     <>

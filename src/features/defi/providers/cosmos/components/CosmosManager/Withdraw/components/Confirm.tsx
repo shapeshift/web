@@ -22,6 +22,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -44,6 +45,8 @@ import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
+
+const helperTooltipIconProps = { color: 'currentColor' }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const [gasLimit, setGasLimit] = useState<string | null>(null)
@@ -209,11 +212,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     }
   }, [hasEnoughBalanceForGas])
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+  const xDaysTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.xDays', { unbondingDays }],
+    [unbondingDays],
+  )
+
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
       isDisabled={!hasEnoughBalanceForGas}
@@ -243,7 +257,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Text translation='modals.confirm.withdrawTime' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <Text translation={['modals.confirm.xDays', { unbondingDays }]} />
+            <Text translation={xDaysTranslation} />
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -275,7 +289,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
           <HelperTooltip
             label={translate('defi.memoNote.body')}
-            iconProps={{ color: 'currentColor' }}
+            iconProps={helperTooltipIconProps}
           />
         </Alert>
       )}
@@ -283,7 +297,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={notEnoughGasTranslation} />
         </Alert>
       )}
     </ReusableConfirm>

@@ -62,14 +62,10 @@ import { NftOverview } from './components/NftOverview'
 
 const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')
+  const tabSelectedStyle = useMemo(() => ({ color: activeTabColor }), [activeTabColor])
+
   return (
-    <Tab
-      color='text.subtle'
-      fontWeight='medium'
-      px={0}
-      _selected={{ color: activeTabColor }}
-      {...props}
-    />
+    <Tab color='text.subtle' fontWeight='medium' px={0} _selected={tabSelectedStyle} {...props} />
   )
 }
 
@@ -85,8 +81,10 @@ const modalContentFlexDirProps: ResponsiveValue<Property.FlexDirection> = {
   base: 'column',
   md: 'row',
 }
+const paddingProps = { base: 8, md: 20 }
 const justifyContextProps = { base: 'flex-start', md: 'center' }
 const flexPositionProps: ResponsiveValue<Property.Position> = { base: 'static', md: 'absolute' }
+const tabPanelsMaxHeight = { base: 'auto', md: '500px' }
 
 export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const dispatch = useAppDispatch()
@@ -98,7 +96,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
 
   const { close: handleClose, isOpen } = nftModal
   const translate = useTranslate()
+
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
+  const handleMediaLoaded = useCallback(() => setIsMediaLoaded(true), [])
+
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -219,7 +220,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
           <Flex
             direction='row'
             alignItems='center'
-            p={{ base: 8, md: 20 }}
+            p={paddingProps}
             justifyContent={justifyContextProps}
             bg='blackAlpha.500'
             transition='all 1s ease-in-out'
@@ -276,7 +277,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
               <>
                 <Image
                   src={mediaUrl ?? placeholderImage}
-                  onLoad={() => setIsMediaLoaded(true)}
+                  onLoad={handleMediaLoaded}
                   {...mediaBoxProps}
                 />
                 <Button colorScheme='whiteAlpha' onClick={handleSetAsAvatarClick}>
@@ -287,7 +288,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
               <Box
                 as='video'
                 src={mediaUrl}
-                onCanPlayThrough={() => setIsMediaLoaded(true)}
+                onCanPlayThrough={handleMediaLoaded}
                 loop
                 // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
                 muted
@@ -302,6 +303,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   }, [
     assetLink,
     customizeLink,
+    handleMediaLoaded,
     handleRefreshClick,
     handleReportSpamClick,
     handleSetAsAvatarClick,
@@ -392,7 +394,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
         </Box>
-        <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
+        <TabPanels maxHeight={tabPanelsMaxHeight} overflowY='auto' flex={1}>
           <TabPanel p={0}>
             <NftOverview nftItem={nftItem} />
           </TabPanel>

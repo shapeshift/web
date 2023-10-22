@@ -1,3 +1,4 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
@@ -19,17 +20,15 @@ type AccountDetailsProps = {
   route?: Route
 }
 
+const directionXlRow: StackDirection = { base: 'column', xl: 'row' }
+const flexMaxWidth = { base: 'full', xl: 'md' }
+const displayMdBlock = { base: 'none', md: 'block' }
+
 export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   const translate = useTranslate()
   if (!accountId || !assetId) return null
   return (
-    <Stack
-      width='full'
-      alignItems='flex-start'
-      spacing={4}
-      mx='auto'
-      direction={{ base: 'column', xl: 'row' }}
-    >
+    <Stack width='full' alignItems='flex-start' spacing={4} mx='auto' direction={directionXlRow}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance
           assetId={assetId}
@@ -44,14 +43,8 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         <EarnOpportunities assetId={assetId} accountId={accountId} />
         <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
       </Stack>
-      <Flex
-        flexDir='column'
-        flex='1 1 0%'
-        width='full'
-        maxWidth={{ base: 'full', xl: 'md' }}
-        gap={4}
-      >
-        <MultiHopTrade display={{ base: 'none', md: 'block' }} />
+      <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={flexMaxWidth} gap={4}>
+        <MultiHopTrade display={displayMdBlock} />
       </Flex>
     </Stack>
   )

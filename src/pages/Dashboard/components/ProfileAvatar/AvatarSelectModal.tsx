@@ -114,6 +114,11 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     handleChangeAvatar(defaultWalletImage)
   }, [defaultWalletImage, handleChangeAvatar, setValue])
 
+  const gridItemData = useMemo(
+    () => ({ filteredNfts, columnCount, getRadioProps }),
+    [columnCount, filteredNfts, getRadioProps],
+  )
+
   const renderBody = useMemo(() => {
     if (!isLoading && !nftItems?.length) {
       return <ResultsEmpty title='nft.emptyTitle' body='nft.emptyBody' icon={narwhalIcon} />
@@ -127,7 +132,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
             <FixedSizeGrid
               width={width}
               height={height}
-              itemData={{ filteredNfts, columnCount, getRadioProps }}
+              itemData={gridItemData}
               columnWidth={width / columnCount}
               rowCount={filteredNfts.length / columnCount}
               rowHeight={width / columnCount}
@@ -142,8 +147,8 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     )
   }, [
     columnCount,
-    filteredNfts,
-    getRadioProps,
+    filteredNfts.length,
+    gridItemData,
     isLoading,
     isSearching,
     nftItems?.length,

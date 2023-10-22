@@ -1,6 +1,6 @@
 import { IconButton, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
@@ -24,6 +24,11 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick
   )
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => onClick(e)(chainId),
+    [chainId, onClick],
+  )
   return (
     <Tooltip
       label={feeAsset.networkName ?? feeAsset.name}
@@ -35,7 +40,7 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick
         variant='outline'
         isActive={isActive}
         aria-label={feeAsset.name}
-        onClick={e => onClick(e)(chainId)}
+        onClick={handleClick}
         icon={assetIcon}
       />
     </Tooltip>

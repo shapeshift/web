@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
 import { WithdrawType } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -31,20 +31,33 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
 
   const cryptoAmount = watch('cryptoAmount')
 
-  const handleClick = (value: WithdrawType) => {
-    if (value === WithdrawType.INSTANT) {
-      withdrawType.onChange(WithdrawType.INSTANT)
-      handlePercentClick(1)
-    } else {
-      withdrawType.onChange(WithdrawType.DELAYED)
-    }
-  }
+  const handleClick = useCallback(
+    (value: WithdrawType) => {
+      if (value === WithdrawType.INSTANT) {
+        withdrawType.onChange(WithdrawType.INSTANT)
+        handlePercentClick(1)
+      } else {
+        withdrawType.onChange(WithdrawType.DELAYED)
+      }
+    },
+    [handlePercentClick, withdrawType],
+  )
 
   const withdrawalFee = useMemo(() => {
     return withdrawType.value === WithdrawType.INSTANT
       ? bnOrZero(bn(cryptoAmount).times(feePercentage)).toString()
       : '0'
   }, [cryptoAmount, feePercentage, withdrawType.value])
+
+  const handleInstantWithdrawClick = useCallback(
+    () => handleClick(WithdrawType.INSTANT),
+    [handleClick],
+  )
+
+  const handleDelayWithdrawClick = useCallback(
+    () => handleClick(WithdrawType.DELAYED),
+    [handleClick],
+  )
 
   return (
     <>
@@ -55,7 +68,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
             flexDir='column'
             height='auto'
             py={4}
-            onClick={() => handleClick(WithdrawType.INSTANT)}
+            onClick={handleInstantWithdrawClick}
             isActive={withdrawType.value === WithdrawType.INSTANT}
           >
             <Stack alignItems='center' spacing={1}>
@@ -72,7 +85,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
             width='full'
             flexDir='column'
             height='auto'
-            onClick={() => handleClick(WithdrawType.DELAYED)}
+            onClick={handleDelayWithdrawClick}
             isActive={withdrawType.value === WithdrawType.DELAYED}
           >
             <Stack alignItems='center' spacing={1}>

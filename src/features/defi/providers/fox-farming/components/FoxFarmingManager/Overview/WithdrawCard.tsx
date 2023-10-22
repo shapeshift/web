@@ -1,4 +1,6 @@
+import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -20,6 +22,13 @@ type WithdrawCardProps = {
   amount: string
   expired: boolean | undefined
 }
+
+const alignItemsMdCenter = { base: 'flex-start', md: 'center' }
+const buttonFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const stackDirection: StackDirection = { base: 'row', md: 'column' }
+const stackGap = { base: 2, md: 0 }
+const stackMarginLeft = { base: 0, md: 'auto' }
+const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'left', md: 'right' }
 
 export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -55,11 +64,11 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
           width='full'
           maxHeight='auto'
           height='auto'
-          alignItems={{ base: 'flex-start', md: 'center' }}
+          alignItems={alignItemsMdCenter}
           justifyContent='flex-start'
           textAlign='left'
           gap={4}
-          flexDir={{ base: 'column', md: 'row' }}
+          flexDir={buttonFlexDir}
           py={2}
           onClick={
             !expired
@@ -82,7 +91,7 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
               justifyContent='space-between'
               spacing={0}
               width='full'
-              direction={{ base: 'row', md: 'column' }}
+              direction={stackDirection}
             >
               <Text color={textColor} translation='common.withdrawal' />
               <Text
@@ -94,12 +103,12 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
             </Stack>
           </Stack>
           <Stack
-            direction={{ base: 'row', md: 'column' }}
+            direction={stackDirection}
             spacing={0}
-            gap={{ base: 2, md: 0 }}
-            ml={{ base: 0, md: 'auto' }}
+            gap={stackGap}
+            ml={stackMarginLeft}
             flexWrap='wrap'
-            textAlign={{ base: 'left', md: 'right' }}
+            textAlign={stackTextAlign}
           >
             <Amount.Crypto color={textColor} value={amount} symbol={asset.symbol} />
             {!expired && (

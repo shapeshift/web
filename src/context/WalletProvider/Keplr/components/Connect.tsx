@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -25,7 +25,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
     const adapter = await getAdapter(KeyManager.Keplr)
@@ -69,7 +69,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [dispatch, getAdapter, history])
 
   return (
     <ConnectModal

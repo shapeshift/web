@@ -17,7 +17,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -26,6 +26,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -107,7 +108,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   const toast = useToast()
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!wallet || !contractAddress || !accountAddress || !opportunity || !asset) return
     setLoading(true)
     try {
@@ -143,7 +144,24 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     } finally {
       setLoading(false)
     }
-  }
+  }, [
+    accountAddress,
+    amount,
+    asset,
+    assetId,
+    assets,
+    chainId,
+    claimFiatAmount,
+    claimRewards,
+    contractAddress,
+    estimatedGas,
+    history,
+    onOngoingFarmingTxIdChange,
+    opportunity,
+    toast,
+    translate,
+    wallet,
+  ])
 
   useEffect(() => {
     ;(async () => {
@@ -191,6 +209,11 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
       mixpanel.track(MixPanelEvents.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
+
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
 
   if (!asset) return null
 
@@ -262,9 +285,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
           {!hasEnoughBalanceForGas && (
             <Alert status='error' borderRadius='lg'>
               <AlertIcon />
-              <Text
-                translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
-              />
+              <Text translation={notEnoughGasTranslation} />
             </Alert>
           )}
           <Stack direction='row' width='full' justifyContent='space-between'>

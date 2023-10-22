@@ -34,6 +34,8 @@ const borderRadiusProp = { base: 'lg', md: 'xl' }
 const pxProp = { base: 4, md: 4 }
 const pProp = { base: 0, md: 0 }
 
+const divider = <Divider />
+
 export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
   methods,
   events,
@@ -92,7 +94,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
       </CardHeader>
       <Collapse in={isOpen}>
         <CardBody p={pProp} bg='whiteAlpha.50'>
-          <Stack spacing={0} divider={<Divider />}>
+          <Stack spacing={0} divider={divider}>
             <Row gap={4} variant='gutter' py={3}>
               <Row.Label>{translate(translateKey('methods'))}</Row.Label>
               <Row.Value display='flex' gap={2} flexWrap='wrap' justifyContent='flex-end'>

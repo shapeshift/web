@@ -182,6 +182,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
+  const handlePercentOptionClick = useCallback(
+    (value: number) => handlePercentClick(value),
+    [handlePercentClick],
+  )
+
   if (!asset) return null
 
   return (
@@ -199,7 +204,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
           fiatBalance={fiatAmountAvailable}
-          onPercentOptionClick={value => handlePercentClick(value)}
+          onPercentOptionClick={handlePercentOptionClick}
           percentOptions={percentOptions}
           isReadOnly={disableInput}
           icons={icons}

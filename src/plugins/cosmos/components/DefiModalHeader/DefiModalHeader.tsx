@@ -1,4 +1,5 @@
 import { Box, Image } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
 
 type DefiModalHeaderProps = {
@@ -11,18 +12,20 @@ export const DefiModalHeader = ({
   headerImageSrc,
   headerText,
   headerImageMaxWidth,
-}: DefiModalHeaderProps) => (
-  <>
-    <Box textAlign='center'>
-      <Image
-        src={headerImageSrc}
-        width='100%'
-        minWidth='68px'
-        maxWidth={{ base: `${headerImageMaxWidth / 2}px`, sm: `${headerImageMaxWidth}px` }}
-      />
-    </Box>
-    <Box textAlign='center' my='24px'>
-      <Text translation={headerText} fontSize='18px' fontWeight='bold' />
-    </Box>
-  </>
-)
+}: DefiModalHeaderProps) => {
+  const imageMaxWidth = useMemo(
+    () => ({ base: `${headerImageMaxWidth / 2}px`, sm: `${headerImageMaxWidth}px` }),
+    [headerImageMaxWidth],
+  )
+
+  return (
+    <>
+      <Box textAlign='center'>
+        <Image src={headerImageSrc} width='100%' minWidth='68px' maxWidth={imageMaxWidth} />
+      </Box>
+      <Box textAlign='center' my='24px'>
+        <Text translation={headerText} fontSize='18px' fontWeight='bold' />
+      </Box>
+    </>
+  )
+}

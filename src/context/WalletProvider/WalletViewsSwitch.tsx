@@ -110,6 +110,8 @@ export const WalletViewsSwitch = () => {
                 exact
                 key={'route'}
                 path={route.path}
+                // we need to pass an arg here, so we need an anonymous function wrapper
+                // eslint-disable-next-line react-memo/require-usememo
                 render={routeProps => <Component {...routeProps} />}
               />
             )

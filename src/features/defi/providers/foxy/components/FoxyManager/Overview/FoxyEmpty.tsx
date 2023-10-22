@@ -1,6 +1,7 @@
 import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
@@ -12,16 +13,18 @@ type FoxyEmptyProps = {
 }
 
 export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
+  const emptyOverviewFooter = useMemo(
+    () => (
+      <Button width='full' colorScheme='blue' onClick={onClick}>
+        <Text translation='defi.modals.foxyOverview.cta' />
+      </Button>
+    ),
+    [onClick],
+  )
+
   return (
     <DefiModalContent>
-      <EmptyOverview
-        assets={assets}
-        footer={
-          <Button width='full' colorScheme='blue' onClick={onClick}>
-            <Text translation='defi.modals.foxyOverview.cta' />
-          </Button>
-        }
-      >
+      <EmptyOverview assets={assets} footer={emptyOverviewFooter}>
         <Stack direction='row' flexWrap='wrap' spacing={1} justifyContent='center' mb={4}>
           <Text translation='defi.modals.foxyOverview.header' />
           <CText color='green.500'>

@@ -19,6 +19,8 @@ type AssetTransactionHistoryProps = {
   limit?: number
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
   accountId,
@@ -60,7 +62,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
             colorScheme='blue'
             as={NavLink}
             to={generatedPath}
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
           >
             {translate('common.seeAll')}
           </Button>

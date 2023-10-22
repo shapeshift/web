@@ -1,3 +1,4 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -12,9 +13,11 @@ import {
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
+import type { Property } from 'csstype'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import type { TextPropTypes } from 'components/Text/Text'
 import { Text } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -34,6 +37,10 @@ type MainOpportunityProps = {
   onClick: () => void
   tvl: string
 }
+
+const flexDirectionRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const flexDirectionColumn: ResponsiveValue<Property.FlexDirection> = { base: 'row', md: 'column' }
+const alignItemsFlexStart = { base: 'center', md: 'flex-start' }
 
 export const MainOpportunity = ({
   apy,
@@ -81,36 +88,32 @@ export const MainOpportunity = ({
     [isDemoWallet, wallet, foxyEarnOpportunityData],
   )
 
+  const mainStakingTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'plugins.foxPage.mainStakingTitle',
+      {
+        assetSymbol: selectedAsset.symbol,
+      },
+    ],
+    [selectedAsset.symbol],
+  )
+
   return (
     <Card display='block' width='auto'>
       <CardHeader>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />
-          <Text
-            fontWeight='bold'
-            color='inherit'
-            translation={[
-              'plugins.foxPage.mainStakingTitle',
-              {
-                assetSymbol: selectedAsset.symbol,
-              },
-            ]}
-          />
+          <Text fontWeight='bold' color='inherit' translation={mainStakingTitleTranslation} />
         </Flex>
         <Text translation='plugins.foxPage.mainStakingDescription' color='text.subtle' />
       </CardHeader>
       <CardBody>
-        <Flex
-          width='full'
-          justifyContent='space-between'
-          gap={4}
-          flexDirection={{ base: 'column', md: 'row' }}
-        >
+        <Flex width='full' justifyContent='space-between' gap={4} flexDirection={flexDirectionRow}>
           <Flex
-            flexDirection={{ base: 'row', md: 'column' }}
+            flexDirection={flexDirectionColumn}
             width='full'
             justifyContent='space-between'
-            alignItems={{ base: 'center', md: 'flex-start' }}
+            alignItems={alignItemsFlexStart}
           >
             <Text translation='plugins.foxPage.currentApy' color='text.subtle' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
@@ -120,10 +123,10 @@ export const MainOpportunity = ({
             </Skeleton>
           </Flex>
           <Flex
-            flexDirection={{ base: 'row', md: 'column' }}
+            flexDirection={flexDirectionColumn}
             width='full'
             justifyContent='space-between'
-            alignItems={{ base: 'center', md: 'flex-start' }}
+            alignItems={alignItemsFlexStart}
           >
             <Text translation='plugins.foxPage.tvl' color='text.subtle' mb={1} />
             <Skeleton isLoaded={isLoaded}>
@@ -131,10 +134,10 @@ export const MainOpportunity = ({
             </Skeleton>
           </Flex>
           <Flex
-            flexDirection={{ base: 'row', md: 'column' }}
+            flexDirection={flexDirectionColumn}
             width='full'
             justifyContent='space-between'
-            alignItems={{ base: 'center', md: 'flex-start' }}
+            alignItems={alignItemsFlexStart}
           >
             <Text translation='plugins.foxPage.balance' color='text.subtle' mb={1} />
             <CText color='inherit' fontSize={'xl'}>

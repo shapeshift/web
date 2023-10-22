@@ -9,6 +9,8 @@ type MenuLinkProps = {
   index: number
 } & Route
 
+const menuContainerPx = { base: 4, xl: 8 }
+
 const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
   const location = useLocation()
   const translate = useTranslate()
@@ -50,7 +52,7 @@ const Menu = ({ routes, level }: MenuProps) => {
   if (!routeList?.length) return null
   return (
     <Box borderBottom='1px' borderColor={borderColor} bg={bg} data-level={level}>
-      <Container maxW='container.xl' px={{ base: 4, xl: 8 }}>
+      <Container maxW='container.xl' px={menuContainerPx}>
         <HStack>{routeList}</HStack>
       </Container>
     </Box>

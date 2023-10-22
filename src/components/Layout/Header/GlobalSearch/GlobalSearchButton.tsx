@@ -56,6 +56,8 @@ const inputGroupProps = { size: 'xl' }
 const sxProp1 = { svg: { width: '18px', height: '18px' } }
 const sxProp2 = { p: 0 }
 
+const searchIcon = <SearchIcon />
+
 export const GlobalSeachButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const [sendResults, setSendResults] = useState<SendResult[]>([])
@@ -310,15 +312,10 @@ export const GlobalSeachButton = memo(() => {
   return (
     <>
       <Box maxWidth='xl' width={widthProp} mr={mrProp}>
-        <IconButton
-          display={displayProp1}
-          icon={<SearchIcon />}
-          aria-label='Search'
-          onClick={onOpen}
-        />
+        <IconButton display={displayProp1} icon={searchIcon} aria-label='Search' onClick={onOpen} />
         <Button
           width='full'
-          leftIcon={<SearchIcon />}
+          leftIcon={searchIcon}
           onClick={onOpen}
           size='lg'
           fontSize='md'

@@ -28,6 +28,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
+const buttonLeftIcon = (
+  <IconCircle boxSize={10}>
+    <FaWallet />
+  </IconCircle>
+)
+
 /**
  * This component only works for ShapeShift wallets encrypted using hdwallet Vault
  */
@@ -74,6 +80,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const handleClick = useCallback(() => {}, [])
 
   return (
     <SlideTransition>
@@ -87,12 +94,8 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
           variant='unstyled'
           display='flex'
           mb={4}
-          leftIcon={
-            <IconCircle boxSize={10}>
-              <FaWallet />
-            </IconCircle>
-          }
-          onClick={() => {}}
+          leftIcon={buttonLeftIcon}
+          onClick={handleClick}
           data-test='native-saved-wallet-button'
         >
           <Box textAlign='left'>

@@ -12,6 +12,8 @@ export type BackupPassphraseModalProps = {
   preventClose?: boolean
 }
 
+const modalContentPaddingX = { base: 0, md: 4 }
+
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
   const { close, isOpen } = useModal('backupNativePassphrase')
 
@@ -24,7 +26,7 @@ export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ pr
       onClose={close}
     >
       <ModalOverlay />
-      <ModalContent justifyContent='center' px={{ base: 0, md: 4 }} pt={3} pb={6}>
+      <ModalContent justifyContent='center' px={modalContentPaddingX} pt={3} pb={6}>
         <MemoryRouter initialEntries={entries}>
           <BackupPassphraseRouter />
         </MemoryRouter>

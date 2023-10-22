@@ -144,6 +144,8 @@ export const Carousel = ({
                   <DotButton
                     key={index}
                     selected={index === selectedIndex}
+                    // we need to pass an arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => scrollTo(index)}
                   />
                 ))}

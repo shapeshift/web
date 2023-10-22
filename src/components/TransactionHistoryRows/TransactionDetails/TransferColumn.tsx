@@ -1,3 +1,4 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Stack, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -15,7 +16,7 @@ type TransferColumnProps = {
 
 export const TransferColumn = (transfer: TransferColumnProps) => {
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
-  const stackDirection = useMemo(
+  const stackDirection: StackDirection = useMemo(
     () => ({ base: 'column', lg: transfer.compactMode ? 'column' : 'row' }),
     [transfer.compactMode],
   )

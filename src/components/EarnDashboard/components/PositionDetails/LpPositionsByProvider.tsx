@@ -33,6 +33,14 @@ type LpPositionsByProviderProps = {
 
 export type RowProps = Row<LpEarnOpportunityType>
 
+const stackDivider = (
+  <RawText variant='sub-text' size='xs' mx={1}>
+    •
+  </RawText>
+)
+
+const expanderButtonWidth = { base: 'full', md: 'auto' }
+
 export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ ids, assetId }) => {
   const translate = useTranslate()
   const location = useLocation()
@@ -114,15 +122,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
               </Flex>
               <Flex flexDir='column'>
                 <RawText>{row.original.opportunityName}</RawText>
-                <Stack
-                  divider={
-                    <RawText variant='sub-text' size='xs' mx={1}>
-                      •
-                    </RawText>
-                  }
-                  alignItems='center'
-                  direction='row'
-                >
+                <Stack divider={stackDivider} alignItems='center' direction='row'>
                   <RawText textTransform='capitalize' variant='sub-text' size='xs'>
                     {row.original.provider}
                   </RawText>
@@ -187,9 +187,11 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
           <Flex gap={4} justifyContent='flex-end' width='full'>
             <Button
               variant='ghost'
-              width={{ base: 'full', md: 'auto' }}
+              width={expanderButtonWidth}
               size='sm'
               colorScheme='blue'
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
               {translate('common.manage')}

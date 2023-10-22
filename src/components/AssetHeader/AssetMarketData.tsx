@@ -1,4 +1,4 @@
-import type { BoxProps, TextProps } from '@chakra-ui/react'
+import type { BoxProps, ResponsiveValue, TextProps } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
@@ -10,6 +10,7 @@ import {
   StatArrow,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Property } from 'csstype'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
@@ -25,12 +26,16 @@ type AssetMarketDataProps = {
 
 type StatProps = TextProps & { isLoaded?: boolean }
 
+const statRowFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'row', md: 'row' }
+const statRowJustifyContent = { base: 'space-between', md: 'space-between' }
+const simpleGridTemplateColumns = { base: '1fr', md: '1fr' }
+
 const StatRow = (props: BoxProps) => (
   <Row
     alignItems='center'
     width='full'
-    flexDir={{ base: 'row', md: 'row' }}
-    justifyContent={{ base: 'space-between', md: 'space-between' }}
+    flexDir={statRowFlexDir}
+    justifyContent={statRowJustifyContent}
     {...props}
   />
 )
@@ -66,7 +71,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
         <Heading as='h5'>{translate('assets.assetDetails.assetHeader.marketData')}</Heading>
       </CardHeader>
       <CardBody>
-        <SimpleGrid gridTemplateColumns={{ base: '1fr', md: '1fr' }} gridGap={6} width='full'>
+        <SimpleGrid gridTemplateColumns={simpleGridTemplateColumns} gridGap={6} width='full'>
           <StatRow>
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.price' />

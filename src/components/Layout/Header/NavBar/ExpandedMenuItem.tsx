@@ -18,6 +18,8 @@ type ExpandedMenuItemProps = {
   isOpen?: boolean
 } & MenuItemProps
 
+const linkTextDecoration = { textDecoration: 'none' }
+
 export const ExpandedMenuItem = ({
   label,
   value,
@@ -82,7 +84,7 @@ export const ExpandedMenuItem = ({
   )
 
   return externalUrl && !isDisabled ? (
-    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }} display='flex'>
+    <Link href={externalUrl} isExternal style={linkTextDecoration} display='flex'>
       {expandedMenuItem}
     </Link>
   ) : (

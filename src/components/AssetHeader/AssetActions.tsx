@@ -78,12 +78,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     setIsValidChainId(isValid)
   }, [chainAdapterManager, asset])
 
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () =>
-    isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()
-  const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+  const handleSendClick = useCallback(
+    () => (isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()),
+    [accountId, assetId, handleWalletModalOpen, isConnected, send],
+  )
+  const handleReceiveClick = useCallback(
+    () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),
+    [accountId, asset, handleWalletModalOpen, isConnected, receive],
+  )
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {

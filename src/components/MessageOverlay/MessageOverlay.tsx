@@ -8,13 +8,15 @@ type MessageOverlayProps = {
   show: boolean
 }
 
+const boxBorderRadius = { base: 'none', md: 'xl' }
+
 export const MessageOverlay = ({
   children,
   title,
   show = true,
 }: MessageOverlayProps): JSX.Element =>
   show ? (
-    <Box position='relative' borderRadius={{ base: 'none', md: 'xl' }} overflow='hidden'>
+    <Box position='relative' borderRadius={boxBorderRadius} overflow='hidden'>
       <Box
         backdropFilter='blur(10px)'
         background='rgba(255, 255, 255, 0.01)'

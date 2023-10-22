@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, SkeletonText } from '@chakra-ui/react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { markdownLinkToHTML } from 'lib/utils'
 
@@ -23,7 +23,7 @@ export const AssetDescriptionTeaser: React.FC<AssetDescriptionTeaserProps> = ({
   const [showDescription, setShowDescription] = useState(false)
   const [shouldDisplayToggleButton, setShouldDisplayToggleButton] = useState(true)
   const descriptionEl = useRef<HTMLDivElement | null>(null)
-  const handleToggle = () => setShowDescription(!showDescription)
+  const handleToggle = useCallback(() => setShowDescription(!showDescription), [showDescription])
 
   // Collapse about section any time description changes
   useEffect(() => {

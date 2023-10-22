@@ -1,6 +1,8 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Card, CardHeader, Flex, Heading, Skeleton, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { Property } from 'csstype'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -28,6 +30,18 @@ type AssetChartProps = {
 }
 
 const borderWidth = { base: 0, md: 0 }
+const displayBaseBlockMdNone = { base: 'block', md: 'none' }
+const displayBaseNoneMdBlock = { base: 'none', md: 'block' }
+const displayBaseFlexMdNone = { base: 'flex', md: 'none' }
+const timeControlsButtonGroupProps = {
+  display: 'flex',
+  width: 'full',
+  justifyContent: 'space-between',
+  px: 6,
+  py: 4,
+}
+const justifyContentMdSpaceBetween = { base: 'center', md: 'space-between' }
+const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
@@ -86,11 +100,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             </Flex>
           </Skeleton>
         </Box>
-        <Flex
-          justifyContent={{ base: 'center', md: 'space-between' }}
-          flexDir={{ base: 'column', md: 'row' }}
-        >
-          <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
+        <Flex justifyContent={justifyContentMdSpaceBetween} flexDir={flexDirMdRow}>
+          <Skeleton isLoaded={isLoaded} display={displayBaseNoneMdBlock}>
             <TimeControls onChange={handleTimeframeChange} defaultTime={timeframe} />
           </Skeleton>
         </Flex>
@@ -104,20 +115,14 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         chartHeight={isLargerThanMd ? '350px' : '200px'}
         hideAxis={true}
       />
-      <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
+      <Skeleton isLoaded={isLoaded} display={displayBaseBlockMdNone}>
         <TimeControls
           onChange={handleTimeframeChange}
           defaultTime={timeframe}
-          buttonGroupProps={{
-            display: 'flex',
-            width: 'full',
-            justifyContent: 'space-between',
-            px: 6,
-            py: 4,
-          }}
+          buttonGroupProps={timeControlsButtonGroupProps}
         />
       </Skeleton>
-      <Flex display={{ base: 'flex', md: 'none' }} my={4}>
+      <Flex display={displayBaseFlexMdNone} my={4}>
         <AssetActions
           assetId={assetId}
           accountId={accountId}

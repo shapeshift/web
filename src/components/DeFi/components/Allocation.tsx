@@ -12,8 +12,9 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
+import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import {
@@ -29,6 +30,9 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
+const cryptoInputStyle = { caretColor: colors.blue[200] }
+const accountDropdownButtonProps = { variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }
+
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
   return (
@@ -42,7 +46,7 @@ const CryptoInput = (props: InputProps) => {
       textAlign='right'
       variant='inline'
       placeholder={translate('common.enterAmount')}
-      style={{ caretColor: colors.blue[200] }}
+      style={cryptoInputStyle}
       autoComplete='off'
       {...props}
     />
@@ -96,6 +100,8 @@ export const Allocation: React.FC<AllocationProps> = ({
   const amountRef = useRef<string | null>(null)
   const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
+  const handleBlur = useCallback(() => setIsFocused(false), [])
+  const handleFocus = useCallback(() => setIsFocused(true), [])
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
   const focusBg = useColorModeValue('gray.50', 'gray.900')
@@ -107,6 +113,24 @@ export const Allocation: React.FC<AllocationProps> = ({
     ? cryptoAmount
     : bnOrZero(cryptoAmount).toFixed(3)
   const formattedAllocationFraction = bnOrZero(allocationFraction).multipliedBy(bn(100)).toFixed(5)
+
+  const handleNumberFormatChange = useCallback(() => {
+    // onChange will send us the formatted value
+    // To get around this we need to get the value from the onChange using a ref
+    // Now when the max buttons are clicked the onChange will not fire
+    onChange(amountRef.current ?? '', isFiat)
+  }, [isFiat, onChange])
+
+  const handleNumberFormatValueChange = useCallback((values: NumberFormatValues) => {
+    // This fires anytime value changes including setting it on max click
+    // Store the value in a ref to send when we actually want the onChange to fire
+    amountRef.current = values.value
+  }, [])
+
+  const formControlHover = useMemo(
+    () => ({ bg: isReadOnly ? bgColor : focusBg }),
+    [bgColor, focusBg, isReadOnly],
+  )
 
   return (
     <Stack spacing={2}>
@@ -125,7 +149,7 @@ export const Allocation: React.FC<AllocationProps> = ({
         borderColor={isFocused ? focusBorder : borderColor}
         bg={isFocused ? focusBg : bgColor}
         borderRadius='xl'
-        _hover={{ bg: isReadOnly ? bgColor : focusBg }}
+        _hover={formControlHover}
         isInvalid={!!errors}
         pt={3}
         pb={2}
@@ -160,19 +184,10 @@ export const Allocation: React.FC<AllocationProps> = ({
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
                 value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
-                onValueChange={values => {
-                  // This fires anytime value changes including setting it on max click
-                  // Store the value in a ref to send when we actually want the onChange to fire
-                  amountRef.current = values.value
-                }}
-                onChange={() => {
-                  // onChange will send us the formatted value
-                  // To get around this we need to get the value from the onChange using a ref
-                  // Now when the max buttons are clicked the onChange will not fire
-                  onChange(amountRef.current ?? '', isFiat)
-                }}
-                onBlur={() => setIsFocused(false)}
-                onFocus={() => setIsFocused(true)}
+                onValueChange={handleNumberFormatValueChange}
+                onChange={handleNumberFormatChange}
+                onBlur={handleBlur}
+                onFocus={handleFocus}
               />
             </Skeleton>
           </Stack>
@@ -203,7 +218,7 @@ export const Allocation: React.FC<AllocationProps> = ({
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}
             onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }}
+            buttonProps={accountDropdownButtonProps}
             disabled={accountSelectionDisabled}
             autoSelectHighestBalance
           />

@@ -81,7 +81,7 @@
     "react/jsx-handler-names": "error",
     "require-await": "error",
     "import/no-duplicates": "error",
-    "react-memo/require-usememo": "warn"
+    "react-memo/require-usememo": "error"
   },
   "overrides": [
     {

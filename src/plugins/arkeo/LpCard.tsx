@@ -17,7 +17,7 @@ type LpCardProps = {
 } & LpEarnOpportunityType
 
 const assetIconLast = { ml: -4 }
-// const lpCardTranslation = [
+
 export const LpCard: React.FC<LpCardProps> = props => {
   const translate = useTranslate()
   const { onClick, ...opportunity } = props

@@ -113,7 +113,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     ? cryptoAmount
     : bnOrZero(cryptoAmount).toFixed(3)
 
-  const formcontrolHover = useMemo(
+  const formControlHover = useMemo(
     () => ({ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }),
     [isReadOnly],
   )
@@ -137,7 +137,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       borderColor={isFocused ? 'border.focused' : 'border.input.base'}
       bg={isFocused ? 'background.input.pressed' : 'background.input.base'}
       borderRadius='xl'
-      _hover={formcontrolHover}
+      _hover={formControlHover}
       isInvalid={!!errors}
       pt={3}
       pb={2}

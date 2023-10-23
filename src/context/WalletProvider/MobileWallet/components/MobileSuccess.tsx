@@ -26,7 +26,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   useEffect(() => {
     ;(async () => {
       if (!vault) return
-      const adapter = await getAdapter(KeyManager.Native)
+      const adapter = await getAdapter(KeyManager.Mobile)
       if (!adapter) throw new Error('Native adapter not found')
       try {
         const deviceId = vault.id ?? ''

@@ -13,7 +13,6 @@ import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { WalletConnectV2Connect } from 'context/WalletProvider/WalletConnectV2/components/Connect'
 import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConfig } from './Coinbase/config'
@@ -29,6 +28,12 @@ import { KeepKeyRoutes } from './routes'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConfig } from './XDEFI/config'
+
+const WalletConnectV2Connect = lazy(() =>
+  import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
+    default: WalletConnectV2Connect,
+  })),
+)
 
 const NativeTestPhrase = lazy(() =>
   import('./NativeWallet/components/NativeTestPhrase').then(({ NativeTestPhrase }) => ({

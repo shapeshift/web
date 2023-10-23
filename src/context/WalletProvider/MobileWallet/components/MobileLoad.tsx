@@ -141,7 +141,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
 
   const handleWalletSelect = useCallback(
     async (item: RevocableWallet) => {
-      const adapter = await getAdapter(KeyManager.Native)
+      const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = item?.id
       if (adapter && deviceId) {
         const { name, icon } = MobileConfig

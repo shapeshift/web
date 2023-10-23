@@ -122,10 +122,10 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: (_, { getState }) => {
+      queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
-        const assets = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
+        const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
@@ -138,15 +138,12 @@ export const assetApi = createApi({
           {},
         )
         const data = {
-          byId: assets,
-          ids: Object.keys(assets) ?? [],
+          byId: assetsById,
+          ids: Object.keys(assetsById) ?? [],
         }
-        return { data }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
+
         data && dispatch(assets.actions.upsertAssets(data))
+        return { data }
       },
     }),
     getAssetDescription: build.query<

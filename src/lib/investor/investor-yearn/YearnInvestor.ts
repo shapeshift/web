@@ -4,7 +4,7 @@ import { type ChainId, type VaultMetadata, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
-import Web3 from 'web3'
+import { Web3 } from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import type { Investor } from 'lib/investor'
 

@@ -5,13 +5,13 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
-import type Web3 from 'web3'
+import type { Web3 } from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { DAO_TREASURY_ETHEREUM_MAINNET } from '../../../constants/treasury'
-import { bn, bnOrZero } from '../../bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -213,13 +213,15 @@ export class IdleOpportunity
 
     const preWithdraw = await vaultContract.methods[methodName](amount.toFixed())
 
-    const data = await preWithdraw.encodeABI({ from: address })
+    const data = preWithdraw.encodeABI({ from: address })
 
     const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
@@ -237,13 +239,15 @@ export class IdleOpportunity
 
     const preWithdraw = await vaultContract.methods.redeemIdleToken(0)
 
-    const data = await preWithdraw.encodeABI({ from: address })
+    const data = preWithdraw.encodeABI({ from: address })
 
     const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
@@ -293,7 +297,9 @@ export class IdleOpportunity
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
@@ -422,18 +428,22 @@ export class IdleOpportunity
       vaultContractAddress,
       MAX_ALLOWANCE,
     )
-    const data = await preApprove.encodeABI({ from: address })
+    const data = preApprove.encodeABI({ from: address })
     const estimatedGas = bnOrZero(await preApprove.estimateGas({ from: address }))
 
-    const nonce: number = await this.#internals.web3.eth.getTransactionCount(address)
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const nonce: string = await this.#internals.web3.eth
+      .getTransactionCount(address)
+      .then(bigint => bigint.toString())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
       data,
       estimatedGas,
       gasPrice,
-      nonce: String(nonce),
+      nonce,
       to: this.metadata.underlyingAddress,
       value: '0',
     }

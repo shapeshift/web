@@ -7,7 +7,7 @@ import type { ChainId, Vault, VaultMetadata, Yearn } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
 import toLower from 'lodash/toLower'
-import type Web3 from 'web3'
+import type { Web3 } from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -247,7 +247,9 @@ export class YearnOpportunity
     const estimatedGas = bnOrZero(await preDeposit.estimateGas({ from: address }))
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
@@ -273,7 +275,9 @@ export class YearnOpportunity
     const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
@@ -309,18 +313,22 @@ export class YearnOpportunity
       amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
     )
 
-    const data = await preApprove.encodeABI({ from: address })
+    const data = preApprove.encodeABI({ from: address })
     const estimatedGas = bnOrZero(await preApprove.estimateGas({ from: address }))
 
-    const nonce: number = await this.#internals.web3.eth.getTransactionCount(address)
-    const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
+    const nonce: string = await this.#internals.web3.eth
+      .getTransactionCount(address)
+      .then(bigint => bigint.toString())
+    const gasPrice = bnOrZero(
+      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    )
 
     return {
       chainId: 1,
       data,
       estimatedGas,
       gasPrice,
-      nonce: String(nonce),
+      nonce,
       to: this.#internals.vault.tokenId,
       value: '0',
     }

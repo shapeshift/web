@@ -10,7 +10,6 @@ import {
   ModalHeader,
   VStack,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
@@ -51,6 +50,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
   useEffect(() => {
     ;(async () => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
       if (!wallets.length) {
         try {
           const vaultIds = await Vault.list()
@@ -124,6 +124,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
       )
       if (result) {
         try {
+          const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
           await Vault.delete(wallet.id)
           setWallets([])
         } catch (e) {

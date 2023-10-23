@@ -4,7 +4,6 @@ import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import { AssetService } from 'lib/asset-service'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
@@ -17,6 +16,8 @@ import type {
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -44,7 +45,7 @@ export const lifiApi: SwapperApi = {
 
     const lifiChainMap = await lifiChainMapPromise
 
-    const { assetsById } = new AssetService()
+    const assetsById = selectAssets(store.getState())
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,

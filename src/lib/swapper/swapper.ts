@@ -1,7 +1,8 @@
 import type { Asset } from 'lib/asset-service'
-import { AssetService } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {
@@ -50,7 +51,8 @@ export const getTradeQuotes = async (
 }
 
 export const getSupportedSellAssetIds = async (enabledSwappers: SwapperName[]) => {
-  const { assets } = new AssetService()
+  const assetsById = selectAssets(store.getState())
+  const assets = Object.values(assetsById) as Asset[]
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
@@ -60,7 +62,8 @@ export const getSupportedSellAssetIds = async (enabledSwappers: SwapperName[]) =
 }
 
 export const getSupportedBuyAssetIds = async (enabledSwappers: SwapperName[], sellAsset: Asset) => {
-  const { assets } = new AssetService()
+  const assetsById = selectAssets(store.getState())
+  const assets = Object.values(assetsById) as Asset[]
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))

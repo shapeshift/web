@@ -1,4 +1,4 @@
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { decryptNativeWallet } from 'lib/cryptography/login'
@@ -11,6 +11,7 @@ export const NativeLegacyLogin = () => {
 
   const handleLoginSuccess: OnLoginSuccess = useCallback(
     async args => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
       const { encryptedWallet, email, password } = args
       const vault = await Vault.create(undefined, false)
       vault.meta.set('createdAt', Date.now())

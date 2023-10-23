@@ -13,7 +13,6 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import type { crypto, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -59,6 +58,7 @@ export const EnterPassword = () => {
     async (values: FieldValues) => {
       try {
         const wallet = keyring.get<NativeHDWallet>(deviceId)
+        const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const vault = await Vault.open(deviceId, values.password)
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())

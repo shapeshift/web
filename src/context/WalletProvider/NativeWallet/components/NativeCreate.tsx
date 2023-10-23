@@ -12,7 +12,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -28,6 +28,7 @@ import type { LocationState } from '../types'
 const faEyeIcon = <FaEye />
 
 const getVault = async (): Promise<Vault> => {
+  const { Vault, GENERATE_MNEMONIC } = await import('@shapeshiftoss/hdwallet-native-vault')
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
   vault.set('#mnemonic', GENERATE_MNEMONIC)

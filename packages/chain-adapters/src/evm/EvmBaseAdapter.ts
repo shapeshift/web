@@ -554,9 +554,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void,
   ): Promise<void> {
-    const { accountNumber, wallet } = input
+    const { pubKey, accountNumber, wallet } = input
 
-    const address = await this.getAddress({ accountNumber, wallet })
+    const address = await this.getAddress({ accountNumber, wallet, pubKey })
     const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 

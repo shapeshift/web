@@ -9,7 +9,7 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
@@ -32,7 +32,7 @@ export const WipeModal = () => {
   const toast = useToast()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
 
-  const onClose = () => {
+  const handleClose = useCallback(() => {
     keepKeyWallet?.cancel().catch(e => {
       console.error(e)
       toast({
@@ -43,9 +43,9 @@ export const WipeModal = () => {
       })
     })
     close()
-  }
+  }, [close, keepKeyWallet, toast, translate])
 
-  const wipeDevice = async () => {
+  const handleWipeDeviceClick = useCallback(async () => {
     try {
       await keepKeyWallet?.wipe()
       disconnect()
@@ -59,7 +59,12 @@ export const WipeModal = () => {
         isClosable: true,
       })
     }
-  }
+  }, [close, disconnect, keepKeyWallet, toast, translate])
+
+  const handleWipeChecked = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setWipeConfirmationChecked(e.target.checked),
+    [],
+  )
 
   return (
     <Modal
@@ -69,7 +74,7 @@ export const WipeModal = () => {
       closeOnOverlayClick
       closeOnEsc
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
@@ -85,7 +90,7 @@ export const WipeModal = () => {
           />
           <Checkbox
             isChecked={wipeConfirmationChecked}
-            onChange={e => setWipeConfirmationChecked(e.target.checked)}
+            onChange={handleWipeChecked}
             mb={6}
             spacing={3}
             ref={initRef}
@@ -94,7 +99,7 @@ export const WipeModal = () => {
             {translate('walletProvider.keepKey.modals.checkboxes.wipeKeepKey')}
           </Checkbox>
           <Button
-            onClick={wipeDevice}
+            onClick={handleWipeDeviceClick}
             colorScheme='red'
             width='full'
             mb={6}

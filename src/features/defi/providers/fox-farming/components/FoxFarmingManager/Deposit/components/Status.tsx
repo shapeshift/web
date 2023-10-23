@@ -37,6 +37,8 @@ import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type StatusProps = { accountId: AccountId | undefined }
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
@@ -234,7 +236,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

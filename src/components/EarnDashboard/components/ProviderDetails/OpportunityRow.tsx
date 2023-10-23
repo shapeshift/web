@@ -31,6 +31,10 @@ type OpportunityRowProps<T extends StakingEarnOpportunityType | LpEarnOpportunit
   opportunity: T
 }
 
+const mt0 = { marginTop: 0 }
+const borderBottomWidth0 = { borderBottomWidth: 0 }
+const alignItemsMdFlexStart = { base: 'flex-end', md: 'flex-start' }
+
 export const OpportunityRow: React.FC<
   OpportunityRowProps<StakingEarnOpportunityType | LpEarnOpportunityType>
 > = ({ onClick, opportunity }) => {
@@ -95,6 +99,9 @@ export const OpportunityRow: React.FC<
     [onClick, opportunity],
   )
 
+  const handleClaimClick = useCallback(() => handleClick(DefiAction.Claim), [handleClick])
+  const handleOverviewClick = useCallback(() => handleClick(DefiAction.Overview), [handleClick])
+
   const subTextJoined = useMemo(() => {
     const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
     const hasBalanceElement = <RawText textTransform='capitalize'>{group ?? type}</RawText>
@@ -113,7 +120,7 @@ export const OpportunityRow: React.FC<
 
   const renderNestedAssets = useMemo(() => {
     return (
-      <List style={{ marginTop: 0 }}>
+      <List style={mt0}>
         {Object.entries(rewardsBalances).map(([rewardAssetId, rewardBalance]) => {
           if (bnOrZero(rewardBalance.cryptoBalancePrecision).isZero()) return null
           return (
@@ -123,7 +130,7 @@ export const OpportunityRow: React.FC<
               isExternal={opportunity.isReadOnly}
               assetId={rewardAssetId}
               balances={rewardBalance}
-              onClick={() => handleClick(DefiAction.Claim)}
+              onClick={handleClaimClick}
               type={translate('common.reward')}
             />
           )
@@ -139,6 +146,8 @@ export const OpportunityRow: React.FC<
                 isClaimableRewards={isClaimableRewards}
                 assetId={underlyingAssetId}
                 balances={underlyingAssetBalance}
+                // we need to pass an arg here, so we need an anonymous function wrapper
+                // eslint-disable-next-line react-memo/require-usememo
                 onClick={() => history.push(`/assets/${underlyingAssetId}`)}
                 type={translate('defi.underlyingAsset')}
               />
@@ -152,11 +161,23 @@ export const OpportunityRow: React.FC<
     underlyingAssetBalances,
     isClaimableRewards,
     opportunity.isReadOnly,
+    handleClaimClick,
     translate,
-    handleClick,
     assetId,
     history,
   ])
+
+  const assetCellSubText = useMemo(
+    () => (
+      // this node is already memoized
+      // eslint-disable-next-line react-memo/require-usememo
+      <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+        {subTextJoined}
+      </Flex>
+    ),
+    [subTextJoined],
+  )
+
   if (!asset) return null
   return (
     <Flex
@@ -164,7 +185,7 @@ export const OpportunityRow: React.FC<
       gap={4}
       borderBottomWidth={1}
       borderColor='border.base'
-      _last={{ borderBottomWidth: 0 }}
+      _last={borderBottomWidth0}
     >
       <List ml={0} mt={0} spacing={4} position='relative'>
         <Button
@@ -177,16 +198,12 @@ export const OpportunityRow: React.FC<
           columnGap={4}
           alignItems='center'
           textAlign='left'
-          onClick={() => handleClick(DefiAction.Overview)}
+          onClick={handleOverviewClick}
         >
           <AssetCell
             assetId={underlyingAssetId}
             icons={icons}
-            subText={
-              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-                {subTextJoined}
-              </Flex>
-            }
+            subText={assetCellSubText}
             justifyContent='flex-start'
             isExternal={opportunity.isReadOnly}
           />
@@ -202,7 +219,7 @@ export const OpportunityRow: React.FC<
             color='chakra-body-text'
             display={{ base: 'none', md: 'block ' }}
           />
-          <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+          <Flex flexDir='column' alignItems={alignItemsMdFlexStart}>
             <Amount.Fiat
               color='chakra-body-text'
               fontSize='sm'

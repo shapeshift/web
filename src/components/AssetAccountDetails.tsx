@@ -34,11 +34,13 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
+  const assetHeader = useMemo(
+    () => <AssetHeader assetId={assetId} accountId={accountId} />,
+    [assetId, accountId],
+  )
+
   return (
-    <Main
-      headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}
-      py={contentPaddingY}
-    >
+    <Main headerComponent={assetHeader} py={contentPaddingY}>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />

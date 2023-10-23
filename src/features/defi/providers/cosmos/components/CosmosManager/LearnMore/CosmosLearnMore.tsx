@@ -8,7 +8,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import rewards from 'assets/rewards.svg'
 import risk from 'assets/risk.svg'
@@ -49,6 +49,11 @@ type LearnMoreProps = {
   onClose: () => void
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
+const minWidthProps = { base: '100%', md: '500px' }
+const maxWidthProps = { base: 'full', md: '500px' }
+
 export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
   const history = useHistory()
 
@@ -69,27 +74,32 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
   const isFirstStep = activeStep === 1
   const isLastStep = activeStep === stepsLength
 
-  const handleNextOrCloseClick = () => {
+  const handleNextOrCloseClick = useCallback(() => {
     if (isLastStep) return onClose()
 
     nextStep()
-  }
+  }, [isLastStep, nextStep, onClose])
 
-  const handlePrevClick = () => {
+  const handlePrevClick = useCallback(() => {
     if (isFirstStep) {
       return history.goBack()
     }
 
     prevStep()
-  }
+  }, [history, isFirstStep, prevStep])
 
   const currentElement = STEP_TO_ELEMENTS_MAPPING[activeStep - 1]
+
+  const defiModalHeaderText: [string, Record<string, string>] = useMemo(
+    () => [currentElement.header, { assetName }],
+    [currentElement.header, assetName],
+  )
 
   return (
     <>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={'common.back'}
         position='absolute'
         top={2}
@@ -103,15 +113,15 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
         pb='20px'
         px='24px'
         width='full'
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
+        minWidth={minWidthProps}
+        maxWidth={maxWidthProps}
       >
         <Flex direction='column' height='520px' alignItems='center' justifyContent='space-between'>
           <SlideTransition key={activeStep}>
             <Flex direction='column' alignItems='center'>
               <DefiModalHeader
                 headerImageSrc={currentElement.headerImageSrc}
-                headerText={[currentElement.header, { assetName }]}
+                headerText={defiModalHeaderText}
                 headerImageMaxWidth={120}
               />
               <Box>
@@ -119,6 +129,8 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
                   {currentElement.bodies.map((body, i) => (
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
+                        // we need to pass a local scope arg here, so we need an anonymous function wrapper
+                        // eslint-disable-next-line react-memo/require-usememo
                         translation={[body, { assetName, unbondingDays }]}
                         color='text.subtle'
                         fontWeight='semibold'

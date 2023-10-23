@@ -177,6 +177,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     ),
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
+
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   if (!state || !dispatch || !foxFarmingOpportunity || !asset) return null
 
   return (
@@ -197,7 +200,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       preFooter={preFooter}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={foxFarmingOpportunity?.contractAddress ?? ''}
     />

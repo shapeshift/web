@@ -19,7 +19,7 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { utils } from 'ethers'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
@@ -28,6 +28,8 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const menuButtonWidth = { base: 'full', md: 'auto' }
 
 const ChainMenuItem: React.FC<{
   chainId: ChainId
@@ -42,14 +44,19 @@ const ChainMenuItem: React.FC<{
 
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
   const connectedChainBgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
+  const assetIcon = useMemo(
+    () => <AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />,
+    [nativeAssetId],
+  )
+  const handleClick = useCallback(() => onClick(ethNetwork), [ethNetwork, onClick])
 
   if (!nativeAsset) return null
 
   return (
     <MenuItem
-      icon={<AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />}
+      icon={assetIcon}
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
-      onClick={() => onClick(ethNetwork)}
+      onClick={handleClick}
       borderRadius='lg'
     >
       <Flex justifyContent={'space-between'}>
@@ -62,7 +69,7 @@ const ChainMenuItem: React.FC<{
 
 type ChainMenuProps = BoxProps
 
-export const ChainMenu = (props: ChainMenuProps) => {
+export const ChainMenu = memo((props: ChainMenuProps) => {
   const { state, load } = useWallet()
   const {
     connectedEvmChainId,
@@ -151,7 +158,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
           )}
           isDisabled={!canSwitchChains}
         >
-          <MenuButton as={Button} iconSpacing={2} px={2} width={{ base: 'full', md: 'auto' }}>
+          <MenuButton as={Button} iconSpacing={2} px={2} width={menuButtonWidth}>
             <Flex alignItems='center' justifyContent='center'>
               {currentChainNativeAsset ? (
                 <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon size='xs' />
@@ -177,4 +184,4 @@ export const ChainMenu = (props: ChainMenuProps) => {
       </Menu>
     </Box>
   )
-}
+})

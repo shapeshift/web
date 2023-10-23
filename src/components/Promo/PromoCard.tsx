@@ -23,6 +23,8 @@ type PromoCardProps = {
   data: PromoItem[]
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',
@@ -110,8 +112,10 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                   variant='link'
                   colorScheme={colorScheme}
                   mt={4}
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
                   onClick={() => handleClick({ href, walletRequired, isExternal, id })}
-                  rightIcon={<ArrowForwardIcon />}
+                  rightIcon={arrowForwardIcon}
                   data-test={`${id}-button`}
                   letterSpacing='0.012em'
                 >

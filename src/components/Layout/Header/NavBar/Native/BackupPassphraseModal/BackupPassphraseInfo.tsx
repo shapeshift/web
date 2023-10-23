@@ -16,7 +16,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -28,6 +28,9 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
+const arrowBackIcon = <ArrowBackIcon />
+const faEyeIcon = <FaEye />
+
 export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
@@ -35,10 +38,10 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { goBack: handleBackClick, ...history } = useHistory()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
-  const handleShow = () => {
+  const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
-  }
+  }, [revealed])
   const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
   const preventClose = backupNativePassphraseProps?.preventClose
 
@@ -96,11 +99,16 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     ))
   }, [])
 
+  const handleCreateBackupClick = useCallback(
+    () => history.push(BackupPassphraseRoutes.Test),
+    [history],
+  )
+
   return (
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         fontSize='xl'
         size='sm'
@@ -132,7 +140,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />
@@ -141,7 +149,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
           colorScheme='blue'
           size='lg'
           disabled={!(words && revealedOnce.current)}
-          onClick={() => history.push(BackupPassphraseRoutes.Test)}
+          onClick={handleCreateBackupClick}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>

@@ -1,3 +1,4 @@
+import type { StackDirection } from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
@@ -11,7 +12,7 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Main } from 'components/Layout/Main'
@@ -42,13 +43,18 @@ const FlagHeader = () => {
   )
 }
 
+const flagHeader = <FlagHeader />
+const stackDirection: StackDirection = { base: 'column', md: 'row' }
+
+const stackDivider = <StackDivider />
+
 export const Flags = () => {
   const history = useHistory()
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
 
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     try {
       // Delete persisted state
       clearState()
@@ -58,9 +64,9 @@ export const Flags = () => {
       console.error(e)
       setError(String((e as Error)?.message))
     }
-  }
+  }, [history])
 
-  const handleResetPreferences = () => {
+  const handleResetPreferences = useCallback(() => {
     try {
       dispatch(slices.preferences.actions.clearFeatureFlags())
       setError(null)
@@ -68,11 +74,11 @@ export const Flags = () => {
       console.error(e)
       setError(String((e as Error)?.message))
     }
-  }
+  }, [dispatch])
 
   return (
-    <Main titleComponent={<FlagHeader />}>
-      <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
+    <Main titleComponent={flagHeader}>
+      <Stack direction={stackDirection} spacing={6}>
         <Card flex={1}>
           <CardHeader>
             <RawText color='text.subtle'>
@@ -81,7 +87,7 @@ export const Flags = () => {
             </RawText>
           </CardHeader>
           <CardBody>
-            <Stack divider={<StackDivider />}>
+            <Stack divider={stackDivider}>
               {Object.keys(featureFlags).map((flag, idx) => (
                 <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
               ))}

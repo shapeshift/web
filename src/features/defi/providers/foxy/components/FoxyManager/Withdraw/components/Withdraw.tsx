@@ -33,6 +33,8 @@ export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
 
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Withdraw: React.FC<
   StepComponentProps & {
     accountId: AccountId | undefined
@@ -231,26 +233,46 @@ export const Withdraw: React.FC<
     ],
   )
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = useMemo(() => browserHistory.goBack, [browserHistory.goBack])
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset.precision, balance],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
-    const fiat = crypto.times(bnOrZero(marketData?.price))
-    const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
+      const fiat = crypto.times(bnOrZero(marketData?.price))
+      const _value = bnOrZero(value)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset.precision, balance, marketData?.price],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
 
   if (!state || !dispatch) return null
 
@@ -261,22 +283,16 @@ export const Withdraw: React.FC<
         onAccountIdChange={handleAccountIdChange}
         asset={asset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-        cryptoInputValidation={{
-          required: true,
-          validate: { validateCryptoAmount },
-        }}
+        cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
-        fiatInputValidation={{
-          required: true,
-          validate: { validateFiatAmount },
-        }}
+        fiatInputValidation={fiatInputValidation}
         marketData={marketData}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
         handlePercentClick={handlePercentClick}
         disableInput={withdrawTypeValue === WithdrawType.INSTANT}
-        percentOptions={[0.25, 0.5, 0.75, 1]}
+        percentOptions={percentOptions}
       >
         <WithdrawTypeField
           asset={stakingAsset}

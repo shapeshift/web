@@ -11,7 +11,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -124,7 +124,7 @@ export const FoxyWithdraw: React.FC<{
     }
   }, [accountId, handleAccountIdChange, foxyStakingContractAddress, translate, stakingAsset.symbol])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -132,7 +132,7 @@ export const FoxyWithdraw: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location.pathname, query])
 
   if (loading || !underlyingAsset || !marketData || !feeMarketData)
     return (

@@ -11,6 +11,8 @@ import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
 
+const faTimes = <FaTimes />
+
 type GlobalFilterProps = {
   setSearchQuery: (filterValue: any) => void
   searchQuery: any
@@ -47,6 +49,11 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
     handleDebounce('')
   }, [handleDebounce])
 
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.value),
+    [handleChange],
+  )
+
   return (
     <InputGroup size='md' {...inputGroupProps}>
       {/* Override zIndex to prevent element displaying on overlay components */}
@@ -56,7 +63,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
       <Input
         variant='filled'
         placeholder='Search'
-        onChange={e => handleChange(e.target.value)}
+        onChange={handleInputChange}
         value={value}
         {...rest}
       />
@@ -66,7 +73,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
             isRound
             size='xs'
             variant='ghost'
-            icon={<FaTimes />}
+            icon={faTimes}
             aria-label='Clear'
             isLoading={loading}
             onClick={handleReset}

@@ -28,7 +28,6 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { zapper } from 'state/apis/zapper/zapperApi'
@@ -86,9 +85,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
-
-  // load fiat ramps
-  useGetFiatRampsQuery()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready

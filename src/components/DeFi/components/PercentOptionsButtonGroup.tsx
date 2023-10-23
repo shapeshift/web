@@ -32,6 +32,8 @@ export const PercentOptionsButtonGroup: React.FC<MaxButtonGroupProps> = ({
           isDisabled={isDisabled}
           isActive={option === value}
           key={option}
+          // we need to pass an arg here, so we need an anonymous function wrapper
+          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => handleClick(option)}
         >
           {option === 1 ? (

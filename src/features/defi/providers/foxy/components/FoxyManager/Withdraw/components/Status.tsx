@@ -25,6 +25,8 @@ import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined }
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -43,11 +45,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.push('/earn')
   }, [browserHistory])
 
-  if (!state || !dispatch) return null
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
+
+  if (!state || !dispatch) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {
@@ -161,7 +163,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${underlyingAsset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

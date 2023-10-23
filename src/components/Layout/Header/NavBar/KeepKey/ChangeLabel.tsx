@@ -1,6 +1,7 @@
 import { Button, Flex, Input, useColorModeValue, useToast } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
@@ -23,7 +24,7 @@ export const ChangeLabel = () => {
   } = useWallet()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
-  const handleChangeLabelInitializeEvent = async () => {
+  const handleChangeLabelInitializeEvent = useCallback(async () => {
     await keepKeyWallet?.applySettings({ label: keepKeyLabel }).catch(e => {
       console.error(e)
       toast({
@@ -33,10 +34,25 @@ export const ChangeLabel = () => {
         isClosable: true,
       })
     })
-  }
+  }, [keepKeyLabel, keepKeyWallet, toast, translate])
+
   const setting = 'label'
   const inputBackground = useColorModeValue('white', 'gray.800')
   const placeholderOpacity = useColorModeValue(0.6, 0.4)
+  const inputPlaceholder = useMemo(
+    () => ({ opacity: placeholderOpacity, color: 'inherit' }),
+    [placeholderOpacity],
+  )
+
+  const buttonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
+    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
+    [setting],
+  )
+
+  const handleLabelInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setKeepKeyLabel(e.target.value),
+    [],
+  )
 
   return (
     <SubMenuContainer>
@@ -52,10 +68,10 @@ export const ChangeLabel = () => {
           <Input
             type='text'
             placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
-            _placeholder={{ opacity: placeholderOpacity, color: 'inherit' }}
+            _placeholder={inputPlaceholder}
             size='md'
             background={inputBackground}
-            onChange={e => setKeepKeyLabel(e.target.value)}
+            onChange={handleLabelInputChange}
             value={keepKeyLabel}
             autoFocus
             disabled={awaitingDeviceInteraction}
@@ -69,9 +85,7 @@ export const ChangeLabel = () => {
             {translate('walletProvider.keepKey.settings.actions.update', { setting })}
           </Button>
         </SubMenuBody>
-        <AwaitKeepKey
-          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-        />
+        <AwaitKeepKey translation={buttonPromptTranslation} />
       </Flex>
     </SubMenuContainer>
   )

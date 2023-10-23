@@ -1,4 +1,15 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
+import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
+import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
+import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
+import { getConfig } from 'config'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
@@ -8,6 +19,7 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 import { WalletConnectV2Connect } from 'context/WalletProvider/WalletConnectV2/components/Connect'
+import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
 import { CoinbaseConnect } from './Coinbase/components/Connect'
 import { CoinbaseFailure } from './Coinbase/components/Failure'
@@ -65,15 +77,16 @@ import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
 import { KeepKeyRoutes } from './routes'
-import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
-import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
+import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
-export interface SupportedWalletInfo {
-  adapters: any[]
+export type SupportedWalletInfo<T> = {
+  adapters: {
+    loadAdapter: () => Promise<T>
+  }[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
@@ -84,7 +97,25 @@ export interface SupportedWalletInfo {
   connectedMenuComponent?: React.ComponentType<any>
 }
 
-export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
+export type SupportedWalletInfoByKeyManager = {
+  [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
+  // Native, Mobile, and Demo wallets are all native wallets
+  [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
+  [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
+  [KeyManager.Demo]: SupportedWalletInfo<typeof NativeAdapter>
+  // TODO(gomes): export WebUSBKeepKeyAdapter as a type in hdwallet, not a declare const
+  // this effectively means we keep on importing the akschual package for now
+  [KeyManager.KeepKey]: SupportedWalletInfo<typeof WebUSBKeepKeyAdapter | typeof KkRestAdapter>
+  [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
+  [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
+  [KeyManager.MetaMask]: SupportedWalletInfo<
+    typeof MetaMaskAdapter | typeof MetaMaskMultiChainAdapter
+  >
+  [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
+  [KeyManager.XDefi]: SupportedWalletInfo<typeof XDEFIAdapter>
+}
+
+export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Mobile]: {
     ...MobileConfig,
     routes: [
@@ -190,10 +221,36 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   },
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,
-    routes: [
-      { path: '/walletconnectv2/connect', component: WalletConnectV2Connect },
-      { path: '/walletconnectv2/load', component: WalletConnectV2Load },
-      { path: '/walletconnectv2/create', component: WalletConnectV2Create },
-    ],
+    routes: [{ path: '/walletconnectv2/connect', component: WalletConnectV2Connect }],
   },
+}
+
+// Copied from hdwallet-coinbase so we don't have to import the whole package just for the sake of this type
+// and can lazy load it instead
+type CoinbaseProviderConfig = {
+  appName: string
+  appLogoUrl: string
+  defaultJsonRpcUrl: string
+  defaultChainId: number
+  darkMode: boolean
+}
+
+type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
+type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
+
+export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
+  switch (keyManager) {
+    case KeyManager.WalletConnectV2:
+      return walletConnectV2ProviderConfig
+    case KeyManager.Coinbase:
+      return {
+        appName: 'ShapeShift',
+        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultChainId: 1,
+        darkMode: isDarkMode,
+      }
+    default:
+      return undefined
+  }
 }

@@ -1,6 +1,6 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
@@ -34,12 +34,16 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
     )
     const fiatBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
+    const handleSearchResultAssetTypeClick = useCallback(() => {
+      onClick({ type: GlobalSearchResultType.Asset, id: assetId })
+    }, [assetId, onClick])
+
     if (!asset) return null
     return (
       <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: assetId })}
+        onClick={handleSearchResultAssetTypeClick}
       >
         <Flex gap={2} flex={1}>
           <AssetIcon assetId={asset.assetId} size='sm' />

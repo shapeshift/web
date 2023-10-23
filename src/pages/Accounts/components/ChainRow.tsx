@@ -20,6 +20,11 @@ type ChainRowProps = {
   chainId: ChainId
 }
 
+const fontSize = { base: 'sm', md: 'md' }
+const borderWidth = { base: 0, md: 1 }
+const hover = { borderColor: 'border.hover' }
+const stackPx = { base: 2, md: 4 }
+
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
   const history = useHistory()
@@ -58,16 +63,16 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       fontWeight='semibold'
       transitionProperty='common'
       transitionDuration='normal'
-      fontSize={{ base: 'sm', md: 'md' }}
-      borderWidth={{ base: 0, md: 1 }}
-      _hover={{ borderColor: 'border.hover' }}
+      fontSize={fontSize}
+      borderWidth={borderWidth}
+      _hover={hover}
     >
       <Stack
         direction='row'
         cursor='pointer'
         justifyContent='space-between'
         alignItems='center'
-        px={{ base: 2, md: 4 }}
+        px={stackPx}
         data-test='expand-accounts-button'
         onClick={onToggle}
         py={2}

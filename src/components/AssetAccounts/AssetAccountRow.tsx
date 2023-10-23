@@ -1,4 +1,4 @@
-import type { SimpleGridProps } from '@chakra-ui/react'
+import type { SimpleGridProps, StackDirection } from '@chakra-ui/react'
 import {
   Box,
   Flex,
@@ -38,6 +38,11 @@ type AssetAccountRowProps = {
   isCompact?: boolean
 } & SimpleGridProps
 
+const stackDirectionMdRow: StackDirection = { base: 'column', md: 'row' }
+const stackSpacingMd4 = { base: 2, md: 4 }
+const flexDisplayLgFlex = { base: 'none', lg: 'flex' }
+const flexDisplayMdFlex = { base: 'none', md: 'flex' }
+
 export const AssetAccountRow = ({
   accountId,
   assetId,
@@ -71,19 +76,25 @@ export const AssetAccountRow = ({
   )
   const label = accountIdToLabel(accountId)
 
+  const simpleGridHover = useMemo(() => ({ bg: rowHover }), [rowHover])
+  const templateColumns = useMemo(
+    () => ({
+      base: 'minmax(0, 2fr) repeat(1, 1fr)',
+      md: '1fr repeat(2, 1fr)',
+      lg: showAllocation
+        ? 'minmax(0, 2fr) 150px repeat(2, 1fr)'
+        : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`,
+    }),
+    [isCompact, showAllocation],
+  )
+
   if (!asset) return null
   return (
     <SimpleGrid
       as={Link}
       to={path}
-      _hover={{ bg: rowHover }}
-      templateColumns={{
-        base: 'minmax(0, 2fr) repeat(1, 1fr)',
-        md: '1fr repeat(2, 1fr)',
-        lg: showAllocation
-          ? 'minmax(0, 2fr) 150px repeat(2, 1fr)'
-          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`,
-      }}
+      _hover={simpleGridHover}
+      templateColumns={templateColumns}
       py={4}
       pl={4}
       pr={4}
@@ -103,10 +114,10 @@ export const AssetAccountRow = ({
             </RawText>
           )}
           <Stack
-            direction={{ base: 'column', md: 'row' }}
+            direction={stackDirectionMdRow}
             alignContent='center'
             alignItems='flex-start'
-            spacing={{ base: 2, md: 4 }}
+            spacing={stackSpacingMd4}
           >
             <RawText
               fontWeight='medium'
@@ -134,7 +145,7 @@ export const AssetAccountRow = ({
         </Flex>
       </Flex>
       {showAllocation && (
-        <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
+        <Flex display={flexDisplayLgFlex} alignItems='center' justifyContent='flex-end'>
           <Allocations value={allocation} />
         </Flex>
       )}
@@ -143,7 +154,7 @@ export const AssetAccountRow = ({
           flexDir='column'
           justifyContent='flex-end'
           textAlign='right'
-          display={{ base: 'none', md: 'flex' }}
+          display={flexDisplayMdFlex}
         >
           <Amount.Crypto value={cryptoHumanBalance} symbol={asset?.symbol} />
           {asset.id && <RawText>{middleEllipsis(asset.id)}</RawText>}

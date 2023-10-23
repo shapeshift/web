@@ -9,7 +9,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -78,7 +78,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     })()
   }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -86,7 +86,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location.pathname, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

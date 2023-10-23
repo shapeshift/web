@@ -17,6 +17,8 @@ export type MainProps = {
   hideBreadcrumbs?: boolean
 } & ContainerProps
 
+const containerPaddingX = { base: 4, xl: 16 }
+
 export const Main: React.FC<MainProps> = memo(
   ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, ...rest }) => {
     const ref = useRef<HTMLDivElement>(null)
@@ -41,7 +43,7 @@ export const Main: React.FC<MainProps> = memo(
             shadow={y > height ? 'sm' : undefined}
           >
             <>
-              <Container maxW='container.4xl' px={{ base: 4, xl: 16 }} pt={4}>
+              <Container maxW='container.4xl' px={containerPaddingX} pt={4}>
                 <Stack>
                   {!hideBreadcrumbs && (
                     <HStack width='full' justifyContent='space-between'>

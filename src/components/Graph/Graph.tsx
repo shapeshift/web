@@ -2,12 +2,19 @@ import { Center, Fade } from '@chakra-ui/react'
 import { ParentSize } from '@visx/responsive'
 import type { ParentSizeProvidedProps } from '@visx/responsive/lib/components/ParentSize'
 import { isEmpty } from 'lodash'
-import { useCallback } from 'react'
+import { lazy, Suspense, useCallback } from 'react'
 import type { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
-import { PrimaryChart } from './PrimaryChart/PrimaryChart'
-import { RainbowChart } from './RainbowChart/RainbowChart'
+
+const RainbowChart = lazy(() =>
+  import('./RainbowChart/RainbowChart').then(({ RainbowChart }) => ({ default: RainbowChart })),
+)
+const PrimaryChart = lazy(() =>
+  import('./PrimaryChart/PrimaryChart').then(({ PrimaryChart }) => ({ default: PrimaryChart })),
+)
+
+const suspenseFallback = <div />
 
 type GraphProps = {
   data: BalanceChartData
@@ -44,13 +51,15 @@ export const Graph: React.FC<GraphProps> = ({
         </Fade>
       ) : !isEmpty(data) ? (
         isRainbowChart ? (
-          <RainbowChart
-            height={height}
-            width={width}
-            color={color}
-            margin={margin}
-            data={rainbow}
-          />
+          <Suspense fallback={suspenseFallback}>
+            <RainbowChart
+              height={height}
+              width={width}
+              color={color}
+              margin={margin}
+              data={rainbow}
+            />
+          </Suspense>
         ) : (
           <PrimaryChart
             height={height}

@@ -1,3 +1,4 @@
+import type { FlexProps } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
 import { type FC, memo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -18,6 +19,9 @@ type RateGasRowProps = {
   isLoading?: boolean
   isError?: boolean
 }
+
+const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
+
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({ sellSymbol, buySymbol, rate, gasFee, isLoading, isError }) => {
     const translate = useTranslate()
@@ -34,7 +38,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
           <Stack direction='row' alignItems='center' fontSize='sm'>
             <HelperTooltip
               label={translate('trade.tooltip.noRateAvailable')}
-              flexProps={{ flexDirection: 'row-reverse' }}
+              flexProps={helpersTooltipFlexProps}
             >
               <Text translation={'trade.noRateAvailable'} />
             </HelperTooltip>
@@ -47,7 +51,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
               <Row.Value fontSize='sm'>
                 <HelperTooltip
                   label={translate('trade.tooltip.rate')}
-                  flexProps={{ flexDirection: 'row-reverse' }}
+                  flexProps={helpersTooltipFlexProps}
                 >
                   <Stack width='full' direction='row' spacing={1}>
                     <Amount.Crypto

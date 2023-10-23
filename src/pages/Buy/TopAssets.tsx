@@ -1,5 +1,4 @@
 import { Box, Button, Heading } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -18,6 +17,10 @@ import { SparkLine } from './components/Sparkline'
 
 type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketData>[0]
 type RowProps = Row<AssetWithMarketData>
+
+const pageContainerPaddingTop = { base: 8, md: '5rem' }
+const headingPaddingX = { base: 2, xl: 4 }
+const reactTableInitialState = { sortBy: [{ id: 'marketCap', desc: true }] }
 
 export const TopAssets: React.FC = () => {
   const fiatRamps = useModal('fiatRamps')
@@ -82,7 +85,8 @@ export const TopAssets: React.FC = () => {
   )
 
   const handleClick = useCallback(
-    (assetId: AssetId) => fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy }),
+    (row: RowProps) =>
+      fiatRamps.open({ assetId: row.original.assetId, fiatRampAction: FiatRampAction.Buy }),
     [fiatRamps],
   )
 
@@ -94,16 +98,16 @@ export const TopAssets: React.FC = () => {
         gap={4}
         display='flex'
         py='5rem'
-        pt={{ base: 8, md: '5rem' }}
+        pt={pageContainerPaddingTop}
       >
-        <Heading as='h4' px={{ base: 2, xl: 4 }}>
+        <Heading as='h4' px={headingPaddingX}>
           {translate('buyPage.availableAssets')}
         </Heading>
         <ReactTable
           columns={columns}
           data={fiatRampBuyAssetsWithMarketData}
-          initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
-          onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
+          initialState={reactTableInitialState}
+          onRowClick={handleClick}
           rowDataTestKey='name'
           rowDataTestPrefix='fiat-ramp'
         />

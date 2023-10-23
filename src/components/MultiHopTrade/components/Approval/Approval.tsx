@@ -45,6 +45,8 @@ import { theme } from 'theme/theme'
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
+const skeletonCircle = <SkeletonCircle boxSize='60px' />
+
 const ApprovalInner = ({
   swapperName,
   tradeQuoteStep,
@@ -158,13 +160,7 @@ const ApprovalInner = ({
   const handleComplete = useCallback(() => ({ shouldRepeat: true }), [])
 
   const renderImage = useCallback(() => {
-    return (
-      <Image
-        src={tradeQuoteStep.sellAsset.icon}
-        boxSize='60px'
-        fallback={<SkeletonCircle boxSize='60px' />}
-      />
-    )
+    return <Image src={tradeQuoteStep.sellAsset.icon} boxSize='60px' fallback={skeletonCircle} />
   }, [tradeQuoteStep.sellAsset.icon])
 
   const handleBack = useCallback(() => history.goBack(), [history])

@@ -1,5 +1,6 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Button, Flex, Link } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { middleEllipsis } from 'lib/utils'
 
 const Id = ({ id, ...rest }: FlexProps & { id: string }) => (
@@ -7,6 +8,8 @@ const Id = ({ id, ...rest }: FlexProps & { id: string }) => (
     <span style={{ lineHeight: 1 }}>{middleEllipsis(id)}</span>
   </Flex>
 )
+
+const buttonHover = { bg: 'transparent' }
 
 export const NftId = ({
   explorer,
@@ -16,22 +19,28 @@ export const NftId = ({
   explorer?: string
   id: string
   assetReference: string
-}) => (
-  <Button
-    as={Link}
-    href={`${explorer}/token/${assetReference.split('/')[0]}?a=${id}`}
-    isExternal
-    bg='transparent'
-    variant='ghost'
-    colorScheme='blue'
-    fontWeight='normal'
-    p={0}
-    onClick={e => e.stopPropagation()}
-    height='auto'
-    fontFamily='monospace'
-    _hover={{ bg: 'transparent' }}
-    fontSize='inherit'
-  >
-    <Id id={id} />
-  </Button>
-)
+}) => {
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation(),
+    [],
+  )
+  return (
+    <Button
+      as={Link}
+      href={`${explorer}/token/${assetReference.split('/')[0]}?a=${id}`}
+      isExternal
+      bg='transparent'
+      variant='ghost'
+      colorScheme='blue'
+      fontWeight='normal'
+      p={0}
+      onClick={handleClick}
+      height='auto'
+      fontFamily='monospace'
+      _hover={buttonHover}
+      fontSize='inherit'
+    >
+      <Id id={id} />
+    </Button>
+  )
+}

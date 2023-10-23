@@ -26,6 +26,14 @@ type WithdrawCardProps = {
   accountId?: AccountId | undefined
 }
 
+const buttonHover = { cursor: 'auto', borderRadius: 'auto', borderColor: 'auto' }
+const buttonActive = { cursor: 'auto', borderRadius: 'auto', borderColor: 'auto' }
+const buttonLeftIcon = (
+  <IconCircle>
+    <FaArrowDown />
+  </IconCircle>
+)
+
 export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: validatorAddress } = query
@@ -67,8 +75,8 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
       return (
         <Button
           variant='input'
-          _hover={{ cursor: 'auto', borderRadius: 'auto', borderColor: 'auto' }}
-          _active={{ cursor: 'auto', borderRadius: 'auto', borderColor: 'auto' }}
+          _hover={buttonHover}
+          _active={buttonActive}
           width='full'
           maxHeight='auto'
           height='auto'
@@ -76,11 +84,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
           justifyContent='flex-start'
           textAlign='left'
           py={2}
-          leftIcon={
-            <IconCircle>
-              <FaArrowDown />
-            </IconCircle>
-          }
+          leftIcon={buttonLeftIcon}
         >
           <Stack spacing={0}>
             <Text color={textColor} translation='common.withdrawal' />
@@ -103,6 +107,8 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
             <Text
               fontWeight='normal'
               lineHeight='shorter'
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               translation={[
                 'defi.modals.cosmosOverview.availableDate',
                 { date: dayjs().to(dayjs.unix(completionTime)) },

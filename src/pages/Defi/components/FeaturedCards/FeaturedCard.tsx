@@ -24,6 +24,9 @@ import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/uti
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const scrollSnapAlign = { base: 'center', md: 'start' }
+const cardBorderRadius = { base: 'xl' }
+
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity => {
   const {
     underlyingAssetIds,
@@ -43,6 +46,14 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
   const history = useHistory()
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
   const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
+
+  const cardHover = useMemo(
+    () => ({
+      bg: hoverBgColor,
+    }),
+    [hoverBgColor],
+  )
+
   const backgroundIcons = useMemo(() => {
     return underlyingAssetIds.map(assetId => (
       <AssetIcon size='2xl' key={assetId} assetId={assetId} />
@@ -97,7 +108,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
   return (
     <Card
       position='relative'
-      scrollSnapAlign={{ base: 'center', md: 'start' }}
+      scrollSnapAlign={scrollSnapAlign}
       overflow='hidden'
       display='flex'
       flexDir='column'
@@ -105,10 +116,8 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
       width='full'
       transitionProperty='common'
       transitionDuration='normal'
-      borderRadius={{ base: 'xl' }}
-      _hover={{
-        bg: hoverBgColor,
-      }}
+      borderRadius={cardBorderRadius}
+      _hover={cardHover}
     >
       <Box filter='blur(30px)' opacity='0.2' position='absolute' left='-10%' top='-10%'>
         {backgroundIcons}

@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import snapshot from '@snapshot-labs/snapshot.js'
 import axios from 'axios'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getVotingPower } from './getVotingPower'
 import type { Strategy } from './validators'
 import { SnapshotSchema, VotingPowerSchema } from './validators'
 
@@ -67,8 +67,7 @@ export const snapshotApi = createApi({
         const delegation = false // don't let people delegate for discounts - ambiguous in spec
         const votingPowerResults = await Promise.all(
           evmAddresses.map(async address => {
-            // https://docs.snapshot.org/tools/snapshot.js#getvp
-            const votingPowerUnvalidated = await snapshot.utils.getVp(
+            const votingPowerUnvalidated = await getVotingPower(
               address,
               '1',
               strategies,

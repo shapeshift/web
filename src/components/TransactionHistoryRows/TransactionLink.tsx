@@ -1,5 +1,8 @@
 import { Button, Link } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+
+const hover = { bg: 'transparent' }
 
 export const TransactionLink = ({
   explorerTxLink,
@@ -7,24 +10,30 @@ export const TransactionLink = ({
 }: {
   explorerTxLink: string
   txid: string
-}) => (
-  <Button
-    as={Link}
-    isExternal
-    href={`${explorerTxLink}${txid}`}
-    variant='ghost'
-    colorScheme='blue'
-    bg='transparent'
-    fontWeight='normal'
-    fontFamily='monospace'
-    onClick={e => e.stopPropagation()}
-    p={0}
-    height='auto'
-    fontSize='inherit'
-    _hover={{ bg: 'transparent' }}
-    display='flex'
-    alignItems='center'
-  >
-    <MiddleEllipsis value={txid} />
-  </Button>
-)
+}) => {
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation(),
+    [],
+  )
+  return (
+    <Button
+      as={Link}
+      isExternal
+      href={`${explorerTxLink}${txid}`}
+      variant='ghost'
+      colorScheme='blue'
+      bg='transparent'
+      fontWeight='normal'
+      fontFamily='monospace'
+      onClick={handleClick}
+      p={0}
+      height='auto'
+      fontSize='inherit'
+      _hover={hover}
+      display='flex'
+      alignItems='center'
+    >
+      <MiddleEllipsis value={txid} />
+    </Button>
+  )
+}

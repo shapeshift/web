@@ -31,6 +31,8 @@ export const LpResults: React.FC<GlobalSearchResultsProps<OpportunitySearchResul
           index={index + startingIndex}
           key={`lp-${index}`}
           activeIndex={activeIndex}
+          // we need to pass an arg here, so we need an anonymous function wrapper
+          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: result.id })}
           ref={menuNodes.ref(index + startingIndex)}
         />

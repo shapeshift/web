@@ -18,6 +18,9 @@ import { useAppSelector } from 'state/store'
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
 
+const addIcon = <AddIcon />
+const pxProps = { base: 4, xl: 0 }
+
 const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
   const {
@@ -33,13 +36,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const { open } = useModal('addAccount')
 
   return (
-    <Stack
-      px={{ base: 4, xl: 0 }}
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      pb={6}
-    >
+    <Stack px={pxProps} direction='row' justifyContent='space-between' alignItems='center' pb={6}>
       <SEO title={translate('accounts.accounts')} />
       <Skeleton isLoaded={!isLoading}>
         <Heading fontSize='xl'>
@@ -50,7 +47,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
         <Skeleton isLoaded={!isLoading}>
           <Button
             loadingText={translate('accounts.addAccount')}
-            leftIcon={<AddIcon />}
+            leftIcon={addIcon}
             colorScheme='blue'
             onClick={open}
             size='sm'

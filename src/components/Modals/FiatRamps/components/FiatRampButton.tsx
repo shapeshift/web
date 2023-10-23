@@ -16,6 +16,11 @@ type FiatRampButtonProps = {
   action: FiatRampAction
 } & SupportedFiatRampConfig
 
+const chevronRightIcon = <ChevronRightIcon boxSize={4} />
+
+const tagTextStyle = { textTransform: 'uppercase' } as const
+const flexGap = ['1em', 0]
+
 export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
   onClick,
   accountFiatBalance,
@@ -36,12 +41,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
   const renderTags = useMemo(() => {
     return tags?.map(tag => (
       <Tag key={tag} colorScheme='gray' size='xs' py={1} px={2}>
-        <Text
-          color={tagColor}
-          fontSize='12px'
-          translation={tag}
-          style={{ textTransform: 'uppercase' }}
-        />
+        <Text color={tagColor} fontSize='12px' translation={tag} style={tagTextStyle} />
       </Tag>
     ))
   }, [tagColor, tags])
@@ -65,7 +65,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
         data-test={`fiat-ramp-${label}-button`}
         py={2}
         onClick={onClick}
-        rightIcon={<ChevronRightIcon boxSize={4} />}
+        rightIcon={chevronRightIcon}
         disabled={!hasEnoughBalance && action === FiatRampAction.Sell}
       >
         <Flex
@@ -73,7 +73,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
           flexWrap='wrap'
           justifyContent='space-between'
           alignItems='center'
-          gap={['1em', 0]}
+          gap={flexGap}
           width='100%'
         >
           <Flex flexDirection='row' justifyContent='center' alignItems='center'>

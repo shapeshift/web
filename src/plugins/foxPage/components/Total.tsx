@@ -1,4 +1,6 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Flex, SkeletonText, Text } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -8,17 +10,22 @@ type TotalProps = {
   fiatAmount: string
 }
 
+const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'row-reverse', md: 'column' }
+const alignItems = { base: 'center', md: 'flex-start' }
+const justifyContent = { base: 'space-between', md: 'flex-start' }
+const flexMb = { base: 0, md: 6 }
+
 export const Total = ({ icons, fiatAmount }: TotalProps) => {
   const translate = useTranslate()
 
   return (
     <Flex
       p={4}
-      flexDirection={{ base: 'row-reverse', md: 'column' }}
-      alignItems={{ base: 'center', md: 'flex-start' }}
-      justifyContent={{ base: 'space-between', md: 'flex-start' }}
+      flexDirection={flexDirection}
+      alignItems={alignItems}
+      justifyContent={justifyContent}
     >
-      <Flex mb={{ base: 0, md: 6 }} flexDirection='row'>
+      <Flex mb={flexMb} flexDirection='row'>
         {icons.map((icon, index) => (
           <AssetIcon
             key={icon}

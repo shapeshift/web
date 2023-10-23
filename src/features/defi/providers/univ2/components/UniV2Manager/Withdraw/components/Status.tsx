@@ -9,7 +9,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -36,6 +36,7 @@ import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined }
+const externalLinkIcon = <ExternalLinkIcon />
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
@@ -101,13 +102,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [confirmedTransaction, dispatch, asset0.precision, lpAsset.precision])
 
-  const handleViewPosition = () => {
+  const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')
-  }
+  }, [browserHistory])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
   useEffect(() => {
     if (!lpOpportunity) return
@@ -267,7 +268,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset0.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}

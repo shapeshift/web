@@ -71,7 +71,6 @@ export const mockStore: ReduxState = {
       Cowswap: false,
       CowswapGnosis: false,
       IdleFinance: false,
-      Axelar: false,
       Yat: false,
       WalletConnectToDappsV2: false,
       Wherever: false,

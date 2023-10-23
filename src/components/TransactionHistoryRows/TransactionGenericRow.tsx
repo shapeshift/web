@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import type { StackDirection } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -21,6 +22,13 @@ import { ApproveIcon } from './components/ApproveIcon'
 import { AssetsTransfers } from './components/AssetsTransfers'
 import { AssetTransfer } from './components/AssetTransfer'
 import type { getTxMetadataWithAssetId } from './utils'
+
+const buttonPadding = { base: 2, md: 4 }
+const stackDivider = (
+  <Box border={0} color='text.subtle' fontSize='sm'>
+    <FaArrowRight />
+  </Box>
+)
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -90,7 +98,7 @@ type TransactionGenericRowProps = {
   txData?: ReturnType<typeof getTxMetadataWithAssetId>
   blockTime: number
   explorerTxLink: string
-  toggleOpen: Function
+  toggleOpen: () => void
   parentWidth: number
 }
 
@@ -147,17 +155,50 @@ export const TransactionGenericRow = ({
       .toString()
   }, [fee?.marketData?.price, cryptoValue])
 
+  const gridTemplateColumns = useMemo(() => ({ base: '1fr', md: columns }), [columns])
+  const iconCircleBoxSize = useMemo(
+    () => ({ base: '24px', lg: compactMode ? '24px' : '38px' }),
+    [compactMode],
+  )
+  const stackDirection: StackDirection = useMemo(
+    () => ({ base: 'row', md: 'column', xl: compactMode ? 'row' : 'column' }),
+    [compactMode],
+  )
+  const stackFontSize = useMemo(
+    () => ({ base: 'sm', lg: compactMode ? 'sm' : 'md' }),
+    [compactMode],
+  )
+
+  const stackAlignItems = useMemo(
+    () => ({ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }),
+    [compactMode],
+  )
+  const tagMinHeight = useMemo(
+    () => ({ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }),
+    [compactMode],
+  )
+  const tagPx = useMemo(() => ({ base: 2, md: compactMode ? 2 : 2 }), [compactMode])
+  const stackSpacing = useMemo(() => ({ base: 0, md: 4, xl: compactMode ? 0 : 4 }), [compactMode])
+  const stackJustifyContent = useMemo(
+    () => ({
+      base: 'space-between',
+      md: 'flex-start',
+      xl: compactMode ? 'space-between' : 'flex-start',
+    }),
+    [compactMode],
+  )
+
   return (
     <Button
       height='auto'
       fontWeight='inherit'
       variant='unstyled'
       w='full'
-      p={{ base: 2, md: 4 }}
-      onClick={() => toggleOpen()}
+      p={buttonPadding}
+      onClick={toggleOpen}
     >
       <SimpleGrid
-        gridTemplateColumns={{ base: '1fr', md: columns }}
+        gridTemplateColumns={gridTemplateColumns}
         textAlign='left'
         justifyContent='flex-start'
         alignItems='center'
@@ -167,7 +208,7 @@ export const TransactionGenericRow = ({
           <Flex alignItems='center' width='full'>
             <IconCircle
               mr={2}
-              boxSize={{ base: '24px', lg: compactMode ? '24px' : '38px' }}
+              boxSize={iconCircleBoxSize}
               bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.200')}
               position='relative'
             >
@@ -181,11 +222,11 @@ export const TransactionGenericRow = ({
               {status === TxStatus.Pending && <CircularProgress position='absolute' size='100%' />}
             </IconCircle>
             <Stack
-              direction={{ base: 'row', md: 'column', xl: compactMode ? 'row' : 'column' }}
+              direction={stackDirection}
               flex={1}
               spacing={0}
-              fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
-              alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
+              fontSize={stackFontSize}
+              alignItems={stackAlignItems}
             >
               <Flex alignItems='center' gap={2} flex={1}>
                 <Text
@@ -197,8 +238,8 @@ export const TransactionGenericRow = ({
                     size='sm'
                     colorScheme='blue'
                     variant='subtle'
-                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
-                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                    minHeight={tagMinHeight}
+                    px={tagPx}
                   >
                     IBC
                   </Tag>
@@ -208,8 +249,8 @@ export const TransactionGenericRow = ({
                     size='sm'
                     colorScheme='blue'
                     variant='subtle'
-                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
-                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                    minHeight={tagMinHeight}
+                    px={tagPx}
                   >
                     NFT
                   </Tag>
@@ -224,18 +265,10 @@ export const TransactionGenericRow = ({
             direction='row'
             width='full'
             alignItems='center'
-            spacing={{ base: 0, md: 4, xl: compactMode ? 0 : 4 }}
-            justifyContent={{
-              base: 'space-between',
-              md: 'flex-start',
-              xl: compactMode ? 'space-between' : 'flex-start',
-            }}
-            fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
-            divider={
-              <Box border={0} color='text.subtle' fontSize='sm'>
-                <FaArrowRight />
-              </Box>
-            }
+            spacing={stackSpacing}
+            justifyContent={stackJustifyContent}
+            fontSize={stackFontSize}
+            divider={stackDivider}
           >
             {transfers}
           </Stack>

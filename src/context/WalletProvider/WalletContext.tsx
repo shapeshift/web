@@ -3,10 +3,12 @@ import { createContext } from 'react'
 
 import type { ActionTypes } from './actions'
 import type { KeyManager } from './KeyManager'
+import type { GetAdapter } from './types'
 import type { DeviceState, InitialState, KeyManagerWithProvider } from './WalletProvider'
 
 export interface IWalletContext {
   state: InitialState
+  getAdapter: GetAdapter
   dispatch: React.Dispatch<ActionTypes>
   connect: (adapter: KeyManager) => void
   create: (adapter: KeyManager) => void

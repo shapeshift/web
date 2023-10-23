@@ -56,6 +56,11 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 
+const stepIcon = <StepIcon />
+const spinner = <Spinner />
+
+const cardBorderRadius = { base: 'xl' }
+
 const useTradeExecutor = () => {
   const dispatch = useAppDispatch()
   const mockExecute = useCallback(() => {
@@ -105,7 +110,7 @@ const getApprovalStep = ({
   return {
     title: 'Token allowance approval',
     description: txId ?? `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`,
-    stepIndicator: <StepStatus complete={<StepIcon />} active={txId ? <Spinner /> : undefined} />,
+    stepIndicator: <StepStatus complete={stepIcon} active={txId ? spinner : undefined} />,
     content: (
       <Card p='2'>
         {txId ? (
@@ -160,7 +165,7 @@ const getTradeStep = ({
 }): StepperStep => {
   return {
     title: 'Sign transaction',
-    stepIndicator: <StepStatus complete={<StepIcon />} active={txId ? <Spinner /> : undefined} />,
+    stepIndicator: <StepStatus complete={stepIcon} active={txId ? spinner : undefined} />,
     content: (
       <Card p='2'>
         {txId ? (
@@ -609,7 +614,7 @@ const Hop = ({
   return (
     <Card
       flex={1}
-      borderRadius={{ base: 'xl' }}
+      borderRadius={cardBorderRadius}
       width='full'
       backgroundColor={backgroundColor}
       borderColor={borderColor}
@@ -657,11 +662,13 @@ export const MultiHopTradeConfirm = ({
 }) => {
   const isMultiHopTrade = tradeQuote.steps.length > 1
 
+  const handleBack = useCallback(() => {}, [])
+
   return (
     <SlideTransition>
-      <Card flex={1} borderRadius={{ base: 'xl' }} width='full' padding={6}>
+      <Card flex={1} borderRadius={cardBorderRadius} width='full' padding={6}>
         <CardHeader px={0} pt={0}>
-          <WithBackButton handleBack={() => {}}>
+          <WithBackButton handleBack={handleBack}>
             <Heading textAlign='center'>
               <Text translation='trade.confirmDetails' />
             </Heading>

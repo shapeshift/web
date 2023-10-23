@@ -1,7 +1,7 @@
 import type { LinkProps } from '@chakra-ui/react'
 import { Flex, Link, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'
@@ -14,7 +14,9 @@ type YatBannerProps = {
   isCompact?: boolean
 } & LinkProps
 
-export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
+const hoverProp = { boxShadow: '0 0 0 2px var(--chakra-colors-chakra-body-text) inset' }
+
+export const YatBanner: React.FC<YatBannerProps> = memo(({ isCompact, ...rest }) => {
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
   const translate = useTranslate()
   const { isDemoWallet } = useWallet().state
@@ -52,11 +54,9 @@ export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
         isExternal
         display='block'
         aria-label={translate('features.yat.banner.title')}
-        _hover={{ boxShadow: '0 0 0 2px var(--chakra-colors-chakra-body-text) inset' }}
+        _hover={hoverProp}
         borderRadius='xl'
-        backgroundImage={
-          'radial-gradient(circle at bottom left, #00C1C165 0%, transparent 30%), radial-gradient(circle at top right, #7B61FF70 0%, transparent 50%)'
-        }
+        backgroundImage='radial-gradient(circle at bottom left, #00C1C165 0%, transparent 30%), radial-gradient(circle at top right, #7B61FF70 0%, transparent 50%)'
         {...rest}
       >
         <Flex
@@ -83,4 +83,4 @@ export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
       </Link>
     </Tooltip>
   )
-}
+})

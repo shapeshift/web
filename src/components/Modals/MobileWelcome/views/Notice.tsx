@@ -9,6 +9,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { store } from 'state/store'
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const Notice = () => {
   const translate = useTranslate()
   const iconColor = useColorModeValue('gray.200', 'gray.700')
@@ -52,7 +54,7 @@ export const Notice = () => {
           size='lg'
           colorScheme='blue'
           onClick={handleRecoveryClick}
-          rightIcon={<ArrowForwardIcon />}
+          rightIcon={arrowForwardIcon}
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>

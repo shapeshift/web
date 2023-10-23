@@ -18,19 +18,20 @@ import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
 
+const gridTemplateColumns = {
+  base: 'repeat(auto-fit, minmax(150px, 1fr))',
+  sm: 'repeat(2, 1fr)',
+  md: 'repeat(3, 1fr)',
+  lg: 'repeat(4, 1fr)',
+}
+const gridPaddingX = { base: 4, xl: 0 }
+const boxPaddingX = { base: 4, xl: 0 }
+
 const NftGrid: React.FC<SimpleGridProps> = props => (
-  <SimpleGrid
-    gridGap={4}
-    gridTemplateColumns={{
-      base: 'repeat(auto-fit, minmax(150px, 1fr))',
-      sm: 'repeat(2, 1fr)',
-      md: 'repeat(3, 1fr)',
-      lg: 'repeat(4, 1fr)',
-    }}
-    px={{ base: 4, xl: 0 }}
-    {...props}
-  />
+  <SimpleGrid gridGap={4} gridTemplateColumns={gridTemplateColumns} px={gridPaddingX} {...props} />
 )
+
+const narwalIcon = <NarwhalIcon color='pink.200' />
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -80,6 +81,16 @@ export const NftTable = () => {
     return filteredNfts?.map(nft => <NftCard nftAssetId={nft.assetId} key={nft.assetId} />)
   }, [nftItems?.length, filteredNfts])
 
+  const handleResetFilters = useCallback(() => setNetworkFilters([]), [])
+
+  const nftNetworkFilterSetFilters = useCallback(
+    ({ network: networks }: { network?: ChainId[] }) => {
+      if (!networks?.length) return setNetworkFilters([])
+      setNetworkFilters(networks)
+    },
+    [],
+  )
+
   if (isLoading)
     return (
       <NftGrid>
@@ -89,25 +100,16 @@ export const NftTable = () => {
       </NftGrid>
     )
   if (!isLoading && !nftItems?.length)
-    return (
-      <ResultsEmpty
-        title='nft.emptyTitle'
-        body='nft.emptyBody'
-        icon={<NarwhalIcon color='pink.200' />}
-      />
-    )
+    return <ResultsEmpty title='nft.emptyTitle' body='nft.emptyBody' icon={narwalIcon} />
 
   return (
     <>
-      <Box mb={4} px={{ base: 4, xl: 0 }}>
+      <Box mb={4} px={boxPaddingX}>
         <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}
-            resetFilters={() => setNetworkFilters([])}
-            setFilters={({ network: networks }: { network?: ChainId[] }) => {
-              if (!networks?.length) return setNetworkFilters([])
-              setNetworkFilters(networks)
-            }}
+            resetFilters={handleResetFilters}
+            setFilters={nftNetworkFilterSetFilters}
             hasAppliedFilter={Boolean(networkFilters.length)}
           />
           <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />

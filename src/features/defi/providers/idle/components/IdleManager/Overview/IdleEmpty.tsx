@@ -25,6 +25,7 @@ import { Carousel } from 'components/Carousel/Carousel'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
@@ -41,6 +42,9 @@ type OnboardingStep = {
   icon?: JSX.Element
   bullets?: string[]
 }
+
+const carouselOptions = { loop: false, skipSnaps: false }
+const stackProps = { pb: 0 }
 
 const idleTagToOnboardingSteps: Record<IdleTag, OnboardingStep[]> = {
   [IdleTag.BestYield]: [
@@ -102,6 +106,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const translate = useTranslate()
   const { open: openFiatRamp } = useModal('fiatRamps')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assets = useMemo(() => (asset ? [asset] : []), [asset])
   const filter = useMemo(() => ({ assetId }), [assetId])
   const bgImage = useColorModeValue('none', IdleBg)
   const assetSupportsFiatRamp = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
@@ -117,6 +122,11 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
     openFiatRamp({ assetId, fiatRampAction: FiatRampAction.Buy })
   }, [assetId, openFiatRamp])
 
+  const needAssetTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['common.needAsset', { asset: asset?.name }],
+    [asset?.name],
+  )
+
   const renderFooter = useMemo(() => {
     return (
       <Flex flexDir='column' gap={4} width='full'>
@@ -124,11 +134,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
           <Alert status='info' justifyContent='space-between' borderRadius='xl'>
             <Flex gap={2} alignItems='center'>
               <AssetIcon assetId={asset?.assetId} size='sm' />
-              <Text
-                fontWeight='bold'
-                letterSpacing='-0.02em'
-                translation={['common.needAsset', { asset: asset?.name }]}
-              />
+              <Text fontWeight='bold' letterSpacing='-0.02em' translation={needAssetTranslation} />
             </Flex>
             <Button variant='ghost' size='sm' colorScheme='blue' onClick={handleAssetBuyClick}>
               {translate('common.buyNow')}
@@ -141,13 +147,13 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
       </Flex>
     )
   }, [
-    asset?.assetId,
-    asset?.name,
-    assetSupportsFiatRamp,
     hasZeroCryptoBalance,
+    assetSupportsFiatRamp,
+    asset?.assetId,
+    needAssetTranslation,
     handleAssetBuyClick,
-    onClick,
     translate,
+    onClick,
   ])
 
   const renderTags = useMemo(() => {
@@ -155,7 +161,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
       if (idleTagToOnboardingSteps[tag]) {
         const tagDetails = idleTagToOnboardingSteps[tag]
         return (
-          <Carousel key={tag} showDots options={{ loop: false, skipSnaps: false }}>
+          <Carousel key={tag} showDots options={carouselOptions}>
             {tagDetails.map((page, i) => (
               <Flex p={4} key={i} gap={4} width='full'>
                 <Flex flexDir='column' textAlign='left' gap={2}>
@@ -196,7 +202,12 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
     })
   }, [tags, textShadow, translate])
 
-  if (!asset) return null
+  const idleEmptyTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['idle.emptyTitle', { apy: bnOrZero(apy).times(100).toFixed(2), asset: asset?.symbol }],
+    [apy, asset?.symbol],
+  )
+
+  if (!(asset && assets.length)) return null
 
   return (
     <SlideTransition>
@@ -208,16 +219,13 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
         overflow='hidden'
         borderRadius='2xl'
       >
-        <EmptyOverview assets={[asset]} stackProps={{ pb: 0 }} footer={renderFooter}>
+        <EmptyOverview assets={assets} stackProps={stackProps} footer={renderFooter}>
           <Stack spacing={4} justifyContent='center'>
             <Text
               fontWeight='bold'
               fontSize='xl'
               letterSpacing='0.012em'
-              translation={[
-                'idle.emptyTitle',
-                { apy: bnOrZero(apy).times(100).toFixed(2), asset: asset?.symbol },
-              ]}
+              translation={idleEmptyTitleTranslation}
               textShadow={`0 2px 2px var(${textShadow})`}
             />
             {renderTags}

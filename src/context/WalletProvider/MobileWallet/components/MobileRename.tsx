@@ -6,7 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
@@ -23,7 +23,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
   const [label, setLabel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleClick = async () => {
+  const handleClick = useCallback(async () => {
     setIsSubmitting(true)
     try {
       if (
@@ -41,7 +41,12 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [history, label, location.state.vault?.id, translate])
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value),
+    [],
+  )
 
   return (
     <>
@@ -56,7 +61,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
             variant='filled'
             id='name'
             placeholder={translate('walletProvider.shapeShift.rename.walletName')}
-            onChange={e => setLabel(e.target.value)}
+            onChange={handleChange}
           />
           <FormErrorMessage>{error}</FormErrorMessage>
         </FormControl>

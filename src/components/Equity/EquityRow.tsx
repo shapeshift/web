@@ -22,6 +22,14 @@ type EquityRowBaseProps = {
 
 type EquityRowProps = EquityRowBaseProps
 
+const fontSizeMdSm = { base: 'xs', md: 'sm' }
+const fontSizeMdMd = { base: 'sm', md: 'md' }
+const displayMdFlex = { base: 'none', md: 'flex' }
+const displayMdNone = { base: 'inline-block', md: 'none' }
+const displayMdInlineBlock = { base: 'none', md: 'inline-block' }
+
+const divider = <RawText> • </RawText>
+
 export const EquityRowLoading = () => {
   return (
     <SimpleGrid py={4} px={4} gridTemplateColumns={opportunityRowGrid} alignItems='center'>
@@ -29,7 +37,7 @@ export const EquityRowLoading = () => {
         <LazyLoadAvatar />
         <Flex flexDir='column' flex={1} gap={1} textAlign='left'>
           <Skeleton>
-            <RawText fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+            <RawText fontSize={fontSizeMdSm} lineHeight='shorter'>
               Assets
             </RawText>
           </Skeleton>
@@ -40,22 +48,13 @@ export const EquityRowLoading = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex justifyContent='center' display={{ base: 'none', md: 'flex' }}></Flex>
+      <Flex justifyContent='center' display={displayMdFlex}></Flex>
       <Flex flex={1} flexDir='column' alignItems='flex-end' fontWeight='medium' gap={1}>
         <Skeleton>
-          <Amount.Fiat
-            fontSize={{ base: 'sm', md: 'md' }}
-            color='chakra-body-text'
-            value={'0.00'}
-          />
+          <Amount.Fiat fontSize={fontSizeMdMd} color='chakra-body-text' value={'0.00'} />
         </Skeleton>
         <Skeleton>
-          <Amount.Crypto
-            value={'0.00'}
-            symbol={'FOX'}
-            fontSize={{ base: 'xs', md: 'sm' }}
-            lineHeight={1}
-          />
+          <Amount.Crypto value={'0.00'} symbol={'FOX'} fontSize={fontSizeMdSm} lineHeight={1} />
         </Skeleton>
       </Flex>
     </SimpleGrid>
@@ -106,20 +105,16 @@ export const EquityRow: React.FC<EquityRowProps> = ({
         <Flex flexDir='column' flex={1} gap={1} textAlign='left'>
           <Stack
             direction='row'
-            display={{ base: 'none', md: 'flex' }}
+            display={displayMdFlex}
             gap={1}
             color='chakra-body-text'
-            fontSize={{ base: 'xs', md: 'sm' }}
+            fontSize={fontSizeMdSm}
             lineHeight='shorter'
-            divider={<RawText> • </RawText>}
+            divider={divider}
           >
             {labelJoined}
           </Stack>
-          <RawText
-            color='chakra-body-text'
-            fontSize={{ base: 'sm', md: 'md' }}
-            display={{ base: 'inline-block', md: 'none' }}
-          >
+          <RawText color='chakra-body-text' fontSize={fontSizeMdMd} display={displayMdNone}>
             {label}
           </RawText>
           <Flex alignItems='center' gap={1} flex={1}>
@@ -132,7 +127,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
                 borderRadius='lg'
               />
               <Amount.Percent
-                display={{ base: 'none', md: 'inline-block' }}
+                display={displayMdInlineBlock}
                 value={bnOrZero(allocation).times(0.01).toString()}
                 fontSize='xs'
               />
@@ -140,7 +135,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
           </Flex>
         </Flex>
       </Flex>
-      <Flex justifyContent='center' display={{ base: 'none', md: 'flex' }}>
+      <Flex justifyContent='center' display={displayMdFlex}>
         {apy && (
           <Tag colorScheme='green' size='sm'>
             <Amount.Percent value={apy} suffix='APY' />
@@ -149,7 +144,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
       </Flex>
       <Flex flex={1} flexDir='column' alignItems='flex-end' fontWeight='medium' gap={1}>
         <Amount.Fiat
-          fontSize={{ base: 'sm', md: 'md' }}
+          fontSize={fontSizeMdMd}
           color='chakra-body-text'
           value={bnOrZero(fiatAmount).toString()}
         />

@@ -19,6 +19,8 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 
 export type Option = [string, string, ReactChild?]
 
+const buttonHover = { bg: 'transparent' }
+
 export const FilterGroup = ({
   title,
   options,
@@ -48,7 +50,7 @@ export const FilterGroup = ({
         alignItems='center'
         variant='ghost'
         color={useColorModeValue('black', 'white')}
-        _hover={{ bg: 'transparent' }}
+        _hover={buttonHover}
         px={2}
         w='full'
         onClick={toggleIsOpen}

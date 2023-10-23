@@ -1,4 +1,5 @@
 import { Switch } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { Row } from 'components/Row/Row'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -12,9 +13,9 @@ type FlagRowProps = {
 export const FlagRow = ({ flag }: FlagRowProps) => {
   const isOn = useAppSelector(state => selectFeatureFlag(state, flag))
   const dispatch = useAppDispatch()
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     dispatch(preferences.actions.setFeatureFlag({ flag, value: !isOn }))
-  }
+  }, [dispatch, flag, isOn])
 
   return (
     <Row>

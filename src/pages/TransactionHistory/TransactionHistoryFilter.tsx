@@ -27,6 +27,8 @@ import { Text } from 'components/Text'
 import { DatePicker } from './components/DatePicker/DatePicker'
 
 const customRangeOption: string = 'customRange'
+const hoverProp = { bg: 'transparent' }
+const closeIcon = <CloseIcon w={3} h={3} />
 
 export enum FilterFormFields {
   FromDate = 'fromDate',
@@ -40,6 +42,8 @@ type TransactionHistoryFilterProps = {
   resetFilters: Function
   hasAppliedFilter?: boolean
 }
+
+const ioOptionsOutlineIcon = <IoOptionsOutline size='1.5em' />
 
 export const TransactionHistoryFilter = memo(
   ({ setFilters, resetFilters, hasAppliedFilter = false }: TransactionHistoryFilterProps) => {
@@ -135,6 +139,8 @@ export const TransactionHistoryFilter = memo(
       [],
     )
 
+    const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
     return (
       <Popover closeOnBlur={false} isOpen={isOpen}>
         <>
@@ -143,7 +149,7 @@ export const TransactionHistoryFilter = memo(
               <Button
                 colorScheme='blue'
                 variant='ghost-filled'
-                leftIcon={<IoOptionsOutline size='1.5em' />}
+                leftIcon={ioOptionsOutlineIcon}
                 onClick={handleToggle}
               >
                 <Text translation='transactionHistory.filter' />
@@ -152,7 +158,7 @@ export const TransactionHistoryFilter = memo(
                 variant='ghost-filled'
                 colorScheme='blue'
                 aria-label={translate('transactionHistory.filters.resetFilters')}
-                icon={<CloseIcon w={3} h={3} />}
+                icon={closeIcon}
                 onClick={handleResetStopPagination}
               />
             </ButtonGroup>
@@ -172,14 +178,14 @@ export const TransactionHistoryFilter = memo(
                   p={2}
                   isDisabled={!hasAppliedFilter}
                   colorScheme='blue'
-                  _hover={{ bg: 'transparent' }}
+                  _hover={hoverProp}
                   onClick={onResetFilters}
                 >
                   <Text translation='transactionHistory.filters.resetFilters' />
                 </Button>
               </Flex>
               <Divider />
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleFormSubmit}>
                 <FilterGroup
                   name={FilterFormFields.DayRange}
                   control={control}

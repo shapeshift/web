@@ -30,6 +30,11 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
       return !!match
     }, [location.pathname, path, exact])
 
+    const buttonActive = useMemo(
+      () => ({ borderColor: `${color}.500`, color: 'chakra-body-text' }),
+      [color],
+    )
+
     return (
       <Button
         variant='tab'
@@ -42,7 +47,7 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         iconSpacing={4}
         letterSpacing='0.012em'
         fontWeight='medium'
-        _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
+        _active={buttonActive}
         {...(rightElement && {
           rightIcon: <Tag colorScheme={color}>{rightElement}</Tag>,
         })}

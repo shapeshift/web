@@ -15,6 +15,8 @@ type TradeQuotesProps = {
   isLoading: boolean
 }
 
+const arrowDownIcon = <ArrowDownIcon />
+
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isLoading }) => {
   const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
   const translate = useTranslate()
@@ -87,7 +89,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ sortedQuotes, isL
               onClick={handleShowAll}
               zIndex={3}
               backdropFilter='blur(15px)'
-              rightIcon={<ArrowDownIcon />}
+              rightIcon={arrowDownIcon}
               boxShadow='lg'
               borderWidth={1}
             >

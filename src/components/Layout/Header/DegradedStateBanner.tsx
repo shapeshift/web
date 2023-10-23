@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { entries, isEmpty, uniq } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -26,7 +26,10 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
-export const DegradedStateBanner = () => {
+const warningIcon = <WarningIcon />
+const idMdRefreshIcon = <IoMdRefresh />
+
+export const DegradedStateBanner = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -104,7 +107,7 @@ export const DegradedStateBanner = () => {
           variant='ghost-filled'
           colorScheme='yellow'
           aria-label='Degraded State'
-          icon={<WarningIcon />}
+          icon={warningIcon}
         />
       </PopoverTrigger>
       <PopoverContent overflow='hidden'>
@@ -119,7 +122,7 @@ export const DegradedStateBanner = () => {
         <PopoverFooter borderWidth={0} bg={footerBg} p={4}>
           <Button
             bg={buttonBg}
-            leftIcon={<IoMdRefresh />}
+            leftIcon={idMdRefreshIcon}
             onClick={handleRetry}
             size='sm'
             borderRadius='lg'
@@ -131,4 +134,4 @@ export const DegradedStateBanner = () => {
       </PopoverContent>
     </Popover>
   )
-}
+})

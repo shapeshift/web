@@ -261,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Der Betrag von %{assetName}, den Sie verdienen, die jährliche prozentuale Rendite (APR), schwankt normalerweise zwischen 7 % und 20 %.",
-          "amountStakingInfo": "Sie können einen beliebigen Betrag von %{assetName} staken und sie beginnen sofort mit dem Verdienen von Belohnungen.",
-          "withdrawInfo": "Sie können Ihre Belohnungen jederzeit abheben, was eine kleine Gasgebühr von etwa 0,01 $ erfordert.",
+          "amountStakingInfo": "Sie können einen beliebigen Betrag von %{assetName} einsetzen und erhalten sofort Belohnungen.",
+          "withdrawInfo": "Sie können Ihre Prämien jederzeit abheben, wofür eine geringe Transfergebühr von ca. 0,01 $ anfällt.",
           "unbondingInfo": "Wenn Sie Ihre Token aus Staking entfernen, bleiben sie für %{unbondingDays} Tage gesperrt, während dieser Zeit erhalten sie keine Belohnungen. Nach %{unbondingDays} Tagen wird Ihr %{assetName} zu Ihrem primären Wallet übertragen.",
           "slashingInfo": "Das Staking erfolgt über einen Validator. Es ist sehr selten, aber wenn der Validator, mit dem Sie gestaket haben, durcheinander kommt, indem er falsche oder nicht korrekte Transaktionen zulässt, könnten Sie einen Teil Ihres Vermögens verlieren.",
           "partnerInfo": "Wir haben dieses Risiko verringert, indem wir mit einem seriösen Prüfer zusammenarbeiten, der über eine sichere, zuverlässige und geprüfte Infrastruktur verfügt."
@@ -657,7 +657,7 @@
       "auto": "Automatisch",
       "custom": "Benutzerdefiniert",
       "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
-      "lowSlippage": "Ein Slippage unter 0,05 % führt zu einer fehlgeschlagenen Transaktion."
+      "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },
     "from": "von",
     "to": "zu",
@@ -854,7 +854,7 @@
       },
       "disconnect": {
         "header": "Trennen Sie das KeepKey-Gerät",
-        "body": "Leider ist beim Wiederherstellen/Einrichten Ihres KeepKey-Geräts ein Fehler aufgetreten. Bitte trennen Sie Ihr Gerät, schließen Sie es wieder an und versuchen Sie erneut, Ihr KeepKey-Gerät einzurichten. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den KeepKey-Support."
+        "body": "Leider ist beim Wiederherstellen/Einrichten Ihres KeepKey-Geräts ein Fehler aufgetreten. Bitte trennen Sie Ihr Gerät, schließen es erneut an und versuchen erneut, Ihr KeepKey-Gerät einzurichten. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den KeepKey-Support."
       }
     },
     "shapeShift": {
@@ -1253,6 +1253,33 @@
         "header": "Fehler",
         "body": "Keplr Wallet kann nicht verbunden werden"
       }
+    },
+    "ledger": {
+      "chains": {
+        "header": "Ledger Konten importieren",
+        "body": "Um Ihre Guthaben für jede Kette anzuzeigen, müssen Sie jede App verbinden.",
+        "availableChains": "Verfügbare Ketten",
+        "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten"
+      },
+      "success": {
+        "header": "Ledger Verbunden",
+        "success": "Sie können dieses Fenster jetzt schließen, andernfalls wird es in Kürze automatisch geschlossen",
+        "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten"
+      },
+      "errors": {
+        "connectFailure": "Ledger Wallet kann nicht verbunden werden",
+        "unknown": "Bei der Kommunikation mit der Ledger Wallet ist ein unerwarteter Fehler aufgetreten"
+      },
+      "connect": {
+        "header": "Ledger koppeln",
+        "body": "Klicken Sie auf „Koppeln“ und wählen Sie dann Ihren Ledger aus dem Popup-Fenster aus",
+        "button": "Koppeln"
+      },
+      "failure": {
+        "header": "Fehler",
+        "body": "Ledger Wallet kann nicht verbunden werden"
+      },
+      "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist."
     },
     "metaMask": {
       "errors": {
@@ -1910,7 +1937,7 @@
           "title": "Junior Best Yield Strategien:",
           "bullets": {
             "one": "Automatisierung und Optimierung der Ertragsgenerierung über mehrere Junior-Tranchen hinweg, wodurch die Erträge durch deren Art gesteigert werden",
-            "two": "Bietenmaximierte Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt"
+            "two": "Maximale Renditen, ohne dass der Benutzer ständig die Tarife überprüfen und bei jeder Überweisung Transfergebühren zahlen muss"
           }
         }
       },

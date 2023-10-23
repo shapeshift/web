@@ -16,8 +16,7 @@ import type {
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -31,6 +30,7 @@ let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 export const lifiApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    assetsById: AssetsById,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
@@ -44,8 +44,6 @@ export const lifiApi: SwapperApi = {
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
 
     const lifiChainMap = await lifiChainMapPromise
-
-    const assetsById = selectAssets(store.getState())
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,

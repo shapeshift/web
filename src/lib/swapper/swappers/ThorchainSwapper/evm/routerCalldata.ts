@@ -1,4 +1,4 @@
-import Web3 from 'web3'
+import { Web3 } from 'web3'
 import { routerAbi } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerAbi'
 
 export const depositWithExpiry = (

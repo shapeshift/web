@@ -1,1 +1,616 @@
-{}
+{
+  "common": {
+    "free": "無料",
+    "back": "戻る",
+    "next": "次へ",
+    "error": "エラー",
+    "show": "表示する",
+    "cancel": "キャンセルする",
+    "close": "閉じる",
+    "loadMore": "もっと読み込む",
+    "relayerGasFee": "リレイヤーのガス代",
+    "invalidAddressOrYat": "無効なアドレスまたはYat",
+    "accountError": "以下のチェーンのデータを一時的に入手できません:",
+    "degradedState": "アプリは一時的な定価状態です"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。",
+      "3": "を確認する。匿名で追跡されたくない場合は、こちらを参照してください。",
+      "5": "で詳細を確認する。"
+    }
+  },
+  "errorPage": {
+  },
+  "buyPage": {
+    "title": {
+    },
+    "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
+    "cta": {
+      "title": {
+      }
+    }
+  },
+  "updateToast": {
+    "keepKey": {
+    }
+  },
+  "multiCurrency": {
+    "toast": {
+    }
+  },
+  "dashboard": {
+    "portfolio": {
+      "totalChart": "💰合計",
+      "empty": {
+      }
+    },
+    "recentTransactions": {
+    },
+    "tradeCard": {
+    }
+  },
+  "fiatRamps": {
+  },
+  "connectWalletPage": {
+  },
+  "connectWallet": {
+    "menu": {
+    }
+  },
+  "defi": {
+    "modals": {
+      "learnMore": {
+        "headers": {
+        },
+        "bodies": {
+        },
+        "cta": {
+        }
+      },
+      "getStarted": {
+        "cta": {
+        }
+      },
+      "cosmosOverview": {
+      },
+      "foxyOverview": {
+      },
+      "foxFarmingOverview": {
+      },
+      "overview": {
+      },
+      "claim": {
+      },
+      "saversVaults": {
+        "risksBody": {
+        },
+        "timeToBreakEven": {
+        }
+      }
+    },
+    "memoNote": {
+    },
+    "broadcastingTransaction": "トランザクションをブロードキャストする",
+    "empty": {
+      "farming": {
+      },
+      "stakingVaults": {
+      },
+      "pools": {
+      }
+    },
+    "steps": {
+      "deposit": {
+        "info": {
+        }
+      },
+      "withdraw": {
+        "info": {
+        }
+      },
+      "claim": {
+        "info": {
+        }
+      },
+      "approve": {
+      },
+      "confirm": {
+      },
+      "status": {
+      }
+    }
+  },
+  "staking": {
+  },
+  "navBar": {
+  },
+  "transactionRow": {
+    "parser": {
+      "weth": {
+      },
+      "yearn": {
+      },
+      "uniV2": {
+      },
+      "thor": {
+      },
+      "foxy": {
+      },
+      "erc20": {
+      },
+      "bep20": {
+      },
+      "staking": {
+      },
+      "swap": {
+      },
+      "ibc": {
+      },
+      "lp": {
+      }
+    }
+  },
+  "bridge": {
+  },
+  "trade": {
+    "slippage": {
+    },
+    "tooltip": {
+    },
+    "rates": {
+      "tags": {
+      }
+    },
+    "errors": {
+      "signing": {
+      }
+    }
+  },
+  "modals": {
+    "popup": {
+    },
+    "keepKey": {
+      "passphrase": {
+        "errors": {
+        }
+      },
+      "label": {
+      },
+      "recoverySettings": {
+        "button": "ウォレットを復元する"
+      },
+      "recoverySentence": {
+      },
+      "factoryState": {
+      },
+      "recoverySentenceEntry": {
+      },
+      "recoverySettingUp": {
+      },
+      "recoveryInvalid": {
+      },
+      "downloadUpdater": {
+      },
+      "disconnect": {
+      }
+    },
+    "shapeShift": {
+      "password": {
+        "error": {
+        }
+      },
+      "confirmPassword": {
+        "error": {
+        }
+      },
+      "backupPassphrase": {
+        "info": {
+        },
+        "success": {
+        }
+      }
+    },
+    "send": {
+      "errors": {
+      },
+      "confirm": {
+      },
+      "sendForm": {
+      }
+    },
+    "receive": {
+    },
+    "deposit": {
+      "allocation": {
+      },
+      "status": {
+      }
+    },
+    "claim": {
+    },
+    "stake": {
+      "status": {
+      }
+    },
+    "withdraw": {
+      "status": {
+      },
+      "info": {
+      }
+    },
+    "approve": {
+    },
+    "confirm": {
+      "withdraw": {
+      },
+      "deposit": {
+      }
+    },
+    "status": {
+      "header": {
+      }
+    },
+    "connect": {
+    },
+    "settings": {
+      "currencies": {
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+      },
+      "notice": {
+      }
+    }
+  },
+  "walletProvider": {
+    "errors": {
+    },
+    "keepKey": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "pin": {
+      },
+      "newPin": {
+      },
+      "newPinConfirm": {
+      },
+      "settings": {
+        "menuLabels": {
+        },
+        "status": {
+        },
+        "headings": {
+        },
+        "descriptions": {
+        },
+        "alerts": {
+          "passphrase": {
+          }
+        },
+        "placeholders": {
+        },
+        "actions": {
+        }
+      },
+      "modals": {
+        "headings": {
+        },
+        "descriptions": {
+        },
+        "actions": {
+        },
+        "confirmations": {
+        },
+        "checkboxes": {
+        }
+      }
+    },
+    "keplr": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      }
+    },
+    "ledger": {
+      "chains": {
+      },
+      "success": {
+      },
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      }
+    },
+    "metaMask": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      },
+      "redirect": {
+      }
+    },
+    "metaMaskSnap": {
+      "uninstall": {
+      }
+    },
+    "metaMaskSnapConfirm": {
+      "agreeItem1Parts": {
+      }
+    },
+    "coinbase": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      }
+    },
+    "walletConnect": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      }
+    },
+    "xdefi": {
+      "errors": {
+      },
+      "connect": {
+      },
+      "failure": {
+      },
+      "redirect": {
+      }
+    },
+    "shapeShift": {
+      "load": {
+        "error": {
+        }
+      },
+      "import": {
+      },
+      "password": {
+      },
+      "create": {
+      },
+      "start": {
+      },
+      "success": {
+      },
+      "testPhrase": {
+      },
+      "rename": {
+      },
+      "legacy": {
+      },
+      "onboarding": {
+        "selfCustody": {
+        },
+        "multiChain": {
+        },
+        "easyToUse": {
+        }
+      }
+    },
+    "selectModal": {
+    },
+    "walletConnectV2": {
+      "start": {
+      },
+      "load": {
+        "error": {
+        }
+      }
+    }
+  },
+  "graph": {
+    "timeControls": {
+    }
+  },
+  "assets": {
+    "assetDetails": {
+      "assetHeader": {
+      },
+      "assetDescription": {
+      },
+      "assetHistory": {
+      },
+      "assetAccounts": {
+      }
+    },
+    "assetCards": {
+      "assetActions": {
+      },
+      "rewards": {
+      }
+    }
+  },
+  "accounts": {
+  },
+  "transactionHistory": {
+    "filters": {
+    },
+    "csv": {
+    },
+    "transactionTypes": {
+    }
+  },
+  "plugins": {
+    "foxPage": {
+      "otherOpportunitiesTitle": {
+      },
+      "otherOpportunitiesDescription": {
+      },
+      "dappBack": {
+      },
+      "bondProtocol": {
+      }
+    },
+    "analytics": {
+      "optInModal": {
+      }
+    },
+    "walletConnectToDapps": {
+      "unsupportedToast": {
+      },
+      "header": {
+        "menu": {
+        }
+      },
+      "modal": {
+        "signMessage": {
+        },
+        "sendTransaction": {
+          "contractInteraction": {
+          },
+          "advancedParameters": {
+            "nonce": {
+            },
+            "gasLimit": {
+            }
+          }
+        },
+        "signTransaction": {
+        },
+        "connect": {
+        },
+        "sessionProposal": {
+        }
+      },
+      "registry": {
+        "banner": {
+        },
+        "pageInput": {
+        }
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+      },
+      "modal": {
+      }
+    }
+  },
+  "gasInput": {
+    "duration": {
+    },
+    "gasPrice": {
+    },
+    "base": {
+    },
+    "priority": {
+    }
+  },
+  "idle": {
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+        },
+        "page-2": {
+          "bullets": {
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "body": "ジュニアベストイールドは、複数のジュニアトランシェに資金を自動的に振り分け、常にブーストされ最大化されたAPYを提供する、全自動の戦略です。"
+        },
+        "page-2": {
+          "bullets": {
+            "one": "複数のジュニアトランシェにわたる収益生成の自動化と最適化により、設計により収量を向上させます"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+        },
+        "page-2": {
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+        },
+        "page-2": {
+        }
+      },
+      "higherRisk": "シニアトランシェを保護することでリスクが高まる"
+    },
+    "bestYield": {
+    },
+    "seniorTranche": {
+    },
+    "juniorTranche": {
+    }
+  },
+  "promo": {
+    "onRamper": {
+    },
+    "savers": {
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "bodyParts": {
+      }
+    },
+    "whoQualifies": {
+    },
+    "staking": {
+    },
+    "lp": {
+    },
+    "foxTokenHolders": {
+    },
+    "foxFarmers": {
+    },
+    "foxyTokenHolders": {
+    },
+    "foxEthProviders": {
+    },
+    "stakeAtom": {
+    },
+    "footer": {
+      "disclaimer": {
+      }
+    }
+  },
+  "nft": {
+  },
+  "missions": {
+    "title": {
+    },
+    "optimism": {
+    },
+    "foxatar": {
+    },
+    "foxArmy": {
+    },
+    "yat": {
+    },
+    "getListed": {
+    },
+    "foxRewards": {
+    },
+    "snapfoxatar": {
+    }
+  },
+  "avatar": {
+    "modal": {
+    }
+  },
+  "foxDiscounts": {
+  }
+}

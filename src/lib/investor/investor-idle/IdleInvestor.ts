@@ -3,7 +3,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 // import https from 'https'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
-import Web3 from 'web3'
+import { Web3 } from 'web3'
 import type { Contract } from 'web3-eth-contract'
 
 import type { Investor } from '../../investor'

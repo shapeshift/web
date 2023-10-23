@@ -10,78 +10,276 @@ import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftos
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
 import { getConfig } from 'config'
+import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
-import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
-import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
-import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
-import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
-import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 import { WalletConnectV2Connect } from 'context/WalletProvider/WalletConnectV2/components/Connect'
 import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
-import { CoinbaseConnect } from './Coinbase/components/Connect'
-import { CoinbaseFailure } from './Coinbase/components/Failure'
 import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
-import { KeepKeyConnect } from './KeepKey/components/Connect'
-import { KeepKeyDisconnect } from './KeepKey/components/Disconnect'
-import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
-import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
-import { KeepKeyLabel } from './KeepKey/components/Label'
-import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
-import { KeepKeyPinModal } from './KeepKey/components/PinModal'
-import { KeepKeyRecoverySentence } from './KeepKey/components/RecoverySentence'
-import { KeepKeyRecoverySentenceEntry } from './KeepKey/components/RecoverySentenceEntry'
-import { KeepKeyRecoverySentenceInvalid } from './KeepKey/components/RecoverySentenceInvalid'
-import { KeepKeyRecoverySettings } from './KeepKey/components/RecoverySettings'
-import { RecoverySettingUp } from './KeepKey/components/RecoverySettingUp'
-import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
-import { KeplrConnect } from './Keplr/components/Connect'
-import { KeplrFailure } from './Keplr/components/Failure'
 import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
-import { LedgerChains } from './Ledger/components/Chains'
-import { LedgerConnect } from './Ledger/components/Connect'
-import { LedgerFailure } from './Ledger/components/Failure'
-import { LedgerSuccess } from './Ledger/components/Success'
 import { LedgerConfig } from './Ledger/config'
-import { MetaMaskConnect } from './MetaMask/components/Connect'
-import { MetaMaskFailure } from './MetaMask/components/Failure'
-import { MetaMaskMenu } from './MetaMask/components/MetaMaskMenu'
-import { SnapInstall } from './MetaMask/components/SnapInstall'
 import { MetaMaskConfig } from './MetaMask/config'
-import { MobileCreate } from './MobileWallet/components/MobileCreate'
-import { MobileCreateTest } from './MobileWallet/components/MobileCreateTest'
-import { MobileImport } from './MobileWallet/components/MobileImport'
-import { MobileLegacyCreate } from './MobileWallet/components/MobileLegacyCreate'
-import { MobileLegacyLogin } from './MobileWallet/components/MobileLegacyLogin'
-import { MobileLegacySuccess } from './MobileWallet/components/MobileLegacySuccess'
-import { MobileLoad } from './MobileWallet/components/MobileLoad'
-import { MobileRename } from './MobileWallet/components/MobileRename'
-import { MobileStart } from './MobileWallet/components/MobileStart'
-import { MobileSuccess } from './MobileWallet/components/MobileSuccess'
 import { MobileConfig } from './MobileWallet/config'
-import { EnterPassword } from './NativeWallet/components/EnterPassword'
-import { NativeCreate } from './NativeWallet/components/NativeCreate'
-import { NativeImport } from './NativeWallet/components/NativeImport'
-import { NativeLegacyLogin } from './NativeWallet/components/NativeLegacyLogin'
-import { NativeLegacySuccess } from './NativeWallet/components/NativeLegacySuccess'
-import { NativeLoad } from './NativeWallet/components/NativeLoad'
-import { NativePassword } from './NativeWallet/components/NativePassword'
-import { NativeRename } from './NativeWallet/components/NativeRename'
-import { NativeStart } from './NativeWallet/components/NativeStart'
-import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
-import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
 import { KeepKeyRoutes } from './routes'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
-import { XDEFIConnect } from './XDEFI/components/Connect'
-import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
+
+const NativeTestPhrase = lazy(() =>
+  import('./NativeWallet/components/NativeTestPhrase').then(({ NativeTestPhrase }) => ({
+    default: NativeTestPhrase,
+  })),
+)
+const XDEFIFailure = lazy(() =>
+  import('./XDEFI/components/Failure').then(({ XDEFIFailure }) => ({ default: XDEFIFailure })),
+)
+const XDEFIConnect = lazy(() =>
+  import('./XDEFI/components/Connect').then(({ XDEFIConnect }) => ({ default: XDEFIConnect })),
+)
+const NativeSuccess = lazy(() =>
+  import('./NativeWallet/components/NativeSuccess').then(({ NativeSuccess }) => ({
+    default: NativeSuccess,
+  })),
+)
+const NativeStart = lazy(() =>
+  import('./NativeWallet/components/NativeStart').then(({ NativeStart }) => ({
+    default: NativeStart,
+  })),
+)
+const NativeRename = lazy(() =>
+  import('./NativeWallet/components/NativeRename').then(({ NativeRename }) => ({
+    default: NativeRename,
+  })),
+)
+const NativePassword = lazy(() =>
+  import('./NativeWallet/components/NativePassword').then(({ NativePassword }) => ({
+    default: NativePassword,
+  })),
+)
+const NativeLegacySuccess = lazy(() =>
+  import('./NativeWallet/components/NativeLegacySuccess').then(({ NativeLegacySuccess }) => ({
+    default: NativeLegacySuccess,
+  })),
+)
+const NativeLoad = lazy(() =>
+  import('./NativeWallet/components/NativeLoad').then(({ NativeLoad }) => ({
+    default: NativeLoad,
+  })),
+)
+const NativeCreate = lazy(() =>
+  import('./NativeWallet/components/NativeCreate').then(({ NativeCreate }) => ({
+    default: NativeCreate,
+  })),
+)
+const NativeImport = lazy(() =>
+  import('./NativeWallet/components/NativeImport').then(({ NativeImport }) => ({
+    default: NativeImport,
+  })),
+)
+const NativeLegacyLogin = lazy(() =>
+  import('./NativeWallet/components/NativeLegacyLogin').then(({ NativeLegacyLogin }) => ({
+    default: NativeLegacyLogin,
+  })),
+)
+const EnterPassword = lazy(() =>
+  import('./NativeWallet/components/EnterPassword').then(({ EnterPassword }) => ({
+    default: EnterPassword,
+  })),
+)
+const SnapInstall = lazy(() =>
+  import('./MetaMask/components/SnapInstall').then(({ SnapInstall }) => ({ default: SnapInstall })),
+)
+const ChangeLabel = lazy(() =>
+  import('components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
+    default: ChangeLabel,
+  })),
+)
+const ChangePassphrase = lazy(() =>
+  import('components/Layout/Header/NavBar/KeepKey/ChangePassphrase').then(
+    ({ ChangePassphrase }) => ({ default: ChangePassphrase }),
+  ),
+)
+const ChangePin = lazy(() =>
+  import('components/Layout/Header/NavBar/KeepKey/ChangePin').then(({ ChangePin }) => ({
+    default: ChangePin,
+  })),
+)
+const ChangeTimeout = lazy(() =>
+  import('components/Layout/Header/NavBar/KeepKey/ChangeTimeout').then(({ ChangeTimeout }) => ({
+    default: ChangeTimeout,
+  })),
+)
+const KeepKeyMenu = lazy(() =>
+  import('components/Layout/Header/NavBar/KeepKey/KeepKeyMenu').then(({ KeepKeyMenu }) => ({
+    default: KeepKeyMenu,
+  })),
+)
+const NativeMenu = lazy(() =>
+  import('components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
+    default: NativeMenu,
+  })),
+)
+const CoinbaseConnect = lazy(() =>
+  import('./Coinbase/components/Connect').then(({ CoinbaseConnect }) => ({
+    default: CoinbaseConnect,
+  })),
+)
+const CoinbaseFailure = lazy(() =>
+  import('./Coinbase/components/Failure').then(({ CoinbaseFailure }) => ({
+    default: CoinbaseFailure,
+  })),
+)
+const KeepKeyConnect = lazy(() =>
+  import('./KeepKey/components/Connect').then(({ KeepKeyConnect }) => ({
+    default: KeepKeyConnect,
+  })),
+)
+const KeepKeyDisconnect = lazy(() =>
+  import('./KeepKey/components/Disconnect').then(({ KeepKeyDisconnect }) => ({
+    default: KeepKeyDisconnect,
+  })),
+)
+const KeepKeyDownloadUpdaterApp = lazy(() =>
+  import('./KeepKey/components/DownloadUpdaterApp').then(({ KeepKeyDownloadUpdaterApp }) => ({
+    default: KeepKeyDownloadUpdaterApp,
+  })),
+)
+const KeepKeyFactoryState = lazy(() =>
+  import('./KeepKey/components/FactoryState').then(({ KeepKeyFactoryState }) => ({
+    default: KeepKeyFactoryState,
+  })),
+)
+const KeepKeyLabel = lazy(() =>
+  import('./KeepKey/components/Label').then(({ KeepKeyLabel }) => ({ default: KeepKeyLabel })),
+)
+const KeepKeyPassphrase = lazy(() =>
+  import('./KeepKey/components/Passphrase').then(({ KeepKeyPassphrase }) => ({
+    default: KeepKeyPassphrase,
+  })),
+)
+const KeepKeyPinModal = lazy(() =>
+  import('./KeepKey/components/PinModal').then(({ KeepKeyPinModal }) => ({
+    default: KeepKeyPinModal,
+  })),
+)
+const KeepKeyRecoverySentence = lazy(() =>
+  import('./KeepKey/components/RecoverySentence').then(({ KeepKeyRecoverySentence }) => ({
+    default: KeepKeyRecoverySentence,
+  })),
+)
+const KeepKeyRecoverySentenceEntry = lazy(() =>
+  import('./KeepKey/components/RecoverySentenceEntry').then(({ KeepKeyRecoverySentenceEntry }) => ({
+    default: KeepKeyRecoverySentenceEntry,
+  })),
+)
+const KeepKeyRecoverySentenceInvalid = lazy(() =>
+  import('./KeepKey/components/RecoverySentenceInvalid').then(
+    ({ KeepKeyRecoverySentenceInvalid }) => ({ default: KeepKeyRecoverySentenceInvalid }),
+  ),
+)
+const KeepKeyRecoverySettings = lazy(() =>
+  import('./KeepKey/components/RecoverySettings').then(({ KeepKeyRecoverySettings }) => ({
+    default: KeepKeyRecoverySettings,
+  })),
+)
+const RecoverySettingUp = lazy(() =>
+  import('./KeepKey/components/RecoverySettingUp').then(({ RecoverySettingUp }) => ({
+    default: RecoverySettingUp,
+  })),
+)
+const KeepKeySuccess = lazy(() =>
+  import('./KeepKey/components/Success').then(({ KeepKeySuccess }) => ({
+    default: KeepKeySuccess,
+  })),
+)
+const KeplrConnect = lazy(() =>
+  import('./Keplr/components/Connect').then(({ KeplrConnect }) => ({ default: KeplrConnect })),
+)
+const KeplrFailure = lazy(() =>
+  import('./Keplr/components/Failure').then(({ KeplrFailure }) => ({ default: KeplrFailure })),
+)
+const LedgerChains = lazy(() =>
+  import('./Ledger/components/Chains').then(({ LedgerChains }) => ({ default: LedgerChains })),
+)
+const LedgerConnect = lazy(() =>
+  import('./Ledger/components/Connect').then(({ LedgerConnect }) => ({ default: LedgerConnect })),
+)
+const LedgerFailure = lazy(() =>
+  import('./Ledger/components/Failure').then(({ LedgerFailure }) => ({ default: LedgerFailure })),
+)
+const LedgerSuccess = lazy(() =>
+  import('./Ledger/components/Success').then(({ LedgerSuccess }) => ({ default: LedgerSuccess })),
+)
+const MetaMaskConnect = lazy(() =>
+  import('./MetaMask/components/Connect').then(({ MetaMaskConnect }) => ({
+    default: MetaMaskConnect,
+  })),
+)
+const MetaMaskFailure = lazy(() =>
+  import('./MetaMask/components/Failure').then(({ MetaMaskFailure }) => ({
+    default: MetaMaskFailure,
+  })),
+)
+const MetaMaskMenu = lazy(() =>
+  import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
+    default: MetaMaskMenu,
+  })),
+)
+const MobileCreate = lazy(() =>
+  import('./MobileWallet/components/MobileCreate').then(({ MobileCreate }) => ({
+    default: MobileCreate,
+  })),
+)
+const MobileCreateTest = lazy(() =>
+  import('./MobileWallet/components/MobileCreateTest').then(({ MobileCreateTest }) => ({
+    default: MobileCreateTest,
+  })),
+)
+const MobileImport = lazy(() =>
+  import('./MobileWallet/components/MobileImport').then(({ MobileImport }) => ({
+    default: MobileImport,
+  })),
+)
+const MobileLegacyCreate = lazy(() =>
+  import('./MobileWallet/components/MobileLegacyCreate').then(({ MobileLegacyCreate }) => ({
+    default: MobileLegacyCreate,
+  })),
+)
+const MobileLegacyLogin = lazy(() =>
+  import('./MobileWallet/components/MobileLegacyLogin').then(({ MobileLegacyLogin }) => ({
+    default: MobileLegacyLogin,
+  })),
+)
+const MobileLegacySuccess = lazy(() =>
+  import('./MobileWallet/components/MobileLegacySuccess').then(({ MobileLegacySuccess }) => ({
+    default: MobileLegacySuccess,
+  })),
+)
+const MobileLoad = lazy(() =>
+  import('./MobileWallet/components/MobileLoad').then(({ MobileLoad }) => ({
+    default: MobileLoad,
+  })),
+)
+const MobileRename = lazy(() =>
+  import('./MobileWallet/components/MobileRename').then(({ MobileRename }) => ({
+    default: MobileRename,
+  })),
+)
+const MobileStart = lazy(() =>
+  import('./MobileWallet/components/MobileStart').then(({ MobileStart }) => ({
+    default: MobileStart,
+  })),
+)
+const MobileSuccess = lazy(() =>
+  import('./MobileWallet/components/MobileSuccess').then(({ MobileSuccess }) => ({
+    default: MobileSuccess,
+  })),
+)
 
 export type SupportedWalletInfo<T> = {
   adapters: {

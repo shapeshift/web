@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import type { Property } from 'csstype'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,6 +19,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
+        const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {

@@ -11,7 +11,6 @@ import {
   ModalCloseButton,
   ModalHeader,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -59,6 +58,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const handleShowClick = useCallback(() => setShowPw(!showPw), [showPw])
   const onSubmit = useCallback(
     async (values: FieldValues) => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
       try {
         const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
         revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')

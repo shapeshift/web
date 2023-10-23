@@ -12,7 +12,7 @@ export const getThorchainStreamingSwap = async (
 ): Promise<ThornodeStreamingSwapResponseSuccess | undefined> => {
   const thorTxHash = sellTxHash.replace(/^0x/, '')
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/swap/streaming/${thorTxHash}`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/swap/streaming/${thorTxHash}`,
   )
 
   if (!streamingSwapData) return

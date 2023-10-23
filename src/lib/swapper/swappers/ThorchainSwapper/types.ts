@@ -130,7 +130,7 @@ export type ThorChainId =
   | ThorUtxoSupportedChainId
 
 type ThorNodeStatusResponseSuccess = {
-  // Non-exhaustive. https://thornode.ninerealms.com/thorchain/doc/ for the full response type.
+  // Non-exhaustive. https://daemon.thorchain.shapeshift.com/lcd/thorchain/doc for the full response type.
   tx?: {
     id: string
     memo: string

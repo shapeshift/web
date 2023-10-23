@@ -30,7 +30,7 @@ export const isTradingActive = async (
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         case sellAssetIsRune: {
           const { data: mimir } = await axios.get<Record<string, unknown>>(
-            `${daemonUrl}/thorchain/mimir`,
+            `${daemonUrl}/lcd/thorchain/mimir`,
           )
           return Ok(Object.entries(mimir).some(([k, v]) => k === 'HALTTHORCHAIN' && v === 0))
         }

@@ -27,7 +27,7 @@ export const AppLoadingIcon: React.FC = memo(() => {
     setIsHovered(false)
   }, [])
 
-  const isDogeDay = useMemo(() => dayjs().isAfter('2023-11-01 00:00 AM'), [])
+  const isDogeDay = useMemo(() => dayjs().isSame('2023-11-01', 'day'), [])
 
   return (
     <Link to='/' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>

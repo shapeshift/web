@@ -1,9 +1,9 @@
 # Investor - Single-Sided Staking
 The `investor` package is an abstraction to implement protocols that allow for staking or delegating a single asset.
 
-[Yearn Finance](https://yearn.finance) is an example of this type of single-sided staking protocol.
+[Idle Finance](https://idle.finance) is an example of this type of single-sided staking protocol.
 
-You can look at [lib/investor/investor-yearn](https://github.com/shapeshift/web/tree/main/lib/investor/investor-yearn) as an example implementation.
+You can look at [lib/investor/investor-idle](https://github.com/shapeshift/web/tree/develop/src/lib/investor/investor-idle) as an example implementation.
 
 ### 
 The `investor` package is made up of three parts.

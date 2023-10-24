@@ -84,6 +84,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     const { wallet, accountNumber, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
 
+    if (input.pubKey) return input.pubKey
+
     try {
       if (supportsThorchain(wallet)) {
         const address = await wallet.thorchainGetAddress({

@@ -217,6 +217,8 @@ type RebaseTxHistoryArgs = {
   portfolioAssetIds: AssetId[]
 }
 
+const firstRequestMade: Record<AccountId, boolean> = {}
+
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
@@ -255,6 +257,7 @@ export const txHistoryApi = createApi({
         const results: TransactionsByAccountId = {}
         await Promise.all(
           accountIds.map(async accountId => {
+            const pageSize = firstRequestMade[accountId] ? 100 : 1
             const { chainId, account: pubkey } = fromAccountId(accountId)
             const adapter = getChainAdapterManager().get(chainId)
             if (!adapter)
@@ -272,8 +275,10 @@ export const txHistoryApi = createApi({
                 const { cursor, transactions } = await adapter.getTxHistory({
                   cursor: currentCursor,
                   pubkey,
-                  pageSize: 100,
+                  pageSize,
                 })
+
+                firstRequestMade[accountId] = true
 
                 currentCursor = cursor
 

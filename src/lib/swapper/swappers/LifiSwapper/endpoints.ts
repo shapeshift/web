@@ -28,6 +28,9 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
+  // TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
+  // We currently need to pass assetsById to avoid instantiating AssetService in web
+  // but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     assetsById: AssetsById,

@@ -50,6 +50,9 @@ export const getTradeQuotes = async (
   return successfulQuotes
 }
 
+// TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
+// We currently need to pass assetsById to avoid instantiating AssetService in web
+// but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
 export const getSupportedSellAssetIds = async (
   enabledSwappers: SwapperName[],
   assetsById: AssetsById,
@@ -63,6 +66,9 @@ export const getSupportedSellAssetIds = async (
   return new Set(supportedAssetIds.flat())
 }
 
+// TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
+// We currently need to pass assetsById to avoid instantiating AssetService in web
+// but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
 export const getSupportedBuyAssetIds = async (
   enabledSwappers: SwapperName[],
   sellAsset: Asset,

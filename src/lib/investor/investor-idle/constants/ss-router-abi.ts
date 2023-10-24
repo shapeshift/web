@@ -181,4 +181,4 @@ export const ssRouterAbi = [
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]
+] as const

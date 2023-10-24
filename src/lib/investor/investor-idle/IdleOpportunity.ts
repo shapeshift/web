@@ -20,8 +20,8 @@ import type {
   InvestorOpportunity,
 } from '../../investor'
 import { MAX_ALLOWANCE } from '../constants'
-import type { IdleVault, ssRouterAbi } from './constants'
-import { erc20Abi, idleCdoAbi, idleStrategyAbi, idleTokenV4Abi } from './constants'
+import type { IdleVault } from './constants'
+import { erc20Abi, idleCdoAbi, idleStrategyAbi, idleTokenV4Abi, ssRouterAbi } from './constants'
 import { ssRouterContractAddress } from './constants/router-contract'
 
 export type PreparedTransaction = {
@@ -286,31 +286,30 @@ export class IdleOpportunity
     // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
     // without affecting the DAOs affiliate revenue.
 
-    let methodName: string
-    let methodParams: string[]
     let vaultContractAddress: Address
-    let vaultContractAbi
 
     // Handle Tranche Deposit
-    if (this.metadata.cdoAddress) {
-      // TODO(gomes): we don't need to pass contract instances around like that anymore now that we use viem
-      vaultContractAddress = this.#internals.routerContract.address
-      vaultContractAbi = this.#internals.routerContract.abi
-      const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
-      methodName = `deposit${trancheType}`
-      methodParams = [this.metadata.cdoAddress, amount.toFixed()]
-    } else {
-      methodName = 'mintIdleToken'
-      methodParams = [amount.toFixed(), 'true', DAO_TREASURY_ETHEREUM_MAINNET]
-      vaultContractAddress = this.id as Address
-      vaultContractAbi = idleTokenV4Abi
-    }
-
-    const data = encodeFunctionData({
-      abi: vaultContractAbi,
-      functionName: methodName,
-      args: methodParams,
-    })
+    const data = (() => {
+      if (this.metadata.cdoAddress) {
+        vaultContractAddress = ssRouterContractAddress
+        const vaultContractAbi = ssRouterAbi
+        const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
+        const methodName: 'depositAA' | 'depositBB' = `deposit${trancheType}`
+        return encodeFunctionData({
+          abi: vaultContractAbi,
+          functionName: methodName,
+          args: [this.metadata.cdoAddress as Address, BigInt(amount.toString())],
+        })
+      } else {
+        vaultContractAddress = this.id as Address
+        const vaultContractAbi = idleTokenV4Abi
+        return encodeFunctionData({
+          abi: vaultContractAbi,
+          functionName: 'mintIdleToken',
+          args: [BigInt(amount.toString()), true, DAO_TREASURY_ETHEREUM_MAINNET],
+        })
+      }
+    })()
 
     const estimatedGas = bn(
       (

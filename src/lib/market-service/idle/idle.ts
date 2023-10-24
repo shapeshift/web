@@ -32,7 +32,6 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
         },
         rpcUrl: this.providerUrls.jsonRpcProviderUrl,
       }),
-      providerUrl: this.providerUrls.jsonRpcProviderUrl,
     })
   }
 

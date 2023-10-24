@@ -1,7 +1,6 @@
-import type { AbiItem } from 'web3-utils'
 /* eslint-disable */
 
-export const idleTokenV4Abi: AbiItem[] = [
+export const idleTokenV4Abi = [
   {
     "anonymous": false,
     "inputs": [
@@ -1552,4 +1551,4 @@ export const idleTokenV4Abi: AbiItem[] = [
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]
+] as const

@@ -1,18 +1,20 @@
+/**
+ * @jest-environment node
+ */
+
 import { depositWithExpiry } from './routerCalldata'
 
-const ROUTER = '0x3624525075b88b24ecc29ce226b0cec1ffcb6976'
 const VAULT = '0x78E4E10dCAcB0A8261eB3D5e57fFb98AE8D4dFF1'
 
 describe('routerCalldata', () => {
   it('should create valid trade data for the deposit() call', () => {
-    const data = depositWithExpiry(
-      ROUTER,
-      VAULT,
-      '0x0000000000000000000000000000000000000000',
-      '70000000000000000',
-      `s:ETH.USDC-9D4A2E9EB0CE3606EB48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420`,
-      1694809972,
-    )
+    const data = depositWithExpiry({
+      vault: VAULT,
+      asset: '0x0000000000000000000000000000000000000000',
+      amount: '70000000000000000',
+      memo: `s:ETH.USDC-9D4A2E9EB0CE3606EB48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420`,
+      expiry: 1694809972,
+    })
 
     // expected data same as an actual thorchain trade
     // https://etherscan.io/tx/0x517306df8ba18c36759de15e7d663f813ae15b3afd1a442c1f70904b246f4d7e

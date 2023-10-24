@@ -1,7 +1,6 @@
-import type { AbiItem } from 'web3-utils'
 /* eslint-disable */
 
-export const erc20Abi: AbiItem[] = [
+export const erc20Abi = [
   {
       "constant": true,
       "inputs": [],
@@ -222,4 +221,4 @@ export const erc20Abi: AbiItem[] = [
       "name": "Transfer",
       "type": "event"
   }
-]
+] as const

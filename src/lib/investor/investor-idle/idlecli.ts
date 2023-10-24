@@ -39,7 +39,6 @@ const main = async (): Promise<void> => {
   })
 
   const idleInvestor = new IdleInvestor({
-    providerUrl: 'https://daemon.ethereum.shapeshift.com',
     dryRun: true,
     chainAdapter,
   })

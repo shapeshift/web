@@ -8,9 +8,9 @@
     "show": "表示する",
     "cancel": "キャンセルする",
     "close": "閉じる",
-    "loadMore": "もっと読み込む",
+    "loadMore": "もっと見る",
     "saveChanges": "変更内容を保存",
-    "new": "新しい",
+    "new": "New",
     "continue": "次へ",
     "reward": "リワード",
     "claimable": "獲得可能",
@@ -135,7 +135,7 @@
   "buyPage": {
     "title": {
       "first": "暗号通貨を購入",
-      "second": "すぐに"
+      "second": "即時に"
     },
     "body": "クレジットカード、デビットカード、または銀行口座を使用します。ビットコイン、イーサリアム、USDT、USDC、またはその他のトップ暗号通貨を購入します。非KYCプロバイダーも利用可能。",
     "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
@@ -197,7 +197,7 @@
     "routeTitle": "購入もしくは販売",
     "routeTitleForGem": "Gem on Ramp",
     "title": "暗号通貨の売買",
-    "titleMessage": " %{action}で%{asset} を実行できます",
+    "titleMessage": " %{action}で%{asset} を利用できます",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -207,12 +207,12 @@
     "comingSoon": "近日公開",
     "buy": "買う",
     "sell": "売る",
-    "asset": "資産",
-    "assetToBuy": "購入する資産を選択してください",
-    "selectAnAssetToBuy": "購入する資産を選択してください",
+    "asset": "アセット",
+    "assetToBuy": "購入するアセットを選択してください",
+    "selectAnAssetToBuy": "購入するアセットを選択してください",
     "selectBody": "暗号通貨のリストから選択してください",
-    "assetToSell": "売却する資産を選択してください",
-    "selectAnAssetToSell": "売却する資産を選択してください",
+    "assetToSell": "売却するアセットを選択してください",
+    "selectAnAssetToSell": "売却するアセットを選択してください",
     "fundsTo": "資金は次のアドレスに送金されます",
     "fundsFrom": "資金は以下から送金されます",
     "headerLabel": "暗号通貨の売買",
@@ -220,8 +220,8 @@
     "usOnly": "米国のみ",
     "noKYC": "KYCなし",
     "nonUS": "米国以外",
-    "buyWith": "で購入する",
-    "sellFor": "で販売する",
+    "buyWith": "支払い通貨",
+    "sellFor": "支払い通貨",
     "availableProviders": "利用可能なプロバイダー",
     "noProvidersAvailable": "利用可能なプロバイダーがありません",
     "noProvidersBody": "そのアセットのプロバイダーはまだありません",
@@ -400,7 +400,7 @@
     "unstaking": "アンステーキング",
     "available": "利用可能な%{unbondingEnd}",
     "earn": "獲得",
-    "asset": "資産",
+    "asset": "アセット",
     "category": "カテゴリー",
     "tvl": "TVL",
     "type": "タイプ",
@@ -409,13 +409,13 @@
     "ended": "終了",
     "balance": "バランス",
     "startEarning": "獲得する",
-    "eligibleOpportunities": "適切な機会",
+    "eligibleOpportunities": "おすすめ",
     "defiBody": "成長を続けるDeFiの世界を探索してください。",
     "netWorth": "純資産",
     "walletBalance": "ウォレット残高",
     "earnBalance": "獲得残高",
     "rewardsBalance": "報酬残高",
-    "earnBody": "資産をステーキングするか、DeFiに預けることで受動的収入を獲得します。",
+    "earnBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
     "clickHereToEarn": "ここをクリックすると、ETH-FOX流動性プールトークンを獲得して年率%{apr}*を獲得できます",
     "overview": "概要",
     "myPositions": "ポジション",
@@ -433,7 +433,7 @@
     "poolValue": "プール値",
     "yearn": "Yearn Finance",
     "totalValue": "総価値",
-    "byAsset": "資産別",
+    "byAsset": "アセット別",
     "byProvider": "プロバイダー別",
     "claimableRewards": "受け取れる報酬",
     "stakingPosition": "ステーキングポジション",
@@ -500,8 +500,8 @@
     "myWallet": "ウォレット",
     "dashboard": "ダッシュボード",
     "dashboardShort": "ダッシュボード",
-    "assets": "資産",
-    "assetDetails": "資産の詳細",
+    "assets": "アセット",
+    "assetDetails": "アセットの詳細",
     "accounts": "アカウント",
     "accountAsset": "アカウント資産",
     "accountDetails": "アカウント詳細",
@@ -516,7 +516,7 @@
     "demoMode": "デモモード",
     "clickToConnect": "クリックしてウォレットに接続します",
     "wallet": "ウォレット",
-    "explore": "エクスプローラーを起動する",
+    "explore": "エクスプローラー",
     "rewards": "報酬",
     "trade": "取引/ブリッジ",
     "tradeShort": "取引",
@@ -549,7 +549,7 @@
       "weth": {
         "deposit": "入金する",
         "approve": "承認する",
-        "approveSymbol": "%{symbol}を承認します",
+        "approveSymbol": "%{symbol}を承認",
         "revoke": "取り消す",
         "revokeSymbol": "%{symbol} の承認を取り消す",
         "amountUnavailable": "利用不可",
@@ -559,7 +559,7 @@
       "yearn": {
         "deposit": "入金する",
         "approve": "承認する",
-        "approveSymbol": "%{symbol}を承認します",
+        "approveSymbol": "%{symbol}を承認",
         "revoke": "取り消す",
         "revokeSymbol": "%{symbol} の承認を取り消す",
         "infinite": "∞",
@@ -584,7 +584,7 @@
       },
       "erc20": {
         "approve": "承認する",
-        "approveSymbol": "%{symbol}を承認します",
+        "approveSymbol": "%{symbol}を承認",
         "revoke": "取り消す",
         "revokeSymbol": "%{symbol} の承認を取り消す",
         "infinite": "∞",
@@ -633,13 +633,13 @@
     "preview": "ブリッジのプレビュー",
     "transferring": "転送中",
     "transferComplete": "転送完了",
-    "bridgeAnother": "別の資産をブリッジする",
+    "bridgeAnother": "別のアセットをブリッジする",
     "feeExceedsSend": "手数料が送信金額を超える",
     "receiveAddress": "受信アドレス",
     "route": "ルート",
     "waitTimeLabel": "待ち時間",
-    "waitTimeValue": "～5～10分",
-    "noSupportedAssets": "ポートフォリオにサポートされている資産がありません。"
+    "waitTimeValue": "5~10分",
+    "noSupportedAssets": "ポートフォリオにサポートされているアセットがありません。"
   },
   "trade": {
     "trade": "取引",
@@ -661,10 +661,10 @@
     },
     "from": "から",
     "to": "に",
-    "on": "の上",
+    "on": "チェーン",
     "youPay": "支払う",
     "payWith": "支払い方法",
-    "youGet": "得る",
+    "youGet": "獲得",
     "tradeTo": "取引先",
     "availableRoutes": "利用可能なルート",
     "minerFee": "マイナー手数料",
@@ -717,10 +717,10 @@
     },
     "errors": {
       "title": "問題が発生しました",
-      "sellAssetStartSentence": "資産を売却",
-      "buyAssetStartSentence": "資産を購入",
-      "sellAssetMiddleSentence": "資産を売る",
-      "buyAssetMiddleSentence": "資産を買う",
+      "sellAssetStartSentence": "アセットを売る",
+      "buyAssetStartSentence": "アセットを買う",
+      "sellAssetMiddleSentence": "アセットを売る",
+      "buyAssetMiddleSentence": "アセットを買う",
       "notEnoughEth": "このトランザクションのガス代に十分なETHがありません。",
       "amountTooSmall": "最小値: %{minLimit}",
       "amountTooSmallUnknownMinimum": "金額が低すぎます",
@@ -743,10 +743,10 @@
       "quoteFailed": "取引の見積もりを取得中にエラーが発生しました。",
       "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
       "failedQuoteExecuted": "失敗した見積を実行できません",
-      "sellAssetRequired": "売却する資産がないため見積もりを実行できません",
+      "sellAssetRequired": "売却するアセットがないため見積もりを実行できません",
       "sellAmountRequired": "売却金額がなければ見積もりを実行できません",
       "depositAddressRequired": "DEXアドレスがないとETH相場を実行できません",
-      "sellAssetNetworkAndSymbolRequired": "見積を実行するには資産ネットワークとシンボルの両方が必要です",
+      "sellAssetNetworkAndSymbolRequired": "見積を実行するにはアセットネットワークとシンボルの両方が必要です",
       "hdwalletInvalidConfig": "ハードウェアウォレットとの通信でエラーが発生しました",
       "allowanceRequiredFailed": "取引に必要な許可の承認中にエラーが発生しました。",
       "checkApprovalNeededFailed": "取引の承認を確認中にエラーが発生しました。",
@@ -820,7 +820,7 @@
       },
       "recoverySentence": {
         "header": "リカバリーセンテンスを書き留める",
-        "body": "KeepKey画面にリカバリーセンテンスが表示されます。それを書き留めてください。デバイスにアクセスできなくなった場合、この文によってのみ資産にアクセスできるようになります。",
+        "body": "KeepKey画面にリカバリーセンテンスが表示されます。それを書き留めてください。デバイスにアクセスできなくなった場合、このセンテンスによってのみアセットにアクセスできるようになります。",
         "infoFirst": "KeepKeyに表示されているとおりに正確に書き留めてください。",
         "infoSecond": "リカバリーセンテンスを決して共有しないでください。これにより、あなたのすべての資金へのアクセスが許可されます。",
         "awaitingButtonPress": "KeepKeyの手順に従って回復文を表示します。それを書き留めてください。"
@@ -1090,14 +1090,14 @@
     },
     "settings": {
       "clearCache": "キャッシュの消去",
-      "clearCacheTooltip": "キャッシュをクリアしてアプリをリロードする",
+      "clearCacheTooltip": "キャッシュをクリアしてアプリをリロードします",
       "settings": "設定",
       "currency": "通貨",
       "clearWalletAccountData": "すべてのアカウントとウォレットのデータを削除する",
       "deleteAccountsConfirm": "これにより、ウォレット、アカウント、残高を含むすべての個人データが削除されます。\n\n続行する前に、ウォレットをバックアップしていることを確認してください。",
       "currencyFormat": "通貨形式",
       "language": "言語",
-      "balanceThreshold": "残高しきい値",
+      "balanceThreshold": "残高閾値",
       "balanceThresholdTooltip": "ダッシュボードとチャートで、この値未満の残高を非表示にします",
       "currencies": {
         "CNY": "中国人民元",
@@ -1523,8 +1523,8 @@
           "trackBalance": "残高の追跡",
           "sendReceive": "暗号通貨の送受信",
           "buyCrypto": "暗号通貨の購入",
-          "tradeAssets": "取引資産",
-          "earnYield": "イールド資産から収益を得る",
+          "tradeAssets": "取引アセット",
+          "earnYield": "イールドアセットから収益を得る",
           "cta": "暗号通貨の購入",
           "secondaryCta": "ダッシュボードに移動します"
         }
@@ -1577,7 +1577,7 @@
         "P2pkh": "レガシー",
         "SegwitNativeTooltip": "ほとんどのユーザーに推奨されます。他のアドレスは、その目的がわかっている場合にのみ使用してください",
         "btcFormat": "BTC形式",
-        "assetUnavailable": "この資産の市場データはまだ入手できません。現在取り組んでいます。お待ちください！",
+        "assetUnavailable": "このアセットの市場データはまだ入手できません。現在取り組んでいますので、少々お待ちください！",
         "loading": "価格履歴を取得しています。しばらくお待ちください...",
         "maxTotalSupply": "最大総供給量",
         "availableSupply": "利用可能な供給量",
@@ -1594,7 +1594,7 @@
       },
       "assetAccounts": {
         "account": "アカウント",
-        "assetAllocation": "資産配分",
+        "assetAllocation": "アセット配分",
         "allocation": "割り当て",
         "amount": "額",
         "value": "価値"
@@ -1622,7 +1622,7 @@
       },
       "accounts": "アカウント",
       "stakingVaults": "ステーキングとボールト",
-      "stakingBody": "資産をステーキングするか、DeFiに預けることで受動的収入を獲得します。",
+      "stakingBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
       "pools": "プール"
     }
   },
@@ -1682,7 +1682,7 @@
       "Trade": "取引",
       "Refund": "返金"
     },
-    "assets": "資産",
+    "assets": "アセット",
     "txid": "TX ID",
     "fee": "手数料",
     "youSent": "送った",
@@ -1867,7 +1867,7 @@
         },
         "emptyStateDescription": "検索クエリを調整して再試行してください。",
         "pageInput": {
-          "label": "%{current} の %{total}",
+          "label": "%{current} / %{total}",
           "nextPage": "次のページ",
           "prevPage": "前のページ"
         }
@@ -1878,7 +1878,7 @@
     "yat": {
       "banner": {
         "title": "Yatを入手",
-        "description": "Yatは、ユニバーサル絵文字のユーザー名、WebサイトのURL、支払いアドレスなどです。"
+        "description": "Yatとは：ユニバーサル絵文字のユーザー名、WebサイトのURL、支払いアドレスなど"
       },
       "modal": {
         "title": "Yatのリンクに成功しました"
@@ -1997,18 +1997,18 @@
   },
   "arkeo": {
     "whatIsArkeo": {
-      "title": "Arkeoとは何ですか？",
+      "title": "Arkeoとは",
       "bodyParts": {
-        "1": "去年も一緒に",
+        "1": "昨年",
         "2": "Coinbase Cloud",
-        "3": "ShapeShiftはArkeoというプロジェクトを立ち上げました。メインネットのローンチはもうすぐです!",
-        "4": "Arkeoは、すべてのノードデータの分散型バックエンドとして作成されました。 Arkeoを使用するアプリケーションは、開発速度の向上、検閲への耐性、および",
+        "3": "とともに、ShapeShiftはArkeoというプロジェクトをインキュベートしました。メインネットのローンチはまもなくです！",
+        "4": "Arkeoは、すべてのノードデータの分散型バックエンドとして開発されました。Arkeoを使用するアプリケーションは、中央集権的なデータソースへの依存を減らしながら、開発速度の向上、検閲耐性、",
         "5": "ナカモト係数",
-        "6": "一元化されたデータソースへの依存を軽減しながら。"
+        "6": "の恩恵を受けています。"
       }
     },
     "whoQualifies": {
-      "title": "Arkeo Airdropの参加資格は何ですか?",
+      "title": "Arkeo Airdropの参加資格",
       "body": "ShapeShift dAppを使用してエアドロップの資格を得るには、さまざまな方法があります。スナップショットは順調に進んでいます。資格を得るにはまだ時間があります。"
     },
     "staking": {
@@ -2023,8 +2023,8 @@
     },
     "foxTokenHolders": {
       "title": "FOXトークンホルダー",
-      "body": "FOXトークンを保持しています。多いほど、Arkeoのエアドロップも大きくなります。",
-      "cta": "FOXと取引する",
+      "body": "FOXトークンを保持しています。FOXトークンが多いほど、Arkeoのエアドロップも大きくなります。",
+      "cta": "FOXを取引する",
       "secondary": "FOXを購入する"
     },
     "foxFarmers": {
@@ -2039,7 +2039,7 @@
     },
     "foxEthProviders": {
       "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "%{asset1} と %{asset2} を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
+      "body": "%{asset1}と%{asset2}を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
       "cta": "預金の流動性"
     },
     "stakeAtom": {
@@ -2048,7 +2048,7 @@
       "cta": "ATOMをステークする"
     },
     "footer": {
-      "title": "ShapeShift dApp以外にも資格を得る方法は他にもあります。完全なリストについては、ガバナンス提案を確認してください。",
+      "title": "ShapeShift dApp以外にも資格を得る方法は他にもあります。フルリストについては、ガバナンス提案を確認してください。",
       "cta": "ガバナンス提案を確認する",
       "disclaimer": {
         "body": "※セルフカストディウォレットのみが対象となります。集中型取引所を介してウォレットに保持またはステーキングされたトークンは対象外です。ウォレットが必要ですか?",
@@ -2081,13 +2081,13 @@
     "missionEnded": "ミッション終了",
     "viewMission": "ミッションを見る",
     "comingSoon": "近日公開",
-    "activeMissions": "アクティブなミッション",
+    "activeMissions": "利用可能なミッション",
     "endedMissions": "終了したミッション",
     "title": {
-      "1": "分散化された宇宙を解き放ち、",
-      "2": "報酬を獲得する"
+      "1": "分散化されたスペースで",
+      "2": "報酬を獲得しよう"
     },
-    "body": "ミッションに着手し、報酬を獲得し、拡大し続けるShapeShiftエコシステムについての知識を深めましょう",
+    "body": "ミッションに取り組み、報酬を獲得し、拡大し続けるShapeShiftエコシステムについての知識を深めましょう",
     "ends": "終わり",
     "ongoing": "進行中のミッション",
     "optimism": {
@@ -2117,12 +2117,12 @@
     },
     "foxRewards": {
       "subtitle": "購入、販売、取引、収益など",
-      "title": "FOXを獲得する",
+      "title": "FOXを獲得",
       "cta": "ミッションを開始する"
     },
     "snapfoxatar": {
-      "title": "MetaMaskでビットコインのロックを解除する",
-      "subtitle": "Metamask FOXatarスキンをミントする",
+      "title": "MetaMaskでビットコインのロックを解除",
+      "subtitle": "Metamask FOXatarスキンをミント",
       "cta": "ミッションを開始する"
     }
   },

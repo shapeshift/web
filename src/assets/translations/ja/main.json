@@ -1,0 +1,2145 @@
+{
+  "common": {
+    "free": "無料",
+    "back": "戻る",
+    "balance": "残高",
+    "next": "次へ",
+    "error": "エラー",
+    "show": "表示する",
+    "cancel": "キャンセルする",
+    "close": "閉じる",
+    "loadMore": "もっと見る",
+    "saveChanges": "変更内容を保存",
+    "new": "New",
+    "continue": "次へ",
+    "reward": "リワード",
+    "claimable": "獲得可能",
+    "approve": "承認する",
+    "confirm": "確認する",
+    "activity": "アクティビティ",
+    "reject": "拒否する",
+    "connected": "接続済み",
+    "allocation": "割り当て",
+    "value": "価値",
+    "created": "作成日 %{date}",
+    "noResultsFound": "結果が見つかりません。",
+    "noResultsBody": "%{searchQuery} の検索結果はありませんでした。もう一度試してください。",
+    "insufficientFunds": "残高不足",
+    "estimatedGas": "ガス代の目安",
+    "relayerGasFee": "リレイヤーのガス代",
+    "insufficientAmountForGas": "ガス代を支払うための十分な %{assetSymbol} がありません",
+    "invalidAddress": "無効なアドレス",
+    "invalidAddressOrYat": "無効なアドレスまたはYat",
+    "deposit": "入金する",
+    "withdraw": "出金する",
+    "withdrawal": "出金",
+    "claim": "獲得",
+    "withdrawAndClaim": "出金と獲得",
+    "overview": "概要",
+    "getStarted": "始める",
+    "connectWallet": "ウォレットを接続する",
+    "connectedWallet": "ウォレット接続済み",
+    "connectedWalletSettings": "ウォレットの設定",
+    "noWallet": "ウォレットが接続されていません",
+    "seeAll": "すべてを見る",
+    "darkMode": "ダークモード",
+    "darkTheme": "ダークテーマ",
+    "lightTheme": "ライトテーマ",
+    "rename": "名前の変更",
+    "forget": "お忘れですか？",
+    "pending": "保留中",
+    "available": "利用可能",
+    "or": "または",
+    "somethingWentWrong": "問題が発生しました",
+    "somethingWentWrongBody": "問題が発生しました",
+    "accountError": "以下のチェーンのデータを一時的に入手できません:",
+    "degradedState": "アプリは一時的な定価状態です",
+    "degradedInfo": "アカウントのデータを取得できません。",
+    "success": "成功",
+    "retry": "リトライ",
+    "retryQuestion": "リトライしますか？",
+    "transactionFailed": "処理に失敗しました",
+    "transactionFailedBody": "処理に失敗しました",
+    "submitFeedback": "フィードバックを送信",
+    "send": "送信",
+    "receive": "受け取る",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "days": "日程",
+    "copied": "クリップボードにコピーされました",
+    "copyFailed": "クリップボードへのコピーに失敗しました",
+    "copyFailedDescription": "コピーしてください",
+    "viewAsset": "アセットの表示",
+    "settings": "設定",
+    "joinDiscord": "Discordに参加",
+    "legalDated": "日付: 2022 年 1 月",
+    "approveOnWallet": "ウォレットで承認",
+    "confirmOnWallet": "ウォレットで確認",
+    "login": "ログイン",
+    "verify": "確認する",
+    "notRobot": "私はロボットではありません",
+    "skip": "スキップ",
+    "generalError": "エラーが発生しました",
+    "showDetails": "詳細を表示",
+    "hideDetails": "詳細を隠す",
+    "walletSupportsETHOnly": "イーサリアムのみ",
+    "loadingText": "読み込み中...",
+    "txId": "Tx ID",
+    "selectAsset": "アセットを選択してください",
+    "switchNetwork": "ネットワークを変更",
+    "selectNetwork": "ネットワークを選択",
+    "unsupportedNetwork": "サポートされていないネットワーク",
+    "chartUnavailable": "%{unavailableAssetNames} の残高グラフ データは一時的に利用できません。",
+    "search": "検索",
+    "searchAsset": "アセットの検索",
+    "enterAmount": "金額を入力",
+    "pageNotFound": "お探しのページが見つかりません",
+    "buySell": "売買",
+    "all": "全て",
+    "viewAll": "すべて見る",
+    "slippage": "スリッページ",
+    "best": "ベスト",
+    "alternative": "代替",
+    "validator": "%{name} バリデーター",
+    "needAsset": "%{asset} が必要ですか?",
+    "buyNow": "今すぐ購入",
+    "manage": "管理",
+    "selectedAccount": "選択したアカウント",
+    "allChains": "すべてのチェーン",
+    "wallet": "ウォレット",
+    "action": "アクション",
+    "feedbackAndSupport": "フィードバックとサポート",
+    "getSupport": "サポート",
+    "viewMyWallet": "ウォレットを見る",
+    "submitFeatureRequest": "機能リクエストを送信",
+    "learnMore": "詳細",
+    "showAll": "すべて表示",
+    "showLess": "表示を減らす",
+    "yourBalance": "バランス"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。",
+      "2": "private.shapeshift.com",
+      "3": "を確認する。匿名で追跡されたくない場合は、こちらを参照してください。",
+      "4": "プライバシーポリシー",
+      "5": "で詳細を確認する。"
+    },
+    "cta": "了解"
+  },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "問題が発生しました",
+    "cta": "もう一度やり直してください"
+  },
+  "buyPage": {
+    "title": {
+      "first": "暗号通貨を購入",
+      "second": "即時に"
+    },
+    "body": "クレジットカード、デビットカード、または銀行口座を使用します。ビットコイン、イーサリアム、USDT、USDC、またはその他のトップ暗号通貨を購入します。非KYCプロバイダーも利用可能。",
+    "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
+    "cta": {
+      "title": {
+        "first": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、",
+        "second": "%{chainCount} チェーン全体で暗号通貨を追跡します"
+      }
+    },
+    "availableAssets": "利用可能なアセット"
+  },
+  "updateToast": {
+    "body": "アプリの新しいバージョンが利用可能になりました",
+    "cta": "アプリをリロードする",
+    "keepKey": {
+      "title": "KeepKey アップデート利用可能",
+      "newUpdateAvailable": "新しい KeepKey アップデートが利用可能です",
+      "downloadCta": "アップデートをダウンロード",
+      "updateRequiredForFeature": "このアップデートは %{feature} をサポートするために必要です"
+    }
+  },
+  "multiCurrency": {
+    "toast": {
+      "title": "%{symbol} のデータ読み込みエラー",
+      "description": "通貨が米ドルにリセットされました"
+    }
+  },
+  "dashboard": {
+    "portfolio": {
+      "rainbowChart": "🌈 Rainbow",
+      "totalChart": "💰合計",
+      "addAsset": "アセットの追加",
+      "yourAssets": "ウォレットアセット",
+      "asset": "アセット",
+      "portfolioBalance": "ポートフォリオ",
+      "balance": "バランス",
+      "price": "価格",
+      "value": "価値",
+      "priceChange": "価格変更",
+      "allocation": "割り当て",
+      "marketCap": "時価総額",
+      "sparkLine": "スパークライン",
+      "empty": {
+        "title": "...",
+        "cta": "自分のウォレットに暗号通貨を送ってください!"
+      },
+      "stakedInfo": "ステークした金額を送金または取引することはできません"
+    },
+    "recentTransactions": {
+      "recentTransactions": "最近の取引"
+    },
+    "tradeCard": {
+      "trade": "取引",
+      "bridge": "ブリッジ",
+      "earn": "獲得"
+    }
+  },
+  "fiatRamps": {
+    "routeTitle": "購入もしくは販売",
+    "routeTitleForGem": "Gem on Ramp",
+    "title": "暗号通貨の売買",
+    "titleMessage": " %{action}で%{asset} を利用できます",
+    "gem": "GEM",
+    "junoPay": "JunoPay",
+    "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
+    "comingSoon": "近日公開",
+    "buy": "買う",
+    "sell": "売る",
+    "asset": "アセット",
+    "assetToBuy": "購入するアセットを選択してください",
+    "selectAnAssetToBuy": "購入するアセットを選択してください",
+    "selectBody": "暗号通貨のリストから選択してください",
+    "assetToSell": "売却するアセットを選択してください",
+    "selectAnAssetToSell": "売却するアセットを選択してください",
+    "fundsTo": "資金は次のアドレスに送金されます",
+    "fundsFrom": "資金は以下から送金されます",
+    "headerLabel": "暗号通貨の売買",
+    "insufficientCryptoAmountToSell": "最低販売額は $%{amount} です",
+    "usOnly": "米国のみ",
+    "noKYC": "KYCなし",
+    "nonUS": "米国以外",
+    "buyWith": "支払い通貨",
+    "sellFor": "支払い通貨",
+    "availableProviders": "利用可能なプロバイダー",
+    "noProvidersAvailable": "利用可能なプロバイダーがありません",
+    "noProvidersBody": "そのアセットのプロバイダーはまだありません",
+    "notSupported": "%{asset} は %{wallet} でサポートされていません"
+  },
+  "connectWalletPage": {
+    "shapeshift": "ShapeShift",
+    "exploreThe": "をエクスプローラーしてください",
+    "defiUniverse": "DeFi空間",
+    "body": "完全無料・オープンソース・コミュニティ所有・ノンカストディアル・プライベート",
+    "body2": "新しいShapeShiftへようこそ。完全無料・オープンソース・コミュニティ所有・ノンカストディアル・プライベート",
+    "header": "始めるにはウォレットを接続してください",
+    "cta": "ウォレットを接続する",
+    "viewADemo": "デモを見る",
+    "dontHaveWallet": "ウォレットをお持ちではありませんか？",
+    "welcomeBack": "おかえりなさい！",
+    "welcomeBody": "ウォレットの接続はログインのようなものです。開始するには、オプションからウォレットを選択してください。"
+  },
+  "connectWallet": {
+    "menu": {
+      "triggerButton": "ウォレットを接続する",
+      "switchWallet": "ウォレットプロバイダーの切り替え",
+      "disconnect": "切断する",
+      "disconnected": "(切断済み)",
+      "connecting": "接続中..."
+    }
+  },
+  "defi": {
+    "modals": {
+      "learnMore": {
+        "next": "次へ",
+        "close": "閉じる",
+        "headers": {
+          "aboutStakingRewards": "ステーキング報酬について",
+          "unstaking": "%{assetName} のステーキングを解除する",
+          "risks": "リスクはありますか?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "あなたが獲得する %{assetName} の割合、つまり年間収益率 (APR) は、通常 7% ～ 20% の間で変動します。",
+          "amountStakingInfo": "任意の量の %{assetName} をステークすることができ、すぐに報酬の獲得が始まります。",
+          "withdrawInfo": "報酬はいつでも引き出す​​ことができますが、約 $0.01 程度の少額のガス料金が必要です。",
+          "unbondingInfo": "トークンのステークを解除すると、トークンは %{unbondingDays} 日間ロックされたままになり、その間は報酬を獲得できません。 %{unbondingDays} 日が経過すると、%{assetName} はプライマリ ウォレットに戻ります。",
+          "slashingInfo": "ステーキングはバリデーターを通じて行われます。これは非常にまれですが、ステークしているバリデーターが誤った取引や不正確な取引の通過を許可して台無しになった場合、資産の一部を失う可能性があります。",
+          "partnerInfo": "安全で信頼性が高く、監査済みのインフラを備えた評判の高いバリデーターと提携することで、リスクを軽減しています。"
+        },
+        "userProtectionInfo": "*リターンは概算であり、市場状況によって変動します。",
+        "cta": {
+          "startStaking": "ステーキングを開始する",
+          "learnMore": "詳細"
+        }
+      },
+      "getStarted": {
+        "header": "%{assetName} をステーキングして獲得する",
+        "body": "ステーキングは、ブロックチェーン ネットワークの運用をサポートするためにウォレットに資金を保持するプロセスであり、その見返りとして、ホルダーはその貢献に対して報酬を受け取ります。",
+        "userProtectionInfo": "*リターンは概算であり、市場状況によって変動します。",
+        "cta": {
+          "startStaking": "ステーキングを開始する",
+          "learnMore": "詳細"
+        }
+      },
+      "cosmosOverview": {
+        "rewards": "獲得した報酬は自動的に蓄積されます。",
+        "cta": "ステーキングを開始する",
+        "learnMore": "詳細",
+        "withdrawals": "ステーキング解除",
+        "emptyWithdraws": "保留中のステーキング解除のリクエストはここに表示されます。",
+        "availableDate": "利用可能 %{date}"
+      },
+      "foxyOverview": {
+        "header": "FOXを入金してFOXyを獲得する",
+        "body": "FOXyは、FOXの価格に固定されたリベーストークンです。ステークされたFOXは、可能な限りの収益を得るために、さまざまなDeFiプロトコルにわたって機能します。",
+        "rewards": "獲得した報酬は自動的に蓄積されます。",
+        "cta": "今すぐFOXを入金",
+        "foxyBalance": "FOXy残高",
+        "withdrawals": "出金",
+        "emptyWithdraws": "保留中の出金またはアクティブな出金はここに表示されます。",
+        "availableDate": "利用可能 %{date}"
+      },
+      "foxFarmingOverview": {
+        "header": "ETH-FOX LP トークンを %{opportunity} に入金して獲得する",
+        "body": "流動性トークンを承認してステーキングして、ボーナスFOX報酬を獲得する",
+        "rewards": "獲得した報酬は自動的に蓄積されます。",
+        "cta": "今すぐETH-FOX LPトークンを入金する",
+        "foxFarmingBalance": "ETH-FOX LPトークン残高",
+        "withdrawals": "出金",
+        "emptyWithdraws": "保留中の出金またはアクティブな出金はここに表示されます。",
+        "availableDate": "利用可能 %{date}"
+      },
+      "overview": {
+        "underlyingTokens": "基礎となるトークン",
+        "underlyingToken": "基礎となるトークン",
+        "availableRewards": "利用可能な報酬",
+        "about": "概要",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "出金できるものがありません。"
+      },
+      "claim": {
+        "rewardDepositInfo": "報酬はメインウォレットに入金されます。",
+        "title": "ステーキング報酬を獲得する",
+        "confirmAndClaim": "確認・獲得",
+        "rewardAmount": "報酬額",
+        "claimingRewards": "報酬の受け取り",
+        "claimAmount": "獲得額",
+        "claimToAddress": "獲得先",
+        "confirmClaim": "獲得の確認",
+        "claimNow": "今すぐ獲得する",
+        "claimYour": "%{opportunity}を獲得しましょう"
+      },
+      "saversVaults": {
+        "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
+        "vaultCap": "Vaultキャップ",
+        "vaultCapTooltip": "このVaultの現在の最大容量",
+        "haltedTitle": "一時的に入金を停止しております。",
+        "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
+        "protocolFee": "プロトコル手数料",
+        "fee": "手数料",
+        "dustAmount": "少額",
+        "dustAmountTooltip": "アドレスを特定するには少額が必要ですが、後で出金したいときに使用するために保存されます。",
+        "sendDustBody": "出金するには、このアドレスに少額を送る必要があります。",
+        "sendDust": "少額を送る",
+        "addressToSendTo": "送信先アドレス",
+        "introducingSaversVaults": "Savers Vaultについて",
+        "risksBody": {
+          "1": "参照する",
+          "2": "この記事",
+          "3": "Savers Vaultに伴うリスクについて。"
+        },
+        "understand": "同意する",
+        "days": "%{amount} 日",
+        "day": "%{amount} 日",
+        "timeToBreakEven": {
+          "title": "損益分岐点の時間",
+          "tooltip": "入金手数料と収益をカバーするまでの推定時間"
+        },
+        "cannotDepositWhilePendingTx": "送信保留中は入金できません",
+        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません"
+      }
+    },
+    "memoNote": {
+      "title": "トランザクションメモは編集しないでください",
+      "body": "ShapeShiftから発生するトランザクションは、DAOのサポートに役立ちます。"
+    },
+    "amountToStake": "ステーク額",
+    "amountToUnstake": "ステーク解除額",
+    "confirmDetails": "詳細を確認する",
+    "broadcastingTransaction": "トランザクションをブロードキャストする",
+    "transactionComplete": "取引完了",
+    "transactionFailed": "処理に失敗しました",
+    "notEnoughFundsInReserve": "流動性リザーブコントラクトに資金が不足しています",
+    "validator": "バリデーター",
+    "validatorMoniker": "%{moniker} バリデーター",
+    "stakedAmount": "ステーク額",
+    "unstakeFrom": "ステークを解除する",
+    "underlyingAsset": "原資産",
+    "gasFee": "ガス代",
+    "provider": "プロバイダー",
+    "currentTvl": "現在のTVL",
+    "unbondInfoItWillTake": "トークンがステーキングされている間は、トークンを転送・使用することはできません。ステークを解除してからロックを解除するには、%{unbondingDays} 日かかります。",
+    "unbondInfoItWillTakeShort": "トークンのステークを解除するには %{unbondingDays} 日かかります",
+    "confirmAndBroadcast": "確認してブロードキャストする",
+    "signAndBroadcast": "署名とブロードキャスト",
+    "averageApr": "平均年利",
+    "estimatedYearlyRewards": "推定年間報酬",
+    "staked": "ステーク済み",
+    "amountStaked": "ステーク額",
+    "assetStaking": "%{assetName} ステーキング",
+    "stake": "ステーク",
+    "version": "バージョン",
+    "unstake": "ステークを解除する",
+    "stakeAsset": "ステーク %{assetSymbol}",
+    "unstakeAsset": "%{assetSymbol} のステークを解除する",
+    "claimAsset": "ステーキング報酬を獲得する",
+    "claim": "獲得",
+    "rewards": "報酬",
+    "unstaking": "アンステーキング",
+    "available": "利用可能な%{unbondingEnd}",
+    "earn": "獲得",
+    "asset": "アセット",
+    "category": "カテゴリー",
+    "tvl": "TVL",
+    "type": "タイプ",
+    "apy": "APY",
+    "apr": "APR",
+    "ended": "終了",
+    "balance": "バランス",
+    "startEarning": "獲得する",
+    "eligibleOpportunities": "おすすめ",
+    "defiBody": "成長を続けるDeFiの世界を探索してください。",
+    "netWorth": "純資産",
+    "walletBalance": "ウォレット残高",
+    "earnBalance": "獲得残高",
+    "rewardsBalance": "報酬残高",
+    "earnBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
+    "clickHereToEarn": "ここをクリックすると、ETH-FOX流動性プールトークンを獲得して年率%{apr}*を獲得できます",
+    "overview": "概要",
+    "myPositions": "ポジション",
+    "myPositionsBody": "アクティブなポジションがここに表示されます。",
+    "myRewards": "報酬",
+    "myRewardsBody": "獲得可能な報酬を伴うアクティブなポジションがここに表示されます。",
+    "viewAllPositions": "すべてのポジションを表示",
+    "liquidityPools": "流動性プール",
+    "stakingVaults": "ステーキングとボールト",
+    "farming": "ファーミング",
+    "totalEarningBalance": "総収益残高",
+    "stakingBalance": "ステーキング残高",
+    "farmingBalance": "ファーミング残高",
+    "liquidityPoolBalance": "流動性プール残高",
+    "poolValue": "プール値",
+    "yearn": "Yearn Finance",
+    "totalValue": "総価値",
+    "byAsset": "アセット別",
+    "byProvider": "プロバイダー別",
+    "claimableRewards": "受け取れる報酬",
+    "stakingPosition": "ステーキングポジション",
+    "liquidityPool": "流動性プール",
+    "noActivePositions": "有効なポジションがありません",
+    "emptyEarn": "獲得のチャンスがここに表示されます。",
+    "empty": {
+      "farming": {
+        "body": "現在ファーミングはしていません。",
+        "cta": "機会を見る"
+      },
+      "stakingVaults": {
+        "body": "暗号資産に対する利息を得る機会を確認してください。",
+        "cta": "機会を見る"
+      },
+      "pools": {
+        "body": "流動性プールに入金していません。",
+        "cta": "機会を見る"
+      }
+    },
+    "viewOnChain": "チェーンで見る",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "入金情報",
+          "description": "入金したい %{asset} の金額を入力してください。"
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "出金情報",
+          "description": "出金したい%{asset}の金額を入力してください。",
+          "yieldyDescription": "出金したい%{asset}の金額を入力してください。以降の出金は結合され、出金時間がリセットされます。",
+          "farmingExpiredDescription": "このファーミング報酬コントラクトは終了しました。残高全額を引き出す必要があります。",
+          "rewardsInfo": "受け取れる報酬"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "獲得情報",
+          "description": "今までのファームトークンを出金する"
+        }
+      },
+      "approve": {
+        "title": "承認する"
+      },
+      "confirm": {
+        "title": "確認する"
+      },
+      "status": {
+        "title": "ステータス"
+      }
+    }
+  },
+  "staking": {
+    "staking": "ステーキング",
+    "itWillTake": "かかる",
+    "toUnlock": "ステークを解除した後に %{assetSymbol} のロックを解除するには、ステーキング報酬は別途出金する必要があります。",
+    "assetStakingBalance": "%{assetSymbol} ステーキング残高"
+  },
+  "navBar": {
+    "home": "ホーム",
+    "activity": "アクティビティ",
+    "myWallet": "ウォレット",
+    "dashboard": "ダッシュボード",
+    "dashboardShort": "ダッシュボード",
+    "assets": "アセット",
+    "assetDetails": "アセットの詳細",
+    "accounts": "アカウント",
+    "accountAsset": "アカウント資産",
+    "accountDetails": "アカウント詳細",
+    "defi": "DeFi",
+    "transactionHistory": "取引履歴",
+    "overview": "概要",
+    "transactions": "取引",
+    "tradeHistory": "取引履歴",
+    "foxToken": "FOXの機会",
+    "dApps": "dApps",
+    "featureFlags": "機能フラグ",
+    "demoMode": "デモモード",
+    "clickToConnect": "クリックしてウォレットに接続します",
+    "wallet": "ウォレット",
+    "explore": "エクスプローラー",
+    "rewards": "報酬",
+    "trade": "取引/ブリッジ",
+    "tradeShort": "取引",
+    "buyCrypto": "暗号通貨の売買",
+    "buyCryptoShort": "売買",
+    "arkeo": "Arkeoエアドロップ",
+    "foxMissions": "FOXミッション",
+    "foxMissionsShort": "ミッション"
+  },
+  "transactionRow": {
+    "send": "送信済み",
+    "receive": "受け取り済み",
+    "moreDetails": "さらに詳しく",
+    "date": "日付",
+    "txid": "トランザクションID",
+    "fee": "手数料",
+    "status": "ステータス",
+    "confirmed": "確認済み",
+    "pending": "保留中",
+    "failed": "失敗しました",
+    "network": "ネットワーク",
+    "blockHeight": "ブロックの高さ",
+    "to": "に",
+    "from": "から",
+    "trade": "取引",
+    "amount": "額",
+    "for": "のために",
+    "emptyMessage": "%{status} トランザクションがここに表示されます。",
+    "parser": {
+      "weth": {
+        "deposit": "入金する",
+        "approve": "承認する",
+        "approveSymbol": "%{symbol}を承認",
+        "revoke": "取り消す",
+        "revokeSymbol": "%{symbol} の承認を取り消す",
+        "amountUnavailable": "利用不可",
+        "withdraw": "出金する",
+        "receive": "受け取る"
+      },
+      "yearn": {
+        "deposit": "入金する",
+        "approve": "承認する",
+        "approveSymbol": "%{symbol}を承認",
+        "revoke": "取り消す",
+        "revokeSymbol": "%{symbol} の承認を取り消す",
+        "infinite": "∞",
+        "amountUnavailable": "利用不可",
+        "withdraw": "出金する",
+        "receive": "受け取る"
+      },
+      "uniV2": {
+        "addLiquidityETH": "流動性を追加する",
+        "stake": "ステーク",
+        "exit": "ステークを解除する",
+        "removeLiquidityETH": "流動性を取り除く"
+      },
+      "thor": {
+        "transferOut": "転出"
+      },
+      "foxy": {
+        "stake": "ステーク",
+        "unstake": "ステークを解除する",
+        "instantUnstake": "一時的にステークを解除する",
+        "claimWithdraw": "出金の獲得"
+      },
+      "erc20": {
+        "approve": "承認する",
+        "approveSymbol": "%{symbol}を承認",
+        "revoke": "取り消す",
+        "revokeSymbol": "%{symbol} の承認を取り消す",
+        "infinite": "∞",
+        "amountUnavailable": "利用不可"
+      },
+      "bep20": {
+        "approve": "承認する",
+        "approveSymbol": "%{symbol}を承認する",
+        "revoke": "取り消す",
+        "revokeSymbol": "%{symbol} の承認を取り消す",
+        "infinite": "∞",
+        "amountUnavailable": "利用不可"
+      },
+      "staking": {
+        "delegate": "委任",
+        "begin_unbonding": "委任を解除",
+        "begin_redelegate": "再委任",
+        "withdraw_delegator_reward": "報酬を受け取る"
+      },
+      "swap": {
+        "deposit": "スワップ",
+        "streamingSwap": "ストリーミングスワップ",
+        "out": "スワップ",
+        "refund": "返金",
+        "outbound": "アウトバウンド"
+      },
+      "ibc": {
+        "transfer": "送信済み",
+        "recv_packet": "受け取り済み"
+      },
+      "lp": {
+        "deposit": "流動性の追加",
+        "withdraw": "流動性を取り除く",
+        "join_pool": "プールに参加",
+        "exit_pool": "プールから退出"
+      }
+    },
+    "unknown": "トランザクション"
+  },
+  "bridge": {
+    "confirm": "ブリッジの確認",
+    "selectChain": "チェーンの選択",
+    "selectAsset": "アセットの選択",
+    "startBridge": "ブリッジの開始",
+    "confirmBridge": "ブリッジの確認",
+    "preview": "ブリッジのプレビュー",
+    "transferring": "転送中",
+    "transferComplete": "転送完了",
+    "bridgeAnother": "別のアセットをブリッジする",
+    "feeExceedsSend": "手数料が送信金額を超える",
+    "receiveAddress": "受信アドレス",
+    "route": "ルート",
+    "waitTimeLabel": "待ち時間",
+    "waitTimeValue": "5~10分",
+    "noSupportedAssets": "ポートフォリオにサポートされているアセットがありません。"
+  },
+  "trade": {
+    "trade": "取引",
+    "allowance": "手当",
+    "slippageInfo": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",
+    "allowanceTooltip": "スマートコントラクトの使用許可を与える金額。",
+    "searchingRate": "フェッチ率...",
+    "noRateAvailable": "利用可能なレートはありません。",
+    "previewTrade": "トレードのプレビュー",
+    "rate": "レート",
+    "tradeFrom": "取引元",
+    "priceImpact": "価格への影響",
+    "slippage": {
+      "maxSlippage": "最大スリッページ",
+      "auto": "自動",
+      "custom": "カスタム",
+      "warning": "スリッページ許容度が高いと、不利な取引が生じる可能性があります。",
+      "lowSlippage": "スリッページが0.05%を下回ると、取引が失敗する可能性があります。"
+    },
+    "from": "から",
+    "to": "に",
+    "on": "チェーン",
+    "youPay": "支払う",
+    "payWith": "支払い方法",
+    "youGet": "獲得",
+    "tradeTo": "取引先",
+    "availableRoutes": "利用可能なルート",
+    "minerFee": "マイナー手数料",
+    "donation": "SjapeShiftの寄付",
+    "protocolFee": "プロトコル手数料",
+    "protocol": "プロトコル",
+    "tradeFeeSource": "%{tradeFeeSource} 手数料",
+    "gasFeeExceedsTradeAmountThreshold": "ガス代が取引額の %{percentage}% を超えています",
+    "confirmDetails": "詳細を確認する",
+    "confirmAndTrade": "確認して取引する",
+    "tradeAnyway": "取引する",
+    "pending": "取引保留中",
+    "complete": "取引完了",
+    "approveAsset": "%{symbol} との相互を承認する",
+    "needPermission": "%{symbol} を使用するには許可が必要です",
+    "whyNeedThis": "なぜこれを行う必要があるのか?",
+    "estimatedGasFee": "ガス代の目安",
+    "receiveInclFee": "受け取り（手数料含む）",
+    "approvingAsset": "%{symbol}を承認しています",
+    "viewTransaction": "トランザクションの表示",
+    "unlimited": "無制限",
+    "streamStatus": "ストリームステータス",
+    "swapsFailed": "%{failedSwaps} のスワップが失敗しました",
+    "exact": "ちょうど",
+    "expectedAmount": "見込額",
+    "beforeFees": "料金前",
+    "minAmountAfterSlippage": "分。スリッページ後に予想される (%{slippage}%)",
+    "free": "無料",
+    "slowSwapTitle": "%{protocol} 取引",
+    "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
+    "updatingQuote": "見積を更新しています...",
+    "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
+    "manualReceiveAddress": "受信アドレス",
+    "tooltip": {
+      "rate": "この取引ペアの予想レートです。",
+      "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
+      "priceImpact": "プール内の現在の流動性を考慮すると、このサイズのスワップは価格に大きな影響を与える可能性があります。入力トークンの量と出力トークンで受け取る量の間には大きな違いがある可能性があります",
+      "minerFee": "これはブロックチェーン上でトランザクションを処理するための料金であり、ShapeShiftによって請求される料金ではありません。",
+      "donation": "ShapeShiftのサポートへのご協力お願いします。",
+      "protocol": "取引がルーティングされるプロトコルです。",
+      "protocolLifi": "取引がルーティングされるプロトコルです。 LI.FIは、価格、安全性、スピードの総合的な最適な組み合わせを実現するために、一連の仲介取引を内部で実行します。",
+      "protocolFee": "このトランザクションを処理するために選択されたプロトコルによって請求される料金であり、ShapeShiftによって請求される料金ではありません",
+      "shapeshiftFee": "ShapeShiftは取引で追加の手数料を徴収しません",
+      "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "売却額が足りません"
+      }
+    },
+    "errors": {
+      "title": "問題が発生しました",
+      "sellAssetStartSentence": "アセットを売る",
+      "buyAssetStartSentence": "アセットを買う",
+      "sellAssetMiddleSentence": "アセットを売る",
+      "buyAssetMiddleSentence": "アセットを買う",
+      "notEnoughEth": "このトランザクションのガス代に十分なETHがありません。",
+      "amountTooSmall": "最小値: %{minLimit}",
+      "amountTooSmallUnknownMinimum": "金額が低すぎます",
+      "sellAmountDoesNotCoverFee": "手数料よりも低い金額で売却する",
+      "negativeMax": "この取引のマイナー手数料に十分な資金がありません。推定マイナー手数料 %{estimatedMinerFee}",
+      "invalidMax": "無効な金額です。このペアの最大取引額は %{maxLimit} です。",
+      "insufficientFunds": "マイナーの手数料と金額に対して資金が不十分です",
+      "transactionRejected": "ユーザーが取引を拒否しました",
+      "broadcastFailed": "トランザクションのブロードキャスト中にエラーが発生しました",
+      "insufficientFundsForLimit": "残高不足です。このペアの最小取引額は %{minLimit} です",
+      "insufficientFundsForAmount": "残高不足です。 %{symbol} 残高が選択した金額未満です",
+      "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
+      "invalidTradePair": "無効な取引ペア: %{sellAssetName} と %{buyAssetName}",
+      "invalidTradePairBtnText": "無効なトレードペア",
+      "unsupportedTradePair": "サポートされていないトレードペア",
+      "noLiquidityError": "十分な流動性が利用できません",
+      "overMaxSlippage": "この取引では、%{slippagePercentage}% を超えるスリッページが発生します。より良い価格でより低い金額で取引してください",
+      "balanceToLow": "残高不足です。このペアの最小取引額は %{minLimit} です",
+      "dexTradeFailed": "取引は失敗し、トークンは返却されました",
+      "quoteFailed": "取引の見積もりを取得中にエラーが発生しました。",
+      "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
+      "failedQuoteExecuted": "失敗した見積を実行できません",
+      "sellAssetRequired": "売却するアセットがないため見積もりを実行できません",
+      "sellAmountRequired": "売却金額がなければ見積もりを実行できません",
+      "depositAddressRequired": "DEXアドレスがないとETH相場を実行できません",
+      "sellAssetNetworkAndSymbolRequired": "見積を実行するにはアセットネットワークとシンボルの両方が必要です",
+      "hdwalletInvalidConfig": "ハードウェアウォレットとの通信でエラーが発生しました",
+      "allowanceRequiredFailed": "取引に必要な許可の承認中にエラーが発生しました。",
+      "checkApprovalNeededFailed": "取引の承認を確認中にエラーが発生しました。",
+      "approveInfiniteFailed": "取引の承認中にエラーが発生しました。",
+      "buildTradeFailed": "取引中にエラーが発生しました。",
+      "grantAllowanceFailed": "許可の付与時にエラーが発生しました。",
+      "minMaxError": "最小/最大取引額の取得でエラーが発生しました",
+      "executeTradeFailed": "取引の実行中にエラーが発生しました。",
+      "unsupportedPair": "この取引ペアは現在サポートされていません。",
+      "unsupportedChain": "このチェーンは現在サポートされていません。",
+      "rateError": "このペアの見積もりを取得できません",
+      "assetNotSupportedByWallet": "%{assetSymbol} はウォレットでサポートされていません",
+      "noReceiveAddress": "%{assetSymbol} の受信アドレスがありません",
+      "tradingNotActive": "%{assetSymbol} の取引は一時的に停止されました",
+      "tradingNotActiveNoAssetSymbol": "このルートの取引は一時的に停止されています",
+      "signing": {
+        "failed": "トランザクションの署名中にエラーが発生しました",
+        "required": "署名されたトランザクションが必要です"
+      },
+      "generalError": "取引エラーが発生しました",
+      "quoteError": "見積もりの​​取得中にエラーが発生しました",
+      "tradeFailed": "取引は失敗しました。ガス代を差し引いた額が返還されました",
+      "noQuotesAvailable": "この取引には利用可能な見積もりがありません"
+    },
+    "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
+    "recentTrades": "最近の取引",
+    "lifiWarning": "この取引は LI.FI を介してルートされ、LI.FI が一連の仲介取引を実行してスワップを実行します。いずれかのステップが失敗した場合は、シーケンス内の最後に成功したステップのトークンを受け取ります。",
+    "or": "または",
+    "onChainName": "%{chainName} で",
+    "unknownGas": "(unknown)",
+    "receiveAddress": "受信アドレス",
+    "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
+    "toContinue": "続ける。",
+    "addressPlaceholder": "%{chainName} アドレス",
+    "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
+    "enableMetaMaskSnap": "マルチチェーンスナップを使用する"
+  },
+  "modals": {
+    "popup": {
+      "body": "注文を完了するための安全なウィンドウを作成しました。",
+      "body2": "安全なウィンドウが表示されない場合は、注文を完了するためにウィンドウを再起動するお手伝いをいたします。",
+      "continue": "続けるにはクリック",
+      "showWindow": "ウィンドウを表示",
+      "cancel": "キャンセルする"
+    },
+    "keepKey": {
+      "passphrase": {
+        "errors": {
+          "unknown": "パスフレーズの送信中にエラーが発生しました",
+          "empty": "空のパスフレーズを使用しています"
+        },
+        "header": "パスフレーズを入力してください",
+        "body": "パスフレーズを送信した後、KeepKeyのボタンを使用してパスフレーズを承認します。",
+        "button": "パスフレーズを送信する"
+      },
+      "label": {
+        "header": "KeepKeyにラベルを付ける (任意)",
+        "body": "各デバイスにラベルを付けると、デバイスを簡単に区別できるようになります。",
+        "setLabelButton": "ラベルの設定",
+        "skipLabelButton": "スキップ",
+        "placeholder": "任意"
+      },
+      "recoverySettings": {
+        "header": "ウォレットの復元",
+        "sentenceLengthLabel": "リカバリーセンテンスの長さ",
+        "recoveryPassphraseLabel": "リカバリーパスフレーズ",
+        "recoveryPassphraseToggle": "パスフレーズで復元しますか?",
+        "recoveryPassphraseDescription": "リカバリーセンテンスがパスフレーズで保護されているかどうか不明な場合は、これをオフのままにしてください。",
+        "wordEntropy": "%{wordEntropy} 語",
+        "button": "ウォレットを復元する"
+      },
+      "recoverySentence": {
+        "header": "リカバリーセンテンスを書き留める",
+        "body": "KeepKey画面にリカバリーセンテンスが表示されます。それを書き留めてください。デバイスにアクセスできなくなった場合、このセンテンスによってのみアセットにアクセスできるようになります。",
+        "infoFirst": "KeepKeyに表示されているとおりに正確に書き留めてください。",
+        "infoSecond": "リカバリーセンテンスを決して共有しないでください。これにより、あなたのすべての資金へのアクセスが許可されます。",
+        "awaitingButtonPress": "KeepKeyの手順に従って回復文を表示します。それを書き留めてください。"
+      },
+      "factoryState": {
+        "header": "Keepkeyを使う",
+        "body": "KeepKeyはデフォルトで設定されています。新しいウォレットを作成するか、シークレットリカバリーフレーズを使用してウォレットを復元します",
+        "createButton": "新しいウォレットを作成する",
+        "recoverButton": "ウォレットを復元する"
+      },
+      "recoverySentenceEntry": {
+        "header": "リカバリーセンテンスを入力してください",
+        "body": "KeepKeyのキーボードを使用して、各単語の最初の4文字を入力します。単語内の文字が4文字未満の場合は、入力が完了したらEnterキーを押すか、スペースバーを押すか、「次へ」をクリックします。",
+        "button": "次へ",
+        "awaitingButtonPress": "続行するには、KeepKeyの指示に従ってください。",
+        "toastMessage": "KeepKeyが正常に復元されました。"
+      },
+      "recoverySettingUp": {
+        "header": "デバイスをセットアップ中...",
+        "body": "デバイスを初期化し、アドレスを同期するまでお待ちください。"
+      },
+      "recoveryInvalid": {
+        "header": "無効なリカバリフレーズです",
+        "body": "入力した回復フレーズは無効です。",
+        "button": "もう一度やり直してください"
+      },
+      "downloadUpdater": {
+        "header": "KeepKeyアップデーターをダウンロード",
+        "button": "%{filename}をダウンロード",
+        "wrongPlatform": "%{platform} を使用していませんか?ここをクリック"
+      },
+      "disconnect": {
+        "header": "KeepKeyデバイスを切断する",
+        "body": "KeepKeyデバイスの復元/セットアップ中にエラーが発生しました。デバイスを切断して再接続し、KeepKeyデバイスのセットアップを再度試してください。問題が解決しない場合は、KeepKeyサポートにお問い合わせください。"
+      }
+    },
+    "shapeShift": {
+      "password": {
+        "header": "パスワードを入力してください",
+        "walletName": "ウォレットのニックネーム (任意)",
+        "walletNameRequired": "ウォレットのニックネーム (必須)",
+        "body": "パスワードを入力してウォレットを復号化します",
+        "placeholder": "パスワードを入力する",
+        "show": "パスワードを表示",
+        "hide": "パスワードを隠す",
+        "error": {
+          "invalid": "無効なパスワード",
+          "required": "パスワードは必須です",
+          "walletNameRequired": "ウォレットのニックネームは必須です",
+          "length": "パスワードは %{length} 文字以上である必要があります",
+          "maxLength": "ニックネームは最大 %{length} 文字にする必要があります"
+        }
+      },
+      "confirmPassword": {
+        "header": "パスワードを確認",
+        "walletName": "ウォレットのニックネーム (任意)",
+        "body": "パスワードを確認してウォレットを復号化してください",
+        "placeholder": "パスワードを認証する",
+        "show": "パスワードを表示",
+        "hide": "パスワードを隠す",
+        "error": {
+          "invalid": "パスワードが一致している必要があります",
+          "required": "パスワードの確認が必要です",
+          "length": "パスワードは %{length} 文字以上である必要があります",
+          "maxLength": "ニックネームは最大 %{length} 文字にする必要があります"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "ウォレットをバックアップしてください",
+        "enterPassword": "続行するにはパスワードを入力してください",
+        "testTitle": "シークレットリカバリーフレーズを確認する",
+        "info": {
+          "title": "シークレットリカバリーフレーズ",
+          "description": "これら12の単語を書き留めて、オフラインで安全に保存してください。この12語のフレーズは、ウォレットの秘密鍵を復元するために使用されます。",
+          "warning": "注: シークレットリカバリーフレーズを紛失した場合、ShapeShiftはウォレットを回復することができず、資金は永久に失われます。"
+        },
+        "success": {
+          "title": "成功",
+          "description": "ウォレットをバックアップしました。シークレットリカバリーフレーズを安全な場所に忘れずに保管してください。"
+        }
+      }
+    },
+    "send": {
+      "getBalanceError": "ウォレット残高取得エラー",
+      "broadcastingTransaction": "ブロードキャストトランザクション",
+      "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
+      "tokenAddress": "宛先アドレス",
+      "addressInput": "宛先、ENS または Yat",
+      "scanQrCode": "QRコードをスキャン",
+      "qrCode": "QRコード",
+      "permissionsButton": "もう一度やり直してください",
+      "sent": "%{asset} を送信しました",
+      "errorTitle": "%{asset} の送信に失敗しました",
+      "errors": {
+        "generic": "エラーが発生しました。",
+        "notEnoughNativeToken": "ガス代の十分な %{asset} がありません",
+        "transactionRejected": "ユーザーが取引を拒否しました",
+        "qrPermissions": "この機能が動作するには、カメラへのアクセス許可が必要です。ブラウザの設定を変更してください。",
+        "qrDangerousEthUrl": "コントラクトアドレスを含むQRコードはサポートされていません。宛先アドレスを手動で貼り付けてください。"
+      },
+      "confirm": {
+        "sendAsset": "%{asset} を送信",
+        "send": "送信",
+        "sendTo": "に送信",
+        "customNonce": "カスタムナンス",
+        "sendFrom": "送信元",
+        "edit": "編集",
+        "total": "合計",
+        "amount": "額",
+        "transactionFee": "取引手数料",
+        "fees": "手数料 %{feeType}"
+      },
+      "sendForm": {
+        "optionalAssetMemo": "任意の %{assetSymbol} メモ",
+        "assetMemo": "%{assetSymbol} メモ",
+        "charactersRemaining": "残り %{charactersRemaining} 文字",
+        "memoExplainer": "一部の %{assetSymbol} 受信者は、トランザクションを正しく処理するためにメモを必要とする場合があります",
+        "sendAsset": "%{asset} を送信",
+        "sendTo": "に送信",
+        "sendAmount": "送金額",
+        "max": "最大",
+        "transactionFee": "取引手数料",
+        "slow": "遅い",
+        "average": "平均",
+        "fast": "速い",
+        "enterAmount": "金額を入力します"
+      }
+    },
+    "receive": {
+      "connectAWallet": "ウォレットに接続して %{symbol} を受け取ります",
+      "receiveAsset": "%{asset} を受け取る",
+      "onlySend": "%{asset} (%{symbol}) のみをこのアドレスに送信してください。他のコインを送信すると永久に損失する可能性があります。",
+      "copy": "コピー",
+      "copied": "%{symbol} 受信アドレスがクリップボードにコピーされました",
+      "copyFailed": "%{symbol} 受信アドレスをクリップボードにコピーできませんでした",
+      "copyFailedDescription": "アドレスを手動でコピーしてください",
+      "setAmount": "設定金額",
+      "verify": "確認する",
+      "verified": "確認済み",
+      "notVerified": "アドレスの不一致",
+      "blockExplorer": "エクスプローラー"
+    },
+    "deposit": {
+      "allocation": {
+        "heading": "割り当て",
+        "fractionDescription": "プールの%"
+      },
+      "amountToDeposit": "入金額",
+      "depositInto": "%{opportunity} に入金する",
+      "estimatedReturns": "年間推定収益*",
+      "estimateDisclaimer": "※見積りは市況により変動します。",
+      "footerDisclaimer": "続行すると、次のことに同意したことになります",
+      "footerDisclaimerLink": "利用規約。",
+      "slippageSettings": "スリッページ設定",
+      "status": {
+        "pending": "あなたのトランザクションはブロードキャストされており、確認待ちです。",
+        "success": "%{opportunity} への入金が完了しました。",
+        "failed": "入金に問題がありました。"
+      }
+    },
+    "claim": {
+      "claimFrom": "%{opportunity} からの獲得"
+    },
+    "stake": {
+      "amountToStake": "ステーク金額",
+      "stakeYour": "%{opportunity}をステークしましょう",
+      "estimatedReturns": "年間推定収益*",
+      "estimateDisclaimer": "※見積りは市況により変動します。",
+      "footerDisclaimer": "続行すると、次のことに同意したことになります",
+      "footerDisclaimerLink": "利用規約。",
+      "status": {
+        "pending": "あなたのトランザクションはブロードキャストされており、確認待ちです。",
+        "success": "%{opportunity} のステークに成功しました。",
+        "failed": "ステーキングトランザクションに問題がありました。"
+      }
+    },
+    "withdraw": {
+      "amountToWithdraw": "出金額",
+      "withdrawFrom": "%{opportunity}から出金",
+      "unstakeYour": "%{opportunity}を出金",
+      "footerDisclaimer": "この取引には1回の取引ガス代が必要です。",
+      "slippageSettings": "スリッページ設定",
+      "withdrawType": "出金タイプ",
+      "instant": "即時の",
+      "delayed": "7～14日",
+      "fee": "%{fee}% %{symbol} 手数料",
+      "noFee": "%{symbol}手数料なし",
+      "requestWithdraw": "出金リクエスト",
+      "withdrawFee": "出金の際には別途ガス代がかかります。",
+      "notEnoughGas": "ガスをカバーするのに十分な %{assetSymbol} がありません",
+      "disclaimer": "後続のリクエストは結合され、出金時間がリセットされます。",
+      "withdrawalFee": "出金手数料",
+      "status": {
+        "pending": "トランザクションはブロードキャストされており、確認待ちです。",
+        "success": "%{opportunity} からの出金に成功しました。",
+        "failed": "出金に問題がありました。"
+      },
+      "info": {
+        "delayed": "遅延出金には2つのトランザクションがあります。",
+        "delayedOne": "出金リクエスト",
+        "delayedTwo": "7 ～ 14 日後に出金を獲得する",
+        "instant": "即時出金は1回の取引であり、ステーク額の全額を出金する必要があります。"
+      }
+    },
+    "approve": {
+      "header": "%{spenderName} に %{asset} の使用を許可します",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
+      "body": "%{asset} を使用するには許可が必要です",
+      "learnMore": "なぜこれを行う必要があるのか?",
+      "depositFee": "入金には別途ガス代がかかります。",
+      "estimatedGas": "ガス代の目安",
+      "confirm": "確認する",
+      "reject": "拒否する",
+      "approved": "承認されました"
+    },
+    "confirm": {
+      "withdraw": {
+        "header": "出金の確認"
+      },
+      "deposit": {
+        "header": "入金の確認",
+        "averageApr": "平均年利",
+        "estimatedReturns": "年間推定収益*",
+        "preFooter": "報酬は自動的に発生します"
+      },
+      "withdrawTo": "出金先",
+      "amountToDeposit": "入金額",
+      "amountToStake": "ステーク額",
+      "amountToWithdraw": "出金額",
+      "amountToClaim": "獲得額",
+      "withdrawFrom": "から出金",
+      "depositTo": "入金先",
+      "averageApy": "平均APY",
+      "withdrawTime": "出金時間",
+      "withdrawFee": "出金手数料",
+      "withdrawInstantTime": "即時の",
+      "withdrawDelayedTime": "7～14日",
+      "xDays": "%{unbondingDays} 日",
+      "estimatedReturns": "年間推定収益*",
+      "estimatedGas": "ガス代の目安",
+      "notEnoughGas": "ガス代をカバーするのに十分な %{assetSymbol} がありません",
+      "missingFundsForGas": "資金が不足しています。トランザクションを完了するにはさらに %{cryptoAmountHuman} %{assetSymbol} が必要です",
+      "preFooter": "報酬は自動的に発生します",
+      "signBroadcast": "署名とブロードキャスト",
+      "cancel": "キャンセルする"
+    },
+    "status": {
+      "header": {
+        "pending": "トランザクション保留中",
+        "success": "トランザクションが確認されました",
+        "failed": "トランザクションの実行に失敗しました"
+      },
+      "depositTo": "入金先",
+      "transactionId": "TX ID",
+      "averageApy": "平均APY",
+      "estimatedReturns": "年間推定収益*",
+      "estimatedGas": "ガス代の目安",
+      "gasUsed": "ガス代総額",
+      "continue": "トランザクションの表示",
+      "position": "ポジションの表示",
+      "viewAsset": "アセットの表示",
+      "close": "閉じる",
+      "viewExplorer": "エクスプローラーで表示する"
+    },
+    "connect": {
+      "loadingText": "ペアリングウォレット"
+    },
+    "settings": {
+      "clearCache": "キャッシュの消去",
+      "clearCacheTooltip": "キャッシュをクリアしてアプリをリロードします",
+      "settings": "設定",
+      "currency": "通貨",
+      "clearWalletAccountData": "すべてのアカウントとウォレットのデータを削除する",
+      "deleteAccountsConfirm": "これにより、ウォレット、アカウント、残高を含むすべての個人データが削除されます。\n\n続行する前に、ウォレットをバックアップしていることを確認してください。",
+      "currencyFormat": "通貨形式",
+      "language": "言語",
+      "balanceThreshold": "残高閾値",
+      "balanceThresholdTooltip": "ダッシュボードとチャートで、この値未満の残高を非表示にします",
+      "currencies": {
+        "CNY": "中国人民元",
+        "USD": "米ドル (デフォルト)",
+        "EUR": "ユーロ",
+        "JPY": "日本円",
+        "GBP": "英国ポンド",
+        "KRW": "韓国ウォン",
+        "INR": "インドルピー",
+        "CAD": "カナダドル",
+        "HKD": "香港ドル",
+        "AUD": "オーストラリアドル",
+        "TWD": "台湾ドル",
+        "BRL": "ブラジルレアル",
+        "CHF": "スイスフラン",
+        "THB": "タイバーツ",
+        "MXN": "メキシコペソ",
+        "RUB": "ロシアルーブル",
+        "SAR": "サウジアラビアリヤル",
+        "SGD": "シンガポールドル",
+        "ILS": "イスラエルシェケル",
+        "IDR": "インドネシアルピア"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "ウォレットがインポートされました",
+        "body": "新しいShapeShiftアプリへようこそ。",
+        "primaryCta": "続く"
+      },
+      "notice": {
+        "header": "メールによるログインは廃止されます。今すぐウォレットをバックアップしてください!",
+        "body": "デバイスにアクセスできなくなった場合、資金を復元するにはシークレットリカバリーフレーズが必要です。",
+        "primaryCta": "シークレットリカバリーフレーズを入手",
+        "secondaryCta": "すでにシークレットリカバリーフレーズを知っている"
+      }
+    }
+  },
+  "walletProvider": {
+    "errors": {
+      "walletNotFound": "ウォレットと通信できません。問題が解決しない場合は、Keepkeyサポートにお問い合わせください。"
+    },
+    "keepKey": {
+      "errors": {
+        "unknown": "KeepKeyとの通信で予期せぬエラーが発生しました",
+        "updateAlert": "このクライアントでKeepkeyを使用するには、ファームウェア 6.1.0 以降が必要です。デバイスを更新してください。",
+        "pinCancelled": "PIN入力がキャンセルされました",
+        "pinInvalid": "入力したPINは無効です",
+        "pinMismatch": "入力した2つのPINが一致しません"
+      },
+      "connect": {
+        "header": "KeepKeyをペアリングする",
+        "body": "KeepKeyデバイスを接続し、「ペアリング」をクリックします。",
+        "button": "ペアリング",
+        "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。",
+        "downloadUpdaterApp": "アップデートをダウンロード"
+      },
+      "pin": {
+        "header": "PINを入力してください",
+        "body": "デバイスに表示されているPINレイアウトを使用して、PINパッドの押す場所を見つけます。",
+        "button": "ロックを解除する"
+      },
+      "newPin": {
+        "header": "新しいPINを入力してください",
+        "body": "KeepKeyのレイアウト表示を使用して、新しいPIN(最大9桁)を作成します。",
+        "button": "確認する"
+      },
+      "newPinConfirm": {
+        "header": "新しいPINを確認してください",
+        "body": "KeepKeyに表示されるレイアウトを使用してPINを再入力します。",
+        "button": "PINを保存する"
+      },
+      "settings": {
+        "menuLabels": {
+          "bootloader": "ブートローダー",
+          "firmware": "ファームウェア",
+          "pin": "PIN",
+          "advanced": "高度な",
+          "deviceTimeout": "デバイスのタイムアウト",
+          "passphrase": "パスフレーズ",
+          "wipeDevice": "デバイスの消去",
+          "label": "ラベル"
+        },
+        "status": {
+          "enabled": "有効",
+          "disabled": "無効",
+          "upToDate": "最新の",
+          "updateAvailable": "利用可能なアップデート"
+        },
+        "headings": {
+          "deviceSetting": "デバイス %{setting}",
+          "enterPin": "現在のPINを入力してください",
+          "setPin": "新しいPINを設定する",
+          "confirmPin": "新しいPINを確認する",
+          "passphrase": "パスフレーズ"
+        },
+        "descriptions": {
+          "pin": "PINは、KeepKeyを初期化した後に選択する最大9つの数字の組み合わせです。 PINは、KeepKeyが悪者の手に渡った場合にデバイスを不正使用から保護します。",
+          "passphrase": "複数のウォレットを持つ機能を有効にし、ウォレットごとに一意のパスフレーズを使用してアクセスできます。",
+          "label": "各デバイスにラベルを付けると、デバイスを簡単に区別できるようになります。",
+          "timeout": "デフォルトでは、デバイスは非アクティブ状態が10分間続くとスリープ状態になります。ただし、これは変更できます。",
+          "buttonPrompt": "KeepKeyのボタンを押したままにして、デバイスの %{setting} を変更します。",
+          "updateSuccess": "%{setting} が正常に更新されました。",
+          "updateFailed": "%{setting} の更新中にエラーが発生しました。",
+          "timeoutDuration": "%{minutes}分"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "慎重に取り扱ってください",
+            "body": "パスフレーズを忘れると、資金にアクセスできなくなります。",
+            "link": "詳細"
+          }
+        },
+        "placeholders": {
+          "label": "デバイスラベルを入力してください"
+        },
+        "actions": {
+          "update": "%{setting}を更新します",
+          "enable": "%{setting}を有効にする",
+          "learnMore": "詳細"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "KeepKeyを消去する"
+        },
+        "descriptions": {
+          "wipeKeepKey": "リカバリーフレーズがない場合、KeepKeyを消去すると資金にアクセスできなくなることを理解しました。"
+        },
+        "actions": {
+          "wipeDevice": "デバイスの消去"
+        },
+        "confirmations": {
+          "wipeKeepKey": "KeepKeyのボタンを押したままにして、デフォルトへのリセットを確認します。"
+        },
+        "checkboxes": {
+          "wipeKeepKey": "リカバリーフレーズをバックアップし、何を行うかを理解しました"
+        }
+      }
+    },
+    "keplr": {
+      "errors": {
+        "connectFailure": "Keplrウォレットに接続できません",
+        "unknown": "Keplrとの通信で予期せぬエラーが発生しました",
+        "noProvider": "Keplrウォレット拡張機能が見つかりません"
+      },
+      "connect": {
+        "header": "Keplrのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウから「Keplr」を選択します。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "エラー",
+        "body": "Keplrウォレットに接続できません"
+      }
+    },
+    "ledger": {
+      "chains": {
+        "header": "Ledgerアカウントのインポート",
+        "body": "各チェーンの残高を確認するには、各アプリを接続する必要があります。",
+        "availableChains": "利用可能なチェーン",
+        "error": "ウォレットの接続中にエラーが発生しました"
+      },
+      "success": {
+        "header": "Ledgerが接続されました",
+        "success": "このウィンドウは自動的に閉じます。",
+        "error": "ウォレットの接続中にエラーが発生しました"
+      },
+      "errors": {
+        "connectFailure": "Ledgerウォレットに接続できません",
+        "unknown": "Ledgerウォレットとの通信で予期せぬエラーが発生しました"
+      },
+      "connect": {
+        "header": "Ledgerのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウから「Ledger」を選択します。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "エラー",
+        "body": "Ledgerウォレットに接続できません"
+      },
+      "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。"
+    },
+    "metaMask": {
+      "errors": {
+        "unknown": "MetaMaskとの通信で予期せぬエラーが発生しました",
+        "connectFailure": "MetaMaskウォレットに接続できません",
+        "multipleWallets": "検出されたイーサリアムプロバイダーはMetaMaskではありません。複数のウォレットをインストールしていますか?"
+      },
+      "connect": {
+        "header": "MetaMaskのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウからMetaMaskにログインします。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "エラー",
+        "body": "MetaMaskウォレットに接続できません"
+      },
+      "redirect": {
+        "header": "MetaMaskアプリで開く",
+        "body": "クリックしてMetaMaskのShapeShiftダッシュボードを開きます",
+        "button": "開く"
+      }
+    },
+    "metaMaskSnap": {
+      "title": "MetaMaskでマルチチェーンのサポートが利用できるようになりました。",
+      "subtitle": "MetaMaskにマルチチェーンスナップを追加して、次のチェーンを使用して送信、受信、追跡、取引、獲得を行います。",
+      "multiChainSnap": "マルチチェーンスナップ",
+      "active": "アクティブ",
+      "notActive": "非アクティブ",
+      "addSnap": "スナップを追加",
+      "uninstall": {
+        "title": "MetaMaskからマルチチェーンのサポートが削除されました。",
+        "subtitle": "MetaMaskにマルチチェーンスナップを再追加して、次のチェーンを使用して送信、受信、追跡、取引、および収益を獲得します。"
+      },
+      "secondaryTitle": "MetaMaskの最高のマルチチェーンエクスペリエンス: ShapeShiftを活用",
+      "secondaryBody": "以下のチェーン上のShapeShiftマルチチェーンスナップを使用して、送信、受信、追跡、取引、および収益を獲得します。",
+      "connectMetaMask": "MetaMaskを接続する",
+      "andMore": "など",
+      "snapInstalledToast": "ShapeShiftマルチチェーンMetaMaskスナップがインストールされています",
+      "snapUninstalledToast": "ShapeShiftマルチチェーンメタマスクスナップがアンインストールされました",
+      "dontAskAgain": "次回から表示しない"
+    },
+    "metaMaskSnapConfirm": {
+      "title": "マルチチェーンスナップをインストールする",
+      "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
+      "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
+      "agreeIntro": "続行する前に、以下をお読みください。",
+      "agreeItem1Parts": {
+        "1": "ハードウェアウォレットは、",
+        "2": "ない",
+        "3": "サポートされてい"
+      },
+      "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
+      "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
+      "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
+      "readAndUnderstood": "読んで理解しました",
+      "seedBackedUp": "MetaMaskシードフレーズをバックアップしました",
+      "acceptInstall": "確認してインストールする"
+    },
+    "coinbase": {
+      "errors": {
+        "unknown": "Coinbaseとの通信で予期せぬエラーが発生しました",
+        "connectFailure": "Coinbaseウォレットに接続できません",
+        "multipleWallets": "検出されたイーサリアムプロバイダーは Coinbaseではありません。複数のウォレットをインストールしていますか?"
+      },
+      "connect": {
+        "header": "Coinbaseのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウからCoinbaseにログインします。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "Coinbaseウォレットに接続できません",
+        "body": "Coinbaseウォレットに接続できません"
+      }
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "WalletConnectとの通信で予期せぬエラーが発生しました",
+        "connectFailure": "WalletConnectウォレットに接続できません"
+      },
+      "connect": {
+        "header": "WalletConnectのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウから「WalletConnect」を選択します。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "エラー",
+        "body": "WalletConnectウォレットに接続できません"
+      }
+    },
+    "xdefi": {
+      "errors": {
+        "unknown": "XDEFIとの通信で予期せぬエラーが発生しました",
+        "connectFailure": "XDEFIウォレットに接続できません",
+        "multipleWallets": "検出されたイーサリアムプロバイダーは XDEFIではありません。複数のウォレットをインストールしていますか?"
+      },
+      "connect": {
+        "header": "XDEFIのペアリング",
+        "body": "「ペアリング」をクリックし、ポップアップウィンドウからXDEFIにログインします。",
+        "button": "ペアリング"
+      },
+      "failure": {
+        "header": "エラー",
+        "body": "XDEFIウォレットに接続できません"
+      },
+      "redirect": {
+        "header": "XDEFIアプリで開く",
+        "body": "クリックしてXDEFIのShapeShiftダッシュボードを開きます",
+        "button": "開く"
+      }
+    },
+    "shapeShift": {
+      "load": {
+        "error": {
+          "delete": "ウォレットを削除できません。",
+          "noWallet": "保存されたウォレットがありません",
+          "pair": "ウォレットをペアリングできません"
+        },
+        "header": "保存されたウォレット",
+        "body": "保存したウォレットをロード中... プロンプトが表示されたら、パスワードを入力します。",
+        "button": "次へ",
+        "confirmForget": "%{wallet} を忘れてもよろしいですか?"
+      },
+      "import": {
+        "header": "ウォレットをインポートする",
+        "body": "シークレットリカバリーフレーズをすべて小文字で入力するか貼り付けます。コンマや数字は使用せず、各単語の間にスペースを 1 つ入れます。",
+        "button": "次へ",
+        "secretRecoveryPhraseError": "シークレットリカバリーフレーズを単語の間にスペースを 1 つ入れて入力します。カンマ、リターン、または追加の文字は省略します。",
+        "secretRecoveryPhraseRequired": "シークレットリカバリーフレーズが必要です",
+        "secretRecoveryPhraseTooShort": "シークレットリカバリーフレーズが短すぎます"
+      },
+      "password": {
+        "header": "新しいパスワードを作成する",
+        "body": "インポートされたウォレットを暗号化するための強力なパスワードを入力します。これがウォレットにアクセスする方法です。",
+        "warning": "注: パスワードを忘れた場合、ShapeShiftではパスワードを復元できません。",
+        "button": "次へ",
+        "connect": "別のウォレットに接続する"
+      },
+      "create": {
+        "header": "シークレットリカバリーフレーズ",
+        "body": "これら12の単語を書き留めて、オフラインで安全に保存してください。この12語のフレーズは、ウォレットの秘密鍵を復元するために使用されます。",
+        "button": "次へ",
+        "hideWords": "単語を非表示にする",
+        "showWords": "単語を表示する"
+      },
+      "start": {
+        "header": "ShapeShiftウォレット",
+        "body": "複数のShapeShiftウォレットを持つことができます。ウォレットをロードしたり、シークレットリカバリーフレーズからウォレットをインポートしたり、新しいウォレットを作成したりできます。",
+        "import": "ウォレットをインポートする",
+        "create": "新しいウォレットを作成する",
+        "load": "保存されたウォレット"
+      },
+      "success": {
+        "encryptingWallet": "ウォレットを暗号化しています...ブラウザが永続ストレージにデータを保存するように要求した場合は、「許可」をクリックしてください。",
+        "header": "ウォレットが接続されました",
+        "success": "このウィンドウは自動的に閉じます。",
+        "error": "ウォレットの接続中にエラーが発生しました"
+      },
+      "testPhrase": {
+        "header": "シークレットリカバリーフレーズを確認する",
+        "body": "これらのうちどれですか",
+        "1st": "1番",
+        "2nd": "2番",
+        "3rd": "3番",
+        "4th": "4番",
+        "5th": "5番",
+        "6th": "6番",
+        "7th": "7番",
+        "8th": "8番",
+        "9th": "9番",
+        "10th": "10番",
+        "11th": "11番",
+        "12th": "12番",
+        "13th": "13番",
+        "14th": "14番",
+        "15th": "15番",
+        "16th": "16番",
+        "17th": "17番",
+        "18th": "18番",
+        "19th": "19番",
+        "20th": "20番",
+        "21th": "21番",
+        "22th": "22番",
+        "23th": "23番",
+        "24th": "24番",
+        "body2": " 単語",
+        "body3": "シークレットフレーズ？",
+        "button": "次へ"
+      },
+      "rename": {
+        "header": "ウォレットの名前を変更する",
+        "walletName": "ウォレットの新しいニックネーム",
+        "body": "ウォレットの新しいニックネームとパスワードを入力してウォレットを復号化します。",
+        "button": "次へ",
+        "confirmDelete": "このウォレットのニックネームを削除してもよろしいですか?"
+      },
+      "legacy": {
+        "deprecatedWarning": "ShapeShiftログインは非推奨になります",
+        "learnMore": "詳細",
+        "alreadySavedConfirm": "シークレットリカバリフレーズがすでに安全にバックアップされていることを確認します。",
+        "mobileWalletTitle": "ShapeShiftモバイルウォレット",
+        "importInformations": "ShapeShiftモバイルウォレットを引き続き使用するには、インポートする必要があります。",
+        "importWallet": "ウォレットをインポートする",
+        "haveMobileWallet": "ShapeShiftモバイルウォレットをお持ちですか?",
+        "loginWithAccount": "ShapeShiftアカウントでログイン",
+        "loginInformations": "ShapeShiftモバイルアプリへのログインに使用するメールアドレスとパスワードを入力します。",
+        "loginSuccess": "正常にログインしました",
+        "emailAddress": "メールアドレス",
+        "password": "パスワード",
+        "emailRequired": "メールアドレスは必須です",
+        "invalidEmail": "メールアドレスが無効です",
+        "invalidCaptcha": "キャプチャが無効です",
+        "captchaRequired": "キャプチャは必須です",
+        "tooManyAttempts": "試行回数が多すぎます。後でもう一度お試しください。",
+        "invalidLogin": "不正なログイン",
+        "noWallet": "ログイン用のShapeShiftウォレットが見つかりませんでした。このメッセージが誤りであると思われる場合は、ShapeShiftサポートにお問い合わせください。",
+        "decryptionError": "ウォレットの復号化中に問題が発生しました。",
+        "twoFactorAuthentication": "二段階認証",
+        "twoFactorPlaceholder": "6桁のコード",
+        "twoFactorRequired": "二段階認証が必要です",
+        "invalidTwoFactor": "6桁のコードは無効です",
+        "twoFactorDescription": "アカウントでは二段階認証が有効になっています。認証アプリのコードを入力してください。"
+      },
+      "onboarding": {
+        "skip": "スキップ",
+        "shapeshiftWallet": "ShapeShiftウォレット",
+        "selfCustody": {
+          "title": "ShapeShiftウォレットはセルフカストディです",
+          "subTitle": "本人のみが鍵を持っており、それにアクセスできるのは本人のみです。",
+          "body": "セルフカストディウォレットとは、自分がそれを所有し、自分だけが自分の資金にアクセスできることを意味します。シークレットリカバリーフレーズがアクセスの鍵となります。誰もあなたの資金へのアクセスをブロックすることはできません。",
+          "cta": "次へ"
+        },
+        "multiChain": {
+          "title": "複数のチェーンが同時にサポートされます",
+          "subTitle": "ウォレット内のチェーンを切り替える必要はなく、各チェーンでシームレスに動作します。",
+          "body": "新しいチェーンがShapeShiftに追加されると、ShapeShiftウォレットは自動的にそれをサポートします。",
+          "cta": "次へ"
+        },
+        "easyToUse": {
+          "title": "使い方は簡単です！",
+          "subTitle": "ShapeShiftウォレットを使用すると、次のことが可能になります。",
+          "trackBalance": "残高の追跡",
+          "sendReceive": "暗号通貨の送受信",
+          "buyCrypto": "暗号通貨の購入",
+          "tradeAssets": "取引アセット",
+          "earnYield": "イールドアセットから収益を得る",
+          "cta": "暗号通貨の購入",
+          "secondaryCta": "ダッシュボードに移動します"
+        }
+      }
+    },
+    "selectModal": {
+      "header": "ウォレットを接続する",
+      "body": "ウォレットを接続すると、ShapeShiftの利用規約に同意し、ShapeShiftの免責条項を読み理解したものとみなされます。",
+      "footer": "ウォレットをお持ちではありませんか？",
+      "create": "作成する"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "ウォレット接続V2",
+        "load": "保存された接続",
+        "create": "新しいウォレットを接続する"
+      },
+      "load": {
+        "header": "保存された接続",
+        "confirmForget": "%{connection} を忘れてもよろしいですか?",
+        "error": {
+          "delete": "ウォレットを削除できません。",
+          "noWallet": "保存されたウォレットがありません",
+          "pair": "ウォレットをペアリングできません"
+        }
+      }
+    }
+  },
+  "graph": {
+    "timeControls": {
+      "1H": "1時間",
+      "24H": "24時間",
+      "1W": "1週間",
+      "1M": "1ヶ月",
+      "1Y": "1年",
+      "all": "全て"
+    }
+  },
+  "assets": {
+    "assetDetails": {
+      "assetHeader": {
+        "balance": "バランス",
+        "price": "価格",
+        "marketCap": "時価総額",
+        "24HrVolume": "24時間のボリューム",
+        "dayChange": "日の変更",
+        "aboutAsset": "%{asset} について",
+        "SegwitP2sh": "セグウィット",
+        "SegwitNative": "セグウィットネイティブ",
+        "P2pkh": "レガシー",
+        "SegwitNativeTooltip": "ほとんどのユーザーに推奨されます。他のアドレスは、その目的がわかっている場合にのみ使用してください",
+        "btcFormat": "BTC形式",
+        "assetUnavailable": "このアセットの市場データはまだ入手できません。現在取り組んでいますので、少々お待ちください！",
+        "loading": "価格履歴を取得しています。しばらくお待ちください...",
+        "maxTotalSupply": "最大総供給量",
+        "availableSupply": "利用可能な供給量",
+        "marketData": "市場データ"
+      },
+      "assetDescription": {
+        "showMore": "より表示する",
+        "showLess": "表示を減らす"
+      },
+      "assetHistory": {
+        "transactionHistory": "取引履歴",
+        "recentTransactions": "最近の取引",
+        "emptyTransactions": "ここにトランザクションが表示されます。"
+      },
+      "assetAccounts": {
+        "account": "アカウント",
+        "assetAllocation": "アセット配分",
+        "allocation": "割り当て",
+        "amount": "額",
+        "value": "価値"
+      }
+    },
+    "assetCards": {
+      "assetActions": {
+        "buy": "買う",
+        "sell": "売る",
+        "trade": "取引"
+      },
+      "equity": "資本",
+      "accountTokens": "アカウントトークン",
+      "relatedAssets": "関連アセット",
+      "showTokens": "トークンを表示 (%{amount})",
+      "hideTokens": "トークンを非表示 (%{amount})",
+      "underlyingAssets": "原資産",
+      "rewards": {
+        "farmingRewards": "ファーミングの報酬",
+        "currentRewards": "現在の報酬",
+        "currentAPY": "現在のAPY",
+        "yourRewards": "報酬",
+        "currentAPYLabel": "特典の現在のAPY",
+        "claimRewards": "報酬を受け取る"
+      },
+      "accounts": "アカウント",
+      "stakingVaults": "ステーキングとボールト",
+      "stakingBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
+      "pools": "プール"
+    }
+  },
+  "accounts": {
+    "accounts": "アカウント",
+    "selectAccount": "アカウントを選択してください",
+    "addAccount": "アカウントを追加する",
+    "accountNumber": "アカウント #%{accountNumber}",
+    "accountChain": "アカウントチェーン",
+    "selectChain": "アカウントを作成したいチェーンを選択します。",
+    "requiresPriorTxHistory": "新しいアカウントを追加できるのは、既存のアカウントに以前の取引履歴がある場合のみです。",
+    "newAccountAdded": "新しい %{name} アカウントが追加されました",
+    "youCanNowUse": "%{name} アカウント #%{accountNumber} を使用できるようになりました",
+    "showAssets": "アセットの表示",
+    "hideAssets": "アセットを非表示にする",
+    "viewAccount": "アカウントをみる"
+  },
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "取引履歴",
+    "recentTransactions": "最近の取引",
+    "filter": "フィルター",
+    "filters": {
+      "filters": "フィルター",
+      "resetFilters": "フィルターをリセットする",
+      "to": "に",
+      "categories": "カテゴリー",
+      "dayRange": "日範囲",
+      "10days": "10日",
+      "30days": "30日",
+      "90days": "90日",
+      "send": "送信",
+      "trade": "取引",
+      "receive": "受け取る",
+      "custom": "カスタム",
+      "apply": "適用する"
+    },
+    "downloadCSV": "CSVをダウンロード",
+    "csv": {
+      "fileName": "ShapeShiftトランザクション履歴",
+      "txid": "TX ID",
+      "type": "TXタイプ",
+      "timestamp": "タイムスタンプ",
+      "status": "ステータス",
+      "minerFee": "マイナー手数料",
+      "minerFeeCurrency": "マイナー手数料通貨",
+      "inputAmount": "入力額",
+      "inputCurrency": "入力通貨",
+      "inputAddress": "入力アドレス",
+      "outputAmount": "出力額",
+      "outputCurrency": "出力通貨",
+      "outputAddress": "出力アドレス"
+    },
+    "transactionTypes": {
+      "Send": "送信",
+      "Receive": "受け取る",
+      "Trade": "取引",
+      "Refund": "返金"
+    },
+    "assets": "アセット",
+    "txid": "TX ID",
+    "fee": "手数料",
+    "youSent": "送った",
+    "youReceived": "受け取った",
+    "sentTo": "に送信された",
+    "receivedFrom": "から受け取りました",
+    "orderRoute": "注文ルート",
+    "status": "ステータス",
+    "transactionType": "取引タイプ",
+    "minerFee": "マイナー手数料",
+    "approvalAmount": "承認金額",
+    "unknownType": "トランザクション",
+    "from": "から",
+    "to": "に",
+    "for": "のために",
+    "transfers": "転送"
+  },
+  "plugins": {
+    "foxPage": {
+      "buyAssetOnCoinbase": "Coinbase で %{assetSymbol} を購入する",
+      "totalFoxValue": "Foxの合計値",
+      "foxToken": "ShapeShift %{assetSymbol} トークン",
+      "foxDescription": "2019 年以来、形状を変化させるFOXトークンは、ユーザーにますます拡大する実用性と利点の世界を提供してきました。現在、当社のERC-20ガバナンストークンにより、投票を通じてShapeShiftの将来に影響を与えることができるだけでなく、拡大し続ける投資機会も得られます。ここでFOX保有株を投資、追跡、管理します。",
+      "getAsset": "%{assetSymbol} を取得する",
+      "trade": "取引",
+      "receive": "受け取る",
+      "mainStakingTitle": "%{assetSymbol} トークンステーキング",
+      "mainStakingDescription": "FOXを片面ステーキングコントラクトで働かせて、FOX報酬を獲得してください。 (FOXはステーキング中もガバナンスで使用できますが、それ以外の場合はステーキング中にコントラクトにロックされます。)",
+      "tvl": "TVL",
+      "currentApy": "現在のAPY",
+      "balance": "バランス",
+      "getStarted": "始める",
+      "manage": "管理",
+      "currentPrice": "現在の価格",
+      "tradingUnavailable": "%{assetSymbol} はまだShapeShiftで取引できません。 ElasticSwapで %{assetSymbol} を取引できます。",
+      "tradeOnElasticSwap": "ElasticSwap で %{assetSymbol} を取引する",
+      "otherOpportunitiesTitle": {
+        "FOX": "その他の機会",
+        "FOXy": "機会"
+      },
+      "otherOpportunitiesDescription": {
+        "FOX": "流動性の提供、収益を追求するファーミング、貸し借りなどの多くの機会を探ってください。以下の「始める」リンクをクリックして、興味のある外部サイトにアクセスして詳細を確認し、FOXを活用してください。",
+        "FOXy": "利回りと利益の両方の報酬を提供する業界初のDAOリベーストークンであるFOXyを素早く簡単に購入できます。"
+      },
+      "liquidityPools": "流動性プール",
+      "farming": "ファーミング",
+      "borrowingAndLending": "借入と貸付",
+      "governanceTitle": "ガバナンス",
+      "governanceDescription": "FOXホルダーとして、ShapeShiftの将来について発言することができます。以下は、トークンホルダーによって投票された、現在進行中の、または最近可決されたDAO提案です。",
+      "seeAllProposals": "すべての提案を見る",
+      "availableToTradeOn": "取引可能",
+      "dex": "DEX",
+      "centralized": "中央集権",
+      "dappBack": {
+        "title": "FOXの報酬などをゲットしましょう! ",
+        "body": "DappBackでタスクを完了してFOXの報酬を獲得しましょう",
+        "cta": "DappBackを起動する"
+      },
+      "bondProtocol": {
+        "title": "FOXを割引価格で購入しましょう！",
+        "body": "BondProtocolを利用してFOXを割引価格で購入する",
+        "cta": "BondProtocolの起動"
+      }
+    },
+    "analytics": {
+      "optInModal": {
+        "title": "ShapeShiftの改善にご協力ください",
+        "description": "ShapeShiftは、ユーザーがアプリをどのように操作するかをより深く理解するために使用状況データを収集したいと考えています。このデータは、当社製品の使いやすさとユーザーエクスペリエンスを継続的に改善するために使用されます。",
+        "actionsSentence": "ShapeShiftは...",
+        "noThanks": "いいえ、プライベートバージョンに移動します",
+        "sendEvents": "匿名化されたクリックイベントとページビューイベントを送信する",
+        "neverCollectPersonalInformations": "キー、アドレス、取引、残高、その他の個人情報を決して収集しません",
+        "neverCollectIp": "完全なIPアドレスを決して収集しません",
+        "neverSellData": "利益のためにデータを販売しません"
+      }
+    },
+    "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "サポートされていないチェーン",
+        "description": "ShapeShiftは現在、WalletConnectでの %{supportedChainNames} のみをサポートしています。"
+      },
+      "header": {
+        "connectDapp": "dAppを接続する",
+        "connectAnotherDapp": "別のdAppに接続する",
+        "connectedDapp": "接続済みのdApps",
+        "staleDapp": "古いdApp",
+        "menu": {
+          "disconnect": "切断する",
+          "reconnect": "再接続",
+          "addresses": "アドレス",
+          "address": "アドレス",
+          "connected": "接続済み",
+          "networks": "ネットワーク",
+          "unsupportedNetwork": "サポートされていないネットワーク",
+          "expiry": "セッションの有効期限"
+        },
+        "multipleSessionsConnected": "%{count} 個のdAppsが接続されました",
+        "clickToManage": "クリックして管理"
+      },
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "イーサリアム",
+        "signMessage": {
+          "signingFrom": "署名者",
+          "requestFrom": "リクエスト元",
+          "message": "メッセージ",
+          "description": "接続されているウォレットでこのメッセージへの署名を確認する必要があります。",
+          "confirm": "確認する",
+          "reject": "拒否する",
+          "messageData": "メッセージデータ",
+          "domain": "ドメイン",
+          "memo": "メモ",
+          "messages": "メッセージ",
+          "noMessages": "メッセージはありません",
+          "sequence": "順序",
+          "accountNumber": "アカウントNo.",
+          "chainId": "チェーンID",
+          "authInfo": "認証情報",
+          "body": "本体",
+          "comingSoon": "近日公開"
+        },
+        "sendTransaction": {
+          "sendingFrom": "送信元",
+          "sendingTo": "送信先",
+          "interactingWith": "との相互",
+          "amount": "額",
+          "contractInteraction": {
+            "title": "コントラクトのやり取り",
+            "sendingEth": "ETHの送金",
+            "data": "ローデータ (16 進数でエンコード)"
+          },
+          "advancedParameters": {
+            "title": "上級ユーザーパラメータ",
+            "alert": "上級ユーザーのみ。これらの設定を変更すると、トランザクションが停止する可能性があります。",
+            "nonce": {
+              "title": "ノンス",
+              "placeholder": "ノンス",
+              "tooltip": "特定のアドレスから送信されたトランザクションの数。上級ユーザーのみ。"
+            },
+            "gasLimit": {
+              "title": "ガス制限",
+              "placeholder": "ガス制限...",
+              "tooltip": "ガス制限とは、ユーザーが取引を行うために消費できるガスの最大量を指します。"
+            }
+          },
+          "estGasCost": "見積もり：ガス代",
+          "description": "トランザクションを作成しようとしているため、現在接続しているウォレットでトランザクションを確認する必要があります。"
+        },
+        "signTransaction": {
+          "description": "トランザクションに署名しようとしているので、現在接続しているウォレットでそれを確認する必要があります。"
+        },
+        "connect": {
+          "title": "WalletConnect経由でウォレットをdAppに接続し、トランザクションを始めます",
+          "howTo": "dAppに接続するにはどうすればよいですか?",
+          "linkPlaceholder": "QRコードまたはリンク",
+          "connect": "接続する",
+          "connectionError": "指定されたURIに接続できません。",
+          "invalidUri": "無効なURI",
+          "v1UriUnsupported": "WalletConnect V1 URIが有効になっていません",
+          "v2UriUnsupported": "WalletConnect V2 URIが有効になっていません"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp情報",
+          "permissions": "必要な承認",
+          "optionalPermissions": "任意の承認",
+          "accountSelection": "アカウントの選択",
+          "unsupportedChain": "セッション提案でサポートされていないチェーンネームスペース。",
+          "methods": "メソッド",
+          "events": "イベント",
+          "selectedAccounts": "選択したアカウント",
+          "permissionMessage": "チェーンごとに少なくとも1つのアカウントを選択してください。",
+          "optionalPermissionMessage": "次の承認は任意です。"
+        }
+      },
+      "registry": {
+        "availableDapps": "利用可能なdApp",
+        "getStarted": "始める",
+        "learnMore": "詳細",
+        "banner": {
+          "title": "300以上のdAppに接続",
+          "subtitle": "WalletConnect経由でウォレットをdAppに接続し、トランザクションを始めます"
+        },
+        "emptyStateDescription": "検索クエリを調整して再試行してください。",
+        "pageInput": {
+          "label": "%{current} / %{total}",
+          "nextPage": "次のページ",
+          "prevPage": "前のページ"
+        }
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Yatを入手",
+        "description": "Yatとは：ユニバーサル絵文字のユーザー名、WebサイトのURL、支払いアドレスなど"
+      },
+      "modal": {
+        "title": "Yatのリンクに成功しました"
+      },
+      "linkedYat": "リンクされたYat",
+      "yatConnected": "Yatが接続されました",
+      "usdcAddress": "Yat USDCアドレス",
+      "ethAddress": "Yat ETHアドレス",
+      "noAddressFound": "%{symbol} アドレスが見つかりません",
+      "viewInApp": "ShapeShiftモバイルアプリで表示"
+    }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "～10分",
+      "average": "～3分",
+      "fast": "～3秒"
+    },
+    "estGasCost": "見積もり：ガス代",
+    "gasPrice": {
+      "label": "ガス代",
+      "tooltip": "マイナーまたはバリデーターに手数料としてガス単位あたり支払いたい金額"
+    },
+    "base": {
+      "label": "基本料金",
+      "tooltip": "基本料金はネットワークによって設定され、需要に応じて13～14秒ごとに変更されます。ガスの各単位に対して支払ってもよい最大価格 (優先料金は含まない) をgweiで設定します。"
+    },
+    "priority": {
+      "label": "優先料金",
+      "tooltip": "優先料は、ブロックプロデューサーにトランザクションの優先順位を付けるよう奨励するためのオプションのヒントです。ガス単位ごとに支払いたい優先料金をgweiで設定します。"
+    },
+    "custom": "カスタム"
+  },
+  "idle": {
+    "emptyTitle": "Idle Financeで %{asset} から %{apy}% を獲得しましょう",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "シニアベストイールド戦略",
+          "body": "シニアベストイールドは、全自動で、複数の保守的なリスクの利回りソースに資金を自動的にルーティングし、常に最高のAPYを提供します。"
+        },
+        "page-2": {
+          "title": "シニアベストイールド戦略:",
+          "bullets": {
+            "one": "Aave、Compound、および複数のシニアトランシェにわたる収益生成の自動化と最適化",
+            "two": "ユーザーがレートを常に確認したり、送金のたびにガスを消費したりすることなく、最大の収益を提供します"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "ジュニアベストイールド戦略",
+          "body": "ジュニアベストイールドは、複数のジュニアトランシェに資金を自動的に振り分け、常にブーストされ最大化されたAPYを提供する、全自動の戦略です。"
+        },
+        "page-2": {
+          "title": "ジュニアベストイールド戦略:",
+          "bullets": {
+            "one": "複数のジュニアトランシェにわたる収益生成の自動化と最適化により、設計により収量を向上させます",
+            "two": "ユーザーがレートを常に確認したり、送金のたびにガスを消費したりすることなく、最大の収益を提供します"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "シニアトランシェ戦略",
+          "body": "預金保護機能が組み込まれたDeFi利回りをお楽しみください。シニアトランシェは、ジュニアの取引相手によって提供されるフルスペクトルの補償を提供します。"
+        },
+        "page-2": {
+          "title": "シニアトランシェ戦略:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "ジュニアトランシェ戦略",
+          "body": "DeFi利回りの向上をお楽しみください。ジュニアトランシェは、より多くのリスクに対してシニアカウンターパーティによって補償されるため、レバレッジを利かせたリターンを提供します。"
+        },
+        "page-2": {
+          "title": "ジュニアトランシェ戦略:"
+        }
+      },
+      "monitorSystem": "Idle Financeの監視システムを利用して、よりパフォーマンスの高い割り当てを見つけ、リバランスを始めます。",
+      "offerHighReturn": "ユーザーがレートを常に確認したり、送金のたびにガスを消費したりすることなく、最大の収益を提供します",
+      "leverageYield": "シニアトランシェファンドを活用して利回りを活用する",
+      "higherRisk": "シニアトランシェを保護することでリスクが高まる",
+      "minRisk": "リスクエクスポージャの最小化",
+      "builtInCoverage": "変動レート特典の組み込み補償",
+      "noLockingPeriod": "ロック期間またはエポックなし",
+      "autoReinvest": "発生したトークンを自動再投資する",
+      "fundsCoveredJunior": "ジュニアトランシェの対象となる資金",
+      "automation": "Aave、Compound、および複数のシニアトランシェにわたる収益生成の自動化と最適化"
+    },
+    "bestYield": {
+      "title": "ベストイールドとは何ですか?",
+      "body": "実戦テストされた複数のDeFiプロトコル全体で収益を自動的に最大化します。ベストイールド戦略は、ガスコストを社会化することで利回りの生成を最適化し、新たな利回りの機会が生じたときにアルゴリズム的に資本をシフトすることで利回りの生成を自動化します。"
+    },
+    "seniorTranche": {
+      "title": "シニアトランシェとは何ですか?",
+      "body": "預金保護機能が組み込まれたDeFi利回りをお楽しみください。シニアトランシェは、ジュニアの取引相手によって提供されるフルスペクトルの補償を提供します。"
+    },
+    "juniorTranche": {
+      "title": "ジュニアトランシェとは何ですか？",
+      "body": "DeFi利回りの向上をお楽しみください。ジュニアトランシェは、より多くのリスクをに対してシニアカウンターパーティによって補償されるため、レバレッジを利かせたリターンを提供します。"
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "KYCなしで暗号通貨を購入",
+      "body": "Apple Payで最大1,000ドルまで購入可能",
+      "cta": "今すぐ購入"
+    },
+    "savers": {
+      "title": "%{asset} で特典を獲得しましょう",
+      "body": "THORChainセーバーボールトにステークします。ロックアップ時間はありません。",
+      "cta": "今すぐ入金"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "Arkeoとは",
+      "bodyParts": {
+        "1": "昨年",
+        "2": "Coinbase Cloud",
+        "3": "とともに、ShapeShiftはArkeoというプロジェクトをインキュベートしました。メインネットのローンチはまもなくです！",
+        "4": "Arkeoは、すべてのノードデータの分散型バックエンドとして開発されました。Arkeoを使用するアプリケーションは、中央集権的なデータソースへの依存を減らしながら、開発速度の向上、検閲耐性、",
+        "5": "ナカモト係数",
+        "6": "の恩恵を受けています。"
+      }
+    },
+    "whoQualifies": {
+      "title": "Arkeo Airdropの参加資格",
+      "body": "ShapeShift dAppを使用してエアドロップの資格を得るには、さまざまな方法があります。スナップショットは順調に進んでいます。資格を得るにはまだ時間があります。"
+    },
+    "staking": {
+      "title": "%{asset} ステーカー",
+      "body": "アイドル状態の %{asset} で最大 %{apy} APRを獲得し、Arkeoエアドロップの資格を獲得しましょう。さらに、%{provider} にステークすると、Arkeoのエアドロップ金額が計算されるときに、ステーク残高に2倍の乗数が適用されます。",
+      "cta": "ステーク %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} プロバイダー",
+      "body": "%{asset1} と %{asset2} を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
+      "cta": "預金の流動性"
+    },
+    "foxTokenHolders": {
+      "title": "FOXトークンホルダー",
+      "body": "FOXトークンを保持しています。FOXトークンが多いほど、Arkeoのエアドロップも大きくなります。",
+      "cta": "FOXを取引する",
+      "secondary": "FOXを購入する"
+    },
+    "foxFarmers": {
+      "title": "FOX/ETH LPファーマー",
+      "body": "ETH/FOX LPトークンをFOXファームにステーキングすると、最大 %{apy} APRを獲得できます。さらに、FOXファームのラウンド5でステークしたETH/FOX LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
+      "cta": "ステーク FOX/ETH LP"
+    },
+    "foxyTokenHolders": {
+      "title": "FOXyトークンホルダー",
+      "body": "FOX Yieldy (FOXy)を使用すると、アイドル状態のFOXで最大 %{apy} APRを獲得できます。さらに、ウォレットに保持されているFOXyはFOXと同じように扱われ、Arkeoのエアドロップの対象となります。",
+      "cta": "FOXトークンをステークする"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LPs",
+      "body": "%{asset1}と%{asset2}を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
+      "cta": "預金の流動性"
+    },
+    "stakeAtom": {
+      "title": "ATOMをステークする",
+      "body": "アイドル状態のATOMで最大 %{apr} APRを獲得できます。さらに、ステークするATOMによりArkeoトークンを獲得できます。 ShapeShift DAO Validatorにステークすると、エアドロップ資格を2倍にすることができます。",
+      "cta": "ATOMをステークする"
+    },
+    "footer": {
+      "title": "ShapeShift dApp以外にも資格を得る方法は他にもあります。フルリストについては、ガバナンス提案を確認してください。",
+      "cta": "ガバナンス提案を確認する",
+      "disclaimer": {
+        "body": "※セルフカストディウォレットのみが対象となります。集中型取引所を介してウォレットに保持またはステーキングされたトークンは対象外です。ウォレットが必要ですか?",
+        "cta": "作成する"
+      }
+    }
+  },
+  "nft": {
+    "customizeFoxatar": "FOXatarをカスタマイズする",
+    "setAsAvatar": "Avatarとして設定",
+    "floorPrice": "最低価格",
+    "lastPrice": "最終価格",
+    "overview": "概要",
+    "properties": "プロパティ",
+    "collection": "コレクション",
+    "tokenId": "トークンID",
+    "address": "アドレス",
+    "chain": "チェーン",
+    "standard": "標準",
+    "description": "説明",
+    "details": "詳細",
+    "attributes": "属性",
+    "aboutCollection": "%{collectionName}について",
+    "emptyTitle": "すべてのNFTはどこに行ったのでしょうか?",
+    "emptyBody": "心配しないでください、私たちはより素晴らしいNFTを取り戻すために捜索隊を派遣しました。その間、何もない空間を見つめて、存在の意味をじっくり考えてみてください。",
+    "reportSpam": "スパム報告"
+  },
+  "missions": {
+    "subtitle": "FOXミッション",
+    "missionEnded": "ミッション終了",
+    "viewMission": "ミッションを見る",
+    "comingSoon": "近日公開",
+    "activeMissions": "利用可能なミッション",
+    "endedMissions": "終了したミッション",
+    "title": {
+      "1": "分散化されたスペースで",
+      "2": "報酬を獲得しよう"
+    },
+    "body": "ミッションに取り組み、報酬を獲得し、拡大し続けるShapeShiftエコシステムについての知識を深めましょう",
+    "ends": "終わり",
+    "ongoing": "進行中のミッション",
+    "optimism": {
+      "title": "最大19.5 OPを獲得",
+      "subtitle": "Optimismを探る",
+      "cta": "ミッションを開始する"
+    },
+    "foxatar": {
+      "title": "無料でカスタマイズ可能なNFTを入手",
+      "subtitle": "FOXatarをミントする",
+      "cta": "ミッションを開始する"
+    },
+    "foxArmy": {
+      "subtitle": "FOX Armyに参加する",
+      "title": "20,000 FOXプール",
+      "cta": "ミッションを開始する"
+    },
+    "yat": {
+      "subtitle": "Yat Fantasyをプレイする",
+      "title": "3,000USDC賞金総額",
+      "cta": "ミッションを開始する"
+    },
+    "getListed": {
+      "subtitle": "プロジェクトはこちら",
+      "title": "プロジェクトのミッションを立ち上げる",
+      "cta": "プロジェクトを送信する"
+    },
+    "foxRewards": {
+      "subtitle": "購入、販売、取引、収益など",
+      "title": "FOXを獲得",
+      "cta": "ミッションを開始する"
+    },
+    "snapfoxatar": {
+      "title": "MetaMaskでビットコインのロックを解除",
+      "subtitle": "Metamask FOXatarスキンをミント",
+      "cta": "ミッションを開始する"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "新しいAvatarを設定する",
+      "restoreDefault": "デフォルトを復元"
+    }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "現在のFOXパワー",
+    "foxPower": "FOXパワー",
+    "simulateTitle": "FOX貯蓄額をシミュレーションする",
+    "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
+    "tradeSize": "取引規模",
+    "totalFee": "合計料金",
+    "foxPowerDiscount": "FOXパワー割引",
+    "basedOnFee": "料金に基づく: %{fee}"
+  }
+}

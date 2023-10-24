@@ -1,6 +1,7 @@
 import { Center, Image } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import { AnimatePresence, motion } from 'framer-motion'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Doge from 'assets/doge.png'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -26,10 +27,12 @@ export const AppLoadingIcon: React.FC = memo(() => {
     setIsHovered(false)
   }, [])
 
+  const isDogeDay = useMemo(() => dayjs().isAfter('2023-11-01 00:00 AM'), [])
+
   return (
     <Link to='/' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <AnimatePresence exitBeforeEnter initial>
-        {isHovered ? (
+        {isHovered && isDogeDay ? (
           <motion.div
             key='doge-flip'
             initial='hidden'

@@ -1,6 +1,5 @@
-import type { AbiItem } from 'web3-utils'
 /* eslint-disable */
-export const idleCdoAbi: AbiItem[] = [
+export const idleCdoAbi = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -1145,4 +1144,4 @@ export const idleCdoAbi: AbiItem[] = [
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]
+] as const

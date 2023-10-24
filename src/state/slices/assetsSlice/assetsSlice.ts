@@ -122,10 +122,10 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: (_, { getState }) => {
+      queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
-        const assets = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
+        const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
@@ -138,22 +138,19 @@ export const assetApi = createApi({
           {},
         )
         const data = {
-          byId: assets,
-          ids: Object.keys(assets) ?? [],
+          byId: assetsById,
+          ids: Object.keys(assetsById) ?? [],
         }
+
+        if (data) dispatch(assets.actions.upsertAssets(data))
         return { data }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
     getAssetDescription: build.query<
       AssetsState,
       { assetId: AssetId | undefined; selectedLocale: string }
     >({
-      queryFn: async ({ assetId, selectedLocale }, { getState }) => {
+      queryFn: async ({ assetId, selectedLocale }, { getState, dispatch }) => {
         if (!assetId) {
           throw new Error('assetId not provided')
         }
@@ -166,6 +163,8 @@ export const assetApi = createApi({
           const originalAsset = byId[assetId]
           byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }
+
+          if (data) dispatch(assets.actions.upsertAssets(data))
           return { data }
         } catch (e) {
           const data = `getAssetDescription: error fetching description for ${assetId}`
@@ -173,11 +172,6 @@ export const assetApi = createApi({
           const error = { data, status }
           return { error }
         }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
   }),

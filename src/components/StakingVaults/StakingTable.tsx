@@ -21,6 +21,8 @@ type StakingTableProps = {
 
 type RowProps = Row<EarnOpportunityType>
 
+const tagSize = { base: 'sm', md: 'md' }
+
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
   const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
@@ -64,7 +66,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           })
           return (
             <Skeleton isLoaded={row.original.isLoaded}>
-              <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              <Tag textTransform='capitalize' size={tagSize}>
                 {providerDisplayName}
               </Tag>
             </Skeleton>
@@ -79,7 +81,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           <Skeleton isLoaded={row.original.isLoaded}>
             <Tag
               textTransform={value === DefiType.LiquidityPool ? 'uppercase' : 'capitalize'}
-              size={{ base: 'sm', md: 'md' }}
+              size={tagSize}
             >
               {value?.replace('_', ' ')}
             </Tag>
@@ -92,7 +94,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag size={{ base: 'sm', md: 'md' }} colorScheme='green'>
+            <Tag size={tagSize} colorScheme='green'>
               <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>

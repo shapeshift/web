@@ -1,6 +1,7 @@
 import { ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback } from 'react'
 import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
@@ -22,13 +23,15 @@ export const ActionResult = forwardRef<ActionResultProps, 'div'>(
   ({ assetId, address, vanityAddress, index, activeIndex, onClick }, ref) => {
     const selected = index === activeIndex
 
+    const handleSendSearchResultTypeClick = useCallback(() => {
+      onClick({ type: GlobalSearchResultType.Send, id: assetId, address, vanityAddress })
+    }, [address, assetId, onClick, vanityAddress])
+
     return (
       <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        onClick={() =>
-          onClick({ type: GlobalSearchResultType.Send, id: assetId, address, vanityAddress })
-        }
+        onClick={handleSendSearchResultTypeClick}
       >
         <Flex gap={2} flex={1} alignItems='center' justifyContent='flex-start' textAlign='left'>
           <IconCircle boxSize={8}>

@@ -25,6 +25,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BnbSmartChainMainnet]: evm.Account
     [KnownChainIds.PolygonMainnet]: evm.Account
     [KnownChainIds.GnosisMainnet]: evm.Account
+    [KnownChainIds.ArbitrumMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -62,6 +63,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BnbSmartChainMainnet]: evm.FeeData
     [KnownChainIds.PolygonMainnet]: evm.FeeData
     [KnownChainIds.GnosisMainnet]: evm.FeeData
+    [KnownChainIds.ArbitrumMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -85,6 +87,7 @@ export type SubscribeTxsInput = {
   wallet: HDWallet
   accountNumber: number
   accountType?: UtxoAccountType
+  pubKey?: string
 }
 
 export type GetBIP44ParamsInput = {
@@ -125,6 +128,7 @@ export type ChainSignTx = {
   [KnownChainIds.BnbSmartChainMainnet]: ETHSignTx
   [KnownChainIds.PolygonMainnet]: ETHSignTx
   [KnownChainIds.GnosisMainnet]: ETHSignTx
+  [KnownChainIds.ArbitrumMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -162,6 +166,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
     [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
     [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
+    [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -234,6 +239,11 @@ export type GetAddressInputBase = {
    * Request that the address be shown to the user by the device, if supported
    */
   showOnDevice?: boolean
+  /**
+   * An optional public key to be passed, which will bypass the HD wallet derivation
+   * and instead use unchained to "derive" the address from the public key
+   */
+  pubKey?: string
 }
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
@@ -247,6 +257,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BnbSmartChainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
     [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -304,9 +315,22 @@ export enum ChainAdapterDisplayName {
   BnbSmartChain = 'BNB Smart Chain',
   Polygon = 'Polygon',
   Gnosis = 'Gnosis',
+  Arbitrum = 'Arbitrum One',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
+}
+
+export type BroadcastTransactionInput = {
+  senderAddress: string
+  receiverAddress: string | undefined // this is not defined for staking etc
+  hex: string
+}
+
+export type SignAndBroadcastTransactionInput<T extends ChainId> = {
+  senderAddress: string
+  receiverAddress: string | undefined // this is not defined for staking etc
+  signTxInput: SignTxInput<SignTx<T>>
 }

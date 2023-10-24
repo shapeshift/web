@@ -1,4 +1,5 @@
 import { ArrowForwardIcon, InfoIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -11,6 +12,7 @@ import {
   TagRightIcon,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
@@ -41,6 +43,38 @@ export type MissionProps = {
   colspan?: number
   minHeight?: string
 }
+
+const buttonLeftIcon = (
+  <IconCircle
+    bg='white'
+    color='black'
+    className='icon-btn'
+    transitionProperty='common'
+    transitionDuration='normal'
+  >
+    <ArrowForwardIcon />
+  </IconCircle>
+)
+const cardBorderRadius = { base: 'xl', lg: '2xl', xl: '2xl' }
+const cardBackgroundPosition = { base: 'center', md: 'center bottom' }
+const headingFontSize = { base: 'xl', md: '3xl' }
+const footerFlexBefore = {
+  content: '""',
+  width: '100%',
+  height: '100%',
+  left: 0,
+  bottom: 0,
+  position: 'absolute',
+  backdropFilter: 'blur(50px)',
+  mask: 'linear-gradient(transparent, black 85%)',
+  borderBottomRadius: {
+    base: 'xl',
+    lg: '2xl',
+  },
+}
+const footerAlignItems = { base: 'flex-start', lg: 'center' }
+const footerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
+const boxBorderBottomRadius = { base: 'xl', lg: '2xl' }
 
 export const Mission: React.FC<MissionProps> = ({
   title,
@@ -93,17 +127,7 @@ export const Mission: React.FC<MissionProps> = ({
             display={'inline-flex'}
             textAlign={'left'}
             lineHeight={'none'}
-            leftIcon={
-              <IconCircle
-                bg='white'
-                color='black'
-                className='icon-btn'
-                transitionProperty='common'
-                transitionDuration='normal'
-              >
-                <ArrowForwardIcon />
-              </IconCircle>
-            }
+            leftIcon={buttonLeftIcon}
           >
             {isEnded ? translate('missions.viewMission') : buttonText}
           </Button>
@@ -125,6 +149,12 @@ export const Mission: React.FC<MissionProps> = ({
       )
     }
   }, [buttonText, endDate, handleClick, selectedLocale, startDate, translate])
+
+  const boxMinHeight = useMemo(
+    () => ({ base: `calc(${minHeight} / 2)`, md: minHeight }),
+    [minHeight],
+  )
+
   return (
     <Card
       display='flex'
@@ -133,14 +163,14 @@ export const Mission: React.FC<MissionProps> = ({
       boxShadow='lg'
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
-      borderRadius={{ base: 'xl', lg: '2xl', xl: '2xl' }}
+      borderRadius={cardBorderRadius}
       transitionProperty='common'
       transitionDuration='normal'
       position='relative'
       bgImage={coverImage}
       backgroundSize='cover'
       backgroundRepeat='no-repeat'
-      backgroundPosition={{ base: 'center', md: 'center bottom' }}
+      backgroundPosition={cardBackgroundPosition}
       borderColor={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
       {...(isActive
         ? {
@@ -165,7 +195,7 @@ export const Mission: React.FC<MissionProps> = ({
           {subtitle}
         </Heading>
         <Heading
-          fontSize={{ base: 'xl', md: '3xl' }}
+          fontSize={headingFontSize}
           fontWeight='semibold'
           letterSpacing='-0.002em'
           textAlign='center'
@@ -184,29 +214,16 @@ export const Mission: React.FC<MissionProps> = ({
           height='200px'
           justifyContent='space-between'
           alignItems='flex-end'
-          _before={{
-            content: '""',
-            width: '100%',
-            height: '100%',
-            left: 0,
-            bottom: 0,
-            position: 'absolute',
-            backdropFilter: 'blur(50px)',
-            mask: 'linear-gradient(transparent, black 85%)',
-            borderBottomRadius: {
-              base: 'xl',
-              lg: '2xl',
-            },
-          }}
+          _before={footerFlexBefore}
         >
           <Flex
-            alignItems={{ base: 'flex-start', lg: 'center' }}
+            alignItems={footerAlignItems}
             color='white'
             width='full'
             justifyContent='space-between'
             zIndex='1'
             gap={6}
-            flexDir={{ base: 'column', lg: 'row' }}
+            flexDir={footerFlexDir}
           >
             {renderFooter}
           </Flex>
@@ -214,11 +231,11 @@ export const Mission: React.FC<MissionProps> = ({
       </CardBody>
       <Box
         width='100%'
-        minHeight={{ base: `calc(${minHeight} / 2)`, md: minHeight }}
+        minHeight={boxMinHeight}
         mt='auto'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'
-        borderBottomRadius={{ base: 'xl', lg: '2xl' }}
+        borderBottomRadius={boxBorderBottomRadius}
       />
     </Card>
   )

@@ -31,6 +31,17 @@ export const SellAssetInput = memo(
       selectMarketDataByFilter(state, { assetId: asset.assetId }),
     )
 
+    // this is separated from handleSellAssetInputChange to prevent resetting the input value to 0
+    // when the market data changes between keystrokes
+    const handleSellAssetInputChangeInner = useCallback(
+      (sellAmountUserCurrencyHuman: string, sellAmountCryptoPrecision: string) => {
+        setSellAmountUserCurrencyHuman(sellAmountUserCurrencyHuman)
+        setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
+        dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+      },
+      [dispatch],
+    )
+
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {
         const sellAmountUserCurrencyHuman = isFiat
@@ -39,16 +50,15 @@ export const SellAssetInput = memo(
         const sellAmountCryptoPrecision = isFiat
           ? bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
           : value
-        setSellAmountUserCurrencyHuman(sellAmountUserCurrencyHuman)
-        setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
-        dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+        handleSellAssetInputChangeInner(sellAmountUserCurrencyHuman, sellAmountCryptoPrecision)
       },
-      [dispatch, sellAssetUserCurrencyRate],
+      [handleSellAssetInputChangeInner, sellAssetUserCurrencyRate],
     )
 
+    // reset the input value to 0 when the asset changes
     useEffect(() => {
-      handleSellAssetInputChange('0', undefined)
-    }, [asset, handleSellAssetInputChange])
+      handleSellAssetInputChangeInner('0', '0')
+    }, [asset, handleSellAssetInputChangeInner])
 
     return (
       <TradeAssetInput

@@ -2,6 +2,7 @@ import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chak
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 
 import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from '../helpers'
 
@@ -34,6 +35,19 @@ export const KeepKeyDownloadUpdaterApp = () => {
     }
   }, [platform])
 
+  const wrongPlatformTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.keepKey.downloadUpdater.wrongPlatform', { platform }],
+    [platform],
+  )
+
+  const downloadUpdaterTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'modals.keepKey.downloadUpdater.button',
+      { filename: platformFilename || 'Updater App' },
+    ],
+    [platformFilename],
+  )
+
   const updaterUrl = platformFilename ? `${UPDATER_BASE_URL}${platformFilename}` : RELEASE_PAGE
 
   return (
@@ -47,21 +61,12 @@ export const KeepKeyDownloadUpdaterApp = () => {
           <>
             <CText fontWeight='bold'>{platform}</CText>
             <Link isExternal href={RELEASE_PAGE}>
-              <Text
-                color='text.subtle'
-                translation={['modals.keepKey.downloadUpdater.wrongPlatform', { platform }]}
-                mb={2}
-              />
+              <Text color='text.subtle' translation={wrongPlatformTranslation} mb={2} />
             </Link>
           </>
         )}
         <Button as={Link} width='full' isExternal href={updaterUrl} colorScheme='blue' mt={2}>
-          <Text
-            translation={[
-              'modals.keepKey.downloadUpdater.button',
-              { filename: platformFilename || 'Updater App' },
-            ]}
-          />
+          <Text translation={downloadUpdaterTranslation} />
         </Button>
       </ModalBody>
     </>

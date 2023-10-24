@@ -26,6 +26,7 @@ export type GetTradeQuoteInputArgs = {
   allowMultiHop: boolean
   affiliateBps?: string
   isSnapInstalled?: boolean
+  pubKey?: string | undefined
 }
 
 export const getTradeQuoteArgs = async ({
@@ -40,6 +41,7 @@ export const getTradeQuoteArgs = async ({
   allowMultiHop,
   affiliateBps,
   slippageTolerancePercentage,
+  pubKey,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -63,6 +65,7 @@ export const getTradeQuoteArgs = async ({
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,
+      pubKey,
     })
     return {
       ...tradeQuoteInputCommonArgs,
@@ -80,12 +83,12 @@ export const getTradeQuoteArgs = async ({
       accountNumber: sellAccountNumber,
       wallet,
       accountType: sellAccountType,
+      pubKey,
     })
-    const { xpub } = await sellAssetChainAdapter.getPublicKey(
-      wallet,
-      sellAccountNumber,
-      sellAccountType,
-    )
+
+    const xpub =
+      pubKey ??
+      (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,

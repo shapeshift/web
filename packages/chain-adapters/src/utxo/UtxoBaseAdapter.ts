@@ -19,10 +19,12 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BroadcastTransactionInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetBIP44ParamsInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
   SubscribeError,
@@ -43,6 +45,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
 import { utxoSelect } from './utxoSelect'
@@ -209,6 +212,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     index,
     isChange = false,
     showOnDevice = false,
+    pubKey,
   }: GetAddressInput): Promise<string> {
     try {
       this.assertIsAccountTypeSupported(accountType)
@@ -218,6 +222,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
+
+      if (pubKey) {
+        const account = await this.getAccount(pubKey)
+        const index = bip44Params.isChange
+          ? account.chainSpecific.nextChangeAddressIndex
+          : account.chainSpecific.nextReceiveAddressIndex
+
+        if (index === undefined)
+          throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
+        const address = account.chainSpecific.addresses?.[index]?.pubkey
+        if (!address)
+          throw new Error(
+            `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,
+          )
+
+        return address
+      }
 
       const getNextIndex = async () => {
         const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
@@ -402,15 +423,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string> {
+  async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<T>): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     try {
       const { wallet } = signTxInput
 
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
-      const signedTx = await this.signTransaction(signTxInput)
-      return this.broadcastTransaction(signedTx)
+      const hex = await this.signTransaction(signTxInput)
+
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -485,7 +516,16 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
@@ -497,8 +537,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const { wallet, accountNumber, accountType = this.defaultUtxoAccountType } = input
 
     const bip44Params = this.getBIP44Params({ accountNumber, accountType })
-    const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
-    const account = await this.getAccount(xpub)
+    const account = await this.getAccount(
+      input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
+    )
     const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 

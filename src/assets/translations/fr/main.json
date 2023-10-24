@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratuit",
     "back": "Retour",
     "balance": "Solde",
     "next": "Suivant",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
     "learnMore": "En savoir plus",
     "showAll": "Montrer tout",
-    "showLess": "Montrer moins"
+    "showLess": "Montrer moins",
+    "yourBalance": "Votre solde"
   },
   "consentBanner": {
     "body": {
@@ -259,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel de retour (APR), fluctue généralement entre 7% et 20%.",
-          "amountStakingInfo": "Vous pouvez miser n'importe quel montant de %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
-          "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, ce qui nécessite des frais de carburant minimes d'environ ~0.01 $.",
+          "amountStakingInfo": "Vous pouvez miser n'importe quel montant en %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
+          "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, cela requiert des frais de carburant modestes d'environ 0,01 $.",
           "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés durant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre porte-monnaie principal.",
           "slashingInfo": "La mise est effectuée grâce un validateur. C'est extrêmement rare, mais si le validateur avec lequel vous avez effectué la mise se trompe en autorisant des transactions fausses ou incorrectes, vous pouvez perdre une partie de vos actifs.",
           "partnerInfo": "Nous avons mitigé ce risque en nous associant à un validateur réputé — qui dispose d'une infrastructure sécurisée, fiable et auditée."
@@ -434,7 +436,6 @@
     "byAsset": "Par actif",
     "byProvider": "Par fournisseur",
     "claimableRewards": "Récompenses réclamables",
-    "reawrds": "Récompenses",
     "stakingPosition": "Position de mises",
     "liquidityPool": "Pool de liquidités",
     "noActivePositions": "Aucune position active",
@@ -636,7 +637,7 @@
     "feeExceedsSend": "Les frais dépassent le montant à envoyer",
     "receiveAddress": "Adresse de réception",
     "route": "Route",
-    "waitTimeLabel": "Temps d'attent approx.",
+    "waitTimeLabel": "Temps d'attente approx.",
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
   },
@@ -656,7 +657,7 @@
       "auto": "Auto",
       "custom": "Personnalisé",
       "warning": "Des tolérances de glissement/slippage élevées peuvent entraîner des transactions défavorables.",
-      "lowSlippage": "Un glissement/slippage en dessous de 0,05% peut résulter en une transaction échouée."
+      "lowSlippage": "Un glissement/slippage inférieur à 0,05 % peut faire échouer la transaction."
     },
     "from": "De",
     "to": "À",
@@ -853,7 +854,7 @@
       },
       "disconnect": {
         "header": "Déconnecter l'appareil KeepKey",
-        "body": "Malheureusement, une erreur s'est produite lors de la récupération/configuration de votre appareil KeepKey. Veuillez déconnecter et reconnecter votre appareil et réessayez de configurer votre appareil KeepKey. Si le problème persiste, veuillez contacter l'assistance KeepKey."
+        "body": "Malheureusement, une erreur s'est produite lors de la récupération/configuration de votre appareil KeepKey. Veuillez déconnecter et reconnecter votre appareil et essayez de configurer votre KeepKey à nouveau. Si le problème persiste, veuillez contacter l'assistance KeepKey."
       }
     },
     "shapeShift": {
@@ -1253,6 +1254,33 @@
         "body": "Impossible de se connecter au porte-monnaie Keplr"
       }
     },
+    "ledger": {
+      "chains": {
+        "header": "Importer les comptes Ledger",
+        "body": "Pour consulter vos soldes sur chaque chaîne, vous devrez connecter chaque app.",
+        "availableChains": "Chaînes disponibles",
+        "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie"
+      },
+      "success": {
+        "header": "Ledger connecté",
+        "success": "Vous pouvez fermer cette fenêtre maintenant ou elle se fermera automatiquement dans un instant",
+        "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie"
+      },
+      "errors": {
+        "connectFailure": "Impossible de connecter le porte-monnaie Ledger",
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie Ledger"
+      },
+      "connect": {
+        "header": "Appairer Ledger",
+        "body": "Cliquez sur Appairer puis sélectionnez votre Ledger dans la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de connecter le porte-monnaie Ledger"
+      },
+      "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil."
+    },
     "metaMask": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
@@ -1290,7 +1318,8 @@
       "connectMetaMask": "Connecter MetaMask",
       "andMore": "... et plus",
       "snapInstalledToast": "Snap ShapeShift MultiChain pour MetaMask installé",
-      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé"
+      "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé",
+      "dontAskAgain": "Ne plus demander"
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
@@ -1461,8 +1490,8 @@
         "password": "Mot de passe",
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
-        "invalidCaptcha": "Le Capcha est invalide",
-        "captchaRequired": "Le Capcha est requis",
+        "invalidCaptcha": "Le Captcha est invalide",
+        "captchaRequired": "Le Captcha est requis",
         "tooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard.",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
@@ -1817,13 +1846,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info de la dApp",
-          "permissions": "Permissions",
+          "permissions": "Permissions requises",
+          "optionalPermissions": "Permissions optionnelles",
           "accountSelection": "Choisir des comptes",
           "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
           "methods": "Méthodes",
           "events": "Événements",
           "selectedAccounts": "Comptes sélectionnés",
-          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne."
+          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne.",
+          "optionalPermissionMessage": "Les permissions suivantes sont optionnelles."
         }
       },
       "registry": {
@@ -2100,5 +2131,15 @@
       "title": "Définir un nouvel avatar",
       "restoreDefault": "Restaurer à la valeur par défaut"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Puissance FOX actuelle",
+    "foxPower": "Puissance FOX",
+    "simulateTitle": "Simulez vos économies FOX",
+    "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
+    "tradeSize": "Montant de l'échange",
+    "totalFee": "Total des frais",
+    "foxPowerDiscount": "Remise Puissance FOX",
+    "basedOnFee": "Basé sur des frais de : %{fee}"
   }
 }

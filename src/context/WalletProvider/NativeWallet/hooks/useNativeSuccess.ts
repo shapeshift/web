@@ -20,17 +20,18 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
-  const { state, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
 
   useEffect(() => {
     ;(async () => {
-      const adapters = state.adapters?.get(KeyManager.Native)
+      const adapter = await getAdapter(KeyManager.Native)
+      if (!adapter) throw new Error('Native adapter not found')
       try {
         await new Promise(resolve => setTimeout(resolve, 250))
         await Promise.all([navigator.storage?.persist?.(), vault.save()])
 
         const deviceId = vault.id
-        const wallet = (await adapters?.[0].pairDevice?.(deviceId)) as NativeHDWallet
+        const wallet = (await adapter.pairDevice?.(deviceId)) as NativeHDWallet
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })

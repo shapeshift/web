@@ -4,7 +4,6 @@ import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import { AssetService } from 'lib/asset-service'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
@@ -17,6 +16,7 @@ import type {
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -28,8 +28,12 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
+  // TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
+  // We currently need to pass assetsById to avoid instantiating AssetService in web
+  // but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    assetsById: AssetsById,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
@@ -43,8 +47,6 @@ export const lifiApi: SwapperApi = {
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
 
     const lifiChainMap = await lifiChainMapPromise
-
-    const { assetsById } = new AssetService()
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,

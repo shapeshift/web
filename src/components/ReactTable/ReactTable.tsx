@@ -33,6 +33,13 @@ type ReactTableProps<T extends {}> = {
   variant?: TableProps['variant']
 }
 
+const tdStyle = { padding: 0 }
+const tdStyle2 = { paddingLeft: 4, paddingRight: 4 }
+const tableSize = { base: 'sm', md: 'md' }
+
+const arrowBackIcon = <ArrowBackIcon />
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const ReactTable = <T extends {}>({
   columns,
   data,
@@ -90,6 +97,8 @@ export const ReactTable = <T extends {}>({
             {...row.getRowProps()}
             key={row.id}
             tabIndex={row.index}
+            // we need to pass an arg here, so we need an anonymous function wrapper
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onRowClick?.(row)}
             className={row.isExpanded ? 'expanded' : ''}
             {...(rowDataTestKey
@@ -118,7 +127,7 @@ export const ReactTable = <T extends {}>({
           </Tr>
           {!!renderSubComponent && row.isExpanded ? (
             <Tr className='expanded-details'>
-              <Td colSpan={visibleColumns.length} style={{ padding: 0 }}>
+              <Td colSpan={visibleColumns.length} style={tdStyle}>
                 {renderSubComponent(row)}
               </Td>
             </Tr>
@@ -154,7 +163,7 @@ export const ReactTable = <T extends {}>({
   }, [nextPage, scrollToTableTop])
 
   return (
-    <Table ref={tableRef} variant={variant} size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
+    <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (
@@ -165,6 +174,8 @@ export const ReactTable = <T extends {}>({
                   color='text.subtle'
                   textAlign={column.textAlign}
                   display={column.display}
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
                   _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
@@ -198,10 +209,10 @@ export const ReactTable = <T extends {}>({
       {(canNextPage || canPreviousPage) && (
         <Tfoot>
           <Tr>
-            <Td colSpan={visibleColumns.length} style={{ paddingLeft: 4, paddingRight: 4 }}>
+            <Td colSpan={visibleColumns.length} style={tdStyle2}>
               <Flex width='full' justifyContent='space-between' alignItems='center'>
                 <IconButton
-                  icon={<ArrowBackIcon />}
+                  icon={arrowBackIcon}
                   size='sm'
                   isDisabled={!canPreviousPage}
                   onClick={handlePrevious}
@@ -210,7 +221,7 @@ export const ReactTable = <T extends {}>({
                 />
                 <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
                 <IconButton
-                  icon={<ArrowForwardIcon />}
+                  icon={arrowForwardIcon}
                   size='sm'
                   isDisabled={!canNextPage}
                   onClick={handleNext}

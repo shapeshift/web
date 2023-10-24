@@ -46,6 +46,8 @@ type FoxTabProps = {
 const BuyFoxCoinbaseUrl = 'https://www.coinbase.com/price/fox-token'
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
   const location = useLocation()
@@ -109,6 +111,11 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     })
   }, [asset.chainId, history, location])
 
+  const handleCoinbaseButtonClick = useCallback(
+    () => getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' }),
+    [],
+  )
+
   return (
     <Card display='block' borderRadius={8}>
       <CardBody p={0}>
@@ -149,11 +156,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     mb={2}
                     size='lg'
                     as={Link}
-                    leftIcon={<ExternalLinkIcon />}
+                    leftIcon={externalLinkIcon}
                     href={BuyFoxCoinbaseUrl}
-                    onClick={() =>
-                      getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' })
-                    }
+                    onClick={handleCoinbaseButtonClick}
                     isExternal
                   >
                     <CText>
@@ -186,7 +191,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     mb={6}
                     size='lg'
                     as={Link}
-                    leftIcon={<ExternalLinkIcon />}
+                    leftIcon={externalLinkIcon}
                     href={TradeFoxyElasticSwapUrl}
                     isExternal
                   >

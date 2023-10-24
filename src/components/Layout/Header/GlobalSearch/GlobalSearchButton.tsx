@@ -17,7 +17,7 @@ import {
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory, useLocation } from 'react-router'
@@ -48,7 +48,17 @@ import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
 import { makeOpportunityRouteDetails } from './utils'
 
-export const GlobalSeachButton = () => {
+const mrProp = { base: 0, md: 'auto' }
+const widthProp = { base: 'auto', md: 'full' }
+const displayProp1 = { base: 'flex', md: 'none' }
+const displayProp2 = { base: 'none', md: 'flex' }
+const inputGroupProps = { size: 'xl' }
+const sxProp1 = { svg: { width: '18px', height: '18px' } }
+const sxProp2 = { p: 0 }
+
+const searchIcon = <SearchIcon />
+
+export const GlobalSeachButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const [sendResults, setSendResults] = useState<SendResult[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
@@ -301,23 +311,18 @@ export const GlobalSeachButton = () => {
 
   return (
     <>
-      <Box maxWidth='xl' width={{ base: 'auto', md: 'full' }} mr={{ base: 0, md: 'auto' }}>
-        <IconButton
-          display={{ base: 'flex', md: 'none' }}
-          icon={<SearchIcon />}
-          aria-label='Search'
-          onClick={onOpen}
-        />
+      <Box maxWidth='xl' width={widthProp} mr={mrProp}>
+        <IconButton display={displayProp1} icon={searchIcon} aria-label='Search' onClick={onOpen} />
         <Button
           width='full'
-          leftIcon={<SearchIcon />}
+          leftIcon={searchIcon}
           onClick={onOpen}
           size='lg'
           fontSize='md'
           alignItems='center'
           color='text.subtle'
-          display={{ base: 'none', md: 'flex' }}
-          sx={{ svg: { width: '18px', height: '18px' } }}
+          display={displayProp2}
+          sx={sxProp1}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.
@@ -333,7 +338,7 @@ export const GlobalSeachButton = () => {
           <ModalHeader
             position='sticky'
             top={0}
-            sx={{ p: 0 }}
+            sx={sxProp2}
             borderBottomWidth={1}
             borderColor='whiteAlpha.100'
           >
@@ -341,7 +346,7 @@ export const GlobalSeachButton = () => {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onKeyDown={onKeyDown}
-              inputGroupProps={{ size: 'xl' }}
+              inputGroupProps={inputGroupProps}
               borderBottomRadius={0}
               borderWidth={0}
             />
@@ -353,4 +358,4 @@ export const GlobalSeachButton = () => {
       </Modal>
     </>
   )
-}
+})

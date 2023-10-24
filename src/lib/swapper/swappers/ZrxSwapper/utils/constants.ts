@@ -22,4 +22,5 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
+  KnownChainIds.ArbitrumMainnet,
 ])

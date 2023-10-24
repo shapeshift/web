@@ -3,6 +3,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -27,7 +28,6 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { zapper } from 'state/apis/zapper/zapperApi'
@@ -86,12 +86,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
-  // load fiat ramps
-  useGetFiatRampsQuery()
-
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
-  useGetAssetsQuery()
+  // if we already have assets in store, we don't need to refetch the base assets, as these won't change
+  // if they do, it means we regenerated generatedAssetData.json, and can run a migration to trigger a refetch of base assets
+  useGetAssetsQuery(undefined, { skip: Boolean(assetIds.length) })
 
   // load top 1000 assets market data
   // this is needed to sort assets by market cap
@@ -213,6 +212,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case dogeChainId:
           case bchChainId:
           case cosmosChainId:
+          case bscChainId:
           case avalancheChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)

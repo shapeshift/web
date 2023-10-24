@@ -19,6 +19,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
@@ -33,6 +34,8 @@ type FeeChartProps = {
   foxHolding: number
   onHover(hoverTradeSize: number, hoverFoxHolding: number): void
 }
+
+const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
 
 // how many points to generate for the chart, higher is more accurate but slower
 const CHART_GRANULARITY = 100
@@ -179,7 +182,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
               yScale={yScale}
               width={width}
               height={height}
-              margin={{ left: 30, right: 30, top: 0, bottom: 30 }}
+              margin={xyChartMargin}
             >
               <LinearGradient id='area-gradient' from={foxBlue} to={foxBlue} toOpacity={0} />
 
@@ -254,6 +257,14 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
     foxHeld: bn(foxHolding),
   })
 
+  const basedOnFeeTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'foxDiscounts.basedOnFee',
+      { fee: `$${feeUsdBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(2)} bps)` },
+    ],
+    [feeUsdBeforeDiscount, feeBpsBeforeDiscount],
+  )
+
   return (
     <Flex fontWeight='medium' pb={0}>
       <Stack width='full'>
@@ -276,10 +287,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
           </Box>
         </Flex>
         <Text
-          translation={[
-            'foxDiscounts.basedOnFee',
-            { fee: `$${feeUsdBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(2)} bps)` },
-          ]}
+          translation={basedOnFeeTranslation}
           color='text.subtle'
           fontSize='sm'
           textAlign='center'
@@ -300,10 +308,10 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings) || 0)
   const translate = useTranslate()
 
-  const onHover = (hoverTradeSize: number, hoverFoxHolding: number) => {
+  const handleHover = useCallback((hoverTradeSize: number, hoverFoxHolding: number) => {
     setTradeSize(hoverTradeSize)
     setFoxHolding(hoverFoxHolding)
-  }
+  }, [])
 
   useEffect(() => {
     if (isLoading) return
@@ -330,7 +338,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={onHover} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={handleHover} />
         </CardBody>
       </Card>
     </Stack>

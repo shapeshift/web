@@ -10,6 +10,8 @@ type DappAvatarProps = {
   borderWidth?: number
 }
 
+const foxIcon = <FoxIcon />
+
 export const DappAvatar: React.FC<DappAvatarProps> = ({
   image,
   connected,
@@ -21,7 +23,7 @@ export const DappAvatar: React.FC<DappAvatarProps> = ({
   const menuBg = useColorModeValue('gray.100', 'gray.700')
 
   return (
-    <Avatar size={size} src={image} icon={<FoxIcon />}>
+    <Avatar size={size} src={image} icon={foxIcon}>
       {connected && (
         <CircleIcon
           color={connectedIconColor}

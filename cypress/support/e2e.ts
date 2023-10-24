@@ -12,7 +12,7 @@ Cypress.on('uncaught:exception', err => {
   // Ignore this exception
   if (err.message.includes('Error: underlying network changed')) return false
   // TODO: Work out why Cypress requests are failing
-  // Ignore this exception, it occurs because Cypress doesn't get a response form lcd/thorchain/pools
+  // Ignore this exception, it occurs because Cypress doesn't get a response form thorchain/pools
   if (err.message.includes('[thorchainInitialize]: initialize failed to set supportedAssetIds'))
     return false
   // This can happen when an upstream node is down. Don't fail our CI because of it.

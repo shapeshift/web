@@ -15,6 +15,7 @@ import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 
@@ -53,6 +54,10 @@ const WalletSelectItem = ({
   }, [option.supportsMobile])
 
   const handleConnect = useCallback(() => connect(walletType), [connect, walletType])
+
+  const isLedgerEnabled = useFeatureFlag('LedgerWallet')
+
+  if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
 
   if (!isSupported) return null
 
@@ -94,7 +99,7 @@ const WalletSelectItem = ({
 
 export const SelectModal = () => {
   const {
-    state: { adapters, walletInfo },
+    state: { walletInfo },
     connect,
     create,
   } = useWallet()
@@ -118,7 +123,7 @@ export const SelectModal = () => {
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          {adapters &&
+          {
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(walletType => (
@@ -128,7 +133,8 @@ export const SelectModal = () => {
                 walletInfo={walletInfo}
                 connect={connect}
               />
-            ))}
+            ))
+          }
         </Grid>
         <Flex direction={flexDirProp} mt={2} justifyContent='center' alignItems='center'>
           <Text

@@ -12,22 +12,19 @@ type TransactionHistoryListProps = {
   useCompactMode?: boolean
 }
 
+const loader = (
+  <Center key={0}>
+    <CircularProgress isIndeterminate />
+  </Center>
+)
+
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = memo(
   ({ txIds, useCompactMode = false }) => {
     const { next, data, hasMore } = useInfiniteScroll(txIds)
 
     return data.length ? (
       <CardBody px={0} pt={0}>
-        <InfiniteScroll
-          pageStart={0}
-          loadMore={next}
-          hasMore={hasMore}
-          loader={
-            <Center key={0}>
-              <CircularProgress isIndeterminate />
-            </Center>
-          }
-        >
+        <InfiniteScroll pageStart={0} loadMore={next} hasMore={hasMore} loader={loader}>
           <TransactionsGroupByDate txIds={txIds} useCompactMode={useCompactMode} />
         </InfiniteScroll>
       </CardBody>

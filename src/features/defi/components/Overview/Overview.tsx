@@ -55,6 +55,17 @@ type OverviewProps = {
 } & DefiActionButtonProps &
   PropsWithChildren
 
+const divider = <Divider />
+const flexMinWidth = { base: '100%', md: '500px' }
+const flexMaxWidth = { base: 'full', md: '500px' }
+const accountDropdownButtonProps = {
+  variant: 'unstyled',
+  width: 'full',
+  height: 'auto',
+  display: 'flex',
+}
+const accountDropdownBoxProps = { px: 0, my: 0, width: 'full' }
+
 export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
@@ -87,17 +98,12 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [rewardAssetsCryptoPrecision])
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', md: '500px' }}
-      maxWidth={{ base: 'full', md: '500px' }}
-      flexDir='column'
-    >
+    <Flex width='full' minWidth={flexMinWidth} maxWidth={flexMaxWidth} flexDir='column'>
       <ModalHeader py={2} display='flex' justifyContent='space-between' alignItems='center'>
         <Text fontSize='md' translation='defi.overview' />
         <ModalCloseButton position='static' />
       </ModalHeader>
-      <Stack spacing={0} divider={<Divider />}>
+      <Stack spacing={0} divider={divider}>
         <Stack spacing={0}>
           <Stack p={8} spacing={6}>
             <Flex flexDir='column' gap={3}>
@@ -108,13 +114,8 @@ export const Overview: React.FC<OverviewProps> = ({
                       {...(accountId ? { defaultAccountId: accountId } : {})}
                       assetId={asset.assetId}
                       onChange={onAccountIdChange}
-                      buttonProps={{
-                        variant: 'unstyled',
-                        width: 'full',
-                        height: 'auto',
-                        display: 'flex',
-                      }}
-                      boxProps={{ px: 0, my: 0, width: 'full' }}
+                      buttonProps={accountDropdownButtonProps}
+                      boxProps={accountDropdownBoxProps}
                     />
                   </Flex>
                   <Divider />

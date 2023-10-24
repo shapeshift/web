@@ -1,5 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
@@ -103,7 +105,13 @@ export const useGetTradeQuotes = () => {
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
-  const receiveAddress = useReceiveAddress()
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const userWillDonate = useAppSelector(selectWillDonate)
 
@@ -133,7 +141,7 @@ export const useGetTradeQuotes = () => {
   const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   useEffect(() => {
-    if (wallet && sellAccountMetadata && receiveAddress && !isFoxHeldLoading) {
+    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isFoxHeldLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
@@ -175,6 +183,7 @@ export const useGetTradeQuotes = () => {
           affiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
+          pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -216,6 +225,7 @@ export const useGetTradeQuotes = () => {
     userSlippageTolerancePercentage,
     isFoxDiscountsEnabled,
     sellAssetUsdRate,
+    sellAccountId,
   ])
 
   useEffect(() => {

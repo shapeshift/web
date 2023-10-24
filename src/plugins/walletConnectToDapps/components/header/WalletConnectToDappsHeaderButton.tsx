@@ -1,9 +1,9 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
-import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
+import { DappHeaderMenuSummary } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
-import { type FC, useMemo } from 'react'
+import { type FC, memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -38,7 +38,7 @@ const WalletConnectV2ConnectedButtonText = ({
   )
 }
 
-const WalletConnectV2ConnectedButton = () => {
+const WalletConnectV2ConnectedButton = memo(() => {
   const { sessionsByTopic } = useWalletConnectV2()
   const translate = useTranslate()
   const sessions = useMemo(() => Object.values(sessionsByTopic).filter(isSome), [sessionsByTopic])
@@ -50,27 +50,33 @@ const WalletConnectV2ConnectedButton = () => {
       }, undefined),
     [sessions],
   )
+  const rightIcon = useMemo(() => <ChevronDownIcon />, [])
+  const leftIcon = useMemo(
+    () => (
+      <AvatarGroup max={2} size='xs'>
+        {sessions.map(session => {
+          return (
+            <DappAvatar
+              key={session.topic}
+              image={session.peer.metadata.icons[0]}
+              connected={session.acknowledged}
+              size='xs'
+              connectedDotSize={2}
+              borderWidth={1}
+            />
+          )
+        })}
+      </AvatarGroup>
+    ),
+    [sessions],
+  )
+
   return (
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        leftIcon={
-          <AvatarGroup max={2} size='xs'>
-            {sessions.map(session => {
-              return (
-                <DappAvatar
-                  key={session.topic}
-                  image={session.peer.metadata.icons[0]}
-                  connected={session.acknowledged}
-                  size='xs'
-                  connectedDotSize={2}
-                  borderWidth={1}
-                />
-              )
-            })}
-          </AvatarGroup>
-        }
-        rightIcon={<ChevronDownIcon />}
+        leftIcon={leftIcon}
+        rightIcon={rightIcon}
         width={widthProp}
         textAlign='left'
         flexShrink='none'
@@ -100,13 +106,13 @@ const WalletConnectV2ConnectedButton = () => {
         flexDir='column'
         pb={0}
       >
-        <DappHeaderMenuSummaryV2 />
+        <DappHeaderMenuSummary />
       </MenuList>
     </Menu>
   )
-}
+})
 
-export const WalletConnectToDappsHeaderButton: FC = () => {
+export const WalletConnectToDappsHeaderButton: FC = memo(() => {
   const walletConnectV2 = useWalletConnectV2()
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
@@ -126,4 +132,4 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
     default:
       return <WalletConnectV2ConnectedButton />
   }
-}
+})

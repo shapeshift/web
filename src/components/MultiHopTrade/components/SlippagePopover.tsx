@@ -37,6 +37,8 @@ const maxSlippagePercentage = '30'
 
 const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
+const faSlidersH = <FaSlidersH />
+
 export const SlippagePopover: FC = () => {
   const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
@@ -64,7 +66,8 @@ export const SlippagePopover: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultSlippagePercentage])
 
-  const handleChange = useCallback((value: string) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
     if (bnOrZero(value).gt(maxSlippagePercentage)) {
       setIsInvalid(true)
     } else {
@@ -95,6 +98,16 @@ export const SlippagePopover: FC = () => {
     [defaultSlippagePercentage, slippageAmount],
   )
 
+  const handleAutoSlippageTypeChange = useCallback(
+    () => handleSlippageTypeChange(SlippageType.Auto),
+    [handleSlippageTypeChange],
+  )
+
+  const handleCustomSlippageTypeChange = useCallback(
+    () => handleSlippageTypeChange(SlippageType.Custom),
+    [handleSlippageTypeChange],
+  )
+
   const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
   const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
 
@@ -103,7 +116,7 @@ export const SlippagePopover: FC = () => {
   return (
     <Popover placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
-        <IconButton aria-label='Trade Settings' icon={<FaSlidersH />} variant='ghost' />
+        <IconButton aria-label='Trade Settings' icon={faSlidersH} variant='ghost' />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>
@@ -126,13 +139,13 @@ export const SlippagePopover: FC = () => {
                 variant='ghost'
               >
                 <Button
-                  onClick={() => handleSlippageTypeChange(SlippageType.Auto)}
+                  onClick={handleAutoSlippageTypeChange}
                   isActive={slippageType === SlippageType.Auto}
                 >
                   {translate('trade.slippage.auto')}
                 </Button>
                 <Button
-                  onClick={() => handleSlippageTypeChange(SlippageType.Custom)}
+                  onClick={handleCustomSlippageTypeChange}
                   isActive={slippageType === SlippageType.Custom}
                 >
                   {translate('trade.slippage.custom')}
@@ -147,7 +160,7 @@ export const SlippagePopover: FC = () => {
                     value={slippageAmount}
                     type='number'
                     _focus={focusStyle}
-                    onChange={e => handleChange(e.target.value)}
+                    onChange={handleChange}
                     ref={inputRef}
                     isDisabled={slippageType === SlippageType.Auto}
                   />

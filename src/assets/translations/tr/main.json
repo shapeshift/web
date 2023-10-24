@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Uygun",
     "back": "Geri",
     "balance": "Bakiye",
     "next": "Sonraki",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Özellik Talebi Gönderin",
     "learnMore": "Daha fazla bilgi edin",
     "showAll": "Hepsini Göster",
-    "showLess": "Daha Az"
+    "showLess": "Daha Az",
+    "yourBalance": "Bakiyeniz"
   },
   "consentBanner": {
     "body": {
@@ -259,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Kazandığınız %{assetName} oranı, Yıllık Yüzde Getiri (APR), genellikle %7 - %20 arasında dalgalanır.",
-          "amountStakingInfo": "Herhangi bir miktarda %{assetName} yatırabilirsiniz ve anında ödül kazanmaya başlarlar.",
-          "withdrawInfo": "Ödüllerinizi istediğiniz zaman çekebilirsiniz, bu da ~$.01 civarında küçük bir gas ücreti gerektirir.",
+          "amountStakingInfo": "Dilediğiniz miktarda %{assetName} yatırabilirsiniz ve anında ödül kazanmaya başlar.",
+          "withdrawInfo": "Ödüllerinizi istediğiniz zaman çekebilirsiniz; bu da ~0,01$ civarında küçük bir gas ücreti gerektirir.",
           "unbondingInfo": "Jetonlarınızı geri aldığınızda, %{unbondingDays} gün boyunca kilitli kalacaklar ve bu süre zarfında ödül kazanamayacaklar. %{unbondingDays} gün sonra, %{assetName} hesabınız Birincil Cüzdanınıza geri dönecektir.",
           "slashingInfo": "Staking bir doğrulayıcı aracılığıyla yapılır. Oldukça nadirdir, ancak stake ettiğiniz doğrulayıcı yanlış veya hatalı işlemlerin geçmesine izin vererek hata yaparsa, varlıklarınızın bir kısmını kaybedebilirsiniz.",
           "partnerInfo": "Güvenli, güvenilir ve denetlenmiş bir altyapıya sahip saygın bir doğrulayıcı ile iş ortaklığı yaparak bu riski azalttık."
@@ -434,7 +436,6 @@
     "byAsset": "Varlığa Göre",
     "byProvider": "Sağlayıcıya Göre",
     "claimableRewards": "Talep Edilebilir Ödüller",
-    "reawrds": "Ödüller",
     "stakingPosition": "Staking Pozisyonu",
     "liquidityPool": "Likidite Havuzu",
     "noActivePositions": "Aktif Pozisyon Yok",
@@ -656,7 +657,7 @@
       "auto": "Otomatik",
       "custom": "Özel",
       "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
-      "lowSlippage": "0,05%'in altındaki kaymalar işlemin başarısız olmasına neden olur."
+      "lowSlippage": "%0,05'in altındaki kayma işlemin başarısız olmasına neden olabilir."
     },
     "from": "'dan",
     "to": "'a",
@@ -820,7 +821,7 @@
       "recoverySentence": {
         "header": "Kurtarma Cümlenizi Yazın",
         "body": "KeepKey ekranınızda kurtarma cümlenizi göreceksiniz. Bunu Yazın. Cihaza erişimi kaybederseniz, varlıklarınıza YALNIZCA bu cümleyle erişilebilir.",
-        "infoFirst": "Tam olarak KeepKey'de göründüğü gibi yazmanız çok önemlidir.",
+        "infoFirst": "Bunu tam olarak KeepKey'de göründüğü gibi yazmanız çok önemlidir.",
         "infoSecond": "Kurtarma cümlenizi asla paylaşmayın, tüm fonlarınıza erişim sağlar.",
         "awaitingButtonPress": "Kurtarma cümlenizi görüntülemek için KeepKey'inizdeki adımları izleyin. Bunu Yazın!"
       },
@@ -853,7 +854,7 @@
       },
       "disconnect": {
         "header": "KeepKey cihazının bağlantısını kesin",
-        "body": "Maalesef, KeepKey cihazınızı kurtarırken/kurarken bir hata oluştu. Lütfen cihazınızın bağlantısını kesin ve yeniden bağlayın ve KeepKey cihazınızı yeniden kurmayı deneyin. Sorun devam ederse, lütfen KeepKey desteği ile iletişime geçin."
+        "body": "Maalesef KeepKey cihazınızı kurtarırken/kurarken bir hata oluştu. Lütfen cihazınızın bağlantısını kesip yeniden bağlayın ve KeepKey cihazınızı yeniden kurmayı deneyin. Sorun devam ederse lütfen KeepKey desteğiyle iletişime geçin."
       }
     },
     "shapeShift": {
@@ -1253,6 +1254,33 @@
         "body": "Keplr cüzdanına bağlanılamıyor"
       }
     },
+    "ledger": {
+      "chains": {
+        "header": "Ledger Hesaplarını İçe Aktar",
+        "body": "Tüm zincirlere ait bakiyenizi görmek için her uygulamayı bağlamanız gerekir.",
+        "availableChains": "Mevcut Zincirler",
+        "error": "Cüzdanınız bağlanırken bir hata oluştu"
+      },
+      "success": {
+        "header": "Ledger Bağlandı",
+        "success": "Artık bu pencereyi kapatabilirsiniz veya kısa süre içinde otomatik olarak kapanacaktır.",
+        "error": "Cüzdanınız bağlanırken bir hata oluştu"
+      },
+      "errors": {
+        "connectFailure": "Ledger cüzdanına bağlanılamıyor",
+        "unknown": "Ledger cüzdanıyla iletişimde beklenmeyen bir hata oluştu"
+      },
+      "connect": {
+        "header": "Ledger'i Eşleştir",
+        "body": "Eşleştir'e tıklayın ve açılır pencereden Ledger'i seçin",
+        "button": "Eşleştir"
+      },
+      "failure": {
+        "header": "Hata",
+        "body": "Ledger cüzdanına bağlanılamıyor"
+      },
+      "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun."
+    },
     "metaMask": {
       "errors": {
         "unknown": "MetaMask ile iletişim kurulurken beklenmeyen bir hata oluştu",
@@ -1290,7 +1318,8 @@
       "connectMetaMask": "MetaMask'ı bağlayın",
       "andMore": "...ve dahası",
       "snapInstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Yüklendi",
-      "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı"
+      "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı",
+      "dontAskAgain": "Bir daha sorma"
     },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
@@ -1817,13 +1846,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Bilgisi",
-          "permissions": "İzinler",
+          "permissions": "Gerekli İzinler",
+          "optionalPermissions": "İsteğe Bağlı İzinler",
           "accountSelection": "Hesapları seçin",
           "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
           "methods": "Yöntemler",
           "events": "Etkinlikler",
           "selectedAccounts": "Bir Hesap Seçin",
-          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin."
+          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin.",
+          "optionalPermissionMessage": "Aşağıdaki izinler isteğe bağlıdır."
         }
       },
       "registry": {
@@ -1906,7 +1937,7 @@
           "title": "Junior Best Yield stratejileri:",
           "bullets": {
             "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
-            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+            "two": "Kullanıcının sürekli olarak oranları kontrol etmesine ve her transferde gaz yakmasına gerek kalmadan maksimum getiri sunun"
           }
         }
       },
@@ -2100,5 +2131,15 @@
       "title": "Yeni Avatar Ayarla",
       "restoreDefault": "Varsayılan"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Güncel FOX Power",
+    "foxPower": "FOX Power",
+    "simulateTitle": "FOX Savings Simüle Edin",
+    "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
+    "tradeSize": "Takas Boyutu",
+    "totalFee": "Toplam Ücret",
+    "foxPowerDiscount": "FOX Power İndirimi",
+    "basedOnFee": "Şu ücrete dayalıdır: %{fee}"
   }
 }

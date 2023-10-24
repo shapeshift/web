@@ -1,7 +1,9 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useState } from 'react'
+import type { Property } from 'csstype'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import AuroraBg from 'assets/aurorabg.jpg'
@@ -11,8 +13,10 @@ import { SEO } from 'components/Layout/Seo'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
 import { useAppSelector } from 'state/store'
@@ -25,7 +29,23 @@ type MatchParams = {
   assetSubId?: string
 }
 
+const layoutMainStyle = { paddingInlineStart: 0, paddingInlineEnd: 0 }
+const pageContainerPt = { base: 8, md: '7.5rem' }
+const pageContainerPb = { base: 0, md: '7.5rem' }
+const flexDirXlRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
+const alignItemsXlFlexStart = {
+  base: 'center',
+  xl: 'flex-start',
+}
+const textAlignXlLeft: ResponsiveValue<Property.TextAlign> = { base: 'center', xl: 'left' }
+const headingFontSize = { base: '4xl', xl: '6xl' }
+const cardMxOffsetBase = { base: -4, md: 0 }
+const displayXlBlock = { base: 'none', xl: 'block' }
+
 export const Buy = () => {
+  // load fiat ramps
+  useGetFiatRampsQuery()
+
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
   const {
@@ -49,13 +69,18 @@ export const Buy = () => {
     }
   }, [assetSubId, chainId])
 
+  const titleSecondTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['buyPage.cta.title.second', { chainCount }],
+    [chainCount],
+  )
+
   return (
-    <Main p={0} style={{ paddingInlineStart: 0, paddingInlineEnd: 0 }}>
+    <Main p={0} style={layoutMainStyle}>
       <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
       <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
-        <PageContainer pt={{ base: 8, md: '7.5rem' }} pb={{ base: 0, md: '7.5rem' }}>
+        <PageContainer pt={pageContainerPt} pb={pageContainerPb}>
           <Flex
-            flexDir={{ base: 'column', xl: 'row' }}
+            flexDir={flexDirXlRow}
             alignItems='center'
             justifyContent='space-between'
             width='full'
@@ -65,11 +90,11 @@ export const Buy = () => {
               flexDir='column'
               flex={1}
               gap={4}
-              alignItems={{ base: 'center', xl: 'flex-start' }}
-              textAlign={{ base: 'center', xl: 'left' }}
+              alignItems={alignItemsXlFlexStart}
+              textAlign={textAlignXlLeft}
             >
               <Heading
-                fontSize={{ base: '4xl', xl: '6xl' }}
+                fontSize={headingFontSize}
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
@@ -86,7 +111,7 @@ export const Buy = () => {
               <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
-              <Card bg='background.surface.base' mx={{ base: -4, md: 0 }}>
+              <Card bg='background.surface.base' mx={cardMxOffsetBase}>
                 <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>
@@ -94,25 +119,11 @@ export const Buy = () => {
         </PageContainer>
         {(!isConnected || isDemoWallet) && (
           <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
-            <PageContainer
-              display='flex'
-              py={0}
-              flexDir={{ base: 'column', xl: 'row' }}
-              textAlign={{ base: 'center', xl: 'left' }}
-            >
-              <Stack
-                spacing={4}
-                py='6rem'
-                flex={1}
-                alignItems={{ base: 'center', xl: 'flex-start' }}
-              >
+            <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
+              <Stack spacing={4} py='6rem' flex={1} alignItems={alignItemsXlFlexStart}>
                 <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
                   {translate('buyPage.cta.title.first')}{' '}
-                  <Text
-                    as='span'
-                    color='white'
-                    translation={['buyPage.cta.title.second', { chainCount }]}
-                  />
+                  <Text as='span' color='white' translation={titleSecondTranslation} />
                 </Heading>
                 <Button
                   size='lg'
@@ -128,7 +139,7 @@ export const Buy = () => {
                 width='300px'
                 bgImage={FoxPane}
                 backgroundSize='cover'
-                display={{ base: 'none', xl: 'block' }}
+                display={displayXlBlock}
               />
             </PageContainer>
           </Flex>

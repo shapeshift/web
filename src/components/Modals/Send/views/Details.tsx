@@ -20,7 +20,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import isNil from 'lodash/isNil'
-import { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import type { ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -30,6 +31,7 @@ import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -42,7 +44,20 @@ import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
+type RenderController = ({
+  field,
+}: {
+  field: ControllerRenderProps<FieldValues, SendFormFields.Memo>
+}) => React.ReactElement
+
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
+
+const controllerRules = {
+  required: true,
+}
+const arrowBackIcon = <ArrowBackIcon />
+const accountDropdownButtonProps = { width: 'full', mb: 2, variant: 'solid' }
+const formHelperTextHoverStyle = { color: 'gray.400', transition: '.2s color ease' }
 
 export const Details = () => {
   const { control, setValue, trigger } = useFormContext<SendInput>()
@@ -66,7 +81,7 @@ export const Details = () => {
     [cryptoAmount, fiatAmount, previousAccountId, setValue],
   )
 
-  const send = useModal('send')
+  const { close: handleClose } = useModal('send')
   const {
     balancesLoading,
     fieldName,
@@ -107,6 +122,71 @@ export const Details = () => {
   )
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
+  const cryptoTokenRowInputLeftElement = useMemo(
+    () => (
+      <Button
+        ml={1}
+        size='sm'
+        variant='ghost'
+        textTransform='uppercase'
+        onClick={toggleCurrency}
+        width='full'
+      >
+        {asset?.symbol}
+      </Button>
+    ),
+    [asset?.symbol, toggleCurrency],
+  )
+
+  const fiatTokenRowInputLeftElement = useMemo(
+    () => (
+      <Button
+        ml={1}
+        size='sm'
+        variant='ghost'
+        textTransform='uppercase'
+        onClick={toggleCurrency}
+        width='full'
+        data-test='toggle-currency-button'
+      >
+        {fiatSymbol}
+      </Button>
+    ),
+    [fiatSymbol, toggleCurrency],
+  )
+
+  const tokenRowInputRightElement = useMemo(
+    () =>
+      wallet?.getVendor() === 'WalletConnect' ? null : <SendMaxButton onClick={handleSendMax} />,
+    [wallet, handleSendMax],
+  )
+
+  const assetMemoTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.send.sendForm.assetMemo', { assetSymbol: asset?.symbol ?? '' }],
+    [asset?.symbol],
+  )
+
+  const handleArrowBackClick = useCallback(() => history.push(SendRoutes.Address), [history])
+  const handleAccountCardClick = useCallback(() => history.push('/send/select'), [history])
+
+  const renderController: RenderController = useCallback(
+    ({ field: { onChange, value } }) => (
+      <Input
+        size='lg'
+        // this is already within a useCallback
+        // eslint-disable-next-line react-memo/require-usememo
+        onChange={({ target: { value } }) => onChange(value)}
+        value={value}
+        type='text'
+        variant='filled'
+        placeholder={translate('modals.send.sendForm.optionalAssetMemo', {
+          assetSymbol: asset?.symbol ?? '',
+        })}
+      />
+    ),
+    [asset?.symbol, translate],
+  )
+
   if (!(asset && !isNil(cryptoAmount) && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
@@ -115,7 +195,7 @@ export const Details = () => {
     <SlideTransition loading={balancesLoading}>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label='Back'
         position='absolute'
         top={2}
@@ -123,7 +203,7 @@ export const Details = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Address)}
+        onClick={handleArrowBackClick}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
@@ -134,7 +214,7 @@ export const Details = () => {
           assetId={asset.assetId}
           defaultAccountId={accountId}
           onChange={handleAccountChange}
-          buttonProps={{ width: 'full', mb: 2, variant: 'solid' }}
+          buttonProps={accountDropdownButtonProps}
         />
         <AccountCard
           asset={asset}
@@ -142,7 +222,7 @@ export const Details = () => {
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
-          onClick={() => history.push('/send/select')}
+          onClick={handleAccountCardClick}
           mb={2}
         />
         <FormControl mt={6}>
@@ -159,7 +239,7 @@ export const Details = () => {
               color='text.subtle'
               onClick={toggleCurrency}
               textTransform='uppercase'
-              _hover={{ color: 'gray.400', transition: '.2s color ease' }}
+              _hover={formHelperTextHoverStyle}
             >
               {fieldName === SendFormFields.FiatAmount ? (
                 <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} prefix='≈' />
@@ -175,26 +255,9 @@ export const Details = () => {
               control={control}
               fieldName={SendFormFields.CryptoAmount}
               onInputChange={handleInputChange}
-              inputLeftElement={
-                <Button
-                  ml={1}
-                  size='sm'
-                  variant='ghost'
-                  textTransform='uppercase'
-                  onClick={toggleCurrency}
-                  width='full'
-                >
-                  {asset.symbol}
-                </Button>
-              }
-              inputRightElement={
-                wallet?.getVendor() === 'WalletConnect' ? null : (
-                  <SendMaxButton onClick={handleSendMax} />
-                )
-              }
-              rules={{
-                required: true,
-              }}
+              inputLeftElement={cryptoTokenRowInputLeftElement}
+              inputRightElement={tokenRowInputRightElement}
+              rules={controllerRules}
               data-test='send-modal-crypto-input'
             />
           )}
@@ -203,27 +266,9 @@ export const Details = () => {
               control={control}
               fieldName={SendFormFields.FiatAmount}
               onInputChange={handleInputChange}
-              inputLeftElement={
-                <Button
-                  ml={1}
-                  size='sm'
-                  variant='ghost'
-                  textTransform='uppercase'
-                  onClick={toggleCurrency}
-                  width='full'
-                  data-test='toggle-currency-button'
-                >
-                  {fiatSymbol}
-                </Button>
-              }
-              inputRightElement={
-                wallet?.getVendor() === 'WalletConnect' ? null : (
-                  <SendMaxButton onClick={handleSendMax} />
-                )
-              }
-              rules={{
-                required: true,
-              }}
+              inputLeftElement={fiatTokenRowInputLeftElement}
+              inputRightElement={tokenRowInputRightElement}
+              rules={controllerRules}
               data-test='send-modal-fiat-input'
             />
           )}
@@ -232,9 +277,7 @@ export const Details = () => {
           <FormControl mt={6}>
             <Box display='flex' alignItems='center' justifyContent='space-between'>
               <FormLabel color='text.subtle' display='flex' alignItems='center'>
-                <Text
-                  translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
-                />
+                <Text translation={assetMemoTranslation} />
                 <Tooltip
                   placement='right'
                   label={translate('modals.send.sendForm.memoExplainer', {
@@ -261,21 +304,7 @@ export const Details = () => {
                 })}
               </FormHelperText>
             </Box>
-            <Controller
-              name={SendFormFields.Memo}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  size='lg'
-                  onChange={({ target: { value } }) => onChange(value)}
-                  value={value}
-                  type='text'
-                  variant='filled'
-                  placeholder={translate('modals.send.sendForm.optionalAssetMemo', {
-                    assetSymbol: asset.symbol,
-                  })}
-                />
-              )}
-            />
+            <Controller name={SendFormFields.Memo} render={renderController} />
           </FormControl>
         )}
       </ModalBody>
@@ -297,7 +326,7 @@ export const Details = () => {
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>
-          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={handleClose}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

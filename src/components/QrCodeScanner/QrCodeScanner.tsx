@@ -16,7 +16,7 @@ import type {
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -30,6 +30,9 @@ const isPermissionError = (
   error: DOMException['message'] | Html5QrcodeError,
 ): error is DOMException['message'] =>
   typeof (error as DOMException['message']) === 'string' && error === PERMISSION_ERROR
+
+const boxStyle = { width: '100%', minHeight: '298px', overflow: 'hidden', borderRadius: '1rem' }
+const qrBoxStyle = { width: 250, height: 250 }
 
 export const QrCodeScanner = ({
   onSuccess,
@@ -47,20 +50,28 @@ export const QrCodeScanner = ({
 
   const error = addressError ?? scanError
 
-  const handleScanSuccess: QrcodeSuccessCallback = (decodedText, _result) => {
-    onSuccess(decodedText, _result)
-  }
+  const handleScanSuccess: QrcodeSuccessCallback = useCallback(
+    (decodedText, _result) => {
+      onSuccess(decodedText, _result)
+    },
+    [onSuccess],
+  )
 
-  const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = (_errorMessage, error) => {
-    if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
-      // https://github.com/mebjas/html5-qrcode/issues/320
-      // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these
-      return
-    }
+  const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = useCallback(
+    (_errorMessage, error) => {
+      if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
+        // https://github.com/mebjas/html5-qrcode/issues/320
+        // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these
+        return
+      }
 
-    setScanError(_errorMessage)
-    if (onError) onError(_errorMessage, error)
-  }
+      setScanError(_errorMessage)
+      if (onError) onError(_errorMessage, error)
+    },
+    [onError],
+  )
+
+  const handlePermissionsButtonClick = useCallback(() => setScanError(null), [])
 
   return (
     <SlideTransition>
@@ -80,17 +91,15 @@ export const QrCodeScanner = ({
               />
             </Alert>
             {isPermissionError(error) && (
-              <Button colorScheme='blue' mt='5' onClick={() => setScanError(null)}>
+              <Button colorScheme='blue' mt='5' onClick={handlePermissionsButtonClick}>
                 {translate('modals.send.permissionsButton')}
               </Button>
             )}
           </Flex>
         ) : (
-          <Box
-            style={{ width: '100%', minHeight: '298px', overflow: 'hidden', borderRadius: '1rem' }}
-          >
+          <Box style={boxStyle}>
             <QrCodeReader
-              qrbox={{ width: 250, height: 250 }}
+              qrbox={qrBoxStyle}
               fps={10}
               qrCodeSuccessCallback={handleScanSuccess}
               qrCodeErrorCallback={handleScanError}

@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { StackDirection } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -62,6 +63,11 @@ import { TradeOpportunities } from './components/TradeOpportunities'
 import { foxTradeOpportunitiesBuckets, foxyTradeOpportunitiesBuckets } from './FoxCommon'
 import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 
+const gridTemplateColumns = { base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }
+const boxMxProps = { base: 4, md: 0 }
+const tabPanelDirectionProps: StackDirection = { base: 'column', xl: 'row' }
+const stackMaxWidthProps = { base: 'full', lg: 'sm' }
+
 export enum FoxPageRoutes {
   Fox = '/fox/fox',
   Foxy = '/fox/foxy',
@@ -76,6 +82,8 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
   [foxAssetId]: foxTradeOpportunitiesBuckets,
   [foxyAssetId]: foxyTradeOpportunitiesBuckets,
 }
+
+const chevronDownIcon = <ChevronDownIcon />
 
 export const FoxPage = () => {
   const {
@@ -165,6 +173,8 @@ export const FoxPage = () => {
       : undefined,
   )
 
+  const totalIcons = useMemo(() => [assetFox.icon, assetFoxy.icon], [assetFox, assetFoxy])
+
   const handleTabClick = useCallback(
     (assetId: AssetId, assetName: string) => {
       if (assetId === activeAssetId) {
@@ -207,6 +217,39 @@ export const FoxPage = () => {
     })
   }, [allAssets, assetFoxy.chainId, dispatch, foxyEarnOpportunityData, history, location, wallet])
 
+  const mdFoxTabs = useMemo(
+    () =>
+      assets.map((asset, index) => (
+        <FoxTab
+          key={asset.assetId}
+          assetSymbol={asset.symbol}
+          assetIcon={asset.icon}
+          cryptoAmount={cryptoHumanBalances[index]}
+          fiatAmount={fiatBalances[index]}
+          // eslint-disable-next-line react-memo/require-usememo
+          onClick={() => handleTabClick(asset.assetId, asset.name)}
+        />
+      )),
+    [assets, cryptoHumanBalances, fiatBalances, handleTabClick],
+  )
+
+  const smFoxTabs = useMemo(
+    () =>
+      assets.map((asset, index) => (
+        // eslint-disable-next-line react-memo/require-usememo
+        <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId, asset.name)}>
+          <FoxTab
+            assetSymbol={asset.symbol}
+            assetIcon={asset.icon}
+            cryptoAmount={cryptoHumanBalances[index]}
+            fiatAmount={fiatBalances[index]}
+            as={Box}
+          />
+        </MenuItem>
+      )),
+    [assets, cryptoHumanBalances, fiatBalances, handleTabClick],
+  )
+
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
   if (wallet && supportsETH(wallet) && !foxyEarnOpportunityData) return null
 
@@ -225,34 +268,19 @@ export const FoxPage = () => {
       />
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>
-          <SimpleGrid
-            gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
-            gridGap={4}
-            mb={4}
-            width='full'
-          >
-            <Total fiatAmount={totalFiatBalance} icons={[assetFox.icon, assetFoxy.icon]} />
-            {isLargerThanMd &&
-              assets.map((asset, index) => (
-                <FoxTab
-                  key={asset.assetId}
-                  assetSymbol={asset.symbol}
-                  assetIcon={asset.icon}
-                  cryptoAmount={cryptoHumanBalances[index]}
-                  fiatAmount={fiatBalances[index]}
-                  onClick={() => handleTabClick(asset.assetId, asset.name)}
-                />
-              ))}
+          <SimpleGrid gridTemplateColumns={gridTemplateColumns} gridGap={4} mb={4} width='full'>
+            <Total fiatAmount={totalFiatBalance} icons={totalIcons} />
+            {isLargerThanMd && mdFoxTabs}
             {!isLargerThanMd && (
               <Box mb={4}>
                 <Menu matchWidth>
-                  <Box mx={{ base: 4, md: 0 }}>
+                  <Box mx={boxMxProps}>
                     <MenuButton
                       borderWidth='2px'
                       borderColor='primary'
                       height='auto'
                       as={Button}
-                      rightIcon={<ChevronDownIcon />}
+                      rightIcon={chevronDownIcon}
                       bg={mobileTabBg}
                       width='full'
                     >
@@ -266,22 +294,7 @@ export const FoxPage = () => {
                       )}
                     </MenuButton>
                   </Box>
-                  <MenuList zIndex={3}>
-                    {assets.map((asset, index) => (
-                      <MenuItem
-                        key={asset.assetId}
-                        onClick={() => handleTabClick(asset.assetId, asset.name)}
-                      >
-                        <FoxTab
-                          assetSymbol={asset.symbol}
-                          assetIcon={asset.icon}
-                          cryptoAmount={cryptoHumanBalances[index]}
-                          fiatAmount={fiatBalances[index]}
-                          as={Box}
-                        />
-                      </MenuItem>
-                    ))}
-                  </MenuList>
+                  <MenuList zIndex={3}>{smFoxTabs}</MenuList>
                 </Menu>
               </Box>
             )}
@@ -289,12 +302,7 @@ export const FoxPage = () => {
         </TabList>
         <TabPanels>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-start' spacing={4} mx='auto' direction={tabPanelDirectionProps}>
               <Stack spacing={4} flex='1 1 0%' width='full'>
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
@@ -314,7 +322,7 @@ export const FoxPage = () => {
                 />
                 <Governance />
               </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={stackMaxWidthProps} spacing={4}>
                 <AssetActions assetId={foxAssetId} />
                 <BondProtocolCta />
                 <DappBack />
@@ -325,12 +333,7 @@ export const FoxPage = () => {
             </Stack>
           </TabPanel>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-start' spacing={4} mx='auto' direction={tabPanelDirectionProps}>
               <Stack spacing={4} flex='1 1 0%' width='full'>
                 <OtherOpportunities
                   title={`plugins.foxPage.otherOpportunitiesTitle.${selectedAsset.symbol}`}
@@ -338,7 +341,7 @@ export const FoxPage = () => {
                   opportunities={otherOpportunities}
                 />
               </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={stackMaxWidthProps} spacing={4}>
                 <AssetActions assetId={foxyAssetId} />
                 <DappBack />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[foxyAssetId]} />

@@ -21,6 +21,8 @@ type FoxOtherOpportunityPanelProps = {
   type: OpportunityTypes | DefiType
 }
 
+const accordionItemLast = { borderBottomWidth: 0 }
+
 export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> = ({
   opportunities,
   title,
@@ -35,7 +37,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
   }, [opportunities])
 
   return (
-    <AccordionItem borderColor={borderColor} _last={{ borderBottomWidth: 0 }}>
+    <AccordionItem borderColor={borderColor} _last={accordionItemLast}>
       <AccordionButton px={6} py={4}>
         <Box flex='1' textAlign='left' fontWeight='semibold'>
           {translate(title)}

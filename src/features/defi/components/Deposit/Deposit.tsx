@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import type { PropsWithChildren } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { ControllerProps, UseFormSetValue } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -120,25 +120,28 @@ export const Deposit = ({
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
 
-  const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (isFiat) {
-      const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
-      setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount, {
-        shouldValidate: true,
-      })
-      onChange && onChange(value, cryptoAmount)
-    } else {
-      const fiatAmount = bnOrZero(value).times(marketData.price).toString()
-      setValue(Field.FiatAmount, fiatAmount, {
-        shouldValidate: true,
-      })
-      setValue(Field.CryptoAmount, value, {
-        shouldValidate: true,
-      })
-      onChange && onChange(fiatAmount, value)
-    }
-  }
+  const handleInputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      if (isFiat) {
+        const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
+        setValue(Field.FiatAmount, value, { shouldValidate: true })
+        setValue(Field.CryptoAmount, cryptoAmount, {
+          shouldValidate: true,
+        })
+        onChange && onChange(value, cryptoAmount)
+      } else {
+        const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+        setValue(Field.FiatAmount, fiatAmount, {
+          shouldValidate: true,
+        })
+        setValue(Field.CryptoAmount, value, {
+          shouldValidate: true,
+        })
+        onChange && onChange(fiatAmount, value)
+      }
+    },
+    [marketData.price, onChange, setValue],
+  )
 
   const handlePercentClick = useCallback(
     (percent: number) => {
@@ -162,23 +165,33 @@ export const Deposit = ({
     [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
   )
 
-  const onSubmit = (values: DepositValues) => {
-    onContinue(values)
-  }
+  const onSubmit = useCallback(
+    (values: DepositValues) => {
+      onContinue(values)
+    },
+    [onContinue],
+  )
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
   const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
 
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
+  const handleAssetInputChange = useCallback(
+    (value: string, isFiat?: boolean) => handleInputChange(value, isFiat),
+    [handleInputChange],
+  )
+
   return (
     <>
-      <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={6} as='form' width='full' onSubmit={handleFormSubmit}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             accountId={accountId}
             cryptoAmount={cryptoAmount?.value}
             assetId={asset.assetId}
             onAccountIdChange={handleAccountIdChange}
-            onChange={(value, isFiat) => handleInputChange(value, isFiat)}
+            onChange={handleAssetInputChange}
             {...(onMaxClick ? { onMaxClick: handleMaxClick } : {})}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}

@@ -14,6 +14,7 @@ import orderBy from 'lodash/orderBy'
 import path from 'path'
 import type { Asset, AssetsById } from 'lib/asset-service'
 
+import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -33,6 +34,7 @@ const generateAssetData = async () => {
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
+  const arbitrumAssets = await arbitrum.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -49,6 +51,7 @@ const generateAssetData = async () => {
     ...bnbsmartchainAssets,
     ...polygonAssets,
     ...gnosisAssets,
+    ...arbitrumAssets,
   ]
 
   // remove blacklisted assets
@@ -64,6 +67,7 @@ const generateAssetData = async () => {
     [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map(asset => asset.name),
     [KnownChainIds.PolygonMainnet]: polygonAssets.map(asset => asset.name),
     [KnownChainIds.GnosisMainnet]: gnosisAssets.map(asset => asset.name),
+    [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -120,6 +124,11 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Gnosis`
     }
 
+    // mark any arbitrum assets that also exist on other evm chains
+    if (chainId === KnownChainIds.ArbitrumMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Arbitrum`
+    }
+
     // mark any optimism assets that also exist on other evm chains
     if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Optimism`
@@ -147,6 +156,8 @@ const generateAssetData = async () => {
 
 generateAssetData()
   .then(() => {
-    console.info('done')
+    console.info(
+      "Done. Don't forget to add a migration to clear assets state so the new assets are loaded.",
+    )
   })
   .catch(err => console.info(err))

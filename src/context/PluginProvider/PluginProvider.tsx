@@ -62,7 +62,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<ChainId> } = {}
 
     // register providers from each plugin
-    for (const [, plugin] of pluginManager.entries()) {
+    for (const plugin of pluginManager.values()) {
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       const featureFlagEnabled =
@@ -108,6 +108,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Optimism && chainId === KnownChainIds.OptimismMainnet) return false
       if (!featureFlags.Polygon && chainId === KnownChainIds.PolygonMainnet) return false
       if (!featureFlags.Gnosis && chainId === KnownChainIds.GnosisMainnet) return false
+      if (!featureFlags.Arbitrum && chainId === KnownChainIds.ArbitrumMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       return true

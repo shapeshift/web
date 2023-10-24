@@ -35,6 +35,8 @@ type WithdrawProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const percentOptions = [0.25, 0.5, 0.75, 1]
+
 export const Withdraw: React.FC<WithdrawProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -220,6 +222,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [opportunity?.fiatAmount],
   )
 
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const fiatInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateFiatAmount },
+    }),
+    [validateFiatAmount],
+  )
+
   if (!underlyingAsset || !state || !dispatch || !opportunity) return null
 
   return (
@@ -229,21 +247,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         asset={underlyingAsset}
         icons={opportunity?.icons}
         cryptoAmountAvailable={amountAvailableCryptoPrecision}
-        cryptoInputValidation={{
-          required: true,
-          validate: { validateCryptoAmount },
-        }}
+        cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={opportunity?.fiatAmount?.toString() ?? '0'}
-        fiatInputValidation={{
-          required: true,
-          validate: { validateFiatAmount },
-        }}
+        fiatInputValidation={fiatInputValidation}
         marketData={marketData}
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !opportunity?.fiatAmount}
-        percentOptions={[0.25, 0.5, 0.75, 1]}
+        percentOptions={percentOptions}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
         onInputChange={handleInputChange}

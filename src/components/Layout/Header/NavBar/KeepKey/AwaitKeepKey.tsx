@@ -2,7 +2,7 @@ import { InfoIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Button, Divider, Flex, useColorModeValue } from '@chakra-ui/react'
 import type Polyglot from 'node-polyglot'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -25,14 +25,14 @@ export const AwaitKeepKey = ({ children, translation, onCancel, ...props }: Awai
   } = useWallet()
   const blueShade = useColorModeValue('blue.500', 'blue.200')
 
-  const cancel = async () => {
+  const handleCancel = useCallback(async () => {
     if (onCancel) {
       await onCancel()
     }
     setDeviceState({ awaitingDeviceInteraction: false })
     await wallet?.cancel()
     await load()
-  }
+  }, [load, onCancel, setDeviceState, wallet])
 
   return awaitingDeviceInteraction ? (
     <>
@@ -42,7 +42,7 @@ export const AwaitKeepKey = ({ children, translation, onCancel, ...props }: Awai
           <InfoIcon color={blueShade} mt={1} />
           <Box ml={3}>
             <Text translation={translation} mb={3} fontWeight='medium' color={blueShade} />
-            <Button colorScheme='blue' variant='ghost-filled' onClick={cancel} size='sm'>
+            <Button colorScheme='blue' variant='ghost-filled' onClick={handleCancel} size='sm'>
               {translate('common.cancel')}
             </Button>
           </Box>

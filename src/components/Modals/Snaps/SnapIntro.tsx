@@ -49,8 +49,8 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
       .filter(isSome)
   }, [])
 
-  const handleCheckboxChange = useCallback((value: boolean) => {
-    store.dispatch(preferences.actions.setShowSnapssModal(value))
+  const handleCheckboxChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    store.dispatch(preferences.actions.setShowSnapsModal(!event.target.checked))
   }, [])
 
   const renderChains = useMemo(() => {
@@ -108,7 +108,9 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
         </HStack>
       </ModalBody>
       <ModalFooter justifyContent='space-between' mt={4}>
-        <Checkbox onChange={e => handleCheckboxChange(e.target.checked)}>Don't ask again</Checkbox>
+        <Checkbox onChange={handleCheckboxChange}>
+          {translate('walletProvider.metaMaskSnap.dontAskAgain')}
+        </Checkbox>
         <HStack spacing={2}>
           <Button colorScheme='blue' onClick={handleNext}>
             {translate('walletProvider.metaMaskSnap.addSnap')}

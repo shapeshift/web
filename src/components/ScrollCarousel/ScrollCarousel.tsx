@@ -3,13 +3,24 @@ import type { BoxProps, ThemeTypings } from '@chakra-ui/react'
 import { Box, Grid, IconButton, useBreakpointValue, useToken } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { PropsWithChildren } from 'react'
-import { Children, useCallback, useEffect, useRef, useState } from 'react'
+import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export type FeatureListProps = {
   slidesToShow?: Record<ThemeTypings['breakpoints'] | string, number>
   slideGap?: number
 } & PropsWithChildren &
   BoxProps
+
+const arrowbackIcon = <ArrowBackIcon />
+const arrowForwardIcon = <ArrowForwardIcon />
+const opacity0 = { opacity: 0 }
+const displayMdBlock = { base: 'none', md: 'block' }
+const gridStyle = {
+  '::-webkit-scrollbar': {
+    display: 'none',
+  },
+  '::-webkit-overflow-scrolling': 'touch',
+}
 
 export const ScrollCarousel: React.FC<FeatureListProps> = ({
   children,
@@ -65,19 +76,27 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
     }
   }, [handleScroll])
 
+  const gridAutoColumns = useMemo(
+    () => ({
+      base: '350px',
+      md: `calc((100% - ${offsetColumn} * ${gridGap})/ ${gridColumns})`,
+    }),
+    [gridColumns, gridGap, offsetColumn],
+  )
+
   return (
     <Box position='relative' boxSizing='content-box' width='100%' my={4} {...rest}>
       {Children.toArray(children).length > gridColumns && (
         <>
           <IconButton
             size='lg'
-            icon={<ArrowBackIcon />}
+            icon={arrowbackIcon}
             aria-label='Back'
             isRound
             onClick={handleBack}
             isDisabled={isScrollStart}
-            _disabled={{ opacity: 0 }}
-            display={{ base: 'none', md: 'block' }}
+            _disabled={opacity0}
+            display={displayMdBlock}
             position='absolute'
             top='50%'
             transform='translateY(-50%)'
@@ -86,13 +105,13 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
             shadow='dark-lg'
           />
           <IconButton
-            icon={<ArrowForwardIcon />}
+            icon={arrowForwardIcon}
             size='lg'
             aria-label='Next'
             onClick={handleNext}
             isDisabled={isScrollEnd}
-            _disabled={{ opacity: 0 }}
-            display={{ base: 'none', md: 'block' }}
+            _disabled={opacity0}
+            display={displayMdBlock}
             position='absolute'
             top='50%'
             isRound
@@ -108,10 +127,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
         ref={ref}
         gridAutoFlow='column'
         gridColumnGap={gridGap}
-        gridAutoColumns={{
-          base: '350px',
-          md: `calc((100% - ${offsetColumn} * ${gridGap})/ ${gridColumns})`,
-        }}
+        gridAutoColumns={gridAutoColumns}
         gridTemplateRows='repeat(1, max-content)'
         overflowX='auto'
         overflowY='hidden'
@@ -126,12 +142,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
         paddingTop={gridGap}
         paddingBottom={gridGap}
         paddingLeft={gridGap}
-        sx={{
-          '::-webkit-scrollbar': {
-            display: 'none',
-          },
-          '::-webkit-overflow-scrolling': 'touch',
-        }}
+        sx={gridStyle}
       >
         {children}
       </Grid>

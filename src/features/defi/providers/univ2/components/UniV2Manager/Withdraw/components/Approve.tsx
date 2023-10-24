@@ -207,6 +207,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   if (!state || !dispatch || !lpOpportunity || !lpAsset) return null
 
   return (
@@ -224,7 +226,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       providerIcon={getMetadataForProvider(lpOpportunity.provider)?.icon ?? ''}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
     />

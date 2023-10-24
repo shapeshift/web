@@ -25,6 +25,7 @@ import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -59,6 +60,11 @@ type ReceiveSummaryProps = {
 } & RowProps
 
 const ShapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+
+const tradeFeeSourceTranslation: TextPropTypes['translation'] = [
+  'trade.tradeFeeSource',
+  { tradeFeeSource: 'ShapeShift' },
+]
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   ({
@@ -132,6 +138,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const handleFeeModal = useCallback(() => {
       setShowFeeModal(!showFeeModal)
     }, [showFeeModal])
+
+    const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
+      () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
+      [slippageAsPercentageString],
+    )
 
     return (
       <>
@@ -221,7 +232,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             )}
             <Row>
               <Row.Label display='flex'>
-                <Text translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]} />
+                <Text translation={tradeFeeSourceTranslation} />
                 {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
                   <RawText>&nbsp;{`(${shapeShiftFee.amountBps} bps)`}</RawText>
                 )}
@@ -262,12 +273,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <Divider borderColor='border.base' />
               <Row>
                 <Row.Label>
-                  <Text
-                    translation={[
-                      'trade.minAmountAfterSlippage',
-                      { slippage: slippageAsPercentageString },
-                    ]}
-                  />
+                  <Text translation={minAmountAfterSlippageTranslation} />
                 </Row.Label>
                 <Row.Value whiteSpace='nowrap'>
                   <Stack spacing={0} alignItems='flex-end'>

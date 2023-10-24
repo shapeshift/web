@@ -9,6 +9,8 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { isSome } from 'lib/utils'
 
 const widthProp = { base: 'full', md: 'auto' }
+const walletConnectIcon = <WalletConnectIcon />
+const chevronRightIcon = <ChevronRightIcon />
 
 export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
   const { isOpen, onClose: handleClose, onOpen: handleOpen } = useDisclosure()
@@ -23,8 +25,8 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
   return (
     <>
       <Button
-        leftIcon={<WalletConnectIcon />}
-        rightIcon={<ChevronRightIcon />}
+        leftIcon={walletConnectIcon}
+        rightIcon={chevronRightIcon}
         onClick={handleOpen}
         width={widthProp}
         {...buttonProps}

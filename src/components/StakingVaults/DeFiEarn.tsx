@@ -1,6 +1,7 @@
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Property } from 'csstype'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
@@ -21,6 +22,14 @@ type DefiEarnProps = {
   includeRewardsBalances?: boolean
   header?: JSX.Element
 } & FlexProps
+
+const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const flexPaddingX = { base: 4, xl: 0 }
+const flexPropsMd1 = { base: '1 0 auto', md: 1 }
+const flexPropsMdAuto = { base: 1, md: 'auto' }
+const widthBaseFull = { base: 'full' }
+const widthMdAuto = { base: 'full', md: 'auto' }
+const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
@@ -45,14 +54,14 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           alignItems='center'
           gap={4}
           flexWrap='wrap'
-          flexDir={{ base: 'column', md: 'row' }}
-          px={{ base: 4, xl: 0 }}
+          flexDir={flexDir}
+          px={flexPaddingX}
           {...rest}
         >
-          <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
-            <TabList m={0} width={{ base: 'full', md: 'auto' }}>
-              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byProvider')}</Tab>
-              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
+          <Flex flex={flexPropsMd1} width={widthBaseFull}>
+            <TabList m={0} width={widthMdAuto}>
+              <Tab flex={flexPropsMdAuto}>{translate('defi.byProvider')}</Tab>
+              <Tab flex={flexPropsMdAuto}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>
           <ChainDropdown
@@ -62,7 +71,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
             showAll
             includeBalance
           />
-          <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full' gap={4}>
+          <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
             <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
           </Flex>
         </Flex>

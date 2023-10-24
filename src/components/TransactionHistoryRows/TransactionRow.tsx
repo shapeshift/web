@@ -20,7 +20,7 @@ export type TransactionRowProps = {
   showDateAndGuide?: boolean
   compactMode: boolean
   isOpen: boolean
-  toggleOpen: Function
+  toggleOpen: () => void
   parentWidth: number
 }
 

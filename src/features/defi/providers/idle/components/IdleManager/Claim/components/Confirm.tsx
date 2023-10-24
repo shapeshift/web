@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -179,6 +180,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         assetId: rewardAsset.assetId,
         amount: rewardAsset.amountCryptoHuman,
       }
+      // we need to pass a local scope arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
   }, [claimAmounts, opportunityData?.rewardsCryptoBaseUnit?.amounts.length])
@@ -263,6 +266,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assets,
   ])
 
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -317,7 +325,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={notEnoughGasTranslation} />
           </Alert>
         )}
       </Summary>

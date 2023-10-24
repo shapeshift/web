@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratis",
     "back": "Atrás",
     "balance": "Balance",
     "next": "Siguiente",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Solicitar una función",
     "learnMore": "Aprende más",
     "showAll": "Mostrar todo",
-    "showLess": "Muestra menos"
+    "showLess": "Muestra menos",
+    "yourBalance": "Tu balance"
   },
   "consentBanner": {
     "body": {
@@ -259,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "La tasa de %{assetName} que gana, el rendimiento porcentual anual (APR), normalmente fluctúa entre el 7 % y el 20 %.",
-          "amountStakingInfo": "Puede hacer staking en cualquier cantidad de %{assetName} e inmediatamente comenzará a ganar recompensas.",
-          "withdrawInfo": "Puede retirar sus recompensas en cualquier momento, lo que requiere una pequeña tarifa de gasolina alrededor de ~ $ 0,01.",
+          "amountStakingInfo": "Puede hacer staking de cualquier cantidad de %{assetName} e inmediatamente comenzar a ganar.",
+          "withdrawInfo": "Retire recompensas en cualquier momento, pero se requiere gas alrededor de ~$0,01.",
           "unbondingInfo": "Cuando retire sus activos de staking, permanecerán bloqueados durante %{unbondingDays} días, sin generar recompensas. Después de los %{unbondingDays} días, su %{assetName} volverá a su billetera principal.",
           "slashingInfo": "El staking se realiza a través de un validador. Es increíblemente raro, pero si el validador delegado se equivoca al permitir que se realicen transacciones falsas o incorrectas, podría perder parte de sus activos.",
           "partnerInfo": "Hemos mitigado este riesgo al asociarnos con un validador acreditado, que tiene una infraestructura segura, confiable y auditada."
@@ -434,7 +436,6 @@
     "byAsset": "Por Activo",
     "byProvider": "Por Proveedor",
     "claimableRewards": "Recompensas reclamables",
-    "reawrds": "Recompensas",
     "stakingPosition": "Posición Staking",
     "liquidityPool": "Pool de Liquidez",
     "noActivePositions": "Sin Posiciones Activas",
@@ -656,7 +657,7 @@
       "auto": "Auto",
       "custom": "Personalizado",
       "warning": "Altas tolerancias en deslizamiento resultaran en intercambios desfavorables.",
-      "lowSlippage": "Deslizamiento debajo de 0,05% resulta en transacción fallida."
+      "lowSlippage": "Deslizamiento menor a 0,05 % puede provocar una transacción  fallida."
     },
     "from": "De",
     "to": "A",
@@ -853,7 +854,7 @@
       },
       "disconnect": {
         "header": "Desconectar dispositivo KeepKey",
-        "body": "Desafortunadamente, ocurrió un error al recuperar/configurar su dispositivo KeepKey. Desconecte y vuelva a conectar su dispositivo e intente configurar su dispositivo KeepKey nuevamente. Si el problema persiste, comuníquese con el soporte KeepKey."
+        "body": "Lamentablemente, se produjo un error al recuperar/configurar su KeepKey. Desconecte y vuelva a conectar su dispositivo e intente configurarlo nuevamente. Si el problema persiste, comuníquese con el soporte KeepKey."
       }
     },
     "shapeShift": {
@@ -1253,6 +1254,33 @@
         "body": "No se puede conectar la billetera Keplr"
       }
     },
+    "ledger": {
+      "chains": {
+        "header": "Importar Cuentas Ledger",
+        "body": "Para ver sus saldos en cada cadena, deberá conectar cada aplicación.",
+        "availableChains": "Cadenas Disponibles",
+        "error": "Hubo un error al conectar su billetera"
+      },
+      "success": {
+        "header": "Ledger Conectada",
+        "success": "Cierra esta ventana o se cerrará automáticamente en breve",
+        "error": "Hubo un error al conectar tu billetera"
+      },
+      "errors": {
+        "connectFailure": "No se puede conectar la billetera Ledger",
+        "unknown": "Error inesperado al comunicarse con la billetera Ledger"
+      },
+      "connect": {
+        "header": "Emparejar Ledger",
+        "body": "Click en Emparejar y seleccione Ledger en la ventana.",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Ledger"
+      },
+      "connectWarning": "Antes de conectar una cadena, asegúrese de tener la app abierta en su dispositivo."
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
@@ -1290,7 +1318,8 @@
       "connectMetaMask": "Conectar MetaMask",
       "andMore": "...y más",
       "snapInstalledToast": "Snap MetaMask Multicadena ShapeShift instalado",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado",
+      "dontAskAgain": "No volver a preguntar"
     },
     "metaMaskSnapConfirm": {
       "title": "Instalar Snap Multicadena",
@@ -1817,13 +1846,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Info dApp",
-          "permissions": "Permisos",
+          "permissions": "Permisos Requeridos",
+          "optionalPermissions": "Permisos Opcionales",
           "accountSelection": "Elige cuentas",
           "unsupportedChain": "Cadena no admitida en la sesión propuesta.",
           "methods": "Métodos",
           "events": "Eventos",
           "selectedAccounts": "Cuentas seleccionadas",
-          "permissionMessage": "Seleccione al menos una cuenta por cadena."
+          "permissionMessage": "Seleccione al menos una cuenta por cadena.",
+          "optionalPermissionMessage": "Los siguientes permisos son opcionales."
         }
       },
       "registry": {
@@ -1906,7 +1937,7 @@
           "title": "Estrategias Junior Mejor Rendimiento:",
           "bullets": {
             "one": "Automatización y optimización en rendimiento a través de múltiples Junior Tranches, proporcionando rendimientos mejorados ",
-            "two": "Reciba ganancias maximizadas sin verificar constantemente tarifas y gastar gas en cada transferencia"
+            "two": "Ofrezca retornos maximizados sin que el usuario verifique constantemente tarifas y gaste gas en cada transferencia."
           }
         }
       },
@@ -2100,5 +2131,15 @@
       "title": "Establecer Avatar",
       "restoreDefault": "Restaurar predeterminado"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Potencia FOX actual",
+    "foxPower": "Poder FOX",
+    "simulateTitle": "Simule sus Ahorros FOX",
+    "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
+    "tradeSize": "Tamaño de intercambio",
+    "totalFee": "Costo total",
+    "foxPowerDiscount": "Descuento poder FOX",
+    "basedOnFee": "Basado en tarifa de: %{fee}"
   }
 }

@@ -368,7 +368,7 @@ export const makeDaysToBreakEven = ({
   })
   // The total downside that goes into a savers deposit, from THOR docs;
   // "the minimum amount of the target asset the user can expect to deposit after fees"
-  // https://thornode.ninerealms.com/thorchain/doc/
+  // https://daemon.thorchain.shapeshift.com/lcd/thorchain/doc
   const depositFeeCryptoPrecision = bnOrZero(
     fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit)),
   )

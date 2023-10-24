@@ -11,6 +11,9 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+const arrowBackIcon = <ArrowBackIcon />
+const disabledProps = { opacity: 1 }
+
 export const Languages = () => {
   const dispatch = useAppDispatch()
   const history = useHistory()
@@ -23,7 +26,7 @@ export const Languages = () => {
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}
@@ -41,7 +44,7 @@ export const Languages = () => {
             width='full'
             justifyContent='flexStart'
             mb={2}
-            _disabled={{ opacity: 1 }}
+            _disabled={disabledProps}
           >
             <Flex alignItems='center' textAlign='left'>
               <Icon as={FaCheck} color='blue.500' />
@@ -56,6 +59,8 @@ export const Languages = () => {
               key={locale.key}
               variant='ghost'
               data-test={`locale-${locale.key}-button`}
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => {
                 dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
               }}

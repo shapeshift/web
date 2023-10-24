@@ -9,7 +9,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -126,7 +126,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     }
   }, [accountId, handleAccountIdChange, translate, underlyingAsset?.symbol])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -134,7 +134,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location.pathname, query])
 
   if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (

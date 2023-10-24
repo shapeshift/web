@@ -17,6 +17,12 @@ jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   },
 }))
 
+jest.mock('@shapeshiftoss/hdwallet-ledger-webusb', () => ({
+  WebUSBLedgerAdapter: {
+    useKeyring: jest.fn(),
+  },
+}))
+
 jest.mock('friendly-challenge', () => ({
   WidgetInstance: {},
 }))
@@ -57,12 +63,6 @@ const setup = async () => {
 
 describe('WalletProvider', () => {
   describe('dispatch', () => {
-    it('can SET_ADAPTERS on mount', async () => {
-      const result = await setup()
-
-      expect(result.current.state.adapters).toBeTruthy()
-    })
-
     it('can SET_WALLET sets a wallet in state', async () => {
       const result = await setup()
 

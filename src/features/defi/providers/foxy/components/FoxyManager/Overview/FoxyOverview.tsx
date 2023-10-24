@@ -12,7 +12,7 @@ import type {
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -57,7 +57,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     stakingAssetId,
   } = useFoxyQuery()
   const foxyApi = getFoxyApi()
-  const [canClaim, setCanClaim] = useState<boolean>(false)
+  const [canClaim, setCanClaim] = useState<boolean | null>(null)
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
@@ -124,22 +124,84 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const hasPendingUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isAfter(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
   const hasAvailableUndelegation = Boolean(
     undelegations &&
-      undelegations.some(undelegation =>
-        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
+      undelegations.some(
+        undelegation =>
+          dayjs().isBefore(dayjs(undelegation.completionTime).unix()) &&
+          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 
-  const claimDisabled = !canClaim && !hasAvailableUndelegation
+  const claimDisabled = !canClaim || !(hasAvailableUndelegation || hasPendingUndelegation)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+
+  const foxyEmptyAssets = useMemo(() => [stakingAsset, rewardAsset], [stakingAsset, rewardAsset])
+  const underlyingAssetsCryptoPrecision = useMemo(
+    () => [
+      {
+        ...stakingAsset,
+        cryptoBalancePrecision: cryptoAmountAvailablePrecision.toFixed(4),
+        allocationPercentage: '1',
+      },
+    ],
+    [cryptoAmountAvailablePrecision, stakingAsset],
+  )
+  const handleFoxyEmptyClick = useCallback(
+    () =>
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          ...query,
+          modal: DefiAction.Deposit,
+        }),
+      }),
+    [history, location.pathname, query],
+  )
+
+  const overviewMenu = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+      {
+        label: 'common.claim',
+        icon: <FaGift />,
+        action: DefiAction.Claim,
+        variant: 'ghost-filled',
+        colorScheme: 'green',
+        isLoading: canClaim === null,
+        isDisabled: claimDisabled,
+        toolTip: translate('defi.modals.overview.noWithdrawals'),
+      },
+    ],
+    [canClaim, claimDisabled, translate],
+  )
+
+  const overviewDescription = useMemo(
+    () => ({
+      description: stakingAsset.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: stakingAsset.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, stakingAsset.description, stakingAsset.isTrustedDescription],
+  )
 
   if (!foxyEarnOpportunityData) {
     return (
@@ -159,17 +221,9 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   ) {
     return (
       <FoxyEmpty
-        assets={[stakingAsset, rewardAsset]}
+        assets={foxyEmptyAssets}
         apy={foxyEarnOpportunityData?.apy ?? ''}
-        onClick={() =>
-          history.push({
-            pathname: location.pathname,
-            search: qs.stringify({
-              ...query,
-              modal: DefiAction.Deposit,
-            }),
-          })
-        }
+        onClick={handleFoxyEmptyClick}
       />
     )
   }
@@ -181,43 +235,13 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={[
-        {
-          ...stakingAsset,
-          cryptoBalancePrecision: cryptoAmountAvailablePrecision.toFixed(4),
-          allocationPercentage: '1',
-        },
-      ]}
+      underlyingAssetsCryptoPrecision={underlyingAssetsCryptoPrecision}
       provider={makeDefiProviderDisplayName({
         provider: foxyEarnOpportunityData.provider,
         assetName: stakingAsset.name,
       })}
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-        {
-          label: 'common.claim',
-          icon: <FaGift />,
-          action: DefiAction.Claim,
-          variant: 'ghost-filled',
-          colorScheme: 'green',
-          isDisabled: claimDisabled,
-          toolTip: translate('defi.modals.overview.noWithdrawals'),
-        },
-      ]}
-      description={{
-        description: stakingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: stakingAsset.isTrustedDescription,
-      }}
+      menu={overviewMenu}
+      description={overviewDescription}
       tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toFixed(2)}
       apy={foxyEarnOpportunityData?.apy?.toString()}
     >

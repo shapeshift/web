@@ -13,6 +13,8 @@ type ResultsEmptyProp = {
   ctaHref?: string | null
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
   icon = <DefiIcon boxSize='24px' color='purple.500' />,
   title = 'defi.noActivePositions',
@@ -32,13 +34,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
         <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
         {ctaHref && (
-          <Button
-            colorScheme='purple'
-            as={Link}
-            to={ctaHref}
-            mt={4}
-            rightIcon={<ArrowForwardIcon />}
-          >
+          <Button colorScheme='purple' as={Link} to={ctaHref} mt={4} rightIcon={arrowForwardIcon}>
             {translate('defi.startEarning')}
           </Button>
         )}

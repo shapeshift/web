@@ -1,7 +1,7 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { StepRow } from './StepRow'
 
@@ -24,6 +24,8 @@ type StepsProps = {
   persistStepperStatus?: boolean
 } & StackProps
 
+const divider = <StackDivider />
+
 export const Steps: React.FC<StepsProps> = ({
   steps,
   children,
@@ -37,18 +39,22 @@ export const Steps: React.FC<StepsProps> = ({
   const Status = steps[DefiStep.Status]?.component ?? null
   const statusIndex = otherSteps.indexOf(DefiStep.Status)
 
-  const handleNext = (nextStep: DefiStep) => setCurrentStep(otherSteps.indexOf(nextStep))
+  const handleNext = useCallback(
+    (nextStep: DefiStep) => setCurrentStep(otherSteps.indexOf(nextStep)),
+    [otherSteps],
+  )
 
   return (
-    <Stack width='full' borderColor={borderColor} divider={<StackDivider />} {...rest}>
+    <Stack width='full' borderColor={borderColor} divider={divider} {...rest}>
       {currentStep === statusIndex && Status && !persistStepperStatus ? (
         <Status onNext={handleNext} />
       ) : (
-        <Stack spacing={0} borderColor={borderColor} divider={<StackDivider />}>
+        <Stack spacing={0} borderColor={borderColor} divider={divider}>
           {otherSteps.map((step, index) => {
             const Step = steps[step as DefiStep]
             if (!Step) return null
             const Component = Step.component
+            const isActive = currentStep === index
             return (
               <StepRow
                 label={Step.label}
@@ -56,9 +62,9 @@ export const Steps: React.FC<StepsProps> = ({
                 description={Step?.description}
                 stepNumber={`${index + 1}`}
                 isComplete={currentStep > index}
-                isActive={currentStep === index}
+                isActive={isActive}
               >
-                <Component onNext={handleNext} {...Step.props} />
+                {isActive && <Component onNext={handleNext} {...Step.props} />}
               </StepRow>
             )
           })}

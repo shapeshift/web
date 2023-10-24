@@ -39,6 +39,8 @@ import { ClaimContext } from '../ClaimContext'
 import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
@@ -155,6 +157,8 @@ export const Status = () => {
         assetId: rewardAsset.assetId,
         amount: rewardAsset.amountCryptoHuman,
       }
+      // we need to pass a local scope arg here, so we need an anonymous function wrapper
+      // eslint-disable-next-line react-memo/require-usememo
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
   }, [claimAmounts])
@@ -284,7 +288,7 @@ export const Status = () => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

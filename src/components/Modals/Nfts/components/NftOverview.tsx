@@ -2,6 +2,7 @@ import { Button, Divider, Flex, Link, Tag } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -19,6 +20,8 @@ type NftOverviewProps = {
   nftItem: NftItem
 }
 
+const ellipsisAddressHover = { bg: 'transparent' }
+
 export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
   const translate = useTranslate()
 
@@ -34,6 +37,11 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
   const maybeFeeAsset = useAppSelector(s => selectAssetById(s, maybeFeeAssetId ?? ''))
   const maybeExplorerLinkBase = maybeFeeAsset?.explorerAddressLink
   const maybeCollectionLink = `${maybeExplorerLinkBase}${address}`
+
+  const handlellipsisAddressClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation(),
+    [],
+  )
 
   return (
     <Flex flexDir='column'>
@@ -67,12 +75,12 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
                   bg='transparent'
                   fontWeight='normal'
                   fontFamily='monospace'
-                  onClick={e => e.stopPropagation()}
+                  onClick={handlellipsisAddressClick}
                   mt={1}
                   p={0}
                   height='auto'
                   fontSize='inherit'
-                  _hover={{ bg: 'transparent' }}
+                  _hover={ellipsisAddressHover}
                   display='flex'
                   alignItems='center'
                 >
@@ -85,7 +93,12 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
             <Row>
               <Row.Label>{translate('nft.chain')}</Row.Label>
               <Row.Value display='flex' alignItems='center'>
-                <AssetIcon src={maybeFeeAsset?.icon} size='2xs' mr={2} /> {chainDisplayName}
+                <AssetIcon
+                  src={maybeFeeAsset?.networkIcon ?? maybeFeeAsset?.icon}
+                  size='2xs'
+                  mr={2}
+                />{' '}
+                {chainDisplayName}
               </Row.Value>
             </Row>
           )}

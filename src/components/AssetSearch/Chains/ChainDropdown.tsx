@@ -31,6 +31,8 @@ type ChainDropdownProps = {
 
 const width = { base: 'full', md: 'auto' }
 
+const chevronDownIcon = <ChevronDownIcon />
+
 export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   chainIds,
   chainId,
@@ -57,7 +59,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
 
   return (
     <Menu {...menuProps}>
-      <MenuButton width={width} as={Button} rightIcon={<ChevronDownIcon />} {...buttonProps}>
+      <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <MenuList zIndex='banner'>

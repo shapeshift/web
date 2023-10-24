@@ -2,7 +2,9 @@ import type { BoxProps } from '@chakra-ui/react'
 import { Box, useColorModeValue } from '@chakra-ui/react'
 import type { Location } from 'history'
 import type { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 
 export type RouteConfig = {
@@ -39,6 +41,11 @@ export const RouteSteps = ({
   const stepperBg = useColorModeValue('gray.50', 'gray.800')
   const stepperBorder = useColorModeValue('gray.100', 'gray.750')
 
+  const defiActionTranslation: TextPropTypes['translation'] = useMemo(
+    () => [`defi.${action}Asset`, { assetSymbol }],
+    [action, assetSymbol],
+  )
+
   if (!location) return null
 
   return (
@@ -57,7 +64,7 @@ export const RouteSteps = ({
           fontSize='lg'
           fontWeight='semibold'
           textAlign='center'
-          translation={[`defi.${action}Asset`, { assetSymbol }]}
+          translation={defiActionTranslation}
         />
       )}
       <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />

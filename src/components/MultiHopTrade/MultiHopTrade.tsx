@@ -14,9 +14,15 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { Approval } from './components/Approval/Approval'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { TradeInput } from './components/TradeInput/TradeInput'
+import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { TradeRoutePaths } from './types'
 
-const MultiHopEntries = [TradeRoutePaths.Input, TradeRoutePaths.Approval, TradeRoutePaths.Confirm]
+const MultiHopEntries = [
+  TradeRoutePaths.Input,
+  TradeRoutePaths.Approval,
+  TradeRoutePaths.Confirm,
+  TradeRoutePaths.VerifyAddresses,
+]
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
@@ -93,6 +99,9 @@ const MultiHopRoutes = memo(() => {
         </Route>
         <Route key={TradeRoutePaths.Approval} path={TradeRoutePaths.Approval}>
           <Approval />
+        </Route>
+        <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
+          <VerifyAddresses />
         </Route>
       </Switch>
     </AnimatePresence>

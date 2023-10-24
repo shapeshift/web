@@ -161,7 +161,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         wallet,
       })
 
-      await buildAndBroadcast({ adapter, buildCustomTxInput })
+      await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: undefined, // no receiver for this contract call
+      })
       await poll({
         fn: () =>
           getErc20Allowance({
@@ -301,6 +305,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
+  const handleCancel = useCallback(() => history.push('/'), [history])
+
   if (!saversRouterContractAddress || !state || !dispatch) return null
 
   return (
@@ -318,7 +324,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
-      onCancel={() => history.push('/')}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={saversRouterContractAddress}
       onToggle={onExactAllowanceToggle}

@@ -3,7 +3,7 @@ import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -11,24 +11,11 @@ import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { Approval } from './components/Approval/Approval'
+import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
+import { TradeInput } from './components/TradeInput/TradeInput'
+import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { TradeRoutePaths } from './types'
-
-const Approval = lazy(() =>
-  import('./components/Approval/Approval').then(({ Approval }) => ({ default: Approval })),
-)
-const TradeConfirm = lazy(() =>
-  import('./components/TradeConfirm/TradeConfirm').then(({ TradeConfirm }) => ({
-    default: TradeConfirm,
-  })),
-)
-const TradeInput = lazy(() =>
-  import('./components/TradeInput/TradeInput').then(({ TradeInput }) => ({ default: TradeInput })),
-)
-const VerifyAddresses = lazy(() =>
-  import('./components/VerifyAddresses/VerifyAddresses').then(({ VerifyAddresses }) => ({
-    default: VerifyAddresses,
-  })),
-)
 
 const MultiHopEntries = [
   TradeRoutePaths.Input,

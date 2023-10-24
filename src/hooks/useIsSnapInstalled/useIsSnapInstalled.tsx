@@ -39,17 +39,16 @@ export const useIsSnapInstalled = (): null | boolean => {
   const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
 
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { wallet },
   } = useWallet()
 
   const checkSnapInstallation = useCallback(async () => {
-    if (!isConnected || isDemoWallet) return
     const isMetaMask = await checkIsMetaMask(wallet)
     if (!isMetaMask) return
 
     const _isSnapInstalled = await checkIsSnapInstalled()
     setIsSnapInstalled(_isSnapInstalled)
-  }, [isConnected, isDemoWallet, wallet])
+  }, [wallet])
 
   useEffect(() => {
     // Call the function immediately

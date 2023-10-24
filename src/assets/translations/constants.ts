@@ -16,6 +16,10 @@ export const locales = [
     label: 'Français',
   },
   {
+    key: 'ja',
+    label: '日本語',
+  },
+  {
     key: 'pt',
     label: 'Português',
   },

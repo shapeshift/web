@@ -80,7 +80,9 @@ const _getQuote = async ({
     ...(streaming && { streaming_interval: streamingInterval }),
   })
   const maybeData = (
-    await thorService.get<ThornodeQuoteResponse>(`${daemonUrl}/thorchain/quote/swap?${queryString}`)
+    await thorService.get<ThornodeQuoteResponse>(
+      `${daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
+    )
   ).andThen(({ data }) => Ok(data))
 
   if (maybeData.isErr()) return Err(maybeData.unwrapErr())

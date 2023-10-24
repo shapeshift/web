@@ -15,6 +15,8 @@ type FeeBreakdownProps = {
   feeUsdDiscount: string
 }
 
+const divider = <Divider />
+
 export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
   feeUsd,
   foxDiscountPercent,
@@ -29,7 +31,7 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
         <Heading as='h5'>{translate('foxDiscounts.breakdownHeader')}</Heading>
         <RawText color='text.subtle'>{translate('foxDiscounts.breakdownBody')}</RawText>
       </Stack>
-      <Stack px={8} mb={6} spacing={4} divider={<Divider />}>
+      <Stack px={8} mb={6} spacing={4} divider={divider}>
         <Row>
           <Row.Label>{translate('foxDiscounts.tradeFee')}</Row.Label>
           <Row.Value textAlign='right'>

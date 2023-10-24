@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 import { depositWithExpiry } from './routerCalldata'
 
 const ROUTER = '0x3624525075b88b24ecc29ce226b0cec1ffcb6976'

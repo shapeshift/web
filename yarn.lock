@@ -34664,7 +34664,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"web3-core@npm:4.3.1-dev.a0d6730.0":
+"web3-core@npm:4.3.1-dev.a0d6730.0+a0d6730":
   version: 4.3.1-dev.a0d6730.0
   resolution: "web3-core@npm:4.3.1-dev.a0d6730.0"
   dependencies:
@@ -34746,7 +34746,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"web3-eth-ens@npm:4.0.8-dev.a0d6730.0":
+"web3-eth-ens@npm:4.0.8-dev.a0d6730.0+a0d6730":
   version: 4.0.8-dev.a0d6730.0
   resolution: "web3-eth-ens@npm:4.0.8-dev.a0d6730.0"
   dependencies:

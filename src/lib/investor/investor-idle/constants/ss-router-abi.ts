@@ -1,7 +1,5 @@
-import type { AbiItem } from 'web3-utils'
-
 /* eslint-disable */
-export const ssRouterAbi: AbiItem[] = [
+export const ssRouterAbi = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",

@@ -3,8 +3,10 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 // import https from 'https'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
+import type { GetContractReturnType } from 'viem'
+import { getContract } from 'viem'
 import { Web3 } from 'web3'
-import type { Contract } from 'web3-eth-contract'
+import { viemEthMainnetClient } from 'lib/viem-client'
 
 import type { Investor } from '../../investor'
 import type { IdleVault } from './constants'
@@ -27,7 +29,7 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
   readonly #deps: {
     chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
-    contract: Contract
+    contract: GetContractReturnType<typeof ssRouterAbi>
     network?: number
     web3: Web3
   }
@@ -37,7 +39,12 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
     const httpProvider = new Web3.providers.HttpProvider(providerUrl)
     // const jsonRpcProvider = new JsonRpcProvider(providerUrl)
     const web3 = new Web3(httpProvider)
-    const contract = new web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
+    const contract = getContract({
+      abi: ssRouterAbi,
+      address: ssRouterContractAddress,
+      publicClient: viemEthMainnetClient,
+    })
+
     this.#deps = Object.freeze({
       chainAdapter,
       contract,

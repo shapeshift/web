@@ -7,10 +7,9 @@ import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
-import type { AbiItem, Address } from 'viem'
-import { encodeFunctionData, getContract } from 'viem'
+import type { Address, GetContractReturnType } from 'viem'
+import { encodeFunctionData, getAddress, getContract } from 'viem'
 import type { Web3 } from 'web3'
-import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { viemEthMainnetClient } from 'lib/viem-client'
@@ -22,7 +21,7 @@ import type {
   InvestorOpportunity,
 } from '../../investor'
 import { MAX_ALLOWANCE } from '../constants'
-import type { IdleVault } from './constants'
+import type { IdleVault, ssRouterAbi } from './constants'
 import { erc20Abi, idleCdoAbi, idleStrategyAbi, idleTokenV4Abi } from './constants'
 import { ssRouterContractAddress } from './constants/router-contract'
 
@@ -45,7 +44,8 @@ const feeMultiplier: Record<FeePriority, number> = Object.freeze({
 type IdleOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
   dryRun?: true
-  contract: Contract
+  // TODO(gomes): we shouldn't pass web3-eth-contract instances around anymore
+  contract: GetContractReturnType<typeof ssRouterAbi>
   network?: number
   web3: Web3
 }
@@ -69,7 +69,8 @@ export class IdleOpportunity
   readonly #internals: {
     chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
-    routerContract: Contract
+    // TODO(gomes): we shouldn't pass web3-eth-contract instances around anymore
+    routerContract: GetContractReturnType<typeof ssRouterAbi>
     web3: Web3
     network?: number
   }
@@ -136,6 +137,7 @@ export class IdleOpportunity
     this.#internals = {
       chainAdapter: deps.chainAdapter,
       dryRun: deps.dryRun,
+      // TODO(gomes): we shouldn't pass web3 contract arounds like that anymore
       routerContract: deps.contract,
       web3: deps.web3,
       network: deps.network,
@@ -213,13 +215,14 @@ export class IdleOpportunity
       methodName = `withdraw${trancheType}`
     } else {
       vaultAddress = this.id
+      vaultContractAbi = idleTokenV4Abi
       methodName = `redeemIdleToken`
     }
 
     const data = encodeFunctionData({
       abi: vaultContractAbi,
-      functionName: methodName,
-      args: [amount.toFixed()],
+      functionName: methodName as 'withdrawAA' | 'withdrawBB' | 'redeemIdleToken',
+      args: [BigInt(amount.toFixed())],
     })
 
     const estimatedGas = bn(
@@ -298,17 +301,14 @@ export class IdleOpportunity
 
     let methodName: string
     let methodParams: string[]
-    let vaultContract: Contract
     let vaultContractAddress: Address
     let vaultContractAbi
 
     // Handle Tranche Deposit
     if (this.metadata.cdoAddress) {
-      vaultContract = this.#internals.routerContract
       // TODO(gomes): we don't need to pass contract instances around like that anymore now that we use viem
-      vaultContractAddress = this.#internals.routerContract.options.address as Address
-      // TODO(gomes): this property doesn't exist, just a temporary placeholder until I figure this out
-      vaultContractAbi = this.#internals.routerContract.options.abi
+      vaultContractAddress = this.#internals.routerContract.address
+      vaultContractAbi = this.#internals.routerContract.abi
       const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
       methodName = `deposit${trancheType}`
       methodParams = [this.metadata.cdoAddress, amount.toFixed()]
@@ -344,7 +344,7 @@ export class IdleOpportunity
       estimatedGas,
       gasPrice,
       nonce: String(nonce),
-      to: vaultContract.options.address,
+      to: vaultContractAddress,
       value: '0',
     }
   }
@@ -397,7 +397,8 @@ export class IdleOpportunity
    *
    * @param address - The user's wallet address where the funds are
    */
-  async getClaimableTokens(address: Address): Promise<ClaimableToken[]> {
+  async getClaimableTokens(_address: string): Promise<ClaimableToken[]> {
+    const address = getAddress(_address)
     if (this.metadata.cdoAddress) {
       return []
     }
@@ -438,34 +439,20 @@ export class IdleOpportunity
       publicClient: viemEthMainnetClient,
     })
 
-    let vaultContract: Contract
+    let vaultContractAddress: Address
 
     // Handle Tranche Withdraw
     if (this.metadata.cdoAddress) {
-      // vaultContract = this.#internals.routerContract
-      vaultContract = getContract({
-        // TODO(gomes): this is wrong, this doesn't exist, just a placeholder
-        abi: this.#internals.routerContract.options.abi,
-        // TODO(gomes): this is wrong
-        address: this.#internals.routerContract.options.address as Address,
-        publicClient: viemEthMainnetClient,
-      })
+      vaultContractAddress = this.#internals.routerContract.address
     } else {
-      vaultContract = getContract({
-        abi: idleTokenV4Abi,
-        address: this.id as Address,
-        publicClient: viemEthMainnetClient,
-      })
+      vaultContractAddress = this.id as Address
     }
 
     const allowance = bn(
       // TODO(gomes): fix unknown here
       // @ts-ignore TODO, just getting this to compile
       (
-        await depositTokenContract.read.allowance([
-          address as Address,
-          vaultContract.options.address as Address,
-        ])
+        await depositTokenContract.read.allowance([address as Address, vaultContractAddress])
       ).toString(),
     )
 
@@ -489,6 +476,7 @@ export class IdleOpportunity
     }
 
     const data = encodeFunctionData({
+      // @ts-ignore this is actually valid erc20 ABI
       abi: erc20Abi,
       function: 'approve',
       parameters: [vaultContractAddress, MAX_ALLOWANCE],

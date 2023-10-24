@@ -36,6 +36,8 @@ const makeOrdinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
 }
 
+const arrowBackIcon = <ArrowBackIcon />
+
 type TestState = {
   targetWordIndex: number
   randomWords: string[]
@@ -101,8 +103,6 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     }
   }, [testCount, history, revoker])
 
-  if (!testState) return null
-
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
       setTestCount(testCount + 1)
@@ -111,15 +111,19 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     }
   }
 
-  const onCheckBoxClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckBoxClick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setHasAlreadySaved(e.target.checked)
-  }
+  }, [])
+
+  const handleSkipClick = useCallback(() => history.push(BackupPassphraseRoutes.Success), [history])
+
+  if (!testState) return null
 
   return (
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         fontSize='xl'
         size='sm'
@@ -159,6 +163,8 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
                   key={index}
                   flexGrow={4}
                   flexBasis='auto'
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
                   onClick={() => handleClick(index)}
                 >
                   {word}
@@ -178,7 +184,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
               color='text.subtle'
             />
           </Box>
-          <Checkbox mb={4} spacing={4} onChange={onCheckBoxClick} isChecked={hasAlreadySaved}>
+          <Checkbox mb={4} spacing={4} onChange={handleCheckBoxClick} isChecked={hasAlreadySaved}>
             <Text
               fontSize='sm'
               fontWeight='bold'
@@ -190,7 +196,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
             width='full'
             size='md'
             isDisabled={!hasAlreadySaved}
-            onClick={() => history.push(BackupPassphraseRoutes.Success)}
+            onClick={handleSkipClick}
           >
             <Text translation={'common.skip'} />
           </Button>

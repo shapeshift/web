@@ -19,6 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -41,6 +42,8 @@ import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
+
+const helperTooltipIconProps = { color: 'currentColor' }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
@@ -200,11 +203,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     }
   })
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleDeposit}
       loading={state.loading}
       loadingText={translate('common.confirm')}
@@ -255,14 +265,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
           <HelperTooltip
             label={translate('defi.memoNote.body')}
-            iconProps={{ color: 'currentColor' }}
+            iconProps={helperTooltipIconProps}
           />
         </Alert>
       )}
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={notEnoughGasTranslation} />
         </Alert>
       )}
     </ReusableConfirm>

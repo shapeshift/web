@@ -132,8 +132,6 @@
         },
         "bodies": {
           "rateFluctuationInfo": "Tingkat %{assetName} yang Anda peroleh, Persentase Pengembalian Tahunan (APR), biasanya berfluktuasi antara 7% - 20%.",
-          "amountStakingInfo": "Anda dapat mempertaruhkan %{assetName} dalam jumlah berapa pun dan mereka akan segera mulai mendapatkan hadiah.",
-          "withdrawInfo": "Anda dapat menarik hadiah Anda kapan saja, yang memerlukan sedikit biaya gas sekitar ~$.01.",
           "unbondingInfo": "Saat Anda unstaking token, token akan tetap terkunci selama %{unbondingDays} hari, selama waktu tersebut mereka tidak akan mendapatkan hadiah. Setelah %{unbondingDays} hari, %{assetName} Anda akan kembali ke Dompet Utama Anda.",
           "slashingInfo": "Staking dilakukan melalui validator. Ini sangat jarang terjadi, tetapi jika validator yang Anda pertaruhkan mengacaukan dengan membiarkan transaksi yang salah atau salah, Anda bisa kehilangan sebagian dari aset Anda.",
           "partnerInfo": "Kami telah mengurangi risiko ini dengan bermitra dengan validator yang memiliki reputasi baik—yang memiliki infrastruktur yang aman, andal, dan diaudit."
@@ -399,7 +397,6 @@
       "recoverySentence": {
         "header": "Tuliskan Kalimat Pemulihan Anda",
         "body": "Di layar KeepKey Anda, Anda akan melihat kalimat pemulihan Anda. Tuliskan. Jika Anda kehilangan akses ke perangkat, aset Anda HANYA dapat diakses dengan kalimat ini.",
-        "infoFirst": "Sangat penting Anda menuliskannya persis seperti yang muncul di KeepKey.",
         "infoSecond": "Jangan pernah membagikan hukuman pemulihan Anda, itu memberikan akses ke semua dana Anda.",
         "awaitingButtonPress": "Ikuti langkah-langkah di KeepKey Anda untuk melihat Kalimat Pemulihan Anda. Tuliskan!"
       },

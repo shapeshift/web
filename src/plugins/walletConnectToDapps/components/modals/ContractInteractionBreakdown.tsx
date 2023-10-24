@@ -27,6 +27,8 @@ const EncodedText = ({ value }: { value: string }) => (
   </Flex>
 )
 
+const faCodeIcon = <FaCode />
+
 export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps> = ({
   request,
   feeAsset,
@@ -78,15 +80,17 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
     [addressColor, feeAsset, transaction?.args],
   )
 
+  const transactionNameTitle = useMemo(
+    () => (
+      <Box lineHeight={2.4} m={0}>
+        {transaction?.name}
+      </Box>
+    ),
+    [transaction?.name],
+  )
+
   return (
-    <ModalCollapsableSection
-      title={
-        <Box lineHeight={2.4} m={0}>
-          {transaction?.name}
-        </Box>
-      }
-      icon={<FaCode />}
-    >
+    <ModalCollapsableSection title={transactionNameTitle} icon={faCodeIcon}>
       <Box pl={6} pt={2}>
         {request.value && (
           <>

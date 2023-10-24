@@ -1,6 +1,6 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Button, Stack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,14 +34,19 @@ export const Confirm = ({
     dispatch,
   } = useWallet()
 
-  const handleWalletModalOpen = () => {
+  const handleWalletModalOpen = useCallback(() => {
     /**
      * call onCancel to close the current modal
      * before opening the connect wallet modal.
      */
     onCancel()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
+  }, [dispatch, onCancel])
+
+  const handleClick = useCallback(
+    () => (isConnected ? onConfirm() : handleWalletModalOpen()),
+    [isConnected, onConfirm, handleWalletModalOpen],
+  )
 
   return (
     <>
@@ -57,7 +62,7 @@ export const Confirm = ({
             width='full'
             colorScheme='blue'
             data-test='defi-modal-confirm-button'
-            onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+            onClick={handleClick}
             isDisabled={isDisabled}
             isLoading={loading}
             loadingText={loadingText}

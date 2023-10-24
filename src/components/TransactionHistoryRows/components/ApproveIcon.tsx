@@ -1,5 +1,6 @@
 import { Box, Icon } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { FaBan, FaCheck } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
@@ -21,6 +22,11 @@ export const ApproveIcon = ({
 
   const isRevoke = approvedValue.isZero()
 
+  const assetIconBoxSize = useMemo(
+    () => ({ base: '24px', md: compactMode ? '24px' : '40px' }),
+    [compactMode],
+  )
+
   return (
     <Box position='relative'>
       <IconCircle
@@ -34,10 +40,7 @@ export const ApproveIcon = ({
       >
         <Icon as={isRevoke ? FaBan : FaCheck} width='50%' color='black' />
       </IconCircle>
-      <AssetIcon
-        src={approvedAsset?.icon}
-        boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
-      />
+      <AssetIcon src={approvedAsset?.icon} boxSize={assetIconBoxSize} />
     </Box>
   )
 }

@@ -18,6 +18,8 @@ type TransactionGroup = {
   txIds: TxId[]
 }
 
+const divider = <StackDivider borderColor='border.base' />
+
 export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = memo(
   ({ txIds, useCompactMode = false }) => {
     const { setNode, entry } = useResizeObserver()
@@ -57,7 +59,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
     }, [entry?.contentRect.width, txRows, useCompactMode])
 
     return (
-      <Stack ref={setNode} divider={<StackDivider borderColor='border.base' />}>
+      <Stack ref={setNode} divider={divider}>
         {renderTxRows}
       </Stack>
     )

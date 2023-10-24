@@ -10,7 +10,7 @@ import type { ReduxState } from 'state/reducer'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from 'state/slices/selectors'
+import { selectAssets, selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
@@ -60,10 +60,12 @@ export const swappersApi = createApi({
               affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
             },
             enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
+            selectAssets(state),
           ),
           getTradeQuotes(
             getTradeQuoteInput,
             enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
+            selectAssets(state),
           ),
         ])
 

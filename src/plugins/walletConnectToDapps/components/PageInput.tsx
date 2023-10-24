@@ -11,6 +11,8 @@ type Props = {
 }
 
 const styleProp = { height: 36 }
+const arrowBackIcon = <ArrowBackIcon />
+const arrowForwardIcon = <ArrowForwardIcon />
 
 export const PageInput: FC<Props> = ({ value, max, onChange }) => {
   const translate = useTranslate()
@@ -29,7 +31,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         colorScheme='gray'
         aria-label={translate('plugins.walletConnectToDapps.registry.pageInput.prevPage')}
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         disabled={value <= 0}
         style={styleProp}
         onClick={prevPage}
@@ -43,7 +45,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
       <IconButton
         aria-label={translate('plugins.walletConnectToDapps.registry.pageInput.nextPage')}
         variant='ghost'
-        icon={<ArrowForwardIcon />}
+        icon={arrowForwardIcon}
         disabled={value >= max}
         style={styleProp}
         onClick={nextPage}

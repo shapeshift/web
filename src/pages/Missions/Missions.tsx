@@ -13,7 +13,7 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import type { PropsWithChildren } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
 import FoxMissionsBg from 'assets/fox-mission-bg.jpg'
@@ -166,16 +166,21 @@ const MissionCarouselHeader: React.FC<CarouselHeaderProps> = ({ controls }) => {
   )
 }
 const sideBarPadding = { base: 4, xl: 0 }
+
 export const MissionSidebar = () => {
   const { active } = useGetMissions()
   const renderMissions = useMemo(() => {
     return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
   }, [active])
+
+  const renderHeader = useCallback(
+    (props: CarouselHeaderProps) => <MissionCarouselHeader {...props} />,
+    [],
+  )
+
   return (
     <Card variant='unstyled' px={sideBarPadding}>
-      <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
-        {renderMissions}
-      </Carousel>
+      <Carousel renderHeader={renderHeader}>{renderMissions}</Carousel>
     </Card>
   )
 }
@@ -198,6 +203,8 @@ export const Missions = () => {
   const missionData = useGetMissions()
   const translate = useTranslate()
 
+  const handleGetListedClick = useCallback(() => window.open(FOX_MISSION_REQUEST_PAGE), [])
+
   const renderMissions = useMemo(() => {
     return (
       <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={containerPadding}>
@@ -207,7 +214,7 @@ export const Missions = () => {
             key='sponsored'
             title={translate('missions.getListed.title')}
             subtitle={translate('missions.getListed.subtitle')}
-            onClick={() => window.open(FOX_MISSION_REQUEST_PAGE)}
+            onClick={handleGetListedClick}
             buttonText={translate('missions.getListed.cta')}
             coverImage={SponsorBg}
           />
@@ -215,7 +222,7 @@ export const Missions = () => {
         <MissionCarousel items={missionData.past} label='missions.endedMissions' />
       </Container>
     )
-  }, [missionData, translate])
+  }, [handleGetListedClick, missionData.active, missionData.future, missionData.past, translate])
   return (
     <DarkMode>
       <SEO title={translate('missions.subtitle')} />

@@ -1,4 +1,6 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { range } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -14,6 +16,9 @@ import type { AccountRowData } from 'state/slices/selectors'
 import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices/selectors'
 
 type RowProps = Row<AccountRowData>
+
+const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
+const reactTableInitialState = { sortBy: [{ id: 'balance', desc: true }] }
 
 export const AccountTable = memo(() => {
   const loading = useSelector(selectPortfolioLoading)
@@ -36,7 +41,7 @@ export const AccountTable = memo(() => {
         id: 'balance',
         justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Stack spacing={0} fontWeight='medium' textAlign={{ base: 'right', lg: 'left' }}>
+          <Stack spacing={0} fontWeight='medium' textAlign={stackTextAlign}>
             <Amount.Fiat color={textColor} lineHeight='tall' value={value} />
             <Amount.Crypto
               lineHeight='shorter'
@@ -117,7 +122,7 @@ export const AccountTable = memo(() => {
     <ReactTable
       columns={columns}
       data={rowData}
-      initialState={{ sortBy: [{ id: 'balance', desc: true }] }}
+      initialState={reactTableInitialState}
       onRowClick={handleRowClick}
       variant='clickable'
     />

@@ -1,7 +1,7 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -149,6 +149,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     }
   }, [amount, asset, assets, claimFiatAmount, opportunity, state.txStatus])
 
+  const handleClose = useCallback(() => browserHistory.goBack(), [browserHistory])
+
   return (
     <SlideTransition>
       <ModalBody>
@@ -238,7 +240,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
               </Stack>
             </Row.Value>
           </Row>
-          <Button width='full' size='lg' onClick={() => browserHistory.goBack()}>
+          <Button width='full' size='lg' onClick={handleClose}>
             {translate('common.close')}
           </Button>
         </Stack>

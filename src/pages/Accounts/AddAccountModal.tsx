@@ -33,6 +33,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+const chainDropdownButtonProps = { width: 'full' }
+
 export const AddAccountModal = () => {
   const translate = useTranslate()
   const toast = useToast()
@@ -121,7 +123,7 @@ export const AddAccountModal = () => {
                 chainId={selectedChainId}
                 onClick={setSelectedChainId}
                 matchWidth
-                buttonProps={{ width: 'full' }}
+                buttonProps={chainDropdownButtonProps}
               />
             </Box>
             {!isAbleToAddAccount && (

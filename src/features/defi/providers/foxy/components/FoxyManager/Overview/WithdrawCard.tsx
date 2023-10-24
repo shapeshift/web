@@ -1,4 +1,6 @@
+import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import dayjs from 'dayjs'
 import type {
   DefiParams,
@@ -6,10 +8,12 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
+import { useCallback, useMemo } from 'react'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -22,6 +26,16 @@ type WithdrawCardProps = {
   undelegation: UserUndelegation | undefined
   canClaimWithdraw: boolean | null
 }
+
+const buttonAignItems = { base: 'flex-start', md: 'center' }
+const flexDirectionMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const stackFlexDirectionMdColumn: StackDirection = {
+  base: 'row',
+  md: 'column',
+}
+const stackGap = { base: 2, md: 0 }
+const stackMarginLeft = { base: 0, md: 'auto' }
+const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'left', md: 'right' }
 
 export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -37,7 +51,14 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
-  const handleClick = () => {
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+
+  const handleClick = useCallback(() => {
+    if (!isConnected) return handleWalletModalOpen()
+
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -45,10 +66,15 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
         modal: DefiAction.Claim,
       }),
     })
-  }
+  }, [handleWalletModalOpen, history, isConnected, location.pathname, query])
 
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const availableDateTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'defi.modals.foxyOverview.availableDate',
+      { date: undelegation ? dayjs(dayjs.unix(undelegation.completionTime)).fromNow() : '' },
+    ],
+    [undelegation],
+  )
 
   if (!(undelegation && hasClaim)) return null
 
@@ -63,14 +89,14 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
           width='full'
           maxHeight='auto'
           height='auto'
-          alignItems={{ base: 'flex-start', md: 'center' }}
+          alignItems={buttonAignItems}
           justifyContent='flex-start'
           textAlign='left'
           isDisabled={!isUndelegationAvailable}
           gap={4}
-          flexDir={{ base: 'column', md: 'row' }}
+          flexDir={flexDirectionMdRow}
           py={2}
-          onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
+          onClick={handleClick}
         >
           <Stack direction='row' alignItems='center' width='full'>
             <IconCircle boxSize={8}>
@@ -80,7 +106,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
               justifyContent='space-between'
               spacing={0}
               width='full'
-              direction={{ base: 'row', md: 'column' }}
+              direction={stackFlexDirectionMdColumn}
             >
               <Text color={textColor} translation='common.withdrawal' />
               <Text
@@ -92,12 +118,12 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
             </Stack>
           </Stack>
           <Stack
-            direction={{ base: 'row', md: 'column' }}
+            direction={stackFlexDirectionMdColumn}
             spacing={0}
-            gap={{ base: 2, md: 0 }}
-            ml={{ base: 0, md: 'auto' }}
+            gap={stackGap}
+            ml={stackMarginLeft}
             flexWrap='wrap'
-            textAlign={{ base: 'left', md: 'right' }}
+            textAlign={stackTextAlign}
           >
             <Amount.Crypto
               color={textColor}
@@ -117,10 +143,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
                 <Text
                   fontWeight='normal'
                   lineHeight='shorter'
-                  translation={[
-                    'defi.modals.foxyOverview.availableDate',
-                    { date: dayjs(dayjs.unix(undelegation.completionTime)).fromNow() },
-                  ]}
+                  translation={availableDateTranslation}
                 />
               )}
             </Skeleton>

@@ -12,6 +12,8 @@ import { getWalletCount } from '../mobileMessageHandlers'
 const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 const mlProp = [0, 1.5]
 
+const arrowForwardIcon = <ArrowForwardIcon />
+
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
   const translate = useTranslate()
@@ -47,7 +49,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             isDisabled={!hasLocalWallet}
             onClick={handleLoad}
             data-test='wallet-native-load-button'
@@ -61,7 +63,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
@@ -73,7 +75,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleImport}
             data-test='wallet-native-import-button'
           >

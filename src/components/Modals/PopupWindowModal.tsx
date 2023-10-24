@@ -25,6 +25,8 @@ function popupCenterWindow(url: string, windowName: string, w: number, h: number
   )
 }
 
+const centerWidth = { base: '100%', md: '350px' }
+
 export type PopupWindowModalProps = {
   url: string
   title: string
@@ -80,7 +82,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
       />
       <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
         <Center
-          width={{ base: '100%', md: '350px' }}
+          width={centerWidth}
           height={height}
           flexDirection='column'
           textAlign='center'

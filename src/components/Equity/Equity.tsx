@@ -37,6 +37,8 @@ type EquityProps = {
   accountId?: AccountId
 }
 
+const stackDividerStyle = { marginLeft: 14 }
+
 export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
   const portfolioLoading = useSelector(selectPortfolioLoading)
@@ -130,6 +132,11 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     )
   }, [underlyingAssetsWithBalancesAndIcons])
 
+  const stackDivider = useMemo(
+    () => <StackDivider borderColor={borderColor} style={stackDividerStyle} />,
+    [borderColor],
+  )
+
   if (!asset) return null
 
   return (
@@ -154,12 +161,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         </Flex>
       </CardHeader>
       <CardBody pt={0} pb={2}>
-        <Stack
-          spacing={0}
-          mt={2}
-          mx={-4}
-          divider={<StackDivider borderColor={borderColor} style={{ marginLeft: 14 }} />}
-        >
+        <Stack spacing={0} mt={2} mx={-4} divider={stackDivider}>
           {renderEquityRows}
         </Stack>
       </CardBody>

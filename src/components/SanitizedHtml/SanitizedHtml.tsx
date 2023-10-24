@@ -2,6 +2,7 @@ import './tooltip.css'
 
 import type { TextProps } from '@chakra-ui/react'
 import DOMPurify, { sanitize } from 'dompurify'
+import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 
 DOMPurify.addHook('uponSanitizeElement', (node, data) => {
@@ -23,15 +24,14 @@ export const SanitizedHtml = ({
   dirtyHtml,
   ...rest
 }: { dirtyHtml: string; isTrusted?: boolean } & TextProps) => {
-  let cleanText = sanitize(dirtyHtml ?? '', {
+  const cleanText = sanitize(dirtyHtml ?? '', {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span'],
   })
-  return (
-    <RawText
-      {...rest}
-      dangerouslySetInnerHTML={{
-        __html: cleanText,
-      }}
-    ></RawText>
+  const dangerouslySetInnerHTML = useMemo(
+    () => ({
+      __html: cleanText,
+    }),
+    [cleanText],
   )
+  return <RawText {...rest} dangerouslySetInnerHTML={dangerouslySetInnerHTML}></RawText>
 }

@@ -1,7 +1,9 @@
 import { Button, CardBody, Skeleton, SkeletonText } from '@chakra-ui/react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
@@ -49,22 +51,28 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
     }
   })()
 
+  const stakingCardTitle: TextPropTypes['translation'] = useMemo(
+    () => [title, { asset: asset?.name }],
+    [asset?.name, title],
+  )
+
+  const stakingCardBody: TextPropTypes['translation'] = useMemo(
+    () => [body, { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName }],
+    [asset?.name, body, opportunityApy, providerName],
+  )
+
+  const handleClick = useCallback(() => onClick(opportunity.id), [onClick, opportunity.id])
+
   return (
     <ArkeoCard>
       <CardBody display='flex' flexDir='column' gap={4} height='100%'>
         <AssetIcon assetId={currentAssetId} />
-        <Text fontSize='xl' fontWeight='bold' translation={[title, { asset: asset?.name }]} />
+        <Text fontSize='xl' fontWeight='bold' translation={stakingCardTitle} />
         <SkeletonText noOfLines={4} isLoaded={bnOrZero(opportunityApy).gt(0)}>
-          <Text
-            color='text.subtle'
-            translation={[
-              body,
-              { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },
-            ]}
-          />
+          <Text color='text.subtle' translation={stakingCardBody} />
         </SkeletonText>
         <Skeleton isLoaded={bnOrZero(opportunityApy).gt(0)} mt='auto'>
-          <Button width='full' colorScheme='blue' onClick={() => onClick(opportunity.id)}>
+          <Button width='full' colorScheme='blue' onClick={handleClick}>
             {translate(cta, { asset: asset?.name })}
           </Button>
         </Skeleton>

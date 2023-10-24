@@ -12,6 +12,15 @@ type AssetAccountsProps = {
   accountId?: AccountId
 }
 
+const gridTemplateColumns = {
+  base: '1fr 1fr',
+  md: '1fr 1fr 1fr',
+  lg: '2fr 150px repeat(2, 1fr)',
+}
+
+const allocationTextDisplay = { base: 'none', lg: 'block' }
+const amountTextDisplay = { base: 'none', md: 'block', lg: 'block' }
+
 export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   const translate = useTranslate()
   const accountIds = useAppSelector(state =>
@@ -26,11 +35,7 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
       <CardBody pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           <Grid
-            templateColumns={{
-              base: '1fr 1fr',
-              md: '1fr 1fr 1fr',
-              lg: '2fr 150px repeat(2, 1fr)',
-            }}
+            templateColumns={gridTemplateColumns}
             gap='1rem'
             pl={4}
             pr={4}
@@ -42,11 +47,11 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
               translation='assets.assetDetails.assetAccounts.allocation'
               color='text.subtle'
               textAlign='right'
-              display={{ base: 'none', lg: 'block' }}
+              display={allocationTextDisplay}
             />
             <Text
               translation='assets.assetDetails.assetAccounts.amount'
-              display={{ base: 'none', md: 'block', lg: 'block' }}
+              display={amountTextDisplay}
               color='text.subtle'
               textAlign='right'
             />

@@ -1,6 +1,6 @@
 import { Button, Input, ModalBody, ModalHeader, useToast } from '@chakra-ui/react'
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -21,7 +21,7 @@ export const KeepKeyLabel = () => {
   const [label, setLabel] = useState('')
   const recoverKeepKey = useKeepKeyRecover()
 
-  const handleInitializeSubmit = async () => {
+  const handleInitializeSubmit = useCallback(async () => {
     setLoading(true)
     const resetMessage: ResetDevice = { label: label ?? '', pin: true }
     setDeviceState({ awaitingDeviceInteraction: true })
@@ -35,12 +35,17 @@ export const KeepKeyLabel = () => {
         isClosable: true,
       })
     })
-  }
+  }, [label, setDeviceState, toast, translate, wallet])
 
-  const handleRecoverSubmit = async () => {
+  const handleRecoverSubmit = useCallback(async () => {
     setLoading(true)
     await recoverKeepKey(label)
-  }
+  }, [label, recoverKeepKey])
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value),
+    [],
+  )
 
   return (
     <>
@@ -53,7 +58,7 @@ export const KeepKeyLabel = () => {
           type='text'
           value={label}
           placeholder={translate('modals.keepKey.label.placeholder')}
-          onChange={e => setLabel(e.target.value)}
+          onChange={handleInputChange}
           size='lg'
           variant='filled'
           mt={3}

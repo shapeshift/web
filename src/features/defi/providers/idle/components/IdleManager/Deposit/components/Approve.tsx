@@ -222,6 +222,8 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null
 
   return (
@@ -242,7 +244,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       providerIcon={underlyingAsset?.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={ssRouterContractAddress}
     />

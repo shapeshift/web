@@ -32,6 +32,7 @@ import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
@@ -768,6 +769,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !contextDispatch) return null
 
   return (
@@ -867,7 +873,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={notEnoughGasTranslation} />
         </Alert>
       )}
     </ReusableConfirm>

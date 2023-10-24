@@ -26,6 +26,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
@@ -64,6 +65,13 @@ type OverviewProps = {
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
+const chevronRightIcon = <ChevronRightIcon color='text.subtle' boxSize={6} />
+const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
+const accountDropdownBoxProps = { px: 0 }
+
+const spinner = <Spinner size='sm' />
+const copyIcon = <CopyIcon />
+
 export const Overview: React.FC<OverviewProps> = ({
   handleIsSelectingAsset,
   defaultAction = FiatRampAction.Buy,
@@ -76,6 +84,11 @@ export const Overview: React.FC<OverviewProps> = ({
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
+  const handleSelectChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setFiatCurrency(e.target.value as CommonFiatCurrencies),
+    [],
+  )
   const popup = useModal('popup')
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const { colorMode } = useColorMode()
@@ -110,8 +123,10 @@ export const Overview: React.FC<OverviewProps> = ({
     [fiatRampAction],
   )
 
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
 
   const handleCopyClick = useCallback(async () => {
     const duration = 2500
@@ -202,6 +217,8 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
+            // this whole render method is already memoized
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handlePopupClick({ rampId, address: passedAddress })}
             accountFiatBalance={accountUserCurrencyBalance}
             action={fiatRampAction}
@@ -221,6 +238,11 @@ export const Overview: React.FC<OverviewProps> = ({
     ramps,
   ])
 
+  const handleSelectClick = useCallback(
+    () => handleIsSelectingAsset(fiatRampAction),
+    [fiatRampAction, handleIsSelectingAsset],
+  )
+
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress
     return address ? middleEllipsis(address, 11) : ''
@@ -236,6 +258,17 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const fiatRampsTitleTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'fiatRamps.titleMessage',
+      {
+        action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+        asset: asset?.symbol ?? '',
+      },
+    ],
+    [asset?.symbol, fiatRampAction, translate],
+  )
+
   return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
@@ -247,10 +280,7 @@ export const Overview: React.FC<OverviewProps> = ({
               fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
             }
           />
-          <Select
-            value={fiatCurrency}
-            onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}
-          >
+          <Select value={fiatCurrency} onChange={handleSelectChange}>
             {renderFiatOptions}
           </Select>
         </Stack>
@@ -264,8 +294,8 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            onClick={() => handleIsSelectingAsset(fiatRampAction)}
-            rightIcon={<ChevronRightIcon color='text.subtle' boxSize={6} />}
+            onClick={handleSelectClick}
+            rightIcon={chevronRightIcon}
           >
             {assetId ? (
               <Flex alignItems='center'>
@@ -305,8 +335,8 @@ export const Overview: React.FC<OverviewProps> = ({
                       assetId={assetId}
                       onChange={handleAccountIdChange}
                       defaultAccountId={accountId}
-                      buttonProps={{ variant: 'solid', width: 'full' }}
-                      boxProps={{ px: 0 }}
+                      buttonProps={accountDropdownButtonProps}
+                      boxProps={accountDropdownBoxProps}
                     />
                     <InputGroup size='md'>
                       <Input
@@ -315,13 +345,13 @@ export const Overview: React.FC<OverviewProps> = ({
                         readOnly
                         placeholder={!address ? translate('common.loadingText') : ''}
                       />
-                      {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                      {!address && <InputLeftElement children={spinner} />}
                       {address && (
                         <InputRightElement
                           width={supportsAddressVerification ? '4.5rem' : undefined}
                         >
                           <IconButton
-                            icon={<CopyIcon />}
+                            icon={copyIcon}
                             aria-label='copy-icon'
                             size='sm'
                             isRound
@@ -362,16 +392,7 @@ export const Overview: React.FC<OverviewProps> = ({
           {ramps && (
             <Box>
               <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-              <Text
-                color='text.subtle'
-                translation={[
-                  'fiatRamps.titleMessage',
-                  {
-                    action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-                    asset: asset.symbol,
-                  },
-                ]}
-              />
+              <Text color='text.subtle' translation={fiatRampsTitleTranslation} />
             </Box>
           )}
           {isRampsLoading ? (

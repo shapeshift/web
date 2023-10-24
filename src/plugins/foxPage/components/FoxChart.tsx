@@ -24,6 +24,12 @@ type FoxChartProps = {
   assetId: string
 }
 
+const timeControlsButtonGroupProps = {
+  display: 'flex',
+  width: 'full',
+  justifyContent: 'space-between',
+}
+
 export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
@@ -77,11 +83,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
         <TimeControls
           onChange={handleTimeframeChange}
           defaultTime={timeframe}
-          buttonGroupProps={{
-            display: 'flex',
-            width: 'full',
-            justifyContent: 'space-between',
-          }}
+          buttonGroupProps={timeControlsButtonGroupProps}
         />
       </CardFooter>
     </Card>

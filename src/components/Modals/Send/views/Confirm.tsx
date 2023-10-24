@@ -28,6 +28,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,6 +45,10 @@ export type FeePrice = {
     gasPriceGwei?: string
   }
 }
+
+const arrowBackIcon = <ArrowBackIcon />
+
+const accountDropdownButtonProps = { variant: 'ghost', height: 'auto', p: 0, size: 'md' }
 
 export const Confirm = () => {
   const {
@@ -88,8 +93,20 @@ export const Confirm = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
+  const handleClick = useCallback(() => history.push(SendRoutes.Details), [history])
+
   // We don't want this firing -- but need it for typing
-  const handleAccountChange = () => {}
+  const handleAccountChange = useCallback(() => {}, [])
+
+  const sendAssetTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.send.confirm.sendAsset', { asset: asset?.name ?? '' }],
+    [asset],
+  )
+
+  const assetMemoTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.send.sendForm.assetMemo', { assetSymbol: asset?.symbol ?? '' }],
+    [asset],
+  )
 
   if (!(to && asset?.name && cryptoAmount && fiatAmount && feeType)) return null
 
@@ -97,7 +114,7 @@ export const Confirm = () => {
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}
@@ -105,10 +122,10 @@ export const Confirm = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Details)}
+        onClick={handleClick}
       />
       <ModalHeader textAlign='center'>
-        <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
+        <Text translation={sendAssetTranslation} />
       </ModalHeader>
       <ModalBody>
         <Flex flexDirection='column' alignItems='center' mb={8}>
@@ -132,7 +149,7 @@ export const Confirm = () => {
                 onChange={handleAccountChange}
                 assetId={asset.assetId}
                 defaultAccountId={accountId}
-                buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                buttonProps={accountDropdownButtonProps}
                 disabled
               />
             </Row.Value>
@@ -162,9 +179,7 @@ export const Confirm = () => {
           {showMemoRow && (
             <Row>
               <Row.Label>
-                <Text
-                  translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
-                />
+                <Text translation={assetMemoTranslation} />
               </Row.Label>
               <Row.Value>
                 <RawText>{memo}</RawText>

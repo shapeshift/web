@@ -28,6 +28,7 @@ import { DatePicker } from './components/DatePicker/DatePicker'
 
 const customRangeOption: string = 'customRange'
 const hoverProp = { bg: 'transparent' }
+const closeIcon = <CloseIcon w={3} h={3} />
 
 export enum FilterFormFields {
   FromDate = 'fromDate',
@@ -41,6 +42,8 @@ type TransactionHistoryFilterProps = {
   resetFilters: Function
   hasAppliedFilter?: boolean
 }
+
+const ioOptionsOutlineIcon = <IoOptionsOutline size='1.5em' />
 
 export const TransactionHistoryFilter = memo(
   ({ setFilters, resetFilters, hasAppliedFilter = false }: TransactionHistoryFilterProps) => {
@@ -146,7 +149,7 @@ export const TransactionHistoryFilter = memo(
               <Button
                 colorScheme='blue'
                 variant='ghost-filled'
-                leftIcon={<IoOptionsOutline size='1.5em' />}
+                leftIcon={ioOptionsOutlineIcon}
                 onClick={handleToggle}
               >
                 <Text translation='transactionHistory.filter' />
@@ -155,7 +158,7 @@ export const TransactionHistoryFilter = memo(
                 variant='ghost-filled'
                 colorScheme='blue'
                 aria-label={translate('transactionHistory.filters.resetFilters')}
-                icon={<CloseIcon w={3} h={3} />}
+                icon={closeIcon}
                 onClick={handleResetStopPagination}
               />
             </ButtonGroup>

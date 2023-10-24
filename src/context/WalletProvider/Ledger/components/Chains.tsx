@@ -132,6 +132,8 @@ export const LedgerChains = () => {
             </Flex>
             <Button
               isLoading={loadingChains[asset.chainId]}
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleConnectClick(asset.chainId)}
               colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
               isDisabled={walletChainIds.includes(asset.chainId)}

@@ -7,6 +7,8 @@ import { AssetIcon } from 'components/AssetIcon'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile } from 'lib/globals'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import { MissionSidebar } from 'pages/Missions/Missions'
 
@@ -56,10 +58,15 @@ const promoData: PromoItem[] = [
 const display = { base: 'none', xl: 'block' }
 
 export const DashboardSidebar = memo(() => {
+  const {
+    state: { isConnected, isDemoWallet },
+  } = useWallet()
+  if (!isConnected && !isDemoWallet) return null
+
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      <MultiHopTrade display={display} />
+      {!isMobile && <MultiHopTrade display={display} />}
       <MissionSidebar />
       <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />

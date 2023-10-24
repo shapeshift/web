@@ -6,7 +6,6 @@ import {
   ModalHeader,
   Textarea,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -32,6 +31,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = useCallback(
     async (values: FieldValues) => {
       try {
+        const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const vault = await Vault.create()
         vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())

@@ -28,6 +28,16 @@ type NftCardProps = {
   nftAssetId: AssetId
 }
 
+const flexStyle = {
+  ':hover .nft-image': { transform: 'scale(1.4)' },
+  ':hover .rarity-tag': { bg: 'white', color: 'black' },
+}
+const flexActive = { transform: 'translateY(2px)' }
+const imageStyle = {
+  opacity: 0.5,
+  filter: 'grayscale(50%)',
+}
+
 export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
 
@@ -44,12 +54,16 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
+  const handleMediaLoaded = useCallback(() => setIsMediaLoaded(true), [])
+
   const chainId = fromAssetId(nftItem.assetId).chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
 
   const nftModal = useModal('nft')
+
+  const flexHover = useMemo(() => ({ bg: bgHover }), [bgHover])
 
   const handleClick = useCallback(() => {
     if (!collection) return
@@ -91,12 +105,9 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
       flexDir='column'
       onClick={handleClick}
       bg={bg}
-      _hover={{ bg: bgHover }}
-      sx={{
-        ':hover .nft-image': { transform: 'scale(1.4)' },
-        ':hover .rarity-tag': { bg: 'white', color: 'black' },
-      }}
-      _active={{ transform: 'translateY(2px)' }}
+      _hover={flexHover}
+      sx={flexStyle}
+      _active={flexActive}
       transitionDuration='100ms'
       transitionProperty='all'
       transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
@@ -115,7 +126,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
             <Image
               src={mediaUrl ?? placeholderImage}
               alt={name}
-              onLoad={() => setIsMediaLoaded(true)}
+              onLoad={handleMediaLoaded}
               {...mediaBoxProps}
             />
           </Skeleton>
@@ -127,7 +138,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
             // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
             muted
             autoPlay
-            onCanPlayThrough={() => setIsMediaLoaded(true)}
+            onCanPlayThrough={handleMediaLoaded}
             {...mediaBoxProps}
           />
         )}
@@ -150,10 +161,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
               src={maybeFeeAsset.networkIcon ?? maybeFeeAsset.icon}
               boxSize='17px'
               ml='8px'
-              style={{
-                opacity: 0.5,
-                filter: 'grayscale(50%)',
-              }}
+              style={imageStyle}
             />
           )}
         </Flex>

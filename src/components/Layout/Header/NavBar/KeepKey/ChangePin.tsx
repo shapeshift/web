@@ -1,6 +1,8 @@
 import { Box, Button, Flex, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Text } from 'components/Text'
@@ -14,6 +16,8 @@ import { useMenuRoutes } from '../hooks/useMenuRoutes'
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
 import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'
+
+const gridProps = { spacing: 2 }
 
 export const ChangePin = () => {
   const { handleBackClick } = useMenuRoutes()
@@ -42,7 +46,23 @@ export const ChangePin = () => {
     }
   })()
 
-  const handleCancel = async () => {
+  const keepkeyPinButtonProps = useMemo(
+    () => ({
+      size: 'sm',
+      p: 2,
+      height: 12,
+      background: pinButtonBackground,
+      _hover: { background: pinButtonBackgroundHover },
+    }),
+    [pinButtonBackground, pinButtonBackgroundHover],
+  )
+
+  const awaitKeepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
+    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
+    [],
+  )
+
+  const handleCancel = useCallback(async () => {
     await keepKeyWallet
       ?.cancel()
       .catch(e => {
@@ -59,15 +79,15 @@ export const ChangePin = () => {
           isUpdatingPin: false,
         })
       })
-  }
+  }, [keepKeyWallet, setDeviceState, toast, translate])
 
-  const handleHeaderBackClick = async () => {
+  const handleHeaderBackClick = useCallback(async () => {
     await handleCancel()
 
     await handleBackClick()
-  }
+  }, [handleBackClick, handleCancel])
 
-  const handleChangePin = async () => {
+  const handleChangePin = useCallback(async () => {
     setDeviceState({
       isUpdatingPin: true,
       awaitingDeviceInteraction: true,
@@ -91,7 +111,7 @@ export const ChangePin = () => {
           isUpdatingPin: false,
         })
       })
-  }
+  }, [dispatch, keepKeyWallet, setDeviceState, toast, translate])
   const setting = 'PIN'
 
   const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction
@@ -109,14 +129,8 @@ export const ChangePin = () => {
                   translationType={translationType}
                   gridMaxWidth={'175px'}
                   confirmButtonSize={'md'}
-                  buttonsProps={{
-                    size: 'sm',
-                    p: 2,
-                    height: 12,
-                    background: pinButtonBackground,
-                    _hover: { background: pinButtonBackgroundHover },
-                  }}
-                  gridProps={{ spacing: 2 }}
+                  buttonsProps={keepkeyPinButtonProps}
+                  gridProps={gridProps}
                 />
                 <Button width='full' onClick={handleCancel} mt={2}>
                   <Text translation={`common.cancel`} />
@@ -139,9 +153,7 @@ export const ChangePin = () => {
             {translate('walletProvider.keepKey.settings.actions.update', { setting })}
           </Button>
         </SubMenuBody>
-        <AwaitKeepKey
-          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-        />
+        <AwaitKeepKey translation={awaitKeepkeyButtonPromptTranslation} />
       </>
     )
   })()

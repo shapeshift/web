@@ -7,7 +7,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -20,7 +20,7 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setLoading(true)
     const passphrase = inputRef.current?.value
     try {
@@ -33,7 +33,7 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [dispatch, wallet])
 
   return (
     <>

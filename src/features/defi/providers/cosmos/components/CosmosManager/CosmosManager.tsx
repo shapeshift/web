@@ -5,7 +5,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
@@ -20,9 +20,9 @@ export const CosmosManager = () => {
   const { modal } = query
   const [accountId, setAccountId] = useState<AccountId | undefined>()
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

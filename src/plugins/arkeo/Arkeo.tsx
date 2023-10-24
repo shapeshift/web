@@ -1,6 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Flex, Grid, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
+import type { Property } from 'csstype'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
@@ -29,21 +32,31 @@ const opportunities: OpportunityReturn = {
   lp: [foxEthLpAssetId],
 }
 
+const arrowForwardIcon = <ArrowForwardIcon />
+const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const reverseFlexDir: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column-reverse',
+  lg: 'row',
+}
+const gridTemplateColumns = { base: '1fr', lg: '1fr 1fr', xl: '1fr 1fr 1fr' }
+const flexBasis = { base: 'auto', lg: '583px' }
+
 export const ArkeoPage = () => {
   const translate = useTranslate()
   const linkColor = useColorModeValue('blue.500', 'blue.200')
   const { create, dispatch } = useWallet()
   const bgImage = useColorModeValue('none', ArkeoBg)
 
-  const handleCreateCtaClick = () => {
+  const handleCreateCtaClick = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)
-  }
+  }, [create, dispatch])
+
   return (
     <Main backgroundImage={bgImage} backgroundSize='cover' px={8}>
       <SEO title={translate('navBar.arkeo')} />
-      <Flex flexDir={{ base: 'column-reverse', lg: 'row' }} gap={8}>
-        <Flex flexDir='column' gap={8} flexBasis={{ base: 'auto', lg: '583px' }}>
+      <Flex flexDir={reverseFlexDir} gap={8}>
+        <Flex flexDir='column' gap={8} flexBasis={flexBasis}>
           <Flex flexDir='column' gap={4}>
             <Heading fontSize='2xl'>
               <Text translation='arkeo.whatIsArkeo.title' />
@@ -103,19 +116,19 @@ export const ArkeoPage = () => {
           </Box>
         </Flex>
       </Flex>
-      <Grid gridTemplateColumns={{ base: '1fr', lg: '1fr 1fr', xl: '1fr 1fr 1fr' }} gap={4} mt={8}>
+      <Grid gridTemplateColumns={gridTemplateColumns} gap={4} mt={8}>
         <FoxTokenHolders />
         <StakingCards ids={opportunities.staking} />
         <LpCards ids={opportunities.lp} />
       </Grid>
-      <Flex gap={4} py={12} flexDir={{ base: 'column', md: 'row' }}>
+      <Flex gap={4} py={12} flexDir={flexDir}>
         <Image src={NodeImage} boxSize='24' />
         <Flex flexDir='column' gap={4} alignItems='flex-start'>
           <Text translation='arkeo.footer.title' fontSize='2xl' mt={4} />
           <Button
             as={Link}
             variant='link'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             colorScheme='blue'
             size='lg'
             href='https://snapshot.org/#/shapeshiftdao.eth/proposal/0xcc1e83822fc7668a9d9e9136e5bd8973b7dc1ed766c2a0826d3e89d624e8b1c5'
@@ -126,7 +139,7 @@ export const ArkeoPage = () => {
           <Flex
             gap={1}
             fontSize='sm'
-            flexDir={{ base: 'column', md: 'row' }}
+            flexDir={flexDir}
             justifyContent='flex-start'
             alignItems='flex-start'
           >

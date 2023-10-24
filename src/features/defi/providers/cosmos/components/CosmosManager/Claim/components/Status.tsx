@@ -5,7 +5,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -94,6 +94,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [assetId, assets, opportunity, rewardCryptoAmount, rewardFiatAmount, txStatus])
 
+  const handleBack = useCallback(() => history.goBack(), [history])
+
   if (!state || !opportunity || !dispatch) return null
 
   return (
@@ -148,7 +150,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             </Link>
           </Row.Value>
         </Row>
-        <Button width='full' size='lg' onClick={() => history.goBack()}>
+        <Button width='full' size='lg' onClick={handleBack}>
           {translate('common.close')}
         </Button>
       </Stack>

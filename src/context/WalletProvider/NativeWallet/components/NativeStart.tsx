@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import type { Property } from 'csstype'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,6 +10,7 @@ import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 const directionProp: ResponsiveValue<Property.FlexDirection> = ['column', 'row']
 const mlProp = [0, 1.5]
+const arrowForwardIcon = <ArrowForwardIcon />
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -19,6 +19,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
+        const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {
@@ -47,7 +48,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             isDisabled={!hasLocalWallet}
             onClick={handleLoad}
             data-test='wallet-native-load-button'
@@ -61,7 +62,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleCreate}
             data-test='wallet-native-create-button'
           >
@@ -73,7 +74,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             px={6}
             py={4}
             justifyContent='space-between'
-            rightIcon={<ArrowForwardIcon />}
+            rightIcon={arrowForwardIcon}
             onClick={handleImport}
             data-test='wallet-native-import-button'
           >

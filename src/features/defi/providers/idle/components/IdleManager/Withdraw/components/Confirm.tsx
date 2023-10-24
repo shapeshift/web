@@ -16,6 +16,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -205,6 +206,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -257,7 +263,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={notEnoughGasTranslation} />
           </Alert>
         )}
       </Summary>

@@ -36,6 +36,8 @@ type TxStatusProps = {
   children?: React.ReactNode
 }
 
+const divider = <Divider />
+
 export const TxStatus = ({
   onContinue,
   loading,
@@ -51,7 +53,7 @@ export const TxStatus = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { isOpen, onToggle } = useDisclosure()
   return (
-    <Stack width='full' spacing={0} borderColor={borderColor} divider={<Divider />}>
+    <Stack width='full' spacing={0} borderColor={borderColor} divider={divider}>
       <Stack textAlign='center' spacing={6} p={6} alignItems='center'>
         {pairIcons ? (
           <Flex position='relative' justifyContent='center' alignItems='center'>

@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Flex, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { type FC, useCallback } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import bannerImg from 'assets/dapps-banner.png'
 import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
@@ -20,6 +20,13 @@ export const ExplorationBanner: FC = () => {
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
+
+  const walletConnectIconColor = useColorModeValue('blue.500', 'blue.400')
+
+  const walletConnectCurrentColorIcon = useMemo(
+    () => <WalletConnectCurrentColorIcon color={walletConnectIconColor} />,
+    [walletConnectIconColor],
+  )
   return (
     <Box
       borderWidth={borderWidthProp}
@@ -31,12 +38,7 @@ export const ExplorationBanner: FC = () => {
     >
       <Flex direction='row' gap={4}>
         <Stack ml={0} width='full' alignSelf='center' spacing={4} p={paddingProp}>
-          <Avatar
-            bg='gray.700'
-            icon={
-              <WalletConnectCurrentColorIcon color={useColorModeValue('blue.500', 'blue.400')} />
-            }
-          />
+          <Avatar bg='gray.700' icon={walletConnectCurrentColorIcon} />
 
           <Box>
             <Text

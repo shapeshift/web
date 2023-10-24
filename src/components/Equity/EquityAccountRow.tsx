@@ -22,6 +22,8 @@ type EquityAccountRowProps = {
   color?: string
 }
 
+const accountsIcon = <AccountsIcon boxSize='18px' />
+
 export const EquityAccountRow = ({
   accountId,
   assetId,
@@ -52,19 +54,25 @@ export const EquityAccountRow = ({
     history.push(path)
   }, [history, path])
 
-  if (!asset) return null
-  return (
-    <EquityRow
-      onClick={handleClick}
-      icon={
+  const equityRowIcon = useMemo(
+    () =>
+      asset ? (
         <Avatar
           bg={`${asset.color}30`}
           color={asset.color}
           size='sm'
           borderRadius='lg'
-          icon={<AccountsIcon boxSize='18px' />}
+          icon={accountsIcon}
         />
-      }
+      ) : null,
+    [asset],
+  )
+
+  if (!(asset && equityRowIcon)) return null
+  return (
+    <EquityRow
+      onClick={handleClick}
+      icon={equityRowIcon}
       label={translate('accounts.accountNumber', { accountNumber })}
       totalFiatBalance={totalFiatBalance}
       color={color}

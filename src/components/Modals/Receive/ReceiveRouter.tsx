@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { ReceiveInfo } from 'components/Modals/Receive/ReceiveInfo'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
@@ -20,15 +20,18 @@ export const ReceiveRouter = ({ assetId, accountId }: ReceiveRouterProps) => {
   const location = useLocation()
   const history = useHistory()
 
-  const handleAssetSelect = (assetId: AssetId) => {
-    const _asset = selectAssetById(store.getState(), assetId)
-    setSelectedAsset(_asset)
-    history.push(ReceiveRoutes.Info)
-  }
+  const handleAssetSelect = useCallback(
+    (assetId: AssetId) => {
+      const _asset = selectAssetById(store.getState(), assetId)
+      setSelectedAsset(_asset)
+      history.push(ReceiveRoutes.Info)
+    },
+    [history],
+  )
 
-  const handleSelectBack = () => {
+  const handleSelectBack = useCallback(() => {
     history.push(ReceiveRoutes.Info)
-  }
+  }, [history])
 
   useEffect(() => {
     if (!selectedAsset && !asset) {

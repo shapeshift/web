@@ -11,7 +11,6 @@ import {
   ModalCloseButton,
   ModalHeader,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -27,6 +26,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
+
+const buttonLeftIcon = (
+  <IconCircle boxSize={10}>
+    <FaWallet />
+  </IconCircle>
+)
 
 /**
  * This component only works for ShapeShift wallets encrypted using hdwallet Vault
@@ -53,6 +58,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const handleShowClick = useCallback(() => setShowPw(!showPw), [showPw])
   const onSubmit = useCallback(
     async (values: FieldValues) => {
+      const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
       try {
         const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
         revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')
@@ -74,6 +80,7 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const handleClick = useCallback(() => {}, [])
 
   return (
     <SlideTransition>
@@ -87,12 +94,8 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
           variant='unstyled'
           display='flex'
           mb={4}
-          leftIcon={
-            <IconCircle boxSize={10}>
-              <FaWallet />
-            </IconCircle>
-          }
-          onClick={() => {}}
+          leftIcon={buttonLeftIcon}
+          onClick={handleClick}
           data-test='native-saved-wallet-button'
         >
           <Box textAlign='left'>

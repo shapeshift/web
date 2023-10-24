@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Main } from 'components/Layout/Main'
@@ -14,8 +15,13 @@ export const AccountTxHistory: React.FC = () => {
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
+  const assetHeader = useMemo(
+    () => <AssetHeader assetId={feeAssetId} accountId={accountId} />,
+    [feeAssetId, accountId],
+  )
+
   return !feeAsset ? null : (
-    <Main titleComponent={<AssetHeader assetId={feeAssetId} accountId={accountId} />}>
+    <Main titleComponent={assetHeader}>
       <AssetTransactionHistory assetId={feeAssetId} accountId={accountId} useCompactMode={false} />
     </Main>
   )

@@ -1,9 +1,5 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import stableStringify from 'fast-json-stable-stringify'
-import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
-import { v4 as uuid } from 'uuid'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,34 +13,20 @@ import {
 } from 'state/slices/swappersSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const getReceiveAddress = pMemoize(
-  async ({
-    asset,
-    wallet,
-    accountMetadata,
-    pubKey,
-  }: GetReceiveAddressArgs): Promise<string | undefined> => {
-    const { chainId } = fromAssetId(asset.assetId)
-    const { accountType, bip44Params } = accountMetadata
-    const chainAdapter = getChainAdapterManager().get(chainId)
-    if (!(chainAdapter && wallet)) return
-    const { accountNumber } = bip44Params
-    const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType, pubKey })
-    return address
-  },
-  {
-    cacheKey: ([{ asset, accountMetadata, deviceId, wallet }]) => {
-      // Bust cache for all wallets other than Ledger.
-      // This will mean a few more runs of this for other wallets, which is fine.
-      if (!isLedger(wallet)) return uuid()
-      return stableStringify({
-        assetId: asset.assetId,
-        accountMetadata,
-        deviceId,
-      })
-    },
-  },
-)
+export const getReceiveAddress = async ({
+  asset,
+  wallet,
+  accountMetadata,
+  pubKey,
+}: GetReceiveAddressArgs): Promise<string | undefined> => {
+  const { chainId } = fromAssetId(asset.assetId)
+  const { accountType, bip44Params } = accountMetadata
+  const chainAdapter = getChainAdapterManager().get(chainId)
+  if (!(chainAdapter && wallet)) return
+  const { accountNumber } = bip44Params
+  const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType, pubKey })
+  return address
+}
 
 export const useReceiveAddress = ({
   fetchUnchainedAddress,

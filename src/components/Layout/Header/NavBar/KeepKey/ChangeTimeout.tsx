@@ -1,6 +1,7 @@
 import { useColorModeValue, useToast } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
@@ -10,6 +11,16 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+
+const radioProps = { width: 'full', justifyContent: 'flex-start' }
+const radioButtonGroupProps = {
+  display: 'flex',
+  flexDirection: 'column',
+  width: 'full',
+  alignItems: 'flex-start',
+  flex: 1,
+  spacing: '0',
+} as const
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
@@ -25,24 +36,32 @@ export const ChangeTimeout = () => {
   const toast = useToast()
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
-  const handleChange = async (value: DeviceTimeout) => {
-    const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
+  const handleChange = useCallback(
+    async (value: DeviceTimeout) => {
+      const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
 
-    value && setRadioTimeout(value)
-    await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout }).catch(e => {
-      console.error(e)
-      toast({
-        title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
+      value && setRadioTimeout(value)
+      await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout }).catch(e => {
+        console.error(e)
+        toast({
+          title: translate('common.error'),
+          description: e?.message ?? translate('common.somethingWentWrong'),
+          status: 'error',
+          isClosable: true,
+        })
       })
-    })
-  }
+    },
+    [keepKeyWallet, toast, translate],
+  )
 
   const setting = 'timeout'
   const colorScheme = useColorModeValue('blackAlpha', 'white')
   const checkColor = useColorModeValue('green', 'blue.400')
+
+  const keepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
+    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
+    [setting],
+  )
 
   useEffect(() => {
     if (deviceTimeout?.value) {
@@ -68,20 +87,11 @@ export const ChangeTimeout = () => {
           defaultValue={radioTimeout}
           checkColor={checkColor}
           isLoading={awaitingDeviceInteraction}
-          radioProps={{ width: 'full', justifyContent: 'flex-start' }}
-          buttonGroupProps={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: 'full',
-            alignItems: 'flex-start',
-            flex: 1,
-            spacing: '0',
-          }}
+          radioProps={radioProps}
+          buttonGroupProps={radioButtonGroupProps}
         />
       </SubMenuBody>
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-      />
+      <AwaitKeepKey translation={keepkeyButtonPromptTranslation} />
     </SubMenuContainer>
   )
 }

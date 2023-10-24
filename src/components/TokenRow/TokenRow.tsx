@@ -1,6 +1,13 @@
 import type { InputGroupProps, InputProps } from '@chakra-ui/react'
 import { Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react'
-import type { Control, ControllerProps, FieldValues, Path } from 'react-hook-form'
+import { useCallback } from 'react'
+import type {
+  Control,
+  ControllerProps,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -45,6 +52,29 @@ export function TokenRow<C extends FieldValues>({
     number: { localeParts },
   } = useLocaleFormatter()
 
+  const renderController = useCallback(
+    ({ field: { onChange, value } }: { field: ControllerRenderProps<C, Path<C>> }) => {
+      return (
+        <NumberFormat
+          inputMode='decimal'
+          thousandSeparator={localeParts.group}
+          decimalSeparator={localeParts.decimal}
+          customInput={CryptoInput}
+          isNumericString={true}
+          value={value}
+          disabled={disabled}
+          // this is already within a useCallback, we don't need to memo this
+          // eslint-disable-next-line react-memo/require-usememo
+          onValueChange={e => {
+            onChange(e.value)
+            if (onInputChange && e.value !== value) onInputChange(e.value)
+          }}
+        />
+      )
+    },
+    [disabled, localeParts.decimal, localeParts.group, onInputChange],
+  )
+
   return (
     <InputGroup size='lg' {...rest}>
       {inputLeftElement && (
@@ -52,28 +82,7 @@ export function TokenRow<C extends FieldValues>({
           {inputLeftElement}
         </InputLeftElement>
       )}
-      <Controller
-        render={({ field: { onChange, value } }) => {
-          return (
-            <NumberFormat
-              inputMode='decimal'
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              customInput={CryptoInput}
-              isNumericString={true}
-              value={value}
-              disabled={disabled}
-              onValueChange={e => {
-                onChange(e.value)
-                if (onInputChange && e.value !== value) onInputChange(e.value)
-              }}
-            />
-          )
-        }}
-        name={fieldName}
-        control={control}
-        rules={rules}
-      />
+      <Controller render={renderController} name={fieldName} control={control} rules={rules} />
       {inputRightElement && (
         <InputRightElement width='4.5rem'>{inputRightElement}</InputRightElement>
       )}

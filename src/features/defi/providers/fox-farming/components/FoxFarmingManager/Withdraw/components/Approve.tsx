@@ -179,6 +179,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   if (!state || !dispatch || !opportunity || !underlyingAsset) return null
 
   return (
@@ -195,7 +197,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={contractAddress}
     />

@@ -8,7 +8,7 @@ export enum LanguageTypeEnum {
   /** हिंदी */
   // hi = 'hi',
   /** 日本語 */
-  // jp = 'jp',
+  ja = 'ja',
   /** Deutsch */
   de = 'de',
   /** русский */

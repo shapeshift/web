@@ -142,7 +142,7 @@ export const assetApi = createApi({
           ids: Object.keys(assetsById) ?? [],
         }
 
-        data && dispatch(assets.actions.upsertAssets(data))
+        if (data) dispatch(assets.actions.upsertAssets(data))
         return { data }
       },
     }),
@@ -150,7 +150,7 @@ export const assetApi = createApi({
       AssetsState,
       { assetId: AssetId | undefined; selectedLocale: string }
     >({
-      queryFn: async ({ assetId, selectedLocale }, { getState }) => {
+      queryFn: async ({ assetId, selectedLocale }, { getState, dispatch }) => {
         if (!assetId) {
           throw new Error('assetId not provided')
         }
@@ -163,6 +163,8 @@ export const assetApi = createApi({
           const originalAsset = byId[assetId]
           byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }
+
+          if (data) dispatch(assets.actions.upsertAssets(data))
           return { data }
         } catch (e) {
           const data = `getAssetDescription: error fetching description for ${assetId}`
@@ -170,11 +172,6 @@ export const assetApi = createApi({
           const error = { data, status }
           return { error }
         }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
   }),

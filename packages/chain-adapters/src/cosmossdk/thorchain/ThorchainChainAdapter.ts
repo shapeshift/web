@@ -26,7 +26,7 @@ import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { Message } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
+// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
 const OUTBOUND_FEE = '2000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]

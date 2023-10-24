@@ -7,10 +7,13 @@ import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
+import type { AbiItem, Address } from 'viem'
+import { encodeFunctionData, getContract } from 'viem'
 import type { Web3 } from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { viemEthMainnetClient } from 'lib/viem-client'
 
 import type {
   ApprovalRequired,
@@ -199,23 +202,35 @@ export class IdleOpportunity
     // either way. For this reason, we simply withdraw from the vault directly.
 
     let methodName: string
-    let vaultContract: Contract
+    let vaultAddress: string
+    let vaultContractAbi
 
     // Handle Tranche Withdraw
     if (this.metadata.cdoAddress) {
-      vaultContract = new this.#internals.web3.eth.Contract(idleCdoAbi, this.metadata.cdoAddress)
+      vaultAddress = this.metadata.cdoAddress
+      vaultContractAbi = idleCdoAbi
       const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
       methodName = `withdraw${trancheType}`
     } else {
-      vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+      vaultAddress = this.id
       methodName = `redeemIdleToken`
     }
 
-    const preWithdraw = await vaultContract.methods[methodName](amount.toFixed())
+    const data = encodeFunctionData({
+      abi: vaultContractAbi,
+      functionName: methodName,
+      args: [amount.toFixed()],
+    })
 
-    const data = preWithdraw.encodeABI({ from: address })
-
-    const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
+    const estimatedGas = bn(
+      (
+        await viemEthMainnetClient.estimateGas({
+          account: address as Address,
+          to: vaultAddress as Address,
+          data,
+        })
+      ).toString(),
+    )
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
@@ -229,21 +244,29 @@ export class IdleOpportunity
       estimatedGas,
       gasPrice,
       nonce: String(nonce),
-      to: vaultContract.options.address,
+      to: vaultAddress,
       value: '0',
     }
   }
 
   public async prepareClaimTokens(address: string): Promise<PreparedTransaction> {
-    const vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+    const data = encodeFunctionData({
+      abi: idleTokenV4Abi,
+      functionName: 'redeemIdleToken',
+      args: [BigInt(0)],
+    })
 
-    const preWithdraw = await vaultContract.methods.redeemIdleToken(0)
+    const estimatedGas = bn(
+      (
+        await viemEthMainnetClient.estimateGas({
+          account: address as Address,
+          to: this.id as Address,
+          data,
+        })
+      ).toString(),
+    )
 
-    const data = preWithdraw.encodeABI({ from: address })
-
-    const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
-
-    const nonce = await this.#internals.web3.eth.getTransactionCount(address)
+    const nonce = await viemEthMainnetClient.getTransactionCount({ address: address as Address })
 
     const gasPrice = bnOrZero(
       await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
@@ -255,7 +278,7 @@ export class IdleOpportunity
       estimatedGas,
       gasPrice,
       nonce: String(nonce),
-      to: vaultContract.options.address,
+      to: this.id,
       value: '0',
     }
   }
@@ -276,31 +299,45 @@ export class IdleOpportunity
     let methodName: string
     let methodParams: string[]
     let vaultContract: Contract
+    let vaultContractAddress: Address
+    let vaultContractAbi
 
     // Handle Tranche Deposit
     if (this.metadata.cdoAddress) {
       vaultContract = this.#internals.routerContract
+      // TODO(gomes): we don't need to pass contract instances around like that anymore now that we use viem
+      vaultContractAddress = this.#internals.routerContract.options.address as Address
+      // TODO(gomes): this property doesn't exist, just a temporary placeholder until I figure this out
+      vaultContractAbi = this.#internals.routerContract.options.abi
       const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
       methodName = `deposit${trancheType}`
       methodParams = [this.metadata.cdoAddress, amount.toFixed()]
     } else {
       methodName = 'mintIdleToken'
       methodParams = [amount.toFixed(), 'true', DAO_TREASURY_ETHEREUM_MAINNET]
-      vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+      vaultContractAddress = this.id as Address
+      vaultContractAbi = idleTokenV4Abi
     }
 
-    const preDeposit = await vaultContract.methods[methodName](...methodParams)
+    const data = encodeFunctionData({
+      abi: vaultContractAbi,
+      functionName: methodName,
+      args: methodParams,
+    })
 
-    const data = await preDeposit.encodeABI({ from: address })
-
-    const estimatedGas = bnOrZero(await preDeposit.estimateGas({ from: address }))
-
-    const nonce = await this.#internals.web3.eth.getTransactionCount(address)
-
-    const gasPrice = bnOrZero(
-      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
+    const estimatedGas = bn(
+      (
+        await viemEthMainnetClient.estimateGas({
+          account: address as Address,
+          to: vaultContractAddress,
+          data,
+        })
+      ).toString(),
     )
 
+    const nonce = await viemEthMainnetClient.getTransactionCount({ address: address as Address })
+
+    const gasPrice = bn((await viemEthMainnetClient.getGasPrice()).toString())
     return {
       chainId: 1,
       data,
@@ -313,31 +350,35 @@ export class IdleOpportunity
   }
 
   async getRewardAssetIds(): Promise<AssetId[]> {
-    let govTokens: any[]
+    let govTokens: string[]
 
     if (this.metadata.cdoAddress) {
-      const cdoContract: Contract = new this.#internals.web3.eth.Contract(
-        idleCdoAbi,
-        this.metadata.cdoAddress,
-      )
-      const strategyContractAddress: string = await cdoContract.methods.strategy().call()
-      const strategyContract = new this.#internals.web3.eth.Contract(
-        idleStrategyAbi,
-        strategyContractAddress,
-      )
-      govTokens = await strategyContract.methods.getRewardTokens().call()
-    } else {
-      const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+      const cdoContract = getContract({
+        abi: idleCdoAbi,
+        address: this.metadata.cdoAddress as Address,
+        publicClient: viemEthMainnetClient,
+      })
 
-      govTokens = await vaultContract.methods
-        .getGovTokens()
-        .call()
-        .catch((e: Error) => {
-          // the contract may not actually implement the abi documented by idle, so swallow the
-          // error in this case
-          if (e.message?.includes('execution reverted')) return []
-          throw e
-        })
+      const strategyContractAddress = await cdoContract.read.strategy()
+      const strategyContract = getContract({
+        abi: idleStrategyAbi,
+        address: strategyContractAddress as Address,
+        publicClient: viemEthMainnetClient,
+      })
+      govTokens = (await strategyContract.read.getRewardTokens()) as string[]
+    } else {
+      const vaultContract = getContract({
+        abi: idleTokenV4Abi,
+        address: this.id as Address,
+        publicClient: viemEthMainnetClient,
+      })
+
+      govTokens = (await vaultContract.read.getGovTokens().catch((e: Error) => {
+        // the contract may not actually implement the abi documented by idle, so swallow the
+        // error in this case
+        if (e.message?.includes('execution reverted')) return []
+        throw e
+      })) as string[]
     }
 
     const rewardAssetIds = govTokens.map((token: string) =>
@@ -356,20 +397,23 @@ export class IdleOpportunity
    *
    * @param address - The user's wallet address where the funds are
    */
-  async getClaimableTokens(address: string): Promise<ClaimableToken[]> {
+  async getClaimableTokens(address: Address): Promise<ClaimableToken[]> {
     if (this.metadata.cdoAddress) {
       return []
     }
 
     const claimableTokens: ClaimableToken[] = []
-    const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
-    const govTokensAmounts = await vaultContract.methods
-      .getGovTokensAmounts(address)
-      .call()
-      .catch(() => [])
+    const vaultContract = getContract({
+      abi: idleTokenV4Abi,
+      address: this.id as Address,
+      publicClient: viemEthMainnetClient,
+    })
+    const govTokensAmounts = (await vaultContract.read
+      .getGovTokensAmounts([address])
+      .catch(() => [])) as number[]
 
     for (let i = 0; i < govTokensAmounts.length; i++) {
-      const govTokenAddress = await vaultContract.methods.govTokens(i).call()
+      const govTokenAddress = (await vaultContract.read.govTokens([BigInt(i)])) as string
 
       if (govTokenAddress) {
         claimableTokens.push({
@@ -388,55 +432,81 @@ export class IdleOpportunity
   }
 
   public async allowance(address: string): Promise<BigNumber> {
-    const depositTokenContract: Contract = new this.#internals.web3.eth.Contract(
-      erc20Abi,
-      this.metadata.underlyingAddress,
-    )
+    const depositTokenContract = getContract({
+      abi: erc20Abi,
+      address: this.metadata.underlyingAddress as Address,
+      publicClient: viemEthMainnetClient,
+    })
 
     let vaultContract: Contract
 
     // Handle Tranche Withdraw
     if (this.metadata.cdoAddress) {
-      vaultContract = this.#internals.routerContract
+      // vaultContract = this.#internals.routerContract
+      vaultContract = getContract({
+        // TODO(gomes): this is wrong, this doesn't exist, just a placeholder
+        abi: this.#internals.routerContract.options.abi,
+        // TODO(gomes): this is wrong
+        address: this.#internals.routerContract.options.address as Address,
+        publicClient: viemEthMainnetClient,
+      })
     } else {
-      vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+      vaultContract = getContract({
+        abi: idleTokenV4Abi,
+        address: this.id as Address,
+        publicClient: viemEthMainnetClient,
+      })
     }
 
-    const allowance = await depositTokenContract.methods
-      .allowance(address, vaultContract.options.address)
-      .call()
+    const allowance = bn(
+      // TODO(gomes): fix unknown here
+      // @ts-ignore TODO, just getting this to compile
+      (
+        await depositTokenContract.read.allowance([
+          address as Address,
+          vaultContract.options.address as Address,
+        ])
+      ).toString(),
+    )
 
     return bnOrZero(allowance)
   }
 
   async prepareApprove(address: string): Promise<PreparedTransaction> {
-    const depositTokenContract = new this.#internals.web3.eth.Contract(
-      erc20Abi,
-      this.metadata.underlyingAddress,
-    )
+    const depositTokenContract = getContract({
+      abi: erc20Abi,
+      address: this.metadata.underlyingAddress as Address,
+      publicClient: viemEthMainnetClient,
+    })
 
-    let vaultContractAddress: string
+    let vaultContractAddress: Address
 
     // Handle Tranche Withdraw
     if (this.metadata.cdoAddress) {
       vaultContractAddress = ssRouterContractAddress
     } else {
-      vaultContractAddress = this.id
+      vaultContractAddress = this.id as Address
     }
 
-    const preApprove = await depositTokenContract.methods.approve(
-      vaultContractAddress,
-      MAX_ALLOWANCE,
+    const data = encodeFunctionData({
+      abi: erc20Abi,
+      function: 'approve',
+      parameters: [vaultContractAddress, MAX_ALLOWANCE],
+    })
+    const estimatedGas = bn(
+      (
+        await viemEthMainnetClient.estimateGas({
+          account: address as Address,
+          to: depositTokenContract.address,
+          data,
+        })
+      ).toString(),
     )
-    const data = preApprove.encodeABI({ from: address })
-    const estimatedGas = bnOrZero(await preApprove.estimateGas({ from: address }))
 
-    const nonce: string = await this.#internals.web3.eth
-      .getTransactionCount(address)
-      .then(bigint => bigint.toString())
-    const gasPrice = bnOrZero(
-      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
-    )
+    const nonce = (
+      await viemEthMainnetClient.getTransactionCount({ address: address as Address })
+    ).toString()
+    const gasPrice = bn((await viemEthMainnetClient.getGasPrice()).toString())
 
     return {
       chainId: 1,

@@ -38,7 +38,6 @@ export const getThorTxInfo = async ({
   }
 
   const data = depositWithExpiry({
-    _contractAddress: router,
     vault,
     asset: isNativeEvmAsset(sellAsset.assetId)
       ? '0x0000000000000000000000000000000000000000'

@@ -5,7 +5,6 @@ import { find } from 'lodash'
 import filter from 'lodash/filter'
 import type { GetContractReturnType } from 'viem'
 import { getContract } from 'viem'
-import { Web3 } from 'web3'
 import { viemEthMainnetClient } from 'lib/viem-client'
 
 import type { Investor } from '../../investor'
@@ -20,7 +19,6 @@ type ConstructorArgs = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
   dryRun?: true
   network?: number
-  providerUrl: string
 }
 
 const idleSdk = new IdleSdk()
@@ -31,14 +29,10 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
     dryRun?: true
     contract: GetContractReturnType<typeof ssRouterAbi>
     network?: number
-    web3: Web3
   }
   #opportunities: IdleOpportunity[]
 
-  constructor({ chainAdapter, dryRun, providerUrl, network = 1 }: ConstructorArgs) {
-    const httpProvider = new Web3.providers.HttpProvider(providerUrl)
-    // const jsonRpcProvider = new JsonRpcProvider(providerUrl)
-    const web3 = new Web3(httpProvider)
+  constructor({ chainAdapter, dryRun, network = 1 }: ConstructorArgs) {
     const contract = getContract({
       abi: ssRouterAbi,
       address: ssRouterContractAddress,
@@ -50,7 +44,6 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
       contract,
       network,
       dryRun,
-      web3,
     })
     this.#opportunities = []
   }

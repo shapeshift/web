@@ -9786,7 +9786,6 @@ __metadata:
     val-loader: ^4.0.0
     viem: 1.10.1
     web-vitals: ^2.1.4
-    web3: 4.2.1-dev.a0d6730.0
     web3-types: ^0.1.0-alpha.0
     webpack: 5.76.0
     webpack-subresource-integrity: ^5.0.0

@@ -9,7 +9,6 @@ import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
 import type { Address, GetContractReturnType } from 'viem'
 import { encodeFunctionData, getAddress, getContract } from 'viem'
-import type { Web3 } from 'web3'
 import { numberToHex } from 'web3-utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { viemEthMainnetClient } from 'lib/viem-client'
@@ -44,10 +43,8 @@ const feeMultiplier: Record<FeePriority, number> = Object.freeze({
 type IdleOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
   dryRun?: true
-  // TODO(gomes): we shouldn't pass web3-eth-contract instances around anymore
   contract: GetContractReturnType<typeof ssRouterAbi>
   network?: number
-  web3: Web3
 }
 
 export type ClaimableToken = {
@@ -69,9 +66,7 @@ export class IdleOpportunity
   readonly #internals: {
     chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
-    // TODO(gomes): we shouldn't pass web3-eth-contract instances around anymore
     routerContract: GetContractReturnType<typeof ssRouterAbi>
-    web3: Web3
     network?: number
   }
 
@@ -137,9 +132,7 @@ export class IdleOpportunity
     this.#internals = {
       chainAdapter: deps.chainAdapter,
       dryRun: deps.dryRun,
-      // TODO(gomes): we shouldn't pass web3 contract arounds like that anymore
       routerContract: deps.contract,
-      web3: deps.web3,
       network: deps.network,
     }
 
@@ -235,11 +228,8 @@ export class IdleOpportunity
       ).toString(),
     )
 
-    const nonce = await this.#internals.web3.eth.getTransactionCount(address)
-
-    const gasPrice = bnOrZero(
-      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
-    )
+    const nonce = await viemEthMainnetClient.getTransactionCount({ address: address as Address })
+    const gasPrice = bn((await viemEthMainnetClient.getGasPrice()).toString())
 
     return {
       chainId: 1,
@@ -270,10 +260,7 @@ export class IdleOpportunity
     )
 
     const nonce = await viemEthMainnetClient.getTransactionCount({ address: address as Address })
-
-    const gasPrice = bnOrZero(
-      await this.#internals.web3.eth.getGasPrice().then(bigint => bigint.toString()),
-    )
+    const gasPrice = bn((await viemEthMainnetClient.getGasPrice()).toString())
 
     return {
       chainId: 1,

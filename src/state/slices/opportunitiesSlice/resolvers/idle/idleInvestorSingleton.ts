@@ -1,6 +1,5 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { IdleInvestor } from 'lib/investor/investor-idle'
 
@@ -15,7 +14,6 @@ export const getIdleInvestor = (): IdleInvestor => {
     chainAdapter: getChainAdapterManager().get(
       KnownChainIds.EthereumMainnet,
     ) as ChainAdapter<KnownChainIds.EthereumMainnet>,
-    providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
   })
 
   _idleInvestor = idleInvestor

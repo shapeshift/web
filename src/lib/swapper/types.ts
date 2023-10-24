@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export type SwapErrorRight = {
@@ -284,7 +285,7 @@ export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (input: GetTradeQuoteInput) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput, assetsById: AssetsById) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (

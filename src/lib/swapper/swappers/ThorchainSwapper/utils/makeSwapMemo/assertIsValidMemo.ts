@@ -78,7 +78,7 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
     throw Error(`memo ${memo} invalid`)
   }
 
-  const [limit, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
+  const [, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
 
   const isStreamingSwap = streamingNumSwaps || streamingNumBlocks
 
@@ -90,11 +90,6 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
     throw Error(`streamingNumBlocks '${streamingNumBlocks}' is not a valid number`)
   }
 
-  // Check if limit is a valid number
-  if (!bn(limit).isInteger()) {
-    throw Error(`limit ${limit} is not a valid number`)
-  }
-
   // Check if affiliate is "ss"
   if (affiliate !== THORCHAIN_AFFILIATE_NAME) {
     throw Error(`affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`)
@@ -102,7 +97,7 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
   const affiliateBpsNum = bn(memoAffiliateBps)
-  if (!bn(limit).isInteger() || affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
+  if (affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
     throw Error(`affiliateBps ${memoAffiliateBps} is not a number between 0 and 1000`)
   }
 

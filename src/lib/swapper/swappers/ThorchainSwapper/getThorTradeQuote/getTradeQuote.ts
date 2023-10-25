@@ -11,6 +11,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
+import { assertIsValidMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/assertIsValidMemo'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -34,7 +35,6 @@ import {
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import type { ThornodePoolResponse, ThornodeQuoteResponseSuccess } from '../types'
-import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -276,20 +276,14 @@ export const getThorTradeQuote = async (
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
+            const memo = quote.memo
+            if (!memo) throw new Error('No memo in quote')
+            assertIsValidMemo(memo, sellAsset.chainId, affiliateBps)
 
-            const updatedMemo = addSlippageToMemo({
-              expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
-              chainId: sellAsset.chainId,
-              affiliateBps,
-              isStreaming,
-              streamingInterval,
-            })
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
-              memo: updatedMemo,
+              memo,
               expiry: quote.expiry,
             })
 
@@ -301,7 +295,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -358,22 +352,16 @@ export const getThorTradeQuote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
           }): Promise<ThorTradeQuote> => {
+            const memo = quote.memo
+            if (!memo) throw new Error('No memo in quote')
+            assertIsValidMemo(memo, sellAsset.chainId, affiliateBps)
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
-            const updatedMemo = addSlippageToMemo({
-              expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
-              isStreaming,
-              chainId: sellAsset.chainId,
-              affiliateBps,
-              streamingInterval,
-            })
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
-              memo: updatedMemo,
+              memo,
             })
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -394,7 +382,7 @@ export const getThorTradeQuote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               isStreaming,
@@ -449,6 +437,9 @@ export const getThorTradeQuote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
           }): ThorTradeQuote => {
+            const memo = quote.memo
+            if (!memo) throw new Error('No memo in quote')
+            assertIsValidMemo(memo, sellAsset.chainId, affiliateBps)
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -458,19 +449,9 @@ export const getThorTradeQuote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
-            const updatedMemo = addSlippageToMemo({
-              expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
-              isStreaming,
-              chainId: sellAsset.chainId,
-              affiliateBps,
-              streamingInterval,
-            })
-
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               isStreaming,

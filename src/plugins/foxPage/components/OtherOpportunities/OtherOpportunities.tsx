@@ -11,6 +11,8 @@ type OtherOpportunitiesProps = {
   opportunities: OpportunitiesBucket[]
 }
 
+const defaultIndex = [0]
+
 export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
   title,
   description,
@@ -41,7 +43,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
         </Flex>
         <Text translation={description} color='text.subtle' />
       </CardHeader>
-      <Accordion defaultIndex={[0]} allowToggle allowMultiple>
+      <Accordion defaultIndex={defaultIndex} allowToggle allowMultiple>
         {renderRows}
       </Accordion>
     </Card>

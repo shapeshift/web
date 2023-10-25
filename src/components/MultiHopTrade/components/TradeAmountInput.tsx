@@ -30,6 +30,7 @@ import { colors } from 'theme/colors'
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto' }
 const boxProps = { px: 0, m: 0 }
+const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -158,6 +159,20 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       )
     }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
 
+    const accountDropdownLabel = useMemo(
+      () => (
+        <Balance
+          cryptoBalance={balance ?? ''}
+          fiatBalance={fiatBalance ?? ''}
+          symbol={assetSymbol}
+          isFiat={isFiat}
+          label={'Balance:'}
+          textAlign='right'
+        />
+      ),
+      [assetSymbol, balance, fiatBalance, isFiat],
+    )
+
     return (
       <FormControl
         borderWidth={1}
@@ -187,16 +202,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               buttonProps={buttonProps}
               boxProps={boxProps}
               showLabel={false}
-              label={
-                <Balance
-                  cryptoBalance={balance}
-                  fiatBalance={fiatBalance ?? ''}
-                  symbol={assetSymbol}
-                  isFiat={isFiat}
-                  label={'Balance:'}
-                  textAlign='right'
-                />
-              }
+              label={accountDropdownLabel}
             />
           )}
         </Flex>
@@ -208,7 +214,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 customInput={CryptoInput}
                 isNumericString={true}
                 disabled={isReadOnly}
-                _disabled={{ opacity: 1, cursor: 'not-allowed' }}
+                _disabled={numberFormatDisabled}
                 suffix={isFiat ? localeParts.postfix : ''}
                 prefix={isFiat ? localeParts.prefix : ''}
                 decimalSeparator={localeParts.decimal}

@@ -13,6 +13,8 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+const arrowBackIcon = <ArrowBackIcon />
+
 export const FiatCurrencies = () => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -30,7 +32,7 @@ export const FiatCurrencies = () => {
     <SlideTransition>
       <IconButton
         variant='ghost'
-        icon={<ArrowBackIcon />}
+        icon={arrowBackIcon}
         aria-label={translate('common.back')}
         position='absolute'
         top={2}

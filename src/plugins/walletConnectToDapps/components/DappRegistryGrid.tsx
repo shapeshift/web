@@ -37,6 +37,16 @@ const alignItemsProp = { base: 'flex-start', md: 'center' }
 const widthProp = { base: 'full', md: 'auto' }
 const columnsProp = { lg: 4, sm: 2, base: 1 }
 const hoverProp = { opacity: 0.8, transition: 'opacity 0.2s ease-in-out' }
+const listingImageStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  filter: 'blur(20px)',
+  opacity: 0.3,
+  zIndex: -1,
+} as const
 
 export const DappRegistryGrid: FC = () => {
   const translate = useTranslate()
@@ -104,22 +114,12 @@ export const DappRegistryGrid: FC = () => {
               key={listing.id}
               href={listing.homepage}
               isExternal
+              // we need to pass an arg here, so we need an anonymous function wrapper
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleClick(listing.name)}
             >
               <Box borderRadius='lg' p={2} position='relative' overflow='hidden' _hover={hoverProp}>
-                <Image
-                  src={listing.image}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    filter: 'blur(20px)',
-                    opacity: 0.3,
-                    zIndex: -1,
-                  }}
-                />
+                <Image src={listing.image} style={listingImageStyle} />
                 <Stack direction='row' alignItems='center'>
                   <Image borderRadius='full' boxSize='48px' m={2} src={listing.image} />
                   <PlainText fontWeight='semibold'>{listing.name}</PlainText>

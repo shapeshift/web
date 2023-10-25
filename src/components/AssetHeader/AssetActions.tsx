@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, isNft } from '@shapeshiftoss/caip'
@@ -27,6 +28,18 @@ const IconButtonAfter = {
   textOverflow: 'ellipsis',
   color: 'text.base',
 }
+
+const stackMlProps = { base: 0, lg: 'auto' }
+const stackMtProps = { base: 6, lg: 0 }
+const stackDirectionProps: StackDirection = { base: 'column-reverse', md: 'row' }
+const stackWidthProps = { base: 'full', md: 'auto' }
+const buttonFlexProps = { base: 1, md: 'auto' }
+const buttonWidthProps = { base: '100%', md: 'auto' }
+
+const arrowUpIcon = <ArrowUpIcon />
+const arrowDownIcon = <ArrowDownIcon />
+const swapIcon = <SwapIcon />
+const faCreditCardIcon = <FaCreditCard />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -65,12 +78,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     setIsValidChainId(isValid)
   }, [chainAdapterManager, asset])
 
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () =>
-    isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()
-  const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+  const handleSendClick = useCallback(
+    () => (isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()),
+    [accountId, assetId, handleWalletModalOpen, isConnected, send],
+  )
+  const handleReceiveClick = useCallback(
+    () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),
+    [accountId, asset, handleWalletModalOpen, isConnected, receive],
+  )
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
@@ -91,7 +110,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         {isValidChainId && (
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<ArrowUpIcon />}
+              icon={arrowUpIcon}
               size='lg'
               isRound
               aria-label={translate('common.send')}
@@ -105,7 +124,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
         <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
           <IconButton
-            icon={<ArrowDownIcon />}
+            icon={arrowDownIcon}
             size='lg'
             isRound
             aria-label={translate('common.receive')}
@@ -117,7 +136,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         </Flex>
         <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
           <IconButton
-            icon={<SwapIcon />}
+            icon={swapIcon}
             size='lg'
             isRound
             aria-label={translate('navBar.tradeShort')}
@@ -129,7 +148,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         {assetSupportsBuy && (
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<FaCreditCard />}
+              icon={faCreditCardIcon}
               size='lg'
               isRound
               aria-label={translate('navBar.buyCryptoShort')}
@@ -146,21 +165,21 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   return (
     <Stack
-      ml={{ base: 0, lg: 'auto' }}
-      mt={{ base: 6, lg: 0 }}
-      direction={{ base: 'column-reverse', md: 'row' }}
+      ml={stackMlProps}
+      mt={stackMtProps}
+      direction={stackDirectionProps}
       justifyContent='flex-end'
-      width={{ base: 'full', md: 'auto' }}
+      width={stackWidthProps}
       flex={1}
     >
       <Flex direction='row' gap={2} flexWrap='wrap'>
         {isValidChainId && (
           <Button
             data-test='asset-action-trade'
-            flex={{ base: 1, md: 'auto' }}
-            leftIcon={<SwapIcon />}
+            flex={buttonFlexProps}
+            leftIcon={swapIcon}
             size='sm-multiline'
-            width={{ base: '100%', md: 'auto' }}
+            width={buttonWidthProps}
             onClick={handleTradeClick}
           >
             {translate('assets.assetCards.assetActions.trade')}
@@ -170,10 +189,10 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         {assetSupportsBuy && (
           <Button
             data-test='asset-action-buy-sell'
-            width={{ base: 'full', md: 'auto' }}
-            flex={{ base: 1, md: 'auto' }}
+            width={buttonWidthProps}
+            flex={buttonFlexProps}
             onClick={handleBuySellClick}
-            leftIcon={<FaCreditCard />}
+            leftIcon={faCreditCardIcon}
             size='sm-multiline'
           >
             {translate('common.buySell')}
@@ -183,21 +202,21 @@ export const AssetActions: React.FC<AssetActionProps> = ({
       <Flex direction='row' gap={2} flexWrap='wrap'>
         <Button
           onClick={handleSendClick}
-          leftIcon={<ArrowUpIcon />}
-          width={{ base: '100%', md: 'auto' }}
+          leftIcon={arrowUpIcon}
+          width={buttonWidthProps}
           isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
           data-test='asset-action-send'
-          flex={{ base: 1, md: 'auto' }}
+          flex={buttonFlexProps}
         >
           {translate('common.send')}
         </Button>
         <Button
           disabled={!isValidChainId}
           onClick={handleReceiveClick}
-          leftIcon={<ArrowDownIcon />}
-          width={{ base: '100%', md: 'auto' }}
+          leftIcon={arrowDownIcon}
+          width={buttonWidthProps}
           data-test='asset-action-receive'
-          flex={{ base: 1, md: 'auto' }}
+          flex={buttonFlexProps}
         >
           {translate('common.receive')}
         </Button>

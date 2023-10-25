@@ -14,17 +14,19 @@ import type {
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
+import { validateAddress } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { Message } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
+// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
 const OUTBOUND_FEE = '2000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
@@ -81,6 +83,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, accountNumber, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
+
+    if (input.pubKey) return input.pubKey
 
     try {
       if (supportsThorchain(wallet)) {
@@ -204,8 +208,18 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
+  async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     const { wallet } = signTxInput
+
     try {
       if (supportsThorchain(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)

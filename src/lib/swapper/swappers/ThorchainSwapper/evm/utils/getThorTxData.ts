@@ -37,16 +37,15 @@ export const getThorTxInfo = async ({
     throw Error(`No router found for ${sellAsset.assetId} at inbound address ${inboundAddress}`)
   }
 
-  const data = depositWithExpiry(
-    router,
+  const data = depositWithExpiry({
     vault,
-    isNativeEvmAsset(sellAsset.assetId)
+    asset: isNativeEvmAsset(sellAsset.assetId)
       ? '0x0000000000000000000000000000000000000000'
       : assetReference,
-    sellAmountCryptoBaseUnit,
+    amount: sellAmountCryptoBaseUnit,
     memo,
     expiry,
-  )
+  })
 
   return { data, router }
 }

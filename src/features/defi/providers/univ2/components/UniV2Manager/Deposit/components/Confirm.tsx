@@ -10,13 +10,14 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -119,12 +120,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  if (!state || !dispatch) return null
-
-  const handleDeposit = async () => {
+  const handleDeposit = useCallback(async () => {
     try {
       if (
-        !(assetReference && walletState.wallet && supportsETH(walletState.wallet) && lpOpportunity)
+        !(
+          dispatch &&
+          assetReference &&
+          walletState.wallet &&
+          supportsETH(walletState.wallet) &&
+          lpOpportunity &&
+          state
+        )
       )
         return
 
@@ -157,13 +163,33 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
+      dispatch?.({ type: UniV2DepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    addLiquidity,
+    assetId0,
+    assetId1,
+    assetReference,
+    assets,
+    dispatch,
+    lpOpportunity,
+    onNext,
+    state,
+    toast,
+    translate,
+    walletState.wallet,
+  ])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
-  }
+  }, [onNext])
+
+  const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }],
+    [feeAsset.symbol],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm
@@ -222,7 +248,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={notEnoughGasTranslation} />
         </Alert>
       )}
     </ReusableConfirm>

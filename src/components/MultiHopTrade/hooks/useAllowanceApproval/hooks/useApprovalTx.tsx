@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useState } from 'react'
@@ -6,6 +7,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuote } from 'lib/swapper/types'
 import { isEvmChainAdapter } from 'lib/utils/evm'
+import { selectSellAccountId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { getApprovalTxData } from '../helpers'
@@ -21,6 +24,11 @@ export const useApprovalTx = (
   const wallet = useWallet().state.wallet
   const { poll, cancelPolling: stopPolling } = usePoll()
 
+  const sellAssetAccountId = useAppSelector(selectSellAccountId)
+  // This accidentally works since all EVM chains share the same address, so there's no need
+  // to call adapter.getAddress() later down the call stack
+  const from = sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined
+
   useEffect(() => {
     poll({
       fn: async () => {
@@ -33,12 +41,13 @@ export const useApprovalTx = (
             `no valid EVM chain adapter found for chain Id: ${tradeQuoteStep.sellAsset.chainId}`,
           )
 
-        const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData(
+        const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData({
           tradeQuoteStep,
           adapter,
           wallet,
           isExactAllowance,
-        )
+          from,
+        })
 
         setApprovalNetworkFeeCryptoBaseUnit(networkFeeCryptoBaseUnit)
         setBuildCustomTxInput(buildCustomTxInput)
@@ -47,7 +56,7 @@ export const useApprovalTx = (
       interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [isExactAllowance, poll, tradeQuoteStep, wallet])
+  }, [from, isExactAllowance, poll, tradeQuoteStep, wallet])
 
   return {
     approvalNetworkFeeCryptoBaseUnit,

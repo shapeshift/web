@@ -8,6 +8,7 @@ import {
   HStack,
   IconButton,
   useDisclosure,
+  useMediaQuery,
   usePrevious,
   useToast,
 } from '@chakra-ui/react'
@@ -34,6 +35,7 @@ import {
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -45,6 +47,16 @@ import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 import { TxWindow } from './TxWindow/TxWindow'
 
+const paddingBottomProp = { base: '0.5rem', md: 0 }
+const fontSizeProp = { base: 'sm', md: 'md' }
+const paddingTopProp1 = { base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }
+const pxProp = { base: 0, xl: 4 }
+const displayProp = { base: 'block', md: 'none' }
+const displayProp2 = { base: 'none', md: 'block' }
+const widthProp = { base: 'auto', md: 'full' }
+
+const hamburgerIcon = <HamburgerIcon />
+
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
@@ -52,6 +64,7 @@ export const Header = memo(() => {
   const isSnapInstalled = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const showSnapModal = useSelector(selectShowSnapsModal)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const history = useHistory()
   const {
@@ -149,16 +162,21 @@ export const Header = memo(() => {
     walletAccountIds,
   ])
 
+  const paddingTopProp2 = useMemo(
+    () => ({ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }),
+    [isDemoWallet],
+  )
+
   return (
     <>
       {isDemoWallet && (
         <Box
           bg='blue.500'
           width='full'
-          paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
-          paddingBottom={{ base: '0.5rem', md: 0 }}
+          paddingTop={paddingTopProp1}
+          paddingBottom={paddingBottomProp}
           minHeight='2.5rem'
-          fontSize={{ base: 'sm', md: 'md' }}
+          fontSize={fontSizeProp}
           as='button'
           onClick={handleBannerClick}
         >
@@ -186,39 +204,41 @@ export const Header = memo(() => {
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
-        paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
+        paddingTop={paddingTopProp2}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={{ base: 0, xl: 4 }} spacing={0} columnGap={4}>
-            <Box flex={1} display={{ base: 'block', md: 'none' }}>
-              <IconButton aria-label='Open menu' onClick={onToggle} icon={<HamburgerIcon />} />
+          <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
+            <Box flex={1} display={displayProp}>
+              <IconButton aria-label='Open menu' onClick={onToggle} icon={hamburgerIcon} />
             </Box>
 
-            <Box display={{ base: 'block', md: 'none' }} mx='auto'>
+            <Box display={displayProp} mx='auto'>
               <AppLoadingIcon />
             </Box>
 
             <Flex
               justifyContent='flex-end'
               alignItems='center'
-              width={{ base: 'auto', md: 'full' }}
+              width={widthProp}
               flex={1}
               rowGap={4}
               columnGap={2}
             >
               <GlobalSeachButton />
-              {isDegradedState && <DegradedStateBanner />}
-              {isWalletConnectToDappsV2Enabled && (
-                <Box display={{ base: 'none', md: 'block' }}>
+              {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
+              {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
+                <Box display={displayProp2}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              {isLargerThanMd && <ChainMenu display={displayProp2} />}
               <TxWindow />
               <Notifications />
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
-              </Box>
+              {isLargerThanMd && (
+                <Box display={displayProp2}>
+                  <UserMenu />
+                </Box>
+              )}
             </Flex>
           </HStack>
         </HStack>

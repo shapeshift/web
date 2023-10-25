@@ -8,13 +8,13 @@ import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
-  DEFAULT_APP_DATA,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   assertValidTrade,
   getCowswapNetwork,
+  getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
   getSupportedChainIds,
   getValuesFromQuoteResponse,
@@ -50,6 +50,7 @@ export async function getCowSwapTradeQuote(
   const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
+  const { appData, appDataHash } = await getFullAppData()
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
     `${baseUrl}/${network}/api/v1/quote/`,
@@ -58,7 +59,8 @@ export async function getCowSwapTradeQuote(
       buyToken,
       receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),
-      appData: DEFAULT_APP_DATA,
+      appData,
+      appDataHash,
       partiallyFillable: false,
       from: receiveAddress,
       kind: ORDER_KIND_SELL,

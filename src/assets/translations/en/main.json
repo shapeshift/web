@@ -648,6 +648,10 @@
   "trade": {
     "trade": "Trade",
     "allowance": "Allowance",
+    "verifyAddresses": "Verify Addresses",
+    "assetAddress": "%{asset} address",
+    "verifyAsset": "Verify %{asset}",
+    "verifyAddressMessage": "Ensure your addresses are correct before proceeding.",
     "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
@@ -1257,6 +1261,33 @@
         "header": "Error",
         "body": "Unable to connect Keplr wallet"
       }
+    },
+    "ledger": {
+      "chains": {
+        "header": "Import Ledger Accounts",
+        "body": "To see your balances for each chain, you'll need to connect each app.",
+        "availableChains": "Available Chains",
+        "error": "There was an error connecting your wallet"
+      },
+      "success": {
+        "header": "Ledger Connected",
+        "success": "You can now close this window or it will auto-close shortly",
+        "error": "There was an error connecting your wallet"
+      },
+      "errors": {
+        "connectFailure": "Unable to connect Ledger wallet",
+        "unknown": "An unexpected error occurred communicating with Ledger wallet"
+      },
+      "connect": {
+        "header": "Pair Ledger",
+        "body": "Click Pair then select your Ledger from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Ledger wallet"
+      },
+      "connectWarning": "Before connecting a chain, make sure you have the app open on your device."
     },
     "metaMask": {
       "errors": {

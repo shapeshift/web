@@ -10,7 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -235,6 +235,17 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     })
   }, [opportunityData?.tags])
 
+  const handleIdleEmptyClick = useCallback(() => setHideEmptyState(true), [])
+
+  const overviewDescription = useMemo(
+    () => ({
+      description: underlyingAsset.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: underlyingAsset.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, underlyingAsset.description, underlyingAsset.isTrustedDescription],
+  )
+
   if (!opportunityData) {
     return (
       <Center minW='500px' minH='350px'>
@@ -251,7 +262,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         tags={opportunityData.tags as IdleTag[]}
         apy={opportunityData.apy}
         assetId={underlyingAssetId ?? ''}
-        onClick={() => setHideEmptyState(true)}
+        onClick={handleIdleEmptyClick}
       />
     )
   }
@@ -268,11 +279,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         provider: opportunityData.provider,
         assetName: vaultAsset.name,
       })}
-      description={{
-        description: underlyingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: underlyingAsset.isTrustedDescription,
-      }}
+      description={overviewDescription}
       tvl={bnOrZero(opportunityData.tvl).toFixed(2)}
       apy={opportunityData.apy}
       menu={menu}

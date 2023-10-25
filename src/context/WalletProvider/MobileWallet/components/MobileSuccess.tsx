@@ -20,16 +20,17 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
-  const { state, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const { vault } = location.state
 
   useEffect(() => {
     ;(async () => {
       if (!vault) return
-      const adapters = state.adapters?.get(KeyManager.Native)!
+      const adapter = await getAdapter(KeyManager.Mobile)
+      if (!adapter) throw new Error('Native adapter not found')
       try {
         const deviceId = vault.id ?? ''
-        const wallet = (await adapters[0].pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
 
         if (mnemonic) {
@@ -64,7 +65,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       // Make sure the component is completely unmounted before we revoke the mnemonic
       setTimeout(() => vault?.revoke(), 500)
     }
-  }, [appDispatch, dispatch, setIsSuccessful, setWelcomeModal, state.adapters, vault])
+  }, [appDispatch, dispatch, getAdapter, setIsSuccessful, setWelcomeModal, vault])
 
   return (
     <>

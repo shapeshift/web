@@ -28,20 +28,22 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
     [transfer.type, transfer.assetId, transfer.value],
   )
 
+  const stackMt = useMemo(() => ({ base: 2, md: 0, xl: compactMode ? 2 : 0 }), [compactMode])
+  const assetIconSize = useMemo(
+    () => ({ base: 'sm', lg: compactMode ? 'sm' : 'sm' }),
+    [compactMode],
+  )
+
   return (
     <Stack
       alignItems='center'
       key={key}
       flex={1}
-      mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+      mt={stackMt}
       direction={index === 0 ? 'row' : 'row-reverse'}
       textAlign={index === 0 ? 'left' : 'right'}
     >
-      <AssetIcon
-        src={transfer.asset.icon}
-        assetId={transfer.asset?.assetId}
-        size={{ base: 'sm', lg: compactMode ? 'sm' : 'sm' }}
-      />
+      <AssetIcon src={transfer.asset.icon} assetId={transfer.asset?.assetId} size={assetIconSize} />
       <Box flex={1}>
         <Amount.Crypto
           color='inherit'

@@ -13,7 +13,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
-import { isValidElement, useState } from 'react'
+import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
@@ -34,6 +34,15 @@ type AssetCellProps = {
   isExternal?: boolean
   version?: string
 } & StackProps
+
+const rowTitleBoxAfter = {
+  content: 'attr(title)',
+  overflow: 'hidden',
+  height: 0,
+  display: 'block',
+}
+
+const rowTitleTextFontSize = { base: 'sm', md: 'md' }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
   if (showAssetSymbol && postFix) {
@@ -69,6 +78,8 @@ export const AssetCell = ({
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const handlePopoverClose = useCallback(() => setShowPopover(false), [])
+
   if (!asset) return null
 
   const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
@@ -76,7 +87,7 @@ export const AssetCell = ({
   return (
     <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
       {showTeaser && (
-        <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
+        <Popover isOpen={showPopover} onClose={handlePopoverClose}>
           <PopoverTrigger>
             <Box onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handleOnMouseLeave}>
               <FaInfoCircle />
@@ -103,12 +114,7 @@ export const AssetCell = ({
                 width='full'
                 title={rowTitle}
                 data-test={`account-row-asset-name-${asset.symbol}`}
-                _after={{
-                  content: 'attr(title)',
-                  overflow: 'hidden',
-                  height: 0,
-                  display: 'block',
-                }}
+                _after={rowTitleBoxAfter}
               >
                 <RawText
                   fontWeight='medium'
@@ -119,7 +125,7 @@ export const AssetCell = ({
                   display='block'
                   maxWidth='100%'
                   color={linkColor}
-                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontSize={rowTitleTextFontSize}
                 >
                   {rowTitle}
                 </RawText>

@@ -2,10 +2,13 @@ import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
+const flexPaddingX = { base: 2, lg: 4 }
+const flexPaddingY = { base: 4, lg: 8 }
+
 export const PrivacyPolicy = () => {
   return (
     <Main>
-      <Flex px={{ base: 2, lg: 4 }} py={{ base: 4, lg: 8 }} direction={'column'} rowGap={4}>
+      <Flex px={flexPaddingX} py={flexPaddingY} direction={'column'} rowGap={4}>
         <DarkMode>
           <Center flexDirection={'column'}>
             <Text as='h3' translation={'connectWalletPage.shapeshift'} />

@@ -9,6 +9,11 @@ import { useAppSelector } from 'state/store'
 
 import { AvatarSelectModal } from './AvatarSelectModal'
 
+const groupOverFullOpacity = { opacity: 1 }
+const groupHoverHalfOpacity = { opacity: '0.5' }
+const avatarSize = { base: 'md', md: 'xl' }
+const groupActive = { outline: '2px solid var(--chakra-colors-chakra-body-text)' }
+
 export const ProfileAvatar = () => {
   const walletId = useAppSelector(selectWalletId)
   const selectedNftAvatarUrl = useAppSelector(selectSelectedNftAvatarUrl)
@@ -43,7 +48,7 @@ export const ProfileAvatar = () => {
           opacity={0}
           transitionDuration='normal'
           transitionProperty='common'
-          _groupHover={{ opacity: 1 }}
+          _groupHover={groupOverFullOpacity}
         >
           <EditPen className='editIcon' />
         </Center>
@@ -53,11 +58,11 @@ export const ProfileAvatar = () => {
           opacity='1'
           transitionDuration='normal'
           transitionProperty='common'
-          size={{ base: 'md', md: 'xl' }}
+          size={avatarSize}
           src={walletImage}
           outline='2px solid transparent'
-          _groupHover={{ opacity: '0.5' }}
-          _groupActive={{ outline: '2px solid var(--chakra-colors-chakra-body-text)' }}
+          _groupHover={groupHoverHalfOpacity}
+          _groupActive={groupActive}
         />
       </Button>
       <AvatarSelectModal walletImage={walletImage} isOpen={isOpen} onClose={onClose} />

@@ -196,6 +196,16 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
+  const handleCancel = useCallback(() => history.push('/'), [history])
+  const handleToggle = useCallback(
+    () =>
+      dispatch?.({
+        type: FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE,
+        payload: !state?.isExactAllowance,
+      }),
+    [dispatch, state?.isExactAllowance],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -216,15 +226,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
-      onCancel={() => history.push('/')}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={contractAddress}
-      onToggle={() =>
-        dispatch({
-          type: FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE,
-          payload: !state.isExactAllowance,
-        })
-      }
+      onToggle={handleToggle}
     />
   )
 }

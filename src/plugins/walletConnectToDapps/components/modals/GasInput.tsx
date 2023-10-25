@@ -35,6 +35,8 @@ type GasOption = {
   color: ThemeTypings['colorSchemes']
 }
 
+const gridTemplateColumns = { base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }
+
 export const GasInput: FC<GasInputProps> = ({ fees }) => {
   const { control, setValue, register } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
@@ -132,11 +134,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
                   <Text translation='gasInput.custom' />
                 </Radio>
               </HStack>
-              <SimpleGrid
-                mt={2}
-                spacing={4}
-                templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-              >
+              <SimpleGrid mt={2} spacing={4} templateColumns={gridTemplateColumns}>
                 <Box>
                   <HelperTooltip label={translate('gasInput.base.tooltip')}>
                     <Text

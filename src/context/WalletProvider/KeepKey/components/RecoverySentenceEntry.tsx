@@ -26,6 +26,12 @@ import { isKeepKeyHDWallet } from 'lib/utils'
 const minInputLength = 3
 const maxInputLength = 4
 
+const progressStyles = {
+  '& > div': {
+    background: 'blue.500',
+  },
+}
+
 export const KeepKeyRecoverySentenceEntry = () => {
   const {
     state: {
@@ -254,6 +260,8 @@ export const KeepKeyRecoverySentenceEntry = () => {
                     key={i}
                     ref={inputFields[i]}
                     {...pinInputFieldProps}
+                    // we need to pass an arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
                     onMouseDown={e => preventClickIfNotCurrentIndex(e, i)}
                   />
                 )
@@ -269,11 +277,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               value={(recoveryWordIndex || 0) + 1}
               background={progressBarBackgroundColor}
               borderRadius='lg'
-              sx={{
-                '& > div': {
-                  background: 'blue.500',
-                },
-              }}
+              sx={progressStyles}
             />
             <Button
               width='30%'

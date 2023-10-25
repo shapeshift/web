@@ -1,5 +1,5 @@
 import type { evm } from '@shapeshiftoss/common-api'
-import type Web3 from 'web3'
+import type { Web3 } from 'web3'
 import type { AbiItem } from 'web3-utils'
 
 import { TOKEN_CONTRACT_ADDRESSES } from './constants'

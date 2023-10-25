@@ -298,6 +298,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     state,
   ])
 
+  const handleApproveCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   const approvalElements = useMemo(
     () => [
       ...(asset0ContractAddress && !isAsset0AllowanceGranted
@@ -322,7 +324,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 preFooter={preFooter}
                 providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-                onCancel={() => onNext(DefiStep.Info)}
+                onCancel={handleApproveCancel}
+                // we need to pass an arg here, so we need an anonymous function wrapper
+                // eslint-disable-next-line react-memo/require-usememo
                 onConfirm={() => handleApprove(asset0ContractAddress)}
                 spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS!}
               />
@@ -351,7 +355,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 preFooter={preFooter}
                 providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-                onCancel={() => onNext(DefiStep.Info)}
+                onCancel={handleApproveCancel}
+                // we need to pass an arg here, so we need an anonymous function wrapper
+                // eslint-disable-next-line react-memo/require-usememo
                 onConfirm={() => handleApprove(asset1ContractAddress)}
                 spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
               />
@@ -360,8 +366,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         : []),
     ],
     [
-      isAsset0AllowanceGranted,
       asset0ContractAddress,
+      isAsset0AllowanceGranted,
       neededApprovals,
       asset0,
       lpOpportunity,
@@ -372,11 +378,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       approve0Loading,
       translate,
       preFooter,
-      isAsset1AllowanceGranted,
+      handleApproveCancel,
       asset1ContractAddress,
+      isAsset1AllowanceGranted,
       asset1,
       approve1Loading,
-      onNext,
       handleApprove,
     ],
   )

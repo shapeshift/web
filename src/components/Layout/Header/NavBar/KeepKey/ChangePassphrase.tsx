@@ -12,7 +12,9 @@ import {
   Switch,
   useToast,
 } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
@@ -21,6 +23,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+
+const setting = 'Passphrase'
+const awaitKeepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = [
+  'walletProvider.keepKey.settings.descriptions.buttonPrompt',
+  { setting },
+]
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
@@ -36,7 +44,7 @@ export const ChangePassphrase = () => {
     },
   } = useWallet()
 
-  const handleToggle = async () => {
+  const handleToggle = useCallback(async () => {
     const currentValue = !!hasPassphrase
     setHasPassphrase(!hasPassphrase)
     await keepKeyWallet?.applySettings({ usePassphrase: !currentValue }).catch(e => {
@@ -48,13 +56,11 @@ export const ChangePassphrase = () => {
         isClosable: true,
       })
     })
-  }
+  }, [hasPassphrase, keepKeyWallet, setHasPassphrase, toast, translate])
 
-  const onCancel = () => {
+  const onCancel = useCallback(() => {
     setHasPassphrase(!hasPassphrase)
-  }
-
-  const setting = 'Passphrase'
+  }, [hasPassphrase, setHasPassphrase])
 
   return (
     <SubMenuContainer>
@@ -100,10 +106,7 @@ export const ChangePassphrase = () => {
           />
         </FormControl>
       </SubMenuBody>
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-        onCancel={onCancel}
-      />
+      <AwaitKeepKey translation={awaitKeepkeyButtonPromptTranslation} onCancel={onCancel} />
     </SubMenuContainer>
   )
 }

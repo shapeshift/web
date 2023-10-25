@@ -34,12 +34,15 @@ type BuildArgs = {
 }
 
 type BroadcastArgs = {
+  senderAddress: string
+  receiverAddress: string | undefined
   adapter: EvmChainAdapter
   txToSign: SignTx<EvmChainId>
   wallet: HDWallet
 }
 
-type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign' | 'wallet'>
+type BuildAndBroadcastArgs = BuildArgs &
+  Omit<BroadcastArgs, 'senderAddress' | 'txToSign' | 'wallet'>
 
 type CreateBuildCustomTxInputArgs = {
   accountNumber: number
@@ -167,22 +170,49 @@ export const createBuildCustomApiTxInput = async (
   return { ...args, ...fees }
 }
 
-export const buildAndBroadcast = async ({ adapter, buildCustomTxInput }: BuildAndBroadcastArgs) => {
+export const buildAndBroadcast = async ({
+  adapter,
+  buildCustomTxInput,
+  receiverAddress,
+}: BuildAndBroadcastArgs) => {
+  const senderAddress = await adapter.getAddress(buildCustomTxInput)
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
-  return signAndBroadcast({ adapter, txToSign, wallet: buildCustomTxInput.wallet })
+  return signAndBroadcast({
+    adapter,
+    txToSign,
+    wallet: buildCustomTxInput.wallet,
+    senderAddress,
+    receiverAddress,
+  })
 }
 
-export const signAndBroadcast = async ({ adapter, txToSign, wallet }: BroadcastArgs) => {
+export const signAndBroadcast = async ({
+  adapter,
+  txToSign,
+  wallet,
+  senderAddress,
+  receiverAddress,
+}: BroadcastArgs) => {
   if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
 
   if (wallet.supportsOfflineSigning()) {
     const signedTx = await adapter.signTransaction({ txToSign, wallet })
-    const txid = await adapter.broadcastTransaction(signedTx)
+    const txid = await adapter.broadcastTransaction({
+      senderAddress,
+      receiverAddress,
+      hex: signedTx,
+    })
     return txid
   }
 
   if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-    const txid = await adapter.signAndBroadcastTransaction({ txToSign, wallet })
+    // note that txToSign.to is often a contract address and not the actual receiver
+    // TODO: do we want to validate contract addresses too?
+    const txid = await adapter.signAndBroadcastTransaction({
+      senderAddress,
+      receiverAddress,
+      signTxInput: { txToSign, wallet },
+    })
     return txid
   }
 
@@ -225,9 +255,21 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
   return adapter
 }
 
-export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
+export const executeEvmTrade = ({
+  txToSign,
+  wallet,
+  chainId,
+  senderAddress,
+  receiverAddress,
+}: ExecuteTradeArgs) => {
   const adapter = assertGetEvmChainAdapter(chainId)
-  return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
+  return signAndBroadcast({
+    adapter,
+    wallet,
+    txToSign: txToSign as ETHSignTx,
+    senderAddress,
+    receiverAddress,
+  })
 }
 
 export const executeEvmTransaction = (

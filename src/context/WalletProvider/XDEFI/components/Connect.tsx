@@ -21,7 +21,7 @@ export interface XDEFISetupProps
 }
 
 export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
-  const { dispatch, state, onProviderChange } = useWallet()
+  const { dispatch, state, getAdapter, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,11 +38,10 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
     setError(null)
     setLoading(true)
 
-    if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
+    const adapter = await getAdapter(KeyManager.XDefi)
+    if (adapter) {
       try {
-        const wallet = (await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()) as
-          | XDEFIHDWallet
-          | undefined
+        const wallet = (await adapter.pairDevice()) as XDEFIHDWallet | undefined
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')
@@ -81,7 +80,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }, [state.provider, state.adapters, dispatch, history])
+  }, [getAdapter, state.provider, dispatch, history])
 
   return (
     <ConnectModal

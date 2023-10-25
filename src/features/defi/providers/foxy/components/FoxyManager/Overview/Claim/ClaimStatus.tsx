@@ -3,7 +3,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { ethers } from 'ethers'
 import isNil from 'lodash/isNil'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -145,6 +145,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     })()
   }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid, poll])
 
+  const handleClose = useMemo(() => () => browserHistory.goBack(), [browserHistory])
+
   return (
     <SlideTransition>
       <ModalBody>
@@ -240,7 +242,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
               </Stack>
             </Row.Value>
           </Row>
-          <Button width='full' size='lg' onClick={() => browserHistory.goBack()}>
+          <Button width='full' size='lg' onClick={handleClose}>
             {translate('common.close')}
           </Button>
         </Stack>

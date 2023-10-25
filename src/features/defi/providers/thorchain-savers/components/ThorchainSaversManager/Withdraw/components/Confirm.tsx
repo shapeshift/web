@@ -27,6 +27,7 @@ import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -609,15 +610,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const handleCustomTx = useCallback(async (): Promise<string | undefined> => {
-    if (!wallet) return
+    if (!wallet || accountNumber === undefined) return
     const buildCustomTxInput = await getCustomTxInput()
     if (!buildCustomTxInput) return
 
     const adapter = assertGetEvmChainAdapter(chainId)
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    const txid = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput,
+      receiverAddress: undefined, // no receiver for this contract call
+    })
     return txid
-  }, [wallet, getCustomTxInput, chainId])
+  }, [wallet, accountNumber, getCustomTxInput, chainId])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return
@@ -829,6 +834,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  const missingFundsForGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'modals.confirm.missingFundsForGas',
+      {
+        cryptoAmountHuman: bn(missingBalanceForGasCryptoPrecision).toFixed(6, BigNumber.ROUND_UP),
+        assetSymbol: feeAsset.symbol,
+      },
+    ],
+    [missingBalanceForGasCryptoPrecision, feeAsset.symbol],
+  )
+
   if (!state || !contextDispatch) return null
 
   return (
@@ -947,18 +963,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text
-              translation={[
-                'modals.confirm.missingFundsForGas',
-                {
-                  cryptoAmountHuman: bn(missingBalanceForGasCryptoPrecision).toFixed(
-                    6,
-                    BigNumber.ROUND_UP,
-                  ),
-                  assetSymbol: feeAsset.symbol,
-                },
-              ]}
-            />
+            <Text translation={missingFundsForGasTranslation} />
           </Alert>
         )}
       </Summary>

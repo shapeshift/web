@@ -12,7 +12,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import { Default } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -25,7 +25,10 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
 
+const faEyeIcon = <FaEye />
+
 const getVault = async (): Promise<Vault> => {
+  const { Vault, GENERATE_MNEMONIC } = await import('@shapeshiftoss/hdwallet-native-vault')
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
   vault.set('#mnemonic', GENERATE_MNEMONIC)
@@ -42,10 +45,10 @@ export const NativeCreate = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
-  const handleShow = () => {
+  const handleShow = useCallback(() => {
     revealedOnce.current = true
     setRevealed(!revealed)
-  }
+  }, [revealed])
   const [vault, setVault] = useState<Vault | null>(null)
   const [words, setWords] = useState<ReactNode[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
@@ -156,7 +159,7 @@ export const NativeCreate = () => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

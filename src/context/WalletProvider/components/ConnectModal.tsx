@@ -14,11 +14,13 @@ export type ConnectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
-  onPairDeviceClick(): any
+  onPairDeviceClick: () => void
   loading: boolean
   error: string | null
   children?: ReactNode
 }
+
+const spinner = <Spinner color='white' />
 
 export const ConnectModal: React.FC<ConnectModalProps> = ({
   bodyText,
@@ -41,7 +43,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             colorScheme='blue'
             isLoading
             loadingText='Pairing Wallet'
-            spinner={<Spinner color='white' />}
+            spinner={spinner}
             isDisabled={loading}
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />

@@ -5,6 +5,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
+import { useCallback } from 'react'
 import { MemoryRouter } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
@@ -23,7 +24,7 @@ export const Claim: React.FC<ClaimProps> = ({
 }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -31,7 +32,7 @@ export const Claim: React.FC<ClaimProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location.pathname, query])
 
   return (
     <SlideTransition>

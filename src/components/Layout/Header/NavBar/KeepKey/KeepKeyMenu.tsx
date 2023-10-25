@@ -8,7 +8,7 @@ import {
   MenuItem,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
@@ -24,8 +24,27 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+const closeIcon = <CloseIcon />
+
 export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
+  const navigateToKeepKeyLabel = useCallback(
+    () => navigateToRoute(WalletConnectedRoutes.KeepKeyLabel),
+    [navigateToRoute],
+  )
+  const navigateToKeepkeyPin = useCallback(
+    () => navigateToRoute(WalletConnectedRoutes.KeepKeyPin),
+    [navigateToRoute],
+  )
+  const navigateToKeepkeyTimeout = useCallback(
+    () => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout),
+    [navigateToRoute],
+  )
+  const navigateToKeepkeyPassphrase = useCallback(
+    () => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase),
+    [navigateToRoute],
+  )
+
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
   const {
@@ -128,13 +147,13 @@ export const KeepKeyMenu = () => {
           />
           <MenuDivider />
           <ExpandedMenuItem
-            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyLabel)}
+            onClick={navigateToKeepKeyLabel}
             label='walletProvider.keepKey.settings.menuLabels.label'
             value={walletInfo?.name}
             hasSubmenu={true}
           />
           <ExpandedMenuItem
-            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPin)}
+            onClick={navigateToKeepkeyPin}
             label='walletProvider.keepKey.settings.menuLabels.pin'
             value='••••••'
             hasSubmenu={true}
@@ -152,20 +171,20 @@ export const KeepKeyMenu = () => {
           <Collapse in={isOpen}>
             <Box ml={3}>
               <ExpandedMenuItem
-                onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout)}
+                onClick={navigateToKeepkeyTimeout}
                 label='walletProvider.keepKey.settings.menuLabels.deviceTimeout'
                 value={deviceTimeoutTranslation}
                 hasSubmenu={true}
               />
               <ExpandedMenuItem
-                onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}
+                onClick={navigateToKeepkeyPassphrase}
                 label='walletProvider.keepKey.settings.menuLabels.passphrase'
                 value={getBooleanLabel(features?.passphraseProtection)}
                 valueDisposition={features?.passphraseProtection ? 'positive' : 'neutral'}
                 hasSubmenu={true}
               />
               <MenuDivider />
-              <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>
+              <MenuItem onClick={handleWipeClick} color='red.500' icon={closeIcon}>
                 {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
               </MenuItem>
             </Box>

@@ -6,6 +6,8 @@ import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 
+const faCodeIcon = <FaCode />
+
 /**
  * yes, this is recursive jsx
  */
@@ -37,32 +39,35 @@ export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
   const cardBg = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
 
+  const messageDataTitle = useMemo(
+    () => (
+      <Box lineHeight={2.4} m={0}>
+        {translate('plugins.walletConnectToDapps.modal.signMessage.messageData')}
+      </Box>
+    ),
+    [translate],
+  )
+
+  const domainTitle = useMemo(
+    () => (
+      <Box lineHeight={2.4} m={0}>
+        {translate('plugins.walletConnectToDapps.modal.signMessage.domain')}
+      </Box>
+    ),
+    [translate],
+  )
+
   const parsedMessage = JSON.parse(typedData)
   return (
     <>
       <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-        <ModalCollapsableSection
-          title={
-            <Box lineHeight={2.4} m={0}>
-              {translate('plugins.walletConnectToDapps.modal.signMessage.messageData')}
-            </Box>
-          }
-          icon={<FaCode />}
-        >
+        <ModalCollapsableSection title={messageDataTitle} icon={faCodeIcon}>
           <PresentKeyValues object={parsedMessage.message} />
         </ModalCollapsableSection>
       </Card>
       {parsedMessage.domain && (
         <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-          <ModalCollapsableSection
-            defaultOpen={false}
-            title={
-              <Box lineHeight={2.4} m={0}>
-                {translate('plugins.walletConnectToDapps.modal.signMessage.domain')}
-              </Box>
-            }
-            icon={<FaCode />}
-          >
+          <ModalCollapsableSection defaultOpen={false} title={domainTitle} icon={faCodeIcon}>
             <PresentKeyValues object={parsedMessage.domain} />
           </ModalCollapsableSection>
         </Card>

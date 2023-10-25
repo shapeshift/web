@@ -36,11 +36,11 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
 
-  const onCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     // Check the captcha in case the captcha has been validated
     setHasAlreadySaved(e.target.checked)
     return
-  }
+  }, [])
 
   const { vault, isLegacyWallet } = location.state
 
@@ -100,6 +100,11 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
     }
   }
 
+  const handleSkipClick = useCallback(
+    () => history.push('/native/password', { vault }),
+    [history, vault],
+  )
+
   return !testState ? null : (
     <>
       <ModalHeader>
@@ -137,6 +142,8 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                   variant='ghost-filled'
                   colorScheme={invalidTries.includes(index) ? 'gray' : 'blue'}
                   isDisabled={invalidTries.includes(index)}
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
                   onClick={() => handleClick(index)}
                 >
                   {word}
@@ -169,7 +176,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               size='md'
               isDisabled={!hasAlreadySaved}
               data-test='wallet-native-login-skip'
-              onClick={() => history.push('/native/password', { vault })}
+              onClick={handleSkipClick}
             >
               <Text translation={'common.skip'} />
             </Button>

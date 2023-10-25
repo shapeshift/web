@@ -31,6 +31,8 @@ import { useAppSelector } from 'state/store'
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
+const externalLinkIcon = <ExternalLinkIcon />
+
 export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
@@ -215,7 +217,7 @@ export const Status = () => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

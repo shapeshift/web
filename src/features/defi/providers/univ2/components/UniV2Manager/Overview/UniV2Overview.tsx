@@ -30,6 +30,19 @@ type UniV2OverviewProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const overviewMenu = [
+  {
+    label: 'common.deposit',
+    icon: <ArrowUpIcon />,
+    action: DefiAction.Deposit,
+  },
+  {
+    label: 'common.withdraw',
+    icon: <ArrowDownIcon />,
+    action: DefiAction.Withdraw,
+  },
+]
+
 export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -104,6 +117,15 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
     selectedLocale,
   })
 
+  const overviewDescription = useMemo(
+    () => ({
+      description: lpAsset?.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: lpAsset?.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, lpAsset?.description, lpAsset?.isTrustedDescription],
+  )
+
   if (!lpAsset || !earnLpOpportunity?.opportunityName || !underlyingAssetsWithBalancesAndIcons) {
     return (
       <DefiModalContent>
@@ -127,25 +149,10 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
         provider: earnLpOpportunity.provider,
         assetName: lpAsset.name,
       })}
-      description={{
-        description: lpAsset?.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: lpAsset?.isTrustedDescription,
-      }}
+      description={overviewDescription}
       tvl={earnLpOpportunity.tvl}
       apy={earnLpOpportunity.apy}
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-      ]}
+      menu={overviewMenu}
     />
   )
 }

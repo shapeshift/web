@@ -2,7 +2,8 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import type { KeyManager } from './KeyManager'
-import type { Adapters, DeviceState, InitialState, WalletInfo } from './WalletProvider'
+import type { AdaptersByKeyManager } from './types'
+import type { DeviceState, InitialState, WalletInfo } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -30,7 +31,7 @@ export enum WalletActions {
 }
 
 export type ActionTypes =
-  | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
+  | { type: WalletActions.SET_ADAPTERS; payload: Partial<AdaptersByKeyManager> }
   | {
       type: WalletActions.SET_WALLET
       payload: WalletInfo & {

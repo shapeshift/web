@@ -27,12 +27,14 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BroadcastTransactionInput,
   BuildSendApiTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
   SignMessageInput,
   SignTx,
   SignTxInput,
@@ -47,6 +49,7 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { validateAddress } from '../utils/validateAddress'
 import type { arbitrum, avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type {
   BuildCustomApiTxInput,
@@ -442,7 +445,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
+  async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<T>): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
+
     try {
       const { txToSign, wallet } = signTxInput
 
@@ -461,7 +473,15 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  broadcastTransaction(hex: string): Promise<string> {
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      validateAddress(senderAddress),
+      receiverAddress !== undefined && validateAddress(receiverAddress),
+    ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
@@ -507,6 +527,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async getAddress(input: GetAddressInput): Promise<string> {
     const { accountNumber, wallet, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
+
+    if (input.pubKey) {
+      return input.pubKey
+    }
+
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),
       showDisplay: showOnDevice,
@@ -529,9 +554,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void,
   ): Promise<void> {
-    const { accountNumber, wallet } = input
+    const { pubKey, accountNumber, wallet } = input
 
-    const address = await this.getAddress({ accountNumber, wallet })
+    const address = await this.getAddress({ accountNumber, wallet, pubKey })
     const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 

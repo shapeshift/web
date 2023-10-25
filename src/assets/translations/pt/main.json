@@ -1,5 +1,6 @@
 {
   "common": {
+    "free": "Gratuito",
     "back": "Voltar",
     "balance": "Saldo",
     "next": "Avançar",
@@ -113,7 +114,8 @@
     "submitFeatureRequest": "Requerer Uma Nova Funcionalidade",
     "learnMore": "Aprender mais",
     "showAll": "Mostrar tudo",
-    "showLess": "Mostrar menos"
+    "showLess": "Mostrar menos",
+    "yourBalance": "Seu saldo"
   },
   "consentBanner": {
     "body": {
@@ -259,8 +261,8 @@
         },
         "bodies": {
           "rateFluctuationInfo": "A taxa de %{assetName} que você ganha, o Retorno Percentual Anual (APR), normalmente oscila entre 7% e 20%.",
-          "amountStakingInfo": "Você pode fazer stake de qualquer quantia de %{assetName} e eles começarão imediatamente a gerar recompensas.",
-          "withdrawInfo": "Você pode retirar suas recompensas a qualquer momento, o que exige uma pequena taxa de gás em torno de ~$0,01.",
+          "amountStakingInfo": "Você pode depositar qualquer quantia de %{assetName} e eles vão lhe gerar recompensas imediatamente.",
+          "withdrawInfo": "Você pode sacar suas recompensas a qualquer momento, exigindo uma pequena taxa de gás em torno de aproximadamente US$ 0,01.",
           "unbondingInfo": "Quando você retirar seus tokens, eles permanecerão bloqueados por %{unbondingDays} dias, durante os quais não ganharão recompensas. Após os %{unbondingDays} dias, seu %{assetName} retornará à sua Carteira.",
           "slashingInfo": "O staking é feito através de um validador. É incrivelmente raro, mas se o validador com o qual você realizou o stake errar ao permitir transações falsas ou incorretas, você poderá perder uma parte de seus ativos.",
           "partnerInfo": "Reduzimos esse risco em parceria com validadores confiáveis, que possuem uma infraestrutura segura e auditada."
@@ -655,7 +657,7 @@
       "auto": "Automático",
       "custom": "Personalizado",
       "warning": "Alta tolerância a slippage pode resultar em negociações ineficientes. ",
-      "lowSlippage": "Usar um slippage abaixo de 0,05% talvez resulte em uma transação com falha."
+      "lowSlippage": "Slippage abaixo de 0,05% pode resultar em falha na transação."
     },
     "from": "De",
     "to": "Para",
@@ -852,7 +854,7 @@
       },
       "disconnect": {
         "header": "Disconecte seu dispositivo KeepKey",
-        "body": "Infelizmente, ocorreu um erro ao recuperar/configurar seu dispositivo KeepKey. Desconecte e reconecte seu dispositivo e tente configurar seu dispositivo novamente. Se o problema persistir, entre em contato com o suporte."
+        "body": "Infelizmente, ocorreu um erro ao recuperar/configurar seu dispositivo KeepKey. Desconecte e reconecte seu dispositivo e tente configurar seu dispositivo KeepKey novamente. Se o problema persistir, entre em contato com o suporte KeepKey."
       }
     },
     "shapeShift": {
@@ -1252,6 +1254,33 @@
         "body": "Não foi possível conectar sua carteira Keplr"
       }
     },
+    "ledger": {
+      "chains": {
+        "header": "Importar contas da Ledger",
+        "body": "Para ver seus saldos de cada rede, você precisará conectar cada aplicativo.",
+        "availableChains": "Redes disponíveis",
+        "error": "Ocorreu um erro ao conectar sua carteira"
+      },
+      "success": {
+        "header": "Ledger conectada",
+        "success": "Agora você pode fechar esta janela ou ela será fechada automaticamente em breve",
+        "error": "Ocorreu um erro ao conectar sua carteira"
+      },
+      "errors": {
+        "connectFailure": "Não foi possível conectar a Ledger",
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Ledger"
+      },
+      "connect": {
+        "header": "Emparelhar a Ledger",
+        "body": "Clique em Emparelhar e selecione sua Ledger na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar a Ledger"
+      },
+      "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo."
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
@@ -1289,7 +1318,8 @@
       "connectMetaMask": "Conecte a MetaMask",
       "andMore": "...e mais",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap instalado",
-      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado"
+      "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado",
+      "dontAskAgain": "Não pergunte novamente"
     },
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
@@ -1816,13 +1846,15 @@
         },
         "sessionProposal": {
           "dAppInfo": "Informação do dApp",
-          "permissions": "Permissões",
+          "permissions": "Permissões necessárias",
+          "optionalPermissions": "Permissões opcionais",
           "accountSelection": "Escolha as contas",
           "unsupportedChain": "Rede não suportada.",
           "methods": "Métodos",
           "events": "Eventos",
           "selectedAccounts": "Contas selecionadas",
-          "permissionMessage": "Selecione pelo menos uma conta por rede."
+          "permissionMessage": "Selecione pelo menos uma conta por rede.",
+          "optionalPermissionMessage": "As seguintes permissões são opcionais."
         }
       },
       "registry": {
@@ -1905,7 +1937,7 @@
           "title": "Estratégias Junior Best Yield:",
           "bullets": {
             "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários",
-            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
+            "two": "Ofereça retornos maximizados sem que o usuário verifique constantemente as taxas e gaste com taxas em cada transferência"
           }
         }
       },
@@ -2099,5 +2131,15 @@
       "title": "Definir um Novo Avatar",
       "restoreDefault": "Restaurar padrão"
     }
+  },
+  "foxDiscounts": {
+    "currentFoxPower": "Poder atual em FOX",
+    "foxPower": "Poder FOX",
+    "simulateTitle": "Simule suas poupança FOX",
+    "simulateBody": "Use esta calculadora para determinar o total de taxas e o desconto que você receberá em sua negociação. Basta ajustar os controles abaixo para indicar quando você tem de FOX e a quantidade do trade em moeda fiduciárias. Depois, é só o potencial do ganho da sua poupança!",
+    "tradeSize": "Tamanho do trade",
+    "totalFee": "Taxa total",
+    "foxPowerDiscount": "Desconto do poder FOX",
+    "basedOnFee": "Com base em uma taxa de: %{fee}"
   }
 }

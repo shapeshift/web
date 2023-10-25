@@ -41,13 +41,16 @@ export type QuoteStatus = {
 export enum TradeRoutePaths {
   Input = '/trade/input',
   Confirm = '/trade/confirm',
+  VerifyAddresses = '/trade/verify-addresses',
   Approval = '/trade/approval',
 }
 
 export type GetReceiveAddressArgs = {
   asset: Asset
-  wallet: HDWallet | null
+  wallet: HDWallet
+  deviceId: string
   accountMetadata: AccountMetadata
+  pubKey?: string
 }
 
 export type TradeQuoteInputCommonArgs = Pick<

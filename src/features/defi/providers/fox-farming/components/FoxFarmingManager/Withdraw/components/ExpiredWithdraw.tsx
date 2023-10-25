@@ -9,7 +9,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
@@ -39,6 +39,8 @@ type ExpiredWithdrawProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
+
+const percentOptionsEmpty: number[] = []
 
 export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   accountId,
@@ -102,9 +104,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   )
   const totalFiatBalance = opportunity?.fiatAmount
 
-  if (!state || !dispatch || !opportunity || !totalFiatBalance) return null
-
-  const getWithdrawGasEstimate = async () => {
+  const getWithdrawGasEstimate = useCallback(async () => {
     try {
       const fees = await getUnstakeFees(amountAvailableCryptoPrecision, true)
       if (!fees) return
@@ -113,10 +113,10 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       // TODO: handle client side errors maybe add a toast?
       console.error(error)
     }
-  }
+  }, [amountAvailableCryptoPrecision, feeAsset.precision, getUnstakeFees])
 
-  const handleContinue = async () => {
-    if (!opportunity || !asset) return
+  const handleContinue = useCallback(async () => {
+    if (!opportunity || !asset || !dispatch || !totalFiatBalance) return
     // set withdraw state for future use
     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
@@ -168,19 +168,70 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       onNext(DefiStep.Approve)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    allowance,
+    amountAvailableCryptoPrecision,
+    asset,
+    assets,
+    dispatch,
+    feeAsset.precision,
+    getApproveFees,
+    getWithdrawGasEstimate,
+    onNext,
+    opportunity,
+    totalFiatBalance,
+  ])
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(amountAvailableCryptoPrecision)
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(amountAvailableCryptoPrecision)
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [amountAvailableCryptoPrecision],
+  )
+
+  const cryptoInputValidation = useMemo(
+    () => ({
+      required: true,
+      validate: { validateCryptoAmount },
+    }),
+    [validateCryptoAmount],
+  )
+
+  const inputDefaultValue = useMemo(
+    () => ({
+      cryptoAmount: amountAvailableCryptoPrecision,
+      fiatAmount: totalFiatBalance ?? '0',
+    }),
+    [amountAvailableCryptoPrecision, totalFiatBalance],
+  )
+
+  const inputChildren = useMemo(
+    () => (
+      <Stack px={4} py={2}>
+        <Text
+          fontSize='xs'
+          translation='defi.steps.withdraw.info.rewardsInfo'
+          color='text.subtle'
+        />
+        <Stack direction='row'>
+          <AssetIcon assetId={rewardAssetId} size='xs' />
+          <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={rewardAsset.symbol} />
+        </Stack>
+      </Stack>
+    ),
+    [rewardAmountCryptoPrecision, rewardAssetId, rewardAsset.symbol],
+  )
+
+  // no-op for expired withdraw
+  const handlePercentClick = useCallback(() => {}, [])
 
   const handleCancel = browserHistory.goBack
 
-  if (!asset) return null
+  if (!state || !dispatch || !opportunity || !totalFiatBalance || !asset) return null
 
   return (
     <FormProvider {...methods}>
@@ -190,36 +241,18 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         disableInput
         icons={opportunity?.icons}
         cryptoAmountAvailable={amountAvailableCryptoPrecision}
-        cryptoInputValidation={{
-          required: true,
-          validate: { validateCryptoAmount },
-        }}
+        cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={totalFiatBalance}
         marketData={lpMarketData}
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
-        percentOptions={[]}
+        percentOptions={percentOptionsEmpty}
         enableSlippage={false}
-        handlePercentClick={() => {}}
-        inputDefaultValue={{
-          cryptoAmount: amountAvailableCryptoPrecision,
-          fiatAmount: totalFiatBalance,
-        }}
-        inputChildren={
-          <Stack px={4} py={2}>
-            <Text
-              fontSize='xs'
-              translation='defi.steps.withdraw.info.rewardsInfo'
-              color='text.subtle'
-            />
-            <Stack direction='row'>
-              <AssetIcon assetId={rewardAssetId} size='xs' />
-              <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={rewardAsset.symbol} />
-            </Stack>
-          </Stack>
-        }
+        handlePercentClick={handlePercentClick}
+        inputDefaultValue={inputDefaultValue}
+        inputChildren={inputChildren}
       />
     </FormProvider>
   )

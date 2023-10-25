@@ -32,6 +32,7 @@ import { useAppSelector } from 'state/store'
 import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined }
+const externalLinkIcon = <ExternalLinkIcon />
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -175,7 +176,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               isExternal
               variant='ghost-filled'
               colorScheme='green'
-              rightIcon={<ExternalLinkIcon />}
+              rightIcon={externalLinkIcon}
               href={`${asset.explorerTxLink}/${state.txid}`}
             >
               {translate('defi.viewOnChain')}

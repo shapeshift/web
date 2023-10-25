@@ -54,6 +54,12 @@ const IconButtonAfter = {
   color: 'text.base',
 }
 
+const qrCodeIcon = <QRCodeIcon />
+const arrowUpIcon = <ArrowUpIcon />
+const arrowDownIcon = <ArrowDownIcon />
+const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
+const swapIcon = <SwapIcon />
+
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -224,27 +230,23 @@ export const DashboardHeader = () => {
           </Flex>
         </Flex>
         <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'} display={buttonGroupDisplay}>
-          <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
+          <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
             {translate('modals.send.qrCode')}
           </Button>
-          <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={<ArrowUpIcon />}>
+          <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={arrowUpIcon}>
             {translate('common.send')}
           </Button>
-          <Button
-            isDisabled={!isConnected}
-            onClick={handleReceiveClick}
-            leftIcon={<ArrowDownIcon />}
-          >
+          <Button isDisabled={!isConnected} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
             {translate('common.receive')}
           </Button>
-          <Button onClick={handleTradeClick} leftIcon={<IoSwapVerticalSharp />}>
+          <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
             {translate('navBar.tradeShort')}
           </Button>
         </Flex>
         <Flex width='full' display={ButtonRowDisplay}>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<ArrowUpIcon />}
+              icon={arrowUpIcon}
               size='lg'
               isRound
               aria-label={translate('common.send')}
@@ -256,7 +258,7 @@ export const DashboardHeader = () => {
           </Flex>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<ArrowDownIcon />}
+              icon={arrowDownIcon}
               size='lg'
               isRound
               aria-label={translate('common.receive')}
@@ -268,7 +270,7 @@ export const DashboardHeader = () => {
           </Flex>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<SwapIcon />}
+              icon={swapIcon}
               size='lg'
               isRound
               aria-label={translate('navBar.tradeShort')}
@@ -279,7 +281,7 @@ export const DashboardHeader = () => {
           </Flex>
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
-              icon={<QRCodeIcon />}
+              icon={qrCodeIcon}
               size='lg'
               isRound
               aria-label={translate('modals.send.qrCode')}

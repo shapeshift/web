@@ -8,6 +8,7 @@ import { RawText } from 'components/Text'
 
 const alignItems = { base: 'flex-start', md: 'center' }
 const padding = { base: 4, xl: 0 }
+const arrowForwardIcon = <ArrowForwardIcon />
 
 const EarnHeader = () => {
   const translate = useTranslate()
@@ -23,7 +24,7 @@ const EarnHeader = () => {
           to='/earn'
           size='sm'
           ml='auto'
-          rightIcon={<ArrowForwardIcon />}
+          rightIcon={arrowForwardIcon}
         >
           {translate('defi.viewAllPositions')}
         </Button>
@@ -33,6 +34,8 @@ const EarnHeader = () => {
   )
 }
 
+const earnHeader = <EarnHeader />
+
 export const EarnDashboard = memo(() => {
-  return <DeFiEarn includeEarnBalances header={<EarnHeader />} />
+  return <DeFiEarn includeEarnBalances header={earnHeader} />
 })

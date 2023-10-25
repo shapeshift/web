@@ -1,4 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -10,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { ASSET_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { Property } from 'csstype'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -35,6 +37,11 @@ import type { ExternalOpportunity } from '../../FoxCommon'
 type FoxOtherOpportunityPanelRowProps = {
   opportunity: ExternalOpportunity
 }
+
+const flexWidth = { base: 'auto', md: '40%' }
+const assetIconBoxSize = { base: 6, md: 8 }
+const apyTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', md: 'center' }
+const opportunityButtonDisplay = { base: 'none', md: 'block' }
 
 export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowProps> = ({
   opportunity,
@@ -146,13 +153,18 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     [isDemoWallet, wallet, earnOpportunity],
   )
 
+  const hoverStyle = useMemo(
+    () => ({ bg: hoverOpportunityBg, textDecoration: 'none' }),
+    [hoverOpportunityBg],
+  )
+
   if (!opportunity) return null
 
   return (
     <Flex
       justifyContent='space-between'
       flexDirection='row'
-      _hover={{ bg: hoverOpportunityBg, textDecoration: 'none' }}
+      _hover={hoverStyle}
       px={4}
       py={4}
       borderRadius={8}
@@ -160,12 +172,12 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       cursor='pointer'
       {...wrapperLinkProps}
     >
-      <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+      <Flex flexDirection='row' alignItems='center' width={flexWidth}>
         {opportunity.icons?.map((iconSrc, i, icons) => (
           <AssetIcon
             key={iconSrc}
             src={iconSrc}
-            boxSize={{ base: 6, md: 8 }}
+            boxSize={assetIconBoxSize}
             mr={i === icons.length - 1 ? 2 : 0}
             ml={i === 0 ? 0 : '-3.5'}
           />
@@ -174,7 +186,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           {opportunity.name}
         </CText>
       </Flex>
-      <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={{ base: 'right', md: 'center' }}>
+      <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={apyTextAlign}>
         <Box>
           <Text translation='plugins.foxPage.currentApy' color='text.subtle' mb={1} />
           <Box
@@ -187,7 +199,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           </Box>
         </Box>
       </Skeleton>
-      <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
+      <Box alignSelf='center' display={opportunityButtonDisplay}>
         <Skeleton isLoaded={isOpportunityButtonReady} textAlign='center'>
           {earnOpportunity ? (
             <Button colorScheme='blue' onClick={handleClick}>

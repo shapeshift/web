@@ -13,6 +13,8 @@ import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './AssetChainDropdown'
 
+const disabledStyle = { opacity: 1 }
+
 const TradeAssetAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
   return (
@@ -80,7 +82,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         flexGrow={0}
         flexShrink={0}
         isDisabled={isReadOnly}
-        _disabled={{ opacity: 1 }}
+        _disabled={disabledStyle}
         {...(isReadOnly ? {} : { rightIcon: <ChevronDownIcon /> })}
       >
         {icon}

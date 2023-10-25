@@ -5,7 +5,7 @@ import { TypedMessageInfo } from 'plugins/walletConnectToDapps/components/modals
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from 'plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/WalletConnectModalManager'
-import { type FC, useCallback, useState } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
@@ -30,6 +30,7 @@ export const EIP155SignTypedDataConfirmation: FC<
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
+  const walletIcon = useMemo(() => <WalletIcon w='full' h='full' />, [WalletIcon])
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -48,7 +49,7 @@ export const EIP155SignTypedDataConfirmation: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
-          icon={<WalletIcon w='full' h='full' />}
+          icon={walletIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>

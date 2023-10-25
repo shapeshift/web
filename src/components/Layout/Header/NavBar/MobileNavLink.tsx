@@ -1,10 +1,12 @@
 import { Button, Flex } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 
-export const MobileNavLink = ({ label, shortLabel, path, icon }: Route) => {
+const activeProp = { bg: 'transparent', svg: { color: 'blue.200' } }
+
+export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => {
   const translate = useTranslate()
   const location = useLocation()
   const isActive = useMemo(() => {
@@ -15,6 +17,11 @@ export const MobileNavLink = ({ label, shortLabel, path, icon }: Route) => {
     })
     return !!match
   }, [path, location.pathname])
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => isActive && e.preventDefault(),
+    [isActive],
+  )
 
   return (
     <Button
@@ -28,8 +35,8 @@ export const MobileNavLink = ({ label, shortLabel, path, icon }: Route) => {
       variant='nav-link'
       isActive={isActive}
       fontWeight='medium'
-      onClick={e => isActive && e.preventDefault()}
-      _active={{ bg: 'transparent', svg: { color: 'blue.200' } }}
+      onClick={handleClick}
+      _active={activeProp}
       py={2}
       width='full'
       zIndex='sticky'
@@ -40,4 +47,4 @@ export const MobileNavLink = ({ label, shortLabel, path, icon }: Route) => {
       </Flex>
     </Button>
   )
-}
+})

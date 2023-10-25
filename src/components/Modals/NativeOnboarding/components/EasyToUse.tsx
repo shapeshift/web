@@ -44,6 +44,8 @@ export const EasyToUse = () => {
     },
     [closeModal, history],
   )
+  const handleBuyCryptoClick = useCallback(() => handleClick('/buy-crypto'), [handleClick])
+  const handleDashboardClick = useCallback(() => handleClick('/dashboard'), [handleClick])
   return (
     <SlideTransition>
       <Flex flexDir='column' gap={6}>
@@ -56,10 +58,10 @@ export const EasyToUse = () => {
           {renderFeatures}
         </Flex>
         <Flex flexDir='column' gap={2} mt={2}>
-          <Button width='full' colorScheme='blue' onClick={() => handleClick('/buy-crypto')}>
+          <Button width='full' colorScheme='blue' onClick={handleBuyCryptoClick}>
             {translate(translateKey('cta'))}
           </Button>
-          <Button width='full' variant='ghost' onClick={() => handleClick('/dashboard')}>
+          <Button width='full' variant='ghost' onClick={handleDashboardClick}>
             {translate(translateKey('secondaryCta'))}
           </Button>
         </Flex>

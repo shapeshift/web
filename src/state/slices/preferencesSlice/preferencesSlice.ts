@@ -19,7 +19,6 @@ export type FeatureFlags = {
   ThorSwapStreamingSwaps: boolean
   ThorSwapAffiliateFees: boolean
   IdleFinance: boolean
-  Axelar: boolean
   Yat: boolean
   WalletConnectToDappsV2: boolean
   Wherever: boolean
@@ -47,6 +46,7 @@ export type FeatureFlags = {
   Snaps: boolean
   FoxDiscounts: boolean
   ThorchainLending: boolean
+  LedgerWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -84,7 +84,6 @@ const initialState: Preferences = {
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
-    Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
@@ -111,6 +110,7 @@ const initialState: Preferences = {
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

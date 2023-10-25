@@ -1,5 +1,5 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
@@ -37,24 +37,32 @@ export const LpResult = forwardRef<LpResultProps, 'div'>(
       ))
     }, [apy, cryptoAmountBaseUnit, type])
 
+    const handleLpClick = useCallback(
+      () => onClick({ type: GlobalSearchResultType.LpOpportunity, id: opportunity.id }),
+      [onClick, opportunity.id],
+    )
+
+    const subText = useMemo(
+      () => (
+        // this node is already useMemoized
+        // eslint-disable-next-line react-memo/require-usememo
+        <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+          {subTextJoined}
+        </Flex>
+      ),
+      [subTextJoined],
+    )
+
     if (!opportunity) return null
     return (
-      <ResultButton
-        ref={ref}
-        aria-selected={selected ? true : undefined}
-        onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: opportunity.id })}
-      >
+      <ResultButton ref={ref} aria-selected={selected ? true : undefined} onClick={handleLpClick}>
         <Flex gap={2} flex={1}>
           <AssetCell
             isExternal={opportunity.isReadOnly}
             assetId={opportunity.underlyingAssetId}
             icons={opportunity.icons}
             justifyContent='flex-start'
-            subText={
-              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-                {subTextJoined}
-              </Flex>
-            }
+            subText={subText}
           />
         </Flex>
         {bnOrZero(opportunity.fiatAmount).gt(0) && (

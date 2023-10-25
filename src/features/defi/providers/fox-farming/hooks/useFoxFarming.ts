@@ -2,10 +2,12 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
-import { encodeFunctionData } from 'viem'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -21,7 +23,9 @@ type UseFoxFarmingOptions = {
   skip?: boolean
 }
 
-const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
+const uniV2LPContract = getOrCreateContractByAddress(
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+) as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
 
 /**
  * useFoxFarming hook
@@ -63,9 +67,8 @@ export const useFoxFarming = (
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
         const data = encodeFunctionData({
-          // @ts-ignore this is drunk, the ABI is valid
           abi: foxFarmingContract.abi,
-          function: 'stake',
+          functionName: 'stake',
           args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
         })
 
@@ -109,9 +112,8 @@ export const useFoxFarming = (
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
         const data = encodeFunctionData({
-          // @ts-ignore this is drunk, the ABI is valid
           abi: foxFarmingContract.abi,
-          function: isExiting ? 'exit' : 'withdraw',
+          functionName: isExiting ? 'exit' : 'withdraw',
           ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
         })
 
@@ -150,7 +152,7 @@ export const useFoxFarming = (
   const allowance = useCallback(async () => {
     if (skip || !farmingAccountId) return
 
-    const userAddress = fromAccountId(farmingAccountId).account
+    const userAddress = getAddress(fromAccountId(farmingAccountId).account)
     const _allowance = await uniV2LPContract.read.allowance([userAddress, contractAddress])
 
     return _allowance.toString()
@@ -161,7 +163,7 @@ export const useFoxFarming = (
 
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
-      function: 'approve',
+      functionName: 'approve',
       args: [contractAddress, BigInt(MaxUint256.toString())],
     })
 

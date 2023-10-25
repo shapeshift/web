@@ -1,8 +1,12 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import type { FarmingABI } from 'contracts/abis/farmingAbi'
+import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
@@ -46,11 +50,17 @@ export const ethFoxStakingMetadataResolver = async ({
   }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
-  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
+  const foxFarmingContract = getOrCreateContractByAddress(contractAddress) as GetContractReturnType<
+    typeof FarmingABI,
+    PublicClient,
+    WalletClient
+  >
+  const uniV2LPContract = getOrCreateContractByAddress(
+    ETH_FOX_POOL_CONTRACT_ADDRESS,
+  ) as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
 
   // tvl
-  const totalSupply = await foxFarmingContract.totalSupply()
+  const totalSupply = await foxFarmingContract.read.totalSupply()
   const tvl = bnOrZero(totalSupply.toString())
     .div(bn(10).pow(lpAssetPrecision))
     .times(lpTokenPrice)
@@ -62,14 +72,14 @@ export const ethFoxStakingMetadataResolver = async ({
   const pair = await fetchUniV2PairData(foxEthLpAssetId)
 
   // Getting the ratio of the LP token for each asset
-  const reserves = await uniV2LPContract.getReserves()
-  const lpTotalSupply = (await uniV2LPContract.totalSupply()).toString()
+  const reserves = await uniV2LPContract.read.getReserves()
+  const lpTotalSupply = (await uniV2LPContract.read.totalSupply()).toString()
   const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
   const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
   const ethPoolRatio = ethReserves.div(lpTotalSupply).toString()
   const foxPoolRatio = foxReserves.div(lpTotalSupply).toString()
 
-  const totalSupplyV2 = await uniV2LPContract.totalSupply()
+  const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
 
   const token1PoolReservesEquivalent = bnOrZero(pair.reserve1.toFixed())
     .times(2) // Double to get equivalent of both sides of pool
@@ -83,9 +93,8 @@ export const ethFoxStakingMetadataResolver = async ({
     .div(100)
     .toString()
 
-  const timeStamp = await foxFarmingContract.periodFinish()
-  const expired =
-    timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
+  const timeStamp = await foxFarmingContract.read.periodFinish()
+  const expired = Number(timeStamp) === 0 ? false : dayjs().isAfter(dayjs.unix(Number(timeStamp)))
   const version = STAKING_ID_TO_VERSION[opportunityId]
 
   const data = {
@@ -127,7 +136,8 @@ export const ethFoxStakingUserDataResolver = async ({
   const lpTokenPrice = lpTokenMarketData?.price
 
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
-  const { account: accountAddress } = fromAccountId(accountId)
+  const { account } = fromAccountId(accountId)
+  const accountAddress = getAddress(account)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
@@ -137,8 +147,8 @@ export const ethFoxStakingUserDataResolver = async ({
 
   const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
 
-  const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
-  const earned = await foxFarmingContract.earned(accountAddress)
+  const stakedBalance = await foxFarmingContract.read.balanceOf([accountAddress])
+  const earned = await foxFarmingContract.read.earned([accountAddress])
   const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
   const rewardsCryptoBaseUnit = { amounts: [earned.toString()] as [string], claimable: true }
 

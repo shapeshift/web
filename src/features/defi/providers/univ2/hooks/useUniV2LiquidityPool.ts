@@ -2,6 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { erc20ABI } from '@wagmi/core'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
@@ -11,7 +12,8 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
-import type { Address } from 'viem'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { type Address, encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -95,19 +97,19 @@ export const useUniV2LiquidityPool = ({
   const asset0Contract = useMemo(() => {
     return skip
       ? null
-      : getOrCreateContractByType({
+      : (getOrCreateContractByType({
           address: asset0ContractAddress,
           type: ContractType.ERC20,
-        })
+        }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>)
   }, [asset0ContractAddress, skip])
 
   const asset1Contract = useMemo(() => {
     return skip
       ? null
-      : getOrCreateContractByType({
+      : (getOrCreateContractByType({
           address: asset1ContractAddress,
           type: ContractType.ERC20,
-        })
+        }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>)
   }, [asset1ContractAddress, skip])
 
   const uniV2LPContract = useMemo(() => {
@@ -123,6 +125,8 @@ export const useUniV2LiquidityPool = ({
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (!uniswapRouterContract) throw new Error('Uniswap router contract instance is undefined')
       const deadline = Date.now() + 1000 * 60 * 10 // 10 minutes from now
+      const accountAddress = getAddress(fromAccountId(accountId).account)
+
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const ethAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
@@ -135,33 +139,41 @@ export const useUniV2LiquidityPool = ({
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? token1Amount : token0Amount
 
-        const accountAddress = fromAccountId(accountId).account
-
         const amountOtherAssetMin = calculateSlippageMargin(otherAssetAmount, otherAsset.precision)
         const amountEthMin = calculateSlippageMargin(ethAmount, weth.precision)
 
-        return uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
-          otherAssetContractAddress,
-          toBaseUnit(otherAssetAmount, otherAsset.precision),
-          amountOtherAssetMin,
-          amountEthMin,
-          accountAddress,
-          deadline,
-        ])
+        const data = encodeFunctionData({
+          abi: uniswapRouterContract.abi,
+          functionName: 'addLiquidityETH',
+          args: [
+            otherAssetContractAddress,
+            BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
+            BigInt(amountOtherAssetMin),
+            BigInt(amountEthMin),
+            accountAddress,
+            BigInt(deadline),
+          ],
+        })
+        return data
       } else {
         const amountAsset0Min = calculateSlippageMargin(token0Amount, asset0.precision)
         const amountAsset1Min = calculateSlippageMargin(token1Amount, asset1.precision)
 
-        return uniswapRouterContract.interface.encodeFunctionData('addLiquidity', [
-          asset0ContractAddress,
-          asset1ContractAddress,
-          toBaseUnit(token0Amount, asset0.precision),
-          toBaseUnit(token1Amount, asset1.precision),
-          amountAsset0Min,
-          amountAsset1Min,
-          fromAccountId(accountId).account,
-          deadline,
-        ])
+        const data = encodeFunctionData({
+          abi: uniswapRouterContract.abi,
+          functionName: 'addLiquidity',
+          args: [
+            asset0ContractAddress,
+            asset1ContractAddress,
+            BigInt(toBaseUnit(token0Amount, asset0.precision)),
+            BigInt(toBaseUnit(token1Amount, asset1.precision)),
+            BigInt(amountAsset0Min),
+            BigInt(amountAsset1Min),
+            accountAddress,
+            BigInt(deadline),
+          ],
+        })
+        return data
       }
     },
     [
@@ -241,33 +253,46 @@ export const useUniV2LiquidityPool = ({
       if (!uniswapRouterContract) throw new Error('uniswapRouterContract not defined')
 
       const deadline = Date.now() + 1200000 // 20 minutes from now
-      const to = fromAccountId(accountId).account
+      const to = getAddress(fromAccountId(accountId).account)
 
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
-        const otherAssetContractAddress =
-          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
+        const otherAssetContractAddress = getAddress(
+          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress,
+        )
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
         const ethAmount = assetId0OrWeth === wethAssetId ? asset0Amount : asset1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
-        return uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
-          otherAssetContractAddress,
-          toBaseUnit(lpAmount, lpAsset.precision),
-          calculateSlippageMargin(otherAssetAmount, otherAsset.precision),
-          calculateSlippageMargin(ethAmount, weth.precision),
-          to,
-          deadline,
-        ])
+        const data = encodeFunctionData({
+          abi: uniswapRouterContract.abi,
+          functionName: 'removeLiquidityETH',
+          args: [
+            otherAssetContractAddress,
+            BigInt(toBaseUnit(lpAmount, lpAsset.precision)),
+            BigInt(calculateSlippageMargin(otherAssetAmount, otherAsset.precision)),
+            BigInt(calculateSlippageMargin(ethAmount, weth.precision)),
+            to,
+            BigInt(deadline),
+          ],
+        })
+
+        return data
       }
 
-      return uniswapRouterContract.interface.encodeFunctionData('removeLiquidity', [
-        asset0ContractAddress,
-        asset1ContractAddress,
-        toBaseUnit(lpAmount, lpAsset.precision),
-        calculateSlippageMargin(asset0Amount, asset0.precision),
-        calculateSlippageMargin(asset1Amount, asset1.precision),
-        to,
-        deadline,
-      ])
+      const data = encodeFunctionData({
+        abi: uniswapRouterContract.abi,
+        functionName: 'removeLiquidity',
+        args: [
+          getAddress(asset0ContractAddress),
+          getAddress(asset1ContractAddress),
+          BigInt(toBaseUnit(lpAmount, lpAsset.precision)),
+          BigInt(calculateSlippageMargin(asset0Amount, asset0.precision)),
+          BigInt(calculateSlippageMargin(asset1Amount, asset1.precision)),
+          to,
+          BigInt(deadline),
+        ],
+      })
+
+      return data
     },
     [
       accountId,
@@ -340,9 +365,11 @@ export const useUniV2LiquidityPool = ({
   const calculateHoldings = useCallback(async () => {
     if (skip || !uniV2LPContract || !accountId) return
 
-    const balance = await uniV2LPContract.balanceOf(fromAccountId(accountId).account)
-    const totalSupply = await uniV2LPContract.totalSupply()
-    const reserves = await uniV2LPContract.getReserves()
+    const balance = await uniV2LPContract.read.balanceOf([
+      getAddress(fromAccountId(accountId).account),
+    ])
+    const totalSupply = await uniV2LPContract.read.totalSupply()
+    const reserves = await uniV2LPContract.read.getReserves()
 
     const userOwnershipOfPool = bnOrZero(balance.toString()).div(bnOrZero(totalSupply.toString()))
     const asset0Balance = userOwnershipOfPool.times(
@@ -362,7 +389,7 @@ export const useUniV2LiquidityPool = ({
   const getLpTVL = useCallback(async () => {
     if (!uniV2LPContract) return
 
-    const reserves = await uniV2LPContract.getReserves()
+    const reserves = await uniV2LPContract.read.getReserves()
 
     // Amount of Eth in liquidity pool
     const ethInReserve = bn(fromBaseUnit(reserves?.[0]?.toString(), asset0.precision))
@@ -377,7 +404,7 @@ export const useUniV2LiquidityPool = ({
     if (skip || !uniV2LPContract) return
 
     const tvl = await getLpTVL()
-    const totalSupply = await uniV2LPContract.totalSupply()
+    const totalSupply = await uniV2LPContract.read.totalSupply()
 
     return bnOrZero(tvl).div(fromBaseUnit(totalSupply.toString(), lpAsset.precision))
   }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
@@ -386,9 +413,9 @@ export const useUniV2LiquidityPool = ({
   const asset0Allowance = useCallback(async () => {
     if (skip || !accountId || !asset0Contract) return
 
-    const accountAddress = fromAccountId(accountId).account
-    const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await asset0Contract.allowance(accountAddress, contractAddress)
+    const accountAddress = getAddress(fromAccountId(accountId).account)
+    const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
+    const _allowance = await asset0Contract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
   }, [skip, asset0Contract, accountId])
@@ -396,9 +423,9 @@ export const useUniV2LiquidityPool = ({
   const asset1Allowance = useCallback(async () => {
     if (skip || !accountId || !asset1Contract) return
 
-    const accountAddress = fromAccountId(accountId).account
-    const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await asset1Contract.allowance(accountAddress, contractAddress)
+    const accountAddress = getAddress(fromAccountId(accountId).account)
+    const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
+    const _allowance = await asset1Contract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
   }, [skip, asset1Contract, accountId])
@@ -406,9 +433,9 @@ export const useUniV2LiquidityPool = ({
   const lpAllowance = useCallback(async () => {
     if (skip || !accountId || !uniV2LPContract) return
 
-    const accountAddress = fromAccountId(accountId).account
-    const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await uniV2LPContract.allowance(accountAddress, contractAddress)
+    const accountAddress = getAddress(fromAccountId(accountId).account)
+    const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
+    const _allowance = await uniV2LPContract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
   }, [skip, uniV2LPContract, accountId])
@@ -420,14 +447,18 @@ export const useUniV2LiquidityPool = ({
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
-      })
+      }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>
 
       if (!contract) return
 
-      const data = contract.interface.encodeFunctionData('approve', [
-        fromAssetId(uniswapV2Router02AssetId).assetReference,
-        MaxUint256,
-      ])
+      const data = encodeFunctionData({
+        abi: contract.abi,
+        functionName: 'approve',
+        args: [
+          getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference),
+          BigInt(MaxUint256.toString()),
+        ],
+      })
 
       return getFees({
         accountNumber,
@@ -455,6 +486,7 @@ export const useUniV2LiquidityPool = ({
 
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
       const deadline = Date.now() + 1200000 // 20 minutes from now
+      const accountAddress = getAddress(fromAccountId(accountId).account)
 
       // TODO(gomes): consolidate branching, surely we can do better
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
@@ -464,18 +496,21 @@ export const useUniV2LiquidityPool = ({
         const ethAmount = assetId0OrWeth === wethAssetId ? token0Amount : token1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? token1Amount : token0Amount
 
-        const accountAddress = fromAccountId(accountId).account
         const amountOtherAssetMin = calculateSlippageMargin(otherAssetAmount, otherAsset.precision)
         const amountEthMin = calculateSlippageMargin(ethAmount, weth.precision)
 
-        const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
-          otherAssetContractAddress,
-          toBaseUnit(otherAssetAmount, otherAsset.precision),
-          amountOtherAssetMin,
-          amountEthMin,
-          accountAddress,
-          deadline,
-        ])
+        const data = encodeFunctionData({
+          abi: uniswapRouterContract.abi,
+          functionName: 'addLiquidityETH',
+          args: [
+            otherAssetContractAddress,
+            BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
+            BigInt(amountOtherAssetMin),
+            BigInt(amountEthMin),
+            accountAddress,
+            BigInt(deadline),
+          ],
+        })
 
         return getFees({
           accountNumber,
@@ -486,20 +521,23 @@ export const useUniV2LiquidityPool = ({
           wallet,
         })
       } else {
-        const accountAddress = fromAccountId(accountId).account
         const amountAsset0Min = calculateSlippageMargin(token0Amount, asset0.precision)
         const amountAsset1Min = calculateSlippageMargin(token1Amount, asset1.precision)
 
-        const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidity', [
-          asset0ContractAddress,
-          asset1ContractAddress,
-          toBaseUnit(token0Amount, asset0.precision),
-          toBaseUnit(token1Amount, asset1.precision),
-          amountAsset0Min,
-          amountAsset1Min,
-          accountAddress,
-          deadline,
-        ])
+        const data = encodeFunctionData({
+          abi: uniswapRouterContract.abi,
+          functionName: 'addLiquidity',
+          args: [
+            asset0ContractAddress,
+            asset1ContractAddress,
+            BigInt(toBaseUnit(token0Amount, asset0.precision)),
+            BigInt(toBaseUnit(token1Amount, asset1.precision)),
+            BigInt(amountAsset0Min),
+            BigInt(amountAsset1Min),
+            accountAddress,
+            BigInt(deadline),
+          ],
+        })
 
         return getFees({
           accountNumber,
@@ -574,11 +612,12 @@ export const useUniV2LiquidityPool = ({
 
       if (!contract) return
 
-      const uniV2ContractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      const data = contract.interface.encodeFunctionData('approve', [
-        uniV2ContractAddress,
-        MaxUint256,
-      ])
+      const uniV2ContractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
+      const data = encodeFunctionData({
+        abi: contract.abi,
+        functionName: 'approve',
+        args: [uniV2ContractAddress, BigInt(MaxUint256.toString())],
+      })
 
       const fees = await getApproveFees(contractAddress)
       if (!fees) return

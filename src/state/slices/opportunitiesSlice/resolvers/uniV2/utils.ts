@@ -1,11 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TokenAmount } from '@uniswap/sdk'
-import type { IUniswapV2Pair } from 'contracts/__generated'
+import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
+import type { GetContractReturnType } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -16,7 +17,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: IUniswapV2Pair
+  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day
@@ -59,7 +60,7 @@ export const calculateAPRFromToken0 = memoize(
 
     // Checksum
     const contractAddress = ethers.utils.getAddress(assetReference)
-    const pair: IUniswapV2Pair = getOrCreateContractByType({
+    const pair = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,
     })

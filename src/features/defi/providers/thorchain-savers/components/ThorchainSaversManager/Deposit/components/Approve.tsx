@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { erc20ABI, PublicClient } from '@wagmi/core'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -14,6 +15,8 @@ import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import type { GetContractReturnType, WalletClient } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -142,14 +145,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const contract = getOrCreateContractByType({
         address: fromAssetId(assetId).assetReference,
         type: ContractType.ERC20,
-      })
+      }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>
 
       const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
 
-      const data = contract.interface.encodeFunctionData('approve', [
-        saversRouterContractAddress,
-        amountToApprove,
-      ])
+      const data = encodeFunctionData({
+        abi: contract.abi,
+        functionName: 'approve',
+        args: [getAddress(saversRouterContractAddress), BigInt(amountToApprove)],
+      })
 
       const adapter = assertGetEvmChainAdapter(chainId)
       const buildCustomTxInput = await createBuildCustomTxInput({
@@ -194,13 +198,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           chainId: asset.chainId,
         })
 
-        const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-          quote.inbound_address,
-          fromAssetId(assetId).assetReference,
-          amountCryptoBaseUnit,
-          quote.memo,
-          quote.expiry,
-        ])
+        const data = encodeFunctionData({
+          abi: thorContract.abi,
+          functionName: 'depositWithExpiry',
+          args: [
+            getAddress(quote.inbound_address),
+            getAddress(fromAssetId(assetId).assetReference),
+            BigInt(amountCryptoBaseUnit),
+            quote.memo,
+            BigInt(quote.expiry),
+          ],
+        })
 
         const adapter = assertGetEvmChainAdapter(chainId)
 

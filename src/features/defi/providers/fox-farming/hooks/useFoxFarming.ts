@@ -178,9 +178,8 @@ export const useFoxFarming = (
       if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
       const data = encodeFunctionData({
-        // @ts-ignore this is drunk, the ABI is isValid
         abi: foxFarmingContract.abi,
-        function: 'stake',
+        functionName: 'stake',
         args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
       })
 
@@ -201,9 +200,8 @@ export const useFoxFarming = (
       if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
       const data = encodeFunctionData({
-        // @ts-ignore this is drunk, the ABI is isVali
         abi: foxFarmingContract.abi,
-        function: isExiting ? 'exit' : 'withdraw',
+        functionName: isExiting ? 'exit' : 'withdraw',
         ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
       })
 
@@ -224,9 +222,8 @@ export const useFoxFarming = (
       if (!adapter || !userAddress || !wallet) return
 
       const data = encodeFunctionData({
-        // @ts-ignore this is drunk, the ABI is isValid
         abi: foxFarmingContract.abi,
-        function: 'getReward',
+        functionName: 'getReward',
       })
 
       return getFees({
@@ -247,9 +244,8 @@ export const useFoxFarming = (
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
     const data = encodeFunctionData({
-      // @ts-ignore this is drunk, the ABI is isValid
       abi: uniV2LPContract.abi,
-      function: 'approve',
+      functionName: 'approve',
       args: [contractAddress, BigInt(MaxUint256.toString())],
     })
 
@@ -278,9 +274,8 @@ export const useFoxFarming = (
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
     const data = encodeFunctionData({
-      // @ts-ignore this is drunk, the ABI is isValid
       abi: foxFarmingContract.abi,
-      function: 'getReward',
+      functionName: 'getReward',
     })
 
     const buildCustomTxInput = await createBuildCustomTxInput({

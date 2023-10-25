@@ -8,11 +8,12 @@ import type { Asset } from 'lib/asset-service'
 import { getSupportedBuyAssetIds, getSupportedSellAssetIds } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
+import { selectAssets, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
+  const assets = useAppSelector(selectAssets)
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const featureFlags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
@@ -27,7 +28,7 @@ export const useSupportedAssets = () => {
   const isSnapInstalled = useIsSnapInstalled()
   useEffect(() => {
     ;(async () => {
-      const assetIds = await getSupportedSellAssetIds(enabledSwappers)
+      const assetIds = await getSupportedSellAssetIds(enabledSwappers, assets)
       const filteredAssetIds = new Set<AssetId>()
       assetIds.forEach(assetId => {
         const chainId = fromAssetId(assetId).chainId
@@ -37,14 +38,14 @@ export const useSupportedAssets = () => {
       })
       setSupportedSellAssetIds(filteredAssetIds)
     })()
-  }, [enabledSwappers, isSnapInstalled, sortedAssets, wallet])
+  }, [assets, enabledSwappers, isSnapInstalled, sortedAssets, wallet])
 
   useEffect(() => {
     ;(async () => {
-      const assetIds = await getSupportedBuyAssetIds(enabledSwappers, sellAsset)
+      const assetIds = await getSupportedBuyAssetIds(enabledSwappers, sellAsset, assets)
       setSupportedBuyAssetsIds(assetIds)
     })()
-  }, [enabledSwappers, sellAsset, sortedAssets])
+  }, [assets, enabledSwappers, sellAsset, sortedAssets])
 
   useEffect(() => {
     setSupportedSellAssets(sortedAssets.filter(asset => supportedSellAssetIds.has(asset.assetId)))

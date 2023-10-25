@@ -96,7 +96,7 @@ export const getThorTradeQuote = async (
 
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/thorchain/pools`,
+    `${daemonUrl}/lcd/thorchain/pools`,
   )
 
   if (maybePoolsResponse.isErr()) return Err(maybePoolsResponse.unwrapErr())

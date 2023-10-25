@@ -24,7 +24,7 @@ const isSome = <T>(option: T | null | undefined): option is T =>
 export const generateTradableThorAssetMap = async () => {
   const thorService = axios.create(axiosConfig)
   const response = await thorService.get<ThornodePoolResponse[]>(
-    'https://dev-daemon.thorchain.shapeshift.com/thorchain/pools',
+    'https://dev-daemon.thorchain.shapeshift.com/lcd/thorchain/pools',
   )
   switch (response.status) {
     case 200:

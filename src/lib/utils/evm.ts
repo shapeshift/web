@@ -12,17 +12,10 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
-import type { ERC20ABI } from 'contracts/abis/ERC20ABI'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import {
-  encodeFunctionData,
-  getAddress,
-  type GetContractReturnType,
-  type PublicClient,
-  type WalletClient,
-} from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -237,7 +230,7 @@ export const getApproveContractData = ({
   const data = encodeFunctionData({
     abi: contract.abi,
     functionName: 'approve',
-    args: [spender, approvalAmountCryptoBaseUnit],
+    args: [getAddress(spender), BigInt(approvalAmountCryptoBaseUnit)],
   })
   return data
 }
@@ -252,10 +245,10 @@ export const getErc20Allowance = async ({
     address,
     type: ContractType.ERC20,
     chainId,
-  }) as GetContractReturnType<typeof ERC20ABI, PublicClient, WalletClient>
+  })
   const allowance = await contract.read.allowance([getAddress(from), getAddress(spender)])
   // TODO(gomes): fix types
-  return (allowance as BigInt).toString()
+  return allowance.toString()
 }
 
 export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {

@@ -2,7 +2,6 @@ import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import type { erc20ABI } from '@wagmi/core'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
@@ -12,7 +11,6 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { type Address, encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -97,19 +95,19 @@ export const useUniV2LiquidityPool = ({
   const asset0Contract = useMemo(() => {
     return skip
       ? null
-      : (getOrCreateContractByType({
+      : getOrCreateContractByType({
           address: asset0ContractAddress,
           type: ContractType.ERC20,
-        }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>)
+        })
   }, [asset0ContractAddress, skip])
 
   const asset1Contract = useMemo(() => {
     return skip
       ? null
-      : (getOrCreateContractByType({
+      : getOrCreateContractByType({
           address: asset1ContractAddress,
           type: ContractType.ERC20,
-        }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>)
+        })
   }, [asset1ContractAddress, skip])
 
   const uniV2LPContract = useMemo(() => {
@@ -447,7 +445,7 @@ export const useUniV2LiquidityPool = ({
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
-      }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>
+      })
 
       if (!contract) return
 

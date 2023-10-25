@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { erc20ABI, PublicClient } from '@wagmi/core'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -15,7 +14,6 @@ import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import type { GetContractReturnType, WalletClient } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -145,7 +143,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const contract = getOrCreateContractByType({
         address: fromAssetId(assetId).assetReference,
         type: ContractType.ERC20,
-      }) as unknown as GetContractReturnType<typeof erc20ABI, PublicClient, WalletClient>
+      })
 
       const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
 

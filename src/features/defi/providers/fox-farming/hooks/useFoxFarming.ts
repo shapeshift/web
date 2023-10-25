@@ -2,11 +2,9 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -23,9 +21,7 @@ type UseFoxFarmingOptions = {
   skip?: boolean
 }
 
-const uniV2LPContract = getOrCreateContractByAddress(
-  ETH_FOX_POOL_CONTRACT_ADDRESS,
-) as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
+const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
 
 /**
  * useFoxFarming hook

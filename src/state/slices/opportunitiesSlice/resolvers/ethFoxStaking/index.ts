@@ -1,11 +1,8 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
-import type { FarmingABI } from 'contracts/abis/farmingAbi'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -50,14 +47,8 @@ export const ethFoxStakingMetadataResolver = async ({
   }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress) as GetContractReturnType<
-    typeof FarmingABI,
-    PublicClient,
-    WalletClient
-  >
-  const uniV2LPContract = getOrCreateContractByAddress(
-    ETH_FOX_POOL_CONTRACT_ADDRESS,
-  ) as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
+  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
+  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
 
   // tvl
   const totalSupply = await foxFarmingContract.read.totalSupply()

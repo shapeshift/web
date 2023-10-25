@@ -2,7 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import { ERC20ABI } from 'contracts/abis/ERC20ABI'
+import { erc20ABI } from '@wagmi/core'
 import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
@@ -46,7 +46,7 @@ export const CONTRACT_ADDRESS_TO_ABI = {
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V5]: FarmingABI,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V6]: FarmingABI,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FarmingABI,
-  [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI,
+  [FOX_TOKEN_CONTRACT_ADDRESS]: erc20ABI,
   [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02,
   // THOR Router Mainnet
   [THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM]: THORChain_RouterABI,
@@ -54,7 +54,7 @@ export const CONTRACT_ADDRESS_TO_ABI = {
 
 export const CONTRACT_TYPE_TO_ABI = {
   [ContractType.UniV2Pair]: IUniswapV2Pair,
-  [ContractType.ERC20]: ERC20ABI,
+  [ContractType.ERC20]: erc20ABI,
   [ContractType.ThorRouter]: THORChain_RouterABI,
 } as const
 

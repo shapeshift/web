@@ -1,12 +1,10 @@
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -198,7 +196,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const uniV2LPContract = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,
-    }) as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
+    })
     const apy = bnOrZero(apr).div(100).toString()
 
     // Getting the ratio of the LP token for each asset

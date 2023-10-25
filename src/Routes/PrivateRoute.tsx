@@ -12,7 +12,7 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
   const to = useMemo(
     () => ({
       pathname: '/connect-wallet',
-      search: `returnUrl=${location?.pathname ?? '/dashboard'}`,
+      search: `returnUrl=${location?.pathname ?? '/trade'}`,
     }),
     [location],
   )

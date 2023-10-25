@@ -7,7 +7,7 @@ export const viemEthMainnetClient = createPublicClient({
   transport: http(getConfig().REACT_APP_ETHEREUM_NODE_URL),
 })
 
-export const viemBsclient = createPublicClient({
+export const viemBscClient = createPublicClient({
   chain: bsc,
   transport: http(getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL),
 })

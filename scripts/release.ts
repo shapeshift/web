@@ -59,7 +59,7 @@ const inquireProceedWithCommits = async (commits: string[], action: 'create' | '
 const createDraftPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
-  const formattedMessages = messages.join('\\n').replace(/"/g, '\\"') // replace new lines and quotes
+  const formattedMessages = messages.map(m => m.replace(/"/g, '\\"'))
   const nextVersion = await getNextReleaseVersion('minor')
   const title = `chore: release ${nextVersion}`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${formattedMessages}"`

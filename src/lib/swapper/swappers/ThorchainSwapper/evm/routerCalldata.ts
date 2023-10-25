@@ -1,18 +1,23 @@
-import Web3 from 'web3'
+import { encodeFunctionData } from 'viem'
 import { routerAbi } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerAbi'
 
-export const depositWithExpiry = (
-  contractAddress: string,
-  vault: string,
-  asset: string,
-  amount: string,
-  memo: string,
-  expiry: number,
-) => {
-  const web3 = new Web3()
-  const routerContract = new web3.eth.Contract(routerAbi, contractAddress)
-  const data = routerContract.methods
-    .depositWithExpiry(vault, asset, amount, memo, expiry)
-    .encodeABI()
+export const depositWithExpiry = ({
+  vault,
+  asset,
+  amount,
+  memo,
+  expiry,
+}: {
+  vault: string
+  asset: string
+  amount: string
+  memo: string
+  expiry: number
+}) => {
+  const data = encodeFunctionData({
+    abi: routerAbi,
+    functionName: 'depositWithExpiry',
+    args: [vault, asset, amount, memo, expiry],
+  })
   return data
 }

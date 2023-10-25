@@ -1,6 +1,6 @@
 import type { AssetId, ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import Web3 from 'web3'
+import { getAddress } from 'viem'
 
 export const generateTrustWalletUrl = (assetId: AssetId) => {
   const { chainNamespace, chainReference, assetReference } = fromAssetId(assetId)
@@ -17,7 +17,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     url += `/assets/`
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-        url += Web3.utils.toChecksumAddress(assetReference)
+        url += getAddress(assetReference)
         break
       default:
     }

@@ -197,8 +197,7 @@
     "styled-components": "^6.0.7",
     "uuid": "^9.0.0",
     "viem": "1.10.1",
-    "web-vitals": "^2.1.4",
-    "web3": "1.7.4"
+    "web-vitals": "^2.1.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
@@ -301,7 +300,7 @@
     "react-dom@^18.2.0": "patch:react-dom@npm%3A18.2.0#./.yarn/patches/react-dom-npm-18.2.0-dd675bca1c.patch",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^6.5.3",
     "p-queue": "^6.6.2",
-    "web3-eth-contract": "1.7.4"
+    "web3": "4.2.1-dev.a0d6730.0"
   },
   "jest": {
     "preset": "ts-jest",

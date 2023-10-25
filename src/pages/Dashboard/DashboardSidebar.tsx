@@ -10,6 +10,7 @@ import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import { MissionSidebar } from 'pages/Missions/Missions'
 
 import { RecentTransactions } from './RecentTransactions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 const promoData: PromoItem[] = [
   {
@@ -53,6 +54,11 @@ const promoData: PromoItem[] = [
 ]
 
 export const DashboardSidebar = memo(() => {
+  const {
+    state: { isConnected, isDemoWallet },
+  } = useWallet()
+  if (!isConnected && !isDemoWallet) return null
+
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />

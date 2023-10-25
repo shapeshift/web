@@ -1,14 +1,17 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
+import { getConfig } from 'config'
 import dayjs from 'dayjs'
 
 import type { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './erhMockData'
 import { ExchangeRateHostService, makeExchangeRateRequestUrls } from './exchange-rates-host'
-import type { ExchangeRateHostRate } from './exchange-rates-host-types'
+import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
 const exchangeRateHostService = new ExchangeRateHostService()
+const baseUrl = getConfig().REACT_APP_EXCHANGERATEHOST_BASE_URL
+const apiKey = getConfig().REACT_APP_EXCHANGERATEHOST_API_KEY
 
 jest.mock('axios', () => {
   const axios = jest.requireActual('axios')
@@ -41,8 +44,8 @@ describe('ExchangeRateHostService', () => {
     }
 
     const eurRate: ExchangeRateHostRate = {
-      rates: {
-        EUR: 0.91,
+      quotes: {
+        USDEUR: 0.91,
       },
     }
 
@@ -67,12 +70,13 @@ describe('ExchangeRateHostService', () => {
       timeframe: HistoryTimeframe.WEEK,
     }
 
-    const data = {
-      rates: {
-        '2020-01-01': { EUR: 0.891186 },
-        '2020-01-02': { EUR: 0.891186 },
-        '2020-01-03': { EUR: 0.895175 },
-        '2020-01-04': { EUR: 0.895175 },
+    const data: ExchangeRateHostHistoryData = {
+      source: 'USD',
+      quotes: {
+        '2020-01-01': { USDEUR: 0.891186 },
+        '2020-01-02': { USDEUR: 0.891186 },
+        '2020-01-03': { USDEUR: 0.895175 },
+        '2020-01-04': { USDEUR: 0.895175 },
       },
     }
 
@@ -100,7 +104,7 @@ describe('ExchangeRateHostService', () => {
         timeframe: HistoryTimeframe.HOUR,
       })
       expect(jest.spyOn(axios, 'get')).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`,
+        `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
@@ -112,7 +116,7 @@ describe('ExchangeRateHostService', () => {
         timeframe: HistoryTimeframe.DAY,
       })
       expect(jest.spyOn(axios, 'get')).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`,
+        `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
@@ -124,7 +128,7 @@ describe('ExchangeRateHostService', () => {
         timeframe: HistoryTimeframe.WEEK,
       })
       expect(jest.spyOn(axios, 'get')).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-24&end_date=${mockDay}`,
+        `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-24&end_date=${mockDay}`,
       )
     })
   })
@@ -135,9 +139,8 @@ describe('makeExchangeRateRequestUrls', () => {
     const start = dayjs('2020-01-01')
     const end = dayjs('2020-01-02')
     const symbol = 'EUR'
-    const baseUrl = 'https://api.exchangeratesapi.io'
-    expect(makeExchangeRateRequestUrls(start, end, symbol, baseUrl)).toEqual([
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2020-01-01&end_date=2020-01-02',
+    expect(makeExchangeRateRequestUrls(start, end, symbol, baseUrl, apiKey)).toEqual([
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-01-01&end_date=2020-01-02`,
     ])
   })
 
@@ -145,13 +148,12 @@ describe('makeExchangeRateRequestUrls', () => {
     const start = dayjs('2017-05-20')
     const end = dayjs('2022-05-17')
     const symbol = 'EUR'
-    const baseUrl = 'https://api.exchangeratesapi.io'
-    expect(makeExchangeRateRequestUrls(start, end, symbol, baseUrl)).toEqual([
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2017-05-20&end_date=2018-05-20',
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2018-05-21&end_date=2019-05-21',
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2019-05-22&end_date=2020-05-21',
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2020-05-22&end_date=2021-05-22',
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2021-05-23&end_date=2022-05-17',
+    expect(makeExchangeRateRequestUrls(start, end, symbol, baseUrl, apiKey)).toEqual([
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2017-05-20&end_date=2018-05-20`,
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2018-05-21&end_date=2019-05-21`,
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2019-05-22&end_date=2020-05-21`,
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-05-22&end_date=2021-05-22`,
+      `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2021-05-23&end_date=2022-05-17`,
     ])
   })
 })

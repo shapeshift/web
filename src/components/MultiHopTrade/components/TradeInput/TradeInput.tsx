@@ -212,7 +212,11 @@ export const TradeInput = memo(() => {
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 
-      const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
+      const isApprovalNeeded = await checkApprovalNeeded(
+        tradeQuoteStep,
+        wallet,
+        sellAssetAccountId ?? '',
+      )
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
@@ -230,7 +234,16 @@ export const TradeInput = memo(() => {
     }
 
     setIsConfirmationLoading(false)
-  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
+  }, [
+    activeQuote,
+    dispatch,
+    history,
+    mixpanel,
+    sellAssetAccountId,
+    showErrorToast,
+    tradeQuoteStep,
+    wallet,
+  ])
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 

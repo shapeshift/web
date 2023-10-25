@@ -6,7 +6,7 @@ import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
-import type { GetContractReturnType } from 'viem'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { viemEthMainnetClient } from 'lib/viem-client'
@@ -18,7 +18,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair>
+  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day

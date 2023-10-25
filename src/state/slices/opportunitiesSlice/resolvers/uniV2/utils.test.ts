@@ -1,7 +1,12 @@
-import { Contract } from '@ethersproject/contracts'
+/**
+ * @jest-environment node
+ */
+
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
-import type { IUniswapV2Pair } from 'contracts/__generated'
+import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
+import type { Address, GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { getContract } from 'viem'
 import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,
@@ -61,7 +66,10 @@ const mockGetPastEvents = () =>
     ])
   })
 
-const mockContract = new Contract('', '') as IUniswapV2Pair
+const mockContract = getContract({
+  abi: [],
+  address: '' as Address,
+}) as unknown as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(new Token(1, '', token0Decimals), tokenAmount)
 

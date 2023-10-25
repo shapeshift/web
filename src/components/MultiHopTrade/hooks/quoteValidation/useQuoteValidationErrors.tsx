@@ -1,3 +1,4 @@
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMemo } from 'react'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
@@ -41,7 +42,13 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   )
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
-  const receiveAddress = useReceiveAddress()
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const quotes = useAppSelector(selectSwappersApiTradeQuotes)
 

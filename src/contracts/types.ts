@@ -1,3 +1,4 @@
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 
 import type {
@@ -6,10 +7,7 @@ import type {
   THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
-import type {
-  CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT,
-  CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT,
-} from './contractManager'
+import type { CONTRACT_ADDRESS_TO_ABI, CONTRACT_TYPE_TO_ABI } from './contractManager'
 
 export enum ContractType {
   UniV2Pair = 'UniV2Pair',
@@ -17,12 +15,16 @@ export enum ContractType {
   ThorRouter = 'ThorRouter',
 }
 
-export type KnownContractByAddress<T extends KnownContractAddress> = ReturnType<
-  (typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT)[T]['connect']
+export type KnownContractByAddress<T extends KnownContractAddress> = GetContractReturnType<
+  (typeof CONTRACT_ADDRESS_TO_ABI)[T],
+  PublicClient,
+  WalletClient
 >
 
-export type KnownContractByType<T extends ContractType> = ReturnType<
-  (typeof CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT)[T]['connect']
+export type KnownContractByType<T extends ContractType> = GetContractReturnType<
+  (typeof CONTRACT_TYPE_TO_ABI)[T],
+  PublicClient,
+  WalletClient
 >
 
 export type KnownContractAddress =

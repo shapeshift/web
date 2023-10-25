@@ -14,6 +14,7 @@ import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -146,10 +147,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
 
-      const data = contract.interface.encodeFunctionData('approve', [
-        saversRouterContractAddress,
-        amountToApprove,
-      ])
+      const data = encodeFunctionData({
+        abi: contract.abi,
+        functionName: 'approve',
+        args: [getAddress(saversRouterContractAddress), BigInt(amountToApprove)],
+      })
 
       const adapter = assertGetEvmChainAdapter(chainId)
       const buildCustomTxInput = await createBuildCustomTxInput({
@@ -194,13 +196,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           chainId: asset.chainId,
         })
 
-        const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-          quote.inbound_address,
-          fromAssetId(assetId).assetReference,
-          amountCryptoBaseUnit,
-          quote.memo,
-          quote.expiry,
-        ])
+        const data = encodeFunctionData({
+          abi: thorContract.abi,
+          functionName: 'depositWithExpiry',
+          args: [
+            getAddress(quote.inbound_address),
+            getAddress(fromAssetId(assetId).assetReference),
+            BigInt(amountCryptoBaseUnit),
+            quote.memo,
+            BigInt(quote.expiry),
+          ],
+        })
 
         const adapter = assertGetEvmChainAdapter(chainId)
 

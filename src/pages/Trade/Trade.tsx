@@ -4,7 +4,6 @@ import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { Main } from 'components/Layout/Main'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 
 const maxWidth = { base: '100%', lg: 'container.sm' }
 const padding = { base: 0, md: 8 }
@@ -18,9 +17,6 @@ export const Trade = memo(() => {
           <MultiHopTrade />
         </Container>
         {foxDiscountsEnabled && <FeeExplainer />}
-        <Stack flexGrow={1}>
-          <RecentTransactions />
-        </Stack>
       </Stack>
     </Main>
   )

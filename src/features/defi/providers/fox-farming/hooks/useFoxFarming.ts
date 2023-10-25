@@ -5,6 +5,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
+import { encodeFunctionData, getAddress } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -61,9 +62,11 @@ export const useFoxFarming = (
 
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-        const data = foxFarmingContract.interface.encodeFunctionData('stake', [
-          toBaseUnit(lpAmount, lpAsset.precision),
-        ])
+        const data = encodeFunctionData({
+          abi: foxFarmingContract.abi,
+          functionName: 'stake',
+          args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
+        })
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
@@ -86,14 +89,14 @@ export const useFoxFarming = (
       }
     },
     [
-      adapter,
-      accountNumber,
-      contractAddress,
-      ethAsset.chainId,
-      foxFarmingContract,
-      lpAsset.precision,
       skip,
+      accountNumber,
       wallet,
+      adapter,
+      ethAsset.chainId,
+      foxFarmingContract.abi,
+      lpAsset.precision,
+      contractAddress,
     ],
   )
 
@@ -104,11 +107,11 @@ export const useFoxFarming = (
 
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-        const data = isExiting
-          ? foxFarmingContract.interface.encodeFunctionData('exit')
-          : foxFarmingContract.interface.encodeFunctionData('withdraw', [
-              toBaseUnit(lpAmount, lpAsset.precision),
-            ])
+        const data = encodeFunctionData({
+          abi: foxFarmingContract.abi,
+          functionName: isExiting ? 'exit' : 'withdraw',
+          ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
+        })
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
@@ -145,8 +148,8 @@ export const useFoxFarming = (
   const allowance = useCallback(async () => {
     if (skip || !farmingAccountId) return
 
-    const userAddress = fromAccountId(farmingAccountId).account
-    const _allowance = await uniV2LPContract.allowance(userAddress, contractAddress)
+    const userAddress = getAddress(fromAccountId(farmingAccountId).account)
+    const _allowance = await uniV2LPContract.read.allowance([userAddress, contractAddress])
 
     return _allowance.toString()
   }, [farmingAccountId, contractAddress, skip])
@@ -154,10 +157,11 @@ export const useFoxFarming = (
   const getApproveFees = useCallback(() => {
     if (!adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
-    const data = uniV2LPContract.interface.encodeFunctionData('approve', [
-      contractAddress,
-      MaxUint256,
-    ])
+    const data = encodeFunctionData({
+      abi: uniV2LPContract.abi,
+      functionName: 'approve',
+      args: [contractAddress, BigInt(MaxUint256.toString())],
+    })
 
     return getFees({
       accountNumber,
@@ -173,9 +177,11 @@ export const useFoxFarming = (
     (lpAmount: string) => {
       if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
-      const data = foxFarmingContract.interface.encodeFunctionData('stake', [
-        toBaseUnit(lpAmount, lpAsset.precision),
-      ])
+      const data = encodeFunctionData({
+        abi: foxFarmingContract.abi,
+        functionName: 'stake',
+        args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
+      })
 
       return getFees({
         accountNumber,
@@ -193,11 +199,11 @@ export const useFoxFarming = (
     (lpAmount: string, isExiting: boolean) => {
       if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
 
-      const data = isExiting
-        ? foxFarmingContract.interface.encodeFunctionData('exit')
-        : foxFarmingContract.interface.encodeFunctionData('withdraw', [
-            toBaseUnit(lpAmount, lpAsset.precision),
-          ])
+      const data = encodeFunctionData({
+        abi: foxFarmingContract.abi,
+        functionName: isExiting ? 'exit' : 'withdraw',
+        ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
+      })
 
       return getFees({
         accountNumber,
@@ -215,7 +221,10 @@ export const useFoxFarming = (
     async (userAddress: string) => {
       if (!adapter || !userAddress || !wallet) return
 
-      const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+      const data = encodeFunctionData({
+        abi: foxFarmingContract.abi,
+        functionName: 'getReward',
+      })
 
       return getFees({
         adapter,
@@ -234,10 +243,11 @@ export const useFoxFarming = (
 
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-    const data = uniV2LPContract.interface.encodeFunctionData('approve', [
-      contractAddress,
-      MaxUint256,
-    ])
+    const data = encodeFunctionData({
+      abi: uniV2LPContract.abi,
+      functionName: 'approve',
+      args: [contractAddress, BigInt(MaxUint256.toString())],
+    })
 
     const fees = await getApproveFees()
     if (!fees) return
@@ -263,7 +273,10 @@ export const useFoxFarming = (
 
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-    const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+    const data = encodeFunctionData({
+      abi: foxFarmingContract.abi,
+      functionName: 'getReward',
+    })
 
     const buildCustomTxInput = await createBuildCustomTxInput({
       accountNumber,

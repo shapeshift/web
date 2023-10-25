@@ -3,7 +3,7 @@ import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, useEffect } from 'react'
+import { lazy, memo, Suspense, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -102,21 +102,23 @@ const MultiHopRoutes = memo(() => {
   }, [dispatch])
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
-      <Switch location={location}>
-        <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-          <TradeInput />
-        </Route>
-        <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-          <TradeConfirm />
-        </Route>
-        <Route key={TradeRoutePaths.Approval} path={TradeRoutePaths.Approval}>
-          <Approval />
-        </Route>
-        <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
-          <VerifyAddresses />
-        </Route>
-      </Switch>
-    </AnimatePresence>
+    <Suspense>
+      <AnimatePresence exitBeforeEnter initial={false}>
+        <Switch location={location}>
+          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
+            <TradeInput />
+          </Route>
+          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
+            <TradeConfirm />
+          </Route>
+          <Route key={TradeRoutePaths.Approval} path={TradeRoutePaths.Approval}>
+            <Approval />
+          </Route>
+          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
+            <VerifyAddresses />
+          </Route>
+        </Switch>
+      </AnimatePresence>
+    </Suspense>
   )
 })

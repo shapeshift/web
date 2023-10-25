@@ -7,7 +7,6 @@ import BigNumber from 'bignumber.js'
 import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import type { Address, GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { getContract } from 'viem'
-import { bn } from 'lib/bignumber/bignumber'
 import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,

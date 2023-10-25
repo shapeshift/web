@@ -203,7 +203,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const totalSupplyBaseUnit =
       zapperAppBalanceData?.supply && lpAsset
         ? bnOrZero(zapperAppBalanceData.supply).times(bn(10).pow(lpAsset.precision)).toString()
-        : (await uniV2LPContract.totalSupply()).toString()
+        : (await uniV2LPContract.read.totalSupply()).toString()
 
     const token0ReservesBaseUnit = bnOrZero(
       bnOrZero(bnOrZero(token0Reserves.toFixed()).toString()),

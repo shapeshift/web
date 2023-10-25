@@ -16,6 +16,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
@@ -223,15 +224,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             )
           const quote = maybeQuote.unwrap()
 
-          const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-            quote.inbound_address,
-            // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
-            // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-            AddressZero,
-            amountCryptoBaseUnit,
-            quote.memo,
-            quote.expiry,
-          ])
+          const data = encodeFunctionData({
+            abi: thorContract.abi,
+            functionName: 'depositWithExpiry',
+            args: [
+              getAddress(quote.inbound_address),
+              // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
+              // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
+              AddressZero,
+              BigInt(amountCryptoBaseUnit),
+              quote.memo,
+              BigInt(quote.expiry),
+            ],
+          })
 
           const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
 

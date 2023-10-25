@@ -8,6 +8,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransitionX } from 'components/SlideTransitionX'
 import { Text } from 'components/Text'
 
+const iconProps = { boxSize: '14px' }
+
 type DynamicComponentProps = {
   component: ReactElement
   newValue?: Record<string, any>
@@ -54,7 +56,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
       </Flex>
       <Flex>
         {toolTipLabel ? (
-          <HelperTooltip label={toolTipLabel} iconProps={{ boxSize: '14px' }}>
+          <HelperTooltip label={toolTipLabel} iconProps={iconProps}>
             <Text color='text.subtle' fontWeight='medium' translation={label} {...labelProps} />
           </HelperTooltip>
         ) : (

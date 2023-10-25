@@ -2,7 +2,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -28,8 +28,9 @@ export const AvailablePools = () => {
     },
     [history, path],
   )
+  const headerComponent = useMemo(() => <LendingHeader />, [])
   return (
-    <Main headerComponent={<LendingHeader />}>
+    <Main headerComponent={headerComponent}>
       <Stack>
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}
@@ -67,6 +68,7 @@ export const AvailablePools = () => {
             width='full'
             height='auto'
             color='text.base'
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handlePoolClick(btcAssetId)}
           >
             <AssetCell assetId={btcAssetId} />
@@ -92,6 +94,7 @@ export const AvailablePools = () => {
             width='full'
             height='auto'
             color='text.base'
+            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handlePoolClick(ethAssetId)}
           >
             <AssetCell assetId={ethAssetId} />

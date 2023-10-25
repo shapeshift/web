@@ -1,7 +1,7 @@
 import { Button, CardFooter, CardHeader, Divider, Flex, Heading, Stack } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { usdcAssetId } from 'test/mocks/accounts'
@@ -26,6 +26,7 @@ export const BorrowConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
   }, [history])
+  const divider = useMemo(() => <Divider />, [])
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -36,7 +37,7 @@ export const BorrowConfirm = () => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        <Stack spacing={0} divider={<Divider />}>
+        <Stack spacing={0} divider={divider}>
           <AssetToAsset
             buyIcon={debtAsset?.icon ?? ''}
             sellIcon={collateralAsset?.icon ?? ''}

@@ -13,16 +13,17 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -42,6 +43,38 @@ export const RepayInput = () => {
     history.push(RepayRoutePaths.Confirm)
   }, [history])
 
+  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
+
+  const percentOptions = useMemo(() => [0], [])
+
+  const handleAccountIdChange = useCallback((accountId: AccountId) => {
+    console.info(accountId)
+  }, [])
+
+  const handleAssetClick = useCallback(() => {
+    console.info('clicked Asset')
+  }, [])
+
+  const handleAssetChange = useCallback((asset: Asset) => {
+    return console.info(asset)
+  }, [])
+  const assetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        accountId={''}
+        assetId={btcAssetId}
+        onAssetClick={handleAssetClick}
+        onAccountIdChange={handleAccountIdChange}
+        accountSelectionDisabled={false}
+        label={'uhh'}
+        onAssetChange={handleAssetChange}
+        isReadOnly
+      />
+    )
+  }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+
+  const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
+
   if (!seenNotice) {
     return (
       <Stack spacing={6} px={4} py={6} textAlign='center' alignItems='center'>
@@ -50,7 +83,7 @@ export const RepayInput = () => {
           <Heading as='h4'>{translate('lending.repayNoticeTitle')}</Heading>
           <Text color='text.subtle' translation='lending.repayNotice' />
         </Stack>
-        <Button width='full' size='lg' colorScheme='blue' onClick={() => setSeenNotice(true)}>
+        <Button width='full' size='lg' colorScheme='blue' onClick={handleSeenNotice}>
           {translate('lending.repayNoticeCta')}
         </Button>
       </Stack>
@@ -65,24 +98,14 @@ export const RepayInput = () => {
         cryptoAmount={'0'}
         fiatAmount={'0'}
         isSendMaxDisabled={false}
-        percentOptions={[0]}
+        percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Repay Amount'}
-        onAccountIdChange={() => console.info('blam')}
+        onAccountIdChange={handleAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
-        labelPostFix={
-          <TradeAssetSelect
-            accountId={''}
-            assetId={usdcAssetId}
-            onAssetClick={() => console.info('clicked asset')}
-            onAccountIdChange={() => console.info('changed account')}
-            accountSelectionDisabled={false}
-            label={'uhh'}
-            onAssetChange={() => console.info('asset change')}
-          />
-        }
+        labelPostFix={assetSelectComponent}
       >
         <Stack spacing={4} px={6} pb={4}>
           <Slider defaultValue={100} isReadOnly>
@@ -109,7 +132,7 @@ export const RepayInput = () => {
           borderColor='border.base'
           zIndex={1}
           aria-label='Switch Assets'
-          icon={<ArrowDownIcon />}
+          icon={swapIcon}
         />
         <Divider />
       </Flex>
@@ -120,25 +143,14 @@ export const RepayInput = () => {
         cryptoAmount={'0'}
         fiatAmount={'0'}
         isSendMaxDisabled={false}
-        percentOptions={[0]}
+        percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Unlocked Collateral'}
-        onAccountIdChange={() => console.info('blam')}
+        onAccountIdChange={handleAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
-        labelPostFix={
-          <TradeAssetSelect
-            accountId={''}
-            assetId={btcAssetId}
-            onAssetClick={() => console.info('clicked asset')}
-            onAccountIdChange={() => console.info('changed account')}
-            accountSelectionDisabled={false}
-            label={'uhh'}
-            onAssetChange={() => console.info('asset change')}
-            isReadOnly
-          />
-        }
+        labelPostFix={assetSelectComponent}
       />
       <Collapse in={true}>
         <LoanSummary />

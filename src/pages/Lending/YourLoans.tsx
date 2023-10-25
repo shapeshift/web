@@ -1,5 +1,6 @@
 import { Button, type GridProps, SimpleGrid, Stack } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -16,8 +17,9 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 
 export const YourLoans = () => {
   const translate = useTranslate()
+  const lendingHeader = useMemo(() => <LendingHeader />, [])
   return (
-    <Main headerComponent={<LendingHeader />}>
+    <Main headerComponent={lendingHeader}>
       <Stack>
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}

@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useParams } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -42,10 +42,11 @@ const PoolHeader = () => {
   const handleBack = useCallback(() => {
     history.goBack()
   }, [history])
+  const backIcon = useMemo(() => <ArrowBackIcon />, [])
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
       <Flex gap={4} alignItems='center'>
-        <IconButton icon={<ArrowBackIcon />} aria-label='Back to lending' onClick={handleBack} />
+        <IconButton icon={backIcon} aria-label='Back to lending' onClick={handleBack} />
         <Heading>{translate('lending.lending')}</Heading>
       </Flex>
     </Container>
@@ -58,8 +59,34 @@ export const Pool = () => {
   const { pid } = useParams<{ pid?: string }>()
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
+
+  const headerComponent = useMemo(() => <PoolHeader />, [])
+
+  const collateralBalanceComponent = useMemo(
+    () => <Amount.Crypto fontSize='2xl' value='25' symbol='BTC' fontWeight='medium' />,
+    [],
+  )
+  const collateralValueComponent = useMemo(
+    () => <Amount.Fiat fontSize='2xl' value={25} fontWeight='medium' />,
+    [],
+  )
+  const debtBalanceComponent = useMemo(
+    () => <Amount.Fiat fontSize='2xl' value='2500' fontWeight='medium' />,
+    [],
+  )
+  const repaymentLockComponent = useMemo(
+    () => (
+      <RawText fontSize='2xl' fontWeight='medium'>
+        20 days
+      </RawText>
+    ),
+    [],
+  )
+  const handleValueChange = useCallback((value: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(value.target.value)
+  }, [])
   return (
-    <Main headerComponent={<PoolHeader />}>
+    <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Card>
@@ -76,16 +103,14 @@ export const Pool = () => {
                 <DynamicComponent
                   label='lending.collateralBalance'
                   toolTipLabel='tbd'
-                  component={
-                    <Amount.Crypto fontSize='2xl' value='25' symbol='BTC' fontWeight='medium' />
-                  }
+                  component={collateralBalanceComponent}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.collateralValue'
                   toolTipLabel='tbd'
-                  component={<Amount.Fiat fontSize='2xl' value={25} fontWeight='medium' />}
+                  component={collateralValueComponent}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -94,18 +119,14 @@ export const Pool = () => {
                 <DynamicComponent
                   label='lending.debtBalance'
                   toolTipLabel='tbd'
-                  component={<Amount.Fiat fontSize='2xl' value='2500' fontWeight='medium' />}
+                  component={debtBalanceComponent}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.repaymentLock'
                   toolTipLabel='tbd'
-                  component={
-                    <RawText fontSize='2xl' fontWeight='medium'>
-                      20 days
-                    </RawText>
-                  }
+                  component={repaymentLockComponent}
                   flex={1}
                   {...(value ? { newValue: { children: '30 days' } } : {})}
                 />
@@ -146,7 +167,7 @@ export const Pool = () => {
               </TabPanels>
             </Tabs>
             <Stack px={4} py={2}>
-              <Input value={value} onChange={value => setValue(value.target.value)} />
+              <Input value={value} onChange={handleValueChange} />
             </Stack>
           </Card>
         </Stack>

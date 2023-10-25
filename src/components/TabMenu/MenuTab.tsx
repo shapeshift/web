@@ -30,6 +30,10 @@ export const MenuTab = forwardRef<MenuTabProps, 'button'>(
       return !!match
     }, [location.pathname, path, exact])
 
+    const activeStyle = useMemo(() => {
+      return { borderColor: `${color}.500`, color: 'chakra-body-text' }
+    }, [color])
+
     return (
       <Button
         variant='tab'
@@ -42,7 +46,7 @@ export const MenuTab = forwardRef<MenuTabProps, 'button'>(
         iconSpacing={4}
         letterSpacing='0.012em'
         fontWeight='medium'
-        _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
+        _active={activeStyle}
         {...(rightElement && {
           rightIcon: <Tag colorScheme={color}>{rightElement}</Tag>,
         })}

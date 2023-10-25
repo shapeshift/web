@@ -1,15 +1,16 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import type { Asset } from 'lib/asset-service'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
@@ -26,6 +27,36 @@ export const BorrowInput = () => {
   const onSubmit = useCallback(() => {
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
+
+  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
+
+  const percentOptions = useMemo(() => [0], [])
+
+  const handleAccountIdChange = useCallback((accountId: AccountId) => {
+    console.info(accountId)
+  }, [])
+
+  const handleAssetClick = useCallback(() => {
+    console.info('clicked Asset')
+  }, [])
+
+  const handleAssetChange = useCallback((asset: Asset) => {
+    return console.info(asset)
+  }, [])
+  const assetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        accountId={''}
+        assetId={btcAssetId}
+        onAssetClick={handleAssetClick}
+        onAccountIdChange={handleAccountIdChange}
+        accountSelectionDisabled={false}
+        label={'uhh'}
+        onAssetChange={handleAssetChange}
+        isReadOnly
+      />
+    )
+  }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
   return (
     <SlideTransition>
       <Stack spacing={0}>
@@ -36,25 +67,14 @@ export const BorrowInput = () => {
           cryptoAmount={'0'}
           fiatAmount={'0'}
           isSendMaxDisabled={false}
-          percentOptions={[0]}
+          percentOptions={percentOptions}
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={'Deposit BTC'}
-          onAccountIdChange={() => console.info('blam')}
+          onAccountIdChange={handleAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={
-            <TradeAssetSelect
-              accountId={''}
-              assetId={btcAssetId}
-              onAssetClick={() => console.info('clicked asset')}
-              onAccountIdChange={() => console.info('changed account')}
-              accountSelectionDisabled={false}
-              label={'uhh'}
-              onAssetChange={() => console.info('asset change')}
-              isReadOnly
-            />
-          }
+          labelPostFix={assetSelectComponent}
         />
         <Flex alignItems='center' justifyContent='center' my={-2}>
           <Divider />
@@ -66,7 +86,7 @@ export const BorrowInput = () => {
             borderColor='border.base'
             zIndex={1}
             aria-label='Switch Assets'
-            icon={<ArrowDownIcon />}
+            icon={swapIcon}
           />
           <Divider />
         </Flex>
@@ -77,24 +97,14 @@ export const BorrowInput = () => {
           cryptoAmount={'0'}
           fiatAmount={'0'}
           isSendMaxDisabled={false}
-          percentOptions={[0]}
+          percentOptions={percentOptions}
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={'Borrow'}
-          onAccountIdChange={() => console.info('blam')}
+          onAccountIdChange={handleAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={
-            <TradeAssetSelect
-              accountId={''}
-              assetId={usdcAssetId}
-              onAssetClick={() => console.info('clicked asset')}
-              onAccountIdChange={() => console.info('changed account')}
-              accountSelectionDisabled={false}
-              label={'uhh'}
-              onAssetChange={() => console.info('asset change')}
-            />
-          }
+          labelPostFix={assetSelectComponent}
         />
         <Collapse in={true}>
           <LoanSummary />

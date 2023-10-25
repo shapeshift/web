@@ -1,23 +1,26 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Skeleton, Stack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 
-const FromToStack: React.FC<StackProps> = props => (
-  <Stack
-    alignItems='center'
-    direction='row'
-    fontWeight='medium'
-    spacing={1}
-    divider={<ArrowForwardIcon color='text.subtle' borderLeft={0} />}
-    {...props}
-  />
-)
+const FromToStack: React.FC<StackProps> = props => {
+  const dividerIcon = useMemo(() => <ArrowForwardIcon color='text.subtle' borderLeft={0} />, [])
+  return (
+    <Stack
+      alignItems='center'
+      direction='row'
+      fontWeight='medium'
+      spacing={1}
+      divider={dividerIcon}
+      {...props}
+    />
+  )
+}
 
 type LoanSummaryProps = {
   isLoading?: boolean

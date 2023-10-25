@@ -1,7 +1,7 @@
 import { Button, CardFooter, CardHeader, Divider, Flex, Heading, Stack } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { usdcAssetId } from 'test/mocks/accounts'
@@ -26,6 +26,9 @@ export const RepayConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(RepayRoutePaths.Input)
   }, [history])
+  const divider = useMemo(() => <Divider />, [])
+
+  if (!collateralAsset || !debtAsset) return null
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -36,7 +39,7 @@ export const RepayConfirm = () => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        <Stack spacing={0} divider={<Divider />}>
+        <Stack spacing={0} divider={divider}>
           <AssetToAsset
             buyIcon={collateralAsset?.icon ?? ''}
             sellIcon={debtAsset?.icon ?? ''}
@@ -49,7 +52,7 @@ export const RepayConfirm = () => {
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
             <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>
             <Row>
-              <Row.Label>Send</Row.Label>
+              <Row.Label>{translate('common.send')}</Row.Label>
               <Row.Value textAlign='right'>
                 <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                   <Amount.Crypto value='1' symbol={collateralAsset?.symbol ?? ''} />
@@ -58,7 +61,7 @@ export const RepayConfirm = () => {
               </Row.Value>
             </Row>
             <Row>
-              <Row.Label>Recieve</Row.Label>
+              <Row.Label>{translate('common.recieve')}</Row.Label>
               <Row.Value textAlign='right'>
                 <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                   <Amount.Crypto value='14820' symbol={debtAsset?.symbol ?? ''} />

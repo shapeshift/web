@@ -18,6 +18,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -381,15 +382,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // In addition to being used as the `memo` positional param, it is also the value of ETH to be sent with the Tx to actually trigger a withdraw
       const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
 
-      const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-        quote.inbound_address,
-        // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
-        // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-        AddressZero,
-        amount,
-        quote.memo,
-        quote.expiry,
-      ])
+      const data = encodeFunctionData({
+        abi: thorContract.abi,
+        functionName: 'depositWithExpiry',
+        args: [
+          getAddress(quote.inbound_address),
+          // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
+          // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
+          AddressZero,
+          BigInt(amount),
+          quote.memo,
+          BigInt(quote.expiry),
+        ],
+      })
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,

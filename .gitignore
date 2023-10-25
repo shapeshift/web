@@ -43,8 +43,5 @@ yarn-error.log*
 *.iml
 .idea/
 
-# typechain codegen contracts
-src/contracts/__generated/**/*
-
 # tenderly
 tenderly/.tenderly.json

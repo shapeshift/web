@@ -383,7 +383,7 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [saversRouterContractAddress, MaxUint256],
+            args: [getAddress(saversRouterContractAddress), BigInt(MaxUint256.toString())],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)

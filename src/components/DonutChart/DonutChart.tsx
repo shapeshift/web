@@ -2,6 +2,7 @@ import { useToken } from '@chakra-ui/system'
 import { Group } from '@visx/group'
 import type { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie'
 import Pie from '@visx/shape/lib/shapes/Pie'
+import { useCallback, useMemo } from 'react'
 
 const defaultMargin = { top: 0, right: 0, bottom: 0, left: 0 }
 type DonutChartProps = {
@@ -48,6 +49,13 @@ const Arc: React.FC<ArcProps> = ({ pie, arc, index }) => {
   )
 }
 
+const PieArcs: React.FC<ArcProps['pie']> = pie => {
+  const renderPie = useMemo(() => {
+    return pie.arcs.map((arc, index) => <Arc pie={pie} arc={arc} index={index} />)
+  }, [pie])
+  return <>{renderPie}</>
+}
+
 export const DonutChart: React.FC<DonutChartProps> = ({
   width,
   height,
@@ -60,7 +68,10 @@ export const DonutChart: React.FC<DonutChartProps> = ({
   const centerX = innerWidth / 2
   const top = centerY + margin.top
   const left = centerX + margin.left
-  const pieSortValues = (a: number, b: number) => b - a
+
+  const pieSortValues = useCallback((a: number, b: number) => {
+    return b - a
+  }, [])
 
   return (
     <svg width={width} height={height}>
@@ -72,9 +83,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
           outerRadius={radius}
           innerRadius={radius - 4}
         >
-          {pie => {
-            return pie.arcs.map((arc, index) => <Arc pie={pie} arc={arc} index={index} />)
-          }}
+          {pie => <PieArcs {...pie} />}
         </Pie>
       </Group>
     </svg>

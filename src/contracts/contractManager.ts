@@ -2,7 +2,6 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import { erc20ABI } from '@wagmi/core'
 import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
@@ -14,6 +13,7 @@ import { getContract } from 'viem'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { viemEthMainnetClient } from 'lib/viem-client'
 
+import { erc20ABI } from './abis/ERC20ABI'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,

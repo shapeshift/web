@@ -37,8 +37,6 @@ const ConnectedMenu = memo(
       [connectedType],
     )
 
-    console.log({ ConnectMenuComponent })
-
     const handleClick = useCallback(() => {
       if (!connectedWalletMenuRoutes) return
       navigateToRoute(
@@ -116,7 +114,6 @@ export const WalletConnectedMenu = ({
     )
   }, [])
 
-  console.log('here')
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>

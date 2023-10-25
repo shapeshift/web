@@ -9,6 +9,7 @@ import memoize from 'lodash/memoize'
 import type { GetContractReturnType } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { viemEthMainnetClient } from 'lib/viem-client'
 
 import { TRADING_FEE_RATE } from './constants'
 
@@ -22,20 +23,64 @@ export const getToken0Volume24Hr = async ({
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day
 
-  let eventFilter = uniswapLPContract.filters.Swap()
-  let events = await uniswapLPContract.queryFilter(
-    eventFilter,
-    yesterdayBlockNumber,
-    currentBlockNumber,
-  )
+  const eventFilter = await viemEthMainnetClient.createEventFilter({
+    address: uniswapLPContract.address,
+    event: {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'sender',
+          type: 'address',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount0In',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount1In',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount0Out',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount1Out',
+          type: 'uint256',
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'to',
+          type: 'address',
+        },
+      ],
+      name: 'Swap',
+      type: 'event',
+    },
+    fromBlock: BigInt(yesterdayBlockNumber),
+    toBlock: BigInt(currentBlockNumber),
+  })
+
+  const events = await viemEthMainnetClient.getFilterLogs({ filter: eventFilter })
 
   const token0SwapAmounts = events.map(event => {
     if (!event?.args) return bn(0)
     const { amount0In, amount0Out } = event.args
 
     return Number(amount0In)
-      ? bnOrZero(amount0In.toString())
-      : bnOrZero(amount0Out.toString())
+      ? bnOrZero(amount0In?.toString())
+      : bnOrZero(amount0Out?.toString())
           .div(bn(1).minus(TRADING_FEE_RATE)) // Since these are outbound txs, this corrects the value to include trading fees taken out.
           .decimalPlaces(0)
   })

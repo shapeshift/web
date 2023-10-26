@@ -435,10 +435,11 @@ export class IdleOpportunity
     }
 
     const allowance = bn(
-      // TODO(gomes): fix unknown here
-      // @ts-ignore TODO, just getting this to compile
       (
-        await depositTokenContract.read.allowance([address as Address, vaultContractAddress])
+        await depositTokenContract.read.allowance([
+          getAddress(address),
+          getAddress(vaultContractAddress),
+        ])
       ).toString(),
     )
 
@@ -462,10 +463,9 @@ export class IdleOpportunity
     }
 
     const data = encodeFunctionData({
-      // @ts-ignore this is actually valid erc20 ABI
       abi: erc20Abi,
-      function: 'approve',
-      parameters: [vaultContractAddress, MAX_ALLOWANCE],
+      functionName: 'approve',
+      args: [getAddress(vaultContractAddress), BigInt(MAX_ALLOWANCE)],
     })
     const estimatedGas = bn(
       (

@@ -23,6 +23,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -322,13 +323,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         chainId: asset.chainId,
       })
 
-      const data = thorContract.interface.encodeFunctionData('depositWithExpiry', [
-        quote.inbound_address,
-        fromAssetId(assetId).assetReference,
-        amountCryptoBaseUnit.toString(),
-        quote.memo,
-        quote.expiry,
-      ])
+      const data = encodeFunctionData({
+        abi: thorContract.abi,
+        functionName: 'depositWithExpiry',
+        args: [
+          getAddress(quote.inbound_address),
+          getAddress(fromAssetId(assetId).assetReference),
+          BigInt(amountCryptoBaseUnit.toString()),
+          quote.memo,
+          BigInt(quote.expiry),
+        ],
+      })
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,

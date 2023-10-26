@@ -117,6 +117,14 @@ export const getThorTradeQuote = async (
       }),
     )
 
+  const getStreamingInterval = (depthBps: BigNumber): number => {
+    // Low health for the pools of this swap - use a longer streaming interval
+    if (depthBps.lt(5000)) return 5
+    // Moderate health for the pools of this swap - use a moderate streaming interval
+    if (depthBps.lt(9000) && depthBps.gte(5000)) return 3
+    return 1
+  }
+
   const streamingInterval =
     sellAssetPool && buyAssetPool
       ? (() => {
@@ -124,32 +132,19 @@ export const getThorTradeQuote = async (
           const buyAssetDepthBps = buyAssetPool.derived_depth_bps
 
           // We are trading between 2 L1s, use a streaming interval of 1 block
-          if (bnOrZero(sellAssetDepthBps).eq(0) && bnOrZero(buyAssetDepthBps).eq(0)) return 1
+          if (bn(sellAssetDepthBps).eq(0) && bn(buyAssetDepthBps).eq(0)) return 1
 
           // We are trading between 2 derived pools, use the average of the 2 depths to determine the streaming interval
-          if (bnOrZero(sellAssetDepthBps).gt(0) && bnOrZero(buyAssetDepthBps).gt(0)) {
+          if (bn(sellAssetDepthBps).gt(0) && bn(buyAssetDepthBps).gt(0)) {
             const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
-            // Low health for the pools of this swap - use a longer streaming interval
-            if (swapDepthBps.lt(5000)) return 5
-            // Moderate health for the pools of this swap - use a moderate streaming interval
-            if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 3
-            return 1
+            return getStreamingInterval(swapDepthBps)
           }
 
-          // The sell asset is a derived pool, the buy asset is an L1 pool - use the sell asset depth to determine the streaming interval
-          if (bnOrZero(sellAssetDepthBps).gt(0)) {
-            if (bn(sellAssetDepthBps).lt(5000)) return 5
-            // Moderate health for the pools of this swap - use a moderate streaming interval
-            if (bn(sellAssetDepthBps).lt(9000) && bn(sellAssetDepthBps).gte(5000)) return 3
-            return 1
-          }
-
-          // The buy asset is a derived pool, the seLl asset is an L1 pool - use the buy asset depth to determine the streaming interval
-          if (bnOrZero(buyAssetDepthBps).gt(0)) {
-            if (bn(buyAssetDepthBps).lt(5000)) return 5
-            // Moderate health for the pools of this swap - use a moderate streaming interval
-            if (bn(buyAssetDepthBps).lt(9000) && bn(buyAssetDepthBps).gte(5000)) return 3
-            return 1
+          // One asset is derived, the other is L1. Use the derived asset depth to determine the streaming interval
+          if (bn(sellAssetDepthBps).gt(0) || bn(buyAssetDepthBps).gt(0)) {
+            return getStreamingInterval(
+              bn(sellAssetDepthBps).gt(0) ? sellAssetDepthBps : buyAssetDepthBps,
+            )
           }
 
           // If we get here, we've missed a case

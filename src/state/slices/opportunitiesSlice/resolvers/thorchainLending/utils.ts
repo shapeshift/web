@@ -17,6 +17,9 @@ import type {
   LendingWithdrawQuoteResponse,
 } from './types'
 
+// Note, this isn't exhaustive. These are the minimum viable fields for this to work
+// but we might need e.g min_out and affiliate_bps
+// see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingOpenQuote = async ({
   collateralAssetId,
   collateralAmountCryptoBaseUnit,
@@ -67,6 +70,9 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   }
 }
 
+// Note, this isn't exhaustive. These are the minimum viable fields for this to work
+// but we might need e.g min_out
+// see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
   repaymentAssetId,
   repaymentAmountBaseUnit,

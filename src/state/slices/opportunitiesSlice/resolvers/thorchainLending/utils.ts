@@ -46,7 +46,7 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 
   try {
     const url =
-      `${REACT_APP_THORCHAIN_NODE_URL}/thorchain/quote/loan/open` +
+      `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
       `?from_asset=${collateralAssetId}` +
       `&amount=${amountCryptoThorBaseUnit.toString()}` +
       `&to_asset=${receiveAssetId}` +
@@ -95,7 +95,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   })
 
   const url =
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/quote/loan/close` +
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
     `&amount=${amount.toString()}` +
     `&to_asset=${to_asset}` +
@@ -123,7 +123,7 @@ export const getAllThorchainLendingPositions = async (
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<BorrowersResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/borrowers`,
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}/borrowers`,
   )
 
   if (!data || 'error' in data) return []

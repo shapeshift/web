@@ -5,6 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
@@ -143,7 +144,7 @@ export const getThorTradeQuote = async (
           // One asset is derived, the other is L1. Use the derived asset depth to determine the streaming interval
           if (bn(sellAssetDepthBps).gt(0) || bn(buyAssetDepthBps).gt(0)) {
             return getStreamingInterval(
-              bn(sellAssetDepthBps).gt(0) ? sellAssetDepthBps : buyAssetDepthBps,
+              bn(sellAssetDepthBps).gt(0) ? bn(sellAssetDepthBps) : bn(buyAssetDepthBps),
             )
           }
 

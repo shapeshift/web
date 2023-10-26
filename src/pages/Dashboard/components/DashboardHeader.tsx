@@ -34,7 +34,7 @@ import { useAppSelector } from 'state/store'
 import { DashboardTab } from './DashboardTab'
 import { ProfileAvatar } from './ProfileAvatar/ProfileAvatar'
 
-type TabItem = {
+export type TabItem = {
   label: string
   path: string
   color: string

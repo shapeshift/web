@@ -9659,6 +9659,7 @@ __metadata:
     "@visx/gradient": ^2.10.0
     "@visx/grid": ^3.3.0
     "@visx/responsive": ^2.10.0
+    "@visx/scale": ^3.3.0
     "@visx/xychart": ^2.12.2
     "@wagmi/core": ^1.4.2
     "@walletconnect/ethereum-provider": ^2.10.1
@@ -12393,7 +12394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@visx/scale@npm:3.3.0":
+"@visx/scale@npm:3.3.0, @visx/scale@npm:^3.3.0":
   version: 3.3.0
   resolution: "@visx/scale@npm:3.3.0"
   dependencies:

@@ -17,6 +17,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
@@ -29,11 +30,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
+import { selectFirstAccountIdByChainId, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Borrow } from './components/Borrow/Borrow'
@@ -74,12 +71,16 @@ export const Pool = () => {
 
   const sellAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, btcChainId)) ?? ''
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
+    () => ['thorchainLendingPosition', { accountId, assetId }],
+    [accountId],
+  )
   const { data: lendingPositionData, isLoading } = useQuery({
-    queryKey: ['lendingPosition', { assetId, accountId }],
+    queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
-      const [_key, { accountId, assetId }] = queryKey
+      if (!queryKey[1] && typeof queryKey[1] === 'object') return
+      const [, { accountId, assetId }] = queryKey
       const position = await getThorchainLendingPosition({ accountId, assetId })
       return position
     },

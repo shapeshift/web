@@ -90,7 +90,6 @@ export const Pool = () => {
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
-      if (!queryKey[1] && typeof queryKey[1] === 'object') return
       const [, { accountId, assetId }] = queryKey
       const position = await getThorchainLendingPosition({ accountId, assetId })
       return position
@@ -98,18 +97,14 @@ export const Pool = () => {
     select: data => {
       // defaults all field in case no position is found
       const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
-      const debtBalanceCryptoPrecision = fromThorBaseUnit(data?.debt_current).toString()
 
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(sellAssetMarketData.price)
         .toString()
-      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
-        .times(sellAssetMarketData.price)
-        .toString()
+      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current).toString()
 
       return {
         collateralBalanceCryptoPrecision,
-        debtBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
         debtBalanceFiatUserCurrency,
       }

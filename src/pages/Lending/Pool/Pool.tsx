@@ -101,12 +101,12 @@ export const Pool = () => {
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(sellAssetMarketData.price)
         .toString()
-      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current).toString()
+      const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
       return {
         collateralBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUserCurrency,
+        debtBalanceFiatUSD,
       }
     },
     enabled: Boolean(accountId && poolAssetId && sellAssetMarketData.price !== '0'),
@@ -162,11 +162,11 @@ export const Pool = () => {
     () => (
       <Amount.Fiat
         fontSize='2xl'
-        value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
+        value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
         fontWeight='medium'
       />
     ),
-    [lendingPositionData?.debtBalanceFiatUserCurrency],
+    [lendingPositionData?.debtBalanceFiatUSD],
   )
   const repaymentLockComponent = useMemo(
     () => (

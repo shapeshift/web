@@ -17,8 +17,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -64,25 +63,21 @@ const PoolHeader = () => {
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
-// TODO(gomes): programmatic
-const assetId = btcAssetId
-
-// const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-// const { data: mimir } = await axios.get<Record<string, unknown>>(
-// `${daemonUrl}/lcd/thorchain/mimir`,
-// )
-
 export const Pool = () => {
-  const { pid } = useParams<{ pid?: string }>()
+  const { poolAssetId } = useParams<{ poolAssetId: AssetId }>()
+
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
 
-  const sellAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, btcChainId)) ?? ''
+  const sellAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
+  const accountId =
+    useAppSelector(state =>
+      selectFirstAccountIdByChainId(state, fromAssetId(poolAssetId).chainId),
+    ) ?? ''
 
   const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPosition', { accountId, assetId }],
-    [accountId],
+    () => ['thorchainLendingPosition', { accountId, assetId: poolAssetId }],
+    [accountId, poolAssetId],
   )
   const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
 
@@ -113,7 +108,7 @@ export const Pool = () => {
         debtBalanceFiatUserCurrency,
       }
     },
-    enabled: Boolean(accountId && assetId && sellAssetMarketData.price !== '0'),
+    enabled: Boolean(accountId && poolAssetId && sellAssetMarketData.price !== '0'),
   })
 
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
@@ -135,7 +130,7 @@ export const Pool = () => {
         .div(60 * 60 * 24)
         .toString()
     },
-    enabled: Boolean(accountId && assetId && sellAssetMarketData.price !== '0'),
+    enabled: Boolean(accountId && poolAssetId && sellAssetMarketData.price !== '0'),
   })
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
@@ -189,9 +184,8 @@ export const Pool = () => {
           <Card>
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
-                <AssetIcon assetId={assetId} />
+                <AssetIcon assetId={poolAssetId} />
                 <Heading as='h3'>Bitcoin</Heading>
-                <RawText>{pid}</RawText>
               </Flex>
             </CardHeader>
             <CardBody gap={8} display='flex' flexDir='column' px={8} pb={8} pt={0}>

@@ -36,7 +36,13 @@ type ProvidersProps = {
 }
 
 const manager = createLocalStorageManager('ss-theme')
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // default: true
+    },
+  },
+})
 
 const splashScreen = <SplashScreen />
 

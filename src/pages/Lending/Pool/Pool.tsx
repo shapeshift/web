@@ -187,7 +187,7 @@ export const Pool = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <AssetIcon assetId={poolAssetId} />
-                <Heading as='h3'>Bitcoin</Heading>
+                <Heading as='h3'>{asset?.name ?? ''}</Heading>
               </Flex>
             </CardHeader>
             <CardBody gap={8} display='flex' flexDir='column' px={8} pb={8} pt={0}>

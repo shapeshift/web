@@ -95,7 +95,7 @@ export const Pool = () => {
       return position
     },
     select: data => {
-      // defaults all field in case no position is found
+      // returns actual derived data, or zero's out fields in case there is no active position
       const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
 
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
@@ -119,6 +119,7 @@ export const Pool = () => {
       const { data: mimir } = await axios.get<Record<string, unknown>>(
         `${daemonUrl}/lcd/thorchain/mimir`,
       )
+      // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
       if ('LOANREPAYMENTMATURITY' in mimir) return mimir.LOANREPAYMENTMATURITY as number
       return null
     },

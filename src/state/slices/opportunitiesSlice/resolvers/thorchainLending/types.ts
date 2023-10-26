@@ -63,8 +63,8 @@ export type Borrower = {
   collateral_deposited: string
   collateral_withdrawn: string
   collateral_current: string
-  last_open_height?: number
-  last_repay_height?: number
+  last_open_height: number
+  last_repay_height: number
 }
 
 export type BorrowersResponseSuccess = Borrower[]

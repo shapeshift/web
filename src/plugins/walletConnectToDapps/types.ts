@@ -14,6 +14,16 @@ export type RegistryItem = {
   image: string
 }
 
+export type APIRegistryItem = {
+  app_type: string
+  id: string
+  homepage: string
+  name: string
+  image_url: {
+    md: string
+  }
+}
+
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
   ETH_SIGN = 'eth_sign',

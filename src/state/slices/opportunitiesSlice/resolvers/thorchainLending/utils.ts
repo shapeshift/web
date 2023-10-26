@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -8,10 +8,16 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { toThorBaseUnit } from '../thorchainsavers/utils'
-import type { LendingDepositQuoteResponse, LendingWithdrawQuoteResponse } from './types'
+import { getAccountAddresses, toThorBaseUnit } from '../thorchainsavers/utils'
+import type {
+  Borrower,
+  BorrowersResponse,
+  BorrowersResponseSuccess,
+  LendingDepositQuoteResponse,
+  LendingWithdrawQuoteResponse,
+} from './types'
 
-export const getMaybeThorchainLendingDepositQuote = async ({
+export const getMaybeThorchainLendingOpenQuote = async ({
   collateralAssetId,
   collateralAmountCryptoBaseUnit,
   receiveAssetId,
@@ -61,7 +67,7 @@ export const getMaybeThorchainLendingDepositQuote = async ({
   }
 }
 
-export const getMaybeThorchainLendingWithdrawQuote = async ({
+export const getMaybeThorchainLendingCloseQuote = async ({
   repaymentAssetId,
   repaymentAmountBaseUnit,
   collateralAssetId,
@@ -107,4 +113,41 @@ export const getMaybeThorchainLendingWithdrawQuote = async ({
   } catch (error) {
     return Err(`Error fetching THORChain lending withdraw quote: ${error}`)
   }
+}
+
+export const getAllThorchainLendingPositions = async (
+  assetId: AssetId,
+): Promise<BorrowersResponseSuccess> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
+
+  const { data } = await axios.get<BorrowersResponse>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/borrowers`,
+  )
+
+  if (!data || 'error' in data) return []
+
+  return data
+}
+
+export const getThorchainLendingPosition = async ({
+  accountId,
+  assetId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+}): Promise<Borrower | null> => {
+  const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
+
+  const allPositions = lendingPositionsResponse
+  if (!allPositions.length) {
+    throw new Error(`No lending positions found for asset ID: ${assetId}`)
+  }
+
+  const accountAddresses = await getAccountAddresses(accountId)
+
+  const accountPosition = allPositions.find(position => accountAddresses.includes(position.owner))
+
+  return accountPosition || null
 }

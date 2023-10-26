@@ -72,3 +72,24 @@ export type LendingWithdrawQuoteResponseError = {
 export type LendingWithdrawQuoteResponse =
   | LendingWithdrawQuoteResponseSuccess
   | LendingWithdrawQuoteResponseError
+
+export type Borrower = {
+  owner: string
+  asset: string
+  debt_issued: string
+  debt_repaid: string
+  debt_current: string
+  collateral_deposited: string
+  collateral_withdrawn: string
+  collateral_current: string
+  last_open_height: number
+  last_repay_height: number
+}
+
+export type BorrowersResponseSuccess = Borrower[]
+
+export type BorrowersResponseError = {
+  error: string
+}
+
+export type BorrowersResponse = BorrowersResponseSuccess | BorrowersResponseError

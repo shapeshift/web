@@ -20,6 +20,8 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,6 +30,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectFirstAccountIdByChainId, selectMarketDataById } from 'state/slices/selectors'
@@ -64,6 +67,11 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', l
 // TODO(gomes): programmatic
 const assetId = btcAssetId
 
+// const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+// const { data: mimir } = await axios.get<Record<string, unknown>>(
+// `${daemonUrl}/lcd/thorchain/mimir`,
+// )
+
 export const Pool = () => {
   const { pid } = useParams<{ pid?: string }>()
   const translate = useTranslate()
@@ -76,7 +84,9 @@ export const Pool = () => {
     () => ['thorchainLendingPosition', { accountId, assetId }],
     [accountId],
   )
-  const { data: lendingPositionData, isLoading } = useQuery({
+  const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
+
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       if (!queryKey[1] && typeof queryKey[1] === 'object') return
@@ -106,7 +116,27 @@ export const Pool = () => {
     enabled: Boolean(accountId && assetId && sellAssetMarketData.price !== '0'),
   })
 
-  console.log({ lendingPositionData })
+  const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
+    queryKey: repaymentLockQueryKey,
+    queryFn: async () => {
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const { data: mimir } = await axios.get<Record<string, unknown>>(
+        `${daemonUrl}/lcd/thorchain/mimir`,
+      )
+      if ('LOANREPAYMENTMATURITY' in mimir) return mimir.LOANREPAYMENTMATURITY as number
+      return null
+    },
+    select: data => {
+      if (!data) return null
+      // Current blocktime as per https://thorchain.network/stats
+      const thorchainBlockTime = '6.09'
+      return bnOrZero(data)
+        .times(thorchainBlockTime)
+        .div(60 * 60 * 24)
+        .toString()
+    },
+    enabled: Boolean(accountId && assetId && sellAssetMarketData.price !== '0'),
+  })
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
 
@@ -144,10 +174,10 @@ export const Pool = () => {
   const repaymentLockComponent = useMemo(
     () => (
       <RawText fontSize='2xl' fontWeight='medium'>
-        20 days
+        {repaymentLock ?? '0'} days
       </RawText>
     ),
-    [],
+    [repaymentLock],
   )
   const handleValueChange = useCallback((value: React.ChangeEvent<HTMLInputElement>) => {
     setValue(value.target.value)
@@ -171,7 +201,7 @@ export const Pool = () => {
                   label='lending.collateralBalance'
                   toolTipLabel='tbd'
                   component={collateralBalanceComponent}
-                  isLoading={isLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -179,7 +209,7 @@ export const Pool = () => {
                   label='lending.collateralValue'
                   toolTipLabel='tbd'
                   component={collateralValueComponent}
-                  isLoading={isLoading}
+                  isLoading={isRepaymentLockLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -189,7 +219,7 @@ export const Pool = () => {
                   label='lending.debtBalance'
                   toolTipLabel='tbd'
                   component={debtBalanceComponent}
-                  isLoading={isLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -197,7 +227,7 @@ export const Pool = () => {
                   label='lending.repaymentLock'
                   toolTipLabel='tbd'
                   component={repaymentLockComponent}
-                  isLoading={isLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...(value ? { newValue: { children: '30 days' } } : {})}
                 />

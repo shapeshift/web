@@ -7,8 +7,10 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { getAllThorchainLendingPositions } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
 import { DynamicComponent } from './PoolStat'
@@ -39,22 +41,41 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
       // returns actual derived data, or zero's out fields in case there is no active position
       const totalBorrowers = data?.length ?? 0
 
-      return {
-        totalBorrowers,
-      }
+      const { totalCollateral, totalDebt } = data.reduce(
+        (acc, position) => {
+          acc.totalCollateral = acc.totalCollateral.plus(position.collateral_current)
+          acc.totalDebt = acc.totalDebt.plus(position.debt_current)
+
+          return acc
+        },
+        {
+          totalCollateral: bn(0),
+          totalDebt: bn(0),
+        },
+      )
+
+      const totalCollateralCryptoPrecision = fromThorBaseUnit(totalCollateral).toString()
+      const totalDebtUSD = fromThorBaseUnit(totalDebt).toString()
+
+      return { totalBorrowers, totalCollateralCryptoPrecision, totalDebtUSD }
     },
     enabled: true,
   })
 
   const totalCollateralComponent = useMemo(
     () => (
-      <Amount.Crypto fontSize='2xl' value='25' symbol={asset?.symbol ?? ''} fontWeight='medium' />
+      <Amount.Crypto
+        fontSize='2xl'
+        value={poolData?.totalCollateralCryptoPrecision ?? '0'}
+        symbol={asset?.symbol ?? ''}
+        fontWeight='medium'
+      />
     ),
-    [asset?.symbol],
+    [asset?.symbol, poolData?.totalCollateralCryptoPrecision],
   )
   const totalDebtBalance = useMemo(
-    () => <Amount.Fiat fontSize='2xl' value={25} fontWeight='medium' />,
-    [],
+    () => <Amount.Fiat fontSize='2xl' value={poolData?.totalDebtUSD ?? '0'} fontWeight='medium' />,
+    [poolData?.totalDebtUSD],
   )
   const estCollateralizationRatioComponent = useMemo(
     () => <Amount.Percent value={2.93} color='text.success' fontSize='lg' />,

@@ -33,7 +33,11 @@ import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectFirstAccountIdByChainId, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Borrow } from './components/Borrow/Borrow'
@@ -66,6 +70,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', l
 
 export const Pool = () => {
   const poolAssetId = useRouteAssetId()
+  const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
@@ -92,10 +97,10 @@ export const Pool = () => {
     },
     select: data => {
       // defaults all field in case no position is found
-      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.debt_current).toString()
+      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
       const debtBalanceCryptoPrecision = fromThorBaseUnit(data?.debt_current).toString()
 
-      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
+      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(sellAssetMarketData.price)
         .toString()
       const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
@@ -141,11 +146,11 @@ export const Pool = () => {
       <Amount.Crypto
         fontSize='2xl'
         value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
-        symbol='BTC'
+        symbol={asset?.symbol ?? ''}
         fontWeight='medium'
       />
     ),
-    [lendingPositionData?.collateralBalanceCryptoPrecision],
+    [asset?.symbol, lendingPositionData?.collateralBalanceCryptoPrecision],
   )
   const collateralValueComponent = useMemo(
     () => (

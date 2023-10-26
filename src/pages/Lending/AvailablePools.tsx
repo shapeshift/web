@@ -1,6 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,8 +24,8 @@ export const AvailablePools = () => {
   const history = useHistory()
   const { path } = useRouteMatch()
   const handlePoolClick = useCallback(
-    (id: string) => {
-      history.push(`${path}/pool/${id}`)
+    (assetId: AssetId) => {
+      history.push(`${path}/pool/${assetId}`)
     },
     [history, path],
   )

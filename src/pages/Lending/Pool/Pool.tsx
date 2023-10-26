@@ -24,11 +24,12 @@ import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -64,7 +65,7 @@ const PoolHeader = () => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const Pool = () => {
-  const { poolAssetId } = useParams<{ poolAssetId: AssetId }>()
+  const poolAssetId = useRouteAssetId()
 
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()

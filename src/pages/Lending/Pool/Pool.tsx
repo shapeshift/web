@@ -17,7 +17,8 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -26,6 +27,14 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
@@ -55,24 +64,81 @@ const PoolHeader = () => {
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
+// TODO(gomes): programmatic
+const assetId = btcAssetId
+
 export const Pool = () => {
   const { pid } = useParams<{ pid?: string }>()
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
 
+  const sellAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, btcChainId)) ?? ''
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const { data: lendingPositionData, isLoading } = useQuery({
+    queryKey: ['lendingPosition', { assetId, accountId }],
+    queryFn: async ({ queryKey }) => {
+      const [_key, { accountId, assetId }] = queryKey
+      const position = await getThorchainLendingPosition({ accountId, assetId })
+      return position
+    },
+    select: data => {
+      // defaults all field in case no position is found
+      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.debt_current).toString()
+      const debtBalanceCryptoPrecision = fromThorBaseUnit(data?.debt_current).toString()
+
+      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
+        .times(sellAssetMarketData.price)
+        .toString()
+      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
+        .times(sellAssetMarketData.price)
+        .toString()
+
+      return {
+        collateralBalanceCryptoPrecision,
+        debtBalanceCryptoPrecision,
+        collateralBalanceFiatUserCurrency,
+        debtBalanceFiatUserCurrency,
+      }
+    },
+    enabled: Boolean(accountId && assetId && sellAssetMarketData.price !== '0'),
+  })
+
+  console.log({ lendingPositionData })
+
   const headerComponent = useMemo(() => <PoolHeader />, [])
 
   const collateralBalanceComponent = useMemo(
-    () => <Amount.Crypto fontSize='2xl' value='25' symbol='BTC' fontWeight='medium' />,
-    [],
+    () => (
+      <Amount.Crypto
+        fontSize='2xl'
+        value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
+        symbol='BTC'
+        fontWeight='medium'
+      />
+    ),
+    [lendingPositionData?.collateralBalanceCryptoPrecision],
   )
   const collateralValueComponent = useMemo(
-    () => <Amount.Fiat fontSize='2xl' value={25} fontWeight='medium' />,
-    [],
+    () => (
+      <Amount.Fiat
+        fontSize='2xl'
+        value={lendingPositionData?.collateralBalanceFiatUserCurrency ?? '0'}
+        fontWeight='medium'
+      />
+    ),
+    [lendingPositionData?.collateralBalanceFiatUserCurrency],
   )
   const debtBalanceComponent = useMemo(
-    () => <Amount.Fiat fontSize='2xl' value='2500' fontWeight='medium' />,
-    [],
+    () => (
+      <Amount.Fiat
+        fontSize='2xl'
+        value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
+        fontWeight='medium'
+      />
+    ),
+    [lendingPositionData?.debtBalanceFiatUserCurrency],
   )
   const repaymentLockComponent = useMemo(
     () => (
@@ -92,7 +158,7 @@ export const Pool = () => {
           <Card>
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
-                <AssetIcon assetId={btcAssetId} />
+                <AssetIcon assetId={assetId} />
                 <Heading as='h3'>Bitcoin</Heading>
                 <RawText>{pid}</RawText>
               </Flex>
@@ -104,6 +170,7 @@ export const Pool = () => {
                   label='lending.collateralBalance'
                   toolTipLabel='tbd'
                   component={collateralBalanceComponent}
+                  isLoading={isLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -111,6 +178,7 @@ export const Pool = () => {
                   label='lending.collateralValue'
                   toolTipLabel='tbd'
                   component={collateralValueComponent}
+                  isLoading={isLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -120,6 +188,7 @@ export const Pool = () => {
                   label='lending.debtBalance'
                   toolTipLabel='tbd'
                   component={debtBalanceComponent}
+                  isLoading={isLoading}
                   flex={1}
                   {...(value ? { newValue: { value } } : {})}
                 />
@@ -127,6 +196,7 @@ export const Pool = () => {
                   label='lending.repaymentLock'
                   toolTipLabel='tbd'
                   component={repaymentLockComponent}
+                  isLoading={isLoading}
                   flex={1}
                   {...(value ? { newValue: { children: '30 days' } } : {})}
                 />

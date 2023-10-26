@@ -6,12 +6,14 @@ import {
   Flex,
   Skeleton,
   Tag,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { FaGasPump, FaRegClock } from 'react-icons/fa'
+import { FaAward, FaGasPump, FaRegClock, FaShieldAlt, FaWater } from 'react-icons/fa'
+import { PiShieldCheckBold, PiShieldSlashBold } from 'react-icons/pi'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
@@ -169,6 +171,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     () => ({ borderColor: isActive ? 'transparent' : focusColor }),
     [focusColor, isActive],
   )
+  const isGuaranteedSlippage = true
+  const slippageMessage = useMemo(() => {
+    return isGuaranteedSlippage ? 'trade.slippage.guaranteed' : 'trade.slippage.expected'
+  }, [isGuaranteedSlippage])
 
   const isDisabled = !!error
 
@@ -255,7 +261,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
         {quote && (
           <CardFooter px={4} pb={4}>
-            <Flex justifyContent='left' alignItems='left' gap={8}>
+            <Flex justifyContent='flex-start' alignItems='center' gap={8}>
               {quote.estimatedExecutionTimeMs !== undefined &&
                 quote.estimatedExecutionTimeMs > 0 && (
                   <Skeleton isLoaded={!isLoading}>
@@ -282,6 +288,19 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
                     )
                   }
                 </Flex>
+              </Skeleton>
+              <Skeleton isLoaded={!isLoading}>
+                <Tooltip label={translate(slippageMessage)}>
+                  <Tag colorScheme={isGuaranteedSlippage ? 'green' : 'yellow'}>
+                    <Flex gap={2} alignItems='center'>
+                      <RawText>
+                        <FaWater />
+                      </RawText>
+                      <Amount.Percent value={quote?.slippageTolerancePercentage ?? '0'} />
+                      {isGuaranteedSlippage ? <PiShieldCheckBold /> : <PiShieldSlashBold />}
+                    </Flex>
+                  </Tag>
+                </Tooltip>
               </Skeleton>
             </Flex>
           </CardFooter>

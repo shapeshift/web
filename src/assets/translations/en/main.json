@@ -657,6 +657,8 @@
     "tradeFrom": "Trade from",
     "priceImpact": "Price Impact",
     "slippage": {
+      "expected": "This is the expected slippage not a guarentee.",
+      "guaranteed": "Guaranteed slippage before the trade reverts.",
       "maxSlippage": "Max Slippage",
       "auto": "Auto",
       "custom": "Custom",

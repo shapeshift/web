@@ -45,6 +45,7 @@ export type FeatureFlags = {
   CustomSendNonce: boolean
   Snaps: boolean
   FoxDiscounts: boolean
+  ThorchainLending: boolean
   LedgerWallet: boolean
 }
 
@@ -108,6 +109,7 @@ const initialState: Preferences = {
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
+    ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
   },
   selectedLocale: simpleLocale(),

@@ -9,6 +9,9 @@ export const AccordionStyle = {
         '&:first-of-type:last-of-type': {
           borderBottomWidth: 0,
         },
+        '&:last-of-type': {
+          borderBottomWidth: 0,
+        },
       },
     },
   },

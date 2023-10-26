@@ -3,7 +3,6 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -28,10 +27,7 @@ import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
+import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import type { ThornodePoolResponse, ThornodeQuoteResponseSuccess } from '../types'
@@ -60,16 +56,10 @@ export const getThorTradeQuote = async (
     chainId,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
-    slippageTolerancePercentage,
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
-
-  const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-  ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
@@ -132,13 +122,38 @@ export const getThorTradeQuote = async (
       ? (() => {
           const sellAssetDepthBps = sellAssetPool.derived_depth_bps
           const buyAssetDepthBps = buyAssetPool.derived_depth_bps
-          const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
-          // Low health for the pools of this swap - use a longer streaming interval
-          if (swapDepthBps.lt(5000)) return 10
-          // Moderate health for the pools of this swap - use a moderate streaming interval
-          if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
-          // Pool is at 90%+ health - use a 1 block streaming interval
-          return 1
+
+          // We are trading between 2 L1s, use a streaming interval of 1 block
+          if (bnOrZero(sellAssetDepthBps).eq(0) && bnOrZero(buyAssetDepthBps).eq(0)) return 1
+
+          // We are trading between 2 derived pools, use the average of the 2 depths to determine the streaming interval
+          if (bnOrZero(sellAssetDepthBps).gt(0) && bnOrZero(buyAssetDepthBps).gt(0)) {
+            const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
+            // Low health for the pools of this swap - use a longer streaming interval
+            if (swapDepthBps.lt(5000)) return 5
+            // Moderate health for the pools of this swap - use a moderate streaming interval
+            if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 3
+            return 1
+          }
+
+          // The sell asset is a derived pool, the buy asset is an L1 pool - use the sell asset depth to determine the streaming interval
+          if (bnOrZero(sellAssetDepthBps).gt(0)) {
+            if (bn(sellAssetDepthBps).lt(5000)) return 5
+            // Moderate health for the pools of this swap - use a moderate streaming interval
+            if (bn(sellAssetDepthBps).lt(9000) && bn(sellAssetDepthBps).gte(5000)) return 3
+            return 1
+          }
+
+          // The buy asset is a derived pool, the seLl asset is an L1 pool - use the buy asset depth to determine the streaming interval
+          if (bnOrZero(buyAssetDepthBps).gt(0)) {
+            if (bn(buyAssetDepthBps).lt(5000)) return 5
+            // Moderate health for the pools of this swap - use a moderate streaming interval
+            if (bn(buyAssetDepthBps).lt(9000) && bn(buyAssetDepthBps).gte(5000)) return 3
+            return 1
+          }
+
+          // If we get here, we've missed a case
+          throw new Error('Unable to determine streaming interval')
         })()
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10

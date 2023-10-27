@@ -75,7 +75,9 @@ export const Pool = () => {
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
 
-  const sellAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
+  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
+
+  // TODO(gomes): programmatic - this assumes account 0 for now
   const accountId =
     useAppSelector(state =>
       selectFirstAccountIdByChainId(state, fromAssetId(poolAssetId).chainId),
@@ -104,7 +106,7 @@ export const Pool = () => {
       const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
 
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
-        .times(sellAssetMarketData.price)
+        .times(poolAssetMarketData.price)
         .toString()
       const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
@@ -114,7 +116,7 @@ export const Pool = () => {
         debtBalanceFiatUSD,
       }
     },
-    enabled: Boolean(accountId && poolAssetId && sellAssetMarketData.price !== '0'),
+    enabled: Boolean(accountId && poolAssetId && poolAssetMarketData.price !== '0'),
   })
 
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
@@ -142,7 +144,7 @@ export const Pool = () => {
         .div(60 * 60 * 24)
         .toString()
     },
-    enabled: Boolean(accountId && poolAssetId && sellAssetMarketData.price !== '0'),
+    enabled: Boolean(accountId && poolAssetId && poolAssetMarketData.price !== '0'),
   })
 
   const headerComponent = useMemo(() => <PoolHeader />, [])

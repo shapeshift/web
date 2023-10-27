@@ -1,8 +1,8 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -11,6 +11,8 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import type { Asset } from 'lib/asset-service'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
@@ -21,12 +23,19 @@ const formControlProps = {
   paddingBottom: 0,
 }
 
-export const BorrowInput = () => {
+type BorrowInputProps = {
+  collateralAssetId: AssetId
+}
+
+export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const translate = useTranslate()
   const history = useHistory()
   const onSubmit = useCallback(() => {
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
+
+  const [depositAmount, setDepositAmount] = useState<string | null>(null)
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
@@ -43,6 +52,26 @@ export const BorrowInput = () => {
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
   }, [])
+
+  const handleDepositInputChange = useCallback((value: string) => {
+    setDepositAmount(value)
+  }, [])
+
+  const depositAssetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        accountId={''}
+        assetId={collateralAssetId}
+        onAssetClick={handleAssetClick}
+        onAccountIdChange={handleAccountIdChange}
+        accountSelectionDisabled={false}
+        label={'uhh'}
+        onAssetChange={handleAssetChange}
+        isReadOnly
+      />
+    )
+  }, [collateralAssetId, handleAccountIdChange, handleAssetChange, handleAssetClick])
+
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
@@ -57,24 +86,27 @@ export const BorrowInput = () => {
       />
     )
   }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+
+  if (!collateralAsset) return null
   return (
     <SlideTransition>
       <Stack spacing={0}>
         <TradeAssetInput
-          assetId={btcAssetId}
-          assetSymbol={'btc'}
-          assetIcon={''}
+          assetId={collateralAssetId}
+          assetSymbol={collateralAsset.symbol}
+          assetIcon={collateralAsset.icon}
+          onChange={handleDepositInputChange}
           cryptoAmount={'0'}
           fiatAmount={'0'}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}
           showFiatSkeleton={false}
-          label={'Deposit BTC'}
+          label={`Deposit ${collateralAsset.symbol}`}
           onAccountIdChange={handleAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={assetSelectComponent}
+          labelPostFix={depositAssetSelectComponent}
         />
         <Flex alignItems='center' justifyContent='center' my={-2}>
           <Divider />
@@ -107,7 +139,11 @@ export const BorrowInput = () => {
           labelPostFix={assetSelectComponent}
         />
         <Collapse in={true}>
-          <LoanSummary />
+          <LoanSummary
+            collateralAssetId={collateralAssetId}
+            depositAmountCryptoPrecision={depositAmount ?? '0'}
+            borrowAssetId={btcAssetId} // TODO(gomes): programmatic
+          />
         </Collapse>
         <CardFooter
           borderTopWidth={1}

@@ -51,9 +51,9 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   try {
     const url =
       `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
-      `?from_asset=${collateralAssetId}` +
+      `?from_asset=${from_asset}` +
       `&amount=${amountCryptoThorBaseUnit.toString()}` +
-      `&to_asset=${receiveAssetId}` +
+      `&to_asset=${to_asset}` +
       `&destination=${receiveAssetAddress}`
 
     const { data } = await axios.get<LendingDepositQuoteResponse>(url)

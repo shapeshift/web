@@ -1,5 +1,6 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
   ButtonGroup,
   Flex,
@@ -167,35 +168,37 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
   }, [dispatch, onClick])
   return (
     <ButtonGroup width='full'>
-      <Menu autoSelect={false}>
-        <WalletButton
-          onConnect={handleConnect}
-          walletInfo={walletInfo}
-          isConnected={isConnected}
-          isDemoWallet={isDemoWallet}
-          isLoadingLocalWallet={isLoadingLocalWallet}
-          data-test='navigation-wallet-dropdown-button'
-        />
-        <MenuList
-          maxWidth={maxWidthProp}
-          minWidth={minWidthProp}
-          overflow='hidden'
-          // Override zIndex to prevent InputLeftElement displaying over menu
-          zIndex={2}
-        >
-          {hasWallet || isLoadingLocalWallet ? (
-            <WalletConnected
-              isConnected={isConnected || isDemoWallet}
-              walletInfo={walletInfo}
-              onDisconnect={disconnect}
-              onSwitchProvider={handleConnect}
-              connectedType={connectedType}
-            />
-          ) : (
-            <NoWallet onClick={handleConnect} />
-          )}
-        </MenuList>
-      </Menu>
+      <Box>
+        <Menu autoSelect={false}>
+          <WalletButton
+            onConnect={handleConnect}
+            walletInfo={walletInfo}
+            isConnected={isConnected}
+            isDemoWallet={isDemoWallet}
+            isLoadingLocalWallet={isLoadingLocalWallet}
+            data-test='navigation-wallet-dropdown-button'
+          />
+          <MenuList
+            maxWidth={maxWidthProp}
+            minWidth={minWidthProp}
+            overflow='hidden'
+            // Override zIndex to prevent InputLeftElement displaying over menu
+            zIndex={2}
+          >
+            {hasWallet || isLoadingLocalWallet ? (
+              <WalletConnected
+                isConnected={isConnected || isDemoWallet}
+                walletInfo={walletInfo}
+                onDisconnect={disconnect}
+                onSwitchProvider={handleConnect}
+                connectedType={connectedType}
+              />
+            ) : (
+              <NoWallet onClick={handleConnect} />
+            )}
+          </MenuList>
+        </Menu>
+      </Box>
     </ButtonGroup>
   )
 })

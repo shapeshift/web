@@ -90,12 +90,15 @@ const ZapperDisplayPropsSchema = z.union([
   z.object({
     label: z.string(),
     images: z.array(z.string()),
-    statsItems: z.array(
-      z.object({
-        label: z.string(),
-        value: ZapperDisplayValue,
-      }),
-    ),
+    statsItems: z
+      .array(
+        z.object({
+          label: z.string(),
+          value: ZapperDisplayValue,
+        }),
+      )
+      .nullable()
+      .optional(),
     secondaryLabel: ZapperDisplayValue.optional(),
     tertiaryLabel: ZapperDisplayValue.optional(),
     balanceDisplayMode: z.string().optional(),

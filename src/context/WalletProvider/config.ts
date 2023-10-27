@@ -235,6 +235,12 @@ const MetaMaskMenu = lazy(() =>
     default: MetaMaskMenu,
   })),
 )
+const LedgerMenu = lazy(() =>
+  import('./Ledger/components/LedgerMenu').then(({ LedgerMenu }) => ({
+    default: LedgerMenu,
+  })),
+)
+
 const MobileCreate = lazy(() =>
   import('./MobileWallet/components/MobileCreate').then(({ MobileCreate }) => ({
     default: MobileCreate,
@@ -421,6 +427,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/ledger/success', component: LedgerSuccess },
       { path: '/ledger/failure', component: LedgerFailure },
     ],
+    connectedMenuComponent: LedgerMenu,
   },
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,

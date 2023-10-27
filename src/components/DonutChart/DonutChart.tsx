@@ -51,7 +51,7 @@ const Arc: React.FC<ArcProps> = ({ pie, arc, index }) => {
 
 const PieArcs: React.FC<ArcProps['pie']> = pie => {
   const renderPie = useMemo(() => {
-    return pie.arcs.map((arc, index) => <Arc pie={pie} arc={arc} index={index} />)
+    return pie.arcs.map((arc, index) => <Arc key={arc.index} pie={pie} arc={arc} index={index} />)
   }, [pie])
   return <>{renderPie}</>
 }

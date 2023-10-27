@@ -7,9 +7,12 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { getAllThorchainLendingPositions } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import {
+  getAllThorchainLendingPositions,
+  getThorchainPoolInfo,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
@@ -40,13 +43,15 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     queryFn: async ({ queryKey }) => {
       const [, { assetId }] = queryKey
       const positions = await getAllThorchainLendingPositions(assetId)
-      return positions
+      const poolInfo = await getThorchainPoolInfo(assetId)
+      return { positions, poolInfo }
     },
     select: data => {
+      const { positions, poolInfo } = data
       // returns actual derived data, or zero's out fields in case there is no active position
-      const totalBorrowers = data?.length ?? 0
+      const totalBorrowers = positions?.length ?? 0
 
-      const { totalCollateral, totalDebt } = data.reduce(
+      const { totalCollateral, totalDebt } = positions.reduce(
         (acc, position) => {
           acc.totalCollateral = acc.totalCollateral.plus(position.collateral_current)
           acc.totalDebt = acc.totalDebt.plus(position.debt_current)
@@ -62,7 +67,17 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
       const totalCollateralCryptoPrecision = fromThorBaseUnit(totalCollateral).toString()
       const totalDebtUSD = fromThorBaseUnit(totalDebt).toString()
 
-      return { totalBorrowers, totalCollateralCryptoPrecision, totalDebtUSD }
+      const collateralizationRatioPercent = bnOrZero(poolInfo.loan_cr).div(100)
+      const collateralizationRatioPercentDecimal = bnOrZero(collateralizationRatioPercent)
+        .div(100)
+        .toString()
+
+      return {
+        totalBorrowers,
+        totalCollateralCryptoPrecision,
+        totalDebtUSD,
+        collateralizationRatioPercentDecimal,
+      }
     },
     enabled: true,
   })
@@ -83,11 +98,17 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     [poolData?.totalDebtUSD],
   )
   const estCollateralizationRatioComponent = useMemo(
-    () => <Amount.Percent value={2.93} color='text.success' fontSize='lg' />,
-    [],
+    () => (
+      <Amount.Percent
+        value={poolData?.collateralizationRatioPercentDecimal ?? '0'}
+        color='text.success'
+        fontSize='lg'
+      />
+    ),
+    [poolData?.collateralizationRatioPercentDecimal],
   )
   const totalBorrowersComponent = useMemo(
-    () => <RawText fontSize='lg'>{poolData?.totalBorrowers}</RawText>,
+    () => <RawText fontSize='lg'>{poolData?.totalBorrowers ?? '0'}</RawText>,
     [poolData?.totalBorrowers],
   )
 

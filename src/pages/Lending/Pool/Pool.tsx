@@ -238,7 +238,7 @@ export const Pool = () => {
               borderTopWidth={1}
               borderColor='border.base'
             >
-              <PoolInfo />
+              <PoolInfo poolAssetId={poolAssetId} />
             </CardFooter>
           </Card>
           <Faq />

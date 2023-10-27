@@ -19,7 +19,7 @@ const gridStyle = {
   '::-webkit-scrollbar': {
     display: 'none',
   },
-  '::-webkit-overflow-scrolling': 'touch',
+  '::WebkitOverflowScrolling': 'touch',
 }
 
 export const ScrollCarousel: React.FC<FeatureListProps> = ({

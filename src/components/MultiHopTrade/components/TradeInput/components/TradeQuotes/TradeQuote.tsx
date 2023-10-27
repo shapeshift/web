@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -13,7 +14,7 @@ import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaAward, FaGasPump, FaRegClock, FaShieldAlt, FaWater } from 'react-icons/fa'
-import { PiShieldCheckBold, PiShieldSlashBold } from 'react-icons/pi'
+import { PiCheckCircleFill, PiWarningDiamondFill } from 'react-icons/pi'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
@@ -291,15 +292,21 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
               </Skeleton>
               <Skeleton isLoaded={!isLoading}>
                 <Tooltip label={translate(slippageMessage)}>
-                  <Tag colorScheme={isGuaranteedSlippage ? 'green' : 'yellow'}>
-                    <Flex gap={2} alignItems='center'>
-                      <RawText>
-                        <FaWater />
-                      </RawText>
+                  <Flex
+                    gap={2}
+                    alignItems='center'
+                    color={isGuaranteedSlippage ? 'text.success' : 'text.warning'}
+                  >
+                    <RawText>
+                      <FaWater />
+                    </RawText>
+                    <Flex alignItems='center' gap={1}>
                       <Amount.Percent value={quote?.slippageTolerancePercentage ?? '0'} />
-                      {isGuaranteedSlippage ? <PiShieldCheckBold /> : <PiShieldSlashBold />}
+                      <RawText>
+                        {isGuaranteedSlippage ? <PiCheckCircleFill /> : <PiWarningDiamondFill />}
+                      </RawText>
                     </Flex>
-                  </Tag>
+                  </Flex>
                 </Tooltip>
               </Skeleton>
             </Flex>

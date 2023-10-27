@@ -48,7 +48,13 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Arbitrum,
       })
-      expect(coingeckoToAssetIds('ethereum')).toEqual([ethOnEthereum, ethOnOptimism, ethOnArbitrum])
+      const ethOnArbitrumNova = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.ArbitrumNova,
+      })
+      expect(coingeckoToAssetIds('ethereum')).toEqual([ethOnEthereum, ethOnOptimism, ethOnArbitrum, ethOnArbitrumNova])
     })
 
     it('can get AssetIds id for FOX', () => {
@@ -147,6 +153,12 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       })
+      const usdcOnArbitrumNova = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
+        assetNamespace,
+        assetReference: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -155,6 +167,7 @@ describe('adapters:coingecko', () => {
         usdcOnPolygon,
         usdcOnGnosis,
         usdcOnArbitrum,
+        usdcOnArbitrumNova,
       ])
     })
   })

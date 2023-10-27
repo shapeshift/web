@@ -21,6 +21,7 @@ const makeWethMockCoingeckoResponse = () => ({
     'polygon-pos': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
     xdai: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
     'arbitrum-one': '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+    "arbitrum-nova": "0x722e8bdd2ce80a4422e880164f2079488e115365",
   },
 })
 
@@ -152,6 +153,10 @@ describe('adapters:coingecko:utils', () => {
         'eip155:42161': {
           'eip155:42161/slip44:60': 'ethereum',
           'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 'weth',
+        },
+        'eip155:42170': {
+          'eip155:42170/slip44:60': 'ethereum',
+          'eip155:42170/erc20:0x722e8bdd2ce80a4422e880164f2079488e115365': 'weth',
         },
       }
       expect(result).toEqual(expected)

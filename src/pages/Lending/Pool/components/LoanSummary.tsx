@@ -13,6 +13,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
+import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -120,12 +121,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       borrowAssetId: AssetId
       depositAmountCryptoPrecision: string
     },
-  ] = useMemo(
+  ] = useDebounce(
     () => [
       'lendingQuoteQuery',
       { borrowAssetReceiveAddress, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision },
     ],
-    [borrowAssetId, collateralAssetId, depositAmountCryptoPrecision, borrowAssetReceiveAddress],
+    500,
   )
 
   // Fetch the current lending position data
@@ -160,7 +161,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   })
 
   // Fetch the current lending position data
-  const { data: lendingQuote, isLoading: isLendingQuoteLoading } = useQuery({
+  // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace
+  // for reusable queries and move me there
+  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useQuery({
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {
       const [
@@ -184,7 +187,24 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       return position
     },
     select: data => {
-      console.log({ data })
+      // TODO(gomes): error handling
+      const quote = data.unwrap()
+
+      const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
+        quote.expected_collateral_deposited,
+      ).toString()
+      const quoteCollateralAmountFiatUserCurrency = fromThorBaseUnit(
+        quote.expected_collateral_deposited,
+      )
+        .times(collateralAssetMarketData.price)
+        .toString()
+      const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
+
+      return {
+        quoteCollateralAmountCryptoPrecision,
+        quoteCollateralAmountFiatUserCurrency,
+        quoteDebtAmountUsd,
+      }
     },
     enabled: Boolean(
       bnOrZero(depositAmountCryptoPrecision).gt(0) &&
@@ -195,6 +215,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         collateralAssetMarketData.price !== '0',
     ),
   })
+
+  console.log({ lendingQuoteData })
 
   if (!collateralAsset) return null
 
@@ -223,7 +245,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                 value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
                 symbol={collateralAsset.symbol}
               />
-              <Amount.Crypto value='1.0' symbol={collateralAsset.symbol} />
+              <Amount.Crypto
+                value={bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision)
+                  .plus(lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0')
+                  .toString()}
+                symbol={collateralAsset.symbol}
+              />
             </FromToStack>
           </Skeleton>
         </Row.Value>
@@ -235,8 +262,15 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         <Row.Value>
           <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
             <FromToStack>
-              <Amount.Fiat color='text.subtle' value='0' />
-              <Amount.Fiat value='14820' />
+              <Amount.Fiat
+                color='text.subtle'
+                value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
+              />
+              <Amount.Fiat
+                value={bnOrZero(lendingPositionData?.debtBalanceFiatUSD)
+                  .plus(lendingQuoteData?.quoteDebtAmountUsd ?? '0')
+                  .toString()}
+              />
             </FromToStack>
           </Skeleton>
         </Row.Value>

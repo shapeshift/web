@@ -15,6 +15,7 @@ import type {
   BorrowersResponse,
   BorrowersResponseSuccess,
   LendingDepositQuoteResponse,
+  LendingDepositQuoteResponseSuccess,
   LendingWithdrawQuoteResponse,
 } from './types'
 
@@ -31,7 +32,7 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   receiveAssetId: AssetId
   receiveAssetAddress: string
-}): Promise<Result<LendingDepositQuoteResponse, string>> => {
+}): Promise<Result<LendingDepositQuoteResponseSuccess, string>> => {
   if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
   const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
   if (!collateralAsset) return Err(`Asset not found for assetId ${collateralAssetId}`)
@@ -48,27 +49,18 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
-  try {
-    const url =
-      `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
-      `?from_asset=${from_asset}` +
-      `&amount=${amountCryptoThorBaseUnit.toString()}` +
-      `&to_asset=${to_asset}` +
-      `&destination=${receiveAssetAddress}`
+  const url =
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
+    `?from_asset=${from_asset}` +
+    `&amount=${amountCryptoThorBaseUnit.toString()}` +
+    `&to_asset=${to_asset}` +
+    `&destination=${receiveAssetAddress}`
 
-    const { data } = await axios.get<LendingDepositQuoteResponse>(url)
-    if (!data || 'error' in data)
-      return Err('Error fetching Thorchain lending deposit quote: no data received')
+  const { data } = await axios.get<LendingDepositQuoteResponse>(url)
+  if (!data || 'error' in data)
+    return Err('Error fetching Thorchain lending deposit quote: no data received')
 
-    return Ok(data)
-  } catch (error) {
-    console.error('Error fetching Thorchain lending deposit quote:', error)
-    return Err(
-      `Error fetching Thorchain lending deposit quote: ${
-        error instanceof Error ? error.message : error
-      }`,
-    )
-  }
+  return Ok(data)
 }
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work

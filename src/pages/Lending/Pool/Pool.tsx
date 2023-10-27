@@ -88,6 +88,11 @@ export const Pool = () => {
   const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
 
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
+    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
+    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
+    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
+    // this is a good way to avoid spamming the API during develpment
+    staleTime: Infinity,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -113,6 +118,11 @@ export const Pool = () => {
   })
 
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
+    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
+    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
+    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
+    // this is a good way to avoid spamming the API during develpment
+    staleTime: Infinity,
     queryKey: repaymentLockQueryKey,
     queryFn: async () => {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL

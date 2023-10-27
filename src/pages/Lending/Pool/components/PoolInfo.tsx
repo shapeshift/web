@@ -31,6 +31,11 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   )
 
   const { data: poolData, isLoading: isPoolDataLoading } = useQuery({
+    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
+    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
+    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
+    // this is a good way to avoid spamming the API during develpment
+    staleTime: Infinity,
     queryKey: poolDataQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { assetId }] = queryKey

@@ -100,8 +100,6 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     depositAmountCryptoPrecision,
   })
 
-  console.log({ lendingQuoteData })
-
   if (!collateralAsset) return null
 
   return (

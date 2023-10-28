@@ -11,6 +11,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import type { Asset } from 'lib/asset-service'
+import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -86,6 +87,14 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
       />
     )
   }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+
+  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+    collateralAssetId,
+    borrowAssetId: btcAssetId, // TODO(gomes): programmatic
+    depositAmountCryptoPrecision: depositAmount ?? '0',
+  })
+
+  console.log({ lendingQuoteData, isLendingQuoteLoading })
 
   if (!collateralAsset) return null
   return (

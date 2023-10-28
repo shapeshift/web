@@ -162,9 +162,6 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
   })
 
-  // Fetch the current lending position data
-  // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace
-  // for reusable queries and move me there
   const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
     borrowAssetReceiveAddress,
     collateralAssetId,

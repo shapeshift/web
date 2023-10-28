@@ -1,0 +1,23 @@
+{
+  "expected_amount_out": "1681198",
+  "expected_collateral_deposited": "99975702",
+  "expected_collateralization_ratio": "31083",
+  "expected_debt_issued": "57566370000",
+  "expiry": 1698488212,
+  "fees": {
+    "asset": "BTC.BTC",
+    "liquidity": "1396",
+    "outbound": "6000",
+    "slippage_bps": 8,
+    "total": "7396",
+    "total_bps": 43
+  },
+  "inbound_address": "0xe2e9ed0b5a06b98fbc035d2dfa71f6ecd20e167a",
+  "memo": "$+:BTC.BTC:bc1qnh7mfg7na9sf32zdpw6lrlhkl8469hz5xtml2j",
+  "notes": "Base Asset: Send the inbound_address the asset with the memo encoded in hex in the data field. Tokens: First approve router to spend tokens from user: asset.approve(router, amount). Then call router.depositWithExpiry(inbound_address, asset, amount, memo, expiry). Asset is the token contract address. Amount should be in native asset decimals (eg 1e18 for most tokens). Do not send to or from contract addresses.",
+  "outbound_delay_blocks": 2,
+  "outbound_delay_seconds": 12,
+  "recommended_min_amount_in": "480000",
+  "router": "0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146",
+  "warning": "Do not cache this response. Do not send funds after the expiry."
+}

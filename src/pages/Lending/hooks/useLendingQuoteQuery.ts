@@ -150,8 +150,11 @@ export const useLendingQuoteQuery = ({
       const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
         .div(BASE_BPS_POINTS)
         .toString()
-      const quoteSlippageBorrowedAssetCryptoPrecision = bnOrZero(quote.expected_amount_out)
-        .plus(quote.fees.total) // getting the amount before all fees, so we can determine the slippage denominated in receive asset
+      // getting the amount before all fees, so we can determine the slippage denominated in receive asset
+      const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
+        bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
+      )
+      const quoteSlippageBorrowedAssetCryptoPrecision = borrowAmountBeforeFeesCryptoPrecision
         .times(quoteSlippagePercentageDecimal)
         .toString()
 

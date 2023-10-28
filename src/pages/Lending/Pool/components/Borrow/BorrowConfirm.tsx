@@ -12,8 +12,9 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -31,6 +32,9 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const translate = useTranslate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const debtAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
+  const collateralAssetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, collateralAssetId),
+  )
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
   }, [history])
@@ -69,7 +73,13 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
               <Row.Value textAlign='right'>
                 <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                   <Amount.Crypto value='1' symbol={collateralAsset?.symbol ?? ''} />
-                  <Amount.Fiat color='text.subtle' value='29850' prefix='≈' />
+                  <Amount.Fiat
+                    color='text.subtle'
+                    value={bnOrZero(depositAmount)
+                      .times(collateralAssetMarketData?.price ?? '0')
+                      .toString()}
+                    prefix='≈'
+                  />
                 </Stack>
               </Row.Value>
             </Row>

@@ -1,20 +1,34 @@
 import { Button, CardFooter, CardHeader, Divider, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { utils } from 'ethers'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import type { SendInput } from 'components/Modals/Send/Form'
+import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
+  selectSelectedCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -27,6 +41,10 @@ type BorrowConfirmProps = {
 }
 
 export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfirmProps) => {
+  const {
+    state: { wallet },
+  } = useWallet()
+
   const borrowAssetId = btcAssetId // TODO(gomes): programmatic
   const history = useHistory()
   const translate = useTranslate()
@@ -45,6 +63,86 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     borrowAssetId,
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
+
+  // TODO(gomes): programmatic
+  const depositAccountId =
+    useAppSelector(state =>
+      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
+    ) ?? ''
+  const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
+
+  const depositAccountFilter = useMemo(() => ({ accountId: depositAccountId }), [depositAccountId])
+  const depositAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, depositAccountFilter),
+  )
+  const depositAccountType = depositAccountMetadata?.accountType
+  const depositBip44Params = depositAccountMetadata?.bip44Params
+
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
+  // TODO(gomes): handle error (including trading halted) and loading states here
+  const handleDeposit = useCallback(async () => {
+    if (
+      !(
+        collateralAssetId &&
+        depositAmount &&
+        wallet &&
+        supportsETH(wallet) &&
+        chainAdapter &&
+        lendingQuoteData
+      )
+    )
+      return
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+    const estimatedFees = await estimateFees({
+      crypto: depositAmount,
+      assetId: collateralAssetId,
+      from: fromAccountId(depositAccountId).account, // TODO(gomes): handle UTXOs
+      memo: lendingQuoteData.quoteMemo,
+      to: lendingQuoteData.quoteInboundAddress,
+      sendMax: false,
+      accountId: depositAccountId,
+    })
+
+    const maybeTxId = await (async () => {
+      // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
+      // TODO(gomes): isUtxoChainId as well
+      const sendInput: SendInput = {
+        cryptoAmount: depositAmount ?? '0',
+        assetId: collateralAssetId,
+        to: lendingQuoteData.quoteInboundAddress,
+        from: fromAccountId(depositAccountId).account, // TODO(gomes): support UTXOs as well, this is just the first naive implementation without UTXO support
+        sendMax: false,
+        accountId: depositAccountId,
+        memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
+          ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
+          : lendingQuoteData.quoteMemo,
+        amountFieldError: '',
+        estimatedFees,
+        feeType: FeeDataKey.Fast,
+        fiatAmount: '',
+        fiatSymbol: selectedCurrency,
+        vanityAddress: '',
+        input: lendingQuoteData.quoteInboundAddress,
+      }
+
+      if (!sendInput) throw new Error('Error building send input')
+
+      return handleSend({ sendInput, wallet })
+    })()
+
+    if (!maybeTxId) {
+      throw new Error('Error sending THORCHain savers Txs')
+    }
+  }, [
+    chainAdapter,
+    collateralAssetId,
+    depositAccountId,
+    depositAmount,
+    lendingQuoteData,
+    selectedCurrency,
+    wallet,
+  ])
 
   return (
     <SlideTransition>
@@ -122,7 +220,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
           <CardFooter px={4} py={4}>
-            <Button colorScheme='blue' size='lg' width='full'>
+            <Button colorScheme='blue' size='lg' width='full' onClick={handleDeposit}>
               {translate('lending.confirmAndBorrow')}
             </Button>
           </CardFooter>

@@ -33,6 +33,7 @@ export const useLendingQuoteQuery = ({
   const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
+  // TODO(gomes): programmatic
   const accountId =
     useAppSelector(state =>
       selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
@@ -161,6 +162,9 @@ export const useLendingQuoteQuery = ({
         .times(quoteSlippagePercentageDecimal)
         .toString()
 
+      const quoteInboundAddress = quote.inbound_address
+      const quoteMemo = quote.memo
+
       return {
         quoteCollateralAmountCryptoPrecision,
         quoteCollateralAmountFiatUserCurrency,
@@ -170,6 +174,8 @@ export const useLendingQuoteQuery = ({
         quoteCollateralizationRatioPercentDecimal,
         quoteSlippageBorrowedAssetCryptoPrecision,
         quoteTotalFeesFiatUserCurrency,
+        quoteInboundAddress,
+        quoteMemo,
       }
     },
     enabled: Boolean(

@@ -95,13 +95,14 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
       return
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const estimatedFees = await estimateFees({
-      crypto: depositAmount,
+      cryptoAmount: depositAmount,
       assetId: collateralAssetId,
       from: fromAccountId(depositAccountId).account, // TODO(gomes): handle UTXOs
       memo: lendingQuoteData.quoteMemo,
       to: lendingQuoteData.quoteInboundAddress,
       sendMax: false,
       accountId: depositAccountId,
+      contractAddress: undefined,
     })
 
     const maybeTxId = await (async () => {
@@ -134,6 +135,8 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     if (!maybeTxId) {
       throw new Error('Error sending THORCHain savers Txs')
     }
+
+    return maybeTxId
   }, [
     chainAdapter,
     collateralAssetId,

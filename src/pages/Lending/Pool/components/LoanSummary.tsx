@@ -16,6 +16,7 @@ import { RawText } from 'components/Text'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
+import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   getMaybeThorchainLendingOpenQuote,
@@ -65,6 +66,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
+  // TODO(gomes): programmatic
   const destinationAccountId =
     useAppSelector(state =>
       selectFirstAccountIdByChainId(state, fromAssetId(borrowAssetId).chainId),
@@ -163,57 +165,11 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   // Fetch the current lending position data
   // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace
   // for reusable queries and move me there
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useQuery({
-    queryKey: lendingQuoteQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [
-        ,
-        {
-          borrowAssetReceiveAddress,
-          collateralAssetId,
-          borrowAssetId,
-          depositAmountCryptoPrecision,
-        },
-      ] = queryKey
-      const position = await getMaybeThorchainLendingOpenQuote({
-        receiveAssetId: borrowAssetId,
-        collateralAssetId,
-        collateralAmountCryptoBaseUnit: toBaseUnit(
-          depositAmountCryptoPrecision,
-          collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
-        ),
-        receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
-      })
-      return position
-    },
-    select: data => {
-      // TODO(gomes): error handling
-      const quote = data.unwrap()
-
-      const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
-        quote.expected_collateral_deposited,
-      ).toString()
-      const quoteCollateralAmountFiatUserCurrency = fromThorBaseUnit(
-        quote.expected_collateral_deposited,
-      )
-        .times(collateralAssetMarketData.price)
-        .toString()
-      const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
-
-      return {
-        quoteCollateralAmountCryptoPrecision,
-        quoteCollateralAmountFiatUserCurrency,
-        quoteDebtAmountUsd,
-      }
-    },
-    enabled: Boolean(
-      bnOrZero(depositAmountCryptoPrecision).gt(0) &&
-        accountId &&
-        destinationAccountMetadata &&
-        collateralAsset &&
-        borrowAssetReceiveAddress &&
-        collateralAssetMarketData.price !== '0',
-    ),
+  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+    borrowAssetReceiveAddress,
+    collateralAssetId,
+    borrowAssetId,
+    depositAmountCryptoPrecision,
   })
 
   console.log({ lendingQuoteData })

@@ -191,7 +191,7 @@ export const BorrowInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Amount.Fiat value='10' />
+              <Amount.Fiat value='TODO' />
             </Row.Value>
           </Row>
           <Row fontSize='sm' fontWeight='medium'>

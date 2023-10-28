@@ -104,13 +104,13 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
               </HelperTooltip>
               <Row.Value>
-                <Amount.Fiat value='10' />
+                <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
               </Row.Value>
             </Row>
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='10' />
+                <Amount.Fiat value='TODO' />
               </Row.Value>
             </Row>
           </Stack>

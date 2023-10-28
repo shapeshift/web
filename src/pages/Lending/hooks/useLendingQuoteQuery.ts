@@ -10,7 +10,10 @@ import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { getMaybeThorchainLendingOpenQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  BASE_BPS_POINTS,
+  fromThorBaseUnit,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectFirstAccountIdByChainId,
   selectPortfolioAccountMetadataByAccountId,
@@ -80,6 +83,7 @@ export const useLendingQuoteQuery = ({
   const lendingQuoteQueryKey: [
     string,
     UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string },
+    // TODO(gomes): improve this - most likely by memoizing the useDebounce() call. This should only referentially change if this invalidates by shallow comparison
   ] = useDebounce(
     () => [
       'lendingQuoteQuery',
@@ -143,6 +147,13 @@ export const useLendingQuoteQuery = ({
       const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
         .div(100)
         .toString()
+      const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
+        .div(BASE_BPS_POINTS)
+        .toString()
+      const quoteSlippageBorrowedAssetCryptoPrecision = bnOrZero(quote.expected_amount_out)
+        .plus(quote.fees.total) // getting the amount before all fees, so we can determine the slippage denominated in receive asset
+        .times(quoteSlippagePercentageDecimal)
+        .toString()
 
       return {
         quoteCollateralAmountCryptoPrecision,
@@ -151,6 +162,7 @@ export const useLendingQuoteQuery = ({
         quoteBorrowedAmountCryptoPrecision,
         quoteBorrowedAmountUserCurrency,
         quoteCollateralizationRatioPercentDecimal,
+        quoteSlippageBorrowedAssetCryptoPrecision,
       }
     },
     enabled: Boolean(

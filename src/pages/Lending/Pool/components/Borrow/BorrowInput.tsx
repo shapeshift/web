@@ -27,13 +27,17 @@ const formControlProps = {
 
 type BorrowInputProps = {
   collateralAssetId: AssetId
+  depositAmount: string | null
+  onDepositAmountChange: (value: string) => void
 }
 
-export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
+export const BorrowInput = ({
+  collateralAssetId,
+  depositAmount,
+  onDepositAmountChange,
+}: BorrowInputProps) => {
   const translate = useTranslate()
   const history = useHistory()
-
-  const [depositAmount, setDepositAmount] = useState<string | null>(null)
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
@@ -60,9 +64,12 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
     return console.info(asset)
   }, [])
 
-  const handleDepositInputChange = useCallback((value: string) => {
-    setDepositAmount(value)
-  }, [])
+  const handleDepositInputChange = useCallback(
+    (value: string) => {
+      onDepositAmountChange(value)
+    },
+    [onDepositAmountChange],
+  )
 
   const depositAssetSelectComponent = useMemo(() => {
     return (
@@ -141,7 +148,7 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
         </Flex>
         <TradeAssetInput
           assetId={btcAssetId}
-          assetSymbol={'btc'}
+          assetSymbol={'BTC'} // TODO(gomes): programmatic
           assetIcon={''}
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
@@ -175,7 +182,10 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.slippage')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto value='20' symbol='BTC' />
+              <Amount.Crypto
+                value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                symbol='BTC'
+              />
             </Row.Value>
           </Row>
           <Row fontSize='sm' fontWeight='medium'>

@@ -17,7 +17,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -31,8 +31,6 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -40,6 +38,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useLendingPositionData } from '../hooks/useLendingPositionData'
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
@@ -83,42 +82,13 @@ export const Pool = () => {
       selectFirstAccountIdByChainId(state, fromAssetId(poolAssetId).chainId),
     ) ?? ''
 
-  const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPosition', { accountId, assetId: poolAssetId }],
-    [accountId, poolAssetId],
-  )
   const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
 
-  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
-    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
-    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
-    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
-    // this is a good way to avoid spamming the API during develpment
-    staleTime: Infinity,
-    queryKey: lendingPositionQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [, { accountId, assetId }] = queryKey
-      const position = await getThorchainLendingPosition({ accountId, assetId })
-      return position
-    },
-    select: data => {
-      // returns actual derived data, or zero's out fields in case there is no active position
-      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
-
-      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
-        .times(poolAssetMarketData.price)
-        .toString()
-      const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
-
-      return {
-        collateralBalanceCryptoPrecision,
-        collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUSD,
-      }
-    },
-    enabled: Boolean(accountId && poolAssetId && poolAssetMarketData.price !== '0'),
-  })
-
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
+    useLendingPositionData({
+      assetId: poolAssetId,
+      accountId,
+    })
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
     // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately

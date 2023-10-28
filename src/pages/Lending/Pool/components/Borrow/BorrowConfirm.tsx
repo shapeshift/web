@@ -5,7 +5,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -19,9 +19,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -45,7 +47,19 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     state: { wallet },
   } = useWallet()
 
-  const [txId, setTxid] = useState<string | null>(null)
+  const [txHash, setTxHash] = useState<string | null>(null)
+  const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
+
+  useEffect(() => {
+    // don't start polling until we have a tx
+    if (!txHash) return
+
+    setIsLoanOpenPending(true)
+    ;(async () => {
+      await waitForThorchainUpdate(txHash).promise
+      setIsLoanOpenPending(false)
+    })()
+  }, [txHash])
 
   const borrowAssetId = btcAssetId // TODO(gomes): programmatic
   const history = useHistory()
@@ -60,6 +74,10 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   }, [history])
   const divider = useMemo(() => <Divider />, [])
 
+  // TODO(gomes): accept enabled as prop and pass it down as _enabled
+  // so we have a safety to not refetch quotes while borrow is pending
+  // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
+  // from input components and disable inputs as well?
   const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
     collateralAssetId,
     borrowAssetId,
@@ -138,7 +156,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
       throw new Error('Error sending THORCHain savers Txs')
     }
 
-    setTxid(maybeTxId)
+    setTxHash(maybeTxId)
 
     return maybeTxId
   }, [
@@ -227,7 +245,14 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
           <CardFooter px={4} py={4}>
-            <Button colorScheme='blue' size='lg' width='full' onClick={handleDeposit}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              onClick={handleDeposit}
+              isLoading={isLoanOpenPending}
+              disabled={isLoanOpenPending}
+            >
               {translate('lending.confirmAndBorrow')}
             </Button>
           </CardFooter>

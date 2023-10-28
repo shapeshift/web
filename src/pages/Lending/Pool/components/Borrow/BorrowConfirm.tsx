@@ -5,7 +5,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -44,6 +44,8 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const {
     state: { wallet },
   } = useWallet()
+
+  const [txId, setTxid] = useState<string | null>(null)
 
   const borrowAssetId = btcAssetId // TODO(gomes): programmatic
   const history = useHistory()
@@ -135,6 +137,8 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     if (!maybeTxId) {
       throw new Error('Error sending THORCHain savers Txs')
     }
+
+    setTxid(maybeTxId)
 
     return maybeTxId
   }, [

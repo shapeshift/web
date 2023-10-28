@@ -1,8 +1,11 @@
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -15,17 +18,18 @@ import {
 import { useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {
-  borrowAssetReceiveAddress: string | null
   collateralAssetId: AssetId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
 }
 export const useLendingQuoteQuery = ({
-  borrowAssetReceiveAddress,
   collateralAssetId,
   borrowAssetId,
   depositAmountCryptoPrecision,
 }: UseLendingQuoteQueryProps) => {
+  const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
+
+  const wallet = useWallet().state.wallet
   const accountId =
     useAppSelector(state =>
       selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
@@ -47,7 +51,35 @@ export const useLendingQuoteQuery = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  const lendingQuoteQueryKey: [string, UseLendingQuoteQueryProps] = useDebounce(
+
+  const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
+
+  const getBorrowAssetReceiveAddress = useCallback(async () => {
+    if (!wallet || !destinationAccountId || !destinationAccountMetadata || !borrowAsset) return
+
+    const deviceId = await wallet.getDeviceID()
+    const pubKey = isLedger(wallet) ? fromAccountId(destinationAccountId).account : undefined
+
+    return getReceiveAddress({
+      asset: borrowAsset,
+      wallet,
+      deviceId,
+      accountMetadata: destinationAccountMetadata,
+      pubKey,
+    })
+  }, [borrowAsset, destinationAccountId, destinationAccountMetadata, wallet])
+
+  useEffect(() => {
+    ;(async () => {
+      const address = await getBorrowAssetReceiveAddress()
+      if (address) setBorrowAssetReceiveAddress(address)
+    })()
+  }, [getBorrowAssetReceiveAddress])
+
+  const lendingQuoteQueryKey: [
+    string,
+    UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string },
+  ] = useDebounce(
     () => [
       'lendingQuoteQuery',
       { borrowAssetReceiveAddress, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision },

@@ -2,32 +2,20 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useQuery } from '@tanstack/react-query'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import {
-  getMaybeThorchainLendingOpenQuote,
-  getThorchainLendingPosition,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  selectFirstAccountIdByChainId,
-  selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectFirstAccountIdByChainId, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const FromToStack: React.FC<StackProps> = props => {
@@ -59,51 +47,11 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   ...rest
 }) => {
   const translate = useTranslate()
-  const wallet = useWallet().state.wallet
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  // TODO(gomes): programmatic
-  const destinationAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(borrowAssetId).chainId),
-    ) ?? ''
-
-  const destinationAccountMetadataFilter = useMemo(
-    () => ({ accountId: destinationAccountId }),
-    [destinationAccountId],
-  )
-  const destinationAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, destinationAccountMetadataFilter),
-  )
-
-  const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
-
-  const getBorrowAssetReceiveAddress = useCallback(async () => {
-    if (!wallet || !destinationAccountId || !destinationAccountMetadata || !borrowAsset) return
-
-    const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(destinationAccountId).account : undefined
-
-    return getReceiveAddress({
-      asset: borrowAsset,
-      wallet,
-      deviceId,
-      accountMetadata: destinationAccountMetadata,
-      pubKey,
-    })
-  }, [borrowAsset, destinationAccountId, destinationAccountMetadata, wallet])
-
-  useEffect(() => {
-    ;(async () => {
-      const address = await getBorrowAssetReceiveAddress()
-      if (address) setBorrowAssetReceiveAddress(address)
-    })()
-  }, [getBorrowAssetReceiveAddress])
-
   // TODO(gomes): programmatic - this assumes account 0 for now
   const accountId =
     useAppSelector(state =>
@@ -113,22 +61,6 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
     () => ['thorchainLendingPosition', { accountId, assetId: collateralAssetId }],
     [accountId, collateralAssetId],
-  )
-
-  const lendingQuoteQueryKey: [
-    string,
-    {
-      borrowAssetReceiveAddress: string | null
-      collateralAssetId: AssetId
-      borrowAssetId: AssetId
-      depositAmountCryptoPrecision: string
-    },
-  ] = useDebounce(
-    () => [
-      'lendingQuoteQuery',
-      { borrowAssetReceiveAddress, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision },
-    ],
-    500,
   )
 
   // Fetch the current lending position data
@@ -163,7 +95,6 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   })
 
   const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
-    borrowAssetReceiveAddress,
     collateralAssetId,
     borrowAssetId,
     depositAmountCryptoPrecision,

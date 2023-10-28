@@ -19,9 +19,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
-import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
@@ -50,17 +50,6 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const [txHash, setTxHash] = useState<string | null>(null)
   const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
-  useEffect(() => {
-    // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanOpenPending(true)
-    ;(async () => {
-      await waitForThorchainUpdate(txHash).promise
-      setIsLoanOpenPending(false)
-    })()
-  }, [txHash])
-
   const borrowAssetId = btcAssetId // TODO(gomes): programmatic
   const history = useHistory()
   const translate = useTranslate()
@@ -69,6 +58,33 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
+  // TODO(gomes): programmatic
+  const depositAccountId =
+    useAppSelector(state =>
+      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
+    ) ?? ''
+  const depositAccountFilter = useMemo(() => ({ accountId: depositAccountId }), [depositAccountId])
+  const depositAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, depositAccountFilter),
+  )
+
+  const { refetch: refetchLendingPositionData } = useLendingPositionData({
+    assetId: collateralAssetId,
+    accountId: depositAccountId,
+  })
+
+  useEffect(() => {
+    // don't start polling until we have a tx
+    if (!txHash) return
+
+    setIsLoanOpenPending(true)
+    ;(async () => {
+      await waitForThorchainUpdate(txHash).promise
+      setIsLoanOpenPending(false)
+      await refetchLendingPositionData()
+    })()
+  }, [refetchLendingPositionData, txHash])
+
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
   }, [history])
@@ -84,17 +100,8 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
 
-  // TODO(gomes): programmatic
-  const depositAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
-  const depositAccountFilter = useMemo(() => ({ accountId: depositAccountId }), [depositAccountId])
-  const depositAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, depositAccountFilter),
-  )
   const depositAccountType = depositAccountMetadata?.accountType
   const depositBip44Params = depositAccountMetadata?.bip44Params
 

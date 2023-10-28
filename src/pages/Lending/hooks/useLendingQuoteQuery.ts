@@ -53,6 +53,7 @@ export const useLendingQuoteQuery = ({
   )
 
   const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
+  const borrowAssetMarketData = useAppSelector(state => selectMarketDataById(state, borrowAssetId))
 
   const getBorrowAssetReceiveAddress = useCallback(async () => {
     if (!wallet || !destinationAccountId || !destinationAccountMetadata || !borrowAsset) return
@@ -129,11 +130,27 @@ export const useLendingQuoteQuery = ({
         .times(collateralAssetMarketData.price)
         .toString()
       const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
+      const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
+        quote.expected_amount_out,
+      ).toString()
+      const quoteBorrowedAmountUserCurrency = bnOrZero(quoteBorrowedAmountCryptoPrecision)
+        .times(borrowAssetMarketData?.price ?? 0)
+        .toString()
+
+      const quoteCollateralizationRatioPercent = bnOrZero(
+        quote.expected_collateralization_ratio,
+      ).div(100)
+      const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
+        .div(100)
+        .toString()
 
       return {
         quoteCollateralAmountCryptoPrecision,
         quoteCollateralAmountFiatUserCurrency,
         quoteDebtAmountUsd,
+        quoteBorrowedAmountCryptoPrecision,
+        quoteBorrowedAmountUserCurrency,
+        quoteCollateralizationRatioPercentDecimal,
       }
     },
     enabled: Boolean(

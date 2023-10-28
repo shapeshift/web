@@ -11,8 +11,9 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import type { Asset } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -29,18 +30,23 @@ type BorrowInputProps = {
 }
 
 export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const translate = useTranslate()
   const history = useHistory()
-  const onSubmit = useCallback(() => {
-    history.push(BorrowRoutePaths.Confirm)
-  }, [history])
 
   const [depositAmount, setDepositAmount] = useState<string | null>(null)
+
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+  const collateralAssetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, collateralAssetId),
+  )
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const percentOptions = useMemo(() => [0], [])
+
+  const onSubmit = useCallback(() => {
+    history.push(BorrowRoutePaths.Confirm)
+  }, [history])
 
   const handleAccountIdChange = useCallback((accountId: AccountId) => {
     console.info(accountId)
@@ -105,8 +111,10 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}
           onChange={handleDepositInputChange}
-          cryptoAmount={'0'}
-          fiatAmount={'0'}
+          cryptoAmount={depositAmount ?? '0'}
+          fiatAmount={bnOrZero(depositAmount)
+            .times(collateralAssetMarketData?.price ?? '0')
+            .toString()}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}
@@ -135,8 +143,8 @@ export const BorrowInput = ({ collateralAssetId }: BorrowInputProps) => {
           assetId={btcAssetId}
           assetSymbol={'btc'}
           assetIcon={''}
-          cryptoAmount={'0'}
-          fiatAmount={'0'}
+          cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
+          fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}

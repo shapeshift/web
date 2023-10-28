@@ -175,8 +175,11 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.collateralizationRatio')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Percent value='2.93' color='text.success' />
+          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+            <Amount.Percent
+              value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
+              color='text.success'
+            />
           </Skeleton>
         </Row.Value>
       </Row>
@@ -185,7 +188,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.poolDepth')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>
+          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
             <RawText color='text.success'>{translate('lending.healthy')}</RawText>
           </Skeleton>
         </Row.Value>

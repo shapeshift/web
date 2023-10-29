@@ -3,7 +3,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import type { BigNumber } from 'lib/bignumber/bignumber'
+import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -156,4 +157,32 @@ export const getThorchainLendingPosition = async ({
   const accountPosition = allPositions.find(position => accountAddresses.includes(position.owner))
 
   return accountPosition || null
+}
+export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePoolResponse> => {
+  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
+
+  if (!REACT_APP_THORCHAIN_NODE_URL) {
+    throw new Error('THORChain node URL is not configured')
+  }
+
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
+
+  const { data } = await axios.get<ThornodePoolResponse>(
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+  )
+
+  if (!data) {
+    throw new Error('No data received from THORChain')
+  }
+
+  return data
+}
+
+export const getLtvFromCollateralizationRatio = (
+  collateralizationRatio: BigNumber.Value,
+): string => {
+  const crDecimal = bnOrZero(collateralizationRatio).div(100)
+  const ltvPercentage = bn(1).div(crDecimal).times(100).toFixed(2)
+  return ltvPercentage
 }

@@ -1,4 +1,5 @@
-type QuoteFees = {
+// TODO(gomes): this isn't lending specific and we should consolidate these across THOR domains
+export type QuoteFees = {
   asset: string
   affiliate?: string
   outbound?: string
@@ -22,7 +23,12 @@ type BaseQuoteResponse = {
   outbound_delay_seconds: number
   recommended_min_amount_in: string
   router: string
+  /** @deprecated use fees.slippage_bps instead */
   slippage_bps: number
+  /** @deprecated
+   * use fees.slippage_bps instead
+   * note: there is no explicit fees.streaming_slippage_bps and streaming / regular bps is automagical for the time being.
+   */
   streaming_slippage_bps: number
   warning: string
 }

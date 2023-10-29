@@ -1,10 +1,11 @@
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useMemo, useState } from 'react'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useFindPriceHistoryByAssetIdsQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { FindPriceHistoryByAssetIdArgs } from 'state/slices/marketDataSlice/types'
 import { selectCryptoPriceHistoryTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -12,13 +13,15 @@ import type { TradeFees } from './utils'
 import { getTradeFees } from './utils'
 
 export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
-  const dispatch = useDispatch()
-  const [tradeFees, setTradeFees] = useState<TradeFees | undefined>(undefined)
   const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, HistoryTimeframe.ALL),
   )
 
-  const { findPriceHistoryByAssetIds } = marketApi.endpoints
+  const [priceHistoryParams, setPriceHistoryParams] = useState<
+    FindPriceHistoryByAssetIdArgs | typeof skipToken
+  >(skipToken)
+
+  const { isLoading } = useFindPriceHistoryByAssetIdsQuery(priceHistoryParams)
 
   const buy = useMemo(
     () => txDetails.transfers.find(transfer => transfer.type === TransferType.Receive),
@@ -30,7 +33,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     [txDetails.transfers],
   )
 
-  useEffect(() => {
+  const tradeFees: TradeFees | undefined = useMemo(() => {
     if (!(txDetails.tx.trade && buy && sell)) return
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
@@ -38,13 +41,11 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (!cryptoPriceHistoryData?.[buy.asset.assetId]) assetIds.push(buy.asset.assetId)
     if (!cryptoPriceHistoryData?.[sell.asset.assetId]) assetIds.push(sell.asset.assetId)
 
-    if (assetIds.length > 0) {
-      dispatch(
-        findPriceHistoryByAssetIds.initiate({
-          assetIds,
-          timeframe: HistoryTimeframe.ALL,
-        }),
-      )
+    if (assetIds.length > 0 && !isLoading) {
+      setPriceHistoryParams({
+        assetIds,
+        timeframe: HistoryTimeframe.ALL,
+      })
     }
 
     const tradeFees = getTradeFees({
@@ -54,8 +55,8 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
       cryptoPriceHistoryData,
     })
 
-    setTradeFees(tradeFees)
-  }, [dispatch, buy, sell, cryptoPriceHistoryData, findPriceHistoryByAssetIds, txDetails.tx])
+    return tradeFees
+  }, [txDetails.tx.trade, txDetails.tx.blockTime, buy, sell, cryptoPriceHistoryData, isLoading])
 
-  return { tradeFees }
+  return tradeFees
 }

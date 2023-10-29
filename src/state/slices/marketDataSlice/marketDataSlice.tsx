@@ -278,4 +278,5 @@ export const {
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
+  useFindPriceHistoryByAssetIdsQuery,
 } = marketApi

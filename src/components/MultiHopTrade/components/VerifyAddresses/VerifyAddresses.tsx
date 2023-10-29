@@ -86,14 +86,18 @@ export const VerifyAddresses = () => {
     if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
     if (!wallet) throw Error('missing wallet')
 
-    const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
+    const isApprovalNeeded = await checkApprovalNeeded(
+      tradeQuoteStep,
+      wallet,
+      sellAssetAccountId ?? '',
+    )
     if (isApprovalNeeded) {
       history.push({ pathname: TradeRoutePaths.Approval })
       return
     }
 
     history.push({ pathname: TradeRoutePaths.Confirm })
-  }, [history, tradeQuoteStep, wallet])
+  }, [history, sellAssetAccountId, tradeQuoteStep, wallet])
 
   const fetchAddresses = useCallback(async () => {
     if (

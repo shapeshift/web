@@ -28,7 +28,9 @@ export const LpCard: React.FC<LpCardProps> = props => {
   const asset2 = useAppSelector(state => selectAssetById(state, asset2Id ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
   const renderPairIcons = useMemo(() => {
-    return underlyingAssetIds.map(assetId => <AssetIcon _last={assetIconLast} assetId={assetId} />)
+    return underlyingAssetIds.map(assetId => (
+      <AssetIcon key={assetId} _last={assetIconLast} assetId={assetId} />
+    ))
   }, [underlyingAssetIds])
 
   const { title, body, cta } = (() => {

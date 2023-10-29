@@ -21,7 +21,7 @@ export const LendingPage = () => {
       <Route exact path={`${path}/loans`}>
         <YourLoans />
       </Route>
-      <Route path={`${path}/pool/:pid`}>
+      <Route path={`${path}/pool/:poolAssetId`}>
         <Pool />
       </Route>
     </Switch>

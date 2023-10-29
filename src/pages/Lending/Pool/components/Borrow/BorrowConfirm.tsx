@@ -125,12 +125,17 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
       cryptoAmount: depositAmount,
       assetId: collateralAssetId,
       from: fromAccountId(depositAccountId).account, // TODO(gomes): handle UTXOs
-      memo: lendingQuoteData.quoteMemo,
+      memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
+        ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
+        : lendingQuoteData.quoteMemo,
       to: lendingQuoteData.quoteInboundAddress,
       sendMax: false,
       accountId: depositAccountId,
       contractAddress: undefined,
     })
+
+    // @ts-ignore
+    estimatedFees.fast.chainSpecific.gasLimit = '22000' // TODO(gomes): figure out why this estimates to 21000 currently
 
     const maybeTxId = await (async () => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.

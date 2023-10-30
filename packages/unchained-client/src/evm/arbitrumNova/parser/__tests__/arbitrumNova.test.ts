@@ -1,0 +1,727 @@
+import { arbitrumNovaAssetId, arbitrumNovaChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/common-api'
+
+import { TransferType, TxStatus } from '../../../../types'
+import type { ParsedTx } from '../../../parser'
+import { V1Api } from '../../index'
+import { TransactionParser } from '../index'
+import erc20Approve from './mockData/erc20Approve'
+import erc721 from './mockData/erc721'
+import erc1155 from './mockData/erc1155'
+import ethSelfSend from './mockData/ethSelfSend'
+import ethStandard from './mockData/ethStandard'
+import { usdcToken } from './mockData/tokens'
+import tokenSelfSend from './mockData/tokenSelfSend'
+import tokenStandard from './mockData/tokenStandard'
+
+const mockedApi = jest.mocked(new V1Api())
+
+const tokenMetadata: evm.TokenMetadata = {
+  name: 'Foxy',
+  description: 'The foxiest Fox',
+  media: { url: 'http://foxy.fox', type: 'image' },
+}
+
+mockedApi.getTokenMetadata = jest.fn().mockResolvedValue(tokenMetadata)
+
+const txParser = new TransactionParser({
+  rpcUrl: '',
+  chainId: arbitrumNovaChainId,
+  assetId: arbitrumNovaAssetId,
+  api: mockedApi,
+})
+
+describe('parseTx', () => {
+  describe('standard', () => {
+    describe('eth', () => {
+      it('should be able to parse eth mempool send', async () => {
+        const { txMempool } = ethStandard
+        const address = '0x9B258677De08E16D96d2009C3B7DafD584c6D466'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE',
+              from: address,
+              assetId: arbitrumNovaAssetId,
+              totalValue: '642255590800000008',
+              components: [{ value: '642255590800000008' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse eth send', async () => {
+        const { tx } = ethStandard
+        const address = '0x9B258677De08E16D96d2009C3B7DafD584c6D466'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: arbitrumNovaAssetId,
+            value: '79945000000000',
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE',
+              from: address,
+              assetId: arbitrumNovaAssetId,
+              totalValue: '642255590800000008',
+              components: [{ value: '642255590800000008' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse eth mempool receive', async () => {
+        const { txMempool } = ethStandard
+        const address = '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x9B258677De08E16D96d2009C3B7DafD584c6D466',
+              assetId: arbitrumNovaAssetId,
+              totalValue: '642255590800000008',
+              components: [{ value: '642255590800000008' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse eth receive', async () => {
+        const { tx } = ethStandard
+        const address = '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x9B258677De08E16D96d2009C3B7DafD584c6D466',
+              assetId: arbitrumNovaAssetId,
+              totalValue: '642255590800000008',
+              components: [{ value: '642255590800000008' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
+    })
+
+    describe('token', () => {
+      it('should be able to parse token mempool send', async () => {
+        const { txMempool } = tokenStandard
+        const address = '0x3464500CaD953053cDF19DA6175139E6a3Aa2775'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token send', async () => {
+        const { tx } = tokenStandard
+        const address = '0x3464500CaD953053cDF19DA6175139E6a3Aa2775'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: arbitrumNovaAssetId,
+            value: '68640360000000',
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              from: address,
+              to: '0x2cbBA5BCF26D37855356F8b5d68e32544Bfde569',
+              assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+              totalValue: '129549687',
+              components: [{ value: '129549687' }],
+              token: usdcToken,
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token mempool receive', async () => {
+        const { txMempool } = tokenStandard
+        const address = '0x2cbBA5BCF26D37855356F8b5d68e32544Bfde569'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token receive', async () => {
+        const { tx } = tokenStandard
+        const address = '0x2cbBA5BCF26D37855356F8b5d68e32544Bfde569'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              from: '0x3464500CaD953053cDF19DA6175139E6a3Aa2775',
+              to: address,
+              assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+              totalValue: '129549687',
+              components: [{ value: '129549687' }],
+              token: usdcToken,
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
+    })
+
+    describe('erc721', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc721
+        const address = '0xb92B9e394150781c282B6137695290a4C596DbB2'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc721
+        const address = '0xb92B9e394150781c282B6137695290a4C596DbB2'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: arbitrumNovaAssetId,
+            value: '88558600000000',
+          },
+          data: {
+            parser: 'nft',
+            mediaById: { '1032810': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0xf5131C59194F11D9248A8e14c32D5b6f234542f6',
+              from: address,
+              assetId: 'eip155:42161/erc721:0x1e3e1ed17a8df57c215b45f00c2ec4717b33a93d/1032810',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '1032810',
+              token: {
+                contract: '0x1E3E1ed17A8Df57C215b45f00c2eC4717B33a93D',
+                decimals: 18,
+                name: 'DragonMO Token',
+                symbol: 'DMO',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc721
+        const address = '0xf5131C59194F11D9248A8e14c32D5b6f234542f6'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc721
+        const address = '0xf5131C59194F11D9248A8e14c32D5b6f234542f6'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '1032810': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0xb92B9e394150781c282B6137695290a4C596DbB2',
+              assetId: 'eip155:42161/erc721:0x1e3e1ed17a8df57c215b45f00c2ec4717b33a93d/1032810',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '1032810',
+              token: {
+                contract: '0x1E3E1ed17A8Df57C215b45f00c2eC4717B33a93D',
+                decimals: 18,
+                name: 'DragonMO Token',
+                symbol: 'DMO',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+    })
+
+    describe('erc1155', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc1155
+        const address = '0x51DC8038b19d5E72C003011cB9A58c299058734C'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc1155
+        const address = '0x51DC8038b19d5E72C003011cB9A58c299058734C'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: arbitrumNovaAssetId,
+            value: '37873900000000',
+          },
+          data: {
+            parser: 'nft',
+            mediaById: { '4': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0xDddDA6f358EACeB800C82D41CcC53676b5CC6F6c',
+              from: address,
+              assetId: 'eip155:42161/erc1155:0x6f10a5370dcc90ef77e7ea34742b986509e0018a/4',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '4',
+              token: {
+                contract: '0x6f10A5370dCC90Ef77e7Ea34742B986509e0018A',
+                decimals: 18,
+                name: 'Mystery Stone',
+                symbol: 'Mystery Stone',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc1155
+        const address = '0xDddDA6f358EACeB800C82D41CcC53676b5CC6F6c'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc1155
+        const address = '0xDddDA6f358EACeB800C82D41CcC53676b5CC6F6c'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: arbitrumNovaChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '4': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x51DC8038b19d5E72C003011cB9A58c299058734C',
+              assetId: 'eip155:42161/erc1155:0x6f10a5370dcc90ef77e7ea34742b986509e0018a/4',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '4',
+              token: {
+                contract: '0x6f10A5370dCC90Ef77e7Ea34742B986509e0018A',
+                decimals: 18,
+                name: 'Mystery Stone',
+                symbol: 'Mystery Stone',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+    })
+  })
+
+  describe('self send', () => {
+    it('should be able to parse eth mempool', async () => {
+      const { txMempool } = ethSelfSend
+      const address = '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE'
+
+      const expected: ParsedTx = {
+        txid: txMempool.txid,
+        blockHeight: txMempool.blockHeight,
+        blockTime: txMempool.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: txMempool.confirmations,
+        status: TxStatus.Pending,
+        transfers: [
+          {
+            type: TransferType.Send,
+            to: address,
+            from: address,
+            assetId: arbitrumNovaAssetId,
+            totalValue: '642255590800000008',
+            components: [{ value: '642255590800000008' }],
+          },
+          {
+            type: TransferType.Receive,
+            to: address,
+            from: address,
+            assetId: arbitrumNovaAssetId,
+            totalValue: '642255590800000008',
+            components: [{ value: '642255590800000008' }],
+          },
+        ],
+      }
+
+      const actual = await txParser.parse(txMempool, address)
+
+      expect(expected).toEqual(actual)
+    })
+
+    it('should be able to parse matic', async () => {
+      const { tx } = ethSelfSend
+      const address = '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        fee: {
+          assetId: arbitrumNovaAssetId,
+          value: '79945000000000',
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            to: address,
+            from: address,
+            assetId: arbitrumNovaAssetId,
+            totalValue: '642255590800000008',
+            components: [{ value: '642255590800000008' }],
+          },
+          {
+            type: TransferType.Receive,
+            to: address,
+            from: address,
+            assetId: arbitrumNovaAssetId,
+            totalValue: '642255590800000008',
+            components: [{ value: '642255590800000008' }],
+          },
+        ],
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(expected).toEqual(actual)
+    })
+
+    it('should be able to parse token mempool', async () => {
+      const { txMempool } = tokenSelfSend
+      const address = '0x3464500CaD953053cDF19DA6175139E6a3Aa2775'
+
+      const expected: ParsedTx = {
+        txid: txMempool.txid,
+        blockHeight: txMempool.blockHeight,
+        blockTime: txMempool.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: txMempool.confirmations,
+        status: TxStatus.Pending,
+        transfers: [],
+      }
+
+      const actual = await txParser.parse(txMempool, address)
+
+      expect(expected).toEqual(actual)
+    })
+
+    it('should be able to parse token', async () => {
+      const { tx } = tokenSelfSend
+      const address = '0x3464500CaD953053cDF19DA6175139E6a3Aa2775'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        fee: {
+          assetId: arbitrumNovaAssetId,
+          value: '68640360000000',
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            from: address,
+            to: address,
+            assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+            totalValue: '129549687',
+            components: [{ value: '129549687' }],
+            token: usdcToken,
+          },
+          {
+            type: TransferType.Receive,
+            from: address,
+            to: address,
+            assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+            totalValue: '129549687',
+            components: [{ value: '129549687' }],
+            token: usdcToken,
+          },
+        ],
+      }
+
+      const actual = await txParser.parse(tx, address)
+      expect(expected).toEqual(actual)
+    })
+  })
+
+  describe('erc20', () => {
+    it('should be able to parse approve mempool', async () => {
+      const { txMempool } = erc20Approve
+      const address = '0x9063e1A6dd076899F6A0057475e8614e17536F59'
+
+      const expected: ParsedTx = {
+        txid: txMempool.txid,
+        blockHeight: txMempool.blockHeight,
+        blockTime: txMempool.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: txMempool.confirmations,
+        status: TxStatus.Pending,
+        transfers: [],
+        data: {
+          assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+          method: 'approve',
+          parser: 'erc20',
+          value: '16152620',
+        },
+      }
+
+      const actual = await txParser.parse(txMempool, address)
+
+      expect(expected).toEqual(actual)
+    })
+
+    it('should be able to parse approve', async () => {
+      const { tx } = erc20Approve
+      const address = '0x9063e1A6dd076899F6A0057475e8614e17536F59'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        address,
+        chainId: arbitrumNovaChainId,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        fee: {
+          assetId: arbitrumNovaAssetId,
+          value: '97199000000000',
+        },
+        transfers: [],
+        data: {
+          assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+          method: 'approve',
+          parser: 'erc20',
+          value: '16152620',
+        },
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(expected).toEqual(actual)
+    })
+  })
+})

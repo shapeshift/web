@@ -79,6 +79,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
 
     setIsLoanOpenPending(true)
     ;(async () => {
+      // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
       await waitForThorchainUpdate(txHash).promise
       setIsLoanOpenPending(false)
       await refetchLendingPositionData()

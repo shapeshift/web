@@ -347,7 +347,6 @@ export const waitForThorchainUpdate = (txHash: string) =>
     fn: () => getThorchainTransactionStatus(txHash),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
-    // i.e max. 10mn from the first Tx confirmation
     maxAttempts: 10,
   })
 

@@ -1,7 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -11,9 +11,14 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -70,6 +75,34 @@ export const BorrowInput = ({
     },
     [onDepositAmountChange],
   )
+
+  // TODO(gomes): programmatic
+  const depositAccountId =
+    useAppSelector(state =>
+      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
+    ) ?? ''
+  const balanceFilter = useMemo(
+    () => ({ assetId: collateralAssetId, accountId: depositAccountId }),
+    [collateralAssetId, depositAccountId],
+  )
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  )
+  const amountAvailableCryptoPrecision = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    [balance, collateralAsset?.precision],
+  )
+
+  // TODO(gomes): include gas checks
+  const hasEnoughBalance = useMemo(
+    () => bnOrZero(depositAmount).lte(amountAvailableCryptoPrecision),
+    [amountAvailableCryptoPrecision, depositAmount],
+  )
+
+  const quoteErrorTranslation = useMemo(() => {
+    if (!hasEnoughBalance) return 'common.insufficientFunds'
+    return null
+  }, [hasEnoughBalance])
 
   const depositAssetSelectComponent = useMemo(() => {
     return (
@@ -200,8 +233,14 @@ export const BorrowInput = ({
               <Amount.Fiat value='0' />
             </Row.Value>
           </Row>
-          <Button size='lg' colorScheme='blue' mx={-2} onClick={onSubmit}>
-            Borrow
+          <Button
+            size='lg'
+            colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
+            mx={-2}
+            onClick={onSubmit}
+            disabled={Boolean(quoteErrorTranslation)}
+          >
+            {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
           </Button>
         </CardFooter>
       </Stack>

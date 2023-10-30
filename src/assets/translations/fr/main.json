@@ -98,7 +98,10 @@
     "all": "Tout",
     "viewAll": "Tout voir",
     "slippage": "Glissement/Slippage",
+    "feesPlusSlippage": "Frais + Glissement/Slippage",
     "best": "Meilleur",
+    "gasFee": "Frais de carburant",
+    "fees": "Frais",
     "alternative": "Alternatif",
     "validator": "le validateur %{name}",
     "needAsset": "Besoin de %{asset} ?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo",
     "foxMissions": "Missions FOX",
-    "foxMissionsShort": "Missions"
+    "foxMissionsShort": "Missions",
+    "lending": "Prêts"
   },
   "transactionRow": {
     "send": "Envoi",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Échanger",
     "allowance": "Allocation",
+    "verifyAddresses": "Vérifier les adresses",
+    "assetAddress": "Adresse %{asset}",
+    "verifyAsset": "Vérifier %{asset}",
+    "verifyAddressMessage": "Assurez-vous que vos adresses sont correctes avant de continuer.",
     "slippageInfo": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",
     "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
@@ -2133,14 +2141,52 @@
     }
   },
   "lending": {
+    "lending": "Prêts",
+    "lendingBody": "Une liste de tous les pools pouvant être empruntés à taux zéro et sans liquidation.",
+    "collateralValue": "Valeur du collatéral",
+    "debtValue": "Valeur de la dette",
+    "loanToValue": "Rapport prêt-valeur",
+    "availablePools": "Pools disponibles",
+    "yourLoans": "Vos prêts",
+    "pool": "Pool",
+    "poolDepth": "Profondeur du pool",
+    "totalDebtBalance": "Solde total des dettes",
+    "totalCollateral": "Totale des collatéraux",
+    "estCollateralizationRatio": "Est. du ratio de collatéralisation",
+    "collateralizationRatio": "Ratio de collatéralisation",
+    "totalBorrowers": "Total d'emprunteurs",
+    "myLoanInformation": "Informations sur mon prêt",
+    "loanInformation": "Résumé du prêt",
+    "poolInformation": "Informations sur le pool",
+    "collateralBalance": "Solde du collatéral",
+    "debtBalance": "Solde de la dette",
+    "repaymentLock": "Verrou du remboursement",
+    "borrow": "Emprunter",
+    "repay": "Rembourser",
+    "outstandingDebt": "Dette en cours",
+    "collateral": "Collatéral",
+    "debt": "Dette",
+    "healthy": "Sain",
+    "caution": "Prudence",
+    "risky": "Risqué",
+    "confirmAndBorrow": "Confirmer et emprunter",
+    "confirmAndRepay": "Confirmer et rembourser",
+    "transactionInfo": "Résumé de transaction",
+    "repayNoticeTitle": "Attendez !",
+    "repayNoticeCta": "Je comprends",
+    "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
     "faq": {
+      "title": "FAQ",
       "lending": {
+        "title": "Qu’est-ce que les prêts THORChain ?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "borrowing": {
+        "title": "Comment fonctionne l'emprunt ?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "repayments": {
+        "title": "Comment fonctionne le remboursement ?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
     }

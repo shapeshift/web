@@ -50,11 +50,7 @@ const BorrowRoutes = memo(
             />
           </Route>
           <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>
-            <BorrowConfirm
-              collateralAssetId={collateralAssetId}
-              depositAmount={depositAmount}
-              onDepositAmountChange={onDepositAmountChange}
-            />
+            <BorrowConfirm collateralAssetId={collateralAssetId} depositAmount={depositAmount} />
           </Route>
         </Switch>
       </AnimatePresence>

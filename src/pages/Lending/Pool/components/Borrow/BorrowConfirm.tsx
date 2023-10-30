@@ -39,7 +39,6 @@ import { BorrowRoutePaths } from './types'
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
-  onDepositAmountChange: (value: string) => void
 }
 
 export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfirmProps) => {

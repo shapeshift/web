@@ -181,6 +181,8 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     wallet,
   ])
 
+  if (!depositAmount) return null
+
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -207,7 +209,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
               <Row.Label>Send</Row.Label>
               <Row.Value textAlign='right'>
                 <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                  <Amount.Crypto value='1' symbol={collateralAsset?.symbol ?? ''} />
+                  <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
                   <Amount.Fiat
                     color='text.subtle'
                     value={bnOrZero(depositAmount)

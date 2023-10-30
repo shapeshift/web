@@ -81,17 +81,18 @@ export const useLendingQuoteQuery = ({
     })()
   }, [getBorrowAssetReceiveAddress])
 
-  const lendingQuoteQueryKey: [
-    string,
-    UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string },
-    // TODO(gomes): improve this - most likely by memoizing the useDebounce() call. This should only referentially change if this invalidates by shallow comparison
-  ] = useDebounce(
+  const lendingQuoteQueryKey = useDebounce(
     () => [
       'lendingQuoteQuery',
-      { borrowAssetReceiveAddress, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision },
+      {
+        borrowAssetReceiveAddress,
+        collateralAssetId,
+        borrowAssetId,
+        depositAmountCryptoPrecision,
+      },
     ],
     500,
-  )
+  ) as unknown as [string, UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }]
 
   // Fetch the current lending position data
   // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace

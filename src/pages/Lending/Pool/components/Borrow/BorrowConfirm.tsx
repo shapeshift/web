@@ -1,4 +1,13 @@
-import { Button, CardFooter, CardHeader, Divider, Flex, Heading, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  CardFooter,
+  CardHeader,
+  Divider,
+  Flex,
+  Heading,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -28,7 +37,6 @@ import {
   selectAssetById,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -62,10 +70,6 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     useAppSelector(state =>
       selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
     ) ?? ''
-  const depositAccountFilter = useMemo(() => ({ accountId: depositAccountId }), [depositAccountId])
-  const depositAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, depositAccountFilter),
-  )
 
   const { refetch: refetchLendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
@@ -102,9 +106,6 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
-  const depositAccountType = depositAccountMetadata?.accountType
-  const depositBip44Params = depositAccountMetadata?.bip44Params
-
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   // TODO(gomes): handle error (including trading halted) and loading states here
@@ -137,7 +138,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     // @ts-ignore
     estimatedFees.fast.chainSpecific.gasLimit = '22000' // TODO(gomes): figure out why this estimates to 21000 currently
 
-    const maybeTxId = await (async () => {
+    const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       // TODO(gomes): isUtxoChainId as well
       const sendInput: SendInput = {
@@ -220,22 +221,24 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
                 </Stack>
               </Row.Value>
             </Row>
-            <Row>
-              <Row.Label>{translate('common.receive')}</Row.Label>
-              <Row.Value textAlign='right'>
-                <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                  <Amount.Crypto
-                    value={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
-                    symbol={debtAsset?.symbol ?? ''}
-                  />
-                  <Amount.Fiat
-                    color='text.subtle'
-                    value={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
-                    prefix='≈'
-                  />
-                </Stack>
-              </Row.Value>
-            </Row>
+            <Skeleton isLoaded={!isLendingQuoteLoading}>
+              <Row>
+                <Row.Label>{translate('common.receive')}</Row.Label>
+                <Row.Value textAlign='right'>
+                  <Stack spacing={1} flexDir='row' flexWrap='wrap'>
+                    <Amount.Crypto
+                      value={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
+                      symbol={debtAsset?.symbol ?? ''}
+                    />
+                    <Amount.Fiat
+                      color='text.subtle'
+                      value={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
+                      prefix='≈'
+                    />
+                  </Stack>
+                </Row.Value>
+              </Row>
+            </Skeleton>
             <Row fontSize='sm' fontWeight='medium'>
               <HelperTooltip label='tbd'>
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>

@@ -153,6 +153,7 @@ export const RepayInput = () => {
         labelPostFix={assetSelectComponent}
       />
       <Collapse in={true}>
+        {/* @ts-ignore TODO(gomes): implement me */}
         <LoanSummary />
       </Collapse>
       <Stack

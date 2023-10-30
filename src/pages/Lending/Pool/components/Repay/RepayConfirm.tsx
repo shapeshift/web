@@ -84,6 +84,7 @@ export const RepayConfirm = () => {
               </Row.Value>
             </Row>
           </Stack>
+          {/* @ts-ignore TODO(gomes): implement me */}
           <LoanSummary borderTopWidth={0} mt={0} />
           <CardFooter px={4} py={4}>
             <Button colorScheme='blue' size='lg' width='full'>

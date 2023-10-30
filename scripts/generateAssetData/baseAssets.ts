@@ -191,3 +191,20 @@ export const arbitrum: AssetWithNetworkName = {
   explorerAddressLink: 'https://arbiscan.io/address/',
   explorerTxLink: 'https://arbiscan.io/tx/',
 }
+
+export const arbitrumNova: AssetWithNetworkName = {
+  assetId: caip.arbitrumNovaAssetId,
+  chainId: caip.arbitrumNovaChainId,
+  name: 'Ethereum',
+  networkName: 'Arbitrum Nova',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#E67408',
+  icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+  networkIcon:
+    'https://assets.coingecko.com/asset_platforms/images/93/large/AN_logomark.png?1695026131',
+  explorer: 'https://nova.arbiscan.io',
+  explorerAddressLink: 'https://nova.arbiscan.io/address/',
+  explorerTxLink: 'https://nova.arbiscan.io/tx/',
+}

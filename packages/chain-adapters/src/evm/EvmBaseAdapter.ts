@@ -50,7 +50,16 @@ import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
-import type { arbitrum, avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
+import type {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  bnbsmartchain,
+  ethereum,
+  gnosis,
+  optimism,
+  polygon,
+} from '.'
 import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
@@ -68,6 +77,7 @@ export const evmChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.ArbitrumNovaMainnet,
 ] as const
 
 export type EvmChainId = (typeof evmChainIds)[number]
@@ -80,6 +90,7 @@ export type EvmChainAdapter =
   | polygon.ChainAdapter
   | gnosis.ChainAdapter
   | arbitrum.ChainAdapter
+  | arbitrumNova.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -166,6 +177,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
         return supportsGnosis(wallet)
       case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
+      case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
         return supportsArbitrum(wallet)
       default:
         return false
@@ -224,6 +236,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://arbiscan.io',
+      },
+      [KnownChainIds.ArbitrumNovaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://nova.arbiscan.io',
       },
     }[this.chainId]
 

@@ -120,7 +120,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.collateral')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+          <Skeleton
+            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+          >
             <FromToStack>
               <Amount.Crypto
                 color='text.subtle'

@@ -429,7 +429,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const maybeOutboundFeeCryptoBaseUnit = await getOutboundFeeCryptoBaseUnit(maybeQuote)
         if (maybeQuote.isErr()) return translate('trade.errors.amountTooSmallUnknownMinimum')
         const quote = maybeQuote.unwrap()
-        const { slippage_bps, dust_amount } = quote
+        const {
+          fees: { slippage_bps },
+          dust_amount,
+        } = quote
 
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit

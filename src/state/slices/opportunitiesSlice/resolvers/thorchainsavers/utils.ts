@@ -16,6 +16,7 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -342,9 +343,12 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
-export const waitForThorchainUpdate = (txHash: string) =>
+export const waitForThorchainUpdate = (txHash: string, queryClient?: QueryClient) =>
   poll({
-    fn: () => getThorchainTransactionStatus(txHash),
+    fn: () => {
+      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
+      return getThorchainTransactionStatus(txHash)
+    },
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
     maxAttempts: 10,

@@ -27,6 +27,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -83,7 +84,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     setIsLoanOpenPending(true)
     ;(async () => {
       // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash).promise
+      await waitForThorchainUpdate(txHash, queryClient).promise
       setIsLoanOpenPending(false)
       await refetchLendingPositionData()
     })()

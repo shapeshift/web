@@ -29,7 +29,6 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -69,7 +68,6 @@ const PoolHeader = () => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const Pool = () => {
-  console.log({ allQueries: queryClient.getQueryCache() })
   const poolAssetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 

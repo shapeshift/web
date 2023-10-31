@@ -151,7 +151,11 @@ export const TradeInput = memo(() => {
     dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
-  const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
+  const {
+    supportedSellAssets,
+    supportedBuyAssets,
+    isLoading: isSupportedAssetsLoading,
+  } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
@@ -162,8 +166,8 @@ export const TradeInput = memo(() => {
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
-    () => isQuoteLoading || isConfirmationLoading,
-    [isConfirmationLoading, isQuoteLoading],
+    () => isQuoteLoading || isConfirmationLoading || isSupportedAssetsLoading,
+    [isConfirmationLoading, isQuoteLoading, isSupportedAssetsLoading],
   )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =

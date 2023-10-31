@@ -1,6 +1,6 @@
 import { Button, Grid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ChainCard } from './ChainCard'
@@ -11,7 +11,7 @@ type ChainListProps = {
   chainIds: ChainId[]
 }
 
-export const ChainList: React.FC<ChainListProps> = ({ chainIds, activeChain, onClick }) => {
+export const ChainList: React.FC<ChainListProps> = memo(({ chainIds, activeChain, onClick }) => {
   const translate = useTranslate()
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
@@ -37,4 +37,4 @@ export const ChainList: React.FC<ChainListProps> = ({ chainIds, activeChain, onC
       {renderChains}
     </Grid>
   )
-}
+})

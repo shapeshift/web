@@ -8,7 +8,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -36,7 +36,6 @@ import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -48,9 +47,15 @@ import { BorrowRoutePaths } from './types'
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
+  collateralAccountId: AccountId
+  borrowAccountId: AccountId
 }
 
-export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfirmProps) => {
+export const BorrowConfirm = ({
+  collateralAssetId,
+  depositAmount,
+  collateralAccountId,
+}: BorrowConfirmProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -66,15 +71,9 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  // TODO(gomes): programmatic
-  const depositAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
-
   const { refetch: refetchLendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
-    accountId: depositAccountId,
+    accountId: collateralAccountId,
   })
 
   useEffect(() => {
@@ -126,13 +125,13 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
     const estimatedFees = await estimateFees({
       cryptoAmount: depositAmount,
       assetId: collateralAssetId,
-      from: fromAccountId(depositAccountId).account, // TODO(gomes): handle UTXOs
+      from: fromAccountId(collateralAccountId).account, // TODO(gomes): handle UTXOs
       memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
         : lendingQuoteData.quoteMemo,
       to: lendingQuoteData.quoteInboundAddress,
       sendMax: false,
-      accountId: depositAccountId,
+      accountId: collateralAccountId,
       contractAddress: undefined,
     })
 
@@ -146,9 +145,9 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: lendingQuoteData.quoteInboundAddress,
-        from: fromAccountId(depositAccountId).account, // TODO(gomes): support UTXOs as well, this is just the first naive implementation without UTXO support
+        from: fromAccountId(collateralAccountId).account, // TODO(gomes): support UTXOs as well, this is just the first naive implementation without UTXO support
         sendMax: false,
-        accountId: depositAccountId,
+        accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
           ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
           : lendingQuoteData.quoteMemo,
@@ -176,7 +175,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   }, [
     chainAdapter,
     collateralAssetId,
-    depositAccountId,
+    collateralAccountId,
     depositAmount,
     lendingQuoteData,
     selectedCurrency,

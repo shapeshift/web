@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
@@ -38,7 +38,10 @@ type BorrowRoutesProps = {
 
 const BorrowRoutes = memo(
   ({ collateralAssetId, depositAmount, onDepositAmountChange }: BorrowRoutesProps) => {
+    const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
+    const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
     const location = useLocation()
+
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location}>
@@ -46,6 +49,10 @@ const BorrowRoutes = memo(
             <BorrowInput
               collateralAssetId={collateralAssetId}
               depositAmount={depositAmount}
+              collateralAccountId={collateralAccountId}
+              borrowAccountId={borrowAccountId}
+              onCollateralAccountIdChange={setCollateralAccountId}
+              onBorrowAccountIdChange={setBorrowAccountId}
               onDepositAmountChange={onDepositAmountChange}
             />
           </Route>

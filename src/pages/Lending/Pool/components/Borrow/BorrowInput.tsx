@@ -2,7 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -33,15 +33,21 @@ type BorrowInputProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
   onDepositAmountChange: (value: string) => void
+  collateralAccountId: AccountId
+  borrowAccountId: AccountId
+  onCollateralAccountIdChange: (accountId: AccountId) => void
+  onBorrowAccountIdChange: (accountId: AccountId) => void
 }
 
 export const BorrowInput = ({
   collateralAssetId,
   depositAmount,
   onDepositAmountChange,
+  collateralAccountId,
+  borrowAccountId,
+  onCollateralAccountIdChange: handleCollateralAccountIdChange,
+  onBorrowAccountIdChange: handleBorrowAccountIdChange,
 }: BorrowInputProps) => {
-  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
-  const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const translate = useTranslate()
   const history = useHistory()
 
@@ -163,7 +169,7 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={`Deposit ${collateralAsset.symbol}`}
-          onAccountIdChange={setCollateralAccountId}
+          onAccountIdChange={handleCollateralAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
           labelPostFix={depositAssetSelectComponent}
@@ -193,7 +199,7 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={'Borrow'}
-          onAccountIdChange={setBorrowAccountId}
+          onAccountIdChange={handleBorrowAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
           labelPostFix={borrowAssetSelectComponent}

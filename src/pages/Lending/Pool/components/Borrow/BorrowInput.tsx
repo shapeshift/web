@@ -1,8 +1,8 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { btcAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -15,7 +15,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -41,9 +40,13 @@ export const BorrowInput = ({
   depositAmount,
   onDepositAmountChange,
 }: BorrowInputProps) => {
+  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
+  const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const translate = useTranslate()
   const history = useHistory()
 
+  const borrowAssetId = btcAssetId // TODO(gomes): programmatic
+  const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
@@ -58,7 +61,7 @@ export const BorrowInput = ({
   }, [history])
 
   const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    console.info(accountId)
+    console.info({ accountId })
   }, [])
 
   const handleAssetClick = useCallback(() => {
@@ -76,14 +79,9 @@ export const BorrowInput = ({
     [onDepositAmountChange],
   )
 
-  // TODO(gomes): programmatic
-  const depositAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
   const balanceFilter = useMemo(
-    () => ({ assetId: collateralAssetId, accountId: depositAccountId }),
-    [collateralAssetId, depositAccountId],
+    () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
+    [collateralAssetId, collateralAccountId],
   )
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
@@ -107,42 +105,47 @@ export const BorrowInput = ({
   const depositAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
+        accountId={collateralAccountId}
         assetId={collateralAssetId}
         onAssetClick={handleAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
-        label={'uhh'}
+        label={'Collateral Asset'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAssetId, handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [
+    collateralAccountId,
+    collateralAssetId,
+    handleAccountIdChange,
+    handleAssetChange,
+    handleAssetClick,
+  ])
 
-  const assetSelectComponent = useMemo(() => {
+  const borrowAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
-        assetId={btcAssetId}
+        accountId={borrowAccountId}
+        assetId={borrowAssetId}
         onAssetClick={handleAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
-        label={'uhh'}
+        label={'Borrow Asset'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [borrowAccountId, borrowAssetId, handleAccountIdChange, handleAssetChange, handleAssetClick])
 
   const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
     collateralAssetId,
-    borrowAssetId: btcAssetId, // TODO(gomes): programmatic
+    borrowAssetId,
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
 
-  console.log({ lendingQuoteData, isLendingQuoteLoading })
+  if (!(collateralAsset && borrowAsset)) return null
 
-  if (!collateralAsset) return null
   return (
     <SlideTransition>
       <Stack spacing={0}>
@@ -160,7 +163,7 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={`Deposit ${collateralAsset.symbol}`}
-          onAccountIdChange={handleAccountIdChange}
+          onAccountIdChange={setCollateralAccountId}
           formControlProps={formControlProps}
           layout='inline'
           labelPostFix={depositAssetSelectComponent}
@@ -180,9 +183,9 @@ export const BorrowInput = ({
           <Divider />
         </Flex>
         <TradeAssetInput
-          assetId={btcAssetId}
-          assetSymbol={'BTC'} // TODO(gomes): programmatic
-          assetIcon={''}
+          assetId={borrowAssetId}
+          assetSymbol={borrowAsset.symbol}
+          assetIcon={borrowAsset.icon}
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
           isSendMaxDisabled={false}
@@ -190,16 +193,16 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={'Borrow'}
-          onAccountIdChange={handleAccountIdChange}
+          onAccountIdChange={setBorrowAccountId}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={assetSelectComponent}
+          labelPostFix={borrowAssetSelectComponent}
         />
         <Collapse in={true}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
-            borrowAssetId={btcAssetId} // TODO(gomes): programmatic
+            borrowAssetId={borrowAssetId}
           />
         </Collapse>
         <CardFooter

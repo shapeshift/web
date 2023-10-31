@@ -346,6 +346,7 @@ export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
 export const waitForThorchainUpdate = (txHash: string, queryClient?: QueryClient) =>
   poll({
     fn: () => {
+      // Invalidata some react-queries everytime we poll - since status detection is currently suboptimal
       queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
       return getThorchainTransactionStatus(txHash)
     },

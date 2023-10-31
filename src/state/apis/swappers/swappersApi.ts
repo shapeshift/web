@@ -116,11 +116,17 @@ export const swappersApi = createApi({
     getSupportedAssets: build.query<
       {
         supportedSellAssetIds: AssetId[]
-        supportedBuyAssetsIds: AssetId[]
+        supportedBuyAssetIds: AssetId[]
       },
-      ChainId[]
+      { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] }
     >({
-      queryFn: async (walletSupportedChains: ChainId[], { getState }) => {
+      queryFn: async (
+        {
+          walletSupportedChains,
+          sortedAssetIds,
+        }: { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] },
+        { getState },
+      ) => {
         const state = getState() as ReduxState
 
         const featureFlags = selectFeatureFlags(state)
@@ -128,17 +134,13 @@ export const swappersApi = createApi({
         const assets = selectAssets(state)
         const sellAsset = selectSellAsset(state)
 
-        const unfilteredSupportedSellAssets = await getSupportedSellAssetIds(
-          enabledSwappers,
-          assets,
-        )
-        const supportedSellAssetsSet = new Set<AssetId>()
-        unfilteredSupportedSellAssets.forEach(assetId => {
-          const chainId = fromAssetId(assetId).chainId
-          if (walletSupportedChains.includes(chainId)) {
-            supportedSellAssetsSet.add(assetId)
-          }
-        })
+        const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)
+        const supportedSellAssetIds = sortedAssetIds
+          .filter(assetId => supportedSellAssetsSet.has(assetId))
+          .filter(assetId => {
+            const chainId = fromAssetId(assetId).chainId
+            return walletSupportedChains.includes(chainId)
+          })
 
         const supportedBuyAssetsSet = await getSupportedBuyAssetIds(
           enabledSwappers,
@@ -146,10 +148,14 @@ export const swappersApi = createApi({
           assets,
         )
 
+        const supportedBuyAssetIds = sortedAssetIds.filter(assetId =>
+          supportedBuyAssetsSet.has(assetId),
+        )
+
         return {
           data: {
-            supportedSellAssetIds: Array.from(supportedSellAssetsSet),
-            supportedBuyAssetsIds: Array.from(supportedBuyAssetsSet),
+            supportedSellAssetIds,
+            supportedBuyAssetIds,
           },
         }
       },

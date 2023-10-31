@@ -212,13 +212,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
 
-        const { expiry, dust_amount, expected_amount_out, slippage_bps } = maybeQuote.unwrap()
+        const {
+          expiry,
+          dust_amount,
+          expected_amount_deposit,
+          fees: { slippage_bps },
+        } = maybeQuote.unwrap()
 
         setExpiry(expiry)
 
         setProtocolFeeCryptoBaseUnit(
           toBaseUnit(
-            fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
+            fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
             asset.precision,
           ),
         )
@@ -295,7 +300,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()
-      const { expiry, expected_amount_out, dust_amount } = quote
+      const { expiry, expected_amount_deposit, dust_amount } = quote
 
       const amountCryptoThorBaseUnit = toThorBaseUnit({
         valueCryptoBaseUnit: amountCryptoBaseUnit,
@@ -304,7 +309,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       setExpiry(expiry)
       setProtocolFeeCryptoBaseUnit(
         toBaseUnit(
-          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
+          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
           asset.precision,
         ),
       )

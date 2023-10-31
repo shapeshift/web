@@ -575,7 +575,10 @@ export const Deposit: React.FC<DepositProps> = ({
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
 
       const quote = maybeQuote.unwrap()
-      const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
+      const {
+        fees: { slippage_bps },
+        expected_amount_deposit: expectedAmountOutThorBaseUnit,
+      } = quote
 
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit

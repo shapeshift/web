@@ -1,4 +1,5 @@
 import type { DefiProvider, DefiType, OpportunityMetadataBase } from '../../types'
+import type { QuoteFees } from '../thorchainLending/types'
 
 export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   provider: DefiProvider.ThorchainSavers
@@ -57,14 +58,13 @@ export type ThorchainSaverPositionResponse = {
 export type ThorchainSaversCommonQuoteResponseSuccess = {
   expiry: string // TODO(gomes): guard against expired quote
   dust_threshold: string
+  /** @deprecated use expected_amount_deposit instead */
   expected_amount_out: string
-  fees: {
-    affiliate: string
-    asset: string
-    outbound: string
-  }
+  expected_amount_deposit: string
+  fees: QuoteFees
   inbound_address: string
   memo: string
+  /** @deprecated use fees.slippage_bps instead */
   slippage_bps: number
   notes: string
   warning: string

@@ -267,20 +267,18 @@ export const BorrowConfirm = ({
             borrowAssetId={borrowAssetId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
-          {lendingQuoteData && (
-            <CardFooter px={4} py={4}>
-              <Button
-                colorScheme='blue'
-                size='lg'
-                width='full'
-                onClick={handleDeposit}
-                isLoading={isLoanOpenPending}
-                disabled={isLoanOpenPending}
-              >
-                {translate('lending.confirmAndBorrow')}
-              </Button>
-            </CardFooter>
-          )}
+          <CardFooter px={4} py={4}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              onClick={handleDeposit}
+              isLoading={isLoanOpenPending}
+              disabled={isLoanOpenPending}
+            >
+              {translate('lending.confirmAndBorrow')}
+            </Button>
+          </CardFooter>
         </Stack>
       </Flex>
     </SlideTransition>

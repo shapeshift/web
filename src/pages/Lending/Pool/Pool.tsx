@@ -17,7 +17,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -31,11 +31,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
@@ -68,6 +64,9 @@ const PoolHeader = () => {
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
 export const Pool = () => {
+  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
+  const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
+
   const poolAssetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
@@ -76,18 +75,12 @@ export const Pool = () => {
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
 
-  // TODO(gomes): programmatic - this assumes account 0 for now
-  const accountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(poolAssetId).chainId),
-    ) ?? ''
-
   const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
 
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: poolAssetId,
-      accountId,
+      accountId: collateralAccountId,
     })
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
     staleTime: Infinity,
@@ -97,6 +90,8 @@ export const Pool = () => {
       const { data: mimir } = await axios.get<Record<string, unknown>>(
         `${daemonUrl}/lcd/thorchain/mimir`,
       )
+      // TODO(gomes): this is the repayment lock of the pool - not the borrower's
+      // we will want to make it programmatic in case there's an active position.
       // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
       if ('LOANREPAYMENTMATURITY' in mimir) return mimir.LOANREPAYMENTMATURITY as number
       return null
@@ -110,7 +105,7 @@ export const Pool = () => {
         .div(60 * 60 * 24)
         .toString()
     },
-    enabled: Boolean(accountId && poolAssetId && poolAssetMarketData.price !== '0'),
+    enabled: Boolean(poolAssetId && poolAssetMarketData.price !== '0'),
   })
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
@@ -234,7 +229,12 @@ export const Pool = () => {
               </TabList>
               <TabPanels>
                 <TabPanel px={0} py={0}>
-                  <Borrow />
+                  <Borrow
+                    collateralAccountId={collateralAccountId}
+                    borrowAccountId={borrowAccountId}
+                    onCollateralAccountIdChange={setCollateralAccountId}
+                    onBorrowAccountIdChange={setBorrowAccountId}
+                  />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
                   <Repay />

@@ -144,7 +144,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.debt')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+          <Skeleton
+            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+          >
             <FromToStack>
               <Amount.Fiat
                 color='text.subtle'
@@ -164,7 +166,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.repaymentLock')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+          <Skeleton
+            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+          >
             <FromToStack>
               <RawText color='text.subtle'>25 days</RawText>
               <RawText>30 days</RawText>
@@ -177,7 +181,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.collateralizationRatio')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+          <Skeleton
+            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+          >
             <Amount.Percent
               value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
               color='text.success'
@@ -190,7 +196,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Label>{translate('lending.poolDepth')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading && !isLendingPositionDataLoading}>
+          <Skeleton
+            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+          >
             <RawText color='text.success'>{translate('lending.healthy')}</RawText>
           </Skeleton>
         </Row.Value>

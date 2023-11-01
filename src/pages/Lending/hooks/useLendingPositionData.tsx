@@ -19,7 +19,8 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const lendingPositionData = useQuery({
-    staleTime: Infinity,
+    // 2 minutes before the data is considered stale, meaning firing this query will trigger queryFn
+    staleTime: 120,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -39,6 +40,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         collateralBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
         debtBalanceFiatUSD,
+        address: data?.owner,
       }
     },
     enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),

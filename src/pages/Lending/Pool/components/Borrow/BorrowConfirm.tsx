@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -30,6 +30,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
@@ -49,12 +50,14 @@ type BorrowConfirmProps = {
   depositAmount: string | null
   collateralAccountId: AccountId
   borrowAccountId: AccountId
+  borrowAsset: Asset | null
 }
 
 export const BorrowConfirm = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,
+  borrowAsset,
 }: BorrowConfirmProps) => {
   const {
     state: { wallet },
@@ -63,7 +66,7 @@ export const BorrowConfirm = ({
   const [txHash, setTxHash] = useState<string | null>(null)
   const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
-  const borrowAssetId = btcAssetId // TODO(gomes): programmatic
+  const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
   const translate = useTranslate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))

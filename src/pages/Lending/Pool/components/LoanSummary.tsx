@@ -106,7 +106,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
-  if (!collateralAsset || !lendingQuoteData) return null
+  if (!collateralAsset || isLendingQuoteError) return null
 
   return (
     <Stack

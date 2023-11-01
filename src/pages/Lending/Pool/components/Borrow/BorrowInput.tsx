@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -47,6 +47,8 @@ type BorrowInputProps = {
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
+  borrowAsset: Asset | null
+  setBorrowAsset: (asset: Asset) => void
 }
 
 export const BorrowInput = ({
@@ -57,16 +59,17 @@ export const BorrowInput = ({
   borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  borrowAsset,
+  setBorrowAsset,
 }: BorrowInputProps) => {
   const translate = useTranslate()
   const history = useHistory()
 
   const { data: lendingSupportedAssets = [] } = useLendingSupportedAssets()
-  const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
 
   useEffect(() => {
     setBorrowAsset(lendingSupportedAssets[0])
-  }, [lendingSupportedAssets])
+  }, [lendingSupportedAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
@@ -92,7 +95,7 @@ export const BorrowInput = ({
       title: 'lending.borrow',
       assets: lendingSupportedAssets,
     })
-  }, [buyAssetSearch, lendingSupportedAssets])
+  }, [buyAssetSearch, lendingSupportedAssets, setBorrowAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
@@ -242,7 +245,7 @@ export const BorrowInput = ({
             borrowAssetId={borrowAsset?.assetId ?? ''}
           />
         </Collapse>
-        {lendingQuoteData && (
+        {!isLendingQuoteError && (
           <CardFooter
             borderTopWidth={1}
             borderColor='border.subtle'

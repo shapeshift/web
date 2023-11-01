@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
+import type { Asset } from 'lib/asset-service'
 
 import { BorrowConfirm } from './BorrowConfirm'
 import { BorrowInput } from './BorrowInput'
@@ -66,6 +67,7 @@ const BorrowRoutes = memo(
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
   }: BorrowRoutesProps) => {
     const location = useLocation()
+    const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
 
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
@@ -79,6 +81,8 @@ const BorrowRoutes = memo(
               onCollateralAccountIdChange={handleCollateralAccountIdChange}
               onBorrowAccountIdChange={handleBorrowAccountIdChange}
               onDepositAmountChange={onDepositAmountChange}
+              borrowAsset={borrowAsset}
+              setBorrowAsset={setBorrowAsset}
             />
           </Route>
           <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>
@@ -87,6 +91,7 @@ const BorrowRoutes = memo(
               depositAmount={depositAmount}
               borrowAccountId={borrowAccountId}
               collateralAccountId={collateralAccountId}
+              borrowAsset={borrowAsset}
             />
           </Route>
         </Switch>

@@ -133,6 +133,7 @@ export const BorrowConfirm = ({
   const getFromAddress = useCallback(async () => {
     if (!(wallet && chainAdapter && collateralBip44Params)) return null
 
+    // TODO(gomes): unify me across savers/lending along with other utils
     return isUtxoChainId(fromAccountId(collateralAccountId).chainId)
       ? await getThorchainLendingPosition({
           accountId: collateralAccountId,

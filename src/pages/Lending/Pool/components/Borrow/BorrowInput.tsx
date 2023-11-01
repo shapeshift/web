@@ -1,8 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -10,9 +9,11 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -51,8 +52,13 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const borrowAssetId = btcAssetId // TODO(gomes): programmatic
-  const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
+  const { data: lendingSupportedAssets = [] } = useLendingSupportedAssets()
+  const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
+
+  useEffect(() => {
+    setBorrowAsset(lendingSupportedAssets[0])
+  }, [lendingSupportedAssets])
+
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
@@ -70,9 +76,14 @@ export const BorrowInput = ({
     console.info({ accountId })
   }, [])
 
-  const handleAssetClick = useCallback(() => {
-    console.info('clicked Asset')
-  }, [])
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const handleBorrowAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onClick: setBorrowAsset,
+      title: 'lending.borrow',
+      assets: lendingSupportedAssets,
+    })
+  }, [buyAssetSearch, lendingSupportedAssets])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
@@ -113,7 +124,7 @@ export const BorrowInput = ({
       <TradeAssetSelect
         accountId={collateralAccountId}
         assetId={collateralAssetId}
-        onAssetClick={handleAssetClick}
+        onAssetClick={handleBorrowAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'Collateral Asset'}
@@ -126,27 +137,32 @@ export const BorrowInput = ({
     collateralAssetId,
     handleAccountIdChange,
     handleAssetChange,
-    handleAssetClick,
+    handleBorrowAssetClick,
   ])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         accountId={borrowAccountId}
-        assetId={borrowAssetId}
-        onAssetClick={handleAssetClick}
+        assetId={borrowAsset?.assetId ?? ''}
+        onAssetClick={handleBorrowAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'Borrow Asset'}
         onAssetChange={handleAssetChange}
-        isReadOnly
       />
     )
-  }, [borrowAccountId, borrowAssetId, handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [
+    borrowAccountId,
+    borrowAsset?.assetId,
+    handleAccountIdChange,
+    handleAssetChange,
+    handleBorrowAssetClick,
+  ])
 
   const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
     collateralAssetId,
-    borrowAssetId,
+    borrowAssetId: borrowAsset?.assetId ?? '',
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
 
@@ -189,7 +205,7 @@ export const BorrowInput = ({
           <Divider />
         </Flex>
         <TradeAssetInput
-          assetId={borrowAssetId}
+          assetId={borrowAsset?.assetId ?? ''}
           assetSymbol={borrowAsset.symbol}
           assetIcon={borrowAsset.icon}
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
@@ -208,7 +224,7 @@ export const BorrowInput = ({
           <LoanSummary
             collateralAssetId={collateralAssetId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
-            borrowAssetId={borrowAssetId}
+            borrowAssetId={borrowAsset?.assetId ?? ''}
           />
         </Collapse>
         <CardFooter

@@ -1,5 +1,14 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  CardFooter,
+  Collapse,
+  Divider,
+  Flex,
+  IconButton,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -240,22 +249,28 @@ export const BorrowInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.slippage')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto
-                value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                symbol='BTC'
-              />
+              <Skeleton isLoaded={!isLendingQuoteLoading}>
+                <Amount.Crypto
+                  value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                  symbol='BTC'
+                />
+              </Skeleton>
             </Row.Value>
           </Row>
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Amount.Fiat value='TODO' />
+              <Skeleton isLoaded={!isLendingQuoteLoading}>
+                <Amount.Fiat value='TODO' />
+              </Skeleton>
             </Row.Value>
           </Row>
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.fees')}</Row.Label>
             <Row.Value>
-              <Amount.Fiat value='0' />
+              <Skeleton isLoaded={!isLendingQuoteLoading}>
+                <Amount.Fiat value='0' />
+              </Skeleton>
             </Row.Value>
           </Row>
           <Button

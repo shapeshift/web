@@ -94,13 +94,17 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
   })
 
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+  const {
+    data: lendingQuoteData,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteQuery({
     collateralAssetId,
     borrowAssetId,
     depositAmountCryptoPrecision,
   })
 
-  if (!collateralAsset) return null
+  if (!collateralAsset || isLendingQuoteError) return null
 
   return (
     <Stack

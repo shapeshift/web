@@ -18,7 +18,7 @@ export const useSupportedAssets = () => {
     )
   }, [isSnapInstalled, wallet])
 
-  const { data } = useGetSupportedAssetsQuery(walletSupportedChains)
+  const { data, isLoading } = useGetSupportedAssetsQuery(walletSupportedChains)
 
   const supportedSellAssets = useMemo(() => {
     if (data === undefined) return []
@@ -31,6 +31,7 @@ export const useSupportedAssets = () => {
   }, [data, sortedAssets])
 
   return {
+    isLoading,
     supportedSellAssets,
     supportedBuyAssets,
   }

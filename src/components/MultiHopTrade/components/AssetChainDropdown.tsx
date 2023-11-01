@@ -9,7 +9,7 @@ import {
   MenuOptionGroup,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import React, { useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -36,7 +36,7 @@ type ChainDropdownProps = {
   isError?: boolean
 } & Omit<MenuProps, 'children'>
 
-const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = ({ assetId, ...rest }) => {
+const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = memo(({ assetId, ...rest }) => {
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   return (
@@ -45,7 +45,7 @@ const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = ({ assetId, ..
       <AutoTruncateText value={feeAsset?.networkName ?? feeAsset?.name} />
     </Flex>
   )
-}
+})
 
 export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
   assetIds,

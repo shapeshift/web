@@ -84,7 +84,7 @@ export const AssetList: FC<AssetListProps> = ({
           itemCount={assets.length}
           ref={tokenListRef}
           className='token-list'
-          overscanCount={3}
+          overscanCount={1}
         >
           {AssetRow}
         </FixedSizeList>

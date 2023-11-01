@@ -218,16 +218,18 @@ export const BorrowConfirm = ({
             <Row>
               <Row.Label>Send</Row.Label>
               <Row.Value textAlign='right'>
-                <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                  <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
-                  <Amount.Fiat
-                    color='text.subtle'
-                    value={bnOrZero(depositAmount)
-                      .times(collateralAssetMarketData?.price ?? '0')
-                      .toString()}
-                    prefix='≈'
-                  />
-                </Stack>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Stack spacing={1} flexDir='row' flexWrap='wrap'>
+                    <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
+                    <Amount.Fiat
+                      color='text.subtle'
+                      value={bnOrZero(depositAmount)
+                        .times(collateralAssetMarketData?.price ?? '0')
+                        .toString()}
+                      prefix='≈'
+                    />
+                  </Stack>
+                </Skeleton>
               </Row.Value>
             </Row>
             <Skeleton isLoaded={!isLendingQuoteLoading}>

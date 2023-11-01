@@ -27,12 +27,12 @@ export const AppLoadingIcon: React.FC = memo(() => {
     setIsHovered(false)
   }, [])
 
-  const isDogeDay = useMemo(() => dayjs().isSame('2023-11-01', 'day'), [])
+  const isDogeDayEvent = useMemo(() => dayjs().isBetween('2023-11-01', '2023-11-03'), [])
 
   return (
     <Link to='/' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <AnimatePresence exitBeforeEnter initial>
-        {isHovered && isDogeDay ? (
+        {isHovered && isDogeDayEvent ? (
           <motion.div
             key='doge-flip'
             initial='hidden'

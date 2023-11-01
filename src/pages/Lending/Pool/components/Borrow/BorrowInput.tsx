@@ -65,9 +65,11 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: lendingSupportedAssets = [] } = useLendingSupportedAssets()
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
 
   useEffect(() => {
+    if (!lendingSupportedAssets) return
+
     setBorrowAsset(lendingSupportedAssets[0])
   }, [lendingSupportedAssets, setBorrowAsset])
 

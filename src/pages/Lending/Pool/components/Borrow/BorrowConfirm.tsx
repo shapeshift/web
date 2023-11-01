@@ -175,7 +175,6 @@ export const BorrowConfirm = ({
     )
       return
     const from = await getFromAddress()
-    console.log({ from })
 
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 

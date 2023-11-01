@@ -27,7 +27,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -43,14 +43,18 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, TradeQuote } from 'lib/swapper/types'
+import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable, isSome } from 'lib/utils'
 import { selectFeeAssetById, selectTradeExecutionStatus } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
+  selectActiveSwapperName,
+  selectFirstHop,
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
+  selectIsActiveQuoteMultiHop,
+  selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -260,10 +264,12 @@ const getDonationSummaryStep = ({
 
 const FirstHop = ({
   swapperName,
-  tradeQuote,
+  tradeQuoteStep,
+  isMultiHopTrade,
 }: {
   swapperName: SwapperName
-  tradeQuote: TradeQuote
+  tradeQuoteStep: TradeQuoteStep
+  isMultiHopTrade: boolean
 }) => {
   const {
     number: { toCrypto, toFiat },
@@ -272,7 +278,6 @@ const FirstHop = ({
 
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
 
-  const tradeQuoteStep = useMemo(() => tradeQuote.steps[0], [tradeQuote.steps])
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
     isApprovalNeeded,
@@ -373,7 +378,7 @@ const FirstHop = ({
         : undefined
     hopSteps.push(getTradeStep({ txId: tradeTx, onSign: onSignTrade, onReject: onRejectTrade }))
 
-    if (tradeQuote.steps.length === 1) {
+    if (!isMultiHopTrade) {
       if (shouldRenderDonation) {
         hopSteps.push(
           getDonationSummaryStep({
@@ -397,6 +402,7 @@ const FirstHop = ({
     executeAllowanceApproval,
     isApprovalNeeded,
     isExactAllowance,
+    isMultiHopTrade,
     onRejectApproval,
     onRejectTrade,
     onSignTrade,
@@ -406,7 +412,6 @@ const FirstHop = ({
     toFiat,
     toggleIsExactAllowance,
     tradeExecutionStatus,
-    tradeQuote.steps.length,
     tradeQuoteStep,
     translate,
   ])
@@ -432,10 +437,10 @@ const FirstHop = ({
 
 const SecondHop = ({
   swapperName,
-  tradeQuote,
+  tradeQuoteStep,
 }: {
   swapperName: SwapperName
-  tradeQuote: TradeQuote
+  tradeQuoteStep: TradeQuoteStep
 }) => {
   const {
     number: { toCrypto, toFiat },
@@ -444,7 +449,6 @@ const SecondHop = ({
 
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
 
-  const tradeQuoteStep = useMemo(() => tradeQuote.steps[1], [tradeQuote.steps])
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
     isApprovalNeeded,
@@ -538,22 +542,20 @@ const SecondHop = ({
         : undefined
     hopSteps.push(getTradeStep({ txId: tradeTx, onSign: onSignTrade, onReject: onRejectTrade }))
 
-    if (tradeQuote.steps.length === 2) {
-      if (shouldRenderDonation) {
-        hopSteps.push(
-          getDonationSummaryStep({
-            donationAmountFiatFormatted: toFiat(1.2),
-          }),
-        )
-      }
-
+    if (shouldRenderDonation) {
       hopSteps.push(
-        getAssetSummaryStep({
-          amountCryptoFormatted: toCrypto(buyAmountCryptoPrecision, buyAsset.symbol),
-          asset: buyAsset,
+        getDonationSummaryStep({
+          donationAmountFiatFormatted: toFiat(1.2),
         }),
       )
     }
+
+    hopSteps.push(
+      getAssetSummaryStep({
+        amountCryptoFormatted: toCrypto(buyAmountCryptoPrecision, buyAsset.symbol),
+        asset: buyAsset,
+      }),
+    )
 
     return hopSteps
   }, [
@@ -571,7 +573,6 @@ const SecondHop = ({
     toFiat,
     toggleIsExactAllowance,
     tradeExecutionStatus,
-    tradeQuote.steps.length,
     tradeQuoteStep,
     translate,
   ])
@@ -653,16 +654,14 @@ const Hop = ({
   )
 }
 
-export const MultiHopTradeConfirm = ({
-  swapperName,
-  tradeQuote,
-}: {
-  swapperName: SwapperName
-  tradeQuote: TradeQuote
-}) => {
-  const isMultiHopTrade = tradeQuote.steps.length > 1
-
+export const MultiHopTradeConfirm = memo(() => {
   const handleBack = useCallback(() => {}, [])
+  const swapperName = useAppSelector(selectActiveSwapperName)
+  const firstHop = useAppSelector(selectFirstHop)
+  const lastHop = useAppSelector(selectLastHop)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+
+  if (!firstHop || !swapperName) return null
 
   return (
     <SlideTransition>
@@ -676,11 +675,17 @@ export const MultiHopTradeConfirm = ({
         </CardHeader>
         <CardBody pb={0} px={0}>
           <Stack spacing={6}>
-            <FirstHop tradeQuote={tradeQuote} swapperName={swapperName} />
-            {isMultiHopTrade && <SecondHop tradeQuote={tradeQuote} swapperName={swapperName} />}
+            <FirstHop
+              tradeQuoteStep={firstHop}
+              swapperName={swapperName}
+              isMultiHopTrade={!!isMultiHopTrade}
+            />
+            {isMultiHopTrade && lastHop && (
+              <SecondHop tradeQuoteStep={lastHop} swapperName={swapperName} />
+            )}
           </Stack>
         </CardBody>
       </Card>
     </SlideTransition>
   )
-}
+})

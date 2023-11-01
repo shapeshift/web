@@ -189,7 +189,7 @@ export const useLendingQuoteQuery = ({
         collateralAsset &&
         borrowAssetReceiveAddress &&
         collateralAssetMarketData.price !== '0' &&
-        depositAmountCryptoPrecision !== '0',
+        bnOrZero(depositAmountCryptoPrecision).gt(0),
     ),
   })
 

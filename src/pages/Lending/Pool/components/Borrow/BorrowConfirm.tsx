@@ -34,10 +34,13 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -117,6 +120,47 @@ export const BorrowConfirm = ({
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
+  const collateralAccountFilter = useMemo(
+    () => ({ accountId: collateralAccountId }),
+    [collateralAccountId],
+  )
+  const collateralAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
+  )
+  const collateralAccountType = collateralAccountMetadata?.accountType
+  const collateralBip44Params = collateralAccountMetadata?.bip44Params
+
+  const getFromAddress = useCallback(async () => {
+    if (!(wallet && chainAdapter && collateralBip44Params)) return null
+
+    return isUtxoChainId(fromAccountId(collateralAccountId).chainId)
+      ? await getThorchainLendingPosition({
+          accountId: collateralAccountId,
+          assetId: collateralAssetId,
+        })
+          .then(position => {
+            if (!position) throw new Error(`No position found for assetId: ${collateralAssetId}`)
+          })
+          .catch(async () => {
+            const firstReceiveAddress = await chainAdapter.getAddress({
+              wallet,
+              accountNumber: collateralBip44Params.accountNumber,
+              accountType: collateralAccountType,
+              index: 0,
+            })
+
+            return firstReceiveAddress
+          })
+      : fromAccountId(collateralAccountId).account
+  }, [
+    wallet,
+    chainAdapter,
+    collateralBip44Params,
+    collateralAccountType,
+    collateralAccountId,
+    collateralAssetId,
+  ])
+
   // TODO(gomes): handle error (including trading halted) and loading states here
   const handleDeposit = useCallback(async () => {
     if (
@@ -130,11 +174,16 @@ export const BorrowConfirm = ({
       )
     )
       return
+    const from = await getFromAddress()
+    console.log({ from })
+
+    if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
+
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const estimatedFees = await estimateFees({
       cryptoAmount: depositAmount,
       assetId: collateralAssetId,
-      from: fromAccountId(collateralAccountId).account, // TODO(gomes): handle UTXOs
+      from,
       memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
         : lendingQuoteData.quoteMemo,
@@ -149,12 +198,11 @@ export const BorrowConfirm = ({
 
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
-      // TODO(gomes): isUtxoChainId as well
       const sendInput: SendInput = {
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: lendingQuoteData.quoteInboundAddress,
-        from: fromAccountId(collateralAccountId).account, // TODO(gomes): support UTXOs as well, this is just the first naive implementation without UTXO support
+        from,
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
@@ -182,13 +230,14 @@ export const BorrowConfirm = ({
 
     return maybeTxId
   }, [
-    chainAdapter,
     collateralAssetId,
-    collateralAccountId,
     depositAmount,
-    lendingQuoteData,
-    selectedCurrency,
     wallet,
+    chainAdapter,
+    lendingQuoteData,
+    getFromAddress,
+    collateralAccountId,
+    selectedCurrency,
   ])
 
   if (!depositAmount) return null

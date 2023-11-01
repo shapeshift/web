@@ -98,11 +98,17 @@ export const BorrowConfirm = ({
   // so we have a safety to not refetch quotes while borrow is pending
   // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
   // from input components and disable inputs as well?
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+  const {
+    data,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteQuery({
     collateralAssetId,
     borrowAssetId,
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
+
+  const lendingQuoteData = isLendingQuoteError ? null : data
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
@@ -261,18 +267,20 @@ export const BorrowConfirm = ({
             borrowAssetId={borrowAssetId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
-          <CardFooter px={4} py={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              onClick={handleDeposit}
-              isLoading={isLoanOpenPending}
-              disabled={isLoanOpenPending}
-            >
-              {translate('lending.confirmAndBorrow')}
-            </Button>
-          </CardFooter>
+          {lendingQuoteData && (
+            <CardFooter px={4} py={4}>
+              <Button
+                colorScheme='blue'
+                size='lg'
+                width='full'
+                onClick={handleDeposit}
+                isLoading={isLoanOpenPending}
+                disabled={isLoanOpenPending}
+              >
+                {translate('lending.confirmAndBorrow')}
+              </Button>
+            </CardFooter>
+          )}
         </Stack>
       </Flex>
     </SlideTransition>

@@ -169,11 +169,17 @@ export const BorrowInput = ({
     handleBorrowAssetClick,
   ])
 
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+  const {
+    data,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteQuery({
     collateralAssetId,
     borrowAssetId: borrowAsset?.assetId ?? '',
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
+
+  const lendingQuoteData = isLendingQuoteError ? null : data
 
   if (!(collateralAsset && borrowAsset)) return null
 
@@ -236,53 +242,55 @@ export const BorrowInput = ({
             borrowAssetId={borrowAsset?.assetId ?? ''}
           />
         </Collapse>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={6}
-          py={4}
-          bg='background.surface.raised.accent'
-          borderBottomRadius='xl'
-        >
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isLendingQuoteLoading}>
-                <Amount.Crypto
-                  value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                  symbol='BTC'
-                />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isLendingQuoteLoading}>
-                <Amount.Fiat value='TODO' />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.fees')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isLendingQuoteLoading}>
-                <Amount.Fiat value='0' />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Button
-            size='lg'
-            colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
-            mx={-2}
-            onClick={onSubmit}
-            disabled={Boolean(quoteErrorTranslation)}
+        {lendingQuoteData && (
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+            borderBottomRadius='xl'
           >
-            {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
-          </Button>
-        </CardFooter>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Crypto
+                    value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                    symbol='BTC'
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Fiat value='TODO' />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Fiat value='0' />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Button
+              size='lg'
+              colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
+              mx={-2}
+              onClick={onSubmit}
+              disabled={Boolean(quoteErrorTranslation)}
+            >
+              {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
+            </Button>
+          </CardFooter>
+        )}
       </Stack>
     </SlideTransition>
   )

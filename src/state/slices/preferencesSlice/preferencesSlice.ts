@@ -15,6 +15,7 @@ export type FeatureFlags = {
   Polygon: boolean
   Gnosis: boolean
   Arbitrum: boolean
+  ArbitrumNova: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   ThorSwapAffiliateFees: boolean
@@ -80,6 +81,7 @@ const initialState: Preferences = {
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
+    ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,

@@ -1,5 +1,6 @@
 import {
   arbitrumAssetId,
+  arbitrumNovaAssetId,
   avalancheAssetId,
   bscAssetId,
   ethAssetId,
@@ -49,6 +50,11 @@ describe('accountIdToFeeAssetId', () => {
     const accountId = 'eip155:42161:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(arbitrumAssetId)
+  })
+  it('can get arbitrumNova feeAssetId from accountId', () => {
+    const accountId = 'eip155:42170:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(arbitrumNovaAssetId)
   })
 })
 

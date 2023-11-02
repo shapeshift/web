@@ -233,9 +233,10 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
-      const [btcKey, ethKey, ethOptimismKey, ethOnArbitrumKey] = Object.keys(result)
+      const [btcKey, ethKey, ethOptimismKey, ethOnArbitrumKey, ethOnArbitrumNovaKey] =
+        Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
-      expect(ethAssetId).toEqual([ethKey, ethOptimismKey, ethOnArbitrumKey])
+      expect(ethAssetId).toEqual([ethKey, ethOptimismKey, ethOnArbitrumKey, ethOnArbitrumNovaKey])
     })
 
     it('can map CoinGecko id to multiple assetIds', async () => {

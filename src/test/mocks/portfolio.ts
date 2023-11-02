@@ -1,5 +1,6 @@
 import {
   arbitrumAssetId,
+  arbitrumNovaAssetId,
   avalancheAssetId,
   bscAssetId,
   btcAssetId,
@@ -91,6 +92,13 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => arbitrumAssetId,
       getDisplayName: () => 'Arbitrum One',
+    },
+  ],
+  [
+    KnownChainIds.ArbitrumNovaMainnet,
+    {
+      getFeeAssetId: () => arbitrumNovaAssetId,
+      getDisplayName: () => 'Arbitrum Nova',
     },
   ],
   [

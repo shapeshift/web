@@ -23,14 +23,17 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 
 const LendingPoolButton = ({
   asset,
-  onPoolClick: handlePoolClick,
+  onPoolClick,
 }: {
   asset: Asset
   onPoolClick: (assetId: AssetId) => void
 }) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
-  console.log({ poolData })
+
+  const handlePoolClick = useCallback(() => {
+    onPoolClick(asset.assetId)
+  }, [asset.assetId, onPoolClick])
   return (
     <Button
       variant='ghost'
@@ -43,8 +46,7 @@ const LendingPoolButton = ({
       width='full'
       height='auto'
       color='text.base'
-      // eslint-disable-next-line react-memo/require-usememo
-      onClick={() => handlePoolClick(asset.assetId)}
+      onClick={handlePoolClick}
     >
       <AssetCell assetId={asset.assetId} />
       <Skeleton isLoaded={!isPoolDataLoading}>

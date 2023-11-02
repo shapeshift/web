@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/polygon'
+import type { Tx } from '../../../../../evm'
 
 export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
   const mempoolSpecific = {

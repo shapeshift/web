@@ -1,20 +1,20 @@
-import type { Tx } from '../../../..'
+import type { Tx } from '../../../../../evm'
 import { mempoolMock } from './mempoolMock'
 
 const ethSelfSend: Tx = {
-  txid: '0x3cad84c35dd761d8869885993802e8ffaeab2c3991fe12ff743f0ae3d0b47c04',
-  blockHash: '0xa3a8b2e11e08069dadfe0da91b12ff8f342eeab8bb8011965b78ef26d288553d',
-  blockHeight: 136820435,
-  timestamp: 1696263034,
+  txid: '0x96c1a931795baa2cb8b801ed1890d33508f4964ebad56dc1b45bd84d3eae0516',
+  blockHash: '0x3848e40f67abf1de1b65c3094ae443764b046c47a50fbe51455406a9e5a6d2c0',
+  blockHeight: 512210,
+  timestamp: 1664786013,
   status: 1,
-  from: '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE',
-  to: '0xEDf4cA2BAE39c3e65e3216985c18ec632193aBAE',
-  confirmations: 198,
-  value: '642255590800000008',
-  fee: '79945000000000',
-  gasLimit: '560440',
-  gasUsed: '399725',
-  gasPrice: '200000000',
+  from: '0xD056D4B6FCdcEa982F7E70F085Bbb1f9AbcD19f9',
+  to: '0xD056D4B6FCdcEa982F7E70F085Bbb1f9AbcD19f9',
+  confirmations: 27132739,
+  value: '202000000000009001',
+  fee: '2123600000000',
+  gasLimit: '21326',
+  gasUsed: '21236',
+  gasPrice: '100000000',
 }
 
 export default {

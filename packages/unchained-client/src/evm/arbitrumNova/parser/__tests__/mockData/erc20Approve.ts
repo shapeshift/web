@@ -1,22 +1,22 @@
-import type { Tx } from '../../../../../generated/polygon'
+import type { Tx } from '../../../../../evm'
 import { mempoolMock } from './mempoolMock'
 
 const erc20Approve: Tx = {
-  txid: '0x294506160c72df8352c28fd328b261ccabe851aa05ca542a917a210f8c40daa0',
-  blockHash: '0xcedd1122a7998ea7005f776b951ad5ea57ad4a94812b09f7cba9c21b2f479a8c',
-  blockHeight: 136847729,
-  timestamp: 1696270326,
+  txid: '0x0656edff12f4dd17c2bcc29706571b877f105bcfa062e6d70474f8f4d3fc7e3b',
+  blockHash: '0xa221da0db6a9f920894d2a6773f5e9957c0fce306acea0351f7e776d8dde3119',
+  blockHeight: 17833594,
+  timestamp: 1691904756,
   status: 1,
-  from: '0x9063e1A6dd076899F6A0057475e8614e17536F59',
-  to: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-  confirmations: 49,
+  from: '0x7CfF1B3eD7BAc3C9d74C33c88B33aD23ef560913',
+  to: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
+  confirmations: 9812297,
   value: '0',
-  fee: '97199000000000',
-  gasLimit: '1234904',
-  gasUsed: '971990',
-  gasPrice: '100000000',
+  fee: '626630000000',
+  gasLimit: '400000',
+  gasUsed: '62663',
+  gasPrice: '10000000',
   inputData:
-    '0x095ea7b3000000000000000000000000abbc5f99639c9b6bcb58544ddf04efa6802f40640000000000000000000000000000000000000000000000000000000000f6782c',
+    '0x095ea7b3000000000000000000000000a135b6189d2e073dfbc33c30c86bb4ecea4e2ee500000000000000000000000000000000000000000de0b6b39983494c589c0000',
   internalTxs: [],
 }
 

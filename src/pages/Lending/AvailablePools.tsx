@@ -21,13 +21,12 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   md: '200px repeat(5, 1fr)',
 }
 
-const LendingPoolButton = ({
-  asset,
-  onPoolClick,
-}: {
+type LendingPoolButtonProps = {
   asset: Asset
   onPoolClick: (assetId: AssetId) => void
-}) => {
+}
+
+const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
 

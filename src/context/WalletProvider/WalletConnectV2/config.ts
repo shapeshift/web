@@ -75,6 +75,7 @@ const {
   REACT_APP_GNOSIS_NODE_URL,
   REACT_APP_ETHEREUM_NODE_URL,
   REACT_APP_ARBITRUM_NODE_URL,
+  REACT_APP_ARBITRUM_NOVA_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {

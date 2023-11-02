@@ -172,7 +172,7 @@ describe('CoinGecko market service', () => {
         .mockResolvedValueOnce({ data: [eth] })
         .mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(4)
+      expect(Object.keys(result).length).toEqual(5)
     })
 
     it('can sort by market cap', async () => {
@@ -202,7 +202,7 @@ describe('CoinGecko market service', () => {
         .mockResolvedValueOnce({ status: 429 })
         .mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(3)
+      expect(Object.keys(result).length).toEqual(4)
     })
 
     it('can use default args', async () => {

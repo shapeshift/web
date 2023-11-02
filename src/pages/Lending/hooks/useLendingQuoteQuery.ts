@@ -42,7 +42,9 @@ export const useLendingQuoteQuery = ({
   // TODO(gomes): programmatic
   const destinationAccountId =
     useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(borrowAssetId).chainId),
+      borrowAssetId
+        ? selectFirstAccountIdByChainId(state, fromAssetId(borrowAssetId).chainId)
+        : undefined,
     ) ?? ''
   const destinationAccountMetadataFilter = useMemo(
     () => ({ accountId: destinationAccountId }),
@@ -182,11 +184,12 @@ export const useLendingQuoteQuery = ({
     enabled: Boolean(
       bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         accountId &&
+        borrowAssetId &&
         destinationAccountMetadata &&
         collateralAsset &&
         borrowAssetReceiveAddress &&
         collateralAssetMarketData.price !== '0' &&
-        depositAmountCryptoPrecision !== '0',
+        bnOrZero(depositAmountCryptoPrecision).gt(0),
     ),
   })
 

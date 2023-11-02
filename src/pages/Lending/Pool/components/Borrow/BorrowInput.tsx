@@ -1,8 +1,16 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, CardFooter, Collapse, Divider, Flex, IconButton, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  CardFooter,
+  Collapse,
+  Divider,
+  Flex,
+  IconButton,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -10,12 +18,13 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -34,15 +43,35 @@ type BorrowInputProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
   onDepositAmountChange: (value: string) => void
+  collateralAccountId: AccountId
+  borrowAccountId: AccountId
+  onCollateralAccountIdChange: (accountId: AccountId) => void
+  onBorrowAccountIdChange: (accountId: AccountId) => void
+  borrowAsset: Asset | null
+  setBorrowAsset: (asset: Asset) => void
 }
 
 export const BorrowInput = ({
   collateralAssetId,
   depositAmount,
   onDepositAmountChange,
+  collateralAccountId,
+  borrowAccountId,
+  onCollateralAccountIdChange: handleCollateralAccountIdChange,
+  onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  borrowAsset,
+  setBorrowAsset,
 }: BorrowInputProps) => {
   const translate = useTranslate()
   const history = useHistory()
+
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+
+  useEffect(() => {
+    if (!lendingSupportedAssets) return
+
+    setBorrowAsset(lendingSupportedAssets[0])
+  }, [lendingSupportedAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
@@ -58,12 +87,17 @@ export const BorrowInput = ({
   }, [history])
 
   const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    console.info(accountId)
+    console.info({ accountId })
   }, [])
 
-  const handleAssetClick = useCallback(() => {
-    console.info('clicked Asset')
-  }, [])
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const handleBorrowAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onClick: setBorrowAsset,
+      title: 'lending.borrow',
+      assets: lendingSupportedAssets,
+    })
+  }, [buyAssetSearch, lendingSupportedAssets, setBorrowAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
@@ -76,14 +110,9 @@ export const BorrowInput = ({
     [onDepositAmountChange],
   )
 
-  // TODO(gomes): programmatic
-  const depositAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
   const balanceFilter = useMemo(
-    () => ({ assetId: collateralAssetId, accountId: depositAccountId }),
-    [collateralAssetId, depositAccountId],
+    () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
+    [collateralAssetId, collateralAccountId],
   )
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
@@ -107,42 +136,58 @@ export const BorrowInput = ({
   const depositAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
+        accountId={collateralAccountId}
         assetId={collateralAssetId}
-        onAssetClick={handleAssetClick}
+        onAssetClick={handleBorrowAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
-        label={'uhh'}
+        label={'Collateral Asset'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAssetId, handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [
+    collateralAccountId,
+    collateralAssetId,
+    handleAccountIdChange,
+    handleAssetChange,
+    handleBorrowAssetClick,
+  ])
 
-  const assetSelectComponent = useMemo(() => {
+  const borrowAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
-        assetId={btcAssetId}
-        onAssetClick={handleAssetClick}
+        accountId={borrowAccountId}
+        assetId={borrowAsset?.assetId ?? ''}
+        onAssetClick={handleBorrowAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
-        label={'uhh'}
+        label={'Borrow Asset'}
         onAssetChange={handleAssetChange}
-        isReadOnly
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [
+    borrowAccountId,
+    borrowAsset?.assetId,
+    handleAccountIdChange,
+    handleAssetChange,
+    handleBorrowAssetClick,
+  ])
 
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+  const {
+    data,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteQuery({
     collateralAssetId,
-    borrowAssetId: btcAssetId, // TODO(gomes): programmatic
+    borrowAssetId: borrowAsset?.assetId ?? '',
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
 
-  console.log({ lendingQuoteData, isLendingQuoteLoading })
+  const lendingQuoteData = isLendingQuoteError ? null : data
 
-  if (!collateralAsset) return null
+  if (!(collateralAsset && borrowAsset)) return null
+
   return (
     <SlideTransition>
       <Stack spacing={0}>
@@ -160,7 +205,7 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={`Deposit ${collateralAsset.symbol}`}
-          onAccountIdChange={handleAccountIdChange}
+          onAccountIdChange={handleCollateralAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
           labelPostFix={depositAssetSelectComponent}
@@ -180,9 +225,9 @@ export const BorrowInput = ({
           <Divider />
         </Flex>
         <TradeAssetInput
-          assetId={btcAssetId}
-          assetSymbol={'BTC'} // TODO(gomes): programmatic
-          assetIcon={''}
+          assetId={borrowAsset?.assetId ?? ''}
+          assetSymbol={borrowAsset.symbol}
+          assetIcon={borrowAsset.icon}
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
           isSendMaxDisabled={false}
@@ -190,59 +235,67 @@ export const BorrowInput = ({
           showInputSkeleton={false}
           showFiatSkeleton={false}
           label={'Borrow'}
-          onAccountIdChange={handleAccountIdChange}
+          onAccountIdChange={handleBorrowAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={assetSelectComponent}
+          labelPostFix={borrowAssetSelectComponent}
         />
         <Collapse in={true}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
-            borrowAssetId={btcAssetId} // TODO(gomes): programmatic
+            borrowAssetId={borrowAsset?.assetId ?? ''}
           />
         </Collapse>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={6}
-          py={4}
-          bg='background.surface.raised.accent'
-          borderBottomRadius='xl'
-        >
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Amount.Crypto
-                value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                symbol='BTC'
-              />
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Amount.Fiat value='TODO' />
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.fees')}</Row.Label>
-            <Row.Value>
-              <Amount.Fiat value='0' />
-            </Row.Value>
-          </Row>
-          <Button
-            size='lg'
-            colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
-            mx={-2}
-            onClick={onSubmit}
-            disabled={Boolean(quoteErrorTranslation)}
+        {!isLendingQuoteError && (
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+            borderBottomRadius='xl'
           >
-            {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
-          </Button>
-        </CardFooter>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Crypto
+                    value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                    symbol='BTC'
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Fiat value='TODO' />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Amount.Fiat value='0' />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Button
+              size='lg'
+              colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
+              mx={-2}
+              onClick={onSubmit}
+              disabled={Boolean(quoteErrorTranslation)}
+            >
+              {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
+            </Button>
+          </CardFooter>
+        )}
       </Stack>
     </SlideTransition>
   )

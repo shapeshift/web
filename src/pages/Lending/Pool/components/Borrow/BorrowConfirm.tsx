@@ -8,8 +8,8 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -30,14 +30,17 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,9 +51,17 @@ import { BorrowRoutePaths } from './types'
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
+  collateralAccountId: AccountId
+  borrowAccountId: AccountId
+  borrowAsset: Asset | null
 }
 
-export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfirmProps) => {
+export const BorrowConfirm = ({
+  collateralAssetId,
+  depositAmount,
+  collateralAccountId,
+  borrowAsset,
+}: BorrowConfirmProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -58,7 +69,7 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const [txHash, setTxHash] = useState<string | null>(null)
   const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
-  const borrowAssetId = btcAssetId // TODO(gomes): programmatic
+  const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
   const translate = useTranslate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -66,15 +77,9 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  // TODO(gomes): programmatic
-  const depositAccountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
-
   const { refetch: refetchLendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
-    accountId: depositAccountId,
+    accountId: collateralAccountId,
   })
 
   useEffect(() => {
@@ -99,15 +104,63 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
   // so we have a safety to not refetch quotes while borrow is pending
   // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
   // from input components and disable inputs as well?
-  const { data: lendingQuoteData, isLoading: isLendingQuoteLoading } = useLendingQuoteQuery({
+  const {
+    data,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteQuery({
     collateralAssetId,
     borrowAssetId,
     depositAmountCryptoPrecision: depositAmount ?? '0',
   })
 
+  const lendingQuoteData = isLendingQuoteError ? null : data
+
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
+  const collateralAccountFilter = useMemo(
+    () => ({ accountId: collateralAccountId }),
+    [collateralAccountId],
+  )
+  const collateralAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
+  )
+  const collateralAccountType = collateralAccountMetadata?.accountType
+  const collateralBip44Params = collateralAccountMetadata?.bip44Params
+
+  const getFromAddress = useCallback(async () => {
+    if (!(wallet && chainAdapter && collateralBip44Params)) return null
+
+    // TODO(gomes): unify me across savers/lending along with other utils
+    return isUtxoChainId(fromAccountId(collateralAccountId).chainId)
+      ? await getThorchainLendingPosition({
+          accountId: collateralAccountId,
+          assetId: collateralAssetId,
+        })
+          .then(position => {
+            if (!position) throw new Error(`No position found for assetId: ${collateralAssetId}`)
+          })
+          .catch(async () => {
+            const firstReceiveAddress = await chainAdapter.getAddress({
+              wallet,
+              accountNumber: collateralBip44Params.accountNumber,
+              accountType: collateralAccountType,
+              index: 0,
+            })
+
+            return firstReceiveAddress
+          })
+      : fromAccountId(collateralAccountId).account
+  }, [
+    wallet,
+    chainAdapter,
+    collateralBip44Params,
+    collateralAccountType,
+    collateralAccountId,
+    collateralAssetId,
+  ])
 
   // TODO(gomes): handle error (including trading halted) and loading states here
   const handleDeposit = useCallback(async () => {
@@ -122,17 +175,21 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
       )
     )
       return
+    const from = await getFromAddress()
+
+    if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
+
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const estimatedFees = await estimateFees({
       cryptoAmount: depositAmount,
       assetId: collateralAssetId,
-      from: fromAccountId(depositAccountId).account, // TODO(gomes): handle UTXOs
+      from,
       memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
         : lendingQuoteData.quoteMemo,
       to: lendingQuoteData.quoteInboundAddress,
       sendMax: false,
-      accountId: depositAccountId,
+      accountId: collateralAccountId,
       contractAddress: undefined,
     })
 
@@ -141,14 +198,13 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
 
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
-      // TODO(gomes): isUtxoChainId as well
       const sendInput: SendInput = {
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: lendingQuoteData.quoteInboundAddress,
-        from: fromAccountId(depositAccountId).account, // TODO(gomes): support UTXOs as well, this is just the first naive implementation without UTXO support
+        from,
         sendMax: false,
-        accountId: depositAccountId,
+        accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
           ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
           : lendingQuoteData.quoteMemo,
@@ -174,13 +230,14 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
 
     return maybeTxId
   }, [
-    chainAdapter,
     collateralAssetId,
-    depositAccountId,
     depositAmount,
-    lendingQuoteData,
-    selectedCurrency,
     wallet,
+    chainAdapter,
+    lendingQuoteData,
+    getFromAddress,
+    collateralAccountId,
+    selectedCurrency,
   ])
 
   if (!depositAmount) return null
@@ -210,16 +267,18 @@ export const BorrowConfirm = ({ collateralAssetId, depositAmount }: BorrowConfir
             <Row>
               <Row.Label>Send</Row.Label>
               <Row.Value textAlign='right'>
-                <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                  <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
-                  <Amount.Fiat
-                    color='text.subtle'
-                    value={bnOrZero(depositAmount)
-                      .times(collateralAssetMarketData?.price ?? '0')
-                      .toString()}
-                    prefix='≈'
-                  />
-                </Stack>
+                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                  <Stack spacing={1} flexDir='row' flexWrap='wrap'>
+                    <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
+                    <Amount.Fiat
+                      color='text.subtle'
+                      value={bnOrZero(depositAmount)
+                        .times(collateralAssetMarketData?.price ?? '0')
+                        .toString()}
+                      prefix='≈'
+                    />
+                  </Stack>
+                </Skeleton>
               </Row.Value>
             </Row>
             <Skeleton isLoaded={!isLendingQuoteLoading}>

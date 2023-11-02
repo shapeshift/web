@@ -159,14 +159,14 @@ export const LedgerChains = () => {
                 <PopoverContent>
                   <PopoverArrow />
                   <PopoverBody>
-                    {'Follow the instructions '}
+                    {translate('walletProvider.ledger.chains.followTheInstructions')}{' '}
                     <Link
                       color='blue.200'
                       href='https://support.ledger.com/hc/en-us/articles/4402987997841-THORChain-RUNE-?docs=true'
                     >
                       here
-                    </Link>
-                    {' to get the RUNE app on your Ledger'}
+                    </Link>{' '}
+                    {translate('walletProvider.ledger.chains.toGetTheRuneApp')}
                   </PopoverBody>
                 </PopoverContent>
               </Popover>
@@ -181,11 +181,13 @@ export const LedgerChains = () => {
             isDisabled={walletChainIds.includes(asset.chainId)}
             leftIcon={walletChainIds.includes(asset.chainId) ? <CheckCircleIcon /> : undefined}
           >
-            {walletChainIds.includes(asset.chainId) ? 'Added' : 'Connect'}
+            {walletChainIds.includes(asset.chainId)
+              ? translate('walletProvider.ledger.chains.added')
+              : translate('walletProvider.ledger.chains.connect')}
           </Button>
         </Flex>
       )),
-    [availableAssets, handleConnectClick, loadingChains, walletChainIds],
+    [availableAssets, handleConnectClick, loadingChains, translate, walletChainIds],
   )
 
   const handleClose = useCallback(() => {

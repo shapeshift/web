@@ -23,8 +23,7 @@ export const TransactionTrade = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  const tradeFeeInput = useMemo(() => ({ txDetails }), [txDetails])
-  const { tradeFees } = useTradeFees({ txDetails: tradeFeeInput.txDetails })
+  const tradeFees = useTradeFees({ txDetails })
 
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),

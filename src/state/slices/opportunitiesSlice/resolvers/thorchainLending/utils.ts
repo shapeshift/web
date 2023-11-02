@@ -3,7 +3,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import type { BigNumber } from 'lib/bignumber/bignumber'
+import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -14,6 +15,7 @@ import type {
   BorrowersResponse,
   BorrowersResponseSuccess,
   LendingDepositQuoteResponse,
+  LendingDepositQuoteResponseSuccess,
   LendingWithdrawQuoteResponse,
 } from './types'
 
@@ -30,7 +32,7 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   receiveAssetId: AssetId
   receiveAssetAddress: string
-}): Promise<Result<LendingDepositQuoteResponse, string>> => {
+}): Promise<Result<LendingDepositQuoteResponseSuccess, string>> => {
   if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
   const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
   if (!collateralAsset) return Err(`Asset not found for assetId ${collateralAssetId}`)
@@ -47,27 +49,18 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
-  try {
-    const url =
-      `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
-      `?from_asset=${collateralAssetId}` +
-      `&amount=${amountCryptoThorBaseUnit.toString()}` +
-      `&to_asset=${receiveAssetId}` +
-      `&destination=${receiveAssetAddress}`
+  const url =
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
+    `?from_asset=${from_asset}` +
+    `&amount=${amountCryptoThorBaseUnit.toString()}` +
+    `&to_asset=${to_asset}` +
+    `&destination=${receiveAssetAddress}`
 
-    const { data } = await axios.get<LendingDepositQuoteResponse>(url)
-    if (!data || 'error' in data)
-      return Err('Error fetching Thorchain lending deposit quote: no data received')
+  const { data } = await axios.get<LendingDepositQuoteResponse>(url)
+  if (!data || 'error' in data)
+    return Err('Error fetching Thorchain lending deposit quote: no data received')
 
-    return Ok(data)
-  } catch (error) {
-    console.error('Error fetching Thorchain lending deposit quote:', error)
-    return Err(
-      `Error fetching Thorchain lending deposit quote: ${
-        error instanceof Error ? error.message : error
-      }`,
-    )
-  }
+  return Ok(data)
 }
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
@@ -156,4 +149,32 @@ export const getThorchainLendingPosition = async ({
   const accountPosition = allPositions.find(position => accountAddresses.includes(position.owner))
 
   return accountPosition || null
+}
+export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePoolResponse> => {
+  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
+
+  if (!REACT_APP_THORCHAIN_NODE_URL) {
+    throw new Error('THORChain node URL is not configured')
+  }
+
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
+
+  const { data } = await axios.get<ThornodePoolResponse>(
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+  )
+
+  if (!data) {
+    throw new Error('No data received from THORChain')
+  }
+
+  return data
+}
+
+export const getLtvFromCollateralizationRatio = (
+  collateralizationRatio: BigNumber.Value,
+): string => {
+  const crDecimal = bnOrZero(collateralizationRatio).div(100)
+  const ltvPercentage = bn(1).div(crDecimal).times(100).toFixed(2)
+  return ltvPercentage
 }

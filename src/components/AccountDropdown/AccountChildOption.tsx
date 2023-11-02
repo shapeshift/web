@@ -5,20 +5,25 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 
 type AccountChildRowProps = {
+  accountId: AccountId
   title: string
   cryptoBalance: string
   symbol: string
+  onOptionClick: (accountId: AccountId) => void
 } & MenuItemOptionProps
 
 export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
-  ({ title, cryptoBalance, symbol, children, ...props }, ref) => {
+  ({ accountId, title, cryptoBalance, symbol, children, onOptionClick, ...props }, ref) => {
     const color = useColorModeValue('black', 'white')
+    const handleClick = useCallback(() => onOptionClick(accountId), [accountId, onOptionClick])
     return (
-      <MenuItemOption ref={ref} color={color} {...props}>
+      <MenuItemOption ref={ref} color={color} onClick={handleClick} {...props}>
         <Stack direction='row' justifyContent='space-between' fontSize='sm' spacing={4}>
           <RawText fontWeight='bold' whiteSpace='nowrap'>
             {title}

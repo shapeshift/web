@@ -25,7 +25,7 @@ export const LedgerMenu = () => {
     <>
       <MenuDivider />
       <MenuItem justifyContent='space-between' onClick={handleClick}>
-        {translate('Connect Accounts')}
+        {translate('walletProvider.ledger.chains.header')}
       </MenuItem>
     </>
   )

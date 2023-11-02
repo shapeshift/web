@@ -151,7 +151,11 @@ export const TradeInput = memo(() => {
     dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
-  const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
+  const {
+    supportedSellAssets,
+    supportedBuyAssets,
+    isLoading: isSupportedAssetsLoading,
+  } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
@@ -162,8 +166,8 @@ export const TradeInput = memo(() => {
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
-    () => isQuoteLoading || isConfirmationLoading,
-    [isConfirmationLoading, isQuoteLoading],
+    () => isQuoteLoading || isConfirmationLoading || isSupportedAssetsLoading,
+    [isConfirmationLoading, isQuoteLoading, isSupportedAssetsLoading],
   )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
@@ -212,7 +216,11 @@ export const TradeInput = memo(() => {
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 
-      const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
+      const isApprovalNeeded = await checkApprovalNeeded(
+        tradeQuoteStep,
+        wallet,
+        sellAssetAccountId ?? '',
+      )
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
@@ -230,7 +238,16 @@ export const TradeInput = memo(() => {
     }
 
     setIsConfirmationLoading(false)
-  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
+  }, [
+    activeQuote,
+    dispatch,
+    history,
+    mixpanel,
+    sellAssetAccountId,
+    showErrorToast,
+    tradeQuoteStep,
+    wallet,
+  ])
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 

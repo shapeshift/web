@@ -4,7 +4,6 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -21,6 +20,7 @@ import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
+import { QueryClientProvider } from 'context/QueryClientProvider/QueryClientProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
@@ -36,13 +36,6 @@ type ProvidersProps = {
 }
 
 const manager = createLocalStorageManager('ss-theme')
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, // default: true
-    },
-  },
-})
 
 const splashScreen = <SplashScreen />
 
@@ -80,7 +73,7 @@ export function AppProviders({ children }: ProvidersProps) {
                               <TransactionsProvider>
                                 <AppProvider>
                                   <FoxEthProvider>
-                                    <QueryClientProvider client={queryClient}>
+                                    <QueryClientProvider>
                                       <DefiManagerProvider>{children}</DefiManagerProvider>
                                     </QueryClientProvider>
                                   </FoxEthProvider>

@@ -187,7 +187,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const quote = maybeQuote.unwrap()
 
-      const { expected_amount_out: expectedAmountOutThorBaseUnit, slippage_bps } = quote
+      const {
+        expected_amount_deposit: expectedAmountOutThorBaseUnit,
+        fees: { slippage_bps },
+      } = quote
 
       // Total downside
       const thorchainFeeCryptoPrecision = fromThorBaseUnit(
@@ -241,7 +244,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       setProtocolFeeCryptoBaseUnit(
         toBaseUnit(
-          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(quote.expected_amount_out)),
+          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(quote.expected_amount_deposit)),
           asset.precision,
         ),
       )

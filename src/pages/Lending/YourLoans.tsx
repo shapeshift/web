@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useRouteMatch } from 'react-router'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
@@ -106,12 +106,11 @@ export const YourLoans = () => {
 
   const history = useHistory()
 
-  const { path } = useRouteMatch()
   const handlePoolClick = useCallback(
     (assetId: AssetId) => {
-      history.push(`${path}/pool/${assetId}`)
+      history.push(`/lending/pool/${assetId}`)
     },
-    [history, path],
+    [history],
   )
 
   const lendingRowGrids = useMemo(() => {

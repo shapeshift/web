@@ -94,15 +94,19 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
   })
 
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      borrowAssetId,
+      depositAmountCryptoPrecision,
+    }),
+    [collateralAssetId, borrowAssetId, depositAmountCryptoPrecision],
+  )
   const {
     data: lendingQuoteData,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery({
-    collateralAssetId,
-    borrowAssetId,
-    depositAmountCryptoPrecision,
-  })
+  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
 
   if (!collateralAsset || isLendingQuoteError) return null
 

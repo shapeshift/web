@@ -98,7 +98,10 @@
     "all": "Все",
     "viewAll": "Посмотреть все",
     "slippage": "Проскальзывание",
+    "feesPlusSlippage": "Комиссии + проскальзывание",
     "best": "Лучшая",
+    "gasFee": "Плата за газ",
+    "fees": "Комиссия",
     "alternative": "Альтернатива",
     "validator": "%{name} Validator",
     "needAsset": "Нужно немного %{asset}?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Купить/Продать",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "Миссии FOX",
-    "foxMissionsShort": "Миссии"
+    "foxMissionsShort": "Миссии",
+    "lending": "Кредитование"
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Торговля",
     "allowance": "руководство",
+    "verifyAddresses": "Подтверждение адресов",
+    "assetAddress": "%{asset} адрес",
+    "verifyAsset": "Верификация %{asset}",
+    "verifyAddressMessage": "Перед началом работы убедитесь, что адреса указаны правильно.",
     "slippageInfo": "Ваша сделка будет возвращена, если цена изменится в неблагоприятную сторону более чем на этот процент.",
     "allowanceTooltip": "Сумма, которую вы дадите смарт-контракту полномочия использовать от вашего имени.",
     "searchingRate": "Поиск лучшего курса...",
@@ -2133,14 +2141,52 @@
     }
   },
   "lending": {
+    "lending": "Кредитование",
+    "lendingBody": "Перечень всех пулов, которые могут быть заимствованы под нулевые проценты и с нулевой ликвидацией.",
+    "collateralValue": "Размер обеспечения",
+    "debtValue": "Размер долга",
+    "loanToValue": "Отношение кредита к стоимости",
+    "availablePools": "Доступные пулы",
+    "yourLoans": "Ваши кредиты",
+    "pool": "Пул",
+    "poolDepth": "Размер пула",
+    "totalDebtBalance": "Общий остаток задолженности",
+    "totalCollateral": "Общее обеспечение",
+    "estCollateralizationRatio": "Расчет. Коэффициент обеспеченности",
+    "collateralizationRatio": "Коэффициент обеспеченности",
+    "totalBorrowers": "Всего заемщиков",
+    "myLoanInformation": "Моя информация о кредите",
+    "loanInformation": "Краткая информация о кредите",
+    "poolInformation": "Информация о пуле",
+    "collateralBalance": "Баланс обеспечения",
+    "debtBalance": "Баланс задолженности",
+    "repaymentLock": "Блокировка погашения",
+    "borrow": "Занять",
+    "repay": "Погасить",
+    "outstandingDebt": "Непогашенная задолженность",
+    "collateral": "Обеспечение",
+    "debt": "Долг",
+    "healthy": "Нормальный",
+    "caution": "Средний",
+    "risky": "Рискованный",
+    "confirmAndBorrow": "Подтверждать и заимствовать",
+    "confirmAndRepay": "Подтвердить и погасить",
+    "transactionInfo": "Сводка по сделке",
+    "repayNoticeTitle": "Подождите!",
+    "repayNoticeCta": "Я понимаю",
+    "repayNotice": "Для возврата залога необходимо погасить 100% долга.",
     "faq": {
+      "title": "ЧАСТЫЕ ВОПРОСЫ",
       "lending": {
+        "title": "Что такое THORChain кредитование?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "borrowing": {
+        "title": "Как происходит заимствование?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "repayments": {
+        "title": "Как происходит погашение кредита?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
     }

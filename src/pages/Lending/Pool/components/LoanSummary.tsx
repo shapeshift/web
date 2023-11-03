@@ -36,6 +36,8 @@ type LoanSummaryProps = {
   isLoading?: boolean
   collateralAssetId: AssetId
   borrowAssetId: AssetId
+  // Either the amount *to* deposit, or the amount to withdraw
+  // TODO(gomes): make this Either<depositAmountCryptoPrecision, withdrawAmountCryptoPrecision>, just using the same field for now for the sake of simplicity
   depositAmountCryptoPrecision: string
 } & StackProps
 

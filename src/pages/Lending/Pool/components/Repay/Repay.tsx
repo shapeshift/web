@@ -70,8 +70,6 @@ const RepayRoutes = memo(
     const location = useLocation()
     const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
 
-    console.log({ repaymentAsset })
-
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location}>

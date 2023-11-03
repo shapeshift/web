@@ -25,9 +25,11 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
+import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,12 +44,12 @@ const formControlProps = {
 
 type RepayInputProps = {
   collateralAssetId: AssetId
-  repaymentPercent: number | null
+  repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
-  onBorrowAccountIdChange: (accountId: AccountId) => void
+  onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset) => void
 }
@@ -58,7 +60,7 @@ export const RepayInput = ({
   collateralAccountId,
   borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
-  onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  onRepaymentAccountIdChange,
   repaymentAsset,
   setRepaymentAsset,
 }: RepayInputProps) => {
@@ -74,10 +76,6 @@ export const RepayInput = ({
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const percentOptions = useMemo(() => [0], [])
-
-  const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    console.info(accountId)
-  }, [])
 
   const assetsById = useAppSelector(selectAssets)
 
@@ -133,7 +131,7 @@ export const RepayInput = ({
         accountId={''}
         assetId={repaymentAsset?.assetId ?? ''}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={handleCollateralAccountIdChange}
         accountSelectionDisabled={false}
         label={'uhh'}
         onAssetChange={handleAssetChange}
@@ -142,7 +140,12 @@ export const RepayInput = ({
         isReadOnly={false}
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
+  }, [
+    handleAssetChange,
+    handleCollateralAccountIdChange,
+    handleRepaymentAssetClick,
+    repaymentAsset?.assetId,
+  ])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -150,16 +153,31 @@ export const RepayInput = ({
         accountId={''}
         assetId={btcAssetId}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={() => {}}
         accountSelectionDisabled={false}
         label={'uhh'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
+  }, [handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
+
+  console.log({ collateralAssetId, collateralAccountId })
+  const { data: lendingPositionData } = useLendingPositionData({
+    assetId: collateralAssetId,
+    accountId: collateralAccountId,
+  })
+  const repaymentAmountCryptoPrecision = useMemo(() => {
+    console.log({ lendingPositionData })
+    if (!lendingPositionData) return null
+
+    return bnOrZero(repaymentPercent)
+      .times(lendingPositionData?.collateralBalanceCryptoPrecision ?? 0)
+      .div(100)
+      .toFixed()
+  }, [lendingPositionData, repaymentPercent])
 
   if (!seenNotice) {
     return (
@@ -181,14 +199,14 @@ export const RepayInput = ({
         assetId={repaymentAsset?.assetId ?? ''}
         assetSymbol={repaymentAsset?.symbol ?? ''}
         assetIcon={''}
-        cryptoAmount={'0'}
+        cryptoAmount={repaymentAmountCryptoPrecision ?? '0'}
         fiatAmount={'0'}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Repay Amount'}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={onRepaymentAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={repaymentAssetSelectComponent}
@@ -233,7 +251,8 @@ export const RepayInput = ({
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Unlocked Collateral'}
-        onAccountIdChange={handleAccountIdChange}
+        // TODO(gomes): implement me
+        onAccountIdChange={() => {}}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={collateralAssetSelectComponent}
@@ -241,7 +260,7 @@ export const RepayInput = ({
       <Collapse in={true}>
         <LoanSummary
           collateralAssetId={collateralAssetId}
-          depositAmountCryptoPrecision={repaymentPercent ?? '0'}
+          depositAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? ''}
           borrowAssetId={repaymentAsset?.assetId ?? ''}
         />
       </Collapse>

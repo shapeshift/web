@@ -86,10 +86,6 @@ export const BorrowInput = ({
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
 
-  const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    console.info({ accountId })
-  }, [])
-
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleBorrowAssetClick = useCallback(() => {
     buyAssetSearch.open({
@@ -139,20 +135,14 @@ export const BorrowInput = ({
         accountId={collateralAccountId}
         assetId={collateralAssetId}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={() => {}}
         accountSelectionDisabled={false}
         label={'Collateral Asset'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [
-    collateralAccountId,
-    collateralAssetId,
-    handleAccountIdChange,
-    handleAssetChange,
-    handleBorrowAssetClick,
-  ])
+  }, [collateralAccountId, collateralAssetId, handleAssetChange, handleBorrowAssetClick])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -160,19 +150,13 @@ export const BorrowInput = ({
         accountId={borrowAccountId}
         assetId={borrowAsset?.assetId ?? ''}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={() => {}}
         accountSelectionDisabled={false}
         label={'Borrow Asset'}
         onAssetChange={handleAssetChange}
       />
     )
-  }, [
-    borrowAccountId,
-    borrowAsset?.assetId,
-    handleAccountIdChange,
-    handleAssetChange,
-    handleBorrowAssetClick,
-  ])
+  }, [borrowAccountId, borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({

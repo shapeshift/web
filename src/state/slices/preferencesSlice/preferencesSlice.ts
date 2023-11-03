@@ -47,6 +47,7 @@ export type FeatureFlags = {
   FoxDiscounts: boolean
   ThorchainLending: boolean
   LedgerWallet: boolean
+  MultiHopTrades: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -111,6 +112,7 @@ const initialState: Preferences = {
     FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
+    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

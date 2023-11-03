@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
 import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
@@ -19,30 +18,35 @@ const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-jest.mock('lib/viem-client', () => ({
-  viemClientByChainId: {
-    [KnownChainIds.EthereumMainnet]: {
-      createEventFilter: jest.fn(() => ({})),
-      getFilterLogs: () =>
-        new Promise(resolve => {
-          resolve([
-            {
-              args: {
-                amount0Out: mockAmount0Out,
-                amount1In: '100000000000000000000',
-              },
+jest.mock('lib/viem-client', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const viemEthMainnetClient = {
+    createEventFilter: jest.fn(() => ({})),
+    getFilterLogs: () =>
+      new Promise(resolve => {
+        resolve([
+          {
+            args: {
+              amount0Out: mockAmount0Out,
+              amount1In: '100000000000000000000',
             },
-            {
-              args: {
-                amount0In: mockAmount0In,
-                amount1Out: '223100000000000000000',
-              },
+          },
+          {
+            args: {
+              amount0In: mockAmount0In,
+              amount1Out: '223100000000000000000',
             },
-          ])
-        }),
+          },
+        ])
+      }),
+  }
+  return {
+    viemEthMainnetClient,
+    viemClientByChainId: {
+      [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
     },
-  },
-}))
+  }
+})
 
 const mockContract = getContract({
   abi: [],

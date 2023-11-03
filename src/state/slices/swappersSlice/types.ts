@@ -1,12 +1,14 @@
+// NOTE: order here matters, and the values must be numeric.
 export enum MultiHopExecutionStatus {
   Unknown = 0,
-  Hop1AwaitingApprovalConfirmation = 1,
-  Hop1AwaitingApprovalExecution = 2,
-  Hop1AwaitingTradeConfirmation = 3,
-  Hop1AwaitingTradeExecution = 4,
-  Hop2AwaitingApprovalConfirmation = 5,
-  Hop2AwaitingApprovalExecution = 6,
-  Hop2AwaitingTradeConfirmation = 7,
-  Hop2AwaitingTradeExecution = 8,
-  TradeComplete = 9,
+  Previewing = 1,
+  Hop1AwaitingApprovalConfirmation = 2,
+  Hop1AwaitingApprovalExecution = 3,
+  Hop1AwaitingTradeConfirmation = 4,
+  Hop1AwaitingTradeExecution = 5,
+  Hop2AwaitingApprovalConfirmation = 6,
+  Hop2AwaitingApprovalExecution = 7,
+  Hop2AwaitingTradeConfirmation = 8,
+  Hop2AwaitingTradeExecution = 9,
+  TradeComplete = 10,
 }

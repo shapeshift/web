@@ -29,7 +29,7 @@ const initialState: SwappersState = {
   sellAssetAccountId: undefined,
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
-  tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
+  tradeExecutionStatus: MultiHopExecutionStatus.Previewing,
   willDonate: true,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,

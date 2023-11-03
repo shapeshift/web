@@ -1,27 +1,37 @@
 import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import { memo, useCallback } from 'react'
+import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveSwapperName,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { FirstHop } from './components/FirstHop'
+import { Footer } from './components/Footer'
 import { SecondHop } from './components/SecondHop'
 
 const cardBorderRadius = { base: 'xl' }
 
 export const MultiHopTradeConfirm = memo(() => {
-  const handleBack = useCallback(() => {}, [])
+  const dispatch = useAppDispatch()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const history = useHistory()
+
+  const handleBack = useCallback(() => {
+    dispatch(swappersSlice.actions.clear())
+    history.push(TradeRoutePaths.Input)
+  }, [dispatch, history])
 
   if (!firstHop || !swapperName) return null
 
@@ -48,6 +58,7 @@ export const MultiHopTradeConfirm = memo(() => {
           </Stack>
         </CardBody>
       </Card>
+      <Footer />
     </SlideTransition>
   )
 })

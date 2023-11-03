@@ -4,7 +4,6 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import type { PublicClient } from '@wagmi/core'
 import assert from 'assert'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { FarmingABI } from 'contracts/abis/farmingAbi'
@@ -99,7 +98,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
     abi: CONTRACT_TYPE_TO_ABI[type],
     address: address as Address,
 
-    publicClient: publicClient as PublicClient,
+    publicClient,
   })
   definedContracts.push({
     contract,

@@ -6,6 +6,7 @@ import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
@@ -16,11 +17,20 @@ import { TradeRoutePaths } from './types'
 const Approval = lazy(() =>
   import('./components/Approval/Approval').then(({ Approval }) => ({ default: Approval })),
 )
+const MultiHopTradeConfirm = lazy(() =>
+  import('./components/MultiHopTradeConfirm/MultiHopTradeConfirm').then(
+    ({ MultiHopTradeConfirm }) => ({
+      default: MultiHopTradeConfirm,
+    }),
+  ),
+)
+
 const TradeConfirm = lazy(() =>
   import('./components/TradeConfirm/TradeConfirm').then(({ TradeConfirm }) => ({
     default: TradeConfirm,
   })),
 )
+
 const TradeInput = lazy(() =>
   import('./components/TradeInput/TradeInput').then(({ TradeInput }) => ({ default: TradeInput })),
 )
@@ -91,6 +101,7 @@ export const MultiHopTrade = memo(
 const MultiHopRoutes = memo(() => {
   const location = useLocation()
   const dispatch = useAppDispatch()
+  const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   useEffect(() => {
     return () => {
@@ -109,7 +120,7 @@ const MultiHopRoutes = memo(() => {
             <TradeInput />
           </Route>
           <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-            <TradeConfirm />
+            {enableMultiHopTrades ? <MultiHopTradeConfirm /> : <TradeConfirm />}
           </Route>
           <Route key={TradeRoutePaths.Approval} path={TradeRoutePaths.Approval}>
             <Approval />

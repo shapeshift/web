@@ -2,6 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
@@ -98,6 +99,7 @@ export const useUniV2LiquidityPool = ({
       : getOrCreateContractByType({
           address: asset0ContractAddress,
           type: ContractType.ERC20,
+          chainId: KnownChainIds.EthereumMainnet,
         })
   }, [asset0ContractAddress, skip])
 
@@ -107,6 +109,7 @@ export const useUniV2LiquidityPool = ({
       : getOrCreateContractByType({
           address: asset1ContractAddress,
           type: ContractType.ERC20,
+          chainId: KnownChainIds.EthereumMainnet,
         })
   }, [asset1ContractAddress, skip])
 
@@ -116,6 +119,7 @@ export const useUniV2LiquidityPool = ({
       : getOrCreateContractByType({
           address: lpContractAddress,
           type: ContractType.UniV2Pair,
+          chainId: KnownChainIds.EthereumMainnet,
         })
   }, [lpContractAddress, skip])
 
@@ -445,6 +449,7 @@ export const useUniV2LiquidityPool = ({
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
+        chainId: KnownChainIds.EthereumMainnet,
       })
 
       if (!contract) return
@@ -606,6 +611,7 @@ export const useUniV2LiquidityPool = ({
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
+        chainId: KnownChainIds.EthereumMainnet,
       })
 
       if (!contract) return

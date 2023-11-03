@@ -36,7 +36,9 @@ export const useLendingQuoteCloseQuery = ({
   // TODO(gomes): programmatic
   const repaymentAccountId =
     useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(repaymentAssetId).chainId),
+      repaymentAssetId
+        ? selectFirstAccountIdByChainId(state, fromAssetId(repaymentAssetId).chainId)
+        : undefined,
     ) ?? ''
 
   // TODO(gomes): programmatic

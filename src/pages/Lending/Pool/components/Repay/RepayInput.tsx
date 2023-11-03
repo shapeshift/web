@@ -95,19 +95,22 @@ export const RepayInput = ({
     })()
   }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
 
-  const useLendingQuoteQueryArgs = useMemo(
+  const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
       collateralAssetId,
-      borrowAssetId: borrowAsset?.assetId ?? '',
-      depositAmountCryptoPrecision: depositAmount ?? '0',
+      repaymentAssetId: repaymentAsset?.assetId ?? '',
+      repaymentPercent: sliderValue,
     }),
-    [borrowAsset?.assetId, collateralAssetId, depositAmount],
+    [collateralAssetId, repaymentAsset?.assetId, sliderValue],
   )
+
   const {
     data,
-    isLoading: isLendingQuoteLoading,
-    isError: isLendingQuoteError,
-  } = useLendingQuoteCloseQuery(useLendingQuoteQueryArgs)
+    isLoading: isLendingQuoteCloseLoading,
+    isError: isLendingQuoteCloseError,
+  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  console.log({ data })
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {

@@ -9,7 +9,7 @@ import type {
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -28,6 +28,7 @@ type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
   to: string
   spender: string
+  chainId: ChainId
 }
 
 type BuildArgs = {
@@ -224,12 +225,13 @@ export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
   to,
   spender,
+  chainId,
 }: GetApproveContractDataArgs): string => {
   const address = ethers.utils.getAddress(to)
   const contract = getOrCreateContractByType({
     address,
     type: ContractType.ERC20,
-    chainId: KnownChainIds.EthereumMainnet,
+    chainId,
   })
   const data = encodeFunctionData({
     abi: contract.abi,

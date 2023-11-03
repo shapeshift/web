@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -144,7 +143,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const contract = getOrCreateContractByType({
         address: fromAssetId(assetId).assetReference,
         type: ContractType.ERC20,
-        chainId: KnownChainIds.EthereumMainnet,
+        chainId,
       })
 
       const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE

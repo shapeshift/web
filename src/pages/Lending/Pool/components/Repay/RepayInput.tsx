@@ -13,9 +13,9 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -23,7 +23,12 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
+import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import { isSome } from 'lib/utils'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -34,7 +39,28 @@ const formControlProps = {
   paddingBottom: 0,
 }
 
-export const RepayInput = () => {
+type RepayInputProps = {
+  collateralAssetId: AssetId
+  repayAmount: string | null
+  onRepayAmountChange: (value: string) => void
+  collateralAccountId: AccountId
+  borrowAccountId: AccountId
+  onCollateralAccountIdChange: (accountId: AccountId) => void
+  onBorrowAccountIdChange: (accountId: AccountId) => void
+  repaymentAsset: Asset | null
+  setRepaymentAsset: (asset: Asset) => void
+}
+export const RepayInput = ({
+  collateralAssetId,
+  repayAmount,
+  onRepayAmountChange,
+  collateralAccountId,
+  borrowAccountId,
+  onCollateralAccountIdChange: handleCollateralAccountIdChange,
+  onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  repaymentAsset,
+  setRepaymentAsset,
+}: RepayInputProps) => {
   const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
   const history = useHistory()
@@ -51,19 +77,59 @@ export const RepayInput = () => {
     console.info(accountId)
   }, [])
 
-  const handleAssetClick = useCallback(() => {
-    console.info('clicked Asset')
-  }, [])
+  const assetsById = useAppSelector(selectAssets)
+
+  const [repaymentSupportedAssets, setRepaymentSupportedAssets] = useState<Asset[]>([])
+  useEffect(() => {
+    ;(async () => {
+      if (!repaymentAsset) setRepaymentAsset(assetsById[collateralAssetId] as Asset)
+
+      const assets = Object.values(assetsById) as Asset[]
+      const thorSellAssets = (await thorchainSwapper.filterAssetIdsBySellable(assets))
+        .map(assetId => assetsById[assetId])
+        .filter(isSome)
+      setRepaymentSupportedAssets(thorSellAssets)
+    })()
+  }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
+
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const handleRepaymentAssetClick = useCallback(() => {
+    if (!repaymentSupportedAssets.length) return
+
+    buyAssetSearch.open({
+      onClick: setRepaymentAsset,
+      title: 'lending.borrow',
+      assets: repaymentSupportedAssets, // TODO(gomes)
+    })
+  }, [buyAssetSearch, repaymentSupportedAssets, setRepaymentAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
   }, [])
-  const assetSelectComponent = useMemo(() => {
+
+  const repaymentAssetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        accountId={''}
+        assetId={repaymentAsset?.assetId ?? ''}
+        onAssetClick={handleRepaymentAssetClick}
+        onAccountIdChange={handleAccountIdChange}
+        accountSelectionDisabled={false}
+        label={'uhh'}
+        onAssetChange={handleAssetChange}
+        // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
+        // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
+        isReadOnly={false}
+      />
+    )
+  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
+
+  const collateralAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         accountId={''}
         assetId={btcAssetId}
-        onAssetClick={handleAssetClick}
+        onAssetClick={handleRepaymentAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'uhh'}
@@ -71,7 +137,7 @@ export const RepayInput = () => {
         isReadOnly
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleAssetClick])
+  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
@@ -105,7 +171,7 @@ export const RepayInput = () => {
         onAccountIdChange={handleAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
-        labelPostFix={assetSelectComponent}
+        labelPostFix={repaymentAssetSelectComponent}
       >
         <Stack spacing={4} px={6} pb={4}>
           <Slider defaultValue={100} isReadOnly>
@@ -150,11 +216,14 @@ export const RepayInput = () => {
         onAccountIdChange={handleAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
-        labelPostFix={assetSelectComponent}
+        labelPostFix={collateralAssetSelectComponent}
       />
       <Collapse in={true}>
-        {/* @ts-ignore TODO(gomes): implement me */}
-        <LoanSummary />
+        <LoanSummary
+          collateralAssetId={collateralAssetId}
+          depositAmountCryptoPrecision={repayAmount ?? '0'}
+          borrowAssetId={repaymentAsset?.assetId ?? ''}
+        />
       </Collapse>
       <Stack
         borderTopWidth={1}

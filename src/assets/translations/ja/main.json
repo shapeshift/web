@@ -98,7 +98,10 @@
     "all": "全て",
     "viewAll": "すべて見る",
     "slippage": "スリッページ",
+    "feesPlusSlippage": "手数料+スリッページ",
     "best": "ベスト",
+    "gasFee": "ガス料金",
+    "fees": "手数料",
     "alternative": "代替",
     "validator": "%{name} バリデーター",
     "needAsset": "%{asset} が必要ですか?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "売買",
     "arkeo": "Arkeoエアドロップ",
     "foxMissions": "FOXミッション",
-    "foxMissionsShort": "ミッション"
+    "foxMissionsShort": "ミッション",
+    "lending": "貸し出し"
   },
   "transactionRow": {
     "send": "送信済み",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "取引",
     "allowance": "手当",
+    "verifyAddresses": "アドレスの確認",
+    "assetAddress": "%{asset} アドレス",
+    "verifyAsset": "%{asset} を確認してください",
+    "verifyAddressMessage": "続行する前に、アドレスが正しいことを確認してください。",
     "slippageInfo": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",
     "allowanceTooltip": "スマートコントラクトの使用許可を与える金額。",
     "searchingRate": "フェッチ率...",
@@ -2133,14 +2141,52 @@
     }
   },
   "lending": {
+    "lending": "貸し出し",
+    "lendingBody": "ゼロ金利およびゼロ清算で借りられるすべてのプールのリスト。",
+    "collateralValue": "担保価値",
+    "debtValue": "負債額",
+    "loanToValue": "価値へのローン",
+    "availablePools": "利用可能なプール",
+    "yourLoans": "ローン",
+    "pool": "プール",
+    "poolDepth": "プールの深さ",
+    "totalDebtBalance": "総負債残高",
+    "totalCollateral": "担保総額",
+    "estCollateralizationRatio": "EST 担保比率",
+    "collateralizationRatio": "担保比率",
+    "totalBorrowers": "総借入者数",
+    "myLoanInformation": "ローン情報",
+    "loanInformation": "ローン概要",
+    "poolInformation": "プール情報",
+    "collateralBalance": "担保価値",
+    "debtBalance": "負債残高",
+    "repaymentLock": "返済ロック",
+    "borrow": "借りる",
+    "repay": "返済",
+    "outstandingDebt": "負債残高",
+    "collateral": "担保",
+    "debt": "借金",
+    "healthy": "健康",
+    "caution": "注意",
+    "risky": "リスキーな",
+    "confirmAndBorrow": "確認して借りる",
+    "confirmAndRepay": "確認して返済する",
+    "transactionInfo": "取引概要",
+    "repayNoticeTitle": "待つ",
+    "repayNoticeCta": "理解しました",
+    "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
     "faq": {
+      "title": "よくある質問",
       "lending": {
+        "title": "THORChainレンディングとは何ですか?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "borrowing": {
+        "title": "借入はどのように機能しますか?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "repayments": {
+        "title": "返済はどのように行われますか?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
     }

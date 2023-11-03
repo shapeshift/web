@@ -98,7 +98,10 @@
     "all": "Todo",
     "viewAll": "Ver todo",
     "slippage": "Deslizamiento",
+    "feesPlusSlippage": "Tarifas + Deslizamiento",
     "best": "Mejor",
+    "gasFee": "Tarifa de gas",
+    "fees": "Tarifas",
     "alternative": "Alternativa",
     "validator": "el validador %{name}",
     "needAsset": "¿Necesita %{asset}?",
@@ -491,7 +494,7 @@
   "staking": {
     "staking": "Staking",
     "itWillTake": "Tomará",
-    "toUnlock": "para desbloquear tus Osmo después de unstake. Las recompensas de staking deberán retirarse por separado.",
+    "toUnlock": "para desbloquear tus %{assetSymbol} después de unstake. Las recompensas de staking deberán retirarse por separado.",
     "assetStakingBalance": "%{assetName} Balance de Staking"
   },
   "navBar": {
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo ",
     "foxMissions": "Misiones FOX",
-    "foxMissionsShort": "Misiones"
+    "foxMissionsShort": "Misiones",
+    "lending": "Préstamo"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Intercambiar",
     "allowance": "Tolerancia",
+    "verifyAddresses": "Verificar direcciones",
+    "assetAddress": "dirección %{asset}",
+    "verifyAsset": "Verificar %{asset}",
+    "verifyAddressMessage": "Asegúrese de que sus direcciones sean correctas antes de continuar.",
     "slippageInfo": "Su transacción se revertirá si el precio cambia desfavorablemente más de porcentaje.",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
@@ -2133,14 +2141,52 @@
     }
   },
   "lending": {
+    "lending": "Préstamo",
+    "lendingBody": "Una lista de todas las piscinas donde puedes pedir préstamos sin intereses ni liquidaciones.",
+    "collateralValue": "Valor colateral",
+    "debtValue": "Valor de la deuda",
+    "loanToValue": "Préstamo a valor",
+    "availablePools": "Piscinas disponibles",
+    "yourLoans": "Tus préstamos",
+    "pool": "Piscina",
+    "poolDepth": "Profundidad de la piscina",
+    "totalDebtBalance": "Saldo total de la deuda",
+    "totalCollateral": "Total de garantía colateral",
+    "estCollateralizationRatio": "Est. Ratio de colateral",
+    "collateralizationRatio": "Ratio de garantía colateral",
+    "totalBorrowers": "Prestatarios totales",
+    "myLoanInformation": "Mi información de préstamo",
+    "loanInformation": "Resumen del préstamo",
+    "poolInformation": "Información de la piscina",
+    "collateralBalance": "Saldo de garantía colateral",
+    "debtBalance": "Saldo de la deuda",
+    "repaymentLock": "Bloqueo de repago",
+    "borrow": "Pedir prestado",
+    "repay": "Repago",
+    "outstandingDebt": "Deuda pendiente",
+    "collateral": "Colateral",
+    "debt": "Deuda",
+    "healthy": "Saludable",
+    "caution": "Precaución",
+    "risky": "Arriesgado",
+    "confirmAndBorrow": "Confirmar y pedir prestado",
+    "confirmAndRepay": "Confirmar y repagar",
+    "transactionInfo": "Resumen de Transacciones",
+    "repayNoticeTitle": "¡Espera!",
+    "repayNoticeCta": "Entiendo",
+    "repayNotice": "Para recuperar su garantía colateral deberá pagar el 100% de su deuda.",
     "faq": {
+      "title": "Preguntas más frecuentes",
       "lending": {
+        "title": "¿Qué son los préstamos THORChain?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "borrowing": {
+        "title": "¿Cómo funciona la toma de préstamos?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "repayments": {
+        "title": "¿Cómo funciona el reembolso o repago?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
     }

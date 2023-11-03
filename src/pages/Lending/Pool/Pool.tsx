@@ -237,7 +237,12 @@ export const Pool = () => {
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
-                  <Repay />
+                  <Repay
+                    collateralAccountId={collateralAccountId}
+                    borrowAccountId={borrowAccountId}
+                    onCollateralAccountIdChange={setCollateralAccountId}
+                    onBorrowAccountIdChange={setBorrowAccountId}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>

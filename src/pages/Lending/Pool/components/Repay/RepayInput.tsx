@@ -131,7 +131,7 @@ export const RepayInput = ({
         accountId={''}
         assetId={repaymentAsset?.assetId ?? ''}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={handleCollateralAccountIdChange}
+        onAccountIdChange={() => {}}
         accountSelectionDisabled={false}
         label={'uhh'}
         onAssetChange={handleAssetChange}
@@ -252,7 +252,7 @@ export const RepayInput = ({
         showFiatSkeleton={false}
         label={'Unlocked Collateral'}
         // TODO(gomes): implement me
-        onAccountIdChange={() => {}}
+        onAccountIdChange={onRepaymentAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={collateralAssetSelectComponent}

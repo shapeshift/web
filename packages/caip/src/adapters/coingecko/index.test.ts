@@ -54,7 +54,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.ArbitrumNova,
       })
-      expect(coingeckoToAssetIds('ethereum')).toEqual([ethOnEthereum, ethOnOptimism, ethOnArbitrum, ethOnArbitrumNova])
+      expect(coingeckoToAssetIds('ethereum')).toEqual([
+        ethOnEthereum,
+        ethOnOptimism,
+        ethOnArbitrum,
+        ethOnArbitrumNova,
+      ])
     })
 
     it('can get AssetIds id for FOX', () => {

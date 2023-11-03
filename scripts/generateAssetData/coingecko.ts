@@ -15,7 +15,16 @@ import {
 import axios from 'axios'
 import type { Asset } from 'lib/asset-service'
 
-import { arbitrum, arbitrumNova, avax, bnbsmartchain, ethereum, gnosis, optimism, polygon } from './baseAssets'
+import {
+  arbitrum,
+  arbitrumNova,
+  avax,
+  bnbsmartchain,
+  ethereum,
+  gnosis,
+  optimism,
+  polygon,
+} from './baseAssets'
 import { colorMap } from './colorMap'
 
 type Token = {

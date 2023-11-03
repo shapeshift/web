@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch } from 'state/store'
 
-export const useTradeExecutor = () => {
+export const useTradeExecutooor = () => {
   const dispatch = useAppDispatch()
   const mockExecute = useCallback(() => {
     // next state

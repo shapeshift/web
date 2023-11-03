@@ -15,7 +15,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store, useAppSelector } from 'state/store'
 
-import { useTradeExecutor } from '../hooks/useTradeExecutor'
+import { useTradeExecutooor } from '../hooks/useTradeExecutor'
 import { TradeType } from '../types'
 import { Hop } from './Hop'
 import {
@@ -52,7 +52,7 @@ export const FirstHop = ({
   } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
 
   const shouldRenderDonation = true // TODO:
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
+  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutooor()
 
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
 

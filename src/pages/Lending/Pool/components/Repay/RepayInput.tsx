@@ -178,8 +178,8 @@ export const RepayInput = ({
   return (
     <Stack spacing={0}>
       <TradeAssetInput
-        assetId={btcAssetId}
-        assetSymbol={'btc'}
+        assetId={repaymentAsset?.assetId ?? ''}
+        assetSymbol={repaymentAsset?.symbol ?? ''}
         assetIcon={''}
         cryptoAmount={'0'}
         fiatAmount={'0'}

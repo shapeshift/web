@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -108,6 +109,7 @@ export const calculateAPRFromToken0 = memoize(
     const pair = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,
+      chainId: KnownChainIds.EthereumMainnet,
     })
 
     const token0Volume24Hr = await getToken0Volume24Hr({

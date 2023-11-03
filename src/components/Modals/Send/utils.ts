@@ -70,12 +70,12 @@ export const estimateFees = ({
     }
     case CHAIN_NAMESPACE.Evm: {
       const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-        memo,
         to,
         value,
         chainSpecific: {
           from: account,
           contractAddress,
+          data: memo,
         },
         sendMax,
       }

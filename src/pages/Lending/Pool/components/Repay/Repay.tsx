@@ -24,20 +24,20 @@ export const Repay = ({
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
 }: RepayProps) => {
-  const [repayAmount, setRepayAmount] = useState<string | null>(null)
+  const [repaymentPercent, setRepaymentPercent] = useState<number>(100)
 
   const collateralAssetId = useRouteAssetId()
 
-  const handleDepositAmountChange = useCallback((value: string) => {
-    setRepayAmount(value)
+  const handleDepositAmountChange = useCallback((value: number) => {
+    setRepaymentPercent(value)
   }, [])
 
   return (
     <MemoryRouter initialEntries={RepayEntries} initialIndex={0}>
       <RepayRoutes
         collateralAssetId={collateralAssetId}
-        repayAmount={repayAmount}
-        onRepayAmountChange={handleDepositAmountChange}
+        repaymentPercent={repaymentPercent}
+        onRepaymentPercentChange={handleDepositAmountChange}
         collateralAccountId={collateralAccountId}
         borrowAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
@@ -49,8 +49,8 @@ export const Repay = ({
 
 type RepayRoutesProps = {
   collateralAssetId: AssetId
-  repayAmount: string | null
-  onRepayAmountChange: (value: string) => void
+  repaymentPercent: number
+  onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
@@ -60,8 +60,8 @@ type RepayRoutesProps = {
 const RepayRoutes = memo(
   ({
     collateralAssetId,
-    repayAmount,
-    onRepayAmountChange,
+    repaymentPercent,
+    onRepaymentPercentChange,
     collateralAccountId,
     borrowAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
@@ -78,12 +78,12 @@ const RepayRoutes = memo(
           <Route key={RepayRoutePaths.Input} path={RepayRoutePaths.Input}>
             <RepayInput
               collateralAssetId={collateralAssetId}
-              repayAmount={repayAmount}
+              repaymentPercent={repaymentPercent}
               collateralAccountId={collateralAccountId}
               borrowAccountId={borrowAccountId}
               onCollateralAccountIdChange={handleCollateralAccountIdChange}
               onBorrowAccountIdChange={handleBorrowAccountIdChange}
-              onRepayAmountChange={onRepayAmountChange}
+              onRepaymentPercentChange={onRepaymentPercentChange}
               repaymentAsset={repaymentAsset}
               setRepaymentAsset={setRepaymentAsset}
             />

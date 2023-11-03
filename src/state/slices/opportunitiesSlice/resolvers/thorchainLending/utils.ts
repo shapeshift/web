@@ -99,7 +99,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
-    `&destination=${collateralAssetAddress}`
+    `&loan_owner=${collateralAssetAddress}`
 
   const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error

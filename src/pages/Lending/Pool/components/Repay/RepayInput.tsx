@@ -28,7 +28,7 @@ import type { Asset } from 'lib/asset-service'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -42,8 +42,8 @@ const formControlProps = {
 
 type RepayInputProps = {
   collateralAssetId: AssetId
-  repayAmount: string | null
-  onRepayAmountChange: (value: string) => void
+  repaymentPercent: number | null
+  onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
@@ -53,8 +53,8 @@ type RepayInputProps = {
 }
 export const RepayInput = ({
   collateralAssetId,
-  repayAmount,
-  onRepayAmountChange,
+  repaymentPercent,
+  onRepaymentPercentChange: onRepayPercentChange,
   collateralAccountId,
   borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
@@ -63,9 +63,9 @@ export const RepayInput = ({
   setRepaymentAsset,
 }: RepayInputProps) => {
   const [seenNotice, setSeenNotice] = useState(false)
-  const [sliderValue, setSliderValue] = useState(100)
   const translate = useTranslate()
   const history = useHistory()
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   const onSubmit = useCallback(() => {
     history.push(RepayRoutePaths.Confirm)
@@ -99,9 +99,9 @@ export const RepayInput = ({
     () => ({
       collateralAssetId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent: sliderValue,
+      repaymentPercent,
     }),
-    [collateralAssetId, repaymentAsset?.assetId, sliderValue],
+    [collateralAssetId, repaymentAsset?.assetId, repaymentPercent],
   )
 
   const {
@@ -194,7 +194,7 @@ export const RepayInput = ({
         labelPostFix={repaymentAssetSelectComponent}
       >
         <Stack spacing={4} px={6} pb={4}>
-          <Slider defaultValue={sliderValue} onChange={setSliderValue}>
+          <Slider defaultValue={100} onChange={onRepayPercentChange}>
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
             </SliderTrack>
@@ -223,9 +223,9 @@ export const RepayInput = ({
         <Divider />
       </Flex>
       <TradeAssetInput
-        assetId={btcAssetId}
-        assetSymbol={'btc'}
-        assetIcon={''}
+        assetId={collateralAssetId}
+        assetSymbol={collateralAsset?.symbol ?? ''}
+        assetIcon={collateralAsset?.icon ?? ''}
         cryptoAmount={'0'}
         fiatAmount={'0'}
         isSendMaxDisabled={false}
@@ -241,7 +241,7 @@ export const RepayInput = ({
       <Collapse in={true}>
         <LoanSummary
           collateralAssetId={collateralAssetId}
-          depositAmountCryptoPrecision={repayAmount ?? '0'}
+          depositAmountCryptoPrecision={repaymentPercent ?? '0'}
           borrowAssetId={repaymentAsset?.assetId ?? ''}
         />
       </Collapse>

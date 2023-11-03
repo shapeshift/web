@@ -95,7 +95,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
   const url =
-    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/quote` +
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +

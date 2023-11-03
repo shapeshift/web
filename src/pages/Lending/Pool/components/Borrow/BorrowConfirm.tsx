@@ -33,7 +33,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -116,7 +116,7 @@ export const BorrowConfirm = ({
     data,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
+  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 

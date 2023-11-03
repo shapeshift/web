@@ -27,6 +27,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { isSome } from 'lib/utils'
+import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -62,6 +63,7 @@ export const RepayInput = ({
   setRepaymentAsset,
 }: RepayInputProps) => {
   const [seenNotice, setSeenNotice] = useState(false)
+  const [sliderValue, setSliderValue] = useState(100)
   const translate = useTranslate()
   const history = useHistory()
 
@@ -80,6 +82,7 @@ export const RepayInput = ({
   const assetsById = useAppSelector(selectAssets)
 
   const [repaymentSupportedAssets, setRepaymentSupportedAssets] = useState<Asset[]>([])
+
   useEffect(() => {
     ;(async () => {
       if (!repaymentAsset) setRepaymentAsset(assetsById[collateralAssetId] as Asset)
@@ -91,6 +94,20 @@ export const RepayInput = ({
       setRepaymentSupportedAssets(thorSellAssets)
     })()
   }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
+
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    }),
+    [borrowAsset?.assetId, collateralAssetId, depositAmount],
+  )
+  const {
+    data,
+    isLoading: isLendingQuoteLoading,
+    isError: isLendingQuoteError,
+  } = useLendingQuoteCloseQuery(useLendingQuoteQueryArgs)
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {
@@ -174,7 +191,7 @@ export const RepayInput = ({
         labelPostFix={repaymentAssetSelectComponent}
       >
         <Stack spacing={4} px={6} pb={4}>
-          <Slider defaultValue={100} isReadOnly>
+          <Slider defaultValue={sliderValue} onChange={setSliderValue}>
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
             </SliderTrack>

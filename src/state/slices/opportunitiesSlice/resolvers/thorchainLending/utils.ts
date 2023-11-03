@@ -17,6 +17,7 @@ import type {
   LendingDepositQuoteResponse,
   LendingDepositQuoteResponseSuccess,
   LendingWithdrawQuoteResponse,
+  LendingWithdrawQuoteResponseSuccess,
 } from './types'
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
@@ -64,54 +65,48 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 }
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
-// but we might need e.g min_out
+// but we might need e.g min_out and affiliate_bps
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
-  repaymentAssetId,
-  repaymentAmountBaseUnit,
   collateralAssetId,
-  loanOwner,
+  collateralAmountCryptoBaseUnit,
+  repaymentAssetId,
+  collateralAssetAddress,
 }: {
-  repaymentAssetId: AssetId
-  repaymentAmountBaseUnit: BigNumber.Value | null | undefined
   collateralAssetId: AssetId
-  loanOwner: string
-}): Promise<Result<LendingWithdrawQuoteResponse, string>> => {
-  if (!repaymentAmountBaseUnit) {
-    return Err('Repayment amount is required')
-  }
-
-  const repaymentAsset = selectAssetById(store.getState(), repaymentAssetId)
-  if (!repaymentAsset) return Err(`Asset not found for assetId ${repaymentAssetId}`)
-  const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
-  if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
-  const to_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
-  if (!to_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
-
-  const amount = toThorBaseUnit({
-    valueCryptoBaseUnit: repaymentAmountBaseUnit,
-    asset: repaymentAsset,
+  collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
+  repaymentAssetId: AssetId
+  collateralAssetAddress: string
+}): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
+  if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
+  const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
+  if (!collateralAsset) return Err(`Asset not found for assetId ${collateralAssetId}`)
+  const amountCryptoThorBaseUnit = toThorBaseUnit({
+    valueCryptoBaseUnit: collateralAmountCryptoBaseUnit,
+    asset: collateralAsset,
   })
 
-  const url =
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
-    `?from_asset=${from_asset}` +
-    `&amount=${amount.toString()}` +
-    `&to_asset=${to_asset}` +
-    `&loan_owner=${loanOwner}`
+  const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
+  if (!from_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
+  const to_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
+  if (!to_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
 
-  try {
-    const { data: quoteData } = await axios.get<LendingWithdrawQuoteResponse>(url)
-    if (!quoteData) {
-      return Err('No data received from THORChain')
-    }
-    if ('error' in quoteData) {
-      return Err(quoteData.error)
-    }
-    return Ok(quoteData)
-  } catch (error) {
-    return Err(`Error fetching THORChain lending withdraw quote: ${error}`)
-  }
+  const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
+  if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
+
+  const url =
+    `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/quote` +
+    `?from_asset=${from_asset}` +
+    `&amount=${amountCryptoThorBaseUnit.toString()}` +
+    `&to_asset=${to_asset}` +
+    `&destination=${collateralAssetAddress}`
+
+  const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
+  // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error
+  if (!data || 'error' in data)
+    return Err('Error fetching Thorchain lending deposit quote: no data received')
+
+  return Ok(data)
 }
 
 export const getAllThorchainLendingPositions = async (

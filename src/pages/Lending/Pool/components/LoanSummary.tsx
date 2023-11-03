@@ -11,7 +11,7 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
-import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -106,7 +106,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     data: lendingQuoteData,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
+  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   if (!collateralAsset || isLendingQuoteError) return null
 

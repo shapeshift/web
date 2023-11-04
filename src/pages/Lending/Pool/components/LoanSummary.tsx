@@ -45,14 +45,14 @@ type LoanSummaryProps = {
         repayAmountCryptoPrecision?: never
         debtRepaidAmountUsd: never
         repaymentAsset: never
-        repaymentPercent: never
+        repaymentPercent: number
       }
     | {
         depositAmountCryptoPrecision?: never
         repayAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
         repaymentAsset: Asset | null
-        repaymentPercent: string
+        repaymentPercent: number
       }
   )
 

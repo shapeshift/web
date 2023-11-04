@@ -278,7 +278,7 @@ export const BorrowInput = ({
               colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
               mx={-2}
               onClick={onSubmit}
-              disabled={Boolean(quoteErrorTranslation)}
+              isDisabled={Boolean(quoteErrorTranslation)}
             >
               {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
             </Button>

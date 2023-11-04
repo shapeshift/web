@@ -13,17 +13,16 @@ const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
 
 type RepayProps = {
   collateralAccountId: AccountId
-  borrowAccountId: AccountId
+  repaymentAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
-  onBorrowAccountIdChange: (accountId: AccountId) => void
+  onRepaymentAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Repay = ({
   collateralAccountId,
-  borrowAccountId,
+  repaymentAccountId: borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
-  // TODO(gomes): this should be repayment
-  onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
 }: RepayProps) => {
   const [repaymentPercent, setRepaymentPercent] = useState<number>(100)
 
@@ -40,9 +39,9 @@ export const Repay = ({
         repaymentPercent={repaymentPercent}
         onRepaymentPercentChange={handleDepositAmountChange}
         collateralAccountId={collateralAccountId}
-        borrowAccountId={borrowAccountId}
+        repaymentAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
-        onRepaymentAccountIdChange={handleBorrowAccountIdChange}
+        onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
       />
     </MemoryRouter>
   )
@@ -53,7 +52,7 @@ type RepayRoutesProps = {
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
-  borrowAccountId: AccountId
+  repaymentAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
 }
@@ -64,7 +63,7 @@ const RepayRoutes = memo(
     repaymentPercent,
     onRepaymentPercentChange,
     collateralAccountId,
-    borrowAccountId,
+    repaymentAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   }: RepayRoutesProps) => {
@@ -79,7 +78,7 @@ const RepayRoutes = memo(
               collateralAssetId={collateralAssetId}
               repaymentPercent={repaymentPercent}
               collateralAccountId={collateralAccountId}
-              borrowAccountId={borrowAccountId}
+              repaymentAccountId={repaymentAccountId}
               onCollateralAccountIdChange={handleCollateralAccountIdChange}
               onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
               onRepaymentPercentChange={onRepaymentPercentChange}

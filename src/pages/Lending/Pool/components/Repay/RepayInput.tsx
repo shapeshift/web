@@ -30,7 +30,12 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -47,7 +52,7 @@ type RepayInputProps = {
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
-  borrowAccountId: AccountId
+  repaymentAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentAsset: Asset | null
@@ -58,7 +63,7 @@ export const RepayInput = ({
   repaymentPercent,
   onRepaymentPercentChange: onRepayPercentChange,
   collateralAccountId,
-  borrowAccountId,
+  repaymentAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onRepaymentAccountIdChange,
   repaymentAsset,
@@ -108,8 +113,6 @@ export const RepayInput = ({
     isError: isLendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
-  console.log({ data })
-
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {
     if (!repaymentSupportedAssets.length) return
@@ -125,13 +128,15 @@ export const RepayInput = ({
     return console.info(asset)
   }, [])
 
+  const handleAccountIdChange = useMemo((accountId: AccountId) => {}, [])
+
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         accountId={''}
         assetId={repaymentAsset?.assetId ?? ''}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={() => {}}
+        onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'uhh'}
         onAssetChange={handleAssetChange}
@@ -140,12 +145,7 @@ export const RepayInput = ({
         isReadOnly={false}
       />
     )
-  }, [
-    handleAssetChange,
-    handleCollateralAccountIdChange,
-    handleRepaymentAssetClick,
-    repaymentAsset?.assetId,
-  ])
+  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -153,31 +153,52 @@ export const RepayInput = ({
         accountId={''}
         assetId={btcAssetId}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={() => {}}
+        onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'uhh'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [handleAssetChange, handleRepaymentAssetClick])
+  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
-  console.log({ collateralAssetId, collateralAccountId })
+  const collateralAssetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, collateralAssetId),
+  )
+  const repaymentAssetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
+  )
+
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
-  const repaymentAmountCryptoPrecision = useMemo(() => {
-    console.log({ lendingPositionData })
+
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  const debtBalanceUserCurrency = useMemo(() => {
+    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
+      .times(userCurrencyToUsdRate)
+      .toFixed()
+  }, [lendingPositionData, userCurrencyToUsdRate])
+
+  const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData) return null
 
-    return bnOrZero(repaymentPercent)
-      .times(lendingPositionData?.collateralBalanceCryptoPrecision ?? 0)
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
+      .times(debtBalanceUserCurrency)
       .div(100)
-      .toFixed()
-  }, [lendingPositionData, repaymentPercent])
+
+    return proratedCollateralFiatUserCurrency.toFixed()
+  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+
+  const repaymentAmountCryptoPrecision = useMemo(() => {
+    if (!repaymentAmountFiatUserCurrency) return null
+
+    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
+  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
 
   if (!seenNotice) {
     return (
@@ -200,7 +221,7 @@ export const RepayInput = ({
         assetSymbol={repaymentAsset?.symbol ?? ''}
         assetIcon={''}
         cryptoAmount={repaymentAmountCryptoPrecision ?? '0'}
-        fiatAmount={'0'}
+        fiatAmount={repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
@@ -222,7 +243,7 @@ export const RepayInput = ({
           </Slider>
           <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
             <Amount.Fiat value={0} />
-            <Amount.Fiat value='14820' />
+            <Amount.Fiat value={debtBalanceUserCurrency} />
           </Flex>
         </Stack>
       </TradeAssetInput>
@@ -253,6 +274,8 @@ export const RepayInput = ({
         label={'Unlocked Collateral'}
         // TODO(gomes): implement me
         onAccountIdChange={onRepaymentAccountIdChange}
+        isReadOnly
+        hideAmounts
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={collateralAssetSelectComponent}
@@ -292,7 +315,13 @@ export const RepayInput = ({
             <Amount.Fiat value='0' />
           </Row.Value>
         </Row>
-        <Button size='lg' colorScheme='blue' mx={-2} onClick={onSubmit}>
+        <Button
+          size='lg'
+          colorScheme={isLendingQuoteCloseError ? 'red' : 'blue'}
+          mx={-2}
+          onClick={onSubmit}
+          isDisabled={isLendingQuoteCloseError}
+        >
           {translate('lending.repay')}
         </Button>
       </Stack>

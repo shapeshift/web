@@ -28,6 +28,7 @@ type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
   to: string
   spender: string
+  chainId: ChainId
 }
 
 type BuildArgs = {
@@ -224,9 +225,14 @@ export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
   to,
   spender,
+  chainId,
 }: GetApproveContractDataArgs): string => {
   const address = ethers.utils.getAddress(to)
-  const contract = getOrCreateContractByType({ address, type: ContractType.ERC20 })
+  const contract = getOrCreateContractByType({
+    address,
+    type: ContractType.ERC20,
+    chainId,
+  })
   const data = encodeFunctionData({
     abi: contract.abi,
     functionName: 'approve',

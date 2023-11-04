@@ -1,7 +1,10 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
+import assert from 'assert'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
@@ -12,7 +15,7 @@ import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
 import { getContract } from 'viem'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { viemEthMainnetClient } from 'lib/viem-client'
+import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
@@ -78,20 +81,24 @@ export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
 export const getOrCreateContractByType = <T extends ContractType>({
   address,
   type,
-  // TODO(gomes): viem client by ChainId
-  chainId: _chainId,
+  chainId,
 }: {
   address: string | `0x${string}`
   type: T
-  chainId?: ChainId
+  chainId: ChainId
 }): KnownContractByType<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
   if (definedContract && definedContract.contract)
     return definedContract.contract as unknown as KnownContractByType<T>
+
+  const publicClient = viemClientByChainId[chainId as EvmChainId]
+  assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+
   const contract = getContract({
     abi: CONTRACT_TYPE_TO_ABI[type],
     address: address as Address,
-    publicClient: viemEthMainnetClient,
+
+    publicClient,
   })
   definedContracts.push({
     contract,
@@ -107,6 +114,7 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const pair = getOrCreateContractByType({
     address: contractAddress,
     type: ContractType.UniV2Pair,
+    chainId: KnownChainIds.EthereumMainnet,
   })
   const ethersProvider = getEthersProvider()
 

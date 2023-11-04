@@ -18,8 +18,9 @@ const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-jest.mock('lib/viem-client', () => ({
-  viemEthMainnetClient: {
+jest.mock('lib/viem-client', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const viemEthMainnetClient = {
     createEventFilter: jest.fn(() => ({})),
     getFilterLogs: () =>
       new Promise(resolve => {
@@ -38,8 +39,14 @@ jest.mock('lib/viem-client', () => ({
           },
         ])
       }),
-  },
-}))
+  }
+  return {
+    viemEthMainnetClient,
+    viemClientByChainId: {
+      [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
+    },
+  }
+})
 
 const mockContract = getContract({
   abi: [],

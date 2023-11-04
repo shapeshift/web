@@ -95,6 +95,7 @@ export const mockStore: ReduxState = {
       FoxDiscounts: false,
       ThorchainLending: false,
       LedgerWallet: false,
+      MultiHopTrades: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

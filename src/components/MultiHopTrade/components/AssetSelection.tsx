@@ -68,6 +68,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     )
   }, [asset?.icons, assetId])
 
+  const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
+
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2}>
       <Button
@@ -83,7 +85,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         flexShrink={0}
         isDisabled={isReadOnly}
         _disabled={disabledStyle}
-        {...(isReadOnly ? {} : { rightIcon: <ChevronDownIcon /> })}
+        rightIcon={rightIcon}
       >
         {icon}
         {asset?.symbol}

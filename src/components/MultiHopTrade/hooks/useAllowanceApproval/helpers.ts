@@ -72,6 +72,7 @@ export const getApprovalTxData = async ({
     approvalAmountCryptoBaseUnit,
     spender: tradeQuoteStep.allowanceContract,
     to: assetReference,
+    chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
   const { networkFeeCryptoBaseUnit, ...fees } = await getFees({

@@ -61,7 +61,7 @@ export const RepayConfirm = () => {
               </Row.Value>
             </Row>
             <Row>
-              <Row.Label>{translate('common.recieve')}</Row.Label>
+              <Row.Label>{translate('common.receive')}</Row.Label>
               <Row.Value textAlign='right'>
                 <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                   <Amount.Crypto value='14820' symbol={debtAsset?.symbol ?? ''} />
@@ -84,6 +84,7 @@ export const RepayConfirm = () => {
               </Row.Value>
             </Row>
           </Stack>
+          {/* @ts-ignore TODO(gomes): implement me */}
           <LoanSummary borderTopWidth={0} mt={0} />
           <CardFooter px={4} py={4}>
             <Button colorScheme='blue' size='lg' width='full'>

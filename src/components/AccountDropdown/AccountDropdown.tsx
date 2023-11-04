@@ -30,6 +30,7 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils'
@@ -77,6 +78,117 @@ const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefin
   }
 }
 
+type AccountIdsByNumberAndType = {
+  [k: number]: AccountId[]
+}
+
+type MenuOptionsProps = {
+  accountIdsByNumberAndType: AccountIdsByNumberAndType
+  asset: Asset
+  autoSelectHighestBalance: boolean | undefined
+  disabled: boolean | undefined
+  listProps: MenuItemOptionProps | undefined
+  selectedAccountId: AccountId | undefined
+  onClick: (accountId: AccountId) => void
+}
+
+const MenuOptions = ({
+  accountIdsByNumberAndType,
+  asset,
+  autoSelectHighestBalance,
+  disabled,
+  listProps,
+  selectedAccountId,
+  onClick,
+}: MenuOptionsProps) => {
+  const { assetId, chainId } = asset
+
+  const translate = useTranslate()
+  const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
+
+  const getAccountIdsSortedByUtxoAccountType = useCallback(
+    (accountIds: AccountId[]): AccountId[] => {
+      return sortBy(accountIds, accountId =>
+        utxoAccountTypeToDisplayPriority(accountMetadata[accountId]?.accountType),
+      )
+    },
+    [accountMetadata],
+  )
+
+  const getAccountIdsSortedByBalance = useCallback(
+    (accountIds: AccountId[]): AccountId[] =>
+      chain(accountIds)
+        .sortBy(accountIds, accountId =>
+          bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0).toNumber(),
+        )
+        .reverse()
+        .value(),
+    [accountBalances, assetId],
+  )
+
+  const makeTitle = useCallback(
+    (accountId: AccountId): string => {
+      /**
+       * for UTXO chains, we want the title to be the account type
+       * for account-based chains, we want the title to be the asset name
+       */
+      const { chainNamespace } = fromChainId(chainId)
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Utxo: {
+          return accountIdToLabel(accountId)
+        }
+        default: {
+          return asset?.name ?? ''
+        }
+      }
+    },
+    [asset?.name, chainId],
+  )
+
+  return (
+    <MenuOptionGroup defaultValue='asc' type='radio'>
+      {Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
+        const sortedAccountIds = autoSelectHighestBalance
+          ? getAccountIdsSortedByBalance(accountIds)
+          : getAccountIdsSortedByUtxoAccountType(accountIds)
+
+        if (accountIds.length === 0) return null
+
+        // the account sub title uses an account id which is then converted to a chainId and pubkey
+        // so for convenience and simplicity we can safely use the first account id here
+        const [firstAccountId] = accountIds
+        const subtitle = accountIdToLabel(firstAccountId)
+
+        return (
+          <React.Fragment key={accountNumber}>
+            <AccountSegment
+              title={translate('accounts.accountNumber', { accountNumber })}
+              subtitle={subtitle}
+            />
+            {sortedAccountIds.map((iterAccountId, index) => (
+              <AccountChildOption
+                accountId={iterAccountId}
+                key={`${accountNumber}-${iterAccountId}-${index}`}
+                title={makeTitle(iterAccountId)}
+                cryptoBalance={fromBaseUnit(
+                  accountBalances?.[iterAccountId]?.[assetId] ?? 0,
+                  asset?.precision ?? 0,
+                )}
+                symbol={asset?.symbol ?? ''}
+                isChecked={selectedAccountId === iterAccountId}
+                onOptionClick={onClick}
+                isDisabled={disabled}
+                {...listProps}
+              />
+            ))}
+          </React.Fragment>
+        )
+      })}
+    </MenuOptionGroup>
+  )
+}
+
 export const AccountDropdown: FC<AccountDropdownProps> = memo(
   ({
     assetId,
@@ -90,8 +202,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
-    const { chainId } = fromAssetId(assetId)
-
     const color = useColorModeValue('black', 'white')
     const labelColor = useColorModeValue('gray.600', 'text.subtle')
 
@@ -105,7 +215,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
 
     if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
 
-    const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
     const accountMetadata = useSelector(selectPortfolioAccountMetadata)
     const highestUserCurrencyBalanceAccountId = useAppSelector(state =>
       selectHighestUserCurrencyBalanceAccountByAssetId(state, { assetId }),
@@ -174,57 +283,22 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       [accountMetadata, selectedAccountId],
     )
 
-    const getAccountIdsSortedByUtxoAccountType = useCallback(
-      (accountIds: AccountId[]): AccountId[] => {
-        return sortBy(accountIds, accountId =>
-          utxoAccountTypeToDisplayPriority(accountMetadata[accountId]?.accountType),
-        )
-      },
-      [accountMetadata],
+    const rightIcon = useMemo(
+      () => (isDropdownDisabled ? null : <ChevronDownIcon />),
+      [isDropdownDisabled],
     )
 
-    const getAccountIdsSortedByBalance = useCallback(
-      (accountIds: AccountId[]): AccountId[] =>
-        chain(accountIds)
-          .sortBy(accountIds, accountId =>
-            bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0).toNumber(),
-          )
-          .reverse()
-          .value(),
-      [accountBalances, assetId],
-    )
-
-    const menuOptions = useMemo(() => {
-      const makeTitle = (accountId: AccountId): string => {
-        /**
-         * for UTXO chains, we want the title to be the account type
-         * for account-based chains, we want the title to be the asset name
-         */
-        const { chainNamespace } = fromChainId(chainId)
-        switch (chainNamespace) {
-          case CHAIN_NAMESPACE.Utxo: {
-            return accountIdToLabel(accountId)
-          }
-          default: {
-            return asset?.name ?? ''
-          }
-        }
-      }
-
-      /**
-       * for UTXO-based chains, we can have many accounts for a single account number
-       * e.g. account 0 can have legacy, segwit, and segwit native
-       *
-       * this allows us to render the multiple account varieties and their balances for
-       * the native asset for UTXO chains, or a single row with the selected asset for
-       * account based chains that support tokens
-       */
-      type AccountIdsByNumberAndType = {
-        [k: number]: AccountId[]
-      }
+    /**
+     * for UTXO-based chains, we can have many accounts for a single account number
+     * e.g. account 0 can have legacy, segwit, and segwit native
+     *
+     * this allows us to render the multiple account varieties and their balances for
+     * the native asset for UTXO chains, or a single row with the selected asset for
+     * account based chains that support tokens
+     */
+    const accountIdsByNumberAndType = useMemo(() => {
       const initial: AccountIdsByNumberAndType = {}
-
-      const accountIdsByNumberAndType = accountIds.reduce((acc, accountId) => {
+      return accountIds.reduce((acc, accountId) => {
         const account = accountMetadata[accountId]
         if (!account) return acc
         const { accountNumber } = account.bip44Params
@@ -232,63 +306,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
         acc[accountNumber].push(accountId)
         return acc
       }, initial)
-
-      return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
-        const sortedAccountIds = autoSelectHighestBalance
-          ? getAccountIdsSortedByBalance(accountIds)
-          : getAccountIdsSortedByUtxoAccountType(accountIds)
-
-        if (accountIds.length === 0) return null
-
-        // the account sub title uses an account id which is then converted to a chainId and pubkey
-        // so for convenience and simplicity we can safely use the first account id here
-        const [firstAccountId] = accountIds
-        const subtitle = accountIdToLabel(firstAccountId)
-
-        return (
-          <React.Fragment key={accountNumber}>
-            <AccountSegment
-              title={translate('accounts.accountNumber', { accountNumber })}
-              subtitle={subtitle}
-            />
-            {sortedAccountIds.map((iterAccountId, index) => (
-              <AccountChildOption
-                key={`${accountNumber}-${iterAccountId}-${index}`}
-                title={makeTitle(iterAccountId)}
-                cryptoBalance={fromBaseUnit(
-                  accountBalances?.[iterAccountId]?.[assetId] ?? 0,
-                  asset?.precision ?? 0,
-                )}
-                symbol={asset?.symbol ?? ''}
-                isChecked={selectedAccountId === iterAccountId}
-                // we need to pass an arg here, so we need an anonymous function wrapper
-                // eslint-disable-next-line react-memo/require-usememo
-                onClick={() => handleClick(iterAccountId)}
-                isDisabled={disabled}
-                {...listProps}
-              />
-            ))}
-          </React.Fragment>
-        )
-      })
-    }, [
-      accountIds,
-      chainId,
-      asset?.name,
-      asset?.precision,
-      asset?.symbol,
-      accountMetadata,
-      autoSelectHighestBalance,
-      getAccountIdsSortedByBalance,
-      getAccountIdsSortedByUtxoAccountType,
-      translate,
-      accountBalances,
-      assetId,
-      selectedAccountId,
-      disabled,
-      listProps,
-      handleClick,
-    ])
+    }, [accountIds, accountMetadata])
 
     /**
      * do NOT remove these checks, this is not a visual thing, this is a safety check!
@@ -298,7 +316,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
      */
     if (!accountIds.length) return null
     if (!isValidAccountNumber(accountNumber)) return null
-    if (!menuOptions.length) return null
+    if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
 
     return (
@@ -308,7 +326,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             iconSpacing={1}
             as={Button}
             size='sm'
-            rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
+            rightIcon={rightIcon}
             variant='ghost'
             color={color}
             disabled={isDropdownDisabled}
@@ -339,9 +357,15 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
           </MenuButton>
           <Portal>
             <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
-              <MenuOptionGroup defaultValue='asc' type='radio'>
-                {menuOptions}
-              </MenuOptionGroup>
+              <MenuOptions
+                accountIdsByNumberAndType={accountIdsByNumberAndType}
+                asset={asset}
+                autoSelectHighestBalance={autoSelectHighestBalance}
+                disabled={disabled}
+                listProps={listProps}
+                selectedAccountId={selectedAccountId}
+                onClick={handleClick}
+              />
             </MenuList>
           </Portal>
         </Menu>

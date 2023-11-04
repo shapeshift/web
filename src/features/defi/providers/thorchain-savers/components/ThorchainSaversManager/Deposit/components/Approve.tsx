@@ -143,6 +143,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const contract = getOrCreateContractByType({
         address: fromAssetId(assetId).assetReference,
         type: ContractType.ERC20,
+        chainId,
       })
 
       const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE

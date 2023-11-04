@@ -284,6 +284,9 @@ export const RepayInput = ({
           debtRepaidAmountUsd={data?.quoteDebtRepaidAmountUsd ?? '0'}
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
+          collateralDecreaseAmountCryptoPrecision={
+            data?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+          }
         />
       </Collapse>
       <Stack

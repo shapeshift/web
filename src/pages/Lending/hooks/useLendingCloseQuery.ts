@@ -168,7 +168,7 @@ export const useLendingQuoteCloseQuery = ({
       const quoteMemo = quote.memo
 
       return {
-        quoteCollateralAmountCryptoPrecision: quoteLoanCollateralDecreaseCryptoPrecision,
+        quoteLoanCollateralDecreaseCryptoPrecision,
         quoteCollateralAmountFiatUserCurrency: quoteLoanCollateralDecreaseFiatUserCurrency,
         quoteDebtRepaidAmountUsd,
         quoteBorrowedAmountCryptoPrecision: quoteWithdrawnAmountAfterFeesCryptoPrecision,

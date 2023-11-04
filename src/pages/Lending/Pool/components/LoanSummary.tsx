@@ -37,22 +37,25 @@ const FromToStack: React.FC<StackProps> = props => {
 type LoanSummaryProps = {
   isLoading?: boolean
   collateralAssetId: AssetId
-  borrowAssetId: AssetId
 } & StackProps &
   (
     | {
         depositAmountCryptoPrecision: string
+        borrowAssetId: AssetId
         repayAmountCryptoPrecision?: never
         debtRepaidAmountUsd: never
+        collateralDecreaseAmountCryptoPrecision: never
         repaymentAsset: never
         repaymentPercent: number
       }
     | {
         depositAmountCryptoPrecision?: never
         repayAmountCryptoPrecision: string
+        collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
         repaymentAsset: Asset | null
         repaymentPercent: number
+        borrowAssetId?: never
       }
   )
 
@@ -119,7 +122,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
-      borrowAssetId,
+      borrowAssetId: borrowAssetId ?? '',
       depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
     }),
     [collateralAssetId, borrowAssetId, depositAmountCryptoPrecision],
@@ -175,9 +178,14 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                 symbol={collateralAsset.symbol}
               />
               <Amount.Crypto
-                value={bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision)
-                  .plus(lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0')
-                  .toString()}
+                value={(isRepay
+                  ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
+                      lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
+                    )
+                  : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
+                      lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
+                    )
+                ).toString()}
                 symbol={collateralAsset.symbol}
               />
             </FromToStack>

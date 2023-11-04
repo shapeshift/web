@@ -133,10 +133,10 @@ export const useLendingQuoteCloseQuery = ({
       // TODO(gomes): error handling
       const quote = data.unwrap()
 
-      const quoteWithdrawAmountCryptoPrecision = fromThorBaseUnit(
+      const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
         quote.expected_collateral_withdrawn,
       ).toString()
-      const quoteWithdrawAmountFiatUserCurrency = fromThorBaseUnit(
+      const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
         quote.expected_collateral_withdrawn,
       )
         .times(repaymentAssetMarketData.price)
@@ -168,9 +168,9 @@ export const useLendingQuoteCloseQuery = ({
       const quoteMemo = quote.memo
 
       return {
-        quoteCollateralAmountCryptoPrecision: quoteWithdrawAmountCryptoPrecision,
-        quoteCollateralAmountFiatUserCurrency: quoteWithdrawAmountFiatUserCurrency,
-        quoteDebtAmountUsd: quoteDebtRepaidAmountUsd,
+        quoteCollateralAmountCryptoPrecision: quoteLoanCollateralDecreaseCryptoPrecision,
+        quoteCollateralAmountFiatUserCurrency: quoteLoanCollateralDecreaseFiatUserCurrency,
+        quoteDebtRepaidAmountUsd,
         quoteBorrowedAmountCryptoPrecision: quoteWithdrawnAmountAfterFeesCryptoPrecision,
         quoteBorrowedAmountUserCurrency: quoteWithdrawnAmountAfterFeesUserCurrency,
         quoteSlippageBorrowedAssetCryptoPrecision,
@@ -185,7 +185,7 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
-        collateralAssetAddress &&
+        collateralAssetAddress?.length &&
         repaymentAssetMarketData.price !== '0' &&
         bnOrZero(repaymentPercent).gt(0),
     ),

@@ -11,6 +11,8 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
+import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
@@ -36,18 +38,36 @@ type LoanSummaryProps = {
   isLoading?: boolean
   collateralAssetId: AssetId
   borrowAssetId: AssetId
-  // Either the amount *to* deposit, or the amount to withdraw
-  // TODO(gomes): make this Either<depositAmountCryptoPrecision, withdrawAmountCryptoPrecision>, just using the same field for now for the sake of simplicity
-  depositAmountCryptoPrecision: string
-} & StackProps
+} & StackProps &
+  (
+    | {
+        depositAmountCryptoPrecision: string
+        repayAmountCryptoPrecision?: never
+        debtRepaidAmountUsd: never
+        repaymentAsset: never
+        repaymentPercent: never
+      }
+    | {
+        depositAmountCryptoPrecision?: never
+        repayAmountCryptoPrecision: string
+        debtRepaidAmountUsd: string
+        repaymentAsset: Asset | null
+        repaymentPercent: string
+      }
+  )
 
 export const LoanSummary: React.FC<LoanSummaryProps> = ({
   isLoading,
   collateralAssetId,
   borrowAssetId,
   depositAmountCryptoPrecision,
+  repayAmountCryptoPrecision,
+  debtRepaidAmountUsd,
+  repaymentAsset,
+  repaymentPercent,
   ...rest
 }) => {
+  const isRepay = useMemo(() => Boolean(repayAmountCryptoPrecision), [repayAmountCryptoPrecision])
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -100,7 +120,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     () => ({
       collateralAssetId,
       borrowAssetId,
-      depositAmountCryptoPrecision,
+      depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
     }),
     [collateralAssetId, borrowAssetId, depositAmountCryptoPrecision],
   )
@@ -109,6 +129,21 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
+
+  const useLendingQuoteCloseQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      repaymentAssetId: repaymentAsset?.assetId ?? '',
+      repaymentPercent,
+    }),
+    [collateralAssetId, repaymentAsset?.assetId, repaymentPercent],
+  )
+
+  const {
+    data: lendingQuoteCloseData,
+    isLoading: isLendingQuoteCloseLoading,
+    isError: isLendingQuoteCloseError,
+  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   if (!collateralAsset || isLendingQuoteError) return null
 
@@ -163,9 +198,14 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                 value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
               />
               <Amount.Fiat
-                value={bnOrZero(lendingPositionData?.debtBalanceFiatUSD)
-                  .plus(lendingQuoteData?.quoteDebtAmountUsd ?? '0')
-                  .toString()}
+                value={(isRepay
+                  ? bnOrZero(lendingPositionData?.debtBalanceFiatUSD).minus(
+                      lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0',
+                    )
+                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(
+                      lendingQuoteData?.quoteDebtAmountUsd ?? '0',
+                    )
+                ).toString()}
               />
             </FromToStack>
           </Skeleton>

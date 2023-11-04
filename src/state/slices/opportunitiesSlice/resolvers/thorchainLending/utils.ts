@@ -16,7 +16,6 @@ import type {
   BorrowersResponseSuccess,
   LendingDepositQuoteResponse,
   LendingDepositQuoteResponseSuccess,
-  LendingWithdrawQuoteResponse,
   LendingWithdrawQuoteResponseSuccess,
 } from './types'
 
@@ -77,6 +76,8 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   repaymentAssetId: AssetId
   collateralAssetAddress: string
+  // TODO(gomes): remove eslint-disable directive when actually fetching from THOR
+  // eslint-disable-next-line require-await
 }): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
   if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
   const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
@@ -101,7 +102,40 @@ export const getMaybeThorchainLendingCloseQuote = async ({
     `&to_asset=${to_asset}` +
     `&loan_owner=${collateralAssetAddress}`
 
-  const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
+  // TODO(gomes): actually use upstream data once loans reach maturity
+  console.log({ url })
+
+  const data = {
+    inbound_address: 'bc1qjk3xzu5slu7mtmc8jc9yed3zqvkhkttm700g9a',
+    inbound_confirmation_blocks: 0,
+    inbound_confirmation_seconds: 0,
+    outbound_delay_blocks: 0,
+    outbound_delay_seconds: 0,
+    fees: {
+      asset: 'ETH.ETH',
+      affiliate: '1234',
+      outbound: '1234',
+      liquidity: '1234',
+      total: '9876',
+      slippage_bps: 0,
+      total_bps: 0,
+    },
+    slippage_bps: 0,
+    streaming_slippage_bps: 0,
+    router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    expiry: 1671660285,
+    warning: 'Do not cache this response. Do not send funds after the expiry.',
+    notes:
+      'Transfer the inbound_address the asset with the memo. Do not use multi-in, multi-out transactions.',
+    dust_threshold: '10000',
+    recommended_min_amount_in: '15000',
+    memo: '$-:ETH.ETH:0x1c7b17362c84287bd1184447e6dfeaf920c31bbe',
+    expected_amount_out: '4359986',
+    expected_collateral_withdrawn: '4359986',
+    expected_debt_repaid: '2487440000',
+  }
+
+  // const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error
   if (!data || 'error' in data)
     return Err('Error fetching Thorchain lending deposit quote: no data received')

@@ -128,7 +128,7 @@ export const RepayInput = ({
     return console.info(asset)
   }, [])
 
-  const handleAccountIdChange = useMemo((accountId: AccountId) => {}, [])
+  const handleAccountIdChange = useCallback((_accountId: AccountId) => {}, [])
 
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
@@ -164,9 +164,6 @@ export const RepayInput = ({
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
-  )
   const repaymentAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
   )
@@ -283,8 +280,10 @@ export const RepayInput = ({
       <Collapse in={true}>
         <LoanSummary
           collateralAssetId={collateralAssetId}
-          depositAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? ''}
-          borrowAssetId={repaymentAsset?.assetId ?? ''}
+          repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? ''}
+          debtRepaidAmountUsd={data?.quoteDebtRepaidAmountUsd ?? '0'}
+          repaymentAsset={repaymentAsset}
+          repaymentPercent={repaymentPercent}
         />
       </Collapse>
       <Stack

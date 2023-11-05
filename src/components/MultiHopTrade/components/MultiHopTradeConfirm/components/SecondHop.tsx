@@ -55,6 +55,7 @@ export const SecondHop = ({
   const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
       case MultiHopExecutionStatus.Unknown:
+      case MultiHopExecutionStatus.Previewing:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:

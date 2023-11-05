@@ -70,12 +70,12 @@ export const estimateFees = ({
     }
     case CHAIN_NAMESPACE.Evm: {
       const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-        memo,
         to,
         value,
         chainSpecific: {
           from: account,
           contractAddress,
+          data: memo,
         },
         sendMax,
       }
@@ -155,12 +155,12 @@ export const handleSend = async ({
         const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
         const { accountNumber } = bip44Params
         return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
-          memo,
           to,
           value,
           wallet,
           accountNumber,
           chainSpecific: {
+            data: memo,
             contractAddress,
             gasLimit,
             ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),

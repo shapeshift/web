@@ -1,20 +1,22 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import {
-  ERC20ABI__factory,
-  FarmingAbi__factory,
-  IUniswapV2Pair__factory,
-  IUniswapV2Router02__factory,
-  THORCHAIN_Router__factory,
-} from 'contracts/__generated'
+import assert from 'assert'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
+import { FarmingABI } from 'contracts/abis/farmingAbi'
+import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
+import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
+import { THORChain_RouterABI } from 'contracts/abis/THORCHAIN_RouterABI'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
+import type { Address } from 'viem'
+import { getContract } from 'viem'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
-import type { IUniswapV2Pair } from './__generated'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
@@ -38,25 +40,25 @@ import { ContractType } from './types'
 
 const definedContracts: DefinedContract[] = []
 
-export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
-  [ETH_FOX_POOL_CONTRACT_ADDRESS]: IUniswapV2Pair__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V1]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V2]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V3]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V4]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V5]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V6]: FarmingAbi__factory,
-  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FarmingAbi__factory,
-  [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
-  [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
+export const CONTRACT_ADDRESS_TO_ABI = {
+  [ETH_FOX_POOL_CONTRACT_ADDRESS]: IUniswapV2Pair,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V1]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V2]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V3]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V4]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V5]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V6]: FarmingABI,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FarmingABI,
+  [FOX_TOKEN_CONTRACT_ADDRESS]: erc20ABI,
+  [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02,
   // THOR Router Mainnet
-  [THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM]: THORCHAIN_Router__factory,
+  [THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM]: THORChain_RouterABI,
 } as const
 
-export const CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT = {
-  [ContractType.UniV2Pair]: IUniswapV2Pair__factory,
-  [ContractType.ERC20]: ERC20ABI__factory,
-  [ContractType.ThorRouter]: THORCHAIN_Router__factory,
+export const CONTRACT_TYPE_TO_ABI = {
+  [ContractType.UniV2Pair]: IUniswapV2Pair,
+  [ContractType.ERC20]: erc20ABI,
+  [ContractType.ThorRouter]: THORChain_RouterABI,
 } as const
 
 export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
@@ -64,12 +66,16 @@ export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
 ): KnownContractByAddress<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
   if (definedContract && definedContract.contract)
-    return definedContract.contract as KnownContractByAddress<T>
-  const typechainContract = CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[address]
-  const ethersProvider = getEthersProvider()
-  const contract = typechainContract.connect(address, ethersProvider)
-  definedContracts.push({ contract, address })
-  return contract as KnownContractByAddress<T>
+    return definedContract.contract as unknown as KnownContractByAddress<T>
+  const contractAbi = CONTRACT_ADDRESS_TO_ABI[address]
+
+  const contract = getContract({
+    abi: contractAbi,
+    address,
+    publicClient: viemEthMainnetClient,
+  }) as KnownContractByAddress<T>
+  definedContracts.push({ contract, address } as unknown as DefinedContract)
+  return contract
 }
 
 export const getOrCreateContractByType = <T extends ContractType>({
@@ -79,15 +85,25 @@ export const getOrCreateContractByType = <T extends ContractType>({
 }: {
   address: string | `0x${string}`
   type: T
-  chainId?: ChainId
+  chainId: ChainId
 }): KnownContractByType<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
   if (definedContract && definedContract.contract)
-    return definedContract.contract as KnownContractByType<T>
-  const typechainContract = CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[type]
-  const ethersProvider = getEthersProvider(chainId as EvmChainId)
-  const contract = typechainContract.connect(address, ethersProvider)
-  definedContracts.push({ contract, address: ethers.utils.getAddress(address) })
+    return definedContract.contract as unknown as KnownContractByType<T>
+
+  const publicClient = viemClientByChainId[chainId as EvmChainId]
+  assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+
+  const contract = getContract({
+    abi: CONTRACT_TYPE_TO_ABI[type],
+    address: address as Address,
+
+    publicClient,
+  })
+  definedContracts.push({
+    contract,
+    address: ethers.utils.getAddress(address),
+  } as unknown as DefinedContract)
   return contract as KnownContractByType<T>
 }
 
@@ -95,14 +111,15 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   // Checksum
   const contractAddress = ethers.utils.getAddress(assetReference)
-  const pair: IUniswapV2Pair = getOrCreateContractByType({
+  const pair = getOrCreateContractByType({
     address: contractAddress,
     type: ContractType.UniV2Pair,
+    chainId: KnownChainIds.EthereumMainnet,
   })
   const ethersProvider = getEthersProvider()
 
-  const token0Address = await pair.token0()
-  const token1Address = await pair.token1()
+  const token0Address = await pair.read.token0()
+  const token1Address = await pair.read.token1()
   const token0AssetId = toAssetId({
     chainId,
     assetNamespace: 'erc20',

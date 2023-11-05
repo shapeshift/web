@@ -1,16 +1,24 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
-import { getTradeQuotes } from 'lib/swapper/swapper'
+import {
+  getSupportedBuyAssetIds,
+  getSupportedSellAssetIds,
+  getTradeQuotes,
+} from 'lib/swapper/swapper'
 import type { GetTradeQuoteInput } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssets, selectFeatureFlags } from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
@@ -105,7 +113,54 @@ export const swappersApi = createApi({
         return { data: orderedQuotes }
       },
     }),
+    getSupportedAssets: build.query<
+      {
+        supportedSellAssetIds: AssetId[]
+        supportedBuyAssetIds: AssetId[]
+      },
+      { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] }
+    >({
+      queryFn: async (
+        {
+          walletSupportedChains,
+          sortedAssetIds,
+        }: { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] },
+        { getState },
+      ) => {
+        const state = getState() as ReduxState
+
+        const featureFlags = selectFeatureFlags(state)
+        const enabledSwappers = getEnabledSwappers(featureFlags, false)
+        const assets = selectAssets(state)
+        const sellAsset = selectSellAsset(state)
+
+        const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)
+        const supportedSellAssetIds = sortedAssetIds
+          .filter(assetId => supportedSellAssetsSet.has(assetId))
+          .filter(assetId => {
+            const chainId = fromAssetId(assetId).chainId
+            return walletSupportedChains.includes(chainId)
+          })
+
+        const supportedBuyAssetsSet = await getSupportedBuyAssetIds(
+          enabledSwappers,
+          sellAsset,
+          assets,
+        )
+
+        const supportedBuyAssetIds = sortedAssetIds.filter(assetId =>
+          supportedBuyAssetsSet.has(assetId),
+        )
+
+        return {
+          data: {
+            supportedSellAssetIds,
+            supportedBuyAssetIds,
+          },
+        }
+      },
+    }),
   }),
 })
 
-export const { useGetTradeQuoteQuery } = swappersApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swappersApi

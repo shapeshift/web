@@ -98,7 +98,10 @@
     "all": "Hepsi",
     "viewAll": "Hepsini Gör",
     "slippage": "Kayma",
+    "feesPlusSlippage": "Ücretler + Kayma",
     "best": "En iyi",
+    "gasFee": "Gaz Ücreti",
+    "fees": "Ücretler",
     "alternative": "Alternatif",
     "validator": "%{name} Doğrulayıcı",
     "needAsset": "%{asset}'e mi ihtiyacınız var?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "FOX Görevleri",
-    "foxMissionsShort": "Görevler"
+    "foxMissionsShort": "Görevler",
+    "lending": "Borç Verme"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Takas",
     "allowance": "Ödenek",
+    "verifyAddresses": "Adresleri Doğrulayın",
+    "assetAddress": "%{asset} adresi",
+    "verifyAsset": "%{asset}'ı doğrulayın",
+    "verifyAddressMessage": "Devam etmeden önce adreslerinizin doğru olduğundan emin olun.",
     "slippageInfo": "Fiyat bu orandan daha fazla olumsuz yönde değişirse işleminiz geri alınır.",
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
@@ -2130,6 +2138,57 @@
     "modal": {
       "title": "Yeni Avatar Ayarla",
       "restoreDefault": "Varsayılan"
+    }
+  },
+  "lending": {
+    "lending": "Borç Verme",
+    "lendingBody": "Sıfır faiz ve sıfır tasfiyeyle ödünç alınabilecek tüm havuzların listesi.",
+    "collateralValue": "Teminat Değeri",
+    "debtValue": "Borç Değeri",
+    "loanToValue": "Kredi Değeri",
+    "availablePools": "Mevcut Havuzlar",
+    "yourLoans": "Kredileriniz",
+    "pool": "Havuz",
+    "poolDepth": "Havuz Derinliği",
+    "totalDebtBalance": "Toplam Borç Bakiyesi",
+    "totalCollateral": "Toplam Teminat",
+    "estCollateralizationRatio": "Tahmini Teminat Oranı",
+    "collateralizationRatio": "Teminat Oranı",
+    "totalBorrowers": "Tüm Borçlular",
+    "myLoanInformation": "Kredi Bilgilerim",
+    "loanInformation": "Kredi Özeti",
+    "poolInformation": "Havuz Bilgileri",
+    "collateralBalance": "Teminat Bakiyesi",
+    "debtBalance": "Borç Bakiyesi",
+    "repaymentLock": "Geri Ödeme Kilidi",
+    "borrow": "Borç Al",
+    "repay": "Geri Öde",
+    "outstandingDebt": "Ödenmemiş Borç",
+    "collateral": "Teminat",
+    "debt": "Borç",
+    "healthy": "Sağlık",
+    "caution": "Dikkat",
+    "risky": "Riskli",
+    "confirmAndBorrow": "Onayla ve Borç Al",
+    "confirmAndRepay": "Onayla ve Geri Öde",
+    "transactionInfo": "İşlem Özeti",
+    "repayNoticeTitle": "Gecikti!",
+    "repayNoticeCta": "Anladım",
+    "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
+    "faq": {
+      "title": "FAQ",
+      "lending": {
+        "title": "THORChain Lending Nedir?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "borrowing": {
+        "title": "Borçlanma nasıl çalışır?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "repayments": {
+        "title": "Geri ödeme nasıl çalışır?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
     }
   },
   "foxDiscounts": {

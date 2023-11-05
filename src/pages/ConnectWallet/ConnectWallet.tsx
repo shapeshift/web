@@ -105,7 +105,7 @@ export const ConnectWallet = () => {
           assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
         })
       : query?.returnUrl
-    hasWallet && history.push(path ?? '/dashboard')
+    hasWallet && history.push(path ?? '/trade')
   }, [history, hasWallet, query, state, dispatch])
 
   const handleMetaMaskConnect = useCallback(() => {

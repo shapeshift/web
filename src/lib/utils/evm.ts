@@ -15,6 +15,7 @@ import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
+import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -27,6 +28,7 @@ type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
   to: string
   spender: string
+  chainId: ChainId
 }
 
 type BuildArgs = {
@@ -223,10 +225,20 @@ export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
   to,
   spender,
+  chainId,
 }: GetApproveContractDataArgs): string => {
   const address = ethers.utils.getAddress(to)
-  const contract = getOrCreateContractByType({ address, type: ContractType.ERC20 })
-  return contract.interface.encodeFunctionData('approve', [spender, approvalAmountCryptoBaseUnit])
+  const contract = getOrCreateContractByType({
+    address,
+    type: ContractType.ERC20,
+    chainId,
+  })
+  const data = encodeFunctionData({
+    abi: contract.abi,
+    functionName: 'approve',
+    args: [getAddress(spender), BigInt(approvalAmountCryptoBaseUnit)],
+  })
+  return data
 }
 
 export const getErc20Allowance = async ({
@@ -235,8 +247,13 @@ export const getErc20Allowance = async ({
   spender,
   chainId,
 }: GetErc20AllowanceArgs): Promise<string> => {
-  const contract = getOrCreateContractByType({ address, type: ContractType.ERC20, chainId })
-  const allowance = await contract.allowance(from, spender)
+  const contract = getOrCreateContractByType({
+    address,
+    type: ContractType.ERC20,
+    chainId,
+  })
+  const allowance = await contract.read.allowance([getAddress(from), getAddress(spender)])
+  // TODO(gomes): fix types
   return allowance.toString()
 }
 

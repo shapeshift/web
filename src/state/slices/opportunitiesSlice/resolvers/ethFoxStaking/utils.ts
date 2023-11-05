@@ -1,5 +1,6 @@
-import type { Contract } from '@ethersproject/contracts'
+import type { FarmingABI } from 'contracts/abis/farmingAbi'
 import { memoize } from 'lodash'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
@@ -14,32 +15,42 @@ export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLP
 
 // Rate of FOX given per second for all staked addresses)
 const getRewardsRate = memoize(
-  async (farmingRewardsContract: Contract) => await farmingRewardsContract.rewardRate(),
+  async (
+    farmingRewardsContract: GetContractReturnType<typeof FarmingABI, PublicClient, WalletClient>,
+  ) => await farmingRewardsContract.read.rewardRate(),
 )
 
-const getTotalLpSupply = memoize(async (farmingRewardsContract: Contract) => {
-  try {
-    const totalSupply = await farmingRewardsContract.totalSupply()
-    return bnOrZero(totalSupply.toString())
-  } catch (error) {
-    console.error(error)
-    const errorMsg = 'totalLpSupply error'
-    throw new Error(errorMsg)
-  }
-})
+const getTotalLpSupply = memoize(
+  async (
+    farmingRewardsContract: GetContractReturnType<typeof FarmingABI, PublicClient, WalletClient>,
+  ) => {
+    try {
+      const totalSupply = await farmingRewardsContract.read.totalSupply()
+      return bnOrZero(totalSupply.toString())
+    } catch (error) {
+      console.error(error)
+      const errorMsg = 'totalLpSupply error'
+      throw new Error(errorMsg)
+    }
+  },
+)
 
-export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contract) => {
-  try {
-    const rewardRate = await getRewardsRate(farmingRewardsContract)
-    const totalSupply = await getTotalLpSupply(farmingRewardsContract)
-    return bnOrZero(rewardRate.toString())
-      .div(totalSupply)
-      .times('1e+18')
-      .decimalPlaces(0)
-      .toString()
-  } catch (error) {
-    console.error(error)
-    const errorMsg = 'rewardRatePerToken error'
-    throw new Error(errorMsg)
-  }
-})
+export const rewardRatePerToken = memoize(
+  async (
+    farmingRewardsContract: GetContractReturnType<typeof FarmingABI, PublicClient, WalletClient>,
+  ) => {
+    try {
+      const rewardRate = await getRewardsRate(farmingRewardsContract)
+      const totalSupply = await getTotalLpSupply(farmingRewardsContract)
+      return bnOrZero(rewardRate.toString())
+        .div(totalSupply)
+        .times('1e+18')
+        .decimalPlaces(0)
+        .toString()
+    } catch (error) {
+      console.error(error)
+      const errorMsg = 'rewardRatePerToken error'
+      throw new Error(errorMsg)
+    }
+  },
+)

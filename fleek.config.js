@@ -2,7 +2,7 @@
 module.exports = {
   "sites": [
     {
-      "slug": "fleek.shapeshift.com",
+      "slug": "shapeshift-web",
       "distDir": "build"
     }
   ]

@@ -138,6 +138,9 @@ export const selectTotalProtocolFeeByAsset: Selector<
   quote ? getTotalProtocolFeeByAsset(quote) : undefined,
 )
 
+export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
+  createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
+
 export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[0] : undefined))
 

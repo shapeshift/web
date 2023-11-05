@@ -78,6 +78,7 @@ export type TradeAmountInputProps = {
   rightRegion?: JSX.Element
   labelPostFix?: JSX.Element
   hideAmounts?: boolean
+  layout?: 'inline' | 'stacked'
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -108,6 +109,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     rightRegion,
     labelPostFix,
     hideAmounts,
+    layout = 'stacked',
   }) => {
     const {
       number: { localeParts },
@@ -206,7 +208,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         </Flex>
         {labelPostFix}
         <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
-          <Flex gap={2} flex={1} alignItems='center'>
+          <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
               <NumberFormat
                 customInput={CryptoInput}
@@ -226,39 +228,55 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               />
             </Skeleton>
             {rightRegion}
+            {layout === 'inline' && showFiatAmount && !hideAmounts && (
+              <Button
+                onClick={toggleIsFiat}
+                size='sm'
+                disabled={showFiatSkeleton}
+                fontWeight='medium'
+                variant='link'
+                color='text.subtle'
+                mb={1}
+              >
+                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+              </Button>
+            )}
           </Flex>
         </Stack>
-        <Flex
-          direction='row'
-          gap={2}
-          pt={4}
-          pb={2}
-          px={6}
-          justifyContent='space-between'
-          alignItems='center'
-          display={hideAmounts ? 'none' : 'flex'}
-        >
-          {showFiatAmount && (
-            <Button
-              onClick={toggleIsFiat}
-              size='sm'
-              disabled={showFiatSkeleton}
-              fontWeight='medium'
-              variant='link'
-              color='text.subtle'
-            >
-              <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
-            </Button>
-          )}
-          {onPercentOptionClick && (
-            <PercentOptionsButtonGroup
-              options={percentOptions}
-              isDisabled={isReadOnly || isSendMaxDisabled}
-              onMaxClick={onMaxClick}
-              onClick={onPercentOptionClick}
-            />
-          )}
-        </Flex>
+        {layout === 'stacked' && (
+          <Flex
+            direction='row'
+            gap={2}
+            pt={4}
+            pb={2}
+            px={6}
+            justifyContent='space-between'
+            alignItems='center'
+            display={hideAmounts ? 'none' : 'flex'}
+          >
+            {showFiatAmount && (
+              <Button
+                onClick={toggleIsFiat}
+                size='sm'
+                disabled={showFiatSkeleton}
+                fontWeight='medium'
+                variant='link'
+                color='text.subtle'
+              >
+                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+              </Button>
+            )}
+            {onPercentOptionClick && (
+              <PercentOptionsButtonGroup
+                options={percentOptions}
+                isDisabled={isReadOnly || isSendMaxDisabled}
+                onMaxClick={onMaxClick}
+                onClick={onPercentOptionClick}
+              />
+            )}
+          </Flex>
+        )}
+
         {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
         {children}
       </FormControl>

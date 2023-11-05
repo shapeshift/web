@@ -51,7 +51,10 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
         if (!supportsGnosis(wallet)) continue
       }
 
-      if (chainReference === CHAIN_REFERENCE.ArbitrumMainnet) {
+      if (
+        chainReference === CHAIN_REFERENCE.ArbitrumMainnet ||
+        chainReference === CHAIN_REFERENCE.ArbitrumNovaMainnet
+      ) {
         if (!supportsArbitrum(wallet)) continue
       }
 

@@ -37,7 +37,9 @@ export type ThornodePoolResponse = {
   synth_supply: string
   synth_supply_remaining: string
   synth_units: string
-  derived_depth_bps: number
+  derived_depth_bps: string
+  loan_collateral: string
+  loan_cr: string
 }
 
 export type ThornodeQuoteResponseSuccess = {

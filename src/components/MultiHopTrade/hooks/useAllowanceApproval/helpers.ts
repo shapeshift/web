@@ -1,6 +1,8 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -10,6 +12,7 @@ import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/ev
 export const checkApprovalNeeded = async (
   tradeQuoteStep: TradeQuote['steps'][number],
   wallet: HDWallet,
+  sellAssetAccountId: AccountId,
 ) => {
   const { sellAsset, accountNumber, allowanceContract } = tradeQuoteStep
   const adapterManager = getChainAdapterManager()
@@ -23,9 +26,11 @@ export const checkApprovalNeeded = async (
     return false
   }
 
+  const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
   const from = await adapter.getAddress({
     wallet,
     accountNumber,
+    pubKey: fetchUnchainedAddress ? fromAccountId(sellAssetAccountId).account : undefined,
   })
 
   const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
@@ -67,6 +72,7 @@ export const getApprovalTxData = async ({
     approvalAmountCryptoBaseUnit,
     spender: tradeQuoteStep.allowanceContract,
     to: assetReference,
+    chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
   const { networkFeeCryptoBaseUnit, ...fees } = await getFees({

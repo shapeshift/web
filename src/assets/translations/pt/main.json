@@ -98,7 +98,10 @@
     "all": "Todos",
     "viewAll": "Ver todos",
     "slippage": "Slippage",
+    "feesPlusSlippage": "Taxas + Slippage",
     "best": "Melhor",
+    "gasFee": "Taxas",
+    "fees": "Taxas",
     "alternative": "Alternativa",
     "validator": "o %{name} validador",
     "needAsset": "Precisa de algum %{asset}?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo",
     "foxMissions": "Missões FOX",
-    "foxMissionsShort": "Missões"
+    "foxMissionsShort": "Missões",
+    "lending": "Empréstimo"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Swap",
     "allowance": "Quota",
+    "verifyAddresses": "Verifique os endereços",
+    "assetAddress": "%{asset} endereço",
+    "verifyAsset": "Verifique %{asset}",
+    "verifyAddressMessage": "Certifique-se de que seus endereços estejam corretos antes de continuar.",
     "slippageInfo": "Sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta porcentagem.",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
@@ -2130,6 +2138,57 @@
     "modal": {
       "title": "Definir um Novo Avatar",
       "restoreDefault": "Restaurar padrão"
+    }
+  },
+  "lending": {
+    "lending": "Empréstimo",
+    "lendingBody": "Uma lista de todas os pools que podem ser emprestados sem custo e zero liquidações.",
+    "collateralValue": "Valor colateral",
+    "debtValue": "Valor da dívida",
+    "loanToValue": "Loan to Value",
+    "availablePools": "Pools disponíveis",
+    "yourLoans": "Seus Empréstimos",
+    "pool": "Pool",
+    "poolDepth": "Liquidez da pool",
+    "totalDebtBalance": "Débito Total",
+    "totalCollateral": "Colateral Total",
+    "estCollateralizationRatio": "Relação Estim. da Colateralização",
+    "collateralizationRatio": "Relação da Colateralização",
+    "totalBorrowers": "Emprestadores Totais",
+    "myLoanInformation": "Informação do Meu Empréstimo",
+    "loanInformation": "Resumo dos Empréstimos",
+    "poolInformation": "Informação das Pools",
+    "collateralBalance": "Saldo dos Colaterais",
+    "debtBalance": "Saldo da dívida",
+    "repaymentLock": "Trava do Repagamento",
+    "borrow": "Emprestar",
+    "repay": "Pagar de volta",
+    "outstandingDebt": "Débito Pendente",
+    "collateral": "Garantia",
+    "debt": "Dívida",
+    "healthy": "Saudável",
+    "caution": "Cuidado",
+    "risky": "Arriscado",
+    "confirmAndBorrow": "Confirmar e emprestar",
+    "confirmAndRepay": "Confirmar e Pagar",
+    "transactionInfo": "Resumo transação",
+    "repayNoticeTitle": "Calma ai!",
+    "repayNoticeCta": "Eu entendo",
+    "repayNotice": "Para recuperar sua garantia, você precisará pagar 100% de sua dívida.",
+    "faq": {
+      "title": "FAQ",
+      "lending": {
+        "title": "O que é empréstimo THORChain?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "borrowing": {
+        "title": "Como funciona o empréstimo?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "repayments": {
+        "title": "Como funciona o pagamento?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
     }
   },
   "foxDiscounts": {

@@ -125,7 +125,7 @@ export const Routes = memo(() => {
         <Layout>
           <Switch>
             {privateRoutesList}
-            <Redirect from='/' to='/dashboard' />
+            <Redirect from='/' to='/trade' />
             <Route>
               <NotFound />
             </Route>

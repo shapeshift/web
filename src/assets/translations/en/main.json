@@ -98,7 +98,10 @@
     "all": "All",
     "viewAll": "View All",
     "slippage": "Slippage",
+    "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
+    "gasFee": "Gas Fee",
+    "fees": "Fees",
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "FOX Missions",
-    "foxMissionsShort": "Missions"
+    "foxMissionsShort": "Missions",
+    "lending": "Lending"
   },
   "transactionRow": {
     "send": "Sent",
@@ -1263,7 +1267,14 @@
         "header": "Import Ledger Accounts",
         "body": "To see your balances for each chain, you'll need to connect each app.",
         "availableChains": "Available Chains",
-        "error": "There was an error connecting your wallet"
+        "error": "There was an error connecting your wallet",
+        "followTheInstructions": "Follow the instructions",
+        "toGetTheRuneApp": "to get the RUNE app on your device",
+        "added": "Added",
+        "connect": "Connect"
+      },
+      "verify": {
+        "confirmOnDevice": "Confirm on device"
       },
       "success": {
         "header": "Ledger Connected",
@@ -2136,6 +2147,57 @@
       "restoreDefault": "Restore default"
     }
   },
+  "lending": {
+    "lending": "Lending",
+    "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
+    "collateralValue": "Collateral Value",
+    "debtValue": "Debt Value",
+    "loanToValue": "Loan to Value",
+    "availablePools": "Available Pools",
+    "yourLoans": "Your Loans",
+    "pool": "Pool",
+    "poolDepth": "Pool Depth",
+    "totalDebtBalance": "Total Debt Balance",
+    "totalCollateral": "Total Collateral",
+    "estCollateralizationRatio": "Est. Collateralization Ratio",
+    "collateralizationRatio": "Collateralization Ratio",
+    "totalBorrowers": "Total Borrowers",
+    "myLoanInformation": "My Loan Information",
+    "loanInformation": "Loan Summary",
+    "poolInformation": "Pool Information",
+    "collateralBalance": "Collateral Balance",
+    "debtBalance": "Debt Balance",
+    "repaymentLock": "Repayment Lock",
+    "borrow": "Borrow",
+    "repay": "Repay",
+    "outstandingDebt": "Outstanding Debt",
+    "collateral": "Collateral",
+    "debt": "Debt",
+    "healthy": "Healthy",
+    "caution": "Caution",
+    "risky": "Risky",
+    "confirmAndBorrow": "Confirm and Borrow",
+    "confirmAndRepay": "Confirm and Repay",
+    "transactionInfo": "Transaction Summary",
+    "repayNoticeTitle": "Hold Up!",
+    "repayNoticeCta": "I understand",
+    "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
+    "faq": {
+      "title": "FAQ",
+      "lending": {
+        "title": "What is THORChain Lending?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "borrowing": {
+        "title": "How does borrowing work?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "repayments": {
+        "title": "How does repayment work?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
+    }
+  },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",
     "foxPower": "FOX Power",
@@ -2154,3 +2216,4 @@
     "totalTradeFee": "Total Trade Fee"
   }
 }
+

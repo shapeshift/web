@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
@@ -40,6 +41,7 @@ import { WithBackButton } from '../WithBackButton'
 export const VerifyAddresses = () => {
   const wallet = useWallet().state.wallet
   const history = useHistory()
+  const translate = useTranslate()
 
   const [sellAddress, setSellAddress] = useState<string | undefined>()
   const [buyAddress, setBuyAddress] = useState<string | undefined>()
@@ -86,14 +88,18 @@ export const VerifyAddresses = () => {
     if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
     if (!wallet) throw Error('missing wallet')
 
-    const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
+    const isApprovalNeeded = await checkApprovalNeeded(
+      tradeQuoteStep,
+      wallet,
+      sellAssetAccountId ?? '',
+    )
     if (isApprovalNeeded) {
       history.push({ pathname: TradeRoutePaths.Approval })
       return
     }
 
     history.push({ pathname: TradeRoutePaths.Confirm })
-  }, [history, tradeQuoteStep, wallet])
+  }, [history, sellAssetAccountId, tradeQuoteStep, wallet])
 
   const fetchAddresses = useCallback(async () => {
     if (
@@ -225,7 +231,7 @@ export const VerifyAddresses = () => {
           colorScheme='blue'
           onClick={handleBuyVerify}
           isLoading={isBuyVerifying}
-          loadingText='Confirm on device'
+          loadingText={translate('walletProvider.ledger.verify.confirmOnDevice')}
         >
           <Text translation={verifyBuyAssetTranslation} />
         </Button>
@@ -239,7 +245,7 @@ export const VerifyAddresses = () => {
           colorScheme='blue'
           onClick={handleSellVerify}
           isLoading={isSellVerifying}
-          loadingText='Confirm on device'
+          loadingText={translate('walletProvider.ledger.verify.confirmOnDevice')}
         >
           <Text translation={verifySellAssetTranslation} />
         </Button>
@@ -264,6 +270,7 @@ export const VerifyAddresses = () => {
     isBuyVerifying,
     isSellVerifying,
     sellVerified,
+    translate,
     verifyBuyAssetTranslation,
     verifySellAssetTranslation,
   ])

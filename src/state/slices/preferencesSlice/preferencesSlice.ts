@@ -15,6 +15,7 @@ export type FeatureFlags = {
   Polygon: boolean
   Gnosis: boolean
   Arbitrum: boolean
+  ArbitrumNova: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   ThorSwapAffiliateFees: boolean
@@ -45,7 +46,9 @@ export type FeatureFlags = {
   CustomSendNonce: boolean
   Snaps: boolean
   FoxDiscounts: boolean
+  ThorchainLending: boolean
   LedgerWallet: boolean
+  MultiHopTrades: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -79,6 +82,7 @@ const initialState: Preferences = {
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
+    ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
@@ -108,7 +112,9 @@ const initialState: Preferences = {
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
+    ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
+    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

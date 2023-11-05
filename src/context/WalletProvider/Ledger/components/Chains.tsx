@@ -1,5 +1,20 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Alert, AlertDescription, AlertIcon, Box, Button, Flex, ModalBody } from '@chakra-ui/react'
+import { CheckCircleIcon, InfoOutlineIcon } from '@chakra-ui/icons'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Link,
+  ModalBody,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   bchAssetId,
@@ -123,28 +138,56 @@ export const LedgerChains = () => {
 
   const chainsRows = useMemo(
     () =>
-      availableAssets.map(asset => {
-        return (
-          <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
-            <Flex alignItems='center' gap={2}>
-              <AssetIcon assetId={asset.assetId} size='sm' />
-              <RawText fontWeight='bold'>{asset.name}</RawText>
-            </Flex>
-            <Button
-              isLoading={loadingChains[asset.chainId]}
-              // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleConnectClick(asset.chainId)}
-              colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
-              isDisabled={walletChainIds.includes(asset.chainId)}
-              leftIcon={walletChainIds.includes(asset.chainId) ? <CheckCircleIcon /> : undefined}
-            >
-              {walletChainIds.includes(asset.chainId) ? 'Added' : 'Connect'}
-            </Button>
+      availableAssets.map(asset => (
+        <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
+          <Flex alignItems='center' gap={2}>
+            <AssetIcon assetId={asset.assetId} size='sm' />
+            <RawText fontWeight='bold'>{asset.name}</RawText>
+            {asset.assetId === thorchainAssetId && (
+              <Popover trigger='hover' placement='right-start'>
+                <PopoverTrigger>
+                  <Box>
+                    <Icon
+                      as={InfoOutlineIcon}
+                      boxSize={4}
+                      ml={1}
+                      color='gray.500'
+                      cursor='pointer'
+                    />
+                  </Box>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverBody>
+                    {translate('walletProvider.ledger.chains.followTheInstructions')}{' '}
+                    <Link
+                      color='blue.200'
+                      href='https://support.ledger.com/hc/en-us/articles/4402987997841-THORChain-RUNE-?docs=true'
+                    >
+                      here
+                    </Link>{' '}
+                    {translate('walletProvider.ledger.chains.toGetTheRuneApp')}
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
+            )}
           </Flex>
-        )
-      }),
-    [availableAssets, handleConnectClick, loadingChains, walletChainIds],
+          <Button
+            isLoading={loadingChains[asset.chainId]}
+            // we need to pass an arg here, so we need an anonymous function wrapper
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => handleConnectClick(asset.chainId)}
+            colorScheme={walletChainIds.includes(asset.chainId) ? 'green' : 'gray'}
+            isDisabled={walletChainIds.includes(asset.chainId)}
+            leftIcon={walletChainIds.includes(asset.chainId) ? <CheckCircleIcon /> : undefined}
+          >
+            {walletChainIds.includes(asset.chainId)
+              ? translate('walletProvider.ledger.chains.added')
+              : translate('walletProvider.ledger.chains.connect')}
+          </Button>
+        </Flex>
+      )),
+    [availableAssets, handleConnectClick, loadingChains, translate, walletChainIds],
   )
 
   const handleClose = useCallback(() => {

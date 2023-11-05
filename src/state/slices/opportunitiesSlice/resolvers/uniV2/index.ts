@@ -1,5 +1,5 @@
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import { KnownChainIds, type MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
@@ -196,6 +196,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const uniV2LPContract = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,
+      chainId: KnownChainIds.EthereumMainnet,
     })
     const apy = bnOrZero(apr).div(100).toString()
 
@@ -203,7 +204,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const totalSupplyBaseUnit =
       zapperAppBalanceData?.supply && lpAsset
         ? bnOrZero(zapperAppBalanceData.supply).times(bn(10).pow(lpAsset.precision)).toString()
-        : (await uniV2LPContract.totalSupply()).toString()
+        : (await uniV2LPContract.read.totalSupply()).toString()
 
     const token0ReservesBaseUnit = bnOrZero(
       bnOrZero(bnOrZero(token0Reserves.toFixed()).toString()),

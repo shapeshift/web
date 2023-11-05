@@ -7,6 +7,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuote } from 'lib/swapper/types'
 import { buildAndBroadcast, isEvmChainAdapter } from 'lib/utils/evm'
+import { selectSellAccountId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { checkApprovalNeeded } from '../helpers'
@@ -20,6 +22,7 @@ export const useExecuteAllowanceApproval = (
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet
 
+  const sellAssetAccountId = useAppSelector(selectSellAccountId)
   const executeAllowanceApproval = useCallback(async () => {
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(tradeQuoteStep.sellAsset.chainId)
@@ -47,7 +50,7 @@ export const useExecuteAllowanceApproval = (
       await poll({
         fn: async () => {
           if (!wallet) return
-          return await checkApprovalNeeded(tradeQuoteStep, wallet)
+          return await checkApprovalNeeded(tradeQuoteStep, wallet, sellAssetAccountId ?? '')
         },
         validate: (isApprovalNeeded?: boolean) => isApprovalNeeded === false,
         interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
@@ -56,7 +59,7 @@ export const useExecuteAllowanceApproval = (
     } catch (e) {
       showErrorToast(e)
     }
-  }, [buildCustomTxInput, poll, showErrorToast, tradeQuoteStep, wallet])
+  }, [buildCustomTxInput, poll, sellAssetAccountId, showErrorToast, tradeQuoteStep, wallet])
 
   return {
     executeAllowanceApproval,

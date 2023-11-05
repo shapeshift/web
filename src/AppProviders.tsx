@@ -20,6 +20,7 @@ import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
+import { QueryClientProvider } from 'context/QueryClientProvider/QueryClientProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
@@ -72,7 +73,9 @@ export function AppProviders({ children }: ProvidersProps) {
                               <TransactionsProvider>
                                 <AppProvider>
                                   <FoxEthProvider>
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    <QueryClientProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </QueryClientProvider>
                                   </FoxEthProvider>
                                 </AppProvider>
                               </TransactionsProvider>

@@ -13,7 +13,7 @@ import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './AssetChainDropdown'
 
-const chevronDownIcon = <ChevronDownIcon />
+const disabledStyle = { opacity: 1 }
 
 const TradeAssetAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -38,12 +38,14 @@ type TradeAssetSelectProps = {
   onAssetChange: (asset: Asset) => void
   label: string
   align?: 'left' | 'right'
+  isReadOnly?: boolean
 }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
   onAssetChange,
   assetId,
+  isReadOnly,
 }) => {
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -66,6 +68,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     )
   }, [asset?.icons, assetId])
 
+  const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
+
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2}>
       <Button
@@ -77,9 +81,11 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         size='sm'
         borderRadius='full'
         onClick={onAssetClick}
-        rightIcon={chevronDownIcon}
         flexGrow={0}
         flexShrink={0}
+        isDisabled={isReadOnly}
+        _disabled={disabledStyle}
+        rightIcon={rightIcon}
       >
         {icon}
         {asset?.symbol}

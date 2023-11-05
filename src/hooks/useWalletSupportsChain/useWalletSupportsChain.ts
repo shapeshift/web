@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
+  arbitrumNovaChainId,
   avalancheChainId,
   bchChainId,
   bscChainId,
@@ -67,6 +68,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({
     case gnosisChainId:
       return supportsGnosis(wallet)
     case arbitrumChainId:
+    case arbitrumNovaChainId:
       return supportsArbitrum(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet) && shortCircuitFeatureDetection

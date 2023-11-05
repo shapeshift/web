@@ -3,7 +3,16 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import type { PublicClient } from 'viem'
 import { createPublicClient, http } from 'viem'
-import { arbitrum, avalanche, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
+import {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  bsc,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains'
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -23,6 +32,11 @@ export const viemAvalancheClient = createPublicClient({
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
   transport: http(getConfig().REACT_APP_ARBITRUM_NODE_URL),
+})
+
+export const viemArbitrumNovaClient = createPublicClient({
+  chain: arbitrumNova,
+  transport: http(getConfig().REACT_APP_ARBITRUM_NOVA_NODE_URL),
 })
 
 export const viemOptimismClient = createPublicClient({
@@ -45,6 +59,7 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient> = {
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
   [KnownChainIds.AvalancheMainnet]: viemAvalancheClient,
   [KnownChainIds.ArbitrumMainnet]: viemArbitrumClient,
+  [KnownChainIds.ArbitrumNovaMainnet]: viemArbitrumNovaClient,
   [KnownChainIds.GnosisMainnet]: viemGnosisClient,
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
   // cast required due to typescript shenanigans

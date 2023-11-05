@@ -109,6 +109,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Polygon && chainId === KnownChainIds.PolygonMainnet) return false
       if (!featureFlags.Gnosis && chainId === KnownChainIds.GnosisMainnet) return false
       if (!featureFlags.Arbitrum && chainId === KnownChainIds.ArbitrumMainnet) return false
+      if (!featureFlags.ArbitrumNova && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       return true

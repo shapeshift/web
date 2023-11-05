@@ -15,6 +15,7 @@ import path from 'path'
 import type { Asset, AssetsById } from 'lib/asset-service'
 
 import * as arbitrum from './arbitrum'
+import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -35,6 +36,7 @@ const generateAssetData = async () => {
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
   const arbitrumAssets = await arbitrum.getAssets()
+  const arbitrumNovaAssets = await arbitrumNova.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -52,6 +54,7 @@ const generateAssetData = async () => {
     ...polygonAssets,
     ...gnosisAssets,
     ...arbitrumAssets,
+    ...arbitrumNovaAssets,
   ]
 
   // remove blacklisted assets
@@ -68,6 +71,7 @@ const generateAssetData = async () => {
     [KnownChainIds.PolygonMainnet]: polygonAssets.map(asset => asset.name),
     [KnownChainIds.GnosisMainnet]: gnosisAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
+    [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -124,9 +128,14 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Gnosis`
     }
 
-    // mark any arbitrum assets that also exist on other evm chains
+    // mark any arbitrum one assets that also exist on other evm chains
     if (chainId === KnownChainIds.ArbitrumMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Arbitrum`
+      asset.name = `${asset.name} on Arbitrum One`
+    }
+
+    // mark any arbitrum nova assets that also exist on other evm chains
+    if (chainId === KnownChainIds.ArbitrumNovaMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Arbitrum Nova`
     }
 
     // mark any optimism assets that also exist on other evm chains

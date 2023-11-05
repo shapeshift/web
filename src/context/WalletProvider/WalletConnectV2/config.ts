@@ -2,7 +2,16 @@ import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { getConfig } from 'config'
 import type { Chain } from 'viem/chains'
-import { arbitrum, avalanche, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
+import {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  bsc,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
@@ -38,7 +47,15 @@ const walletConnectV2RequiredChainIds: AtLeastOneNumber = (() => {
 })()
 
 export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
-  const optionalViemChains: ViemChain[] = [optimism, bsc, gnosis, polygon, avalanche, arbitrum]
+  const optionalViemChains: ViemChain[] = [
+    optimism,
+    bsc,
+    gnosis,
+    polygon,
+    avalanche,
+    arbitrum,
+    arbitrumNova,
+  ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
 })()
@@ -58,6 +75,7 @@ const {
   REACT_APP_GNOSIS_NODE_URL,
   REACT_APP_ETHEREUM_NODE_URL,
   REACT_APP_ARBITRUM_NODE_URL,
+  REACT_APP_ARBITRUM_NOVA_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
@@ -82,5 +100,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.GnosisMainnet]: REACT_APP_GNOSIS_NODE_URL,
     [CHAIN_REFERENCE.EthereumMainnet]: REACT_APP_ETHEREUM_NODE_URL,
     [CHAIN_REFERENCE.ArbitrumMainnet]: REACT_APP_ARBITRUM_NODE_URL,
+    [CHAIN_REFERENCE.ArbitrumNovaMainnet]: REACT_APP_ARBITRUM_NOVA_NODE_URL,
   },
 }

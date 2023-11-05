@@ -13,4 +13,5 @@ export const migrations = {
   6: clearAssets,
   7: clearPortfolio,
   8: clearOpportunities,
+  9: clearAssets,
 }

@@ -6,7 +6,7 @@ import axios from 'axios'
 import type { Asset } from 'lib/asset-service'
 import type { IdleVault } from 'lib/investor/investor-idle'
 
-import { IdleSdk } from '../../../src/lib/investor/investor-idle'
+import { IdleSdk } from '../../../src/lib/investor/investor-idle/IdleSdk'
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 

@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   accountIdToChainId,
   arbitrumChainId,
+  arbitrumNovaChainId,
   avalancheChainId,
   bchChainId,
   bscChainId,
@@ -77,6 +78,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case gnosisChainId:
     case bscChainId:
     case arbitrumChainId:
+    case arbitrumNovaChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
     case btcChainId:
@@ -298,6 +300,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case gnosisChainId:
       return supportsGnosis(wallet)
     case arbitrumChainId:
+    case arbitrumNovaChainId:
       return supportsArbitrum(wallet)
     case btcChainId:
     case ltcChainId:

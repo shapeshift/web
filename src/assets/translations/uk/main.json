@@ -98,7 +98,10 @@
     "all": "Всі",
     "viewAll": "Переглянути всі",
     "slippage": "Прослизання",
+    "feesPlusSlippage": "Комісії + прослизання",
     "best": "Найкраща",
+    "gasFee": "Плата за газ",
+    "fees": "Комісії",
     "alternative": "Альтернатива",
     "validator": " %{name} Валідатор",
     "needAsset": "Отримати %{asset}?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Купити/продати",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "Місії FOX",
-    "foxMissionsShort": "Місії"
+    "foxMissionsShort": "Місії",
+    "lending": "Кредитування"
   },
   "transactionRow": {
     "send": "Надіслано",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Торгівля",
     "allowance": "Посібник",
+    "verifyAddresses": "Підтвердити адреси",
+    "assetAddress": "%{asset} адреса",
+    "verifyAsset": "Підтвердити %{asset}",
+    "verifyAddressMessage": "Переконайтеся, що ваші адреси правильні, перш ніж продовжувати.",
     "slippageInfo": "Ваша транзакція буде скасована, якщо ціна зміниться більше, ніж на цей відсоток.",
     "allowanceTooltip": "Сума, яку ви надасте смарт-контракту право використовувати від вашого імені.",
     "searchingRate": "Швидкість вилучення...",
@@ -2130,6 +2138,57 @@
     "modal": {
       "title": "Встановити новий аватар",
       "restoreDefault": "Відновити налаштування за замовчуванням"
+    }
+  },
+  "lending": {
+    "lending": "Кредитування",
+    "lendingBody": "Перелік усіх пулів, які можна позичити під нульову відсоткову ставку та з нульовою ліквідацією.",
+    "collateralValue": "Вартість застави",
+    "debtValue": "Сума боргу",
+    "loanToValue": "Кредит до капіталу",
+    "availablePools": "Доступні пули",
+    "yourLoans": "Ваші позики",
+    "pool": "Пул",
+    "poolDepth": "Обсяг пулу",
+    "totalDebtBalance": "Загальний залишок боргу",
+    "totalCollateral": "Загальна сума застави",
+    "estCollateralizationRatio": "Приблизний коефіцієнт забезпечення",
+    "collateralizationRatio": "коефіцієнт забезпечення",
+    "totalBorrowers": "Всього позичальників",
+    "myLoanInformation": "Інформація про мій кредит",
+    "loanInformation": "Короткий огляд кредиту",
+    "poolInformation": "Інформація про пул",
+    "collateralBalance": "Баланс застави",
+    "debtBalance": "Залишок боргу",
+    "repaymentLock": "Блокування виплат",
+    "borrow": "Позичити",
+    "repay": "Погасити",
+    "outstandingDebt": "Непогашена заборгованість",
+    "collateral": "Забезпечення",
+    "debt": "Борг",
+    "healthy": "Безпечний",
+    "caution": "Обережніше!",
+    "risky": "Ризиковано.",
+    "confirmAndBorrow": "Підтвердити та позичити",
+    "confirmAndRepay": "Підтвердити та погасити",
+    "transactionInfo": "Підсумки транзакції",
+    "repayNoticeTitle": "Зачекайте!",
+    "repayNoticeCta": "Я розумію",
+    "repayNotice": "Щоб отримати заставу, вам потрібно буде погасити 100% боргу.",
+    "faq": {
+      "title": "Поширенні запитання",
+      "lending": {
+        "title": "Що таке THORCHCHain кредитування?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "borrowing": {
+        "title": "Як працює позика?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "repayments": {
+        "title": "Як відбувається погашення?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
     }
   },
   "foxDiscounts": {

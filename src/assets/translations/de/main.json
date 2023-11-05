@@ -98,7 +98,10 @@
     "all": "Alle",
     "viewAll": "Alle ansehen",
     "slippage": "Marktabweichung",
+    "feesPlusSlippage": "Gebühren + Marktabweichung",
     "best": "Beste",
+    "gasFee": "Gasgebühr",
+    "fees": "Gebühren",
     "alternative": "Alternative",
     "validator": "der %{name} Prüfer",
     "needAsset": "Brauchen Sie %{asset}?",
@@ -524,7 +527,8 @@
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop",
     "foxMissions": "FOX Mission",
-    "foxMissionsShort": "Missionen"
+    "foxMissionsShort": "Missionen",
+    "lending": "Verleihen"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -644,6 +648,10 @@
   "trade": {
     "trade": "Handeln",
     "allowance": "Genehmigung",
+    "verifyAddresses": "Adressen überprüfen",
+    "assetAddress": "%{asset} Adresse",
+    "verifyAsset": "überprüfe %{asset}",
+    "verifyAddressMessage": "Stellen Sie sicher, dass Ihre Adressen korrekt sind, bevor Sie fortfahren.",
     "slippageInfo": "Ihre Transaktion wird rückgängig gemacht, wenn sich der Preis um mehr als diesen Prozentsatz ungünstig ändert.",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
@@ -2130,6 +2138,57 @@
     "modal": {
       "title": "Legen Sie einen neuen Avatar fest",
       "restoreDefault": "Standard wiederherstellen"
+    }
+  },
+  "lending": {
+    "lending": "Verleihen",
+    "lendingBody": "Eine Auflistung aller Pools, die zinslos und ohne Liquidation ausgeliehen werden können.",
+    "collateralValue": "Sicherheitenwert",
+    "debtValue": "Schuldenwert",
+    "loanToValue": "Beleihungswert",
+    "availablePools": "Verfügbare Pools",
+    "yourLoans": "Ihre Kredite",
+    "pool": "Pool",
+    "poolDepth": "Pooltiefe",
+    "totalDebtBalance": "Gesamtschuldensaldo",
+    "totalCollateral": "Gesamtsicherheiten",
+    "estCollateralizationRatio": "zirka Besicherungsverhältnis",
+    "collateralizationRatio": "Besicherungsverhältnis",
+    "totalBorrowers": "Gesamtzahl der Kreditnehmer",
+    "myLoanInformation": "Meine Kreditinformationen",
+    "loanInformation": "Kreditübersicht",
+    "poolInformation": "Pool Information",
+    "collateralBalance": "Sicherheitensaldo",
+    "debtBalance": "Schuldenstand",
+    "repaymentLock": "Rückzahlungssperre",
+    "borrow": "Ausleihen",
+    "repay": "Zurückzahlen",
+    "outstandingDebt": "Restschuld",
+    "collateral": "Sicherheit",
+    "debt": "Schulden",
+    "healthy": "Gesund",
+    "caution": "Vorsicht",
+    "risky": "Riskant",
+    "confirmAndBorrow": "Bestätigen und ausleihen",
+    "confirmAndRepay": "Bestätigen und zurückzahlen",
+    "transactionInfo": "Transaktionsübersicht",
+    "repayNoticeTitle": "Halten!",
+    "repayNoticeCta": "Ich verstehe",
+    "repayNotice": "Um Ihre Sicherheiten zurückzuerhalten, müssen Sie 100 % Ihrer Schulden zurückzahlen.",
+    "faq": {
+      "title": "FAQ",
+      "lending": {
+        "title": "Was ist THORChain Lending?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "borrowing": {
+        "title": "Wie funktioniert die Kreditaufnahme?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "repayments": {
+        "title": "Wie funktioniert die Rückzahlung?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
     }
   },
   "foxDiscounts": {

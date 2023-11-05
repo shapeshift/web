@@ -174,15 +174,19 @@ export const BorrowInput = ({
     handleBorrowAssetClick,
   ])
 
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    }),
+    [borrowAsset?.assetId, collateralAssetId, depositAmount],
+  )
   const {
     data,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery({
-    collateralAssetId,
-    borrowAssetId: borrowAsset?.assetId ?? '',
-    depositAmountCryptoPrecision: depositAmount ?? '0',
-  })
+  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 

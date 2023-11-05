@@ -2,18 +2,12 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import {
-  getAllThorchainLendingPositions,
-  getThorchainPoolInfo,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
 import { DynamicComponent } from './PoolStat'
@@ -28,60 +22,8 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
-  const poolDataQueryKey: [string, { assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPoolData', { assetId: poolAssetId }],
-    [poolAssetId],
-  )
-
-  const { data: poolData, isLoading: isPoolDataLoading } = useQuery({
-    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
-    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
-    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
-    // this is a good way to avoid spamming the API during develpment
-    staleTime: Infinity,
-    queryKey: poolDataQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [, { assetId }] = queryKey
-      const positions = await getAllThorchainLendingPositions(assetId)
-      const poolInfo = await getThorchainPoolInfo(assetId)
-      return { positions, poolInfo }
-    },
-    select: data => {
-      const { positions, poolInfo } = data
-      // returns actual derived data, or zero's out fields in case there is no active position
-      const totalBorrowers = positions?.length ?? 0
-
-      const { totalCollateral, totalDebt } = positions.reduce(
-        (acc, position) => {
-          acc.totalCollateral = acc.totalCollateral.plus(position.collateral_current)
-          acc.totalDebt = acc.totalDebt.plus(position.debt_current)
-
-          return acc
-        },
-        {
-          totalCollateral: bn(0),
-          totalDebt: bn(0),
-        },
-      )
-
-      const totalCollateralCryptoPrecision = fromThorBaseUnit(totalCollateral).toString()
-      const totalDebtUSD = fromThorBaseUnit(totalDebt).toString()
-
-      const collateralizationRatioPercent = bnOrZero(poolInfo.loan_cr).div(100)
-      const collateralizationRatioPercentDecimal = bnOrZero(collateralizationRatioPercent)
-        .div(100)
-        .toString()
-
-      return {
-        totalBorrowers,
-        totalCollateralCryptoPrecision,
-        totalDebtUSD,
-        collateralizationRatioPercentDecimal,
-      }
-    },
-    enabled: true,
-  })
-
+  const usePoolDataArgs = useMemo(() => ({ poolAssetId }), [poolAssetId])
+  const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
   const totalCollateralComponent = useMemo(
     () => (
       <Amount.Crypto

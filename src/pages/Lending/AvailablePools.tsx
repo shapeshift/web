@@ -1,8 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import type { GridProps } from '@chakra-ui/react'
-import { Button, Flex, SimpleGrid, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useRouteMatch } from 'react-router'
@@ -11,12 +10,69 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 
 import { LendingHeader } from './components/LendingHeader'
+import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
+import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
   md: '200px repeat(5, 1fr)',
+}
+
+type LendingPoolButtonProps = {
+  asset: Asset
+  onPoolClick: (assetId: AssetId) => void
+}
+
+const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
+  const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
+  const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+
+  const handlePoolClick = useCallback(() => {
+    onPoolClick(asset.assetId)
+  }, [asset.assetId, onPoolClick])
+  return (
+    <Button
+      variant='ghost'
+      display='grid'
+      gridTemplateColumns={lendingRowGrid}
+      columnGap={4}
+      alignItems='center'
+      textAlign='left'
+      py={4}
+      width='full'
+      height='auto'
+      color='text.base'
+      onClick={handlePoolClick}
+    >
+      <AssetCell assetId={asset.assetId} />
+      <Skeleton isLoaded={!isPoolDataLoading}>
+        <Flex>
+          <Tag colorScheme='green'>
+            <TagLeftIcon as={CheckCircleIcon} />
+            Healthy
+          </Tag>
+        </Flex>
+      </Skeleton>
+      <Skeleton isLoaded={!isPoolDataLoading}>
+        <Amount.Fiat value={poolData?.totalDebtUSD ?? '0'} />
+      </Skeleton>
+      <Skeleton isLoaded={!isPoolDataLoading}>
+        <Amount.Crypto
+          value={poolData?.totalCollateralCryptoPrecision ?? '0'}
+          symbol={asset.symbol}
+        />
+      </Skeleton>
+      <Skeleton isLoaded={!isPoolDataLoading}>
+        <Amount.Percent value={poolData?.collateralizationRatioPercentDecimal ?? '0'} />
+      </Skeleton>
+      <Skeleton isLoaded={!isPoolDataLoading}>
+        <RawText>{poolData?.totalBorrowers ?? '0'}</RawText>
+      </Skeleton>
+    </Button>
+  )
 }
 
 export const AvailablePools = () => {
@@ -30,6 +86,16 @@ export const AvailablePools = () => {
     [history, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+
+  const lendingRows = useMemo(() => {
+    if (!lendingSupportedAssets) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+
+    return lendingSupportedAssets.map(asset => (
+      <LendingPoolButton asset={asset} onPoolClick={handlePoolClick} />
+    ))
+  }, [handlePoolClick, lendingSupportedAssets])
+
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
@@ -57,60 +123,7 @@ export const AvailablePools = () => {
             <Text translation='lending.totalBorrowers' />
           </HelperTooltip>
         </SimpleGrid>
-        <Stack mx={-4}>
-          <Button
-            variant='ghost'
-            display='grid'
-            gridTemplateColumns={lendingRowGrid}
-            columnGap={4}
-            alignItems='center'
-            textAlign='left'
-            py={4}
-            width='full'
-            height='auto'
-            color='text.base'
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => handlePoolClick(btcAssetId)}
-          >
-            <AssetCell assetId={btcAssetId} />
-            <Flex>
-              <Tag colorScheme='green'>
-                <TagLeftIcon as={CheckCircleIcon} />
-                Healthy
-              </Tag>
-            </Flex>
-            <Amount.Fiat value='680516.92' />
-            <Amount.Crypto value='64.59' symbol='BTC' />
-            <Amount.Percent value='2.9' />
-            <RawText>123</RawText>
-          </Button>
-          <Button
-            variant='ghost'
-            display='grid'
-            gridTemplateColumns={lendingRowGrid}
-            columnGap={4}
-            alignItems='center'
-            textAlign='left'
-            py={4}
-            width='full'
-            height='auto'
-            color='text.base'
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => handlePoolClick(ethAssetId)}
-          >
-            <AssetCell assetId={ethAssetId} />
-            <Flex>
-              <Tag colorScheme='green'>
-                <TagLeftIcon as={CheckCircleIcon} />
-                Healthy
-              </Tag>
-            </Flex>
-            <Amount.Fiat value='335217.33' />
-            <Amount.Crypto value='496.29' symbol='ETH' />
-            <Amount.Percent value='2.9' />
-            <RawText>123</RawText>
-          </Button>
-        </Stack>
+        <Stack mx={-4}>{lendingRows}</Stack>
       </Stack>
     </Main>
   )

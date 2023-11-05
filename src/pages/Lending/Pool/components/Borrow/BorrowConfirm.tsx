@@ -100,6 +100,14 @@ export const BorrowConfirm = ({
   }, [history])
   const divider = useMemo(() => <Divider />, [])
 
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      borrowAssetId,
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    }),
+    [collateralAssetId, borrowAssetId, depositAmount],
+  )
   // TODO(gomes): accept enabled as prop and pass it down as _enabled
   // so we have a safety to not refetch quotes while borrow is pending
   // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
@@ -108,11 +116,7 @@ export const BorrowConfirm = ({
     data,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery({
-    collateralAssetId,
-    borrowAssetId,
-    depositAmountCryptoPrecision: depositAmount ?? '0',
-  })
+  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 

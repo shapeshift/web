@@ -66,8 +66,6 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
-
-        throw e
       } finally {
         // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
         qrCode.close()

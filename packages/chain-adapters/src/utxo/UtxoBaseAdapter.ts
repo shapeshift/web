@@ -415,7 +415,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signedTx = await wallet.btcSignTx(txToSign)
 
-      if (!signedTx) throw new Error('UtxoBaseAdapter: error signing tx')
+      if (!signedTx?.serializedTx) throw new Error('UtxoBaseAdapter: error signing tx')
 
       return signedTx.serializedTx
     } catch (err) {

@@ -454,7 +454,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const signedTx = await wallet.ethSignTx(txToSign)
 
-      if (!signedTx) throw new Error('Error signing tx')
+      if (!signedTx?.serialized) throw new Error('Error signing tx')
 
       return signedTx.serialized
     } catch (err) {

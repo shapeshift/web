@@ -78,7 +78,6 @@ export const parseMaybeUrlWithChainId = ({
             : {}),
         }
       } catch (error) {
-        console.error(error)
         return {
           assetId,
           maybeAddress: urlOrAddress,

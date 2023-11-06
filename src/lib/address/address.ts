@@ -57,8 +57,12 @@ export const parseMaybeUrlWithChainId = ({
               }
             : {}),
         }
-      } catch (error: any) {
-        if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+          // address, not url, don't log
+          if (error.message.includes('Not an Ethereum URI')) break
+        }
         console.error(error)
       }
       break
@@ -78,13 +82,13 @@ export const parseMaybeUrlWithChainId = ({
             : {}),
         }
       } catch (error) {
-        console.error(error)
-        return {
-          assetId,
-          maybeAddress: urlOrAddress,
-          chainId,
+        if (error instanceof Error) {
+          // address, not url, don't log
+          if (error.message.includes('Invalid BIP21 URI')) break
         }
+        console.error(error)
       }
+      break
     default:
       return { assetId, chainId, maybeAddress: urlOrAddress }
   }

@@ -117,6 +117,7 @@ export const getApprovalStep = ({
     title: 'Token allowance approval',
     description: txHash ?? `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`,
     stepIndicator: <StepStatus complete={stepIcon} active={txHash ? spinner : undefined} />,
+    key: 'approval',
     content: (
       <Card p='2'>
         {txHash ? (
@@ -175,6 +176,7 @@ export const getTradeStep = ({
   return {
     title: 'Sign transaction',
     stepIndicator: statusIcon,
+    key: 'trade',
     content: (
       <Card p='2'>
         {txHash ? (
@@ -204,6 +206,7 @@ export const getTitleStep = ({
   return {
     title: `${tradeType} via ${swapperName}`,
     stepIndicator: isHopComplete ? <StepIcon /> : <StepNumber>{hopIndex + 1}</StepNumber>,
+    key: 'title',
   }
 }
 
@@ -222,6 +225,7 @@ export const getAssetSummaryStep = ({
     title: amountCryptoFormatted,
     description: `${amountFiatFormatted} on ${chainName}`,
     stepIndicator: <AssetIcon src={asset.icon} boxSize='32px' />,
+    key: 'asset-summary',
   }
 }
 
@@ -251,6 +255,7 @@ export const getHopSummaryStep = ({
         : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`,
     description: `${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`,
     stepIndicator: <SwapperIcon swapperName={swapperName} />,
+    key: 'hop-summary',
   }
 }
 
@@ -263,5 +268,6 @@ export const getDonationSummaryStep = ({
     title: donationAmountFiatFormatted,
     description: 'ShapeShift Donation',
     stepIndicator: <StarIcon />,
+    key: 'donation',
   }
 }

@@ -11,6 +11,7 @@ export type StepperStep = {
   stepIndicator: JSX.Element
   content?: JSX.Element
   status?: MultiHopExecutionStatus
+  key: string
 }
 
 export enum ActiveQuoteStatus {

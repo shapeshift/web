@@ -50,8 +50,8 @@ export const Hop = ({
         height={steps.length * 60}
         margin={6}
       >
-        {steps.map(({ title, stepIndicator, description, content }, index) => (
-          <Step key={index}>
+        {steps.map(({ title, stepIndicator, description, content, key }, index) => (
+          <Step key={key}>
             <StepIndicator>{stepIndicator}</StepIndicator>
 
             <Box flexShrink='0'>

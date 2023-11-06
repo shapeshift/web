@@ -87,7 +87,13 @@ const RepayRoutes = memo(
             />
           </Route>
           <Route key={RepayRoutePaths.Confirm} path={RepayRoutePaths.Confirm}>
-            <RepayConfirm />
+            <RepayConfirm
+              collateralAssetId={collateralAssetId}
+              repaymentPercent={repaymentPercent}
+              collateralAccountId={collateralAccountId}
+              repaymentAccountId={repaymentAccountId}
+              repaymentAsset={repaymentAsset}
+            />
           </Route>
         </Switch>
       </AnimatePresence>

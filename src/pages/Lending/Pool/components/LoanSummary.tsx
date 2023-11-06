@@ -43,10 +43,10 @@ type LoanSummaryProps = {
         depositAmountCryptoPrecision: string
         borrowAssetId: AssetId
         repayAmountCryptoPrecision?: never
-        debtRepaidAmountUsd: never
-        collateralDecreaseAmountCryptoPrecision: never
-        repaymentAsset: never
-        repaymentPercent: number
+        debtRepaidAmountUsd?: never
+        collateralDecreaseAmountCryptoPrecision?: never
+        repaymentAsset?: never
+        repaymentPercent?: never
       }
     | {
         depositAmountCryptoPrecision?: never

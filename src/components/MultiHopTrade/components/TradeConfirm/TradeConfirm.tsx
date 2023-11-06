@@ -155,12 +155,7 @@ export const TradeConfirm = () => {
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
-  const {
-    executeTrade,
-    sellTxHash,
-    buyTxHash,
-    tradeStatus: status,
-  } = useTradeExecution({ tradeQuote, swapperName })
+  const { executeTrade, sellTxHash, buyTxHash, tradeStatus: status } = useTradeExecution()
 
   const txHash = buyTxHash ?? sellTxHash
 

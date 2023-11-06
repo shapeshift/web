@@ -117,7 +117,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
       outbound: '1234',
       liquidity: '1234',
       total: '9876',
-      slippage_bps: 0,
+      slippage_bps: 500, // 5%
       total_bps: 0,
     },
     slippage_bps: 0,

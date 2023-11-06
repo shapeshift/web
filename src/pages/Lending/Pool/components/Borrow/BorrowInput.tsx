@@ -269,7 +269,7 @@ export const BorrowInput = ({
               <Row.Label>{translate('common.fees')}</Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLendingQuoteLoading}>
-                  <Amount.Fiat value='0' />
+                  <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>

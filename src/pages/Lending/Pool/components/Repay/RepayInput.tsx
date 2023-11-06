@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Skeleton,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -302,19 +303,28 @@ export const RepayInput = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Amount.Crypto value='20' symbol='BTC' />
+            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+              <Amount.Crypto
+                value={data?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                symbol='BTC'
+              />
+            </Skeleton>
           </Row.Value>
         </Row>
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
-            <Amount.Fiat value='10' />
+            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+              <Amount.Fiat value='TODO' />
+            </Skeleton>
           </Row.Value>
         </Row>
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
-            <Amount.Fiat value='0' />
+            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+              <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+            </Skeleton>
           </Row.Value>
         </Row>
         <Button

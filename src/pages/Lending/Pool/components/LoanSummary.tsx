@@ -219,36 +219,42 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </Skeleton>
         </Row.Value>
       </Row>
-      <Row>
-        <HelperTooltip label='TBD'>
-          <Row.Label>{translate('lending.repaymentLock')}</Row.Label>
-        </HelperTooltip>
-        <Row.Value>
-          <Skeleton
-            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
-          >
-            <FromToStack>
-              <RawText color='text.subtle'>25 days</RawText>
-              <RawText>30 days</RawText>
-            </FromToStack>
-          </Skeleton>
-        </Row.Value>
-      </Row>
-      <Row>
-        <HelperTooltip label='TBD'>
-          <Row.Label>{translate('lending.collateralizationRatio')}</Row.Label>
-        </HelperTooltip>
-        <Row.Value>
-          <Skeleton
-            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
-          >
-            <Amount.Percent
-              value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
-              color='text.success'
-            />
-          </Skeleton>
-        </Row.Value>
-      </Row>
+      {!isRepay && (
+        // This doesn't make sense for repayments - repayment lock shouldn't change when repaying, and will be zero'd out when fully repaying
+        <Row>
+          <HelperTooltip label='TBD'>
+            <Row.Label>{translate('lending.repaymentLock')}</Row.Label>
+          </HelperTooltip>
+          <Row.Value>
+            <Skeleton
+              isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+            >
+              <FromToStack>
+                <RawText color='text.subtle'>25 days</RawText>
+                <RawText>30 days</RawText>
+              </FromToStack>
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      )}
+      {!isRepay && (
+        // This doesn't make sense for repayments - the collateralization ratio won't change here
+        <Row>
+          <HelperTooltip label='TBD'>
+            <Row.Label>{translate('lending.collateralizationRatio')}</Row.Label>
+          </HelperTooltip>
+          <Row.Value>
+            <Skeleton
+              isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+            >
+              <Amount.Percent
+                value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
+                color='text.success'
+              />
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      )}
       <Row>
         <HelperTooltip label='TBD'>
           <Row.Label>{translate('lending.poolDepth')}</Row.Label>

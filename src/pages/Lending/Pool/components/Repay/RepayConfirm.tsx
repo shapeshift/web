@@ -163,13 +163,13 @@ export const RepayConfirm = ({
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const estimatedFees = await estimateFees({
       cryptoAmount: repaymentAmountCryptoPrecision,
-      assetId: collateralAssetId,
+      assetId: repaymentAsset.assetId,
       memo: supportedEvmChainIds.includes(fromAssetId(repaymentAsset.assetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteCloseData.quoteMemo))
         : lendingQuoteCloseData.quoteMemo,
       to: lendingQuoteCloseData.quoteInboundAddress,
       sendMax: false,
-      accountId: collateralAccountId,
+      accountId: repaymentAccountId,
       contractAddress: undefined,
     })
 
@@ -208,8 +208,6 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
-    collateralAccountId,
-    collateralAssetId,
     lendingQuoteCloseData,
     repaymentAccountId,
     repaymentAmountCryptoPrecision,

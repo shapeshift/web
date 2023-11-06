@@ -106,7 +106,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   console.log({ url })
 
   const data = {
-    inbound_address: 'bc1qjk3xzu5slu7mtmc8jc9yed3zqvkhkttm700g9a',
+    inbound_address: '0x492619dedf21b20781669c5503850dc9b864f116',
     inbound_confirmation_blocks: 0,
     inbound_confirmation_seconds: 0,
     outbound_delay_blocks: 0,

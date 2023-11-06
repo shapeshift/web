@@ -8,7 +8,10 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import {
+  selectMarketDataById,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/marketDataSlice/selectors'
 import { getMaybeThorchainLendingCloseQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import {
   BASE_BPS_POINTS,
@@ -19,6 +22,8 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { useLendingPositionData } from './useLendingPositionData'
 
 type UseLendingQuoteCloseQueryProps = {
   repaymentAssetId: AssetId
@@ -87,6 +92,35 @@ export const useLendingQuoteCloseQuery = ({
     })()
   }, [getCollateralAssetAddress])
 
+  const { data: lendingPositionData } = useLendingPositionData({
+    assetId: collateralAssetId,
+    accountId: collateralAccountId,
+  })
+
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  const debtBalanceUserCurrency = useMemo(() => {
+    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
+      .times(userCurrencyToUsdRate)
+      .toFixed()
+  }, [lendingPositionData?.debtBalanceFiatUSD, userCurrencyToUsdRate])
+
+  const repaymentAmountFiatUserCurrency = useMemo(() => {
+    if (!lendingPositionData) return null
+
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
+      .times(debtBalanceUserCurrency)
+      .div(100)
+
+    return proratedCollateralFiatUserCurrency.toFixed()
+  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+
+  const repaymentAmountCryptoPrecision = useMemo(() => {
+    if (!repaymentAmountFiatUserCurrency) return null
+
+    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
+  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
+
   const lendingQuoteQueryKey = useDebounce(
     () => [
       'lendingQuoteQuery',
@@ -106,20 +140,12 @@ export const useLendingQuoteCloseQuery = ({
   const query = useQuery({
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {
-      const [
-        ,
-        {
-          collateralAssetAddress,
-          repaymentAssetId,
-          collateralAssetId,
-          repaymentPercent: depositAmountCryptoPrecision,
-        },
-      ] = queryKey
+      const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
       const position = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
-        collateralAssetId,
-        collateralAmountCryptoBaseUnit: toBaseUnit(
-          depositAmountCryptoPrecision,
+        repaymentlAssetId: collateralAssetId,
+        repaymentAmountCryptoBaseUnit: toBaseUnit(
+          repaymentAmountCryptoPrecision ?? 0, // actually always defined at runtime, see "enabled" option
           repaymentAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
         ),
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option

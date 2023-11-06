@@ -68,13 +68,13 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // but we might need e.g min_out and affiliate_bps
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
-  collateralAssetId,
-  collateralAmountCryptoBaseUnit,
+  repaymentlAssetId: collateralAssetId,
+  repaymentAmountCryptoBaseUnit: collateralAmountCryptoBaseUnit,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
-  collateralAssetId: AssetId
-  collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
+  repaymentlAssetId: AssetId
+  repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   repaymentAssetId: AssetId
   collateralAssetAddress: string
   // TODO(gomes): remove eslint-disable directive when actually fetching from THOR

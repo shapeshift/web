@@ -255,7 +255,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       if (supportsCosmos(wallet)) {
         const signedTx = await wallet.cosmosSignTx(txToSign)
 
-        if (!signedTx) throw new Error('Error signing tx')
+        if (!signedTx?.serialized) throw new Error('Error signing tx')
 
         return signedTx.serialized
       } else {

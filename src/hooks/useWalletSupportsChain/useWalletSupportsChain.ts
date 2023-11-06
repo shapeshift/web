@@ -18,6 +18,7 @@ import {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
+  supportsArbitrumNova,
   supportsAvalanche,
   supportsBSC,
   supportsBTC,
@@ -68,8 +69,9 @@ export const walletSupportsChain: UseWalletSupportsChain = ({
     case gnosisChainId:
       return supportsGnosis(wallet)
     case arbitrumChainId:
-    case arbitrumNovaChainId:
       return supportsArbitrum(wallet)
+    case arbitrumNovaChainId:
+      return supportsArbitrumNova(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet) && shortCircuitFeatureDetection
     case thorchainChainId:

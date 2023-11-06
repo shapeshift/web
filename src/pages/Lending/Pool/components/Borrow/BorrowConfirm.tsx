@@ -197,9 +197,6 @@ export const BorrowConfirm = ({
       contractAddress: undefined,
     })
 
-    // @ts-ignore
-    estimatedFees.fast.chainSpecific.gasLimit = '22000' // TODO(gomes): figure out why this estimates to 21000 currently
-
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {

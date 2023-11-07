@@ -100,18 +100,12 @@ export const RepayInput = ({
     })()
   }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
 
-  const repaymentPercentParam = useMemo(() => {
-    const repaymentPercentBn = bnOrZero(repaymentPercent)
-    // 1% safety in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
-    if (!repaymentPercentBn.eq(100)) return repaymentPercent
-    return repaymentPercentBn.plus('1').toNumber()
-  }, [repaymentPercent])
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
       collateralAssetId,
       collateralAccountId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent: repaymentPercentParam,
+      repaymentPercent,
       repaymentAccountId,
     }),
     [
@@ -119,7 +113,7 @@ export const RepayInput = ({
       collateralAssetId,
       repaymentAccountId,
       repaymentAsset?.assetId,
-      repaymentPercentParam,
+      repaymentPercent,
     ],
   )
 

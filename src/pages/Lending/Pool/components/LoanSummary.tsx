@@ -144,9 +144,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     () => ({
       collateralAssetId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent,
-      repaymentAccountId,
-      collateralAccountId,
+      repaymentPercent: Number(repaymentPercent),
+      repaymentAccountId: repaymentAccountId ?? '',
+      collateralAccountId: collateralAccountId ?? '',
     }),
     [
       collateralAccountId,
@@ -162,6 +162,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     isLoading: isLendingQuoteCloseLoading,
     isError: isLendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  console.log({ lendingQuoteCloseData })
 
   if (!collateralAsset || isLendingQuoteError) return null
 

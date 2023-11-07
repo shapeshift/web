@@ -33,10 +33,17 @@ type UseLendingQuoteCloseQueryProps = {
 export const useLendingQuoteCloseQuery = ({
   repaymentAssetId,
   collateralAssetId,
-  repaymentPercent,
+  repaymentPercent: _repaymentPercent,
   repaymentAccountId,
   collateralAccountId,
 }: UseLendingQuoteCloseQueryProps) => {
+  const repaymentPercent = useMemo(() => {
+    const repaymentPercentBn = bnOrZero(_repaymentPercent)
+    // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
+    if (!repaymentPercentBn.eq(100)) return _repaymentPercent
+    return repaymentPercentBn.plus('1').toNumber()
+  }, [_repaymentPercent])
+
   const [collateralAssetAddress, setCollateralAssetAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
@@ -201,7 +208,8 @@ export const useLendingQuoteCloseQuery = ({
         repaymentAsset &&
         collateralAssetAddress?.length &&
         repaymentAssetMarketData.price !== '0' &&
-        bnOrZero(repaymentPercent).gt(0),
+        bnOrZero(repaymentPercent).gt(0) &&
+        repaymentAmountCryptoPrecision,
     ),
   })
 

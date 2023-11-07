@@ -61,7 +61,7 @@ type RepayInputProps = {
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
-  onRepaymentPercentChange: onRepayPercentChange,
+  onRepaymentPercentChange,
   collateralAccountId,
   repaymentAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
@@ -239,7 +239,7 @@ export const RepayInput = ({
         labelPostFix={repaymentAssetSelectComponent}
       >
         <Stack spacing={4} px={6} pb={4}>
-          <Slider defaultValue={100} onChange={onRepayPercentChange}>
+          <Slider defaultValue={100} onChange={onRepaymentPercentChange}>
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
             </SliderTrack>

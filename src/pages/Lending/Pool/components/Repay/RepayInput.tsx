@@ -315,7 +315,7 @@ export const RepayInput = ({
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
               <Amount.Crypto
                 value={data?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                symbol='BTC'
+                symbol={collateralAsset?.symbol ?? ''}
               />
             </Skeleton>
           </Row.Value>

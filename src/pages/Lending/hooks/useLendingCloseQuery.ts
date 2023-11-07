@@ -178,10 +178,10 @@ export const useLendingQuoteCloseQuery = ({
       const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
         .times(collateralAssetMarketData?.price ?? 0)
         .toString()
-      const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
+      const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
         bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
       )
-      const quoteSlippageBorrowedAssetCryptoPrecision = borrowAmountBeforeFeesCryptoPrecision
+      const quoteSlippageWithdrawndAssetCryptoPrecision = withdrawnAmountBeforeFeesCryptoPrecision
         .times(quoteSlippagePercentageDecimal)
         .toString()
 
@@ -194,7 +194,7 @@ export const useLendingQuoteCloseQuery = ({
         quoteDebtRepaidAmountUsd,
         quoteBorrowedAmountCryptoPrecision: quoteWithdrawnAmountAfterFeesCryptoPrecision,
         quoteBorrowedAmountUserCurrency: quoteWithdrawnAmountAfterFeesUserCurrency,
-        quoteSlippageBorrowedAssetCryptoPrecision,
+        quoteSlippageBorrowedAssetCryptoPrecision: quoteSlippageWithdrawndAssetCryptoPrecision,
         quoteTotalFeesFiatUserCurrency,
         quoteInboundAddress,
         quoteMemo,

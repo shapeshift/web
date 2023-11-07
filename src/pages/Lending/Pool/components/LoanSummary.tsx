@@ -259,6 +259,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
             >
               <FromToStack>
                 <RawText color='text.subtle'>25 days</RawText>
+                {/* TODO(gomes): programmatic */}
                 <RawText>30 days</RawText>
               </FromToStack>
             </Skeleton>

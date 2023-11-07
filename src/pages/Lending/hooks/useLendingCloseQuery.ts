@@ -190,7 +190,7 @@ export const useLendingQuoteCloseQuery = ({
 
       return {
         quoteLoanCollateralDecreaseCryptoPrecision,
-        quoteCollateralAmountFiatUserCurrency: quoteLoanCollateralDecreaseFiatUserCurrency,
+        quoteLoanCollateralDecreaseFiatUserCurrency,
         quoteDebtRepaidAmountUsd,
         quoteBorrowedAmountCryptoPrecision: quoteWithdrawnAmountAfterFeesCryptoPrecision,
         quoteBorrowedAmountUserCurrency: quoteWithdrawnAmountAfterFeesUserCurrency,

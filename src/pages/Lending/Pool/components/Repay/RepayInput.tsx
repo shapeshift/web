@@ -15,7 +15,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -161,7 +160,7 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         accountId={''}
-        assetId={btcAssetId}
+        assetId={collateralAssetId}
         onAssetClick={handleRepaymentAssetClick}
         onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
@@ -170,7 +169,7 @@ export const RepayInput = ({
         isReadOnly
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
+  }, [collateralAssetId, handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
@@ -279,7 +278,6 @@ export const RepayInput = ({
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Unlocked Collateral'}
-        // TODO(gomes): implement me
         onAccountIdChange={onRepaymentAccountIdChange}
         isReadOnly
         hideAmounts

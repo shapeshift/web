@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -88,7 +88,7 @@ export const RepayConfirm = ({
 
   const history = useHistory()
   const translate = useTranslate()
-  const collateralAsset = useAppSelector(state => selectAssetById(state, btcAssetId))
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   const handleBack = useCallback(() => {
     history.push(RepayRoutePaths.Input)
@@ -270,8 +270,19 @@ export const RepayConfirm = ({
                 <Row.Label>{translate('common.receive')}</Row.Label>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                    <Amount.Crypto value='14820' symbol={repaymentAsset?.symbol ?? ''} />
-                    <Amount.Fiat color='text.subtle' value='14820' prefix='≈' />
+                    <Amount.Crypto
+                      value={
+                        lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+                      }
+                      symbol={repaymentAsset?.symbol ?? ''}
+                    />
+                    <Amount.Fiat
+                      color='text.subtle'
+                      value={
+                        lendingQuoteCloseData?.quoteLoanCollateralDecreaseFiatUserCurrency ?? '0'
+                      }
+                      prefix='≈'
+                    />
                   </Stack>
                 </Row.Value>
               </Row>

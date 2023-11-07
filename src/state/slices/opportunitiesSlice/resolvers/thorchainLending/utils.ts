@@ -77,8 +77,6 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   repaymentAssetId: AssetId
   collateralAssetAddress: string
-  // TODO(gomes): remove eslint-disable directive when actually fetching from THOR
-  // eslint-disable-next-line require-await
 }): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
   if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
   const collateralAsset = selectAssetById(store.getState(), collateralAssetId)

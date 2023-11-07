@@ -134,8 +134,16 @@ export const RepayConfirm = ({
       collateralAssetId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
       repaymentPercent,
+      repaymentAccountId,
+      collateralAccountId,
     }),
-    [collateralAssetId, repaymentAsset?.assetId, repaymentPercent],
+    [
+      collateralAccountId,
+      collateralAssetId,
+      repaymentAccountId,
+      repaymentAsset?.assetId,
+      repaymentPercent,
+    ],
   )
 
   const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
@@ -295,6 +303,8 @@ export const RepayConfirm = ({
             collateralDecreaseAmountCryptoPrecision={
               lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
             }
+            repaymentAccountId={repaymentAccountId}
+            collateralAccountId={collateralAccountId}
             debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
             borderTopWidth={0}
             mt={0}

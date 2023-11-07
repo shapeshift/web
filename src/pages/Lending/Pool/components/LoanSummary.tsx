@@ -5,6 +5,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -47,6 +48,8 @@ type LoanSummaryProps = {
         collateralDecreaseAmountCryptoPrecision?: never
         repaymentAsset?: never
         repaymentPercent?: never
+        repaymentAccountId?: never
+        collateralAccountId?: never
       }
     | {
         depositAmountCryptoPrecision?: never
@@ -54,6 +57,8 @@ type LoanSummaryProps = {
         collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
         repaymentAsset: Asset | null
+        repaymentAccountId: AccountId
+        collateralAccountId: AccountId
         repaymentPercent: number
         borrowAssetId?: never
       }
@@ -68,6 +73,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   debtRepaidAmountUsd,
   repaymentAsset,
   repaymentPercent,
+  repaymentAccountId,
+  collateralAccountId,
   ...rest
 }) => {
   const isRepay = useMemo(() => Boolean(repayAmountCryptoPrecision), [repayAmountCryptoPrecision])
@@ -138,8 +145,16 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       collateralAssetId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
       repaymentPercent,
+      repaymentAccountId,
+      collateralAccountId,
     }),
-    [collateralAssetId, repaymentAsset?.assetId, repaymentPercent],
+    [
+      collateralAccountId,
+      collateralAssetId,
+      repaymentAccountId,
+      repaymentAsset?.assetId,
+      repaymentPercent,
+    ],
   )
 
   const {
@@ -207,12 +222,13 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
               />
               <Amount.Fiat
                 value={(isRepay
-                  ? bnOrZero(lendingPositionData?.debtBalanceFiatUSD).minus(
-                      lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0',
+                  ? BigNumber.max(
+                      bnOrZero(lendingPositionData?.debtBalanceFiatUSD).minus(
+                        debtRepaidAmountUsd ?? 0,
+                      ),
+                      0,
                     )
-                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(
-                      lendingQuoteData?.quoteDebtAmountUsd ?? '0',
-                    )
+                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(debtRepaidAmountUsd ?? 0)
                 ).toString()}
               />
             </FromToStack>

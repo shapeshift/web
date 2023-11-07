@@ -1,4 +1,5 @@
-import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useQuery } from '@tanstack/react-query'
@@ -17,16 +18,15 @@ import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  selectFirstAccountIdByChainId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from './useLendingPositionData'
 
 type UseLendingQuoteCloseQueryProps = {
   repaymentAssetId: AssetId
+  repaymentAccountId: AccountId
+  collateralAccountId: AccountId
   collateralAssetId: AssetId
   repaymentPercent: number
 }
@@ -34,25 +34,13 @@ export const useLendingQuoteCloseQuery = ({
   repaymentAssetId,
   collateralAssetId,
   repaymentPercent,
+  repaymentAccountId,
+  collateralAccountId,
 }: UseLendingQuoteCloseQueryProps) => {
   const [collateralAssetAddress, setCollateralAssetAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
-  // TODO(gomes): programmatic
-  const repaymentAccountId =
-    useAppSelector(state =>
-      repaymentAssetId
-        ? selectFirstAccountIdByChainId(state, fromAssetId(repaymentAssetId).chainId)
-        : undefined,
-    ) ?? ''
 
-  // TODO(gomes): programmatic
-  const collateralAccountId =
-    useAppSelector(state =>
-      collateralAssetId
-        ? selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId)
-        : undefined,
-    ) ?? ''
   const collateralAccountMetadataFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
     [collateralAccountId],

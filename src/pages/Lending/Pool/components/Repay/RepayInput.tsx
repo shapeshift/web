@@ -70,6 +70,7 @@ export const RepayInput = ({
   repaymentAsset,
   setRepaymentAsset,
 }: RepayInputProps) => {
+  console.log({ collateralAccountId, repaymentAccountId })
   const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
   const history = useHistory()
@@ -99,13 +100,27 @@ export const RepayInput = ({
     })()
   }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
 
+  const repaymentPercentParam = useMemo(() => {
+    const repaymentPercentBn = bnOrZero(repaymentPercent)
+    // 1% safety in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
+    if (!repaymentPercentBn.eq(100)) return repaymentPercent
+    return repaymentPercentBn.plus('1').toNumber()
+  }, [repaymentPercent])
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
       collateralAssetId,
+      collateralAccountId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent,
+      repaymentPercent: repaymentPercentParam,
+      repaymentAccountId,
     }),
-    [collateralAssetId, repaymentAsset?.assetId, repaymentPercent],
+    [
+      collateralAccountId,
+      collateralAssetId,
+      repaymentAccountId,
+      repaymentAsset?.assetId,
+      repaymentPercentParam,
+    ],
   )
 
   const {
@@ -288,6 +303,8 @@ export const RepayInput = ({
           collateralDecreaseAmountCryptoPrecision={
             data?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
           }
+          repaymentAccountId={repaymentAccountId}
+          collateralAccountId={collateralAccountId}
         />
       </Collapse>
       <Stack

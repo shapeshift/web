@@ -65,7 +65,7 @@ export const RepayInput = ({
   collateralAccountId,
   repaymentAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
-  onRepaymentAccountIdChange,
+  onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentAsset,
   setRepaymentAsset,
 }: RepayInputProps) => {
@@ -233,7 +233,7 @@ export const RepayInput = ({
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Repay Amount'}
-        onAccountIdChange={onRepaymentAccountIdChange}
+        onAccountIdChange={handleRepaymentAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={repaymentAssetSelectComponent}
@@ -278,7 +278,7 @@ export const RepayInput = ({
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={'Unlocked Collateral'}
-        onAccountIdChange={onRepaymentAccountIdChange}
+        onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly
         hideAmounts
         formControlProps={formControlProps}

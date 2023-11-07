@@ -157,13 +157,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
     ],
   )
 
-  const {
-    data: lendingQuoteCloseData,
-    isLoading: isLendingQuoteCloseLoading,
-    isError: isLendingQuoteCloseError,
-  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
-
-  console.log({ lendingQuoteCloseData })
+  const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
+    useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   if (!collateralAsset || isLendingQuoteError) return null
 
@@ -186,7 +181,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </HelperTooltip>
         <Row.Value>
           <Skeleton
-            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+            isLoaded={
+              !isLoading &&
+              !isLendingPositionDataLoading &&
+              !isLendingQuoteLoading &&
+              !isLendingQuoteCloseLoading
+            }
           >
             <FromToStack>
               <Amount.Crypto
@@ -215,7 +215,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </HelperTooltip>
         <Row.Value>
           <Skeleton
-            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+            isLoaded={
+              !isLoading &&
+              !isLendingPositionDataLoading &&
+              !isLendingQuoteLoading &&
+              !isLendingQuoteCloseLoading
+            }
           >
             <FromToStack>
               <Amount.Fiat
@@ -245,7 +250,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </HelperTooltip>
           <Row.Value>
             <Skeleton
-              isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+              isLoaded={
+                !isLoading &&
+                !isLendingPositionDataLoading &&
+                !isLendingQuoteLoading &&
+                !isLendingQuoteCloseLoading
+              }
             >
               <FromToStack>
                 <RawText color='text.subtle'>25 days</RawText>
@@ -263,7 +273,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </HelperTooltip>
           <Row.Value>
             <Skeleton
-              isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+              isLoaded={
+                !isLoading &&
+                !isLendingPositionDataLoading &&
+                !isLendingQuoteLoading &&
+                !isLendingQuoteCloseLoading
+              }
             >
               <Amount.Percent
                 value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
@@ -279,7 +294,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </HelperTooltip>
         <Row.Value>
           <Skeleton
-            isLoaded={!isLoading && !isLendingPositionDataLoading && !isLendingQuoteLoading}
+            isLoaded={
+              !isLoading &&
+              !isLendingPositionDataLoading &&
+              !isLendingQuoteLoading &&
+              !isLendingQuoteCloseLoading
+            }
           >
             <RawText color='text.success'>{translate('lending.healthy')}</RawText>
           </Skeleton>

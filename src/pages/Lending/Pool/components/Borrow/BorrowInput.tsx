@@ -51,6 +51,9 @@ type BorrowInputProps = {
   setBorrowAsset: (asset: Asset) => void
 }
 
+// no-op for TradeAssetSelect components
+const handleAccountIdChange = () => {}
+
 export const BorrowInput = ({
   collateralAssetId,
   depositAmount,
@@ -135,7 +138,7 @@ export const BorrowInput = ({
         accountId={collateralAccountId}
         assetId={collateralAssetId}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={() => {}}
+        onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'Collateral Asset'}
         onAssetChange={handleAssetChange}
@@ -150,7 +153,7 @@ export const BorrowInput = ({
         accountId={borrowAccountId}
         assetId={borrowAsset?.assetId ?? ''}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={() => {}}
+        onAccountIdChange={handleAccountIdChange}
         accountSelectionDisabled={false}
         label={'Borrow Asset'}
         onAssetChange={handleAssetChange}

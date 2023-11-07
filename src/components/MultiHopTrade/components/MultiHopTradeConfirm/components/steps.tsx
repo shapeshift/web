@@ -249,7 +249,7 @@ export const getHopSummaryStep = ({
       tradeType === TradeType.Swap
         ? `${tradeType} on ${sellChainName} via ${swapperName}`
         : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`,
-    description: `${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`, // TODO: chain "symbol"
+    description: `${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`,
     stepIndicator: <SwapperIcon swapperName={swapperName} />,
   }
 }

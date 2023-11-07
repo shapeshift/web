@@ -87,9 +87,9 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   })
 
   const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
-  if (!from_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
+  if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
   const to_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
-  if (!to_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
+  if (!to_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
 
   const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')

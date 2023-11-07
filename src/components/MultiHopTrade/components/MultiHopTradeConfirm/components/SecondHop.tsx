@@ -1,13 +1,19 @@
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable, isSome } from 'lib/utils'
-import { selectFeeAssetById, selectTradeExecutionStatus } from 'state/slices/selectors'
+import {
+  selectCryptoMarketData,
+  selectFeeAssetById,
+  selectTradeExecutionStatus,
+} from 'state/slices/selectors'
 import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectHopTotalNetworkFeeFiatPrecision,
@@ -51,6 +57,7 @@ export const SecondHop = ({
   const shouldRenderDonation = true // TODO:
   const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutooor()
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+  const fiatPriceByAssetId = useAppSelector(selectCryptoMarketData)
 
   const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
@@ -91,6 +98,12 @@ export const SecondHop = ({
     )
     const sellAmountCryptoFormatted = toCrypto(sellAmountCryptoPrecision, sellAsset.symbol)
     const buyAmountCryptoFormatted = toCrypto(buyAmountCryptoPrecision, buyAsset.symbol)
+
+    const buyAssetFiatRate = fiatPriceByAssetId[buyAsset.assetId]?.price ?? '0'
+    const buyAmountFiatFormatted = toFiat(
+      bn(buyAmountCryptoPrecision).times(buyAssetFiatRate).toString(),
+    )
+
     const hopSteps = [
       getTitleStep({
         hopIndex: 1,
@@ -118,7 +131,7 @@ export const SecondHop = ({
           : ''
       hopSteps.push(
         getApprovalStep({
-          txId: approvalTxId,
+          txHash: approvalTxId,
           approvalNetworkFeeCryptoFormatted,
           isExactAllowance,
           translate,
@@ -133,7 +146,14 @@ export const SecondHop = ({
       tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
         ? '0x5678'
         : undefined
-    hopSteps.push(getTradeStep({ txId: tradeTx, onSign: onSignTrade, onReject: onRejectTrade }))
+    hopSteps.push(
+      getTradeStep({
+        txHash: tradeTx,
+        txStatus: TxStatus.Unknown,
+        onSign: onSignTrade,
+        onReject: onRejectTrade,
+      }),
+    )
 
     if (shouldRenderDonation) {
       hopSteps.push(
@@ -146,6 +166,7 @@ export const SecondHop = ({
     hopSteps.push(
       getAssetSummaryStep({
         amountCryptoFormatted: toCrypto(buyAmountCryptoPrecision, buyAsset.symbol),
+        amountFiatFormatted: buyAmountFiatFormatted,
         asset: buyAsset,
       }),
     )
@@ -155,6 +176,7 @@ export const SecondHop = ({
     approvalNetworkFeeCryptoBaseUnit,
     approvalTxId,
     executeAllowanceApproval,
+    fiatPriceByAssetId,
     isApprovalNeeded,
     isExactAllowance,
     onRejectApproval,

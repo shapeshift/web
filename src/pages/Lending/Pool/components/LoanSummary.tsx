@@ -41,26 +41,26 @@ type LoanSummaryProps = {
 } & StackProps &
   (
     | {
-        depositAmountCryptoPrecision: string
         borrowAssetId: AssetId
-        repayAmountCryptoPrecision?: never
-        debtRepaidAmountUsd?: never
+        collateralAccountId?: never
         collateralDecreaseAmountCryptoPrecision?: never
+        debtRepaidAmountUsd?: never
+        depositAmountCryptoPrecision: string
+        repayAmountCryptoPrecision?: never
+        repaymentAccountId?: never
         repaymentAsset?: never
         repaymentPercent?: never
-        repaymentAccountId?: never
-        collateralAccountId?: never
       }
     | {
-        depositAmountCryptoPrecision?: never
-        repayAmountCryptoPrecision: string
+        borrowAssetId?: never
+        collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
-        repaymentAsset: Asset | null
+        depositAmountCryptoPrecision?: never
+        repayAmountCryptoPrecision: string
         repaymentAccountId: AccountId
-        collateralAccountId: AccountId
+        repaymentAsset: Asset | null
         repaymentPercent: number
-        borrowAssetId?: never
       }
   )
 

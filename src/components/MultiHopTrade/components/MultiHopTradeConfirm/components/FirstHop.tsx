@@ -1,28 +1,29 @@
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
-import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
-import { assertUnreachable, isSome } from 'lib/utils'
+import { assertUnreachable } from 'lib/utils'
 import {
   selectCryptoMarketData,
   selectFeeAssetById,
   selectTradeExecutionStatus,
 } from 'state/slices/selectors'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectQuoteDonationAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { store, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { useTradeExecutooor } from '../hooks/useTradeExecutor'
 import { TradeType } from '../types'
 import { Hop } from './Hop'
 import {
@@ -31,8 +32,24 @@ import {
   getDonationSummaryStep,
   getHopSummaryStep,
   getTitleStep,
-  getTradeStep,
 } from './steps'
+
+const useMockTradeExecution = () => {
+  const [tradeStatus, setTradeStatus] = useState(TxStatus.Unknown)
+  const [sellTxHash, setSellTxHash] = useState<string>()
+  const executeTrade = useCallback(() => {
+    setTradeStatus(TxStatus.Pending)
+    setTimeout(() => setSellTxHash('0x12345678901234567890'), 2000)
+    setTimeout(() => setTradeStatus(TxStatus.Confirmed), 5000)
+  }, [])
+
+  return {
+    buyTxHash: undefined,
+    sellTxHash,
+    tradeStatus,
+    executeTrade,
+  }
+}
 
 export const FirstHop = ({
   swapperName,
@@ -47,17 +64,37 @@ export const FirstHop = ({
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
   const translate = useTranslate()
-
+  const dispatch = useAppDispatch()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
   const donationAmountUsd = useAppSelector(selectQuoteDonationAmountUsd)
   const {
-    // TODO: use these
-    // executeTrade,
-    // buyTxHash,
+    // TODO: use the message to better ux
     // message,
+    buyTxHash,
     sellTxHash,
     tradeStatus,
-  } = useTradeExecution()
+    executeTrade,
+  } = useMockTradeExecution() // TODO: use the read hook here
+
+  const handleSignTx = useCallback(async () => {
+    // next state
+    dispatch(swappers.actions.incrementTradeExecutionState())
+
+    // execute the trade
+    await executeTrade()
+  }, [dispatch, executeTrade])
+
+  useEffect(() => {
+    // mock execution of tx
+    if (tradeStatus === TxStatus.Confirmed) {
+      dispatch(swappers.actions.incrementTradeExecutionState())
+    }
+  }, [dispatch, tradeStatus])
+
+  // TODO: what should the app do when a user rejects?
+  const handleReject = useCallback(() => {
+    console.log('reject')
+  }, [])
 
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
@@ -68,10 +105,20 @@ export const FirstHop = ({
   } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
 
   const shouldRenderDonation = bnOrZero(donationAmountUsd).gt(0)
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutooor()
-
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
   const fiatPriceByAssetId = useAppSelector(selectCryptoMarketData)
+
+  // increment the trade state if approval is not needed
+  useEffect(() => {
+    if (
+      [
+        MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
+        MultiHopExecutionStatus.Hop1AwaitingApprovalExecution,
+      ].includes(tradeExecutionStatus)
+    ) {
+      dispatch(swappers.actions.incrementTradeExecutionState())
+    }
+  }, [dispatch, tradeExecutionStatus])
 
   const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
@@ -80,10 +127,10 @@ export const FirstHop = ({
         return -Infinity
       case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
-        return 3
+        return 2
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
-        return isApprovalNeeded ? 4 : 3
+        return isApprovalNeeded ? 3 : 2
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
@@ -94,6 +141,29 @@ export const FirstHop = ({
         assertUnreachable(tradeExecutionStatus)
     }
   }, [tradeExecutionStatus, isApprovalNeeded])
+
+  const { txLink, txHash } = useMemo(() => {
+    if (buyTxHash)
+      return {
+        txLink: getTxLink({
+          name: tradeQuoteStep?.source,
+          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          tradeId: buyTxHash,
+        }),
+        txHash: buyTxHash,
+      }
+    if (sellTxHash)
+      return {
+        txLink: getTxLink({
+          name: tradeQuoteStep?.source,
+          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          tradeId: sellTxHash,
+        }),
+        txHash: buyTxHash,
+      }
+
+    return {}
+  }, [buyTxHash, sellTxHash, tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.source])
 
   const steps = useMemo(() => {
     const {
@@ -138,14 +208,7 @@ export const FirstHop = ({
         amountFiatFormatted: sellAmountFiatFormatted,
         asset: sellAsset,
       }),
-      getHopSummaryStep({
-        swapperName,
-        buyAssetChainId: buyAsset.chainId,
-        sellAssetChainId: sellAsset.chainId,
-        buyAmountCryptoFormatted,
-        sellAmountCryptoFormatted,
-      }),
-    ].filter(isSome)
+    ]
 
     if (isApprovalNeeded) {
       const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
@@ -164,17 +227,28 @@ export const FirstHop = ({
           translate,
           toggleIsExactAllowance,
           onSign: executeAllowanceApproval,
-          onReject: onRejectApproval,
+          onReject: handleReject,
         }),
       )
     }
 
     hopSteps.push(
-      getTradeStep({
-        txHash: sellTxHash,
-        txStatus: tradeStatus,
-        onSign: onSignTrade,
-        onReject: onRejectTrade,
+      getHopSummaryStep({
+        swapperName,
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+        buyAmountCryptoFormatted,
+        sellAmountCryptoFormatted,
+
+        txHash,
+        txLink,
+        txStatus:
+          // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
+          tradeExecutionStatus >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+            ? tradeStatus
+            : undefined,
+        onSign: handleSignTx,
+        onReject: handleReject,
       }),
     )
 
@@ -203,13 +277,11 @@ export const FirstHop = ({
     donationAmountUsd,
     executeAllowanceApproval,
     fiatPriceByAssetId,
+    handleReject,
+    handleSignTx,
     isApprovalNeeded,
     isExactAllowance,
     isMultiHopTrade,
-    onRejectApproval,
-    onRejectTrade,
-    onSignTrade,
-    sellTxHash,
     shouldRenderDonation,
     swapperName,
     toCrypto,
@@ -219,6 +291,8 @@ export const FirstHop = ({
     tradeQuoteStep,
     tradeStatus,
     translate,
+    txHash,
+    txLink,
   ])
 
   const slippageDecimalPercentage = useMemo(

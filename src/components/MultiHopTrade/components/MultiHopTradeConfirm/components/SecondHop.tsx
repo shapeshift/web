@@ -30,7 +30,6 @@ import {
   getDonationSummaryStep,
   getHopSummaryStep,
   getTitleStep,
-  getTradeStep,
 } from './steps'
 
 export const SecondHop = ({
@@ -104,6 +103,11 @@ export const SecondHop = ({
       bn(buyAmountCryptoPrecision).times(buyAssetFiatRate).toString(),
     )
 
+    const tradeTx =
+      tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+        ? '0x5678'
+        : undefined
+
     const hopSteps = [
       getTitleStep({
         hopIndex: 1,
@@ -117,6 +121,10 @@ export const SecondHop = ({
         sellAssetChainId: sellAsset.chainId,
         buyAmountCryptoFormatted,
         sellAmountCryptoFormatted,
+        txHash: tradeTx,
+        txStatus: TxStatus.Unknown,
+        onSign: onSignTrade,
+        onReject: onRejectTrade,
       }),
     ].filter(isSome)
 
@@ -141,19 +149,6 @@ export const SecondHop = ({
         }),
       )
     }
-
-    const tradeTx =
-      tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
-        ? '0x5678'
-        : undefined
-    hopSteps.push(
-      getTradeStep({
-        txHash: tradeTx,
-        txStatus: TxStatus.Unknown,
-        onSign: onSignTrade,
-        onReject: onRejectTrade,
-      }),
-    )
 
     if (shouldRenderDonation) {
       hopSteps.push(

@@ -3,14 +3,12 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Asset } from 'lib/asset-service'
 import type { GetTradeQuoteInput, SwapErrorRight } from 'lib/swapper/types'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 export type StepperStep = {
   title: string
-  description?: string
+  description?: string | JSX.Element
   stepIndicator: JSX.Element
   content?: JSX.Element
-  status?: MultiHopExecutionStatus
   key: string
 }
 

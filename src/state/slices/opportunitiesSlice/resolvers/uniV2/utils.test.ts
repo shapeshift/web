@@ -42,6 +42,7 @@ jest.mock('lib/viem-client', () => {
   }
   return {
     viemEthMainnetClient,
+    viemEthMainnetRetryClient: viemEthMainnetClient,
     viemClientByChainId: {
       [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
     },

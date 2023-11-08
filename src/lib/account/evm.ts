@@ -3,6 +3,7 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import {
   supportsArbitrum,
+  supportsArbitrumNova,
   supportsAvalanche,
   supportsBSC,
   supportsETH,
@@ -51,11 +52,12 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
         if (!supportsGnosis(wallet)) continue
       }
 
-      if (
-        chainReference === CHAIN_REFERENCE.ArbitrumMainnet ||
-        chainReference === CHAIN_REFERENCE.ArbitrumNovaMainnet
-      ) {
+      if (chainReference === CHAIN_REFERENCE.ArbitrumMainnet) {
         if (!supportsArbitrum(wallet)) continue
+      }
+
+      if (chainReference === CHAIN_REFERENCE.ArbitrumNovaMainnet) {
+        if (!supportsArbitrumNova(wallet)) continue
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })

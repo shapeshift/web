@@ -440,7 +440,7 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    await expect(result.current.handleFormSend(formData)).rejects.toThrow()
+    await result.current.handleFormSend(formData)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
     expect(qrClose).toHaveBeenCalled()

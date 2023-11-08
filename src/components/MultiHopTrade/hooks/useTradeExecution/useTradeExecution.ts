@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
-import type { EvmTransactionRequest, TradeQuote } from 'lib/swapper/types'
+import type { EvmTransactionRequest } from 'lib/swapper/types'
 import { SwapperName, TradeExecutionEvent } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -17,7 +17,9 @@ import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
+  selectActiveQuote,
   selectActiveStepOrDefault,
+  selectActiveSwapperName,
   selectIsLastStep,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -26,13 +28,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../useAccountIds'
 
-export const useTradeExecution = ({
-  swapperName,
-  tradeQuote,
-}: {
-  swapperName?: SwapperName
-  tradeQuote?: TradeQuote
-}) => {
+export const useTradeExecution = () => {
   const dispatch = useAppDispatch()
 
   const [sellTxHash, setSellTxHash] = useState<string | undefined>()
@@ -49,6 +45,8 @@ export const useTradeExecution = ({
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
   )
 
+  const swapperName = useAppSelector(selectActiveSwapperName)
+  const tradeQuote = useAppSelector(selectActiveQuote)
   const activeStepOrDefault = useAppSelector(selectActiveStepOrDefault)
   const isLastStep = useAppSelector(selectIsLastStep)
 

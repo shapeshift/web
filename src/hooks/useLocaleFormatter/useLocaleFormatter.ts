@@ -264,7 +264,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   )
 
   /**
-   * Format a number as a crypto input value.
+   * Format a number as a fiat input value.
    * This shows any trailing decimals and zeros as the user is typing in their number
    */
   const numberToFiatInput = useCallback(

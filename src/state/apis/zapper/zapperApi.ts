@@ -199,7 +199,7 @@ export const zapperApi = createApi({
               // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
               // ETH is used for depositing/withdrawing, but WETH is used under the hood
               name,
-              precision: appTokenData.decimals,
+              precision: Number(appTokenData.decimals),
               icons,
             })
             acc.assets.ids.push(assetId)
@@ -590,7 +590,7 @@ export const zapper = createApi({
                       assetId: underlyingAssetId,
                       symbol: asset.symbol ?? '',
                       name: asset.displayProps?.label ?? '',
-                      precision: asset.decimals ?? 18,
+                      precision: Number(asset.decimals) ?? 18,
                       icons: asset.displayProps?.images ?? [],
                     })
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
@@ -598,10 +598,10 @@ export const zapper = createApi({
 
                   const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
                     (reserve, i) => {
-                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                      const reserveBaseUnit = toBaseUnit(reserve, Number(asset.decimals) ?? 18)
                       const totalSupplyBaseUnit =
                         typeof asset.supply === 'number'
-                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                          ? toBaseUnit(asset.supply, Number(asset.decimals) ?? 18)
                           : undefined
                       const tokenPoolRatio = totalSupplyBaseUnit
                         ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()

@@ -155,12 +155,7 @@ export const TradeConfirm = () => {
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
-  const {
-    executeTrade,
-    sellTxHash,
-    buyTxHash,
-    tradeStatus: status,
-  } = useTradeExecution({ tradeQuote, swapperName })
+  const { executeTrade, sellTxHash, buyTxHash, tradeStatus: status } = useTradeExecution()
 
   const txHash = buyTxHash ?? sellTxHash
 

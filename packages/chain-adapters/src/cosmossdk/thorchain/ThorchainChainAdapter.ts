@@ -110,7 +110,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       if (supportsThorchain(wallet)) {
         const signedTx = await wallet.thorchainSignTx(txToSign)
 
-        if (!signedTx) throw new Error('Error signing tx')
+        if (!signedTx?.serialized) throw new Error('Error signing tx')
 
         return signedTx.serialized
       } else {

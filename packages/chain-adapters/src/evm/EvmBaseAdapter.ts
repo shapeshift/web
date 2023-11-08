@@ -9,6 +9,7 @@ import type {
 } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
+  supportsArbitrumNova,
   supportsAvalanche,
   supportsBSC,
   supportsETH,
@@ -177,8 +178,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
         return supportsGnosis(wallet)
       case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
-      case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
         return supportsArbitrum(wallet)
+      case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
+        return supportsArbitrumNova(wallet)
       default:
         return false
     }
@@ -454,7 +456,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const signedTx = await wallet.ethSignTx(txToSign)
 
-      if (!signedTx) throw new Error('Error signing tx')
+      if (!signedTx?.serialized) throw new Error('Error signing tx')
 
       return signedTx.serialized
     } catch (err) {

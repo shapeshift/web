@@ -28,6 +28,7 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
+  supportsArbitrumNova,
   supportsAvalanche,
   supportsBSC,
   supportsBTC,
@@ -300,8 +301,9 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case gnosisChainId:
       return supportsGnosis(wallet)
     case arbitrumChainId:
-    case arbitrumNovaChainId:
       return supportsArbitrum(wallet)
+    case arbitrumNovaChainId:
+      return supportsArbitrumNova(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

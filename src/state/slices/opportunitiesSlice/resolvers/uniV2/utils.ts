@@ -10,7 +10,7 @@ import memoize from 'lodash/memoize'
 import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { viemEthMainnetClient } from 'lib/viem-client'
+import { viemEthMainnetClient, viemEthMainnetRetryClient } from 'lib/viem-client'
 
 import { TRADING_FEE_RATE } from './constants'
 
@@ -73,7 +73,7 @@ export const getToken0Volume24Hr = async ({
     toBlock: BigInt(currentBlockNumber),
   })
 
-  const events = await viemEthMainnetClient.getFilterLogs({ filter: eventFilter })
+  const events = await viemEthMainnetRetryClient.getFilterLogs({ filter: eventFilter })
 
   const token0SwapAmounts = events.map(event => {
     if (!event?.args) return bn(0)

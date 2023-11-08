@@ -19,6 +19,15 @@ export const viemEthMainnetClient = createPublicClient({
   transport: http(getConfig().REACT_APP_ETHEREUM_NODE_URL),
 })
 
+export const viemEthMainnetRetryClient = createPublicClient({
+  chain: mainnet,
+  transport: http(getConfig().REACT_APP_ETHEREUM_NODE_URL, {
+    // Retry every 2s, max. 5 times
+    retryCount: 5,
+    retryDelay: 2000,
+  }),
+})
+
 export const viemBscClient = createPublicClient({
   chain: bsc,
   transport: http(getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL),

@@ -1,4 +1,13 @@
-import { Card, CardBody, CardFooter, Container, Flex, Heading, Stack } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Container,
+  Flex,
+  Heading,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -6,6 +15,8 @@ import { DonutChart } from 'components/DonutChart/DonutChart'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
 import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
+
+import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 
 const containerPadding = { base: 6, '2xl': 8 }
 
@@ -27,6 +38,8 @@ export const LendingHeader = () => {
       },
     ]
   }, [])
+
+  const { isLoading, collateralValueUsd, debtValueUsd } = useAllLendingPositionsData()
   return (
     <Stack>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
@@ -37,7 +50,9 @@ export const LendingHeader = () => {
         <Flex gap={4} my={6} mx={-4}>
           <Card flex={1}>
             <CardBody>
-              <Amount.Fiat value='0' fontSize='4xl' fontWeight='bold' />
+              <Skeleton isLoaded={!isLoading}>
+                <Amount.Fiat value={collateralValueUsd} fontSize='4xl' fontWeight='bold' />
+              </Skeleton>
               <Text
                 color='text.success'
                 fontWeight='medium'
@@ -47,7 +62,9 @@ export const LendingHeader = () => {
           </Card>
           <Card flex={1}>
             <CardBody>
-              <Amount.Fiat value='0' fontSize='4xl' fontWeight='bold' />
+              <Skeleton isLoaded={!isLoading}>
+                <Amount.Fiat value={debtValueUsd} fontSize='4xl' fontWeight='bold' />
+              </Skeleton>
               <Text color='purple.300' fontWeight='medium' translation='lending.debtValue' />
             </CardBody>
           </Card>

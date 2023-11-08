@@ -34,7 +34,6 @@ export const LendingHeader = () => {
         label: 'lending.yourLoans',
         path: '/lending/loans',
         color: 'blue',
-        rightElement: <Amount.Fiat value='0' />,
       },
     ]
   }, [])

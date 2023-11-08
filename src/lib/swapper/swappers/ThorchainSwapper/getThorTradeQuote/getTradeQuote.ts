@@ -106,8 +106,19 @@ export const getThorTradeQuote = async (
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
+  // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
+
+  /* 
+    Additional logic to handle long tail tokens (long-tail to L1 in this pass).
+
+    1. Get quote against a hardcoded DEX (UniV3): https://docs.uniswap.org/sdk/v3/guides/swaps/quoting from long-tail to L1 base asset
+    for the sell asset chain (e.g. SHIT on Ethereum to ETH).
+    2. Get Thorswap quote from L1 base asset to target L1 (e.g. ETH to BTC)
+    3. Compute aggregate rate
+    
+  */
 
   if (!sellAssetPool && sellPoolId !== 'THOR.RUNE')
     return Err(
@@ -153,6 +164,7 @@ export const getThorTradeQuote = async (
   })
 
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
+  // TODO: we'll probably turn this into an aggregate quote
   const swapQuote = maybeSwapQuote.unwrap()
 
   const maybeStreamingSwapQuote = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS

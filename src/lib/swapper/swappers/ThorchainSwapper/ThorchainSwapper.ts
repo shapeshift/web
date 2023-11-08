@@ -20,6 +20,29 @@ import { executeEvmTransaction } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
+const getSupportedAssets = async (): Promise<[AssetId[], AssetId[]]> => {
+  let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
+  let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
+    `${daemonUrl}/lcd/thorchain/pools`,
+  )
+  if (poolResponse.isOk()) {
+    const allPools = poolResponse.unwrap().data
+    const availablePools = allPools.filter(pool => pool.status === 'Available')
+
+    availablePools.forEach(pool => {
+      const assetId = poolAssetIdToAssetId(pool.asset)
+      if (!assetId) return
+
+      const chainId = fromAssetId(assetId).chainId as ThorChainId
+      sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
+      buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
+    })
+  }
+
+  return [supportedSellAssetIds, supportedBuyAssetIds]
+}
+
 export const thorchainSwapper: Swapper = {
   executeEvmTransaction,
 
@@ -37,48 +60,14 @@ export const thorchainSwapper: Swapper = {
     return await signAndBroadcastTransaction(txToSign)
   },
 
-  filterAssetIdsBySellable: async (): Promise<AssetId[]> => {
-    let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
-    const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-      `${daemonUrl}/lcd/thorchain/pools`,
-    )
-    if (poolResponse.isOk()) {
-      const allPools = poolResponse.unwrap().data
-      const availablePools = allPools.filter(pool => pool.status === 'Available')
-
-      availablePools.forEach(pool => {
-        const assetId = poolAssetIdToAssetId(pool.asset)
-        if (!assetId) return
-
-        const chainId = fromAssetId(assetId).chainId as ThorChainId
-        sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
-      })
-    }
-    return supportedSellAssetIds
-  },
+  filterAssetIdsBySellable: async (): Promise<AssetId[]> =>
+    await getSupportedAssets().then(([supportedSellAssetIds]) => supportedSellAssetIds),
 
   filterBuyAssetsBySellAssetId: async ({
     assets,
     sellAsset,
   }: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
-    let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
-    const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-      `${daemonUrl}/lcd/thorchain/pools`,
-    )
-    if (poolResponse.isOk()) {
-      const allPools = poolResponse.unwrap().data
-      const availablePools = allPools.filter(pool => pool.status === 'Available')
-
-      availablePools.forEach(pool => {
-        const assetId = poolAssetIdToAssetId(pool.asset)
-        if (!assetId) return
-
-        const chainId = fromAssetId(assetId).chainId as ThorChainId
-        sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
-        buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
-      })
-    }
+    const [supportedSellAssetIds, supportedBuyAssetIds] = await getSupportedAssets()
     if (!supportedSellAssetIds.includes(sellAsset.assetId)) return []
     return assets
       .filter(

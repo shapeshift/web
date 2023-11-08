@@ -9,18 +9,15 @@ import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
-import {
-  selectCryptoMarketData,
-  selectFeeAssetById,
-  selectTradeExecutionStatus,
-} from 'state/slices/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import { selectCryptoMarketData, selectFeeAssetById } from 'state/slices/selectors'
 import {
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectQuoteDonationAmountUsd,
+  selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeType } from '../types'
@@ -121,30 +118,30 @@ export const FirstHop = ({
 
   const handleSignTx = useCallback(async () => {
     // next state
-    dispatch(swappers.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
 
     // execute the trade
     await executeTrade()
 
     // next state
-    dispatch(swappers.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
   }, [dispatch, executeTrade])
 
   const handleSignAllowanceApproval = useCallback(async () => {
     // next state
-    dispatch(swappers.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
 
     // execute the allowance approval
     await executeAllowanceApproval()
 
     // next state
-    dispatch(swappers.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
   }, [dispatch, executeAllowanceApproval])
 
   useEffect(() => {
     // mock execution of tx
     if (tradeStatus === TxStatus.Confirmed) {
-      dispatch(swappers.actions.incrementTradeExecutionState())
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
     }
   }, [dispatch, tradeStatus])
 
@@ -161,7 +158,7 @@ export const FirstHop = ({
         MultiHopExecutionStatus.Hop1AwaitingApprovalExecution,
       ].includes(tradeExecutionStatus)
     ) {
-      dispatch(swappers.actions.incrementTradeExecutionState())
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
     }
   }, [dispatch, isApprovalNeeded, tradeExecutionStatus])
 

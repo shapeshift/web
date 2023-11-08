@@ -9,16 +9,13 @@ import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable, isSome } from 'lib/utils'
-import {
-  selectCryptoMarketData,
-  selectFeeAssetById,
-  selectTradeExecutionStatus,
-} from 'state/slices/selectors'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import { selectCryptoMarketData, selectFeeAssetById } from 'state/slices/selectors'
 import {
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
+  selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppSelector } from 'state/store'
 
 import { useTradeExecutooor } from '../hooks/useTradeExecutor'

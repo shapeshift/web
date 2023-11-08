@@ -1,6 +1,5 @@
 import { Button, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -11,10 +10,10 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { isSome } from 'lib/utils'
 
 import { LendingHeader } from './components/LendingHeader'
+import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useLendingPositionData } from './hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 
@@ -25,18 +24,11 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 
 type LendingRowGridProps = {
   asset: Asset
+  accountId: AccountId
   onPoolClick: (assetId: AssetId) => void
 }
 
-const LendingRowGrid = ({ asset, onPoolClick }: LendingRowGridProps) => {
-  // TODO(gomes): this only handles displaying positions of account 0 for now - we may want to make this component accomodate positions over all accounts
-  // however, this would rug the "Repayment Lock" data, so we need to figure out a UX way around this
-
-  const accountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(asset.assetId).chainId),
-    ) ?? ''
-
+const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) => {
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: asset.assetId,
@@ -98,6 +90,35 @@ const LendingRowGrid = ({ asset, onPoolClick }: LendingRowGridProps) => {
   )
 }
 
+const LendingRowAssetAccountsGrids = ({
+  asset,
+  onPoolClick: handlePoolClick,
+}: Omit<LendingRowGridProps, 'accountId'>) => {
+  const {
+    isLoading: isAllLendingPositionsDataLoading,
+    positions,
+    isActive,
+  } = useAllLendingPositionsData({
+    assetId: asset.assetId,
+  })
+
+  const grids = useMemo(() => {
+    if (!isActive && !isAllLendingPositionsDataLoading) return null
+    return positions
+      .map(({ data }) => data)
+      .filter(isSome)
+      .map(position => (
+        <LendingRowGrid
+          asset={asset}
+          accountId={position.accountId}
+          onPoolClick={handlePoolClick}
+        />
+      ))
+  }, [asset, handlePoolClick, isActive, isAllLendingPositionsDataLoading, positions])
+
+  return <>{grids}</>
+}
+
 export const YourLoans = () => {
   const translate = useTranslate()
   const lendingHeader = useMemo(() => <LendingHeader />, [])
@@ -115,8 +136,9 @@ export const YourLoans = () => {
 
   const lendingRowGrids = useMemo(() => {
     if (!lendingSupportedAssets) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+
     return lendingSupportedAssets.map(asset => (
-      <LendingRowGrid asset={asset} onPoolClick={handlePoolClick} />
+      <LendingRowAssetAccountsGrids asset={asset} onPoolClick={handlePoolClick} />
     ))
   }, [handlePoolClick, lendingSupportedAssets])
 

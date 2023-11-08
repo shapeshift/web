@@ -8,6 +8,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { parseAbiItem } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { viemEthMainnetClient } from 'lib/viem-client'
@@ -24,60 +25,19 @@ export const getToken0Volume24Hr = async ({
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day
 
-  const eventFilter = await viemEthMainnetClient.createEventFilter({
+  const logs = await viemEthMainnetClient.getLogs({
     address: uniswapLPContract.address,
-    event: {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'sender',
-          type: 'address',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'amount0In',
-          type: 'uint256',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'amount1In',
-          type: 'uint256',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'amount0Out',
-          type: 'uint256',
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'amount1Out',
-          type: 'uint256',
-        },
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'to',
-          type: 'address',
-        },
-      ],
-      name: 'Swap',
-      type: 'event',
-    },
+    event: parseAbiItem(
+      'event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)',
+    ),
     fromBlock: BigInt(yesterdayBlockNumber),
     toBlock: BigInt(currentBlockNumber),
   })
 
-  const events = await viemEthMainnetClient.getFilterLogs({ filter: eventFilter })
+  const token0SwapAmounts = logs.map(log => {
+    if (!log?.args) return bn(0)
 
-  const token0SwapAmounts = events.map(event => {
-    if (!event?.args) return bn(0)
-    const { amount0In, amount0Out } = event.args
+    const { amount0In, amount0Out } = log.args
 
     return Number(amount0In)
       ? bnOrZero(amount0In?.toString())

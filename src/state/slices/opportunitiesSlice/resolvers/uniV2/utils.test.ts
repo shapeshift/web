@@ -22,7 +22,7 @@ jest.mock('lib/viem-client', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   const viemEthMainnetClient = {
     createEventFilter: jest.fn(() => ({})),
-    getFilterLogs: () =>
+    getLogs: () =>
       new Promise(resolve => {
         resolve([
           {

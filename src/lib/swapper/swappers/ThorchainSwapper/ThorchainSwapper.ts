@@ -16,6 +16,7 @@ import type {
   Swapper,
   UtxoTransactionExecutionProps,
 } from 'lib/swapper/types'
+import { isSome } from 'lib/utils'
 import { executeEvmTransaction } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -26,19 +27,24 @@ const getSupportedAssets = async (): Promise<[AssetId[], AssetId[]]> => {
   const poolResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/lcd/thorchain/pools`,
   )
-  if (poolResponse.isOk()) {
-    const allPools = poolResponse.unwrap().data
-    const availablePools = allPools.filter(pool => pool.status === 'Available')
 
-    availablePools.forEach(pool => {
-      const assetId = poolAssetIdToAssetId(pool.asset)
-      if (!assetId) return
+  const longtailTokensJson = await import('./generated/generatedThorLongtailTokens.json')
+  const longtailTokens: AssetId[] = longtailTokensJson.default
+  const l1Tokens = poolResponse.isOk()
+    ? poolResponse
+        .unwrap()
+        .data.filter(pool => pool.status === 'Available')
+        .map(pool => poolAssetIdToAssetId(pool.asset))
+        .filter(isSome)
+    : []
 
-      const chainId = fromAssetId(assetId).chainId as ThorChainId
-      sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
-      buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
-    })
-  }
+  const allTokens = [...longtailTokens, ...l1Tokens]
+
+  allTokens.forEach(assetId => {
+    const chainId = fromAssetId(assetId).chainId as ThorChainId
+    sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
+    buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
+  })
 
   return [supportedSellAssetIds, supportedBuyAssetIds]
 }

@@ -66,6 +66,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', l
 export const Pool = () => {
   const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
+  const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId>('')
 
   const poolAssetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
@@ -237,7 +238,12 @@ export const Pool = () => {
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
-                  <Repay />
+                  <Repay
+                    collateralAccountId={collateralAccountId}
+                    repaymentAccountId={repaymentAccountId}
+                    onCollateralAccountIdChange={setCollateralAccountId}
+                    onRepaymentAccountIdChange={setRepaymentAccountId}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>

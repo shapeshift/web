@@ -1,0 +1,82 @@
+import type { ChainReference } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, CHAIN_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import axios from 'axios'
+import fs from 'fs'
+import path from 'path'
+
+type Token = {
+  chainId: number
+  address: string
+  decimals: number
+  name: string
+  symbol: string
+  logoURI: string
+}
+
+type TokenList = {
+  name: string
+  logoURI: string
+  keywords: string[]
+  version: {
+    major: number
+    minor: number
+    patch: number
+  }
+  tokens: Token[]
+}
+
+const ethUrl =
+  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/ethtokens/eth_mainnet_latest.json'
+const avaxUrl =
+  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/avaxtokens/avax_mainnet_latest.json'
+const bscUrl =
+  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/bsctokens/bsc_mainnet_latest.json'
+
+const outputPath =
+  '../../src/lib/swapper/swappers/ThorchainSwapper/generated/generatedThorLongtailTokens.json'
+
+const axiosConfig = {
+  timeout: 10000,
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+}
+
+export const generateThorLongtailTokens = async () => {
+  const thorService = axios.create(axiosConfig)
+  const ethResponse = await thorService.get<TokenList>(ethUrl)
+  const avaxResponse = await thorService.get<TokenList>(avaxUrl)
+  const bscResponse = await thorService.get<TokenList>(bscUrl)
+
+  if (ethResponse.status !== 200 || avaxResponse.status !== 200 || bscResponse.status !== 200) {
+    console.error('Network error', { ethResponse, avaxResponse, bscResponse })
+    return
+  }
+
+  const ethData = ethResponse.data
+  const avaxData = avaxResponse.data
+  const bscData = bscResponse.data
+
+  const tokens = [...ethData.tokens, ...avaxData.tokens, ...bscData.tokens]
+  const assetIds = tokens.map(token =>
+    toAssetId({
+      chainNamespace: CHAIN_NAMESPACE.Evm,
+      chainReference: String(token.chainId) as ChainReference,
+      assetNamespace: ASSET_NAMESPACE.erc20,
+      assetReference: token.address,
+    }),
+  )
+
+  await fs.promises.writeFile(
+    path.join(__dirname, outputPath),
+    // beautify the file for github diff.
+    JSON.stringify(assetIds, null, 2),
+  )
+}
+
+generateThorLongtailTokens()
+  .then(() => {
+    console.info('generateThorLongtailTokens() done')
+  })
+  .catch(err => console.info(err))

@@ -217,7 +217,7 @@ const ZapperAssetBaseSchema = z.object({
   price: z.number().optional(),
   supply: z.number().optional(),
   symbol: z.string().optional(),
-  decimals: z.number().optional(),
+  decimals: z.union([z.number(), z.string()]).optional(),
   dataProps: ZapperDataPropsSchema.optional(),
   displayProps: ZapperDisplayPropsSchema.optional(),
   pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),

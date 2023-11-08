@@ -329,7 +329,7 @@ export const RepayConfirm = ({
               size='lg'
               width='full'
             >
-              {translate('lending.confirmAndBorrow')}
+              {translate('lending.confirmAndRepay')}
             </Button>
           </CardFooter>
         </Stack>

@@ -21,7 +21,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useLendingQuoteQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
@@ -50,6 +50,9 @@ type BorrowInputProps = {
   borrowAsset: Asset | null
   setBorrowAsset: (asset: Asset) => void
 }
+
+// no-op for TradeAssetSelect components
+const handleAccountIdChange = () => {}
 
 export const BorrowInput = ({
   collateralAssetId,
@@ -85,10 +88,6 @@ export const BorrowInput = ({
   const onSubmit = useCallback(() => {
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
-
-  const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    console.info({ accountId })
-  }, [])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleBorrowAssetClick = useCallback(() => {
@@ -146,13 +145,7 @@ export const BorrowInput = ({
         isReadOnly
       />
     )
-  }, [
-    collateralAccountId,
-    collateralAssetId,
-    handleAccountIdChange,
-    handleAssetChange,
-    handleBorrowAssetClick,
-  ])
+  }, [collateralAccountId, collateralAssetId, handleAssetChange, handleBorrowAssetClick])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -166,13 +159,7 @@ export const BorrowInput = ({
         onAssetChange={handleAssetChange}
       />
     )
-  }, [
-    borrowAccountId,
-    borrowAsset?.assetId,
-    handleAccountIdChange,
-    handleAssetChange,
-    handleBorrowAssetClick,
-  ])
+  }, [borrowAccountId, borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
@@ -186,7 +173,7 @@ export const BorrowInput = ({
     data,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
-  } = useLendingQuoteQuery(useLendingQuoteQueryArgs)
+  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
@@ -285,7 +272,7 @@ export const BorrowInput = ({
               <Row.Label>{translate('common.fees')}</Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLendingQuoteLoading}>
-                  <Amount.Fiat value='0' />
+                  <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -294,7 +281,7 @@ export const BorrowInput = ({
               colorScheme={quoteErrorTranslation ? 'red' : 'blue'}
               mx={-2}
               onClick={onSubmit}
-              disabled={Boolean(quoteErrorTranslation)}
+              isDisabled={Boolean(quoteErrorTranslation)}
             >
               {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
             </Button>

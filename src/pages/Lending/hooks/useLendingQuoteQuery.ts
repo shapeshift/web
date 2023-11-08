@@ -25,7 +25,7 @@ type UseLendingQuoteQueryProps = {
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
 }
-export const useLendingQuoteQuery = ({
+export const useLendingQuoteOpenQuery = ({
   collateralAssetId,
   borrowAssetId,
   depositAmountCryptoPrecision,

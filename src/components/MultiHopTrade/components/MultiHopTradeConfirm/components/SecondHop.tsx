@@ -29,15 +29,18 @@ import {
   getAssetSummaryStep,
   getDonationSummaryStep,
   getHopSummaryStep,
-  getTitleStep,
 } from './steps'
 
 export const SecondHop = ({
   swapperName,
   tradeQuoteStep,
+  isOpen,
+  onToggleIsOpen,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
+  isOpen: boolean
+  onToggleIsOpen: () => void
 }) => {
   const {
     number: { toCrypto, toFiat },
@@ -54,7 +57,7 @@ export const SecondHop = ({
     approvalNetworkFeeCryptoBaseUnit,
   } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
   const shouldRenderDonation = true // TODO:
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutooor()
+  const { onSignTrade } = useTradeExecutooor()
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
   const fiatPriceByAssetId = useAppSelector(selectCryptoMarketData)
 
@@ -80,13 +83,14 @@ export const SecondHop = ({
     }
   }, [tradeExecutionStatus, isApprovalNeeded])
 
+  const {
+    buyAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit,
+  } = tradeQuoteStep
+
   const steps = useMemo(() => {
-    const {
-      buyAsset,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountBeforeFeesCryptoBaseUnit,
-    } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
@@ -109,12 +113,6 @@ export const SecondHop = ({
         : undefined
 
     const hopSteps = [
-      getTitleStep({
-        hopIndex: 1,
-        isHopComplete: tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete,
-        swapperName,
-        tradeType: TradeType.Bridge,
-      }),
       getHopSummaryStep({
         swapperName,
         buyAssetChainId: buyAsset.chainId,
@@ -124,7 +122,6 @@ export const SecondHop = ({
         txHash: tradeTx,
         txStatus: TxStatus.Unknown,
         onSign: onSignTrade,
-        onReject: onRejectTrade,
       }),
     ].filter(isSome)
 
@@ -145,7 +142,6 @@ export const SecondHop = ({
           translate,
           toggleIsExactAllowance,
           onSign: executeAllowanceApproval,
-          onReject: onRejectApproval,
         }),
       )
     }
@@ -170,20 +166,24 @@ export const SecondHop = ({
   }, [
     approvalNetworkFeeCryptoBaseUnit,
     approvalTxId,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAsset,
     executeAllowanceApproval,
     fiatPriceByAssetId,
     isApprovalNeeded,
     isExactAllowance,
-    onRejectApproval,
-    onRejectTrade,
     onSignTrade,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAsset.assetId,
+    sellAsset.chainId,
+    sellAsset.precision,
+    sellAsset.symbol,
     shouldRenderDonation,
     swapperName,
     toCrypto,
     toFiat,
     toggleIsExactAllowance,
     tradeExecutionStatus,
-    tradeQuoteStep,
     translate,
   ])
 
@@ -195,6 +195,9 @@ export const SecondHop = ({
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)
   const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 1)
 
+  const isBridge = buyAsset.chainId !== sellAsset.chainId
+  const tradeType = isBridge ? TradeType.Bridge : TradeType.Swap
+
   return (
     <Hop
       steps={steps}
@@ -202,6 +205,10 @@ export const SecondHop = ({
       slippageDecimalPercentage={slippageDecimalPercentage}
       networkFeeFiatPrecision={networkFeeFiatPrecision ?? '0'}
       protocolFeeFiatPrecision={protocolFeeFiatPrecision ?? '0'}
+      hopIndex={1}
+      title={`${tradeType} via ${swapperName}`}
+      isOpen={isOpen}
+      onToggleIsOpen={onToggleIsOpen}
     />
   )
 }

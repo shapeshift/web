@@ -90,6 +90,17 @@ export const swappers = createSlice({
     },
     incrementTradeExecutionState: state => {
       if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
+
+      // TODO: skip second hop states for single hop trades
+      // this requires moving tradeExecutionStatus into the trade quote slice
+      // const isMultiHopTrade = selectIsActiveQuoteMultiHop(state)
+      // if (
+      //   isMultiHopTrade &&
+      //   state.tradeExecutionStatus > MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+      // ) {
+      //   state.tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
+      // }
+
       state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
     },
     switchAssets: state => {

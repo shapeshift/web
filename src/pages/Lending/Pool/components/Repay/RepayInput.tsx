@@ -69,7 +69,6 @@ export const RepayInput = ({
   repaymentAsset,
   setRepaymentAsset,
 }: RepayInputProps) => {
-  console.log({ collateralAccountId, repaymentAccountId })
   const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
   const history = useHistory()

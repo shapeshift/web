@@ -45,6 +45,13 @@ export type ThorEvmTradeQuote = TradeQuote &
     data: string
   }
 
+enum TradeType {
+  LongTailToLongTail,
+  LongTailToL1,
+  L1ToLongTail,
+  L1ToL1,
+}
+
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
 export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
@@ -62,6 +69,8 @@ export const getThorTradeQuote = async (
     affiliateBps: requestedAffiliateBps,
     slippageTolerancePercentage,
   } = input
+
+  console.log('xxx getThorTradeQuote')
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
@@ -109,6 +118,23 @@ export const getThorTradeQuote = async (
   // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
+
+  const tradeType = (() => {
+    switch (true) {
+      case !sellAssetPool && !buyAssetPool:
+        return TradeType.LongTailToLongTail
+      case !sellAssetPool && !!buyAssetPool:
+        return TradeType.LongTailToL1
+      case !!sellAssetPool && !buyAssetPool:
+        return TradeType.L1ToLongTail
+      case !!sellAssetPool && !!buyAssetPool:
+        return TradeType.L1ToL1
+      default:
+        return undefined
+    }
+  })()
+
+  console.log('xxx tradeType', tradeType)
 
   /* 
     Additional logic to handle long tail tokens (long-tail to L1 in this pass).

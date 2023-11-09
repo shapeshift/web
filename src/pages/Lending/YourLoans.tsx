@@ -2,7 +2,7 @@ import { Button, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
@@ -25,7 +25,7 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 type LendingRowGridProps = {
   asset: Asset
   accountId: AccountId
-  onPoolClick: (assetId: AssetId) => void
+  onPoolClick: (assetId: AssetId, accountId: AccountId) => void
 }
 
 const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) => {
@@ -36,8 +36,8 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     })
 
   const handlePoolClick = useCallback(() => {
-    onPoolClick(asset.assetId)
-  }, [asset.assetId, onPoolClick])
+    onPoolClick(asset.assetId, accountId)
+  }, [accountId, asset.assetId, onPoolClick])
 
   if (
     lendingPositionData &&
@@ -128,8 +128,8 @@ export const YourLoans = () => {
   const history = useHistory()
 
   const handlePoolClick = useCallback(
-    (assetId: AssetId) => {
-      history.push(`/lending/pool/${assetId}`)
+    (assetId: AssetId, accountId: AccountId) => {
+      history.push(generatePath('/lending/poolAccount/:accountId/:assetId', { accountId, assetId }))
     },
     [history],
   )

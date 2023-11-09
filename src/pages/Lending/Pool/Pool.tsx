@@ -24,7 +24,7 @@ import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory, useParams } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
@@ -63,8 +63,12 @@ const PoolHeader = () => {
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
+type MatchParams = {
+  poolAccountId?: AccountId
+}
 export const Pool = () => {
-  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>('')
+  const { poolAccountId } = useParams<MatchParams>()
+  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>(poolAccountId ?? '')
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId>('')
 

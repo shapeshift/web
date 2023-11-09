@@ -58,13 +58,16 @@ type RepayInputProps = {
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset) => void
 }
+
+// no-op, this is read-only
+const handleCollateralAccountIdChange = () => {}
+
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
   onRepaymentPercentChange,
   collateralAccountId,
   repaymentAccountId,
-  onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentAsset,
   setRepaymentAsset,
@@ -162,7 +165,7 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         onAssetClick={handleRepaymentAssetClick}
         onAccountIdChange={handleAccountIdChange}
-        accountSelectionDisabled={false}
+        accountSelectionDisabled
         label={'uhh'}
         onAssetChange={handleAssetChange}
         isReadOnly

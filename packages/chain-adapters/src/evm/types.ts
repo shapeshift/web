@@ -6,7 +6,13 @@ import type * as common from '../types'
 
 export type Account = {
   nonce: number
-  tokens?: common.AssetBalance[]
+  tokens?: Token[]
+}
+
+export type Token = common.AssetBalance & {
+  symbol: string
+  name: string
+  precision: number
 }
 
 export type BuildCustomTxInput = {

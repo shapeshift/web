@@ -19,6 +19,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { FaAdjust, FaGasPump, FaProcedures } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -37,6 +38,8 @@ export const Hop = ({
   hopIndex,
   txStatus,
   isOpen,
+  estimatedExecutionTimeMs,
+  executionTimeRemainingMs,
   onToggleIsOpen,
 }: {
   steps: StepperStep[]
@@ -48,21 +51,28 @@ export const Hop = ({
   hopIndex: number
   txStatus?: TxStatus
   isOpen: boolean
+  estimatedExecutionTimeMs?: number
+  executionTimeRemainingMs?: number
   onToggleIsOpen: () => void
 }) => {
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
 
-  const timeEstimate = '4m'
-  const timeRemaining = '3:35'
-
   const rightComponent = useMemo(() => {
     switch (txStatus) {
       case undefined:
       case TxStatus.Unknown:
-        return <RawText>{timeEstimate}</RawText>
+        return (
+          estimatedExecutionTimeMs !== undefined && (
+            <RawText>{prettyMilliseconds(estimatedExecutionTimeMs)}</RawText>
+          )
+        )
       case TxStatus.Pending:
-        return <RawText>{timeRemaining}</RawText>
+        return (
+          executionTimeRemainingMs !== undefined && (
+            <RawText>{prettyMilliseconds(executionTimeRemainingMs)}</RawText>
+          )
+        )
       case TxStatus.Confirmed:
         return (
           <Box width='auto'>
@@ -81,7 +91,7 @@ export const Hop = ({
       default:
         return null
     }
-  }, [isOpen, onToggleIsOpen, txStatus])
+  }, [estimatedExecutionTimeMs, executionTimeRemainingMs, isOpen, onToggleIsOpen, txStatus])
 
   return (
     <Card

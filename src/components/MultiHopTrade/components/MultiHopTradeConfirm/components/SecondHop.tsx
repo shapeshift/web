@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable, isSome } from 'lib/utils'
@@ -13,6 +13,7 @@ import { selectCryptoMarketData, selectFeeAssetById } from 'state/slices/selecto
 import {
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
+  selectQuoteDonationAmountUsd,
   selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
@@ -45,15 +46,20 @@ export const SecondHop = ({
   const translate = useTranslate()
 
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
+  const donationAmountUsd = useAppSelector(selectQuoteDonationAmountUsd)
 
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
+    // TODO: use the message to better ux
+    // message,
     isApprovalNeeded,
     executeAllowanceApproval,
     approvalTxId,
     approvalNetworkFeeCryptoBaseUnit,
   } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
-  const shouldRenderDonation = true // TODO:
+
+  const shouldRenderDonation = bnOrZero(donationAmountUsd).gt(0)
+
   const { onSignTrade } = useTradeExecutooor()
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
   const fiatPriceByAssetId = useAppSelector(selectCryptoMarketData)
@@ -85,6 +91,7 @@ export const SecondHop = ({
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit,
+    estimatedExecutionTimeMs,
   } = tradeQuoteStep
 
   const steps = useMemo(() => {
@@ -146,7 +153,7 @@ export const SecondHop = ({
     if (shouldRenderDonation) {
       hopSteps.push(
         getDonationSummaryStep({
-          donationAmountFiatFormatted: toFiat(1.2),
+          donationAmountFiatFormatted: toFiat(donationAmountUsd),
         }),
       )
     }
@@ -165,6 +172,7 @@ export const SecondHop = ({
     approvalTxId,
     buyAmountBeforeFeesCryptoBaseUnit,
     buyAsset,
+    donationAmountUsd,
     executeAllowanceApproval,
     fiatPriceByAssetId,
     isApprovalNeeded,
@@ -206,6 +214,8 @@ export const SecondHop = ({
       title={`${tradeType} via ${swapperName}`}
       isOpen={isOpen}
       onToggleIsOpen={onToggleIsOpen}
+      estimatedExecutionTimeMs={estimatedExecutionTimeMs}
+      executionTimeRemainingMs={undefined} // TODO: implement this
     />
   )
 }

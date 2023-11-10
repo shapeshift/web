@@ -305,12 +305,12 @@ export const getThorTradeQuote = async (
               receiveAddress,
               affiliateBps,
               isStreaming,
-              estimatedExecutionTimeMs,
               rate,
               data,
               router,
               steps: [
                 {
+                  estimatedExecutionTimeMs,
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
@@ -398,10 +398,10 @@ export const getThorTradeQuote = async (
               receiveAddress,
               affiliateBps,
               isStreaming,
-              estimatedExecutionTimeMs,
               rate,
               steps: [
                 {
+                  estimatedExecutionTimeMs,
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,
@@ -474,10 +474,10 @@ export const getThorTradeQuote = async (
               receiveAddress,
               affiliateBps,
               isStreaming,
-              estimatedExecutionTimeMs,
               rate,
               steps: [
                 {
+                  estimatedExecutionTimeMs,
                   rate,
                   sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                   buyAmountBeforeFeesCryptoBaseUnit,

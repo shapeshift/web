@@ -212,6 +212,7 @@ export const FirstHop = ({
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit,
+    estimatedExecutionTimeMs,
   } = tradeQuoteStep
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
@@ -361,6 +362,8 @@ export const FirstHop = ({
       txStatus={txStatus}
       isOpen={isOpen}
       onToggleIsOpen={onToggleIsOpen}
+      estimatedExecutionTimeMs={estimatedExecutionTimeMs}
+      executionTimeRemainingMs={undefined} // TODO: implement this
     />
   )
 }

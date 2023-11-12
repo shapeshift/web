@@ -7,7 +7,7 @@ import type { Asset } from 'lib/asset-service'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectBuyAccountId,
+  selectLastHopBuyAccountId,
   selectBuyAsset,
   selectManualReceiveAddress,
 } from 'state/slices/swappersSlice/selectors'
@@ -38,7 +38,7 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectBuyAsset)
-  const buyAccountId = useAppSelector(selectBuyAccountId)
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )

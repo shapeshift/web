@@ -6,16 +6,18 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuoteStep } from 'lib/swapper/types'
 import { buildAndBroadcast, isEvmChainAdapter } from 'lib/utils/evm'
-import { selectSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { checkApprovalNeeded } from '../helpers'
 
 export const useExecuteAllowanceApproval = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuoteStep,
+  isFirstHop: boolean,
   buildCustomTxInput?: evm.BuildCustomTxInput,
 ) => {
   const [txId, setTxId] = useState<string | undefined>()
@@ -24,7 +26,9 @@ export const useExecuteAllowanceApproval = (
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet
 
-  const sellAssetAccountId = useAppSelector(selectSellAccountId)
+  const sellAssetAccountId = useAppSelector(
+    isFirstHop ? selectFirstHopSellAccountId : selectLastHopSellAccountId,
+  )
   const executeAllowanceApproval = useCallback(async () => {
     setTxStatus(TxStatus.Pending)
 

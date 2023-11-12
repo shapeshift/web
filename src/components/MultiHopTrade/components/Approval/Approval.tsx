@@ -33,7 +33,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
-import type { SwapperName, TradeQuote } from 'lib/swapper/types'
+import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { selectUserCurrencyRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import {
   selectActiveSwapperName,
@@ -52,7 +52,7 @@ const ApprovalInner = ({
   tradeQuoteStep,
 }: {
   swapperName: SwapperName
-  tradeQuoteStep: TradeQuote['steps'][number]
+  tradeQuoteStep: TradeQuoteStep
 }) => {
   const history = useHistory()
   const translate = useTranslate()
@@ -94,7 +94,7 @@ const ApprovalInner = ({
     approvalTxId,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalHookLoading,
-  } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
+  } = useAllowanceApproval(tradeQuoteStep, true, isExactAllowance)
 
   const approvalNetworkFeeCryptoHuman = useMemo(() => {
     if (!approvalNetworkFeeCryptoBaseUnit || !sellFeeAsset) return

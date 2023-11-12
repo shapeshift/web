@@ -56,7 +56,7 @@ export const SecondHop = ({
     executeAllowanceApproval,
     approvalTxId,
     approvalNetworkFeeCryptoBaseUnit,
-  } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
+  } = useAllowanceApproval(tradeQuoteStep, false, isExactAllowance)
 
   const shouldRenderDonation = bnOrZero(donationAmountUsd).gt(0)
 

@@ -274,8 +274,8 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
-        cryptoAmount={'0'}
-        fiatAmount={'0'}
+        cryptoAmount={data?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
+        fiatAmount={data?.quoteDebtRepaidAmountUsd}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
@@ -317,7 +317,7 @@ export const RepayInput = ({
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
               <Amount.Crypto
-                value={data?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                value={data?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
                 symbol={collateralAsset?.symbol ?? ''}
               />
             </Skeleton>

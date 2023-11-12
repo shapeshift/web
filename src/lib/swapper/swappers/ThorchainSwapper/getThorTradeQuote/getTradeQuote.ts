@@ -20,6 +20,7 @@ import type {
   ProtocolFee,
   SwapErrorRight,
   TradeQuote,
+  TradeQuoteStep,
 } from 'lib/swapper/types'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
@@ -27,11 +28,14 @@ import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { zrxApi } from '../../ZrxSwapper/endpoints'
+import { ZrxQuoteResponse } from '../../ZrxSwapper/types'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import type { ThornodePoolResponse, ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from '../utils/addSlippageToMemo'
@@ -58,6 +62,7 @@ export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
+  assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -135,6 +140,47 @@ export const getThorTradeQuote = async (
   })()
 
   console.log('xxx tradeType', tradeType)
+
+  if (tradeType !== undefined && tradeType !== TradeType.L1ToL1) {
+    // We can't do this using only THORchain, we need to fetch additional DEX qoutes
+    const zrxSwapper = zrxApi
+    switch (tradeType) {
+      case TradeType.LongTailToL1:
+        // Start with this case
+        const buyChainId = input.buyAsset.chainId
+        const nativeBuyAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
+        const nativeBuyAsset = nativeBuyAssetId ? assetsById[nativeBuyAssetId] : undefined
+        if (!nativeBuyAsset) {
+          return Err(
+            makeSwapErrorRight({
+              message: `[getThorTradeQuote] - No native buy asset found for ${buyChainId}.`,
+              code: SwapErrorType.UNSUPPORTED_CHAIN,
+              details: { buyAssetChainId: buyChainId },
+            }),
+          )
+        }
+
+        const longTailToL1QuoteInput: GetTradeQuoteInput = { ...input, buyAsset: nativeBuyAsset }
+        const zrxQuoteResponse = await zrxSwapper.getTradeQuote(longTailToL1QuoteInput, assetsById)
+        console.log(
+          'xxx zrxQoute',
+          zrxQuoteResponse.isOk() ? zrxQuoteResponse.unwrap() : zrxQuoteResponse.unwrapErr(),
+        )
+        if (zrxQuoteResponse.isErr()) return Err(zrxQuoteResponse.unwrapErr())
+        const zrxQuote = zrxQuoteResponse.unwrap()
+        const buyAmountAfterFeesCryptoBaseUnit =
+          zrxQuote[0].steps[0].buyAmountAfterFeesCryptoBaseUnit
+        break
+      case TradeType.LongTailToLongTail:
+        // TODO: Implement this
+        break
+      case TradeType.L1ToLongTail:
+        // TODO: Implement this
+        break
+      default:
+        assertUnreachable(tradeType)
+    }
+  }
 
   /* 
     Additional logic to handle long tail tokens (long-tail to L1 in this pass).

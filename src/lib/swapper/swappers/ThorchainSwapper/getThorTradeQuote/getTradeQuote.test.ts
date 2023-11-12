@@ -180,7 +180,7 @@ describe('getTradeQuote', () => {
       slippageTolerancePercentage: '0.04357',
     }
 
-    const maybeTradeQuote = await getThorTradeQuote(input)
+    const maybeTradeQuote = await getThorTradeQuote(input, {})
     expect(maybeTradeQuote.isOk()).toBe(true)
     const result = maybeTradeQuote.unwrap()
     // ids are uuids, so don't bother checking them

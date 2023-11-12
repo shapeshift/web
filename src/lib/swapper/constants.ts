@@ -9,6 +9,7 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
+import type { Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
 
@@ -18,7 +19,7 @@ export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,
 })
 
-export const swappers = [
+export const swappers: { swapperName: SwapperName; swapper: SwapperApi & Swapper }[] = [
   {
     swapperName: SwapperName.LIFI,
     swapper: { ...lifiSwapper, ...lifiApi },

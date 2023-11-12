@@ -21,6 +21,7 @@ import type {
   UtxoFeeData,
 } from 'lib/swapper/types'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
@@ -40,6 +41,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    assetsById: AssetsById,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
@@ -47,10 +49,13 @@ export const thorchainApi: SwapperApi = {
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    return await getThorTradeQuote({
-      ...input,
-      affiliateBps,
-    })
+    return await getThorTradeQuote(
+      {
+        ...input,
+        affiliateBps,
+      },
+      assetsById,
+    )
   },
 
   getUnsignedEvmTransaction: async ({

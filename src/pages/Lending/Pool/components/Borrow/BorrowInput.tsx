@@ -25,7 +25,6 @@ import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQue
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
-  selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -41,8 +40,9 @@ const formControlProps = {
 
 type BorrowInputProps = {
   collateralAssetId: AssetId
-  depositAmount: string | null
-  onDepositAmountChange: (value: string) => void
+  cryptoDepositAmount: string | null
+  fiatDepositAmount: string | null
+  onDepositAmountChange: (value: string, isFiat?: boolean) => void
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
@@ -56,7 +56,8 @@ const handleAccountIdChange = () => {}
 
 export const BorrowInput = ({
   collateralAssetId,
-  depositAmount,
+  cryptoDepositAmount,
+  fiatDepositAmount,
   onDepositAmountChange,
   collateralAccountId,
   borrowAccountId,
@@ -77,9 +78,6 @@ export const BorrowInput = ({
   }, [lendingSupportedAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
-  )
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
@@ -103,8 +101,8 @@ export const BorrowInput = ({
   }, [])
 
   const handleDepositInputChange = useCallback(
-    (value: string) => {
-      onDepositAmountChange(value)
+    (value: string, isFiat?: boolean) => {
+      onDepositAmountChange(value, isFiat)
     },
     [onDepositAmountChange],
   )
@@ -123,8 +121,8 @@ export const BorrowInput = ({
 
   // TODO(gomes): include gas checks
   const hasEnoughBalance = useMemo(
-    () => bnOrZero(depositAmount).lte(amountAvailableCryptoPrecision),
-    [amountAvailableCryptoPrecision, depositAmount],
+    () => bnOrZero(cryptoDepositAmount).lte(amountAvailableCryptoPrecision),
+    [amountAvailableCryptoPrecision, cryptoDepositAmount],
   )
 
   const quoteErrorTranslation = useMemo(() => {
@@ -165,9 +163,9 @@ export const BorrowInput = ({
     () => ({
       collateralAssetId,
       borrowAssetId: borrowAsset?.assetId ?? '',
-      depositAmountCryptoPrecision: depositAmount ?? '0',
+      depositAmountCryptoPrecision: cryptoDepositAmount ?? '0',
     }),
-    [borrowAsset?.assetId, collateralAssetId, depositAmount],
+    [borrowAsset?.assetId, collateralAssetId, cryptoDepositAmount],
   )
   const {
     data,
@@ -188,10 +186,8 @@ export const BorrowInput = ({
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}
           onChange={handleDepositInputChange}
-          cryptoAmount={depositAmount ?? '0'}
-          fiatAmount={bnOrZero(depositAmount)
-            .times(collateralAssetMarketData?.price ?? '0')
-            .toString()}
+          cryptoAmount={cryptoDepositAmount ?? '0'}
+          fiatAmount={fiatDepositAmount ?? '0'}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}
@@ -222,6 +218,7 @@ export const BorrowInput = ({
           assetIcon={borrowAsset.icon}
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
+          isReadOnly
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}
@@ -235,7 +232,7 @@ export const BorrowInput = ({
         <Collapse in={true}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
-            depositAmountCryptoPrecision={depositAmount ?? '0'}
+            depositAmountCryptoPrecision={cryptoDepositAmount ?? '0'}
             borrowAssetId={borrowAsset?.assetId ?? ''}
           />
         </Collapse>

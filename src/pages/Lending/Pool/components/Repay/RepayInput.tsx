@@ -231,6 +231,7 @@ export const RepayInput = ({
         cryptoAmount={repaymentAmountCryptoPrecision ?? '0'}
         fiatAmount={repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
+        isReadOnly
         percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}

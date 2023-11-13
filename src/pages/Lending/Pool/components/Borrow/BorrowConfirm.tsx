@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
@@ -151,7 +151,10 @@ export const BorrowConfirm = ({
           assetId: collateralAssetId,
         })
           .then(position => {
+            const { chainId } = fromAssetId(collateralAssetId)
             if (!position) throw new Error(`No position found for assetId: ${collateralAssetId}`)
+            const { owner } = position
+            return chainId === bchChainId ? `bitcoincash:${owner}` : owner
           })
           .catch(async () => {
             const firstReceiveAddress = await chainAdapter.getAddress({

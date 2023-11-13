@@ -2,8 +2,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
@@ -19,8 +17,6 @@ type ThorchainBlock = {
     height: number
   }
 }
-
-dayjs.extend(relativeTime)
 
 export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
   const repaymentLockQueryKey: [

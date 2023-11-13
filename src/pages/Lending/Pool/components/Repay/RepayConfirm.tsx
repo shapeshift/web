@@ -154,7 +154,6 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  // TODO(gomes): handle error (including trading halted)
   const handleRepay = useCallback(async () => {
     if (
       !(

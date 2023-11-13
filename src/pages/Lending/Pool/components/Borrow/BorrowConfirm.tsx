@@ -19,7 +19,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import type { SendInput } from 'components/Modals/Send/Form'
-import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { handleSend } from 'components/Modals/Send/utils'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
@@ -33,6 +33,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -168,27 +169,34 @@ export const BorrowConfirm = ({
     collateralAssetId,
   ])
 
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    })
+
   // TODO(gomes): handle error (including trading halted)
   const handleDeposit = useCallback(async () => {
-    if (!(collateralAssetId && depositAmount && wallet && chainAdapter && lendingQuoteData)) return
+    if (
+      !(
+        collateralAssetId &&
+        depositAmount &&
+        wallet &&
+        chainAdapter &&
+        lendingQuoteData &&
+        estimatedFeesData?.estimatedFees
+      )
+    )
+      return
     const from = await getFromAddress()
 
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
-    const estimatedFees = await estimateFees({
-      cryptoAmount: depositAmount,
-      assetId: collateralAssetId,
-      from,
-      memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
-        ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
-        : lendingQuoteData.quoteMemo,
-      to: lendingQuoteData.quoteInboundAddress,
-      sendMax: false,
-      accountId: collateralAccountId,
-      contractAddress: undefined,
-    })
-
+    const { estimatedFees } = estimatedFeesData
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
@@ -228,6 +236,7 @@ export const BorrowConfirm = ({
     wallet,
     chainAdapter,
     lendingQuoteData,
+    estimatedFeesData,
     getFromAddress,
     collateralAccountId,
     selectedCurrency,
@@ -303,7 +312,9 @@ export const BorrowConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>

@@ -182,7 +182,6 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision: depositAmount ?? '0',
     })
 
-  // TODO(gomes): handle error (including trading halted)
   const handleDeposit = useCallback(async () => {
     if (
       !(

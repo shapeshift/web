@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -154,13 +153,12 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  // TODO(gomes): handle error (including trading halted) and loading states here
+  // TODO(gomes): handle error (including trading halted)
   const handleRepay = useCallback(async () => {
     if (
       !(
         repaymentAsset &&
         wallet &&
-        supportsETH(wallet) &&
         chainAdapter &&
         lendingQuoteCloseData &&
         repaymentAmountCryptoPrecision

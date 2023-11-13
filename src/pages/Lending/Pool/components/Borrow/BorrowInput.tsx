@@ -23,6 +23,7 @@ import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -162,16 +163,33 @@ export const BorrowInput = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
       borrowAssetId: borrowAsset?.assetId ?? '',
       depositAmountCryptoPrecision: cryptoDepositAmount ?? '0',
     }),
-    [borrowAsset?.assetId, collateralAssetId, cryptoDepositAmount],
+    [
+      borrowAccountId,
+      borrowAsset?.assetId,
+      collateralAccountId,
+      collateralAssetId,
+      cryptoDepositAmount,
+    ],
   )
   const {
     data,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
+
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: cryptoDepositAmount ?? '0',
+    })
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
@@ -232,8 +250,10 @@ export const BorrowInput = ({
         <Collapse in={true}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
+            collateralAccountId={collateralAccountId}
             depositAmountCryptoPrecision={cryptoDepositAmount ?? '0'}
             borrowAssetId={borrowAsset?.assetId ?? ''}
+            borrowAccountId={borrowAccountId}
           />
         </Collapse>
         {!isLendingQuoteError && (
@@ -261,8 +281,8 @@ export const BorrowInput = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={!isLendingQuoteLoading}>
-                  <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -270,7 +290,7 @@ export const BorrowInput = ({
               <Row.Label>{translate('common.fees')}</Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLendingQuoteLoading}>
-                  <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>

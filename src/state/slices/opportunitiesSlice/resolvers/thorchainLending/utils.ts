@@ -68,12 +68,12 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // but we might need e.g min_out and affiliate_bps
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
-  repaymentlAssetId: collateralAssetId,
+  collateralAssetId,
   repaymentAmountCryptoBaseUnit: collateralAmountCryptoBaseUnit,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
-  repaymentlAssetId: AssetId
+  collateralAssetId: AssetId
   repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   repaymentAssetId: AssetId
   collateralAssetAddress: string

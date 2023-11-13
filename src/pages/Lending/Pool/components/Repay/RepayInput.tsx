@@ -30,6 +30,7 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
   selectAssets,
@@ -119,7 +120,7 @@ export const RepayInput = ({
   )
 
   const {
-    data,
+    data: lendingQuoteCloseData,
     isLoading: isLendingQuoteCloseLoading,
     isError: isLendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
@@ -131,7 +132,7 @@ export const RepayInput = ({
     buyAssetSearch.open({
       onClick: setRepaymentAsset,
       title: 'lending.borrow',
-      assets: repaymentSupportedAssets, // TODO(gomes)
+      assets: repaymentSupportedAssets,
     })
   }, [buyAssetSearch, repaymentSupportedAssets, setRepaymentAsset])
 
@@ -208,6 +209,15 @@ export const RepayInput = ({
     return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
   }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
 
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      repaymentAccountId,
+      repaymentPercent,
+      repaymentAsset,
+    })
+
   if (!seenNotice) {
     return (
       <Stack spacing={6} px={4} py={6} textAlign='center' alignItems='center'>
@@ -274,8 +284,8 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
-        cryptoAmount={data?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={data?.quoteDebtRepaidAmountUsd}
+        cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
+        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
@@ -292,11 +302,11 @@ export const RepayInput = ({
         <LoanSummary
           collateralAssetId={collateralAssetId}
           repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? ''}
-          debtRepaidAmountUsd={data?.quoteDebtRepaidAmountUsd ?? '0'}
+          debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
           collateralDecreaseAmountCryptoPrecision={
-            data?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+            lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
           }
           repaymentAccountId={repaymentAccountId}
           collateralAccountId={collateralAccountId}
@@ -317,7 +327,7 @@ export const RepayInput = ({
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
               <Amount.Crypto
-                value={data?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
+                value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
                 symbol={collateralAsset?.symbol ?? ''}
               />
             </Skeleton>
@@ -326,8 +336,8 @@ export const RepayInput = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
-              <Amount.Fiat value='TODO' />
+            <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteCloseLoading)}>
+              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -335,7 +345,7 @@ export const RepayInput = ({
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
-              <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>

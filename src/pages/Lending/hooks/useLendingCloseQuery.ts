@@ -138,21 +138,22 @@ export const useLendingQuoteCloseQuery = ({
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
       const position = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
-        repaymentlAssetId: collateralAssetId,
+        collateralAssetId,
         repaymentAmountCryptoBaseUnit: toBaseUnit(
           repaymentAmountCryptoPrecision ?? 0, // actually always defined at runtime, see "enabled" option
           repaymentAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
         ),
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option
       })
-      return position
+
+      if (position.isErr()) throw position.unwrapErr()
+      return position.unwrap()
     },
     // TODO(gomes): now that we've extracted this to a hook, we might use some memoization pattern on the selectFn
     // since it is run every render, regardless of data fetching happening.
     // This may not be needed for such small logic, but we should keep this in mind for future hooks
     select: data => {
-      // TODO(gomes): error handling
-      const quote = data.unwrap()
+      const quote = data
 
       const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
         quote.expected_collateral_withdrawn,
@@ -198,6 +199,7 @@ export const useLendingQuoteCloseQuery = ({
         quoteTotalFeesFiatUserCurrency,
         quoteInboundAddress,
         quoteMemo,
+        repaymentAmountCryptoPrecision,
       }
     },
     enabled: Boolean(

@@ -10,6 +10,7 @@ import {
   Heading,
   IconButton,
   Input,
+  Skeleton,
   Stack,
   Tab,
   TabList,
@@ -18,9 +19,6 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,11 +28,11 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
+import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
@@ -78,40 +76,18 @@ export const Pool = () => {
   const translate = useTranslate()
   const [value, setValue] = useState<number | string>()
 
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
-
-  const repaymentLockQueryKey = useMemo(() => ['thorchainLendingRepaymentLock'], [])
-
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: poolAssetId,
       accountId: collateralAccountId,
     })
-  const { data: repaymentLock, isLoading: isRepaymentLockLoading } = useQuery({
-    staleTime: Infinity,
-    queryKey: repaymentLockQueryKey,
-    queryFn: async () => {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const { data: mimir } = await axios.get<Record<string, unknown>>(
-        `${daemonUrl}/lcd/thorchain/mimir`,
-      )
-      // TODO(gomes): this is the repayment lock of the pool - not the borrower's
-      // we will want to make it programmatic in case there's an active position.
-      // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
-      if ('LOANREPAYMENTMATURITY' in mimir) return mimir.LOANREPAYMENTMATURITY as number
-      return null
-    },
-    select: data => {
-      if (!data) return null
-      // Current blocktime as per https://thorchain.network/stats
-      const thorchainBlockTime = '6.09'
-      return bnOrZero(data)
-        .times(thorchainBlockTime)
-        .div(60 * 60 * 24)
-        .toString()
-    },
-    enabled: Boolean(poolAssetId && poolAssetMarketData.price !== '0'),
-  })
+
+  const useRepaymentLockDataArgs = useMemo(
+    () => ({ assetId: poolAssetId, accountId: poolAccountId }),
+    [poolAccountId, poolAssetId],
+  )
+  const { data: repaymentLock, isLoading: isRepaymentLockLoading } =
+    useRepaymentLockData(useRepaymentLockDataArgs)
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
 
@@ -148,11 +124,13 @@ export const Pool = () => {
   )
   const repaymentLockComponent = useMemo(
     () => (
-      <RawText fontSize='2xl' fontWeight='medium'>
-        {repaymentLock ?? '0'} days
-      </RawText>
+      <Skeleton isLoaded={!isRepaymentLockLoading}>
+        <RawText fontSize='2xl' fontWeight='medium'>
+          {repaymentLock ?? '0'} days
+        </RawText>
+      </Skeleton>
     ),
-    [repaymentLock],
+    [isRepaymentLockLoading, repaymentLock],
   )
   const handleValueChange = useCallback((value: React.ChangeEvent<HTMLInputElement>) => {
     setValue(value.target.value)

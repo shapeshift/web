@@ -129,9 +129,6 @@ export const useLendingQuoteCloseQuery = ({
     500,
   ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
 
-  // Fetch the current lending position data
-  // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace
-  // for reusable queries and move me there
   const query = useQuery({
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {

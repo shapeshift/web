@@ -108,13 +108,17 @@ export const BorrowConfirm = ({
       borrowAccountId,
       borrowAssetId,
       depositAmountCryptoPrecision: depositAmount ?? '0',
+      isLoanOpenPending,
     }),
-    [collateralAssetId, collateralAccountId, borrowAccountId, borrowAssetId, depositAmount],
+    [
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId,
+      depositAmount,
+      isLoanOpenPending,
+    ],
   )
-  // TODO(gomes): accept enabled as prop and pass it down as _enabled
-  // so we have a safety to not refetch quotes while borrow is pending
-  // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
-  // from input components and disable inputs as well?
   const {
     data,
     isLoading: isLendingQuoteLoading,

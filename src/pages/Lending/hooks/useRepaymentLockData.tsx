@@ -46,9 +46,6 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       const { data: mimir } = await axios.get<Record<string, unknown>>(
         `${daemonUrl}/lcd/thorchain/mimir`,
       )
-      // TODO(gomes): this is the repayment lock of the pool - not the borrower's
-      // we will want to make it programmatic in case there's an active position.
-      // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
       if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,

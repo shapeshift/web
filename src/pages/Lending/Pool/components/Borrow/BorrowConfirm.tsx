@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -60,6 +59,7 @@ export const BorrowConfirm = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,
+  borrowAccountId,
   borrowAsset,
 }: BorrowConfirmProps) => {
   const {
@@ -103,10 +103,12 @@ export const BorrowConfirm = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
       borrowAssetId,
       depositAmountCryptoPrecision: depositAmount ?? '0',
     }),
-    [collateralAssetId, borrowAssetId, depositAmount],
+    [collateralAssetId, collateralAccountId, borrowAccountId, borrowAssetId, depositAmount],
   )
   // TODO(gomes): accept enabled as prop and pass it down as _enabled
   // so we have a safety to not refetch quotes while borrow is pending
@@ -166,19 +168,9 @@ export const BorrowConfirm = ({
     collateralAssetId,
   ])
 
-  // TODO(gomes): handle error (including trading halted) and loading states here
+  // TODO(gomes): handle error (including trading halted)
   const handleDeposit = useCallback(async () => {
-    if (
-      !(
-        collateralAssetId &&
-        depositAmount &&
-        wallet &&
-        supportsETH(wallet) &&
-        chainAdapter &&
-        lendingQuoteData
-      )
-    )
-      return
+    if (!(collateralAssetId && depositAmount && wallet && chainAdapter && lendingQuoteData)) return
     const from = await getFromAddress()
 
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
@@ -319,7 +311,9 @@ export const BorrowConfirm = ({
             borderTopWidth={0}
             mt={0}
             collateralAssetId={collateralAssetId}
+            collateralAccountId={collateralAccountId}
             borrowAssetId={borrowAssetId}
+            borrowAccountId={borrowAccountId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
           <CardFooter px={4} py={4}>

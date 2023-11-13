@@ -24,6 +24,7 @@ type UseLendingQuoteQueryProps = {
   collateralAccountId: AccountId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
+  isLoanOpenPending?: boolean
 }
 export const useLendingQuoteOpenQuery = ({
   collateralAssetId,
@@ -31,6 +32,7 @@ export const useLendingQuoteOpenQuery = ({
   borrowAccountId,
   borrowAssetId,
   depositAmountCryptoPrecision,
+  isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
   const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
@@ -170,7 +172,8 @@ export const useLendingQuoteOpenQuery = ({
       }
     },
     enabled: Boolean(
-      bnOrZero(depositAmountCryptoPrecision).gt(0) &&
+      !isLoanOpenPending &&
+        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         collateralAccountId &&
         borrowAssetId &&
         destinationAccountMetadata &&

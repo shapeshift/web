@@ -29,6 +29,7 @@ type UseLendingQuoteCloseQueryProps = {
   collateralAccountId: AccountId
   collateralAssetId: AssetId
   repaymentPercent: number
+  isLoanClosePending?: boolean
 }
 export const useLendingQuoteCloseQuery = ({
   repaymentAssetId,
@@ -36,6 +37,7 @@ export const useLendingQuoteCloseQuery = ({
   repaymentPercent: _repaymentPercent,
   repaymentAccountId,
   collateralAccountId,
+  isLoanClosePending,
 }: UseLendingQuoteCloseQueryProps) => {
   const repaymentPercent = useMemo(() => {
     const repaymentPercentBn = bnOrZero(_repaymentPercent)
@@ -200,7 +202,8 @@ export const useLendingQuoteCloseQuery = ({
       }
     },
     enabled: Boolean(
-      bnOrZero(repaymentPercent).gt(0) &&
+      !isLoanClosePending &&
+        bnOrZero(repaymentPercent).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&

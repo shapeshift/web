@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
@@ -39,6 +39,7 @@ import {
   getFromAddress,
   waitForThorchainUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -58,7 +59,7 @@ type BorrowConfirmProps = {
   borrowAsset: Asset | null
 }
 
-export const BorrowSweep = ({
+export const BorrowConfirm = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,
@@ -173,7 +174,7 @@ export const BorrowSweep = ({
       )
     )
       return
-    const from = await getBorrowFromAddress()
+    const from = await getFromAddress()
 
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
@@ -219,7 +220,7 @@ export const BorrowSweep = ({
     chainAdapter,
     lendingQuoteData,
     estimatedFeesData,
-    getBorrowFromAddress,
+    getFromAddress,
     collateralAccountId,
     selectedCurrency,
   ])

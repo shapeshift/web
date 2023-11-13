@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   bchAssetId,
+  bchChainId,
   binanceAssetId,
   bscAssetId,
   btcAssetId,
@@ -13,6 +14,7 @@ import {
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -30,8 +32,10 @@ import type {
   ThornodeStatusResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+import type { getThorchainLendingPosition } from '../thorchainLending/utils'
 import type {
   MidgardPoolPeriod,
   MidgardPoolRequest,
@@ -389,4 +393,51 @@ export const makeDaysToBreakEven = ({
   // and ~ a day after deposit
   const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
   return daysToBreakEven
+}
+
+export const getFromAddress = async ({
+  accountId,
+  assetId,
+  getPosition,
+  accountMetadata,
+  wallet,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+  getPosition: typeof getThorchainLendingPosition | typeof getThorchainSaversPosition
+  accountMetadata: AccountMetadata
+  wallet: HDWallet
+}): Promise<string> => {
+  const { chainId } = fromAssetId(assetId)
+  if (!isUtxoChainId(chainId)) return Promise.resolve(fromAccountId(accountId).account)
+
+  try {
+    const position = await getPosition({
+      accountId,
+      assetId,
+    })
+    if (!position) throw new Error(`No position found for assetId: ${assetId}`)
+    const address: string = (() => {
+      if ('owner' in position) return position.owner
+      if ('asset_address' in position) return position.asset_address
+      // For type completeness - if we have a response, we *should* either have an `owner` or `asset_address` property
+      return ''
+    })()
+    return chainId === bchChainId ? `bitcoincash:${address}` : address
+  } catch {
+    const accountType = accountMetadata?.accountType
+    const bip44Params = accountMetadata?.bip44Params
+    // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
+    const chainAdapter = getChainAdapterManager().get(
+      chainId,
+    ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+    const firstReceiveAddress = await chainAdapter.getAddress({
+      wallet,
+      accountNumber: bip44Params.accountNumber,
+      accountType,
+      index: 0,
+    })
+    return firstReceiveAddress
+  }
 }

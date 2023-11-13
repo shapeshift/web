@@ -268,7 +268,7 @@ export const RepayInput = ({
       }
     }
     return null
-  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError?.message])
+  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError])
 
   if (!seenNotice) {
     return (

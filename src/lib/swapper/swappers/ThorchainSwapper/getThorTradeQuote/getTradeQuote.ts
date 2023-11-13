@@ -1,6 +1,8 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
+import { Token } from '@uniswap/sdk-core'
+import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
@@ -151,6 +153,45 @@ export const getThorTradeQuote = async (
         ...input,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
       }
+
+      // Try getting direct UniswapV3 quote here
+      const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
+      // const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+
+      // Map tokens to Uniswap SDK Token objects
+      const tokenA: Token = new Token(
+        Number(fromAssetId(input.sellAsset.assetId).chainReference),
+        fromAssetId(input.sellAsset.assetId).assetReference,
+        input.sellAsset.precision,
+        input.sellAsset.symbol,
+        input.sellAsset.name,
+      )
+
+      // const tokenB: Token = new Token(
+      //   Number(fromAssetId(input.buyAsset.assetId).chainReference),
+      //   fromAssetId(input.buyAsset.assetId).assetReference,
+      //   input.buyAsset.precision,
+      //   input.buyAsset.symbol,
+      //   input.buyAsset.name,
+      // )
+
+      const WETH_TOKEN = new Token(
+        1, // FIXME
+        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        18,
+        'WETH',
+        'Wrapped Ether',
+      )
+
+      const currentPoolAddress = computePoolAddress({
+        factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
+        tokenA,
+        tokenB: WETH_TOKEN,
+        fee: FeeAmount.MEDIUM, // FIXME: map to actual pool used
+      })
+
+      console.log('xxx currentPoolAddress', currentPoolAddress)
+
       const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
       // FIXME: work out how (and where) to build the aggreageted unsigned tx hitting the swapIn method of the appropriate contract
       // FIXME: work out how to pass it back up, if it's done in here?

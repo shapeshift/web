@@ -33,6 +33,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
@@ -222,6 +223,15 @@ export const RepayConfirm = ({
     wallet,
   ])
 
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      repaymentAccountId,
+      repaymentPercent,
+      repaymentAsset,
+    })
+
   if (!collateralAsset || !repaymentAsset) return null
   return (
     <SlideTransition>
@@ -300,7 +310,9 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteCloseLoading)}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>

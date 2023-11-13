@@ -2,7 +2,9 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
+import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -13,6 +15,7 @@ import {
   selectMarketDataById,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
+import type { LendingWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
 import { getMaybeThorchainLendingCloseQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import {
   BASE_BPS_POINTS,
@@ -31,6 +34,70 @@ type UseLendingQuoteCloseQueryProps = {
   repaymentPercent: number
   isLoanClosePending?: boolean
 }
+
+const selectLendingCloseQueryData = memoize(
+  ({
+    data,
+    collateralAssetMarketData,
+    repaymentAssetMarketData,
+    repaymentAmountCryptoPrecision,
+  }: {
+    data: LendingWithdrawQuoteResponseSuccess
+    collateralAssetMarketData: MarketData
+    repaymentAssetMarketData: MarketData
+    repaymentAmountCryptoPrecision: string | null
+  }) => {
+    const quote = data
+
+    const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
+      quote.expected_collateral_withdrawn,
+    ).toString()
+    const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
+      quote.expected_collateral_withdrawn,
+    )
+      .times(repaymentAssetMarketData.price)
+      .toString()
+    const quoteDebtRepaidAmountUsd = fromThorBaseUnit(quote.expected_debt_repaid).toString()
+    const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
+      quote.expected_amount_out,
+    ).toString()
+    const quoteWithdrawnAmountAfterFeesUserCurrency = bnOrZero(
+      quoteWithdrawnAmountAfterFeesCryptoPrecision,
+    )
+      .times(collateralAssetMarketData?.price ?? 0)
+      .toString()
+
+    const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
+      .div(BASE_BPS_POINTS)
+      .toString()
+    const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
+      .times(collateralAssetMarketData?.price ?? 0)
+      .toString()
+    const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
+      bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
+    )
+    const quoteSlippageWithdrawndAssetCryptoPrecision = withdrawnAmountBeforeFeesCryptoPrecision
+      .times(quoteSlippagePercentageDecimal)
+      .toString()
+
+    const quoteInboundAddress = quote.inbound_address
+    const quoteMemo = quote.memo
+
+    return {
+      quoteLoanCollateralDecreaseCryptoPrecision,
+      quoteLoanCollateralDecreaseFiatUserCurrency,
+      quoteDebtRepaidAmountUsd,
+      quoteWithdrawnAmountAfterFeesCryptoPrecision,
+      quoteWithdrawnAmountAfterFeesUserCurrency,
+      quoteSlippageWithdrawndAssetCryptoPrecision,
+      quoteTotalFeesFiatUserCurrency,
+      quoteInboundAddress,
+      quoteMemo,
+      repaymentAmountCryptoPrecision,
+    }
+  },
+)
+
 export const useLendingQuoteCloseQuery = ({
   repaymentAssetId,
   collateralAssetId,
@@ -148,59 +215,13 @@ export const useLendingQuoteCloseQuery = ({
       if (position.isErr()) throw new Error(position.unwrapErr())
       return position.unwrap()
     },
-    // TODO(gomes): now that we've extracted this to a hook, we might use some memoization pattern on the selectFn
-    // since it is run every render, regardless of data fetching happening.
-    // This may not be needed for such small logic, but we should keep this in mind for future hooks
-    select: data => {
-      const quote = data
-
-      const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
-        quote.expected_collateral_withdrawn,
-      ).toString()
-      const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
-        quote.expected_collateral_withdrawn,
-      )
-        .times(repaymentAssetMarketData.price)
-        .toString()
-      const quoteDebtRepaidAmountUsd = fromThorBaseUnit(quote.expected_debt_repaid).toString()
-      const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
-        quote.expected_amount_out,
-      ).toString()
-      const quoteWithdrawnAmountAfterFeesUserCurrency = bnOrZero(
-        quoteWithdrawnAmountAfterFeesCryptoPrecision,
-      )
-        .times(collateralAssetMarketData?.price ?? 0)
-        .toString()
-
-      const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
-        .div(BASE_BPS_POINTS)
-        .toString()
-      const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
-        .times(collateralAssetMarketData?.price ?? 0)
-        .toString()
-      const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
-        bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
-      )
-      const quoteSlippageWithdrawndAssetCryptoPrecision = withdrawnAmountBeforeFeesCryptoPrecision
-        .times(quoteSlippagePercentageDecimal)
-        .toString()
-
-      const quoteInboundAddress = quote.inbound_address
-      const quoteMemo = quote.memo
-
-      return {
-        quoteLoanCollateralDecreaseCryptoPrecision,
-        quoteLoanCollateralDecreaseFiatUserCurrency,
-        quoteDebtRepaidAmountUsd,
-        quoteWithdrawnAmountAfterFeesCryptoPrecision,
-        quoteWithdrawnAmountAfterFeesUserCurrency,
-        quoteSlippageWithdrawndAssetCryptoPrecision,
-        quoteTotalFeesFiatUserCurrency,
-        quoteInboundAddress,
-        quoteMemo,
+    select: data =>
+      selectLendingCloseQueryData({
+        data,
+        collateralAssetMarketData,
+        repaymentAssetMarketData,
         repaymentAmountCryptoPrecision,
-      }
-    },
+      }),
     enabled: Boolean(
       !isLoanClosePending &&
         bnOrZero(repaymentPercent).gt(0) &&

@@ -327,7 +327,7 @@ export const BorrowInput = ({
               quoteErrorTranslation || isLendingQuoteLoading || isEstimatedFeesDataLoading,
             )}
           >
-            {quoteErrorTranslation ? translate(quoteErrorTranslation) : 'Borrow'}
+            {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}
           </Button>
         </CardFooter>
       </Stack>

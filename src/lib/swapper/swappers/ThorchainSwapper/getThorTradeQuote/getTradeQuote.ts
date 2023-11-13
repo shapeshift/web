@@ -124,20 +124,20 @@ export const getThorTradeQuote = async (
     case TradeType.L1ToL1:
       return getL1quote(input, streamingInterval)
     case TradeType.LongTailToL1:
-      // Start with this case
-      const buyChainId = input.buyAsset.chainId
-      const nativeBuyAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
+      const sellChainId = input.sellAsset.chainId
+      const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
       const nativeBuyAsset = nativeBuyAssetId ? assetsById[nativeBuyAssetId] : undefined
       if (!nativeBuyAsset) {
         return Err(
           makeSwapErrorRight({
-            message: `[getThorTradeQuote] - No native buy asset found for ${buyChainId}.`,
+            message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
             code: SwapErrorType.UNSUPPORTED_CHAIN,
-            details: { buyAssetChainId: buyChainId },
+            details: { sellAssetChainId: sellChainId },
           }),
         )
       }
 
+      // FIXME: need to swap out the takerAddress to the THORChain pool(?) address
       const longTailToL1QuoteInput: GetTradeQuoteInput = { ...input, buyAsset: nativeBuyAsset }
       const zrxQuoteResponse = await zrxSwapper.getTradeQuote(longTailToL1QuoteInput, assetsById)
       console.log(
@@ -145,10 +145,16 @@ export const getThorTradeQuote = async (
         zrxQuoteResponse.isOk() ? zrxQuoteResponse.unwrap() : zrxQuoteResponse.unwrapErr(),
       )
       if (zrxQuoteResponse.isErr()) return Err(zrxQuoteResponse.unwrapErr())
-      // const zrxQuote = zrxQuoteResponse.unwrap()
-      // const buyAmountAfterFeesCryptoBaseUnit =
-      // zrxQuote[0].steps[0].buyAmountAfterFeesCryptoBaseUnit
-      return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
+      const zrxQuote = zrxQuoteResponse.unwrap()
+      const buyAmountAfterFeesCryptoBaseUnit = zrxQuote[0].steps[0].buyAmountAfterFeesCryptoBaseUnit
+      const l1Tol1QuoteInput: GetTradeQuoteInput = {
+        ...input,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      }
+      const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
+      // FIXME: work out how (and where) to build the aggreageted unsigned tx hitting the swapIn method of the appropriate contract
+      // FIXME: work out how to pass it back up, if it's done in here?
+      return thorchainQuote
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     case TradeType.L1ToLongTail:

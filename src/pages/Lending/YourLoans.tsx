@@ -36,10 +36,15 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
       accountId,
     })
 
-  const { data: repaymentLockData, isLoading: isRepaymentLockDataLoading } = useRepaymentLockData({
-    assetId: asset.assetId,
-    accountId,
-  })
+  const useRepaymentLockDataArgs = useMemo(
+    () => ({
+      assetId: asset.assetId,
+      accountId,
+    }),
+    [asset.assetId, accountId],
+  )
+  const { data: repaymentLockData, isLoading: isRepaymentLockDataLoading } =
+    useRepaymentLockData(useRepaymentLockDataArgs)
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId, accountId)

@@ -25,7 +25,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
@@ -35,6 +35,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -123,6 +124,7 @@ export const RepayInput = ({
     data: lendingQuoteCloseData,
     isLoading: isLendingQuoteCloseLoading,
     isError: isLendingQuoteCloseError,
+    error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -217,6 +219,56 @@ export const RepayInput = ({
       repaymentPercent,
       repaymentAsset,
     })
+
+  const balanceFilter = useMemo(
+    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    [repaymentAsset?.assetId, repaymentAccountId],
+  )
+
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  )
+  const amountAvailableCryptoPrecision = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    [balance, collateralAsset?.precision],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () =>
+      bnOrZero(repaymentAmountCryptoPrecision)
+        .minus(
+          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).times(
+            bn(10).pow(repaymentAsset?.precision ?? '0'),
+          ),
+        )
+        .lte(amountAvailableCryptoPrecision),
+    [
+      amountAvailableCryptoPrecision,
+      estimatedFeesData?.txFeeCryptoBaseUnit,
+      repaymentAmountCryptoPrecision,
+      repaymentAsset?.precision,
+    ],
+  )
+
+  const quoteErrorTranslation = useMemo(() => {
+    if (!hasEnoughBalance) return 'common.insufficientFunds'
+    console.log({ lendingQuoteCloseError })
+    if (isLendingQuoteCloseError) {
+      if (
+        /not enough fee/.test(lendingQuoteCloseError.message) ||
+        /not enough to pay transaction fee/.test(lendingQuoteCloseError.message)
+      ) {
+        return 'trade.errors.amountTooSmallUnknownMinimum'
+      }
+      if (
+        /loan hasn't reached maturity/.test(lendingQuoteCloseError.message) ||
+        /loan repayment is unavailable/.test(lendingQuoteCloseError.message)
+      ) {
+        return 'Repayment not yet available'
+      }
+    }
+    return null
+  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError?.message])
 
   if (!seenNotice) {
     return (
@@ -351,12 +403,19 @@ export const RepayInput = ({
         </Row>
         <Button
           size='lg'
-          colorScheme={isLendingQuoteCloseError ? 'red' : 'blue'}
+          colorScheme={
+            !isLendingQuoteCloseLoading && !isEstimatedFeesDataLoading && isLendingQuoteCloseError
+              ? 'red'
+              : 'blue'
+          }
           mx={-2}
           onClick={onSubmit}
-          isDisabled={isLendingQuoteCloseError}
+          isLoading={isLendingQuoteCloseLoading || isEstimatedFeesDataLoading}
+          isDisabled={
+            isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLendingQuoteCloseError
+          }
         >
-          {translate('lending.repay')}
+          {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.repay')}
         </Button>
       </Stack>
     </Stack>

@@ -58,8 +58,7 @@ export const getMaybeThorchainLendingOpenQuote = async ({
     `&destination=${receiveAssetAddress}`
 
   const { data } = await axios.get<LendingDepositQuoteResponse>(url)
-  if (!data || 'error' in data)
-    return Err('Error fetching Thorchain lending deposit quote: no data received')
+  if (!data || 'error' in data) return Err(data.error)
 
   return Ok(data)
 }
@@ -103,8 +102,9 @@ export const getMaybeThorchainLendingCloseQuote = async ({
 
   const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error
-  if (!data || 'error' in data)
-    return Err('Error fetching Thorchain lending deposit quote: no data received')
+  // i.e
+  // "failed to simulate handler: loan repayment is unavailable: loan hasn't reached maturity"
+  if (!data || 'error' in data) return Err(data.error)
 
   return Ok(data)
 }

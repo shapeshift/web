@@ -112,6 +112,8 @@
     "@sniptt/monads": "^0.5.10",
     "@tanstack/react-query": "^5.0.5",
     "@uniswap/sdk": "^3.0.3",
+    "@uniswap/sdk-core": "^4.0.9",
+    "@uniswap/v3-sdk": "^3.10.0",
     "@unstoppabledomains/resolution": "^8.3.3",
     "@visx/gradient": "^2.10.0",
     "@visx/grid": "^3.3.0",

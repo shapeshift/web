@@ -435,20 +435,20 @@ export const selectFirstHopBuyAccountId = createSelector(
   selectIsActiveQuoteMultiHop,
   selectLastHopBuyAccountId,
   selectFirstHop,
-  selectFirstHopSellAsset,
+  selectFirstHopBuyAsset,
   selectAccountIdByAccountNumberAndChainId,
   (
     isMultiHopTrade,
     lastHopBuyAccountId,
     firstHop,
-    sellAsset,
+    buyAsset,
     accountIdByAccountNumberAndChainId,
   ) => {
     // single hop trade - same as last hop
     if (!isMultiHopTrade) return lastHopBuyAccountId
 
-    return sellAsset !== undefined && firstHop !== undefined
-      ? accountIdByAccountNumberAndChainId[firstHop.accountNumber]?.[sellAsset.chainId]
+    return buyAsset !== undefined && firstHop !== undefined
+      ? accountIdByAccountNumberAndChainId[firstHop.accountNumber]?.[buyAsset.chainId]
       : undefined
   },
 )

@@ -1,20 +1,26 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import { Token } from '@uniswap/sdk-core'
+import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
+import assert from 'assert'
 import { getConfig } from 'config'
+import type { Address } from 'viem'
+import { getContract } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
 import { SwapErrorType } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable } from 'lib/utils'
+import { viemClientByChainId } from 'lib/viem-client'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { zrxApi } from '../../ZrxSwapper/endpoints'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
+import { getTokenFromAsset, getWrappedToken } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
@@ -158,39 +164,41 @@ export const getThorTradeQuote = async (
       const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
       // const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
 
-      // Map tokens to Uniswap SDK Token objects
-      const tokenA: Token = new Token(
-        Number(fromAssetId(input.sellAsset.assetId).chainReference),
-        fromAssetId(input.sellAsset.assetId).assetReference,
-        input.sellAsset.precision,
-        input.sellAsset.symbol,
-        input.sellAsset.name,
-      )
-
-      // const tokenB: Token = new Token(
-      //   Number(fromAssetId(input.buyAsset.assetId).chainReference),
-      //   fromAssetId(input.buyAsset.assetId).assetReference,
-      //   input.buyAsset.precision,
-      //   input.buyAsset.symbol,
-      //   input.buyAsset.name,
-      // )
-
-      const WETH_TOKEN = new Token(
-        1, // FIXME
-        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        18,
-        'WETH',
-        'Wrapped Ether',
-      )
+      const tokenA = getTokenFromAsset(input.sellAsset)
+      const tokenB = getWrappedToken(nativeBuyAsset)
 
       const currentPoolAddress = computePoolAddress({
         factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
         tokenA,
-        tokenB: WETH_TOKEN,
+        tokenB,
         fee: FeeAmount.MEDIUM, // FIXME: map to actual pool used
       })
 
-      console.log('xxx currentPoolAddress', currentPoolAddress)
+      const publicClient = viemClientByChainId[sellChainId as EvmChainId]
+      assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+
+      const poolContract = getContract({
+        abi: IUniswapV3PoolABI.abi,
+        address: currentPoolAddress as Address,
+        publicClient,
+      })
+
+      const [token0, token1, fee, liquidity, slot0] = await Promise.all([
+        poolContract.read.token0(),
+        poolContract.read.token1(),
+        poolContract.read.fee(),
+        poolContract.read.liquidity(),
+        poolContract.read.slot0(),
+      ])
+
+      console.log('xxx currentPoolAddress', {
+        currentPoolAddress,
+        token0,
+        token1,
+        fee,
+        liquidity,
+        slot0,
+      })
 
       const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
       // FIXME: work out how (and where) to build the aggreageted unsigned tx hitting the swapIn method of the appropriate contract

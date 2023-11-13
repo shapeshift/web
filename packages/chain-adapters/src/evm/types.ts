@@ -9,6 +9,7 @@ export type Account = {
   tokens?: Token[]
 }
 
+// Token includes additional metadata for creating a placeholder asset if needed
 export type Token = common.AssetBalance & {
   symbol: string
   name: string

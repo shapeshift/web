@@ -146,7 +146,7 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option
       })
 
-      if (position.isErr()) throw position.unwrapErr()
+      if (position.isErr()) throw new Error(position.unwrapErr())
       return position.unwrap()
     },
     // TODO(gomes): now that we've extracted this to a hook, we might use some memoization pattern on the selectFn

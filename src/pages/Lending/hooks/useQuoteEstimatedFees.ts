@@ -136,7 +136,7 @@ export const useQuoteEstimatedFeesQuery = ({
         .div(bn(10).pow(asset!.precision)) // actually defined at runtime, see "enabled" below
         .times(assetMarketData.price)
         .toString()
-      return { estimatedFees, txFeeFiat }
+      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
     enabled: Boolean(asset && (lendingQuoteData || lendingQuoteCloseData)),
   })

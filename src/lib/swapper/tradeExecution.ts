@@ -32,12 +32,15 @@ export class TradeExecution {
       tradeQuote,
       stepIndex,
       slippageTolerancePercentageDecimal,
-    }: CommonTradeExecutionInput,
+      ...rest
+    }: CommonTradeExecutionInput | EvmTransactionExecutionInput,
     buildSignBroadcast: (
       swapper: Swapper & SwapperApi,
       args: CommonGetUnsignedTransactionArgs,
     ) => Promise<string>,
   ) {
+    const supportsEIP1559 = 'supportsEIP1559' in rest ? rest.supportsEIP1559 : undefined
+
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
 
@@ -52,6 +55,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        supportsEIP1559,
       })
 
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
@@ -94,6 +98,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
+    supportsEIP1559,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
     const buildSignBroadcast = async (
@@ -103,6 +108,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        supportsEIP1559,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedEvmTransaction) {
@@ -118,6 +124,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         from,
+        supportsEIP1559,
       })
 
       return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
@@ -129,6 +136,7 @@ export class TradeExecution {
         tradeQuote,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        supportsEIP1559,
       },
       buildSignBroadcast,
     )

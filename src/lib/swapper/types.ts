@@ -203,6 +203,7 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: number
   slippageTolerancePercentageDecimal: string
+  supportsEIP1559?: boolean
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
@@ -322,7 +323,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata
+  EvmAccountMetadata & { supportsEIP1559: boolean }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &

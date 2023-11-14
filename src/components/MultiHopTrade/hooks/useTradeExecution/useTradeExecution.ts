@@ -3,7 +3,13 @@ import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
-import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import {
+  type BTCSignTx,
+  type ETHSignMessage,
+  supportsETH,
+  type ThorchainSignTx,
+} from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -145,7 +151,11 @@ export const useTradeExecution = () => {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
 
+          const supportsEIP1559 =
+            // TODO(gomes): set ethSupportsEIP1559 to false in hdwallet-ledger
+            !isLedger(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
           const output = await execution.execEvmTransaction({
+            supportsEIP1559,
             swapperName,
             tradeQuote,
             stepIndex: activeStepOrDefault,

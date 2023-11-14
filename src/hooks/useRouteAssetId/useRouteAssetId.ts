@@ -29,7 +29,12 @@ const getRouteAssetId = (pathname: string) => {
     chainNamespace?: ChainNamespace
     chainReference?: ChainReference
   }>(pathname, {
-    path: ['/accounts/:accountId/:assetId', '/accounts/:chainNamespace\\::chainReference\\:(.+)'],
+    path: [
+      '/accounts/:accountId/:assetId',
+      '/accounts/:chainNamespace\\::chainReference\\:(.+)',
+      `/lending/poolAccount/:accountId/:assetId`,
+      '/lending/poolAccount/:chainNamespace\\::chainReference\\:(.+)',
+    ],
   })
 
   if (assetIdAssetsPathMatch?.params) {
@@ -62,7 +67,7 @@ export const useRouteAssetId = () => {
     const routeAssetId = getRouteAssetId(location.pathname)
     const foxPageRouteAssetId = getFoxPageRouteAssetId(location.pathname)
 
-    return routeAssetId ?? foxPageRouteAssetId
+    return decodeURIComponent(routeAssetId ?? foxPageRouteAssetId)
   }, [location.pathname])
 
   return assetId

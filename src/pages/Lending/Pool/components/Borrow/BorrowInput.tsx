@@ -183,6 +183,7 @@ export const BorrowInput = ({
     <SlideTransition>
       <Stack spacing={0}>
         <TradeAssetInput
+          accountId={collateralAccountId}
           assetId={collateralAssetId}
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}

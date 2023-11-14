@@ -9,7 +9,6 @@ import {
   supportsETH,
   type ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'

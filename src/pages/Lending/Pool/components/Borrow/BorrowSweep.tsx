@@ -203,7 +203,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
               <Stack justifyContent='space-between'>
                 <Button
                   onClick={handleSweep}
-                  disabled={isEstimatedFeesDataLoading || isSweepBroadcastPending}
+                  disabled={isEstimatedFeesDataLoading || isSweepPending}
                   size='lg'
                   colorScheme={'blue'}
                   width='full'

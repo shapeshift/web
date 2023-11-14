@@ -159,12 +159,12 @@ export const BorrowInput = ({
     () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
     [collateralAssetId, collateralAccountId],
   )
-  const balance = useAppSelector(state =>
+  const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
-    [balance, collateralAsset?.precision],
+    () => bnOrZero(balanceCryptoBaseUnit).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
   const hasEnoughBalanceForTx = useMemo(

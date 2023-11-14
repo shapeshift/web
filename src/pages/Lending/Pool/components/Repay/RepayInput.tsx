@@ -236,8 +236,8 @@ export const RepayInput = ({
   const hasEnoughBalance = useMemo(
     () =>
       bnOrZero(repaymentAmountCryptoPrecision)
-        .minus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).times(
+        .plus(
+          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
             bn(10).pow(repaymentAsset?.precision ?? '0'),
           ),
         )

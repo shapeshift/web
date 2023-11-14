@@ -24,7 +24,7 @@ const divider = <Divider />
 type SweepProps = {
   assetId: AssetId
   fromAddress: string | null
-  accountId: AccountId
+  accountId: AccountId | undefined
   onBack: () => void
   onSweepSeen: () => void
 }
@@ -53,9 +53,9 @@ export const Sweep = ({
       assetId,
       to: fromAddress ?? '',
       sendMax: true,
-      accountId,
+      accountId: accountId ?? '',
       contractAddress: undefined,
-      enabled: true,
+      enabled: Boolean(accountId),
     })
 
   const handleSweep = useCallback(async () => {
@@ -64,7 +64,7 @@ export const Sweep = ({
     setIsSweepPending(true)
 
     try {
-      if (!fromAddress)
+      if (!fromAddress || !accountId)
         throw new Error(`Cannot get from address for accountId: $accountIdcollateralAccountId}`)
       if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
       const sendInput = {
@@ -108,7 +108,8 @@ export const Sweep = ({
         maxAttempts: 10,
       })
     })()
-  }, [adapter, fromAddress, poll, txId])
+    handleSwepSeen()
+  }, [adapter, fromAddress, handleSwepSeen, poll, txId])
 
   if (!asset) return null
 

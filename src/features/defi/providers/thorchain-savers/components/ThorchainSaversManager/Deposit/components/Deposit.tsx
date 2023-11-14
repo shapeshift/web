@@ -45,6 +45,8 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -54,6 +56,7 @@ import {
   THORCHAIN_SAVERS_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -72,6 +75,7 @@ import { DepositContext } from '../DepositContext'
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
+  fromAddress: string | null
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -79,6 +83,7 @@ const percentOptions = [0.25, 0.5, 0.75, 1]
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
+  fromAddress,
   onNext,
 }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
@@ -346,6 +351,43 @@ export const Deposit: React.FC<DepositProps> = ({
       translate,
     ],
   )
+
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useGetEstimatedFeesQuery({
+    cryptoAmount: inputValues?.cryptoAmount ?? '0',
+    assetId,
+    to: fromAddress ?? '',
+    sendMax: false,
+    accountId: accountId ?? '',
+    contractAddress: undefined,
+    enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+  })
+
+  const isSweepNeededArgs = useMemo(
+    () => ({
+      assetId,
+      address: fromAddress,
+      amountCryptoBaseUnit: bnOrZero(inputValues?.cryptoAmount ?? '0')
+        .times(bn(10).pow(feeAsset?.precision ?? 0))
+        .toString(),
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+      // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
+      enabled: Boolean(
+        bnOrZero(inputValues?.cryptoAmount).gt(0) &&
+          isEstimatedFeesDataSuccess &&
+          hasEnoughBalanceForTx,
+      ),
+    }),
+    [],
+  )
+  const {
+    data: isSweepNeeded,
+    isLoading: isSweepNeededLoading,
+    isSuccess: isSweepNeededSuccess,
+  } = useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {

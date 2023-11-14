@@ -151,9 +151,7 @@ export const useTradeExecution = () => {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
 
-          const supportsEIP1559 =
-            // TODO(gomes): set ethSupportsEIP1559 to false in hdwallet-ledger
-            !isLedger(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+          const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
           const output = await execution.execEvmTransaction({
             supportsEIP1559,
             swapperName,

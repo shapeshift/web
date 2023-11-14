@@ -13,15 +13,15 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { selectTradeExecutionStatus } from 'state/slices/selectors'
 import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectActiveSwapperName,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
+  selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { FirstHop } from './components/FirstHop'

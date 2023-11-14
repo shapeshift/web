@@ -7,7 +7,6 @@ import { localAssetData } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
-import { MultiHopExecutionStatus } from './types'
 
 export type SwappersState = {
   buyAsset: Asset
@@ -15,7 +14,6 @@ export type SwappersState = {
   sellAssetAccountId: AccountId | undefined
   buyAssetAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
-  tradeExecutionStatus: MultiHopExecutionStatus
   willDonate: boolean
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
@@ -29,7 +27,6 @@ const initialState: SwappersState = {
   sellAssetAccountId: undefined,
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
-  tradeExecutionStatus: MultiHopExecutionStatus.Previewing,
   willDonate: true,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
@@ -87,21 +84,6 @@ export const swappers = createSlice({
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {
       // dedupe 0, 0., 0.0, 0.00 etc
       state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
-    },
-    incrementTradeExecutionState: state => {
-      if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
-
-      // TODO: skip second hop states for single hop trades
-      // this requires moving tradeExecutionStatus into the trade quote slice
-      // const isMultiHopTrade = selectIsActiveQuoteMultiHop(state)
-      // if (
-      //   isMultiHopTrade &&
-      //   state.tradeExecutionStatus > MultiHopExecutionStatus.Hop1AwaitingTradeExecution
-      // ) {
-      //   state.tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
-      // }
-
-      state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
     },
     switchAssets: state => {
       const buyAsset = state.sellAsset

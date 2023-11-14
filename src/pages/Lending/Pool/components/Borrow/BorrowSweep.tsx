@@ -33,7 +33,6 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectPortfolioAccountMetadataByAccountId,
-  selectTxById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -146,13 +145,11 @@ export const BorrowSweep = ({
     }
   }, [collateralAccountId, collateralAssetId, estimatedFeesData, getBorrowFromAddress, wallet])
 
-  const tx = useAppSelector(state => selectTxById(state, txId ?? ''))
-
   useEffect(() => {
     // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
     if (!txId) return
     history.push(BorrowRoutePaths.Confirm)
-  }, [tx, history, txId])
+  }, [history, txId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),

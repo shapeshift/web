@@ -1,4 +1,4 @@
-import { CheckIcon, CloseIcon, StarIcon } from '@chakra-ui/icons'
+import { CloseIcon, StarIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -27,19 +27,16 @@ import { assertUnreachable } from 'lib/utils'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { TradeType } from '../types'
+import { JuicyGreenCheck } from './JuicyGreenCheck'
 
 const getStatusIcon = (txStatus: TxStatus) => {
   // TODO: proper light/dark mode colors here
   switch (txStatus) {
     case TxStatus.Confirmed:
-      return (
-        <Circle bg='green.500' size='100%'>
-          <CheckIcon />
-        </Circle>
-      )
+      return <JuicyGreenCheck />
     case TxStatus.Failed:
       return (
-        <Circle bg='red.500' size='100%'>
+        <Circle bg='red.500' size={8}>
           <CloseIcon p={1} />
         </Circle>
       )
@@ -48,7 +45,7 @@ const getStatusIcon = (txStatus: TxStatus) => {
     case TxStatus.Unknown:
     default:
       return (
-        <Circle bg='gray.750' size='100%'>
+        <Circle bg='gray.750' size={8}>
           <Spinner />
         </Circle>
       )

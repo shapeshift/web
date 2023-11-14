@@ -1,6 +1,6 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -20,6 +20,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { useMockAllowanceApproval, useMockTradeExecution } from '../hooks/mockHooks'
 import { TradeType } from '../types'
 import { Hop } from './Hop'
 import {
@@ -28,59 +29,6 @@ import {
   getDonationSummaryStep,
   getHopSummaryStep,
 } from './steps'
-
-const useMockAllowanceApproval = (
-  _tradeQuoteStep: TradeQuoteStep,
-  _isFirstHop: boolean,
-  _isExactAllowance: boolean,
-) => {
-  const [approvalTxId, setApprovalTxId] = useState<string>()
-  const [approvalTxStatus, setApprovalTxStatus] = useState<TxStatus>(TxStatus.Unknown)
-  const executeAllowanceApproval = useCallback(() => {
-    setApprovalTxStatus(TxStatus.Pending)
-    const promise = new Promise((resolve, _reject) => {
-      setTimeout(() => setApprovalTxId('0x12345678901234567890'), 2000)
-      setTimeout(() => {
-        setApprovalTxStatus(TxStatus.Confirmed)
-        resolve(undefined)
-      }, 5000)
-    })
-
-    return promise
-  }, [])
-
-  return {
-    isApprovalNeeded: true,
-    executeAllowanceApproval,
-    approvalTxId,
-    approvalTxStatus,
-    approvalNetworkFeeCryptoBaseUnit: '12345678901234',
-  }
-}
-
-const useMockTradeExecution = () => {
-  const [tradeStatus, setTradeStatus] = useState(TxStatus.Unknown)
-  const [sellTxHash, setSellTxHash] = useState<string>()
-  const executeTrade = useCallback(() => {
-    const promise = new Promise((resolve, _reject) => {
-      setTradeStatus(TxStatus.Pending)
-      setTimeout(() => setSellTxHash('0x12345678901234567890'), 2000)
-      setTimeout(() => {
-        setTradeStatus(TxStatus.Confirmed)
-        resolve(undefined)
-      }, 5000)
-    })
-
-    return promise
-  }, [])
-
-  return {
-    buyTxHash: undefined,
-    sellTxHash,
-    tradeStatus,
-    executeTrade,
-  }
-}
 
 export const FirstHop = ({
   swapperName,
@@ -113,7 +61,8 @@ export const FirstHop = ({
 
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
-    isApprovalNeeded,
+    wasApprovalNeeded,
+    // isApprovalNeeded,
     executeAllowanceApproval,
     approvalTxId,
     approvalTxStatus: _approvalTxStatus,
@@ -126,9 +75,6 @@ export const FirstHop = ({
 
     // execute the trade
     await executeTrade()
-
-    // next state
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
   }, [dispatch, executeTrade])
 
   const handleSignAllowanceApproval = useCallback(async () => {
@@ -143,7 +89,6 @@ export const FirstHop = ({
   }, [dispatch, executeAllowanceApproval])
 
   useEffect(() => {
-    // mock execution of tx
     if (tradeStatus === TxStatus.Confirmed) {
       dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
     }
@@ -156,7 +101,7 @@ export const FirstHop = ({
   // increment the trade state if approval is not needed
   useEffect(() => {
     if (
-      !isApprovalNeeded &&
+      !wasApprovalNeeded &&
       [
         MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
         MultiHopExecutionStatus.Hop1AwaitingApprovalExecution,
@@ -164,7 +109,7 @@ export const FirstHop = ({
     ) {
       dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
     }
-  }, [dispatch, isApprovalNeeded, tradeExecutionStatus])
+  }, [dispatch, wasApprovalNeeded, tradeExecutionStatus])
 
   const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
@@ -176,7 +121,7 @@ export const FirstHop = ({
         return 1
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
-        return isApprovalNeeded ? 2 : 1
+        return wasApprovalNeeded ? 2 : 1
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
@@ -186,7 +131,7 @@ export const FirstHop = ({
       default:
         assertUnreachable(tradeExecutionStatus)
     }
-  }, [tradeExecutionStatus, isApprovalNeeded])
+  }, [tradeExecutionStatus, wasApprovalNeeded])
 
   const { txLink, txHash } = useMemo(() => {
     if (buyTxHash)
@@ -261,7 +206,7 @@ export const FirstHop = ({
       }),
     ]
 
-    if (isApprovalNeeded) {
+    if (wasApprovalNeeded) {
       const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
       const approvalNetworkFeeCryptoFormatted =
         feeAsset && approvalNetworkFeeCryptoBaseUnit
@@ -327,7 +272,6 @@ export const FirstHop = ({
     fiatPriceByAssetId,
     handleSignAllowanceApproval,
     handleSignTx,
-    isApprovalNeeded,
     isExactAllowance,
     isMultiHopTrade,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -341,6 +285,7 @@ export const FirstHop = ({
     txHash,
     txLink,
     txStatus,
+    wasApprovalNeeded,
   ])
 
   const slippageDecimalPercentage = useMemo(

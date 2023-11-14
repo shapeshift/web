@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  CardFooter,
   CardHeader,
   Divider,
   Flex,
@@ -13,8 +12,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { PairIcons } from 'features/defi/components/Approve/PairIcons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -26,26 +23,16 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
-import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import {
-  getFromAddress,
-  waitForThorchainUpdate,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
-  selectSelectedCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,68 +62,15 @@ export const BorrowSweep = ({
 
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [txId, setTxId] = useState<string | null>(null)
-  const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
-  const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
   const translate = useTranslate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const debtAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
-  )
-  const { refetch: refetchLendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
-
-  useEffect(() => {
-    // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanOpenPending(true)
-    ;(async () => {
-      // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash, queryClient).promise
-      setIsLoanOpenPending(false)
-      await refetchLendingPositionData()
-    })()
-  }, [refetchLendingPositionData, txHash])
 
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
   }, [history])
   const divider = useMemo(() => <Divider />, [])
-
-  const useLendingQuoteQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmountCryptoPrecision: depositAmount ?? '0',
-      isLoanOpenPending,
-    }),
-    [
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmount,
-      isLoanOpenPending,
-    ],
-  )
-  const {
-    data,
-    isLoading: isLendingQuoteLoading,
-    isError: isLendingQuoteError,
-  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
-
-  const lendingQuoteData = isLendingQuoteError ? null : data
-
-  const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
-
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const collateralAccountFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -147,7 +81,7 @@ export const BorrowSweep = ({
   )
 
   const getBorrowFromAddress = useCallback(() => {
-    if (!(wallet && chainAdapter && collateralAccountMetadata)) return null
+    if (!(wallet && collateralAccountMetadata)) return null
     return getFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
@@ -155,7 +89,7 @@ export const BorrowSweep = ({
       accountMetadata: collateralAccountMetadata,
       wallet,
     })
-  }, [wallet, chainAdapter, collateralAccountId, collateralAssetId, collateralAccountMetadata])
+  }, [wallet, collateralAccountId, collateralAssetId, collateralAccountMetadata])
 
   useEffect(() => {
     if (fromAddress) return
@@ -204,7 +138,12 @@ export const BorrowSweep = ({
 
   const tx = useAppSelector(state => selectTxById(state, txId ?? ''))
 
-  console.log({ tx })
+  useEffect(() => {
+    console.log({ tx })
+    // Once we have a Tx, the Tx is in the mempool which is enough to broadcast the actual Tx
+    if (!tx) return
+    history.push(BorrowRoutePaths.Confirm)
+  }, [tx, history])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
@@ -250,9 +189,7 @@ export const BorrowSweep = ({
               </Stack>
               <Stack>
                 <CText color='text.subtle'>
-                  {translate(
-                    "ShapeShift honors Bitcoin's security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
-                  )}
+                  {translate('modals.send.consolidate.body', { asset: asset.name })}
                 </CText>
               </Stack>
               <Stack justifyContent='space-between'>
@@ -262,7 +199,7 @@ export const BorrowSweep = ({
                   size='lg'
                   colorScheme={'blue'}
                   width='full'
-                  data-test='defi-modal-approve-button'
+                  data-test='utxo-sweep-button'
                   isLoading={false}
                   loadingText={'Loading'}
                 >

@@ -161,8 +161,6 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision: depositAmount ?? '0',
     })
 
-  console.log({ estimatedFeesData })
-
   const handleDeposit = useCallback(async () => {
     if (
       !(
@@ -175,9 +173,6 @@ export const BorrowConfirm = ({
       )
     )
       return
-    const from = await getBorrowFromAddress()
-
-    if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const { estimatedFees } = estimatedFeesData
@@ -187,7 +182,10 @@ export const BorrowConfirm = ({
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: lendingQuoteData.quoteInboundAddress,
-        from,
+        // We assume the funds are already in the right address at this point
+        // Since we're relying on a mempool Tx and not waiting for completion, we can't use a `from` address
+        // as the balance would not be confirmed yet
+        from: '',
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)

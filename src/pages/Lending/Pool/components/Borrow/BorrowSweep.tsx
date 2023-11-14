@@ -203,7 +203,7 @@ export const BorrowSweep = ({
                   isLoading={false}
                   loadingText={'Loading'}
                 >
-                  {translate('Consolidate')}
+                  {translate('modals.send.consolidate.consolidateFunds')}
                 </Button>
                 <Button
                   onClick={handleBack}

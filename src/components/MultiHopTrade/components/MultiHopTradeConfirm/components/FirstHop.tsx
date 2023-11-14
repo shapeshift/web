@@ -73,7 +73,7 @@ export const FirstHop = ({
     // next state
     dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
 
-    // execute the trade
+    // execute the transaction for the current hop
     await executeTrade()
   }, [dispatch, executeTrade])
 
@@ -133,12 +133,21 @@ export const FirstHop = ({
     }
   }, [tradeExecutionStatus, wasApprovalNeeded])
 
+  const {
+    buyAsset: stepBuyAsset,
+    sellAsset: stepSellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    estimatedExecutionTimeMs,
+    source,
+  } = tradeQuoteStep
+
   const { txLink, txHash } = useMemo(() => {
     if (buyTxHash)
       return {
         txLink: getTxLink({
-          name: tradeQuoteStep?.source,
-          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          name: source,
+          defaultExplorerBaseUrl: stepSellAsset.explorerTxLink ?? '',
           tradeId: buyTxHash,
         }),
         txHash: buyTxHash,
@@ -146,23 +155,15 @@ export const FirstHop = ({
     if (sellTxHash)
       return {
         txLink: getTxLink({
-          name: tradeQuoteStep?.source,
-          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          name: source,
+          defaultExplorerBaseUrl: stepSellAsset.explorerTxLink ?? '',
           tradeId: sellTxHash,
         }),
         txHash: buyTxHash,
       }
 
     return {}
-  }, [buyTxHash, sellTxHash, tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.source])
-
-  const {
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountBeforeFeesCryptoBaseUnit,
-    estimatedExecutionTimeMs,
-  } = tradeQuoteStep
+  }, [buyTxHash, sellTxHash, stepSellAsset.explorerTxLink, source])
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const approvalTxStatus =
@@ -179,21 +180,21 @@ export const FirstHop = ({
   const steps = useMemo(() => {
     const sellAmountCryptoPrecision = fromBaseUnit(
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset.precision,
+      stepSellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAsset.precision,
+      stepBuyAsset.precision,
     )
-    const sellAmountCryptoFormatted = toCrypto(sellAmountCryptoPrecision, sellAsset.symbol)
-    const buyAmountCryptoFormatted = toCrypto(buyAmountCryptoPrecision, buyAsset.symbol)
+    const sellAmountCryptoFormatted = toCrypto(sellAmountCryptoPrecision, stepSellAsset.symbol)
+    const buyAmountCryptoFormatted = toCrypto(buyAmountCryptoPrecision, stepBuyAsset.symbol)
 
-    const buyAssetFiatRate = fiatPriceByAssetId[buyAsset.assetId]?.price ?? '0'
+    const buyAssetFiatRate = fiatPriceByAssetId[stepBuyAsset.assetId]?.price ?? '0'
     const buyAmountFiatFormatted = toFiat(
       bn(buyAmountCryptoPrecision).times(buyAssetFiatRate).toString(),
     )
 
-    const sellAssetFiatRate = fiatPriceByAssetId[sellAsset.assetId]?.price ?? '0'
+    const sellAssetFiatRate = fiatPriceByAssetId[stepSellAsset.assetId]?.price ?? '0'
     const sellAmountFiatFormatted = toFiat(
       bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toString(),
     )
@@ -202,12 +203,12 @@ export const FirstHop = ({
       getAssetSummaryStep({
         amountCryptoFormatted: sellAmountCryptoFormatted,
         amountFiatFormatted: sellAmountFiatFormatted,
-        asset: sellAsset,
+        asset: stepSellAsset,
       }),
     ]
 
     if (wasApprovalNeeded) {
-      const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
+      const feeAsset = selectFeeAssetById(store.getState(), stepSellAsset.assetId)
       const approvalNetworkFeeCryptoFormatted =
         feeAsset && approvalNetworkFeeCryptoBaseUnit
           ? toCrypto(
@@ -231,10 +232,10 @@ export const FirstHop = ({
     hopSteps.push(
       getHopSummaryStep({
         swapperName,
-        buyAssetChainId: buyAsset.chainId,
-        sellAssetChainId: sellAsset.chainId,
-        buyAmountCryptoFormatted,
-        sellAmountCryptoFormatted,
+        stepBuyAssetChainId: stepBuyAsset.chainId,
+        stepSellAssetChainId: stepSellAsset.chainId,
+        stepBuyAmountCryptoFormatted: buyAmountCryptoFormatted,
+        stepSellAmountCryptoFormatted: sellAmountCryptoFormatted,
 
         txHash,
         txLink,
@@ -256,7 +257,7 @@ export const FirstHop = ({
         getAssetSummaryStep({
           amountCryptoFormatted: buyAmountCryptoFormatted,
           amountFiatFormatted: buyAmountFiatFormatted,
-          asset: buyAsset,
+          asset: stepBuyAsset,
         }),
       )
     }
@@ -267,7 +268,7 @@ export const FirstHop = ({
     approvalTxId,
     approvalTxStatus,
     buyAmountBeforeFeesCryptoBaseUnit,
-    buyAsset,
+    stepBuyAsset,
     donationAmountUsd,
     fiatPriceByAssetId,
     handleSignAllowanceApproval,
@@ -275,7 +276,7 @@ export const FirstHop = ({
     isExactAllowance,
     isMultiHopTrade,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset,
+    stepSellAsset,
     shouldRenderDonation,
     swapperName,
     toCrypto,
@@ -296,7 +297,7 @@ export const FirstHop = ({
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 0)
   const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 0)
 
-  const isBridge = buyAsset.chainId !== sellAsset.chainId
+  const isBridge = stepBuyAsset.chainId !== stepSellAsset.chainId
   const tradeType = isBridge ? TradeType.Bridge : TradeType.Swap
 
   return (

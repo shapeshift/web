@@ -2,6 +2,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 
+// TODO: remove me
 export const useMockAllowanceApproval = (
   _tradeQuoteStep: TradeQuoteStep,
   _isFirstHop: boolean,
@@ -32,6 +33,7 @@ export const useMockAllowanceApproval = (
   }
 }
 
+// TODO: remove me
 export const useMockTradeExecution = () => {
   const [tradeStatus, setTradeStatus] = useState(TxStatus.Unknown)
   const [sellTxHash, setSellTxHash] = useState<string>()

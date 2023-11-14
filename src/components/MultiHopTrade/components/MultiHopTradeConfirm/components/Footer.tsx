@@ -16,15 +16,15 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/types'
-import { selectTradeExecutionStatus } from 'state/slices/swappersSlice/selectors'
-import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectActiveSwapperName,
   selectLastHopBuyAsset,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const Footer = () => {
@@ -38,7 +38,7 @@ export const Footer = () => {
   const { isModeratePriceImpact } = usePriceImpact()
 
   const handleConfirm = useCallback(() => {
-    dispatch(swappersSlice.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
   }, [dispatch])
 
   const networkFeeToTradeRatioPercentage = useMemo(

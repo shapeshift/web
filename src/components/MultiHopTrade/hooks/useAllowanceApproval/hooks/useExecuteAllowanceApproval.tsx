@@ -1,5 +1,6 @@
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -18,12 +19,15 @@ export const useExecuteAllowanceApproval = (
   buildCustomTxInput?: evm.BuildCustomTxInput,
 ) => {
   const [txId, setTxId] = useState<string | undefined>()
+  const [txStatus, setTxStatus] = useState<TxStatus>(TxStatus.Unknown)
   const { poll } = usePoll()
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet
 
   const sellAssetAccountId = useAppSelector(selectSellAccountId)
   const executeAllowanceApproval = useCallback(async () => {
+    setTxStatus(TxStatus.Pending)
+
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(tradeQuoteStep.sellAsset.chainId)
 
@@ -56,7 +60,10 @@ export const useExecuteAllowanceApproval = (
         interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
         maxAttempts: Infinity,
       })
+
+      setTxStatus(TxStatus.Confirmed)
     } catch (e) {
+      setTxStatus(TxStatus.Failed)
       showErrorToast(e)
     }
   }, [buildCustomTxInput, poll, sellAssetAccountId, showErrorToast, tradeQuoteStep, wallet])
@@ -64,5 +71,6 @@ export const useExecuteAllowanceApproval = (
   return {
     executeAllowanceApproval,
     txId,
+    txStatus,
   }
 }

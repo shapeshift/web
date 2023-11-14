@@ -4,14 +4,12 @@ import {
   Button,
   Card,
   Circle,
-  HStack,
   Icon,
+  Link,
   Spinner,
-  StepIcon,
-  StepNumber,
-  StepStatus,
   Switch,
   Tooltip,
+  VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -29,9 +27,6 @@ import { assertUnreachable } from 'lib/utils'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { TradeType } from '../types'
-
-const stepIcon = <StepIcon />
-const spinner = <Spinner />
 
 const getStatusIcon = (txStatus: TxStatus) => {
   // TODO: proper light/dark mode colors here
@@ -99,30 +94,32 @@ const getChainShortName = (chainId: KnownChainIds) => {
 export const getApprovalStep = ({
   approvalNetworkFeeCryptoFormatted,
   txHash,
+  txStatus,
   isExactAllowance,
   toggleIsExactAllowance,
   translate,
   onSign,
-  onReject,
 }: {
   approvalNetworkFeeCryptoFormatted: string
   txHash?: string
+  txStatus?: TxStatus
   isExactAllowance: boolean
   toggleIsExactAllowance: () => void
   translate: ReturnType<typeof useTranslate>
   onSign: () => void
-  onReject: () => void
 }): StepperStep => {
+  const stepIndicator = txStatus !== undefined ? getStatusIcon(txStatus) : <></>
   return {
     title: 'Token allowance approval',
     description: txHash ?? `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`,
-    stepIndicator: <StepStatus complete={stepIcon} active={txHash ? spinner : undefined} />,
+    stepIndicator,
+    key: 'approval',
     content: (
       <Card p='2'>
         {txHash ? (
           <RawText>TX: {txHash}</RawText>
         ) : (
-          <HStack>
+          <VStack>
             <Row>
               <Row.Label display='flex' alignItems='center'>
                 <Text color='text.subtle' translation='trade.allowance' />
@@ -152,58 +149,10 @@ export const getApprovalStep = ({
               </Row.Value>
             </Row>
             <Button onClick={onSign}>Approve</Button>
-            <Button onClick={onReject}>Reject</Button>
-          </HStack>
+          </VStack>
         )}
       </Card>
     ),
-  }
-}
-
-export const getTradeStep = ({
-  txHash,
-  txStatus,
-  onSign,
-  onReject,
-}: {
-  txHash?: string
-  txStatus: TxStatus
-  onSign: () => void
-  onReject: () => void
-}): StepperStep => {
-  const statusIcon = getStatusIcon(txStatus)
-  return {
-    title: 'Sign transaction',
-    stepIndicator: statusIcon,
-    content: (
-      <Card p='2'>
-        {txHash ? (
-          <RawText>TX: {txHash}</RawText>
-        ) : (
-          <HStack>
-            <Button onClick={onSign}>Sign message</Button>
-            <Button onClick={onReject}>Reject</Button>
-          </HStack>
-        )}
-      </Card>
-    ),
-  }
-}
-
-export const getTitleStep = ({
-  hopIndex,
-  isHopComplete,
-  swapperName,
-  tradeType,
-}: {
-  hopIndex: number
-  isHopComplete: boolean
-  swapperName: SwapperName
-  tradeType: TradeType
-}): StepperStep => {
-  return {
-    title: `${tradeType} via ${swapperName}`,
-    stepIndicator: isHopComplete ? <StepIcon /> : <StepNumber>{hopIndex + 1}</StepNumber>,
   }
 }
 
@@ -222,6 +171,7 @@ export const getAssetSummaryStep = ({
     title: amountCryptoFormatted,
     description: `${amountFiatFormatted} on ${chainName}`,
     stepIndicator: <AssetIcon src={asset.icon} boxSize='32px' />,
+    key: 'asset-summary',
   }
 }
 
@@ -231,12 +181,20 @@ export const getHopSummaryStep = ({
   sellAssetChainId,
   buyAmountCryptoFormatted,
   sellAmountCryptoFormatted,
+  txHash,
+  txLink,
+  txStatus,
+  onSign,
 }: {
   swapperName: SwapperName
   buyAssetChainId: ChainId
   sellAssetChainId: ChainId
   buyAmountCryptoFormatted: string
   sellAmountCryptoFormatted: string
+  txHash?: string
+  txLink?: string
+  txStatus?: TxStatus
+  onSign: () => void
 }): StepperStep => {
   const chainAdapterManager = getChainAdapterManager()
   const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
@@ -244,13 +202,41 @@ export const getHopSummaryStep = ({
   const tradeType = buyAssetChainId === sellAssetChainId ? TradeType.Swap : TradeType.Bridge
   const sellChainSymbol = getChainShortName(sellAssetChainId as KnownChainIds)
   const buyChainSymbol = getChainShortName(buyAssetChainId as KnownChainIds)
+  const stepIndicator =
+    txStatus !== undefined ? getStatusIcon(txStatus) : <SwapperIcon swapperName={swapperName} />
+
+  const content = txStatus === undefined ? <Button onClick={onSign}>Sign message</Button> : <></>
+
+  const description = (
+    <VStack>
+      <RawText>
+        {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
+      </RawText>
+      {txHash !== undefined && <RawText>TX: {txHash}</RawText>}
+      {txLink && (
+        <Row px={4}>
+          <Row.Label>
+            <RawText>Tx ID</RawText>
+          </Row.Label>
+          <Box textAlign='right'>
+            <Link isExternal color='blue.500' href={txLink}>
+              <Text translation='trade.viewTransaction' />
+            </Link>
+          </Box>
+        </Row>
+      )}
+    </VStack>
+  )
+
   return {
     title:
       tradeType === TradeType.Swap
         ? `${tradeType} on ${sellChainName} via ${swapperName}`
         : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`,
-    description: `${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`,
-    stepIndicator: <SwapperIcon swapperName={swapperName} />,
+    description,
+    stepIndicator,
+    key: 'trade',
+    content,
   }
 }
 
@@ -263,5 +249,6 @@ export const getDonationSummaryStep = ({
     title: donationAmountFiatFormatted,
     description: 'ShapeShift Donation',
     stepIndicator: <StarIcon />,
+    key: 'donation',
   }
 }

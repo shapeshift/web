@@ -6,9 +6,9 @@ export const lifiQuote: TradeQuote = {
   rate: '51.34579860391078801712',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  estimatedExecutionTimeMs: undefined,
   steps: [
     {
+      estimatedExecutionTimeMs: undefined,
       allowanceContract: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE',
       accountNumber: 0,
       buyAmountBeforeFeesCryptoBaseUnit: '1.0269262412379365425e+21',
@@ -53,9 +53,9 @@ export const thorQuote: TradeQuote = {
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
-  estimatedExecutionTimeMs: undefined,
   steps: [
     {
+      estimatedExecutionTimeMs: undefined,
       rate: '39.23942597524024759752',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       buyAmountBeforeFeesCryptoBaseUnit: '1043948034150000000000',
@@ -133,9 +133,9 @@ export const oneInchQuote: TradeQuote = {
   rate: '51.63754486526613135844',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  estimatedExecutionTimeMs: undefined,
   steps: [
     {
+      estimatedExecutionTimeMs: undefined,
       allowanceContract: '0x1111111254eeb25477b68fb85ed929f73a960582',
       rate: '51.63754486526613135844',
       buyAsset: {
@@ -180,9 +180,9 @@ export const cowQuote: TradeQuote = {
   rate: '51.86127422365727736757',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  estimatedExecutionTimeMs: undefined,
   steps: [
     {
+      estimatedExecutionTimeMs: undefined,
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
       rate: '51.86127422365727736757',
       feeData: {
@@ -244,9 +244,9 @@ export const zrxQuote: TradeQuote = {
   rate: '51.603817692372651273',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  estimatedExecutionTimeMs: undefined,
   steps: [
     {
+      estimatedExecutionTimeMs: undefined,
       allowanceContract: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',

@@ -192,7 +192,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
                   width='full'
                   data-test='utxo-sweep-button'
                   isLoading={isEstimatedFeesDataLoading || isSweepBroadcastPending}
-                  loadingText={'Loading'}
+                  loadingText={translate('common.loadingText')}
                 >
                   {translate('modals.send.consolidate.consolidateFunds')}
                 </Button>

@@ -312,7 +312,6 @@ export const FirstHop = ({
       isOpen={isOpen}
       onToggleIsOpen={onToggleIsOpen}
       estimatedExecutionTimeMs={estimatedExecutionTimeMs}
-      executionTimeRemainingMs={undefined} // TODO: implement this
     />
   )
 }

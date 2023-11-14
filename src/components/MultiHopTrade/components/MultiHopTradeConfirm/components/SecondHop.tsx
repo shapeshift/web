@@ -296,10 +296,10 @@ export const SecondHop = ({
       protocolFeeFiatPrecision={protocolFeeFiatPrecision ?? '0'}
       hopIndex={1}
       title={`${tradeType} via ${swapperName}`}
+      txStatus={txStatus}
       isOpen={isOpen}
       onToggleIsOpen={onToggleIsOpen}
       estimatedExecutionTimeMs={estimatedExecutionTimeMs}
-      executionTimeRemainingMs={undefined} // TODO: implement this
     />
   )
 }

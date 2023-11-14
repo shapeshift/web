@@ -403,16 +403,21 @@ export const RepayInput = ({
         <Button
           size='lg'
           colorScheme={
-            !isLendingQuoteCloseLoading && !isEstimatedFeesDataLoading && isLendingQuoteCloseError
+            !isLendingQuoteCloseLoading &&
+            !isEstimatedFeesDataLoading &&
+            (isLendingQuoteCloseError || quoteErrorTranslation)
               ? 'red'
               : 'blue'
           }
           mx={-2}
           onClick={onSubmit}
           isLoading={isLendingQuoteCloseLoading || isEstimatedFeesDataLoading}
-          isDisabled={
-            isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLendingQuoteCloseError
-          }
+          isDisabled={Boolean(
+            isLendingQuoteCloseLoading ||
+              isEstimatedFeesDataLoading ||
+              isLendingQuoteCloseError ||
+              quoteErrorTranslation,
+          )}
         >
           {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.repay')}
         </Button>

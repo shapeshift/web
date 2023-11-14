@@ -1,36 +1,32 @@
 import {
+  Box,
   Button,
   CardFooter,
   CardHeader,
   Divider,
   Flex,
   Heading,
-  Skeleton,
   Stack,
+  Text as CText,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { utils } from 'ethers'
+import { PairIcons } from 'features/defi/components/Approve/PairIcons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import type { SendInput } from 'components/Modals/Send/Form'
-import { handleSend } from 'components/Modals/Send/utils'
-import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
+import { AssetIcon } from 'components/AssetIcon'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
@@ -39,7 +35,6 @@ import {
   getFromAddress,
   waitForThorchainUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -59,7 +54,7 @@ type BorrowConfirmProps = {
   borrowAsset: Asset | null
 }
 
-export const BorrowConfirm = ({
+export const BorrowSweep = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,
@@ -162,70 +157,20 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision: depositAmount ?? '0',
     })
 
-  const handleDeposit = useCallback(async () => {
-    if (
-      !(
-        collateralAssetId &&
-        depositAmount &&
-        wallet &&
-        chainAdapter &&
-        lendingQuoteData &&
-        estimatedFeesData?.estimatedFees
-      )
-    )
-      return
-    const from = await getFromAddress()
-
-    if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
-
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    const { estimatedFees } = estimatedFeesData
-    const maybeTxId = await (() => {
-      // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
-      const sendInput: SendInput = {
-        cryptoAmount: depositAmount ?? '0',
-        assetId: collateralAssetId,
-        to: lendingQuoteData.quoteInboundAddress,
-        from,
-        sendMax: false,
-        accountId: collateralAccountId,
-        memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
-          ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
-          : lendingQuoteData.quoteMemo,
-        amountFieldError: '',
-        estimatedFees,
-        feeType: FeeDataKey.Fast,
-        fiatAmount: '',
-        fiatSymbol: selectedCurrency,
-        vanityAddress: '',
-        input: lendingQuoteData.quoteInboundAddress,
-      }
-
-      if (!sendInput) throw new Error('Error building send input')
-
-      return handleSend({ sendInput, wallet })
-    })()
-
-    if (!maybeTxId) {
-      throw new Error('Error sending THORCHain savers Txs')
-    }
-
-    setTxHash(maybeTxId)
-
-    return maybeTxId
-  }, [
-    collateralAssetId,
-    depositAmount,
-    wallet,
-    chainAdapter,
-    lendingQuoteData,
-    estimatedFeesData,
-    getFromAddress,
-    collateralAccountId,
-    selectedCurrency,
-  ])
+  const handleSweep = useCallback(async () => {
+    console.log('todo')
+  }, [])
 
   if (!depositAmount) return null
+
+  // TODO(gomes): implement these, perhaps move me to a <Sweep /> component already?
+  const preFooter = null
+  const icons = undefined
+  const asset = collateralAsset
+  const feeAsset = collateralAsset
+  const providerIcon = undefined
+
+  if (!collateralAsset || !asset || !feeAsset) return null
 
   return (
     <SlideTransition>
@@ -233,95 +178,75 @@ export const BorrowConfirm = ({
         <CardHeader>
           <WithBackButton handleBack={handleBack}>
             <Heading as='h5' textAlign='center'>
-              <Text translation='Confirm' />
+              <Text translation='Consolidate Funds' />
             </Heading>
           </WithBackButton>
         </CardHeader>
         <Stack spacing={0} divider={divider}>
-          <AssetToAsset
-            buyIcon={debtAsset?.icon ?? ''}
-            sellIcon={collateralAsset?.icon ?? ''}
-            buyColor={debtAsset?.color ?? ''}
-            sellColor={collateralAsset?.color ?? ''}
-            status={TxStatus.Unknown}
-            px={6}
-            mb={4}
-          />
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
-            <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>
-            <Row>
-              <Row.Label>Send</Row.Label>
-              <Row.Value textAlign='right'>
-                <Skeleton isLoaded={!isLendingQuoteLoading}>
-                  <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                    <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
-                    <Amount.Fiat
-                      color='text.subtle'
-                      value={bnOrZero(depositAmount)
-                        .times(collateralAssetMarketData?.price ?? '0')
-                        .toString()}
-                      prefix='≈'
-                    />
-                  </Stack>
-                </Skeleton>
-              </Row.Value>
-            </Row>
-            <Skeleton isLoaded={!isLendingQuoteLoading}>
+            <Stack flex={1} spacing={6} p={4} textAlign='center'>
+              <Stack
+                spacing={4}
+                direction='row'
+                alignItems='center'
+                justifyContent='center'
+                color='text.subtle'
+                pt={6}
+              >
+                {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
+                {providerIcon && (
+                  <>
+                    <FaExchangeAlt />
+                    <AssetIcon src={providerIcon} size='md' />
+                  </>
+                )}
+              </Stack>
+              <Stack>
+                <CText color='text.subtle'>
+                  {translate(
+                    "ShapeShift honors Bitcoin's security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
+                  )}
+                </CText>
+              </Stack>
+              <Stack justifyContent='space-between'>
+                <Button
+                  onClick={() => {
+                    console.log('todo')
+                  }}
+                  disabled={false}
+                  size='lg'
+                  colorScheme={'blue'}
+                  width='full'
+                  data-test='defi-modal-approve-button'
+                  isLoading={false}
+                  loadingText={'Loading'}
+                >
+                  {translate('Consolidate')}
+                </Button>
+                <Button
+                  onClick={handleBack}
+                  size='lg'
+                  width='full'
+                  colorScheme='gray'
+                  isDisabled={false}
+                >
+                  {translate('modals.approve.reject')}
+                </Button>
+              </Stack>
+            </Stack>
+            <Stack p={4}>
+              {preFooter}
               <Row>
-                <Row.Label>{translate('common.receive')}</Row.Label>
-                <Row.Value textAlign='right'>
-                  <Stack spacing={1} flexDir='row' flexWrap='wrap'>
-                    <Amount.Crypto
-                      value={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
-                      symbol={debtAsset?.symbol ?? ''}
-                    />
-                    <Amount.Fiat
-                      color='text.subtle'
-                      value={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
-                      prefix='≈'
-                    />
-                  </Stack>
+                <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
+                <Row.Value>
+                  <Box textAlign='right'>
+                    <Amount.Fiat value={'42'} />
+                    <Amount.Crypto color='text.subtle' value={'0'} symbol={feeAsset.symbol} />
+                  </Box>
                 </Row.Value>
               </Row>
-            </Skeleton>
-            <Row fontSize='sm' fontWeight='medium'>
-              <HelperTooltip label='tbd'>
-                <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
-              </HelperTooltip>
-              <Row.Value>
-                <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-              </Row.Value>
-            </Row>
-            <Row fontSize='sm' fontWeight='medium'>
-              <Row.Label>{translate('common.gasFee')}</Row.Label>
-              <Row.Value>
-                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
-                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-                </Skeleton>
-              </Row.Value>
-            </Row>
+            </Stack>
           </Stack>
-          <LoanSummary
-            borderTopWidth={0}
-            mt={0}
-            collateralAssetId={collateralAssetId}
-            collateralAccountId={collateralAccountId}
-            borrowAssetId={borrowAssetId}
-            borrowAccountId={borrowAccountId}
-            depositAmountCryptoPrecision={depositAmount ?? '0'}
-          />
-          <CardFooter px={4} py={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              onClick={handleDeposit}
-              isLoading={isLoanOpenPending}
-              disabled={isLoanOpenPending}
-            >
-              {translate('lending.confirmAndBorrow')}
-            </Button>
-          </CardFooter>
         </Stack>
       </Flex>
     </SlideTransition>

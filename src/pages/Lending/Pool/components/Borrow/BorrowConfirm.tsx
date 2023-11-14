@@ -58,7 +58,7 @@ type BorrowConfirmProps = {
   borrowAsset: Asset | null
 }
 
-export const BorrowSweep = ({
+export const BorrowConfirm = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,

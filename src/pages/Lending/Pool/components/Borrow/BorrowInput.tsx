@@ -85,7 +85,7 @@ export const BorrowInput = ({
   const percentOptions = useMemo(() => [0], [])
 
   const onSubmit = useCallback(() => {
-    history.push(BorrowRoutePaths.Confirm)
+    history.push(BorrowRoutePaths.Sweep)
   }, [history])
 
   const buyAssetSearch = useModal('buyAssetSearch')

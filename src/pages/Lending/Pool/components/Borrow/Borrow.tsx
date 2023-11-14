@@ -10,6 +10,7 @@ import { useAppSelector } from 'state/store'
 
 import { BorrowConfirm } from './BorrowConfirm'
 import { BorrowInput } from './BorrowInput'
+import { BorrowSweep } from './BorrowSweep'
 import { BorrowRoutePaths } from './types'
 
 const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
@@ -116,7 +117,7 @@ const BorrowRoutes = memo(
             />
           </Route>
           <Route key={BorrowRoutePaths.Sweep} path={BorrowRoutePaths.Sweep}>
-            <BorrowConfirm
+            <BorrowSweep
               collateralAssetId={collateralAssetId}
               depositAmount={cryptoDepositAmount}
               borrowAccountId={borrowAccountId}

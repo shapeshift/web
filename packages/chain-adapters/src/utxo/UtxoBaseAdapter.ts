@@ -13,6 +13,7 @@ import {
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import type { GetUtxosRequest, Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import WAValidator from 'multicoin-address-validator'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -620,5 +621,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     return publicKeys[0]
+  }
+
+  async getUtxos(input: GetUtxosRequest): Promise<Utxo[]> {
+    const utxos = await this.providers.http.getUtxos(input)
+    return utxos
   }
 }

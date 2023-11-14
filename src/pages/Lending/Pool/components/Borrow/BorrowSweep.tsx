@@ -11,7 +11,9 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -23,6 +25,8 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -47,7 +51,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     state: { wallet },
   } = useWallet()
 
-  const [isSweepBroadcastPending, setIsSweepBroadcastPending] = useState(false)
+  const [isSweepPending, setIsSweepPending] = useState(false)
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [txId, setTxId] = useState<string | null>(null)
 
@@ -102,7 +106,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   const handleSweep = useCallback(async () => {
     if (!wallet) return
 
-    setIsSweepBroadcastPending(true)
+    setIsSweepPending(true)
 
     try {
       const fromAddress = await getBorrowFromAddress()
@@ -129,20 +133,33 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
       setTxId(txId)
     } catch (e) {
       console.error(e)
-    } finally {
-      setIsSweepBroadcastPending(false)
     }
   }, [collateralAccountId, collateralAssetId, estimatedFeesData, getBorrowFromAddress, wallet])
-
-  useEffect(() => {
-    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
-    if (!txId) return
-    history.push(BorrowRoutePaths.Confirm)
-  }, [history, txId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
   )
+
+  const adapter = getChainAdapterManager().get(fromAssetId(feeAsset?.assetId ?? '').chainId)
+
+  const { poll } = usePoll()
+  useEffect(() => {
+    if (!adapter || !fromAddress) return
+    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
+    // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
+    if (!txId) return
+    ;(async () => {
+      await poll({
+        fn: () =>
+          (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({ pubkey: fromAddress }),
+        validate: (utxos: Utxo[]) => utxos.some(utxo => utxo.txid === txId),
+        interval: 1000,
+        maxAttempts: 10,
+      })
+
+      history.push(BorrowRoutePaths.Confirm)
+    })()
+  }, [adapter, fromAddress, history, poll, txId])
 
   const providerIcon = 'https://assets.coincap.io/assets/icons/rune@2x.png'
 
@@ -191,7 +208,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
                   colorScheme={'blue'}
                   width='full'
                   data-test='utxo-sweep-button'
-                  isLoading={isEstimatedFeesDataLoading || isSweepBroadcastPending}
+                  isLoading={isEstimatedFeesDataLoading || isSweepPending}
                   loadingText={translate('common.loadingText')}
                 >
                   {translate('modals.send.consolidate.consolidateFunds')}

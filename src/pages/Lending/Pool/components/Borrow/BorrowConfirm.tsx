@@ -34,10 +34,15 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import {
+  getThorchainFromAddress,
+  waitForThorchainUpdate,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -137,6 +142,13 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision: depositAmount ?? '0',
     })
 
+  const collateralAccountFilter = useMemo(
+    () => ({ accountId: collateralAccountId }),
+    [collateralAccountId],
+  )
+  const collateralAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
+  )
   const handleDeposit = useCallback(async () => {
     if (
       !(
@@ -145,11 +157,20 @@ export const BorrowConfirm = ({
         wallet &&
         chainAdapter &&
         lendingQuoteData &&
-        estimatedFeesData?.estimatedFees
+        estimatedFeesData?.estimatedFees &&
+        collateralAccountMetadata
       )
     )
       return
 
+    const from = await getThorchainFromAddress({
+      accountId: collateralAccountId,
+      getPosition: getThorchainLendingPosition,
+      assetId: collateralAssetId,
+      wallet,
+      accountMetadata: collateralAccountMetadata,
+    })
+    if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const { estimatedFees } = estimatedFeesData
     const maybeTxId = await (() => {
@@ -161,7 +182,7 @@ export const BorrowConfirm = ({
         // We assume the funds are already in the right address at this point
         // Since we're relying on a mempool Tx and not waiting for completion, we can't use a `from` address
         // as the balance would not be confirmed yet
-        from: '',
+        from,
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)

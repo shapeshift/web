@@ -98,6 +98,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
       sendMax: true,
       accountId: collateralAccountId,
       contractAddress: undefined,
+      enabled: true,
     })
 
   const handleSweep = useCallback(async () => {

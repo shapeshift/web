@@ -6,7 +6,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useGetEstimatedFeesQuery = (props: EstimateFeesInput) => {
+export const useGetEstimatedFeesQuery = ({
+  enabled,
+  ...props
+}: EstimateFeesInput & { enabled: boolean }) => {
   const estimatedFeesQueryKey = useMemo(() => ['estimateFees', props], [props])
 
   const asset = useAppSelector(state => selectAssetById(state, props.assetId))
@@ -23,7 +26,7 @@ export const useGetEstimatedFeesQuery = (props: EstimateFeesInput) => {
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: Boolean(props.to && asset),
+    enabled: enabled && Boolean(props.to && asset),
   })
 
   return useQuoteEstimatedFeesQuery

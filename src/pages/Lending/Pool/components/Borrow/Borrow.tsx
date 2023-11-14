@@ -119,10 +119,7 @@ const BorrowRoutes = memo(
           <Route key={BorrowRoutePaths.Sweep} path={BorrowRoutePaths.Sweep}>
             <BorrowSweep
               collateralAssetId={collateralAssetId}
-              depositAmount={cryptoDepositAmount}
-              borrowAccountId={borrowAccountId}
               collateralAccountId={collateralAccountId}
-              borrowAsset={borrowAsset}
             />
           </Route>
           <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>

@@ -184,8 +184,8 @@ export const BorrowInput = ({
   const hasEnoughBalance = useMemo(
     () =>
       bnOrZero(cryptoDepositAmount)
-        .minus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).times(
+        .plus(
+          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
             bn(10).pow(collateralAsset?.precision ?? '0'),
           ),
         )
@@ -316,7 +316,9 @@ export const BorrowInput = ({
           <Button
             size='lg'
             colorScheme={
-              !isLendingQuoteLoading && !isEstimatedFeesDataLoading && isLendingQuoteError
+              !isLendingQuoteLoading &&
+              !isEstimatedFeesDataLoading &&
+              (isLendingQuoteError || quoteErrorTranslation)
                 ? 'red'
                 : 'blue'
             }
@@ -324,7 +326,10 @@ export const BorrowInput = ({
             onClick={onSubmit}
             isLoading={isLendingQuoteLoading || isEstimatedFeesDataLoading}
             isDisabled={Boolean(
-              quoteErrorTranslation || isLendingQuoteLoading || isEstimatedFeesDataLoading,
+              quoteErrorTranslation ||
+                isLendingQuoteError ||
+                isLendingQuoteLoading ||
+                isEstimatedFeesDataLoading,
             )}
           >
             {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}

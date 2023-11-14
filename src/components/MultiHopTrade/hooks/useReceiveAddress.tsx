@@ -7,8 +7,8 @@ import type { Asset } from 'lib/asset-service'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectLastHopBuyAccountId,
   selectBuyAsset,
+  selectLastHopBuyAccountId,
   selectManualReceiveAddress,
 } from 'state/slices/swappersSlice/selectors'
 import { useAppSelector } from 'state/store'

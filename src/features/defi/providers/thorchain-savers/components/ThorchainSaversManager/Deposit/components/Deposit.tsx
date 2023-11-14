@@ -366,6 +366,25 @@ export const Deposit: React.FC<DepositProps> = ({
     enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
   })
 
+  // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
+  const hasEnoughBalanceForTxPlusFees = useMemo(
+    () =>
+      bnOrZero(inputValues?.cryptoAmount)
+        .plus(
+          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
+            bn(10).pow(feeAsset?.precision ?? '0'),
+          ),
+        )
+        .lte(bnOrZero(balance).div(bn(10).pow(asset.precision))),
+    [
+      asset.precision,
+      balance,
+      estimatedFeesData?.txFeeCryptoBaseUnit,
+      feeAsset?.precision,
+      inputValues?.cryptoAmount,
+    ],
+  )
+
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId,
@@ -378,16 +397,26 @@ export const Deposit: React.FC<DepositProps> = ({
       enabled: Boolean(
         bnOrZero(inputValues?.cryptoAmount).gt(0) &&
           isEstimatedFeesDataSuccess &&
-          hasEnoughBalanceForTx,
+          hasEnoughBalanceForTxPlusFees,
       ),
     }),
-    [],
+    [
+      assetId,
+      estimatedFeesData?.txFeeCryptoBaseUnit,
+      feeAsset?.precision,
+      fromAddress,
+      hasEnoughBalanceForTxPlusFees,
+      inputValues?.cryptoAmount,
+      isEstimatedFeesDataSuccess,
+    ],
   )
   const {
     data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isSuccess: isSweepNeededSuccess,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
+
+  console.log({ isSweepNeeded })
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -524,6 +553,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
       const valueCryptoPrecision = bnOrZero(value)
+      // TODO(gomes): handle sweep balance
       const hasValidBalance =
         cryptoBalancePrecision.gt(0) &&
         valueCryptoPrecision.gt(0) &&
@@ -559,6 +589,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
+      // TODO(gomes): handle sweep balance
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'

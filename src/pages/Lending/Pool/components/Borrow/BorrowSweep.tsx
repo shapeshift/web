@@ -37,12 +37,12 @@ import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'
 
-type BorrowConfirmProps = {
+type BorrowSweepProps = {
   collateralAssetId: AssetId
   collateralAccountId: AccountId
 }
 
-export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowConfirmProps) => {
+export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSweepProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -50,8 +50,6 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
   const [isSweepBroadcastPending, setIsSweepBroadcastPending] = useState(false)
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [txId, setTxId] = useState<string | null>(null)
-
-  console.log({ txId })
 
   const history = useHistory()
   const translate = useTranslate()
@@ -146,13 +144,11 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
   )
 
-  // TODO(gomes): implement these, perhaps move me to a <Sweep /> component already?
-  const preFooter = null
-  const asset = collateralAsset
   const providerIcon = 'https://assets.coincap.io/assets/icons/rune@2x.png'
 
-  if (!collateralAsset || !asset || !feeAsset) return null
+  if (!collateralAsset || !feeAsset) return null
 
+  // TODO(gomes): move the guts of this to a <Sweep /> component to be reused at repayment step, as well as in savers
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -176,7 +172,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
               >
                 {providerIcon && (
                   <>
-                    <AssetIcon src={asset.icon} />
+                    <AssetIcon src={collateralAsset.icon} />
                     <FaExchangeAlt />
                     <AssetIcon src={providerIcon} size='md' />
                   </>
@@ -184,7 +180,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
               </Stack>
               <Stack>
                 <CText color='text.subtle'>
-                  {translate('modals.send.consolidate.body', { asset: asset.name })}
+                  {translate('modals.send.consolidate.body', { asset: collateralAsset.name })}
                 </CText>
               </Stack>
               <Stack justifyContent='space-between'>
@@ -212,7 +208,6 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
               </Stack>
             </Stack>
             <Stack p={4}>
-              {preFooter}
               <Row>
                 <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
                 <Row.Value>

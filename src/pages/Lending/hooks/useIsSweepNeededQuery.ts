@@ -39,7 +39,6 @@ export const useIsSweepNeededQuery = ({
         .minus(bnOrZero(txFeeCryptoBaseUnit))
         .lte(addressAccount.balance)
 
-      console.log({ hasEnoughBalance })
       return hasEnoughBalance
     },
     [amountCryptoBaseUnit, txFeeCryptoBaseUnit],

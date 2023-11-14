@@ -34,15 +34,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import {
-  getThorchainFromAddress,
-  waitForThorchainUpdate,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -133,25 +128,6 @@ export const BorrowConfirm = ({
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
-    [collateralAccountId],
-  )
-  const collateralAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
-  )
-
-  const getBorrowFromAddress = useCallback(() => {
-    if (!(wallet && chainAdapter && collateralAccountMetadata)) return null
-    return getThorchainFromAddress({
-      accountId: collateralAccountId,
-      assetId: collateralAssetId,
-      getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata,
-      wallet,
-    })
-  }, [wallet, chainAdapter, collateralAccountId, collateralAssetId, collateralAccountMetadata])
-
   const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
     useQuoteEstimatedFeesQuery({
       collateralAssetId,
@@ -219,7 +195,6 @@ export const BorrowConfirm = ({
     chainAdapter,
     lendingQuoteData,
     estimatedFeesData,
-    getBorrowFromAddress,
     collateralAccountId,
     selectedCurrency,
   ])

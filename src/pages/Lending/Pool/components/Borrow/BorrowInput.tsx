@@ -248,11 +248,9 @@ export const BorrowInput = ({
   )
 
   const onSubmit = useCallback(() => {
-    if (!fromAddress) return
-
     if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
     history.push(BorrowRoutePaths.Sweep)
-  }, [fromAddress, history, isSweepNeeded])
+  }, [history, isSweepNeeded])
 
   const depositAssetSelectComponent = useMemo(() => {
     return (

@@ -24,7 +24,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
@@ -40,19 +39,10 @@ import { BorrowRoutePaths } from './types'
 
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
-  depositAmount: string | null
   collateralAccountId: AccountId
-  borrowAccountId: AccountId
-  borrowAsset: Asset | null
 }
 
-export const BorrowSweep = ({
-  collateralAssetId,
-  depositAmount,
-  collateralAccountId,
-  borrowAccountId,
-  borrowAsset,
-}: BorrowConfirmProps) => {
+export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowConfirmProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -155,8 +145,6 @@ export const BorrowSweep = ({
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
   )
 
-  if (!depositAmount) return null
-
   // TODO(gomes): implement these, perhaps move me to a <Sweep /> component already?
   const preFooter = null
   const asset = collateralAsset
@@ -206,7 +194,7 @@ export const BorrowSweep = ({
                   colorScheme={'blue'}
                   width='full'
                   data-test='utxo-sweep-button'
-                  isLoading={false}
+                  isLoading={isSweepBroadcastPending}
                   loadingText={'Loading'}
                 >
                   {translate('modals.send.consolidate.consolidateFunds')}

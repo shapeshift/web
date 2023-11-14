@@ -18,8 +18,11 @@ export const useAllowanceApproval = (
     stopPolling: stopPollingBuildApprovalTx,
   } = useApprovalTx(tradeQuoteStep, isExactAllowance)
 
-  const { executeAllowanceApproval: _executeAllowanceApproval, txId: approvalTxId } =
-    useExecuteAllowanceApproval(tradeQuoteStep, buildCustomTxInput)
+  const {
+    executeAllowanceApproval: _executeAllowanceApproval,
+    txId: approvalTxId,
+    txStatus: approvalTxStatus,
+  } = useExecuteAllowanceApproval(tradeQuoteStep, buildCustomTxInput)
 
   const executeAllowanceApproval = useCallback(() => {
     stopPollingBuildApprovalTx()
@@ -42,5 +45,6 @@ export const useAllowanceApproval = (
     approvalTxId,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading,
+    approvalTxStatus,
   }
 }

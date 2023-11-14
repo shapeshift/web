@@ -1,11 +1,21 @@
-import { Card, CardBody, CardHeader, Heading, Stack } from '@chakra-ui/react'
-import { memo, useCallback } from 'react'
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Heading,
+  Stack,
+  useDisclosure,
+  usePrevious,
+} from '@chakra-ui/react'
+import { memo, useCallback, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { selectTradeExecutionStatus } from 'state/slices/selectors'
 import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
+import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectActiveSwapperName,
   selectFirstHop,
@@ -26,12 +36,53 @@ export const MultiHopTradeConfirm = memo(() => {
   const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+  const previousTradeExecutionStatus = usePrevious(tradeExecutionStatus)
   const history = useHistory()
+
+  const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure({
+    defaultIsOpen: true,
+  })
+
+  const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure({
+    defaultIsOpen: true,
+  })
 
   const handleBack = useCallback(() => {
     dispatch(swappersSlice.actions.clear())
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history])
+
+  // toggle hop open states as we transition to the next hop
+  useEffect(() => {
+    if (
+      previousTradeExecutionStatus !== tradeExecutionStatus &&
+      tradeExecutionStatus === MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
+    ) {
+      // TODO: single hop trades should redirect to completed page
+      // if (!isMultiHopTrade) history.push(TradeRoutePaths.Complete)
+
+      if (isFirstHopOpen) onToggleFirstHop()
+      if (!isSecondHopOpen) onToggleSecondHop()
+    }
+  }, [
+    isFirstHopOpen,
+    isSecondHopOpen,
+    onToggleFirstHop,
+    onToggleSecondHop,
+    previousTradeExecutionStatus,
+    tradeExecutionStatus,
+  ])
+
+  // TODO: redirect to completed page when trade is complete
+  // useEffect(() => {
+  //   if (
+  //     previousTradeExecutionStatus !== tradeExecutionStatus &&
+  //     tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete
+  //   ) {
+  //     history.push(TradeRoutePaths.Complete)
+  //   }
+  // }, [history, previousTradeExecutionStatus, tradeExecutionStatus])
 
   if (!firstHop || !swapperName) return null
 
@@ -51,9 +102,16 @@ export const MultiHopTradeConfirm = memo(() => {
               tradeQuoteStep={firstHop}
               swapperName={swapperName}
               isMultiHopTrade={!!isMultiHopTrade}
+              isOpen={isFirstHopOpen}
+              onToggleIsOpen={onToggleFirstHop}
             />
             {isMultiHopTrade && lastHop && (
-              <SecondHop tradeQuoteStep={lastHop} swapperName={swapperName} />
+              <SecondHop
+                tradeQuoteStep={lastHop}
+                swapperName={swapperName}
+                isOpen={isSecondHopOpen}
+                onToggleIsOpen={onToggleSecondHop}
+              />
             )}
           </Stack>
         </CardBody>

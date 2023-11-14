@@ -27,7 +27,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { getFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -72,7 +72,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowCo
 
   const getBorrowFromAddress = useCallback(() => {
     if (!(wallet && collateralAccountMetadata)) return null
-    return getFromAddress({
+    return getThorchainFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,

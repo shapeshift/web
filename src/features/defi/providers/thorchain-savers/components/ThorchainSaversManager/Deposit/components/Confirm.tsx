@@ -56,8 +56,8 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
-  getFromAddress,
   getMaybeThorchainSaversDepositQuote,
+  getThorchainFromAddress,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
   toThorBaseUnit,
@@ -636,7 +636,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params && accountType)) return
     ;(async () => {
-      const accountAddress = await getFromAddress({
+      const accountAddress = await getThorchainFromAddress({
         accountId,
         assetId,
         wallet,

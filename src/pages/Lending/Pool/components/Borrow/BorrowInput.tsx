@@ -28,7 +28,7 @@ import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQue
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { getFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -125,7 +125,7 @@ export const BorrowInput = ({
 
   const getBorrowFromAddress = useCallback(() => {
     if (!(wallet && collateralAccountMetadata)) return null
-    return getFromAddress({
+    return getThorchainFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,

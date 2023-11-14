@@ -395,7 +395,7 @@ export const makeDaysToBreakEven = ({
   return daysToBreakEven
 }
 
-export const getFromAddress = async ({
+export const getThorchainFromAddress = async ({
   accountId,
   assetId,
   getPosition,

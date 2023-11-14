@@ -6,11 +6,13 @@ import {
   Divider,
   Flex,
   Heading,
+  Skeleton,
   Stack,
   Text as CText,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { PairIcons } from 'features/defi/components/Approve/PairIcons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -19,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { handleSend } from 'components/Modals/Send/utils'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -27,6 +30,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
+import { bn } from 'lib/bignumber/bignumber'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
@@ -37,13 +42,14 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
+  selectTxById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
 
 type BorrowConfirmProps = {
@@ -56,7 +62,7 @@ type BorrowConfirmProps = {
 
 export const BorrowSweep = ({
   collateralAssetId,
-  depositAmount,
+  depositAmount: _depositAmount,
   collateralAccountId,
   borrowAccountId,
   borrowAsset,
@@ -65,7 +71,10 @@ export const BorrowSweep = ({
     state: { wallet },
   } = useWallet()
 
-  const [txHash, setTxHash] = useState<string | null>(null)
+  const depositAmount = '0.001' // TODO(gomes): revert me - for development only
+
+  const [fromAddress, setFromAddress] = useState<string | null>(null)
+  const [txId, setTxId] = useState<string | null>(null)
   const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
   const borrowAssetId = borrowAsset?.assetId ?? ''
@@ -148,27 +157,65 @@ export const BorrowSweep = ({
     })
   }, [wallet, chainAdapter, collateralAccountId, collateralAssetId, collateralAccountMetadata])
 
+  useEffect(() => {
+    if (fromAddress) return
+    ;(async () => {
+      const _fromAddress = await getBorrowFromAddress()
+      if (!_fromAddress) return
+      setFromAddress(_fromAddress)
+    })()
+  }, [getBorrowFromAddress, fromAddress])
+
   const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useQuoteEstimatedFeesQuery({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId: borrowAsset?.assetId ?? '',
-      depositAmountCryptoPrecision: depositAmount ?? '0',
+    useGetEstimatedFeesQuery({
+      cryptoAmount: depositAmount,
+      assetId: collateralAssetId,
+      to: fromAddress ?? '',
+      sendMax: true,
+      accountId: collateralAccountId,
+      contractAddress: undefined,
     })
 
   const handleSweep = useCallback(async () => {
-    console.log('todo')
-  }, [])
+    if (!wallet) return
+    const fromAddress = await getBorrowFromAddress()
+    if (!fromAddress)
+      throw new Error(`Cannot get from address for accountId: ${collateralAccountId}`)
+    if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
+    const sendInput = {
+      accountId: collateralAccountId,
+      to: fromAddress,
+      input: fromAddress,
+      assetId: collateralAssetId,
+      from: '',
+      cryptoAmount: '0',
+      sendMax: true,
+      estimatedFees: estimatedFeesData.estimatedFees,
+      amountFieldError: '',
+      fiatAmount: '',
+      vanityAddress: '',
+      feeType: FeeDataKey.Fast,
+      fiatSymbol: '',
+    }
+
+    const txId = await handleSend({ wallet, sendInput })
+    setTxId(txId)
+  }, [collateralAccountId, collateralAssetId, estimatedFeesData, getBorrowFromAddress, wallet])
+
+  const tx = useAppSelector(state => selectTxById(state, txId ?? ''))
+
+  console.log({ tx })
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
+  )
 
   if (!depositAmount) return null
 
   // TODO(gomes): implement these, perhaps move me to a <Sweep /> component already?
   const preFooter = null
-  const icons = undefined
   const asset = collateralAsset
-  const feeAsset = collateralAsset
-  const providerIcon = undefined
+  const providerIcon = 'https://assets.coincap.io/assets/icons/rune@2x.png'
 
   if (!collateralAsset || !asset || !feeAsset) return null
 
@@ -193,9 +240,9 @@ export const BorrowSweep = ({
                 color='text.subtle'
                 pt={6}
               >
-                {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
                 {providerIcon && (
                   <>
+                    <AssetIcon src={asset.icon} />
                     <FaExchangeAlt />
                     <AssetIcon src={providerIcon} size='md' />
                   </>
@@ -210,9 +257,7 @@ export const BorrowSweep = ({
               </Stack>
               <Stack justifyContent='space-between'>
                 <Button
-                  onClick={() => {
-                    console.log('todo')
-                  }}
+                  onClick={handleSweep}
                   disabled={false}
                   size='lg'
                   colorScheme={'blue'}
@@ -239,10 +284,18 @@ export const BorrowSweep = ({
               <Row>
                 <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
                 <Row.Value>
-                  <Box textAlign='right'>
-                    <Amount.Fiat value={'42'} />
-                    <Amount.Crypto color='text.subtle' value={'0'} symbol={feeAsset.symbol} />
-                  </Box>
+                  <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
+                    <Box textAlign='right'>
+                      <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                      <Amount.Crypto
+                        color='text.subtle'
+                        value={bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit)
+                          .div(bn(10).pow(collateralAsset?.precision ?? '0'))
+                          .toString()}
+                        symbol={feeAsset.symbol}
+                      />
+                    </Box>
+                  </Skeleton>
                 </Row.Value>
               </Row>
             </Stack>

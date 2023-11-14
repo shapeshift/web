@@ -161,6 +161,8 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision: depositAmount ?? '0',
     })
 
+  console.log({ estimatedFeesData })
+
   const handleDeposit = useCallback(async () => {
     if (
       !(

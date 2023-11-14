@@ -92,9 +92,9 @@ export async function getTradeQuote(
       receiveAddress,
       affiliateBps,
       rate,
-      estimatedExecutionTimeMs: undefined,
       steps: [
         {
+          estimatedExecutionTimeMs: undefined,
           allowanceContract,
           rate,
           buyAsset,

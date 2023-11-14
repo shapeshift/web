@@ -103,9 +103,9 @@ export async function getCowSwapTradeQuote(
     receiveAddress,
     affiliateBps: undefined,
     rate,
-    estimatedExecutionTimeMs: undefined,
     steps: [
       {
+        estimatedExecutionTimeMs: undefined,
         allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
         rate,
         feeData: {

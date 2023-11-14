@@ -9,7 +9,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -18,14 +18,20 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
+import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { getFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -67,6 +73,9 @@ export const BorrowInput = ({
   borrowAsset,
   setBorrowAsset,
 }: BorrowInputProps) => {
+  const {
+    state: { wallet },
+  } = useWallet()
   const translate = useTranslate()
   const history = useHistory()
 
@@ -83,10 +92,6 @@ export const BorrowInput = ({
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const percentOptions = useMemo(() => [0], [])
-
-  const onSubmit = useCallback(() => {
-    history.push(BorrowRoutePaths.Sweep)
-  }, [history])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleBorrowAssetClick = useCallback(() => {
@@ -107,6 +112,40 @@ export const BorrowInput = ({
     },
     [onDepositAmountChange],
   )
+
+  const collateralAccountFilter = useMemo(
+    () => ({ accountId: collateralAccountId }),
+    [collateralAccountId],
+  )
+  const collateralAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
+  )
+
+  const getBorrowFromAddress = useCallback(() => {
+    if (!(wallet && collateralAccountMetadata)) return null
+    return getFromAddress({
+      accountId: collateralAccountId,
+      assetId: collateralAssetId,
+      getPosition: getThorchainLendingPosition,
+      accountMetadata: collateralAccountMetadata,
+      wallet,
+    })
+  }, [collateralAccountId, collateralAccountMetadata, collateralAssetId, wallet])
+
+  const adapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
+  const onSubmit = useCallback(async () => {
+    if (!adapter) return
+
+    const { chainId } = fromAssetId(collateralAssetId)
+    // Chains others than UTXO don't require a sweep step
+    if (!isUtxoChainId(chainId)) return history.push(BorrowRoutePaths.Confirm)
+
+    const fromAddress = await getBorrowFromAddress()
+    if (!fromAddress) throw new Error(`No from address found for ${collateralAssetId}`)
+    const addressAccount = await adapter.getAccount(fromAddress)
+    console.log({ addressAccount })
+    history.push(BorrowRoutePaths.Sweep)
+  }, [adapter, collateralAssetId, getBorrowFromAddress, history])
 
   const balanceFilter = useMemo(
     () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),

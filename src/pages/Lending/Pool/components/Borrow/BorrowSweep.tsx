@@ -49,7 +49,7 @@ type BorrowConfirmProps = {
 
 export const BorrowSweep = ({
   collateralAssetId,
-  depositAmount: _depositAmount,
+  depositAmount,
   collateralAccountId,
   borrowAccountId,
   borrowAsset,
@@ -58,10 +58,11 @@ export const BorrowSweep = ({
     state: { wallet },
   } = useWallet()
 
-  const depositAmount = '0.001' // TODO(gomes): revert me - for development only
-
+  const [isSweepBroadcastPending, setIsSweepBroadcastPending] = useState(false)
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [txId, setTxId] = useState<string | null>(null)
+
+  console.log({ txId })
 
   const history = useHistory()
   const translate = useTranslate()
@@ -102,7 +103,7 @@ export const BorrowSweep = ({
 
   const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
     useGetEstimatedFeesQuery({
-      cryptoAmount: depositAmount,
+      cryptoAmount: '0',
       assetId: collateralAssetId,
       to: fromAddress ?? '',
       sendMax: true,
@@ -112,38 +113,46 @@ export const BorrowSweep = ({
 
   const handleSweep = useCallback(async () => {
     if (!wallet) return
-    const fromAddress = await getBorrowFromAddress()
-    if (!fromAddress)
-      throw new Error(`Cannot get from address for accountId: ${collateralAccountId}`)
-    if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
-    const sendInput = {
-      accountId: collateralAccountId,
-      to: fromAddress,
-      input: fromAddress,
-      assetId: collateralAssetId,
-      from: '',
-      cryptoAmount: '0',
-      sendMax: true,
-      estimatedFees: estimatedFeesData.estimatedFees,
-      amountFieldError: '',
-      fiatAmount: '',
-      vanityAddress: '',
-      feeType: FeeDataKey.Fast,
-      fiatSymbol: '',
-    }
 
-    const txId = await handleSend({ wallet, sendInput })
-    setTxId(txId)
+    setIsSweepBroadcastPending(true)
+
+    try {
+      const fromAddress = await getBorrowFromAddress()
+      if (!fromAddress)
+        throw new Error(`Cannot get from address for accountId: ${collateralAccountId}`)
+      if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
+      const sendInput = {
+        accountId: collateralAccountId,
+        to: fromAddress,
+        input: fromAddress,
+        assetId: collateralAssetId,
+        from: '',
+        cryptoAmount: '0',
+        sendMax: true,
+        estimatedFees: estimatedFeesData.estimatedFees,
+        amountFieldError: '',
+        fiatAmount: '',
+        vanityAddress: '',
+        feeType: FeeDataKey.Fast,
+        fiatSymbol: '',
+      }
+
+      const txId = await handleSend({ wallet, sendInput })
+      setTxId(txId)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsSweepBroadcastPending(false)
+    }
   }, [collateralAccountId, collateralAssetId, estimatedFeesData, getBorrowFromAddress, wallet])
 
   const tx = useAppSelector(state => selectTxById(state, txId ?? ''))
 
   useEffect(() => {
-    console.log({ tx })
-    // Once we have a Tx, the Tx is in the mempool which is enough to broadcast the actual Tx
-    if (!tx) return
+    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
+    if (!txId) return
     history.push(BorrowRoutePaths.Confirm)
-  }, [tx, history])
+  }, [tx, history, txId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),

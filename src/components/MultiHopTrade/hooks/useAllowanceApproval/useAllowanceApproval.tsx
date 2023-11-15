@@ -1,28 +1,29 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuoteStep } from 'lib/swapper/types'
 
 import { useApprovalTx } from './hooks/useApprovalTx'
 import { useExecuteAllowanceApproval } from './hooks/useExecuteAllowanceApproval'
 import { useIsApprovalNeeded } from './hooks/useIsApprovalNeeded'
 
 export const useAllowanceApproval = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuoteStep,
+  isFirstHop: boolean,
   isExactAllowance: boolean,
 ) => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const { isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep)
+  const { isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep, isFirstHop)
   const {
     approvalNetworkFeeCryptoBaseUnit,
     buildCustomTxInput,
     stopPolling: stopPollingBuildApprovalTx,
-  } = useApprovalTx(tradeQuoteStep, isExactAllowance)
+  } = useApprovalTx(tradeQuoteStep, isFirstHop, isExactAllowance)
 
   const {
     executeAllowanceApproval: _executeAllowanceApproval,
     txId: approvalTxId,
     txStatus: approvalTxStatus,
-  } = useExecuteAllowanceApproval(tradeQuoteStep, buildCustomTxInput)
+  } = useExecuteAllowanceApproval(tradeQuoteStep, isFirstHop, buildCustomTxInput)
 
   const executeAllowanceApproval = useCallback(() => {
     stopPollingBuildApprovalTx()

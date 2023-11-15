@@ -44,15 +44,11 @@ type BorrowInputProps = {
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
   collateralAccountId: AccountId
-  borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
   borrowAsset: Asset | null
   setBorrowAsset: (asset: Asset) => void
 }
-
-// no-op for TradeAssetSelect components
-const handleAccountIdChange = () => {}
 
 export const BorrowInput = ({
   collateralAssetId,
@@ -60,7 +56,6 @@ export const BorrowInput = ({
   fiatDepositAmount,
   onDepositAmountChange,
   collateralAccountId,
-  borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
   borrowAsset,
@@ -133,31 +128,23 @@ export const BorrowInput = ({
   const depositAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={collateralAccountId}
         assetId={collateralAssetId}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={handleAccountIdChange}
-        accountSelectionDisabled={false}
-        label={'Collateral Asset'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAccountId, collateralAssetId, handleAssetChange, handleBorrowAssetClick])
+  }, [collateralAssetId, handleAssetChange, handleBorrowAssetClick])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={borrowAccountId}
         assetId={borrowAsset?.assetId ?? ''}
         onAssetClick={handleBorrowAssetClick}
-        onAccountIdChange={handleAccountIdChange}
-        accountSelectionDisabled={false}
-        label={'Borrow Asset'}
         onAssetChange={handleAssetChange}
       />
     )
-  }, [borrowAccountId, borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
+  }, [borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({

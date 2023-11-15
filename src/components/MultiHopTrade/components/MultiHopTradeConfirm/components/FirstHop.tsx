@@ -29,7 +29,11 @@ import {
   getHopSummaryStep,
 } from './steps'
 
-const useMockAllowanceApproval = (_tradeQuoteStep: TradeQuoteStep, _isExactAllowance: boolean) => {
+const useMockAllowanceApproval = (
+  _tradeQuoteStep: TradeQuoteStep,
+  _isFirstHop: boolean,
+  _isExactAllowance: boolean,
+) => {
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const [approvalTxStatus, setApprovalTxStatus] = useState<TxStatus>(TxStatus.Unknown)
   const executeAllowanceApproval = useCallback(() => {
@@ -114,7 +118,7 @@ export const FirstHop = ({
     approvalTxId,
     approvalTxStatus: _approvalTxStatus,
     approvalNetworkFeeCryptoBaseUnit,
-  } = useMockAllowanceApproval(tradeQuoteStep, isExactAllowance) // TODO: use the real hook here
+  } = useMockAllowanceApproval(tradeQuoteStep, true, isExactAllowance) // TODO: use the real hook here
 
   const handleSignTx = useCallback(async () => {
     // next state

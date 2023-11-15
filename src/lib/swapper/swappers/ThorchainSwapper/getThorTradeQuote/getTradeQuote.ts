@@ -2,7 +2,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import assert from 'assert'
 import { getConfig } from 'config'
@@ -23,6 +22,8 @@ import { getL1quote } from '../utils/getL1quote'
 import { getTokenFromAsset, getWrappedToken } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
+import { IUniswapV3PoolABI } from './abis/IUniswapV3PoolAbi'
+import { QuoterAbi } from './abis/QuoterAbi'
 
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
@@ -127,7 +128,6 @@ export const getThorTradeQuote = async (
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
 
-  const zrxSwapper = zrxApi
   switch (tradeType) {
     case TradeType.L1ToL1:
       return getL1quote(input, streamingInterval)
@@ -145,24 +145,9 @@ export const getThorTradeQuote = async (
         )
       }
 
-      // FIXME: need to swap out the takerAddress to the THORChain pool(?) address
-      const longTailToL1QuoteInput: GetTradeQuoteInput = { ...input, buyAsset: nativeBuyAsset }
-      const zrxQuoteResponse = await zrxSwapper.getTradeQuote(longTailToL1QuoteInput, assetsById)
-      console.log(
-        'xxx zrxQoute',
-        zrxQuoteResponse.isOk() ? zrxQuoteResponse.unwrap() : zrxQuoteResponse.unwrapErr(),
-      )
-      if (zrxQuoteResponse.isErr()) return Err(zrxQuoteResponse.unwrapErr())
-      const zrxQuote = zrxQuoteResponse.unwrap()
-      const buyAmountAfterFeesCryptoBaseUnit = zrxQuote[0].steps[0].buyAmountAfterFeesCryptoBaseUnit
-      const l1Tol1QuoteInput: GetTradeQuoteInput = {
-        ...input,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      }
-
       // Try getting direct UniswapV3 quote here
       const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
-      // const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+      const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
 
       const tokenA = getTokenFromAsset(input.sellAsset)
       const tokenB = getWrappedToken(nativeBuyAsset)
@@ -178,7 +163,7 @@ export const getThorTradeQuote = async (
       assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
       const poolContract = getContract({
-        abi: IUniswapV3PoolABI.abi,
+        abi: IUniswapV3PoolABI,
         address: currentPoolAddress as Address,
         publicClient,
       })
@@ -191,6 +176,22 @@ export const getThorTradeQuote = async (
         poolContract.read.slot0(),
       ])
 
+      const quoterContract = getContract({
+        abi: QuoterAbi,
+        address: QUOTER_CONTRACT_ADDRESS as Address,
+        publicClient,
+      })
+
+      const quotedAmountOut = await quoterContract.simulate
+        .quoteExactInputSingle([
+          token0,
+          token1,
+          fee,
+          BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
+          BigInt(0),
+        ])
+        .then(res => res.result)
+
       console.log('xxx currentPoolAddress', {
         currentPoolAddress,
         token0,
@@ -198,7 +199,14 @@ export const getThorTradeQuote = async (
         fee,
         liquidity,
         slot0,
+        quotedAmountOut,
       })
+
+      const l1Tol1QuoteInput: GetTradeQuoteInput = {
+        ...input,
+        sellAsset: nativeBuyAsset,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
+      }
 
       const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
       // FIXME: work out how (and where) to build the aggreageted unsigned tx hitting the swapIn method of the appropriate contract

@@ -36,16 +36,18 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
         return position
       })()
 
-      const maybeBlockHeight = await (async () => {
+      const maybeBlockHeightPromise = (async () => {
         if (!maybePosition) return null
         const { data: block } = await axios.get<ThorchainBlock>(`${daemonUrl}/lcd/thorchain/block`)
         const blockHeight = block.header.height
         return blockHeight
       })()
 
-      const { data: mimir } = await axios.get<Record<string, unknown>>(
+      const mimirPromise = axios.get<Record<string, unknown>>(
         `${daemonUrl}/lcd/thorchain/mimir`,
       )
+
+      const [maybeBlockHeight, { data: mimir }] = await Promise.all([maybeBlockHeightPromise, mimirPromise])
       // TODO(gomes): this is the repayment lock of the pool - not the borrower's
       // we will want to make it programmatic in case there's an active position.
       // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide

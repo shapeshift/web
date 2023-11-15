@@ -1,28 +1,25 @@
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
-import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
-import { assertUnreachable, isSome } from 'lib/utils'
-import {
-  selectCryptoMarketData,
-  selectFeeAssetById,
-  selectTradeExecutionStatus,
-} from 'state/slices/selectors'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import { assertUnreachable } from 'lib/utils'
+import { selectCryptoMarketData, selectFeeAssetById } from 'state/slices/selectors'
 import {
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectQuoteDonationAmountUsd,
+  selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { store, useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { useTradeExecutooor } from '../hooks/useTradeExecutor'
 import { TradeType } from '../types'
 import { Hop } from './Hop'
 import {
@@ -30,48 +27,140 @@ import {
   getAssetSummaryStep,
   getDonationSummaryStep,
   getHopSummaryStep,
-  getTitleStep,
-  getTradeStep,
 } from './steps'
+
+const useMockAllowanceApproval = (_tradeQuoteStep: TradeQuoteStep, _isExactAllowance: boolean) => {
+  const [approvalTxId, setApprovalTxId] = useState<string>()
+  const [approvalTxStatus, setApprovalTxStatus] = useState<TxStatus>(TxStatus.Unknown)
+  const executeAllowanceApproval = useCallback(() => {
+    setApprovalTxStatus(TxStatus.Pending)
+    const promise = new Promise((resolve, _reject) => {
+      setTimeout(() => setApprovalTxId('0x12345678901234567890'), 2000)
+      setTimeout(() => {
+        setApprovalTxStatus(TxStatus.Confirmed)
+        resolve(undefined)
+      }, 5000)
+    })
+
+    return promise
+  }, [])
+
+  return {
+    isApprovalNeeded: true,
+    executeAllowanceApproval,
+    approvalTxId,
+    approvalTxStatus,
+    approvalNetworkFeeCryptoBaseUnit: '12345678901234',
+  }
+}
+
+const useMockTradeExecution = () => {
+  const [tradeStatus, setTradeStatus] = useState(TxStatus.Unknown)
+  const [sellTxHash, setSellTxHash] = useState<string>()
+  const executeTrade = useCallback(() => {
+    const promise = new Promise((resolve, _reject) => {
+      setTradeStatus(TxStatus.Pending)
+      setTimeout(() => setSellTxHash('0x12345678901234567890'), 2000)
+      setTimeout(() => {
+        setTradeStatus(TxStatus.Confirmed)
+        resolve(undefined)
+      }, 5000)
+    })
+
+    return promise
+  }, [])
+
+  return {
+    buyTxHash: undefined,
+    sellTxHash,
+    tradeStatus,
+    executeTrade,
+  }
+}
 
 export const FirstHop = ({
   swapperName,
   tradeQuoteStep,
   isMultiHopTrade,
+  isOpen,
+  onToggleIsOpen,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
   isMultiHopTrade: boolean
+  isOpen: boolean
+  onToggleIsOpen: () => void
 }) => {
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
   const translate = useTranslate()
-
+  const dispatch = useAppDispatch()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
   const donationAmountUsd = useAppSelector(selectQuoteDonationAmountUsd)
   const {
-    // TODO: use these
-    // executeTrade,
-    // buyTxHash,
+    // TODO: use the message to better ux
     // message,
+    buyTxHash,
     sellTxHash,
     tradeStatus,
-  } = useTradeExecution()
+    executeTrade,
+  } = useMockTradeExecution() // TODO: use the real hook here
 
   // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
     isApprovalNeeded,
     executeAllowanceApproval,
     approvalTxId,
+    approvalTxStatus: _approvalTxStatus,
     approvalNetworkFeeCryptoBaseUnit,
-  } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
+  } = useMockAllowanceApproval(tradeQuoteStep, isExactAllowance) // TODO: use the real hook here
+
+  const handleSignTx = useCallback(async () => {
+    // next state
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+
+    // execute the trade
+    await executeTrade()
+
+    // next state
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+  }, [dispatch, executeTrade])
+
+  const handleSignAllowanceApproval = useCallback(async () => {
+    // next state
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+
+    // execute the allowance approval
+    await executeAllowanceApproval()
+
+    // next state
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+  }, [dispatch, executeAllowanceApproval])
+
+  useEffect(() => {
+    // mock execution of tx
+    if (tradeStatus === TxStatus.Confirmed) {
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    }
+  }, [dispatch, tradeStatus])
 
   const shouldRenderDonation = bnOrZero(donationAmountUsd).gt(0)
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutooor()
-
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
   const fiatPriceByAssetId = useAppSelector(selectCryptoMarketData)
+
+  // increment the trade state if approval is not needed
+  useEffect(() => {
+    if (
+      !isApprovalNeeded &&
+      [
+        MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
+        MultiHopExecutionStatus.Hop1AwaitingApprovalExecution,
+      ].includes(tradeExecutionStatus)
+    ) {
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    }
+  }, [dispatch, isApprovalNeeded, tradeExecutionStatus])
 
   const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
@@ -80,10 +169,10 @@ export const FirstHop = ({
         return -Infinity
       case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
-        return 3
+        return 1
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
-        return isApprovalNeeded ? 4 : 3
+        return isApprovalNeeded ? 2 : 1
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
@@ -95,13 +184,50 @@ export const FirstHop = ({
     }
   }, [tradeExecutionStatus, isApprovalNeeded])
 
+  const { txLink, txHash } = useMemo(() => {
+    if (buyTxHash)
+      return {
+        txLink: getTxLink({
+          name: tradeQuoteStep?.source,
+          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          tradeId: buyTxHash,
+        }),
+        txHash: buyTxHash,
+      }
+    if (sellTxHash)
+      return {
+        txLink: getTxLink({
+          name: tradeQuoteStep?.source,
+          defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
+          tradeId: sellTxHash,
+        }),
+        txHash: buyTxHash,
+      }
+
+    return {}
+  }, [buyTxHash, sellTxHash, tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.source])
+
+  const {
+    buyAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    estimatedExecutionTimeMs,
+  } = tradeQuoteStep
+
+  // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
+  const approvalTxStatus =
+    tradeExecutionStatus >= MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+      ? _approvalTxStatus
+      : undefined
+
+  // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
+  const txStatus =
+    tradeExecutionStatus >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+      ? tradeStatus
+      : undefined
+
   const steps = useMemo(() => {
-    const {
-      buyAsset,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountBeforeFeesCryptoBaseUnit,
-    } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
@@ -123,29 +249,13 @@ export const FirstHop = ({
       bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toString(),
     )
 
-    const isBridge = buyAsset.chainId !== sellAsset.chainId
-    const tradeType = isBridge ? TradeType.Bridge : TradeType.Swap
     const hopSteps = [
-      getTitleStep({
-        hopIndex: 0,
-        isHopComplete:
-          tradeExecutionStatus === MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation,
-        swapperName,
-        tradeType,
-      }),
       getAssetSummaryStep({
         amountCryptoFormatted: sellAmountCryptoFormatted,
         amountFiatFormatted: sellAmountFiatFormatted,
         asset: sellAsset,
       }),
-      getHopSummaryStep({
-        swapperName,
-        buyAssetChainId: buyAsset.chainId,
-        sellAssetChainId: sellAsset.chainId,
-        buyAmountCryptoFormatted,
-        sellAmountCryptoFormatted,
-      }),
-    ].filter(isSome)
+    ]
 
     if (isApprovalNeeded) {
       const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
@@ -159,22 +269,28 @@ export const FirstHop = ({
       hopSteps.push(
         getApprovalStep({
           txHash: approvalTxId,
+          txStatus: approvalTxStatus,
           approvalNetworkFeeCryptoFormatted,
           isExactAllowance,
           translate,
           toggleIsExactAllowance,
-          onSign: executeAllowanceApproval,
-          onReject: onRejectApproval,
+          onSign: handleSignAllowanceApproval,
         }),
       )
     }
 
     hopSteps.push(
-      getTradeStep({
-        txHash: sellTxHash,
-        txStatus: tradeStatus,
-        onSign: onSignTrade,
-        onReject: onRejectTrade,
+      getHopSummaryStep({
+        swapperName,
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+        buyAmountCryptoFormatted,
+        sellAmountCryptoFormatted,
+
+        txHash,
+        txLink,
+        txStatus,
+        onSign: handleSignTx,
       }),
     )
 
@@ -200,25 +316,27 @@ export const FirstHop = ({
   }, [
     approvalNetworkFeeCryptoBaseUnit,
     approvalTxId,
+    approvalTxStatus,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAsset,
     donationAmountUsd,
-    executeAllowanceApproval,
     fiatPriceByAssetId,
+    handleSignAllowanceApproval,
+    handleSignTx,
     isApprovalNeeded,
     isExactAllowance,
     isMultiHopTrade,
-    onRejectApproval,
-    onRejectTrade,
-    onSignTrade,
-    sellTxHash,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAsset,
     shouldRenderDonation,
     swapperName,
     toCrypto,
     toFiat,
     toggleIsExactAllowance,
-    tradeExecutionStatus,
-    tradeQuoteStep,
-    tradeStatus,
     translate,
+    txHash,
+    txLink,
+    txStatus,
   ])
 
   const slippageDecimalPercentage = useMemo(
@@ -229,6 +347,9 @@ export const FirstHop = ({
   const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 0)
   const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 0)
 
+  const isBridge = buyAsset.chainId !== sellAsset.chainId
+  const tradeType = isBridge ? TradeType.Bridge : TradeType.Swap
+
   return (
     <Hop
       steps={steps}
@@ -236,6 +357,13 @@ export const FirstHop = ({
       slippageDecimalPercentage={slippageDecimalPercentage}
       networkFeeFiatPrecision={networkFeeFiatPrecision ?? '0'}
       protocolFeeFiatPrecision={protocolFeeFiatPrecision ?? '0'}
+      hopIndex={0}
+      title={`${tradeType} via ${swapperName}`}
+      txStatus={txStatus}
+      isOpen={isOpen}
+      onToggleIsOpen={onToggleIsOpen}
+      estimatedExecutionTimeMs={estimatedExecutionTimeMs}
+      executionTimeRemainingMs={undefined} // TODO: implement this
     />
   )
 }

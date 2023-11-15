@@ -29,6 +29,9 @@ export const useHopHelper = () => {
     [sellAccountId, firstHopSellFeeAsset?.assetId],
   )
 
+  // TODO(woodenfurniture): sellAccountId should be specific to the second hop since it may be a different
+  // account to the first hop. This explains why multi hop quotes always have insufficient balance
+  // for gas.
   const lastHopFeeAssetBalanceFilter = useMemo(
     () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
     [sellAccountId, lastHopSellFeeAsset?.assetId],

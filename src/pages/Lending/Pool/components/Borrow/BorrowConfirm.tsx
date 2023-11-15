@@ -216,6 +216,7 @@ export const BorrowConfirm = ({
     chainAdapter,
     lendingQuoteData,
     estimatedFeesData,
+    collateralAccountMetadata,
     collateralAccountId,
     selectedCurrency,
   ])

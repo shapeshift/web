@@ -419,3 +419,8 @@ export const selectQuoteDonationAmountUsd = createSelector(
     return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )
+
+export const selectTradeExecutionStatus = createSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.tradeExecutionStatus,
+)

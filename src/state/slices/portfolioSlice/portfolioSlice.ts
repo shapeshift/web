@@ -1,7 +1,8 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumNovaChainId, fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type { Account, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -13,6 +14,8 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
+import type { AssetsState } from '../assetsSlice/assetsSlice'
+import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
 import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
@@ -126,7 +129,38 @@ export const portfolioApi = createApi({
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const nftCollectionsById = selectNftCollections(state)
-          const data = accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+
+          const data = ((): Portfolio => {
+            switch (chainId) {
+              // add placeholder assets (evm tokens) for applicable chains where there is substantial missing data from coingecko
+              case arbitrumNovaChainId: {
+                const account = portfolioAccounts[pubkey] as Account<EvmChainId>
+
+                const assets = (account.chainSpecific.tokens ?? []).reduce<AssetsState>(
+                  (prev, token) => {
+                    // ignore existing assets and nfts (handled elsewhere)
+                    if (state.assets.byId[token.assetId] || isNft(token.assetId)) return prev
+                    prev.byId[token.assetId] = makeAsset({ ...token })
+                    prev.ids.push(token.assetId)
+                    return prev
+                  },
+                  { byId: {}, ids: [] },
+                )
+
+                // upsert placeholder assets
+                dispatch(assetSlice.actions.upsertAssets(assets))
+
+                return accountToPortfolio({
+                  portfolioAccounts,
+                  assetIds: assetIds.concat(assets.ids),
+                  nftCollectionsById,
+                })
+              }
+              default:
+                return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+            }
+          })()
+
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {

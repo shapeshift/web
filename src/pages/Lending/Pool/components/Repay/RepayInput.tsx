@@ -254,14 +254,14 @@ export const RepayInput = ({
     if (!hasEnoughBalance) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
-        /not enough fee/.test(lendingQuoteCloseError.message) ||
-        /not enough to pay transaction fee/.test(lendingQuoteCloseError.message)
+        /not enough fee/i.test(lendingQuoteCloseError.message) ||
+        /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
       ) {
         return 'trade.errors.amountTooSmallUnknownMinimum'
       }
       if (
-        /loan hasn't reached maturity/.test(lendingQuoteCloseError.message) ||
-        /loan repayment is unavailable/.test(lendingQuoteCloseError.message)
+        /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
+        /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
       ) {
         return 'Repayment not yet available'
       }

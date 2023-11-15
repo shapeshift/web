@@ -36,16 +36,19 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
         return position
       })()
 
-      const maybeBlockHeight = await (async () => {
+      const maybeBlockHeightPromise = (async () => {
         if (!maybePosition) return null
         const { data: block } = await axios.get<ThorchainBlock>(`${daemonUrl}/lcd/thorchain/block`)
         const blockHeight = block.header.height
         return blockHeight
       })()
 
-      const { data: mimir } = await axios.get<Record<string, unknown>>(
-        `${daemonUrl}/lcd/thorchain/mimir`,
-      )
+      const mimirPromise = axios.get<Record<string, unknown>>(`${daemonUrl}/lcd/thorchain/mimir`)
+
+      const [maybeBlockHeight, { data: mimir }] = await Promise.all([
+        maybeBlockHeightPromise,
+        mimirPromise,
+      ])
       if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
@@ -58,12 +61,12 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       if (!data) return null
       const { repaymentMaturity, maybePosition, maybeBlockHeight } = data
       // Current blocktime as per https://thorchain.network/stats
-      const thorchainBlockTime = '6.1'
+      const thorchainBlockTimeSeconds = '6.1'
 
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
       if (!maybePosition)
         return bnOrZero(repaymentMaturity)
-          .times(thorchainBlockTime)
+          .times(thorchainBlockTimeSeconds)
           .div(60 * 60 * 24)
           .toString()
 
@@ -73,7 +76,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       const repaymentLock = bnOrZero(repaymentBlock)
         .minus(maybeBlockHeight!)
-        .times(thorchainBlockTime)
+        .times(thorchainBlockTimeSeconds)
         .div(60 * 60 * 24)
         .toFixed(1)
 

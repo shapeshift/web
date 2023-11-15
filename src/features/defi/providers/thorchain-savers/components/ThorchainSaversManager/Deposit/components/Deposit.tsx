@@ -707,7 +707,7 @@ export const Deposit: React.FC<DepositProps> = ({
         getHasEnoughBalanceForTxPlusFeesPlusSweep({
           precision: asset.precision,
           balanceCryptoBaseUnit,
-          amountCryptoPrecision: inputValues?.cryptoAmount ?? '0',
+          amountCryptoPrecision: valueCryptoPrecision.toFixed(),
           txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
           sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
         })
@@ -725,7 +725,6 @@ export const Deposit: React.FC<DepositProps> = ({
       getHasEnoughBalanceForTxPlusFees,
       balanceCryptoBaseUnit,
       getHasEnoughBalanceForTxPlusFeesPlusSweep,
-      inputValues?.cryptoAmount,
     ],
   )
 
@@ -791,7 +790,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
         precision: asset.precision,
         balanceCryptoBaseUnit,
-        amountCryptoPrecision: value ?? '',
+        amountCryptoPrecision: valueCryptoPrecision.toFixed(),
         txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
       })
       const isSweepNeededQueryEnabled = Boolean(
@@ -845,7 +844,7 @@ export const Deposit: React.FC<DepositProps> = ({
         getHasEnoughBalanceForTxPlusFeesPlusSweep({
           precision: asset.precision,
           balanceCryptoBaseUnit,
-          amountCryptoPrecision: inputValues?.cryptoAmount ?? '0',
+          amountCryptoPrecision: valueCryptoPrecision.toFixed(),
           txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
           sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
         })
@@ -864,7 +863,6 @@ export const Deposit: React.FC<DepositProps> = ({
       queryClient,
       getHasEnoughBalanceForTxPlusFees,
       getHasEnoughBalanceForTxPlusFeesPlusSweep,
-      inputValues?.cryptoAmount,
     ],
   )
 
@@ -974,12 +972,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
   if (!state || !contextDispatch || !opportunityData) return null
 
-  console.log({
-    estimatedFeesData,
-    isEstimatedFeesDataLoading,
-    isSweepNeededLoading,
-    stateLoading: state.loading,
-  })
   return (
     <ReusableDeposit
       accountId={accountId}

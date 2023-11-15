@@ -75,6 +75,7 @@ export const lifiApi: SwapperApi = {
     from,
     stepIndex,
     tradeQuote,
+    supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
 
@@ -118,9 +119,12 @@ export const lifiApi: SwapperApi = {
       data: data.toString(),
       chainId: Number(fromChainId(chainId).chainReference),
       gasLimit: gasLimit.toString(),
-      gasPrice: gasPrice.toString(),
-      maxFeePerGas: maxFeePerGas?.toString(),
-      maxPriorityFeePerGas: maxPriorityFeePerGas?.toString(),
+      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+        ? {
+            maxFeePerGas: maxFeePerGas.toString(),
+            maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+          }
+        : { gasPrice: gasPrice.toString() }),
     }
   },
 

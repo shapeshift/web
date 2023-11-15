@@ -203,6 +203,7 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: number
   slippageTolerancePercentageDecimal: string
+  supportsEIP1559?: boolean
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
@@ -248,7 +249,7 @@ export type EvmTransactionRequest = {
   value: string
   data: string
   chainId: number
-} & evm.ethereum.Fees
+} & evm.types.Fees
 
 export type CowMessageToSign = {
   chainId: ChainId
@@ -322,7 +323,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata
+  EvmAccountMetadata & { supportsEIP1559: boolean }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &

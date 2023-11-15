@@ -61,7 +61,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       if (!data) return null
       const { repaymentMaturity, maybePosition, maybeBlockHeight } = data
       // Current blocktime as per https://thorchain.network/stats
-      const thorchainBlockTime = '6.1'
+      const thorchainBlockTimeSeconds = '6.1'
 
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
       if (!maybePosition)

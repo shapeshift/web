@@ -224,7 +224,7 @@ export const Deposit = ({
         <Button
           size='lg'
           width='full'
-          colorScheme={fieldError ? 'red' : 'blue'}
+          colorScheme={fieldError || !isValid ? 'red' : 'blue'}
           isDisabled={!isValid || isLoading}
           isLoading={isLoading}
           type='submit'

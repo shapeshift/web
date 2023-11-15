@@ -187,7 +187,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [translate, underlyingAsset?.symbol, accountId, handleAccountIdChange])
+  }, [translate, underlyingAsset?.symbol, accountId, fromAddress, handleAccountIdChange, assetId])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

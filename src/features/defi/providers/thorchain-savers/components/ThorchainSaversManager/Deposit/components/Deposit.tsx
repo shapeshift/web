@@ -367,23 +367,25 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
-  const hasEnoughBalanceForTxPlusFees = useMemo(
-    () =>
-      bnOrZero(inputValues?.cryptoAmount)
-        .plus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(feeAsset?.precision ?? '0'),
-          ),
-        )
-        .lte(bnOrZero(balance).div(bn(10).pow(asset.precision))),
-    [
-      asset.precision,
-      balance,
-      estimatedFeesData?.txFeeCryptoBaseUnit,
-      feeAsset?.precision,
-      inputValues?.cryptoAmount,
-    ],
-  )
+  // TODO(gomes): actually check for enough balance here
+  const hasEnoughBalanceForTxPlusFees = useMemo(() => {
+    const balanceCryptoBaseUnitBn = bnOrZero(balance)
+    if (balanceCryptoBaseUnitBn.isZero()) return false
+
+    return bnOrZero(inputValues?.cryptoAmount)
+      .plus(
+        bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
+          bn(10).pow(feeAsset?.precision ?? '0'),
+        ),
+      )
+      .lte(balanceCryptoBaseUnitBn.div(bn(10).pow(asset.precision)))
+  }, [
+    asset.precision,
+    balance,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    feeAsset?.precision,
+    inputValues?.cryptoAmount,
+  ])
 
   const isSweepNeededArgs = useMemo(
     () => ({
@@ -410,13 +412,57 @@ export const Deposit: React.FC<DepositProps> = ({
       isEstimatedFeesDataSuccess,
     ],
   )
+
   const {
     data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isSuccess: isSweepNeededSuccess,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
 
-  console.log({ isSweepNeeded })
+  const { data: estimatedSweepFeesData, isLoading: isEstimatedSweepFeesDataLoading } =
+    useGetEstimatedFeesQuery({
+      cryptoAmount: '0',
+      assetId,
+      to: fromAddress ?? '',
+      sendMax: true,
+      accountId: accountId ?? '',
+      contractAddress: undefined,
+      enabled: isSweepNeededSuccess,
+    })
+
+  const hasEnoughBalanceForTxPlusFeesSweep = useMemo(() => {
+    const balanceCryptoBaseUnitBn = bnOrZero(balance)
+    if (balanceCryptoBaseUnitBn.isZero()) return false
+
+    return bnOrZero(inputValues?.cryptoAmount)
+      .plus(
+        bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
+          bn(10).pow(feeAsset?.precision ?? '0'),
+        ),
+      )
+      .plus(
+        bnOrZero(estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(
+          bn(10).pow(feeAsset?.precision ?? '0'),
+        ),
+      )
+      .lte(balanceCryptoBaseUnitBn.div(bn(10).pow(asset.precision)))
+  }, [
+    asset.precision,
+    balance,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    estimatedSweepFeesData?.txFeeCryptoBaseUnit,
+    feeAsset?.precision,
+    inputValues?.cryptoAmount,
+  ])
+
+  console.log({
+    estimatedFeesData,
+    isEstimatedFeesDataSuccess,
+    hasEnoughBalanceForTxPlusFees,
+    isSweepNeeded,
+    estimatedSweepFeesData,
+    hasEnoughBalanceForTxPlusFeesSweep,
+  })
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -481,7 +527,7 @@ export const Deposit: React.FC<DepositProps> = ({
           onNext(DefiStep.Approve)
           return
         }
-        onNext(DefiStep.Confirm)
+        onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
           {
@@ -513,9 +559,10 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       getDepositGasEstimateCryptoPrecision,
       onNext,
-      isApprovalRequired,
+      isSweepNeeded,
       assetId,
       assets,
+      isApprovalRequired,
       saversRouterContractAddress,
       accountNumber,
       wallet,
@@ -551,17 +598,22 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
       const valueCryptoPrecision = bnOrZero(value)
-      // TODO(gomes): handle sweep balance
-      const hasValidBalance =
-        cryptoBalancePrecision.gt(0) &&
-        valueCryptoPrecision.gt(0) &&
-        cryptoBalancePrecision.gte(value)
+
       if (valueCryptoPrecision.isEqualTo(0)) return ''
-      return hasValidBalance || 'common.insufficientFunds'
+      // TODO(gomes): react's reactivity rugs us. Use queryClient.fetchQuery() outside of react e.g
+      //   const data = await queryClient.fetchQuery({ queryKey, queryFn })
+      // This was "fine" previously as we do not check fees at this stage, but we're now relying on balance checks that do
+      return hasEnoughBalanceForTxPlusFees || 'common.insufficientFunds'
     },
-    [asset.precision, asset.symbol, assetId, outboundFeeCryptoBaseUnit, translate, balance],
+    [
+      asset.precision,
+      asset.symbol,
+      assetId,
+      outboundFeeCryptoBaseUnit,
+      translate,
+      hasEnoughBalanceForTxPlusFees,
+    ],
   )
 
   const validateFiatAmount = useCallback(

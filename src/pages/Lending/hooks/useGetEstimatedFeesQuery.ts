@@ -26,7 +26,7 @@ export const useGetEstimatedFeesQuery = ({
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: enabled && Boolean(props.to && asset),
+    enabled: enabled && Boolean(props.to && props.accountId && asset),
   })
 
   return useQuoteEstimatedFeesQuery

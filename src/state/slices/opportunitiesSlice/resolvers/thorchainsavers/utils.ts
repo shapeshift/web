@@ -429,10 +429,7 @@ export const getThorchainFromAddress = async ({
   } catch {
     const accountType = accountMetadata?.accountType
     const bip44Params = accountMetadata?.bip44Params
-    // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
-    const chainAdapter = getChainAdapterManager().get(
-      chainId,
-    ) as unknown as UtxoBaseAdapter<UtxoChainId>
+    const chainAdapter = getChainAdapterManager().get(chainId)!
 
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,

@@ -58,13 +58,16 @@ type RepayInputProps = {
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset) => void
 }
+
+// no-op, this is read-only
+const handleCollateralAccountIdChange = () => {}
+
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
   onRepaymentPercentChange,
   collateralAccountId,
   repaymentAccountId,
-  onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentAsset,
   setRepaymentAsset,
@@ -136,39 +139,29 @@ export const RepayInput = ({
     return console.info(asset)
   }, [])
 
-  const handleAccountIdChange = useCallback((_accountId: AccountId) => {}, [])
-
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
         assetId={repaymentAsset?.assetId ?? ''}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={handleAccountIdChange}
-        accountSelectionDisabled={false}
-        label={'uhh'}
         onAssetChange={handleAssetChange}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
       />
     )
-  }, [handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
+  }, [handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
-        accountId={''}
         assetId={collateralAssetId}
         onAssetClick={handleRepaymentAssetClick}
-        onAccountIdChange={handleAccountIdChange}
-        accountSelectionDisabled={false}
-        label={'uhh'}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAssetId, handleAccountIdChange, handleAssetChange, handleRepaymentAssetClick])
+  }, [collateralAssetId, handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
@@ -228,6 +221,7 @@ export const RepayInput = ({
         cryptoAmount={repaymentAmountCryptoPrecision ?? '0'}
         fiatAmount={repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
+        isReadOnly
         percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
@@ -270,8 +264,8 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
-        cryptoAmount={'0'}
-        fiatAmount={'0'}
+        cryptoAmount={data?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
+        fiatAmount={data?.quoteDebtRepaidAmountUsd}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
@@ -313,7 +307,7 @@ export const RepayInput = ({
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
               <Amount.Crypto
-                value={data?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                value={data?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
                 symbol={collateralAsset?.symbol ?? ''}
               />
             </Skeleton>

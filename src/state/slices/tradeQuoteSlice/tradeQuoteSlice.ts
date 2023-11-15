@@ -2,16 +2,20 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { TradeQuote } from 'lib/swapper/types'
 
+import { MultiHopExecutionStatus } from './types'
+
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
   confirmedQuote: TradeQuote | undefined // the quote being executed
+  tradeExecutionStatus: MultiHopExecutionStatus
 }
 
 const initialState: TradeQuoteSliceState = {
   activeQuoteIndex: undefined,
   confirmedQuote: undefined,
   activeStep: undefined,
+  tradeExecutionStatus: MultiHopExecutionStatus.Previewing,
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -40,6 +44,22 @@ export const tradeQuoteSlice = createSlice({
     },
     resetConfirmedQuote: state => {
       state.confirmedQuote = undefined
+    },
+    incrementTradeExecutionState: state => {
+      if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
+
+      const isMultiHopTrade =
+        state.confirmedQuote !== undefined && state.confirmedQuote.steps.length > 1
+
+      // skip second hop states for single hop trades
+      if (
+        isMultiHopTrade &&
+        state.tradeExecutionStatus > MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+      ) {
+        state.tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
+      }
+
+      state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
     },
   },
 })

@@ -12,17 +12,24 @@ import {
 import { DEFAULT_LIFI_TOKEN_ADDRESS } from '../constants'
 
 export const lifiTokenToAssetId = (lifiToken: Token): AssetId => {
+  const chainReference = lifiToken.chainId.toString() as ChainReference
   const chainId = toChainId({
     chainNamespace: CHAIN_NAMESPACE.Evm,
-    chainReference: lifiToken.chainId.toString() as ChainReference,
+    chainReference,
   })
 
   const isDefaultAddress = lifiToken.address === DEFAULT_LIFI_TOKEN_ADDRESS
 
   const { assetReference, assetNamespace } = (() => {
     if (!isDefaultAddress)
-      return { assetReference: lifiToken.address, assetNamespace: ASSET_NAMESPACE.erc20 }
-    switch (lifiToken.chainId.toString()) {
+      return {
+        assetReference: lifiToken.address,
+        assetNamespace:
+          chainReference === CHAIN_REFERENCE.BnbSmartChainMainnet
+            ? ASSET_NAMESPACE.bep20
+            : ASSET_NAMESPACE.erc20,
+      }
+    switch (chainReference) {
       case CHAIN_REFERENCE.EthereumMainnet:
         return {
           assetReference: ASSET_REFERENCE.Ethereum,

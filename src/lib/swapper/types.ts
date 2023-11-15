@@ -94,10 +94,10 @@ export type TradeQuoteStep = {
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
+  estimatedExecutionTimeMs: number | undefined
 }
 
 export type TradeQuote = {
-  estimatedExecutionTimeMs: number | undefined
   id: string
   steps: TradeQuoteStep[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)

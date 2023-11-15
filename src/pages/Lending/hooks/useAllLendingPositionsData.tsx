@@ -5,57 +5,68 @@ import { bn } from 'lib/bignumber/bignumber'
 import type { Borrower } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectAccountIdsByAssetId, selectUsdRateByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { useLendingSupportedAssets } from './useLendingSupportedAssets'
 
-export const useAllLendingPositionsData = () => {
+type UseAllLendingPositionsDataProps = {
+  assetId?: AssetId
+}
+
+export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
   const { data: lendingSupportedAssets } = useLendingSupportedAssets()
 
   const accounts = useMemo(
     () =>
       (lendingSupportedAssets ?? [])
         .map(asset => {
-          const assetId = asset.assetId
-          const _accountIds = selectAccountIdsByAssetId(store.getState(), { assetId })
-          return _accountIds.map(accountId => ({ accountId, assetId }))
+          if (assetId && assetId !== asset.assetId) return []
+          const _accountIds = selectAccountIdsByAssetId(store.getState(), {
+            assetId: asset.assetId,
+          })
+          return _accountIds.map(accountId => ({ accountId, assetId: asset.assetId }))
         })
         .flat(),
-    [lendingSupportedAssets],
+    [assetId, lendingSupportedAssets],
   )
 
   const positions = useQueries({
-    queries: accounts.map(({ accountId, assetId }) => {
-      const usdRate = selectUsdRateByAssetId(store.getState(), assetId)
+    queries: accounts.map(({ accountId, assetId: accountAssetId }) => {
+      const poolAssetMarketData = selectMarketDataById(store.getState(), accountAssetId)
       const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = [
         'thorchainLendingPosition',
-        { accountId, assetId },
+        { accountId, assetId: accountAssetId },
       ]
 
       return {
         staleTime: 120_000,
         queryKey: lendingPositionQueryKey,
         queryFn: async () => {
-          const position = await getThorchainLendingPosition({ accountId, assetId })
+          const position = await getThorchainLendingPosition({ accountId, assetId: accountAssetId })
           return position
         },
         select: (data: Borrower | null) => {
-          // returns actual derived data, or zero's out fields in case there is no active position
+          if (!data) return
+
           const collateralBalanceCryptoPrecision = fromThorBaseUnit(
             data?.collateral_current,
           ).toString()
 
-          const collateralBalanceFiatUsd = fromThorBaseUnit(data?.collateral_current).times(
-            usdRate ?? 0,
-          )
+          const collateralBalanceFiatUsd = fromThorBaseUnit(data?.collateral_current)
+          const collateralBalanceFiatUserCurrency = collateralBalanceFiatUsd
+            .times(poolAssetMarketData.price)
+            .toString()
           const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
           return {
             collateralBalanceFiatUsd: collateralBalanceFiatUsd.toString(),
             collateralBalanceCryptoPrecision,
+            collateralBalanceFiatUserCurrency,
             debtBalanceFiatUSD,
             address: data?.owner,
+            accountId,
+            assetId: accountAssetId,
           }
         },
       }
@@ -89,10 +100,13 @@ export const useAllLendingPositionsData = () => {
   )
 
   const isLoading = useMemo(() => positions.some(position => position.isLoading), [positions])
+  const isActive = useMemo(() => positions.some(position => position.data), [positions])
 
   return {
     debtValueUsd,
     collateralValueUsd,
+    positions,
     isLoading,
+    isActive,
   }
 }

@@ -1,9 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Button, Flex, Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { memo, useCallback, useMemo } from 'react'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
@@ -31,14 +30,9 @@ const TradeAssetAwaitingAsset = () => {
 
 type TradeAssetSelectProps = {
   assetId?: AssetId
-  onAccountIdChange: AccountDropdownProps['onChange']
-  accountId?: AccountId | undefined
-  accountSelectionDisabled?: boolean
+  isReadOnly?: boolean
   onAssetClick?: () => void
   onAssetChange: (asset: Asset) => void
-  label: string
-  align?: 'left' | 'right'
-  isReadOnly?: boolean
 }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
@@ -103,9 +97,9 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
 }
 
 export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(
-  ({ assetId, accountId, ...restAssetInputProps }) => {
+  ({ assetId, ...restAssetInputProps }) => {
     return assetId ? (
-      <TradeAssetSelectWithAsset assetId={assetId} accountId={accountId} {...restAssetInputProps} />
+      <TradeAssetSelectWithAsset assetId={assetId} {...restAssetInputProps} />
     ) : (
       <TradeAssetAwaitingAsset />
     )

@@ -14,9 +14,9 @@ export const setupQuote = () => {
     receiveAddress: '0x1234',
     affiliateBps: undefined,
     rate: '1',
-    estimatedExecutionTimeMs: undefined,
     steps: [
       {
+        estimatedExecutionTimeMs: undefined,
         allowanceContract: 'allowanceContractAddress',
         buyAmountBeforeFeesCryptoBaseUnit: '',
         buyAmountAfterFeesCryptoBaseUnit: '',

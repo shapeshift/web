@@ -183,6 +183,14 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const showSwapper = !!quote || showSwapperError
 
+  const totalEstimatedExecutionTimeMs = useMemo(
+    () =>
+      quote?.steps.reduce((acc, step) => {
+        return acc + (step.estimatedExecutionTimeMs ?? 0)
+      }, 0),
+    [quote?.steps],
+  )
+
   return showSwapper ? (
     <>
       <Card
@@ -256,17 +264,16 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         {quote && (
           <CardFooter px={4} pb={4}>
             <Flex justifyContent='left' alignItems='left' gap={8}>
-              {quote.estimatedExecutionTimeMs !== undefined &&
-                quote.estimatedExecutionTimeMs > 0 && (
-                  <Skeleton isLoaded={!isLoading}>
-                    <Flex gap={2} alignItems='center'>
-                      <RawText color='text.subtle'>
-                        <FaRegClock />
-                      </RawText>
-                      {prettyMilliseconds(quote.estimatedExecutionTimeMs)}
-                    </Flex>
-                  </Skeleton>
-                )}
+              {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
+                <Skeleton isLoaded={!isLoading}>
+                  <Flex gap={2} alignItems='center'>
+                    <RawText color='text.subtle'>
+                      <FaRegClock />
+                    </RawText>
+                    {prettyMilliseconds(totalEstimatedExecutionTimeMs)}
+                  </Flex>
+                </Skeleton>
+              )}
               <Skeleton isLoaded={!isLoading}>
                 <Flex gap={2} alignItems='center'>
                   <RawText color='text.subtle'>

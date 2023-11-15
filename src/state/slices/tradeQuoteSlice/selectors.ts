@@ -13,7 +13,11 @@ import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectUserSlippagePercentageDecimal } from 'state/slices/swappersSlice/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+  selectUserSlippagePercentageDecimal,
+} from 'state/slices/swappersSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeFiatPrecision,
@@ -27,6 +31,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/utils'
 
 import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
+import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
@@ -417,5 +422,47 @@ export const selectQuoteDonationAmountUsd = createSelector(
   selectUserCurrencyToUsdRate,
   (donationAmountUserCurrency, userCurrencyToUsdRate) => {
     return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
+  },
+)
+
+export const selectTradeExecutionStatus = createSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.tradeExecutionStatus,
+)
+
+// selects the account ID we're buying into for the first hop
+export const selectFirstHopBuyAccountId = createSelector(
+  selectIsActiveQuoteMultiHop,
+  selectLastHopBuyAccountId,
+  selectFirstHop,
+  selectFirstHopBuyAsset,
+  selectAccountIdByAccountNumberAndChainId,
+  (
+    isMultiHopTrade,
+    lastHopBuyAccountId,
+    firstHop,
+    buyAsset,
+    accountIdByAccountNumberAndChainId,
+  ) => {
+    // single hop trade - same as last hop
+    if (!isMultiHopTrade) return lastHopBuyAccountId
+
+    return buyAsset !== undefined && firstHop !== undefined
+      ? accountIdByAccountNumberAndChainId[firstHop.accountNumber]?.[buyAsset.chainId]
+      : undefined
+  },
+)
+
+// selects the account ID we're selling from for the last hop
+export const selectLastHopSellAccountId = createSelector(
+  selectIsActiveQuoteMultiHop,
+  selectFirstHopSellAccountId,
+  selectFirstHopBuyAccountId,
+  (isMultiHopTrade, firstHopSellAccountId, firstHopBuyAccountId) => {
+    // single hop trade - same as first hop sell account id
+    if (!isMultiHopTrade) return firstHopSellAccountId
+
+    // multi hop trade - the second hop sell account id is the same as the first hop buy account id
+    return firstHopBuyAccountId
   },
 )

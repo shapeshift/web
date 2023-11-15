@@ -106,11 +106,9 @@ export const thorchainApi: SwapperApi = {
       gasLimit,
       to,
       value,
-      gasPrice,
-      ...(supportsEIP1559 && {
-        maxPriorityFeePerGas,
-        maxFeePerGas,
-      }),
+      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+        ? { maxFeePerGas, maxPriorityFeePerGas }
+        : { gasPrice }),
     }
   },
 

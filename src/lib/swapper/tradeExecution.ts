@@ -32,15 +32,12 @@ export class TradeExecution {
       tradeQuote,
       stepIndex,
       slippageTolerancePercentageDecimal,
-      ...rest
-    }: CommonTradeExecutionInput | EvmTransactionExecutionInput,
+    }: CommonTradeExecutionInput,
     buildSignBroadcast: (
       swapper: Swapper & SwapperApi,
       args: CommonGetUnsignedTransactionArgs,
     ) => Promise<string>,
   ) {
-    const supportsEIP1559 = 'supportsEIP1559' in rest ? rest.supportsEIP1559 : undefined
-
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
 
@@ -55,7 +52,6 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
-        supportsEIP1559,
       })
 
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
@@ -101,34 +97,37 @@ export class TradeExecution {
     supportsEIP1559,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
-    const buildSignBroadcast = async (
-      swapper: Swapper & SwapperApi,
-      {
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        supportsEIP1559,
-      }: CommonGetUnsignedTransactionArgs,
-    ) => {
-      if (!swapper.getUnsignedEvmTransaction) {
-        throw Error('missing implementation for getUnsignedEvmTransaction')
-      }
-      if (!swapper.executeEvmTransaction) {
-        throw Error('missing implementation for executeEvmTransaction')
-      }
+    const buildSignBroadcast =
+      (_supportsEIP1559: boolean) =>
+      async (
+        swapper: Swapper & SwapperApi,
+        {
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+        }: CommonGetUnsignedTransactionArgs,
+      ) => {
+        if (!swapper.getUnsignedEvmTransaction) {
+          throw Error('missing implementation for getUnsignedEvmTransaction')
+        }
+        if (!swapper.executeEvmTransaction) {
+          throw Error('missing implementation for executeEvmTransaction')
+        }
 
-      const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        from,
-        supportsEIP1559,
-      })
+        const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+          from,
+          supportsEIP1559: _supportsEIP1559,
+        })
 
-      return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
-    }
+        return await swapper.executeEvmTransaction(unsignedTxResult, {
+          signAndBroadcastTransaction,
+        })
+      }
 
     return await this._execWalletAgnostic(
       {
@@ -136,9 +135,8 @@ export class TradeExecution {
         tradeQuote,
         stepIndex,
         slippageTolerancePercentageDecimal,
-        supportsEIP1559,
       },
-      buildSignBroadcast,
+      buildSignBroadcast(supportsEIP1559),
     )
   }
 
@@ -148,34 +146,38 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
+    supportsEIP1559,
     signMessage,
   }: EvmMessageExecutionInput) {
-    const buildSignBroadcast = async (
-      swapper: Swapper & SwapperApi,
-      {
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTransactionArgs,
-    ) => {
-      if (!swapper.getUnsignedEvmMessage) {
-        throw Error('missing implementation for getUnsignedEvmMessage')
-      }
-      if (!swapper.executeEvmMessage) {
-        throw Error('missing implementation for executeEvmMessage')
-      }
+    const buildSignBroadcast =
+      (_supportsEIP1559: boolean) =>
+      async (
+        swapper: Swapper & SwapperApi,
+        {
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+        }: CommonGetUnsignedTransactionArgs,
+      ) => {
+        if (!swapper.getUnsignedEvmMessage) {
+          throw Error('missing implementation for getUnsignedEvmMessage')
+        }
+        if (!swapper.executeEvmMessage) {
+          throw Error('missing implementation for executeEvmMessage')
+        }
 
-      const unsignedTxResult = await swapper.getUnsignedEvmMessage({
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        from,
-      })
+        const unsignedTxResult = await swapper.getUnsignedEvmMessage({
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+          from,
+          supportsEIP1559: _supportsEIP1559,
+        })
 
-      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
-    }
+        return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+      }
 
     return await this._execWalletAgnostic(
       {
@@ -184,7 +186,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
       },
-      buildSignBroadcast,
+      buildSignBroadcast(supportsEIP1559),
     )
   }
 

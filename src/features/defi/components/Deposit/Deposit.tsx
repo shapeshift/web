@@ -103,8 +103,6 @@ export const Deposit = ({
     },
   })
 
-  console.log({ errors, isValid })
-
   const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
@@ -224,7 +222,7 @@ export const Deposit = ({
         <Button
           size='lg'
           width='full'
-          colorScheme={fieldError || !isValid ? 'red' : 'blue'}
+          colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid || isLoading}
           isLoading={isLoading}
           type='submit'

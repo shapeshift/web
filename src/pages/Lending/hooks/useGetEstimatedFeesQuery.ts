@@ -60,6 +60,8 @@ export const useGetEstimatedFeesQuery = ({
     staleTime: 30_000,
     queryFn,
     enabled: enabled && Boolean(estimateFeesInput.to && estimateFeesInput.accountId && asset),
+    refetchIntervalInBackground: true,
+    refetchInterval: 5000,
   })
 
   return getEstimatedFeesQuery

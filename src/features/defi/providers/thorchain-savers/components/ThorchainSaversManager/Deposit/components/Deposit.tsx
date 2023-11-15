@@ -487,7 +487,9 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
+        console.log({ estimatedFeesData })
         const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(formValues)
+        console.log({ estimatedGasCryptoPrecision })
         if (!estimatedGasCryptoPrecision) return
         contextDispatch({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,

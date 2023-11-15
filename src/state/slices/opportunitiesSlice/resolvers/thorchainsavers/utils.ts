@@ -418,7 +418,9 @@ export const getThorchainFromAddress = async ({
     })
     if (!position) throw new Error(`No position found for assetId: ${assetId}`)
     const address: string = (() => {
+      // THORChain lending position
       if ('owner' in position) return position.owner
+      // THORChain savers position
       if ('asset_address' in position) return position.asset_address
       // For type completeness - if we have a response, we *should* either have an `owner` or `asset_address` property
       return ''

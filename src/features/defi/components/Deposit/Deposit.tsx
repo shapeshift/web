@@ -103,6 +103,8 @@ export const Deposit = ({
     },
   })
 
+  console.log({ errors, isValid })
+
   const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
@@ -223,7 +225,7 @@ export const Deposit = ({
           size='lg'
           width='full'
           colorScheme={fieldError ? 'red' : 'blue'}
-          isDisabled={!isValid}
+          isDisabled={!isValid || isLoading}
           isLoading={isLoading}
           type='submit'
           data-test='defi-modal-continue-button'

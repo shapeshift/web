@@ -43,11 +43,12 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
         return blockHeight
       })()
 
-      const mimirPromise = axios.get<Record<string, unknown>>(
-        `${daemonUrl}/lcd/thorchain/mimir`,
-      )
+      const mimirPromise = axios.get<Record<string, unknown>>(`${daemonUrl}/lcd/thorchain/mimir`)
 
-      const [maybeBlockHeight, { data: mimir }] = await Promise.all([maybeBlockHeightPromise, mimirPromise])
+      const [maybeBlockHeight, { data: mimir }] = await Promise.all([
+        maybeBlockHeightPromise,
+        mimirPromise,
+      ])
       // TODO(gomes): this is the repayment lock of the pool - not the borrower's
       // we will want to make it programmatic in case there's an active position.
       // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
@@ -68,7 +69,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
       if (!maybePosition)
         return bnOrZero(repaymentMaturity)
-          .times(thorchainBlockTime)
+          .times(thorchainBlockTimeSeconds)
           .div(60 * 60 * 24)
           .toString()
 
@@ -78,7 +79,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       const repaymentLock = bnOrZero(repaymentBlock)
         .minus(maybeBlockHeight!)
-        .times(thorchainBlockTime)
+        .times(thorchainBlockTimeSeconds)
         .div(60 * 60 * 24)
         .toFixed(1)
 

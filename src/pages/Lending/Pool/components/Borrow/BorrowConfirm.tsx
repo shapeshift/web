@@ -179,9 +179,6 @@ export const BorrowConfirm = ({
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: lendingQuoteData.quoteInboundAddress,
-        // We assume the funds are already in the right address at this point
-        // Since we're relying on a mempool Tx and not waiting for completion, we can't use a `from` address
-        // as the balance would not be confirmed yet
         from,
         sendMax: false,
         accountId: collateralAccountId,

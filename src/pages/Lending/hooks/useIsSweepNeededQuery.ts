@@ -36,10 +36,10 @@ export const useIsSweepNeededQuery = ({
 
       const addressAccount = await adapter?.getAccount(address)
       const hasEnoughBalance = bnOrZero(amountCryptoBaseUnit)
-        .minus(bnOrZero(txFeeCryptoBaseUnit))
+        .plus(bnOrZero(txFeeCryptoBaseUnit))
         .lte(addressAccount.balance)
 
-      return hasEnoughBalance
+      return !hasEnoughBalance
     },
     [amountCryptoBaseUnit, txFeeCryptoBaseUnit],
   )

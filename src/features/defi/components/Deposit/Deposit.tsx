@@ -15,7 +15,7 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
   accountId?: AccountId | undefined
@@ -36,7 +36,9 @@ type DepositProps = {
   // Asset market data
   marketData: MarketData
   onAccountIdChange?: AccountDropdownProps['onChange']
-  onPercentClick?: (percent: number) => void
+  onPercentClick?: (
+    percent: number,
+  ) => Promise<{ amountCryptoPrecision: string; fiatAmount: string }>
   onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
@@ -144,11 +146,28 @@ export const Deposit = ({
   )
 
   const handlePercentClick = useCallback(
-    (percent: number) => {
-      if (onPercentClick) onPercentClick(percent)
-      // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
-      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
+    async (percent: number) => {
+      const { percentageCryptoAmount, percentageFiatAmount } = await (async () => {
+        if (onPercentClick) {
+          const { amountCryptoPrecision: _amountCryptoPrecision, fiatAmount: _fiatAmount } =
+            await onPercentClick(percent)
+          return {
+            percentageCryptoAmount: bn(_amountCryptoPrecision),
+            percentageFiatAmount: _fiatAmount,
+          }
+        }
+
+        const _percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+        const _percentageFiatAmount = _percentageCryptoAmount.times(marketData.price)
+
+        return {
+          percentageCryptoAmount: _percentageCryptoAmount,
+          percentageFiatAmount: _percentageFiatAmount,
+        }
+      })()
+
+      console.log({ percentageCryptoAmount, percentageFiatAmount })
+
       const percentageCryptoAmountHuman = percentageCryptoAmount
         .decimalPlaces(asset.precision)
         .toString()
@@ -157,6 +176,7 @@ export const Deposit = ({
       })
       // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
       // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      // TODO(gomes): actually do it in this PR
       setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
         shouldValidate: true,
       })

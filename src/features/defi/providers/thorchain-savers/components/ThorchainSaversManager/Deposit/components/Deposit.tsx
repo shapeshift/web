@@ -702,6 +702,10 @@ export const Deposit: React.FC<DepositProps> = ({
             queryFn: getEstimatedFeesQueryFn,
           })
         : undefined
+      console.log({
+        estimatedFeesQueryKey,
+        _estimatedFeesData,
+      })
       const _hasEnoughBalanceForTxPlusFeesPlusSweep =
         bnOrZero(balanceCryptoBaseUnit).gt(0) &&
         getHasEnoughBalanceForTxPlusFeesPlusSweep({
@@ -767,7 +771,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
-          cryptoAmount: value,
+          cryptoAmount: valueCryptoPrecision.toFixed(),
           assetId,
           to: fromAddress ?? '',
           sendMax: false,
@@ -794,14 +798,16 @@ export const Deposit: React.FC<DepositProps> = ({
         txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
       })
       const isSweepNeededQueryEnabled = Boolean(
-        bnOrZero(value).gt(0) && _estimatedFeesData && _hasEnoughBalanceForTxPlusFees,
+        bnOrZero(valueCryptoPrecision).gt(0) &&
+          _estimatedFeesData &&
+          _hasEnoughBalanceForTxPlusFees,
       )
 
       const isSweepNeededQueryArgs = {
         assetId,
         address: fromAddress,
         txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-        amountCryptoBaseUnit: bnOrZero(value ?? '0')
+        amountCryptoBaseUnit: bnOrZero(valueCryptoPrecision ?? '0')
           .times(bn(10).pow(asset.precision))
           .toString(),
       }
@@ -875,7 +881,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [cryptoAmountAvailable, marketData?.price],
   )
 
-  const handleSendMax = useCallback(
+  const setIsSendMax = useCallback(
     (isSendMax?: boolean) => {
       if (!contextDispatch) return
 
@@ -887,8 +893,157 @@ export const Deposit: React.FC<DepositProps> = ({
     [contextDispatch],
   )
   const handlePercentClick = useCallback(
-    (percent: number) => handleSendMax(percent === 1),
-    [handleSendMax],
+    async (percent: number) => {
+      setIsSendMax(percent === 1)
+
+      const _percentageCryptoAmountPrecisionBeforeTxFees =
+        bnOrZero(cryptoAmountAvailable).times(percent)
+
+      const estimateFeesQueryEnabled = Boolean(
+        fromAddress && accountId && isUtxoChainId(asset.chainId),
+      )
+      // Fees before fees isn't a typo, it's an actual flow:
+      // 1. We get the initial fees to proceed to fee deduction to get the amount after fees
+      // However, the amount we get is not reliable just yet, since send max, by definition, do not create a change output
+      // and are effectively cheaper than partial sends here
+      const estimatedFeesBeforeFeesQueryArgs = {
+        estimateFeesInput: {
+          cryptoAmount: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
+          assetId,
+          to: fromAddress ?? '',
+          sendMax: false,
+          accountId: accountId ?? '',
+          contractAddress: undefined,
+        },
+        asset,
+        assetMarketData: marketData,
+        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+      }
+      const estimatedFeesBeforeFeesQueryKey: EstimatedFeesQueryKey = [
+        'estimateFees',
+        estimatedFeesBeforeFeesQueryArgs,
+      ]
+
+      const _estimatedFeesBeforeFeesData = estimateFeesQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: estimatedFeesBeforeFeesQueryKey,
+            queryFn: getEstimatedFeesQueryFn,
+          })
+        : undefined
+
+      const isSweepNeededQueryEnabled = Boolean(
+        _percentageCryptoAmountPrecisionBeforeTxFees.gt(0) && _estimatedFeesBeforeFeesData,
+      )
+
+      const isSweepNeededQueryArgs = {
+        assetId,
+        address: fromAddress,
+        // Assune 0 fees, so that sweep needed properly return true/false
+        txFeeCryptoBaseUnit: '0',
+        amountCryptoBaseUnit: _percentageCryptoAmountPrecisionBeforeTxFees
+          .times(bn(10).pow(asset.precision))
+          .toString(),
+      }
+
+      const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
+      const _isSweepNeeded = isSweepNeededQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: isSweepNeededQueryKey,
+            queryFn: isSweepNeededQueryFn,
+          })
+        : undefined
+
+      const isEstimateSweepFeesQueryEnabled = Boolean(
+        _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),
+      )
+      const estimatedSweepFeesQueryArgs = {
+        asset,
+        assetMarketData: marketData,
+        estimateFeesInput: {
+          cryptoAmount: '0',
+          assetId,
+          to: fromAddress ?? '',
+          sendMax: true,
+          accountId: accountId ?? '',
+          contractAddress: undefined,
+        },
+        enabled: isEstimateSweepFeesQueryEnabled,
+      }
+      const estimatedSweepFeesQueryKey: EstimatedFeesQueryKey = [
+        'estimateFees',
+        estimatedSweepFeesQueryArgs,
+      ]
+      const _estimatedSweepFeesData = isEstimateSweepFeesQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: estimatedSweepFeesQueryKey,
+            queryFn: getEstimatedFeesQueryFn,
+          })
+        : undefined
+
+      const _percentageCryptoAmountPrecisionAfterTxFeesAndSweep =
+        _percentageCryptoAmountPrecisionBeforeTxFees
+          .minus(
+            bnOrZero(_estimatedFeesBeforeFeesData?.txFeeCryptoBaseUnit).div(
+              bn(10).pow(asset.precision),
+            ),
+          )
+          .minus(
+            bnOrZero(_estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+          )
+
+      const estimatedFeesAfterFeesQueryArgs = {
+        estimateFeesInput: {
+          cryptoAmount: _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
+          assetId,
+          to: fromAddress ?? '',
+          sendMax: false,
+          accountId: accountId ?? '',
+          contractAddress: undefined,
+        },
+        asset,
+        assetMarketData: marketData,
+        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+      }
+      const estimatedFeesAfterFeesQueryKey: EstimatedFeesQueryKey = [
+        'estimateFees',
+        estimatedFeesAfterFeesQueryArgs,
+      ]
+
+      const _estimatedFeesAfterFeesData = estimateFeesQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: estimatedFeesAfterFeesQueryKey,
+            queryFn: getEstimatedFeesQueryFn,
+          })
+        : undefined
+
+      const _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep =
+        _percentageCryptoAmountPrecisionBeforeTxFees
+          .minus(
+            bnOrZero(_estimatedFeesAfterFeesData?.txFeeCryptoBaseUnit).div(
+              bn(10).pow(asset.precision),
+            ),
+          )
+          .minus(
+            bnOrZero(_estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+          )
+      const _percentageFiatAmount = _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
+        marketData.price,
+      )
+      return {
+        amountCryptoPrecision: _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
+        fiatAmount: _percentageFiatAmount.toFixed(),
+      }
+    },
+    [
+      accountId,
+      asset,
+      assetId,
+      cryptoAmountAvailable,
+      fromAddress,
+      marketData,
+      queryClient,
+      setIsSendMax,
+    ],
   )
 
   useEffect(() => {

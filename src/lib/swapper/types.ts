@@ -194,7 +194,7 @@ export type CosmosSdkTransactionExecutionProps = {
   signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
-type EvmAccountMetadata = { from: string; supportsEIP1559: boolean }
+type EvmAccountMetadata = { from: string }
 type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 

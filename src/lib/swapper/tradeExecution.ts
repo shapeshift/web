@@ -146,38 +146,34 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
-    supportsEIP1559,
     signMessage,
   }: EvmMessageExecutionInput) {
-    const buildSignBroadcast =
-      (_supportsEIP1559: boolean) =>
-      async (
-        swapper: Swapper & SwapperApi,
-        {
-          tradeQuote,
-          chainId,
-          stepIndex,
-          slippageTolerancePercentageDecimal,
-        }: CommonGetUnsignedTransactionArgs,
-      ) => {
-        if (!swapper.getUnsignedEvmMessage) {
-          throw Error('missing implementation for getUnsignedEvmMessage')
-        }
-        if (!swapper.executeEvmMessage) {
-          throw Error('missing implementation for executeEvmMessage')
-        }
-
-        const unsignedTxResult = await swapper.getUnsignedEvmMessage({
-          tradeQuote,
-          chainId,
-          stepIndex,
-          slippageTolerancePercentageDecimal,
-          from,
-          supportsEIP1559: _supportsEIP1559,
-        })
-
-        return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedEvmMessage) {
+        throw Error('missing implementation for getUnsignedEvmMessage')
       }
+      if (!swapper.executeEvmMessage) {
+        throw Error('missing implementation for executeEvmMessage')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedEvmMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+      })
+
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -186,7 +182,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
       },
-      buildSignBroadcast(supportsEIP1559),
+      buildSignBroadcast,
     )
   }
 

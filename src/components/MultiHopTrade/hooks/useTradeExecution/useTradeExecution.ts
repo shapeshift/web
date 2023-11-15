@@ -109,7 +109,6 @@ export const useTradeExecution = () => {
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
-        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
         const output = await execution.execEvmMessage({
           swapperName,
@@ -117,7 +116,6 @@ export const useTradeExecution = () => {
           stepIndex: activeStepOrDefault,
           slippageTolerancePercentageDecimal,
           from,
-          supportsEIP1559,
           signMessage: async (message: string) => {
             const messageToSign: ETHSignMessage = {
               addressNList: toAddressNList(bip44Params),

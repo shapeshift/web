@@ -252,7 +252,6 @@ export const RepayInput = ({
 
   const quoteErrorTranslation = useMemo(() => {
     if (!hasEnoughBalance) return 'common.insufficientFunds'
-    console.log({ lendingQuoteCloseError })
     if (isLendingQuoteCloseError) {
       if (
         /not enough fee/i.test(lendingQuoteCloseError.message) ||

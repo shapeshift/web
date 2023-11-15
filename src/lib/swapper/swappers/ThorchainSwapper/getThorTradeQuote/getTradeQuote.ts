@@ -16,7 +16,6 @@ import { assertUnreachable } from 'lib/utils'
 import { viemClientByChainId } from 'lib/viem-client'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
-import { zrxApi } from '../../ZrxSwapper/endpoints'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
 import { getTokenFromAsset, getWrappedToken } from '../utils/longTailHelpers'

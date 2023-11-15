@@ -1,10 +1,9 @@
-import { Box, Button, Divider, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { bn, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import { useCallback, useEffect, useState } from 'react'
-import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -115,8 +114,8 @@ export const Sweep = ({
 
   return (
     <Stack spacing={0} divider={divider}>
-      <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
-        <Stack flex={1} spacing={6} p={4} textAlign='center'>
+      <Stack py={4} spacing={4} fontSize='sm' fontWeight='medium'>
+        <Stack flex={1} spacing={6} textAlign='center'>
           <Stack
             spacing={4}
             direction='row'
@@ -126,11 +125,45 @@ export const Sweep = ({
             pt={6}
           >
             {providerIcon && (
-              <>
-                <AssetIcon src={asset.icon} />
-                <FaExchangeAlt />
-                <AssetIcon src={providerIcon} size='md' />
-              </>
+              <Flex gap={2} alignItems='center' flexDir='column'>
+                <Flex gap={4}>
+                  <AssetIcon size='xs' src={asset.icon} />
+                  <AssetIcon position='relative' size='xs' src={asset.icon} mt={-4} />
+                  <AssetIcon size='xs' src={asset.icon} />
+                </Flex>
+                <Box position='relative'>
+                  <Box
+                    position='absolute'
+                    width='50px'
+                    height='auto'
+                    borderBottomWidth={2}
+                    borderStyle='dotted'
+                    borderColor='border.base'
+                    transform='rotate(90deg)'
+                  />
+                  <Box
+                    position='absolute'
+                    width='50px'
+                    height='auto'
+                    borderBottomWidth={2}
+                    borderStyle='dotted'
+                    borderColor='border.base'
+                    transformOrigin='0 0'
+                    transform='rotate(-135deg) translate(-45%)'
+                  />
+                  <Box
+                    position='absolute'
+                    width='50px'
+                    height='auto'
+                    borderBottomWidth={2}
+                    borderStyle='dotted'
+                    borderColor='border.base'
+                    transformOrigin='100% 0'
+                    transform='rotate(-45deg) translate(30%)'
+                  />
+                  <AssetIcon size='md' src={asset.icon} />
+                </Box>
+              </Flex>
             )}
           </Stack>
           <Stack>
@@ -158,11 +191,11 @@ export const Sweep = ({
               colorScheme='gray'
               isDisabled={false}
             >
-              {translate('modals.approve.reject')}
+              {translate('common.cancel')}
             </Button>
           </Stack>
         </Stack>
-        <Stack p={4}>
+        <Stack px={2}>
           <Row>
             <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
             <Row.Value>

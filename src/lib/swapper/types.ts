@@ -249,7 +249,7 @@ export type EvmTransactionRequest = {
   value: string
   data: string
   chainId: number
-} & evm.ethereum.Fees
+} & evm.types.Fees
 
 export type CowMessageToSign = {
   chainId: ChainId

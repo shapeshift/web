@@ -661,6 +661,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }).catch(async e => {
       if (!isUtxoChainId(chainId)) throw e
 
+      // TODO(gomes): remove me and use the same logic as deposits
       // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
       const preWithdrawInput = await getPreWithdrawInput()
       if (!preWithdrawInput) throw new Error('Error building send input')

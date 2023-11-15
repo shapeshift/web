@@ -409,7 +409,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (isTokenDeposit) return
     if (!contextDispatch) return
     if (!(accountId && assetId && feeAsset)) return
-    console.log({ cryptoAmount: state?.deposit.cryptoAmount })
+    debugger
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
     }
@@ -480,6 +480,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const memoUtf8 = quote.memo
 
+      debugger
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         assetId,

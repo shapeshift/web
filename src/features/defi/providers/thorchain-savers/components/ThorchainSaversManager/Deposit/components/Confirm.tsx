@@ -409,11 +409,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (isTokenDeposit) return
     if (!contextDispatch) return
     if (!(accountId && assetId && feeAsset)) return
+    console.log({ cryptoAmount: state?.deposit.cryptoAmount })
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
     }
 
     try {
+      // TODO(gomes): this may not be required now that we have moved the reconciliation to its own step
       // Estimated fees tend to produce too low fees on e.g Dogecoin
       // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
       const estimatedFees = await getSafeEstimatedFees()

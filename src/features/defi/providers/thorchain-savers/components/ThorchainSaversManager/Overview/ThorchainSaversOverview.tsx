@@ -271,7 +271,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: hasPendingTxs || hasPendingQueries,
+        isDisabled: false,
         toolTip:
           hasPendingTxs || hasPendingQueries
             ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')

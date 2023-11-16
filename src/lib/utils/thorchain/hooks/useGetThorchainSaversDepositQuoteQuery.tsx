@@ -27,6 +27,7 @@ export const queryFn = async ({
   return maybeQuote.unwrap()
 }
 
+// TODO(gomes): consume me everywhere instead of getMaybeThorchainSaversDepositQuote
 export const useGetThorchainSaversDepositQuoteQuery = ({
   asset,
   amountCryptoBaseUnit,

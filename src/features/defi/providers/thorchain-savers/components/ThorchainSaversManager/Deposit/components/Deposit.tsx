@@ -400,7 +400,10 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
-  // TODO(gomes): actually check for enough balance here
+  // the current workaround is to not do fee deduction for non-UTXO chains,
+  // but for consistency, we should for native EVM assets, and ensure this is a no-op for tokens
+  // Note when implementing this, fee checks/deduction will need to either be done for *native* assets only
+  // or handle different denoms for tokens/native assets and display insufficientFundsForProtocolFee copy
   const getHasEnoughBalanceForTxPlusFees = useCallback(
     ({
       balanceCryptoBaseUnit,

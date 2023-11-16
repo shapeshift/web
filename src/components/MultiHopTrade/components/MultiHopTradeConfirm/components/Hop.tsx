@@ -30,7 +30,7 @@ import {
   selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { TradeType } from '../types'
 import { getHopExecutionState } from '../utils/getHopExecutionState'
@@ -61,10 +61,11 @@ export const Hop = ({
   const borderColor = useColorModeValue('gray.50', 'gray.650')
   const chevronUpIcon = useMemo(() => <ChevronUpIcon boxSize='16px' />, [])
   const chevronDownIcon = useMemo(() => <ChevronDownIcon boxSize='16px' />, [])
-  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), hopIndex)
-  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(
-    store.getState(),
-    hopIndex,
+  const networkFeeFiatPrecision = useAppSelector(state =>
+    selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
+  )
+  const protocolFeeFiatPrecision = useAppSelector(state =>
+    selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)

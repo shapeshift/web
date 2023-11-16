@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   FeeData,
   FeeDataEstimate,
@@ -57,6 +57,7 @@ import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
   getMaybeThorchainSaversDepositQuote,
+  getThorchainFromAddress,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
   toThorBaseUnit,
@@ -635,28 +636,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params && accountType)) return
     ;(async () => {
-      const accountAddress = isUtxoChainId(chainId)
-        ? await getThorchainSaversPosition({ accountId, assetId })
-            .then(position => {
-              if (!position) throw new Error(`No position found for assetId: ${assetId}`)
-              const { asset_address } = position
-              return chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
-            })
-            .catch(async () => {
-              const firstReceiveAddress = await chainAdapter.getAddress({
-                wallet,
-                accountNumber: bip44Params.accountNumber,
-                accountType,
-                index: 0,
-              })
-
-              return firstReceiveAddress
-            })
-        : ''
+      const accountAddress = await getThorchainFromAddress({
+        accountId,
+        assetId,
+        wallet,
+        accountMetadata,
+        getPosition: getThorchainSaversPosition,
+      })
 
       setMaybeFromUTXOAccountAddress(accountAddress)
     })()
-  }, [chainId, accountId, assetId, chainAdapter, wallet, bip44Params, accountType])
+  }, [accountId, accountMetadata, accountType, assetId, bip44Params, chainAdapter, wallet])
 
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return

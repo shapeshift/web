@@ -4,6 +4,29 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
+export type GetThorchainSaversDepositQuoteQueryKey = [
+  'thorchainSaversDepositQuote',
+  {
+    asset: Asset
+    amountCryptoBaseUnit: BigNumber.Value | null | undefined
+  },
+]
+export const queryFn = async ({
+  queryKey,
+}: {
+  queryKey: GetThorchainSaversDepositQuoteQueryKey
+}) => {
+  const [, { asset, amountCryptoBaseUnit }] = queryKey
+  const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+    asset,
+    amountCryptoBaseUnit,
+  })
+
+  if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+  return maybeQuote.unwrap()
+}
+
 export const useGetThorchainSaversDepositQuoteQuery = ({
   asset,
   amountCryptoBaseUnit,
@@ -11,25 +34,16 @@ export const useGetThorchainSaversDepositQuoteQuery = ({
   asset: Asset
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
 }) => {
-  const depositQuoteQueryKey = useMemo(
-    () => ['thorchainLendingPoolData', { asset, amountCryptoBaseUnit }] as const,
+  const depositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = useMemo(
+    () => ['thorchainSaversDepositQuote', { asset, amountCryptoBaseUnit }],
     [amountCryptoBaseUnit, asset],
   )
 
   const depositQuoteQuery = useQuery({
     queryKey: depositQuoteQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [, { asset, amountCryptoBaseUnit }] = queryKey
-      const maybeQuote = await getMaybeThorchainSaversDepositQuote({
-        asset,
-        amountCryptoBaseUnit,
-      })
-
-      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
-
-      return maybeQuote.unwrap()
-    },
+    queryFn,
     enabled: true,
+    staleTime: 5000,
   })
 
   return depositQuoteQuery

@@ -259,7 +259,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               label: 'common.deposit',
               icon: <ArrowUpIcon />,
               action: DefiAction.Deposit,
-              isDisabled: false,
+              isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHalted,
               toolTip: (() => {
                 if (hasPendingTxs || hasPendingQueries)
                   return translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
@@ -271,7 +271,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: false,
+        isDisabled: hasPendingTxs || hasPendingQueries,
         toolTip:
           hasPendingTxs || hasPendingQueries
             ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')

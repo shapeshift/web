@@ -1,12 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  FeeData,
-  FeeDataEstimate,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -103,10 +97,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunity = useMemo(() => state?.opportunity, [state])
   const assets = useAppSelector(selectAssets)
 
-  // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
-  const chainAdapter = getChainAdapterManager().get(
-    chainId,
-  ) as unknown as UtxoBaseAdapter<UtxoChainId>
+  const chainAdapter = getChainAdapterManager().get(chainId)!
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
@@ -278,21 +269,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const getSafeEstimatedFees = useCallback(async () => {
     const estimateFeesArgs = await getEstimateFeesArgs()
     if (!estimateFeesArgs) return
-    return Object.fromEntries(
-      Object.entries(await estimateFees(estimateFeesArgs)).map(([feeType, feeData]) => [
-        feeType as FeeDataKey,
-        {
-          ...feeData,
-          txFee: bn(feeData.txFee).times(2).toString(),
-          chainSpecific: {
-            ...(feeData as FeeData<UtxoChainId>).chainSpecific,
-            satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
-              .times(2)
-              .toString(),
-          },
-        },
-      ]),
-    ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
+    return estimateFees(estimateFeesArgs)
   }, [getEstimateFeesArgs])
 
   const getCustomTxInput: () => Promise<BuildCustomTxInput | undefined> = useCallback(async () => {
@@ -386,6 +363,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!contextDispatch) return
     ;(async () => {
+      // TODO(gomes): use new fees estimation hook here instead once support for non-UTXO chains and EVM assets is handled at consumption level
       const estimatedFees = await (isTokenDeposit ? getCustomTxFees() : getSafeEstimatedFees())
       if (!estimatedFees) return
 

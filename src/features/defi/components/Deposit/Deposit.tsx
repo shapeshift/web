@@ -166,8 +166,6 @@ export const Deposit = ({
         }
       })()
 
-      console.log({ percentageCryptoAmount, percentageFiatAmount })
-
       const percentageCryptoAmountHuman = percentageCryptoAmount
         .decimalPlaces(asset.precision)
         .toString()

@@ -48,7 +48,11 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import type { GetThorchainSaversDepositQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import {
+  queryFn as getThorchainSaversDepositQuoteQueryFn,
+  useGetThorchainSaversDepositQuoteQuery,
+} from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   queryFn as getEstimatedFeesQueryFn,
@@ -390,11 +394,11 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useGetEstimatedFeesQuery({
     cryptoAmount: inputValues?.cryptoAmount ?? '0',
     assetId,
-    to: fromAddress ?? '',
+    to: thorchainSaversDepositQuote?.inbound_address ?? '',
     sendMax: false,
     accountId: accountId ?? '',
     contractAddress: undefined,
-    enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+    enabled: Boolean(thorchainSaversDepositQuote && accountId && isUtxoChainId(asset.chainId)),
   })
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
@@ -639,11 +643,23 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimateFeesQueryEnabled = Boolean(
         fromAddress && accountId && isUtxoChainId(asset.chainId),
       )
+
+      const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
+        'thorchainSaversDepositQuote',
+        {
+          asset,
+          amountCryptoBaseUnit: valueCryptoBaseUnit,
+        },
+      ]
+      const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
+        queryKey: thorchainSaversDepositQuoteQueryKey,
+        queryFn: getThorchainSaversDepositQuoteQueryFn,
+      })
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
           cryptoAmount: value,
           assetId,
-          to: fromAddress ?? '',
+          to: _thorchainSaversDepositQuote?.inbound_address ?? '',
           sendMax: false,
           accountId: accountId ?? '',
           contractAddress: undefined,
@@ -713,10 +729,6 @@ export const Deposit: React.FC<DepositProps> = ({
             queryFn: getEstimatedFeesQueryFn,
           })
         : undefined
-      console.log({
-        estimatedFeesQueryKey,
-        _estimatedFeesData,
-      })
       const _hasEnoughBalanceForTxPlusFeesPlusSweep =
         bnOrZero(balanceCryptoBaseUnit).gt(0) &&
         getHasEnoughBalanceForTxPlusFeesPlusSweep({
@@ -780,11 +792,23 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimateFeesQueryEnabled = Boolean(
         fromAddress && accountId && isUtxoChainId(asset.chainId),
       )
+
+      const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
+        'thorchainSaversDepositQuote',
+        {
+          asset,
+          amountCryptoBaseUnit: valueCryptoBaseUnit,
+        },
+      ]
+      const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
+        queryKey: thorchainSaversDepositQuoteQueryKey,
+        queryFn: getThorchainSaversDepositQuoteQueryFn,
+      })
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
           cryptoAmount: valueCryptoPrecision.toFixed(),
           assetId,
-          to: fromAddress ?? '',
+          to: _thorchainSaversDepositQuote?.inbound_address ?? '',
           sendMax: false,
           accountId: accountId ?? '',
           contractAddress: undefined,

@@ -53,10 +53,11 @@ export const tradeQuoteSlice = createSlice({
 
       // skip second hop states for single hop trades
       if (
-        isMultiHopTrade &&
+        !isMultiHopTrade &&
         state.tradeExecutionStatus > MultiHopExecutionStatus.Hop1AwaitingTradeExecution
       ) {
         state.tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
+        return
       }
 
       state.tradeExecutionStatus += 1 as MultiHopExecutionStatus

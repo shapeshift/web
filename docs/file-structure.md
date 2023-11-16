@@ -36,9 +36,9 @@ Another common thing that makes components bloated is defining multiple function
 2. If anyone decides that they can reuse that code it's a quick and easy move to a shared folder.
 3. It can be confusing when you are looking for a component that is exported from a file that does not share the same name. It sounds trivial but it removes just a little bit of friction.
 
-### Use your judgement when splitting out components
+### Use your judgment when splitting out components
 
-You don't need to split out components just to split them out. If you define a component to use within the root component and it is a small couple line component maybe it does not need to be pulled out. But if you start getting components that is large and takes a hand full of props maybe it should be pulled out into it's own file.
+You don't need to split out components just to split them out. If you define a component to use within the root component and it is a small couple line component maybe it does not need to be pulled out. But if you start getting components that are large and take a hand full of props maybe it should be pulled out into its own file.
 
 ### Views should be dumb
 

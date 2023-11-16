@@ -26,6 +26,9 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepperStep } from 'components/MultiHopTrade/types'
 import { RawText } from 'components/Text'
 
+import { JuicyGreenCheck } from './JuicyGreenCheck'
+import { TimeRemaining } from './TimeRemaining'
+
 const cardBorderRadius = { base: 'xl' }
 
 export const Hop = ({
@@ -39,7 +42,6 @@ export const Hop = ({
   txStatus,
   isOpen,
   estimatedExecutionTimeMs,
-  executionTimeRemainingMs,
   onToggleIsOpen,
 }: {
   steps: StepperStep[]
@@ -52,11 +54,13 @@ export const Hop = ({
   txStatus?: TxStatus
   isOpen: boolean
   estimatedExecutionTimeMs?: number
-  executionTimeRemainingMs?: number
   onToggleIsOpen: () => void
 }) => {
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
+
+  const chevronUpIcon = useMemo(() => <ChevronUpIcon boxSize='16px' />, [])
+  const chevronDownIcon = useMemo(() => <ChevronDownIcon boxSize='16px' />, [])
 
   const rightComponent = useMemo(() => {
     switch (txStatus) {
@@ -69,8 +73,8 @@ export const Hop = ({
         )
       case TxStatus.Pending:
         return (
-          executionTimeRemainingMs !== undefined && (
-            <RawText>{prettyMilliseconds(executionTimeRemainingMs)}</RawText>
+          estimatedExecutionTimeMs !== undefined && (
+            <TimeRemaining initialTimeMs={estimatedExecutionTimeMs} />
           )
         )
       case TxStatus.Confirmed:
@@ -84,14 +88,32 @@ export const Hop = ({
               colorScheme='blue'
               onClick={onToggleIsOpen}
               width='full'
-              icon={isOpen ? <ChevronUpIcon boxSize='16px' /> : <ChevronDownIcon boxSize='16px' />}
+              icon={isOpen ? chevronUpIcon : chevronDownIcon}
             />
           </Box>
         )
       default:
         return null
     }
-  }, [estimatedExecutionTimeMs, executionTimeRemainingMs, isOpen, onToggleIsOpen, txStatus])
+  }, [chevronDownIcon, chevronUpIcon, estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
+
+  const stepperSteps = useMemo(
+    () =>
+      steps.map(({ title, stepIndicator, description, content, key }, index) => (
+        <Step key={key}>
+          <StepIndicator>{stepIndicator}</StepIndicator>
+
+          <Box flexShrink='0'>
+            <StepTitle>{title}</StepTitle>
+            {description && <StepDescription>{description}</StepDescription>}
+            {index === activeStep && content}
+            {index < steps.length - 1 && <Spacer height={6} />}
+          </Box>
+          <StepSeparator />
+        </Step>
+      )),
+    [activeStep, steps],
+  )
 
   return (
     <Card
@@ -103,28 +125,20 @@ export const Hop = ({
     >
       <HStack width='full' justifyContent='space-between' paddingLeft={6} marginTop={4}>
         <HStack>
-          <Circle size={8} borderColor={borderColor} borderWidth={2}>
-            <RawText as='b'>{hopIndex + 1}</RawText>
-          </Circle>
+          {activeStep >= steps.length ? (
+            <JuicyGreenCheck />
+          ) : (
+            <Circle size={8} borderColor={borderColor} borderWidth={2}>
+              <RawText as='b'>{hopIndex + 1}</RawText>
+            </Circle>
+          )}
           <RawText as='b'>{title}</RawText>
         </HStack>
         {rightComponent}
       </HStack>
       <Collapse in={isOpen}>
         <Stepper index={activeStep} orientation='vertical' gap='0' margin={6}>
-          {steps.map(({ title, stepIndicator, description, content, key }, index) => (
-            <Step key={key}>
-              <StepIndicator>{stepIndicator}</StepIndicator>
-
-              <Box flexShrink='0'>
-                <StepTitle>{title}</StepTitle>
-                {description && <StepDescription>{description}</StepDescription>}
-                {index === activeStep && content}
-                {index < steps.length - 1 && <Spacer height={6} />}
-              </Box>
-              <StepSeparator />
-            </Step>
-          ))}
+          {stepperSteps}
         </Stepper>
       </Collapse>
       <Divider />

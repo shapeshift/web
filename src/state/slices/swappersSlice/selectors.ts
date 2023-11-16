@@ -34,9 +34,8 @@ export const selectUserSlippagePercentageDecimal: Selector<ReduxState, string | 
     return bn(slippagePercentage).div(100).toString()
   })
 
-// selects the account ID we're selling from
-// note lack of "asset" and "hop" vernacular - this is deliberate
-export const selectSellAccountId = createSelector(
+// selects the account ID we're selling from for the first hop
+export const selectFirstHopSellAccountId = createSelector(
   selectSwappers,
   selectSellAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
@@ -56,9 +55,8 @@ export const selectSellAccountId = createSelector(
   },
 )
 
-// selects the account ID we're buying into
-// note lack of "asset" and "hop" vernacular - this is deliberate
-export const selectBuyAccountId = createSelector(
+// selects the account ID we're buying into for the first hop
+export const selectLastHopBuyAccountId = createSelector(
   selectSwappers,
   selectBuyAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,

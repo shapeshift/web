@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,15 +47,6 @@ export const swappers = createSlice({
       if (isSameAsSellAsset) state.sellAsset = state.buyAsset
 
       state.buyAsset = asset
-
-      const buyAssetChainId = state.buyAsset.chainId
-      const buyAssetAccountChainId = state.buyAssetAccountId
-        ? fromAccountId(state.buyAssetAccountId).chainId
-        : undefined
-
-      // reset user selection on mismatch
-      if (state.buyAssetAccountId && buyAssetChainId !== buyAssetAccountChainId)
-        state.buyAssetAccountId = undefined
     },
     setSellAsset: (state, action: PayloadAction<Asset>) => {
       const asset = action.payload
@@ -65,20 +56,11 @@ export const swappers = createSlice({
       if (isSameAsBuyAsset) state.buyAsset = state.sellAsset
 
       state.sellAsset = action.payload
-
-      const sellAssetChainId = state.sellAsset.chainId
-      const sellAssetAccountChainId = state.sellAssetAccountId
-        ? fromAccountId(state.sellAssetAccountId).chainId
-        : undefined
-
-      // reset user selection on mismatch
-      if (state.sellAssetAccountId && sellAssetChainId !== sellAssetAccountChainId)
-        state.sellAssetAccountId = undefined
     },
-    setSellAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
+    setSellAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {
       state.sellAssetAccountId = action.payload
     },
-    setBuyAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
+    setBuyAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {
       state.buyAssetAccountId = action.payload
     },
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {

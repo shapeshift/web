@@ -605,6 +605,130 @@ export const Deposit: React.FC<DepositProps> = ({
     browserHistory.goBack()
   }, [browserHistory])
 
+  const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = useCallback(
+    async (valueCryptoPrecision: string) => {
+      const isUtxoChain = isUtxoChainId(asset.chainId)
+      const estimateFeesQueryEnabled = Boolean(fromAddress && accountId && isUtxoChain)
+
+      const amountCryptoBaseUnit = bn(valueCryptoPrecision)
+        .times(bn(10).pow(asset.precision))
+        .toString()
+
+      const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
+        'thorchainSaversDepositQuote',
+        { asset, amountCryptoBaseUnit },
+      ]
+
+      const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
+        queryKey: thorchainSaversDepositQuoteQueryKey,
+        queryFn: getThorchainSaversDepositQuoteQueryFn,
+      })
+
+      const estimatedFeesQueryArgs = {
+        estimateFeesInput: {
+          cryptoAmount: valueCryptoPrecision,
+          assetId,
+          to: _thorchainSaversDepositQuote?.inbound_address ?? '',
+          sendMax: false,
+          accountId: accountId ?? '',
+          contractAddress: undefined,
+        },
+        asset,
+        assetMarketData: marketData,
+        enabled: estimateFeesQueryEnabled,
+      }
+
+      const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
+
+      const _estimatedFeesData = estimateFeesQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: estimatedFeesQueryKey,
+            queryFn: getEstimatedFeesQueryFn,
+          })
+        : undefined
+
+      const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
+        precision: asset.precision,
+        balanceCryptoBaseUnit,
+        amountCryptoPrecision: valueCryptoPrecision,
+        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
+      })
+
+      const isSweepNeededQueryEnabled = Boolean(
+        bnOrZero(valueCryptoPrecision).gt(0) &&
+          _estimatedFeesData &&
+          _hasEnoughBalanceForTxPlusFees,
+      )
+
+      const isSweepNeededQueryArgs = {
+        assetId,
+        address: fromAddress,
+        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+        amountCryptoBaseUnit,
+      }
+
+      const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
+
+      const _isSweepNeeded = isSweepNeededQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: isSweepNeededQueryKey,
+            queryFn: isSweepNeededQueryFn,
+          })
+        : undefined
+
+      const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
+
+      const estimatedSweepFeesQueryArgs = {
+        asset,
+        assetMarketData: marketData,
+        estimateFeesInput: {
+          cryptoAmount: '0',
+          assetId,
+          to: fromAddress ?? '',
+          sendMax: true,
+          accountId: accountId ?? '',
+          contractAddress: undefined,
+        },
+        enabled: isEstimateSweepFeesQueryEnabled,
+      }
+
+      const estimatedSweepFeesQueryKey: EstimatedFeesQueryKey = [
+        'estimateFees',
+        estimatedSweepFeesQueryArgs,
+      ]
+
+      const _estimatedSweepFeesData = isEstimateSweepFeesQueryEnabled
+        ? await queryClient.fetchQuery({
+            queryKey: estimatedSweepFeesQueryKey,
+            queryFn: getEstimatedFeesQueryFn,
+          })
+        : undefined
+
+      const hasEnoughBalanceForTxPlusFeesPlusSweep =
+        bnOrZero(balanceCryptoBaseUnit).gt(0) &&
+        getHasEnoughBalanceForTxPlusFeesPlusSweep({
+          precision: asset.precision,
+          balanceCryptoBaseUnit,
+          amountCryptoPrecision: valueCryptoPrecision,
+          txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+          sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
+        })
+
+      return hasEnoughBalanceForTxPlusFeesPlusSweep
+    },
+    [
+      accountId,
+      asset,
+      assetId,
+      balanceCryptoBaseUnit,
+      fromAddress,
+      getHasEnoughBalanceForTxPlusFees,
+      getHasEnoughBalanceForTxPlusFeesPlusSweep,
+      marketData,
+      queryClient,
+    ],
+  )
+
   const validateCryptoAmount = useCallback(
     async (value: string) => {
       const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
@@ -636,122 +760,19 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      // Balance / Fees / Sweep fees check outside of react
-      // These are very boilerplaty ~100 LoC checks, but ensure we use the react-query queries and the react-query cache
-      // We cannot use the react-query hooks here because of a catch-22 situation: the hooks are reactive,
-      // but by the time the validation methods are hit, hooks didn't react on input values just yet and only will a few render cycles later
-      const estimateFeesQueryEnabled = Boolean(
-        fromAddress && accountId && isUtxoChainId(asset.chainId),
-      )
+      const hasEnoughBalanceForTxPlusFeesPlusSweep =
+        await fetchHasEnoughBalanceForTxPlusFeesPlusSweep(value)
 
-      const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
-        'thorchainSaversDepositQuote',
-        {
-          asset,
-          amountCryptoBaseUnit: valueCryptoBaseUnit,
-        },
-      ]
-      const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
-        queryKey: thorchainSaversDepositQuoteQueryKey,
-        queryFn: getThorchainSaversDepositQuoteQueryFn,
-      })
-      const estimatedFeesQueryArgs = {
-        estimateFeesInput: {
-          cryptoAmount: value,
-          assetId,
-          to: _thorchainSaversDepositQuote?.inbound_address ?? '',
-          sendMax: false,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        asset,
-        assetMarketData: marketData,
-        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
-      }
-      const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
-
-      const _estimatedFeesData = estimateFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-
-      const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
-        precision: asset.precision,
-        balanceCryptoBaseUnit,
-        amountCryptoPrecision: value ?? '',
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
-      })
-      const isSweepNeededQueryEnabled = Boolean(
-        bnOrZero(value).gt(0) && _estimatedFeesData && _hasEnoughBalanceForTxPlusFees,
-      )
-
-      const isSweepNeededQueryArgs = {
-        assetId,
-        address: fromAddress,
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-        amountCryptoBaseUnit: bnOrZero(value ?? '0')
-          .times(bn(10).pow(asset.precision))
-          .toString(),
-      }
-      const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
-      const _isSweepNeeded = isSweepNeededQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: isSweepNeededQueryKey,
-            queryFn: isSweepNeededQueryFn,
-          })
-        : undefined
-
-      const isEstimateSweepFeesQueryEnabled = Boolean(
-        _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),
-      )
-      const estimatedSweepFeesQueryArgs = {
-        asset,
-        assetMarketData: marketData,
-        estimateFeesInput: {
-          cryptoAmount: '0',
-          assetId,
-          to: fromAddress ?? '',
-          sendMax: true,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        enabled: isEstimateSweepFeesQueryEnabled,
-      }
-      const estimatedSweepFeesQueryKey: EstimatedFeesQueryKey = [
-        'estimateFees',
-        estimatedSweepFeesQueryArgs,
-      ]
-      const _estimatedSweepFeesData = isEstimateSweepFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedSweepFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-      const _hasEnoughBalanceForTxPlusFeesPlusSweep =
-        bnOrZero(balanceCryptoBaseUnit).gt(0) &&
-        getHasEnoughBalanceForTxPlusFeesPlusSweep({
-          precision: asset.precision,
-          balanceCryptoBaseUnit,
-          amountCryptoPrecision: valueCryptoPrecision.toFixed(),
-          txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-          sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
-        })
-      return _hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
+      return hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
     },
     [
-      asset,
+      asset.precision,
+      asset.symbol,
+      balanceCryptoBaseUnit,
       assetId,
       outboundFeeCryptoBaseUnit,
       translate,
-      fromAddress,
-      accountId,
-      marketData,
-      queryClient,
-      getHasEnoughBalanceForTxPlusFees,
-      balanceCryptoBaseUnit,
-      getHasEnoughBalanceForTxPlusFeesPlusSweep,
+      fetchHasEnoughBalanceForTxPlusFeesPlusSweep,
     ],
   )
 
@@ -785,125 +806,19 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      // Balance / Fees / Sweep fees check outside of react
-      // These are very boilerplaty ~100 LoC checks, but ensure we use the react-query queries and the react-query cache
-      // We cannot use the react-query hooks here because of a catch-22 situation: the hooks are reactive,
-      // but by the time the validation methods are hit, hooks didn't react on input values just yet and only will a few render cycles later
-      const estimateFeesQueryEnabled = Boolean(
-        fromAddress && accountId && isUtxoChainId(asset.chainId),
-      )
-
-      const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
-        'thorchainSaversDepositQuote',
-        {
-          asset,
-          amountCryptoBaseUnit: valueCryptoBaseUnit,
-        },
-      ]
-      const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
-        queryKey: thorchainSaversDepositQuoteQueryKey,
-        queryFn: getThorchainSaversDepositQuoteQueryFn,
-      })
-      const estimatedFeesQueryArgs = {
-        estimateFeesInput: {
-          cryptoAmount: valueCryptoPrecision.toFixed(),
-          assetId,
-          to: _thorchainSaversDepositQuote?.inbound_address ?? '',
-          sendMax: false,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        asset,
-        assetMarketData: marketData,
-        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
-      }
-      const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
-
-      const _estimatedFeesData = estimateFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-
-      const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
-        precision: asset.precision,
-        balanceCryptoBaseUnit,
-        amountCryptoPrecision: valueCryptoPrecision.toFixed(),
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
-      })
-      const isSweepNeededQueryEnabled = Boolean(
-        bnOrZero(valueCryptoPrecision).gt(0) &&
-          _estimatedFeesData &&
-          _hasEnoughBalanceForTxPlusFees,
-      )
-
-      const isSweepNeededQueryArgs = {
-        assetId,
-        address: fromAddress,
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-        amountCryptoBaseUnit: bnOrZero(valueCryptoPrecision ?? '0')
-          .times(bn(10).pow(asset.precision))
-          .toString(),
-      }
-      const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
-      const _isSweepNeeded = isSweepNeededQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: isSweepNeededQueryKey,
-            queryFn: isSweepNeededQueryFn,
-          })
-        : undefined
-
-      const isEstimateSweepFeesQueryEnabled = Boolean(
-        _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),
-      )
-      const estimatedSweepFeesQueryArgs = {
-        asset,
-        assetMarketData: marketData,
-        estimateFeesInput: {
-          cryptoAmount: '0',
-          assetId,
-          to: fromAddress ?? '',
-          sendMax: true,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        enabled: isEstimateSweepFeesQueryEnabled,
-      }
-      const estimatedSweepFeesQueryKey: EstimatedFeesQueryKey = [
-        'estimateFees',
-        estimatedSweepFeesQueryArgs,
-      ]
-      const _estimatedSweepFeesData = isEstimateSweepFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedSweepFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-      const _hasEnoughBalanceForTxPlusFeesPlusSweep =
-        bnOrZero(balanceCryptoBaseUnit).gt(0) &&
-        getHasEnoughBalanceForTxPlusFeesPlusSweep({
-          precision: asset.precision,
-          balanceCryptoBaseUnit,
-          amountCryptoPrecision: valueCryptoPrecision.toFixed(),
-          txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-          sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
-        })
-
-      return _hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
+      const hasEnoughBalanceForTxPlusFeesPlusSweep =
+        await fetchHasEnoughBalanceForTxPlusFeesPlusSweep(valueCryptoPrecision.toFixed())
+      return hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
     },
     [
-      marketData,
+      marketData.price,
       balanceCryptoBaseUnit,
-      asset,
+      asset.precision,
+      asset.symbol,
       assetId,
       outboundFeeCryptoBaseUnit,
       translate,
-      fromAddress,
-      accountId,
-      queryClient,
-      getHasEnoughBalanceForTxPlusFees,
-      getHasEnoughBalanceForTxPlusFeesPlusSweep,
+      fetchHasEnoughBalanceForTxPlusFeesPlusSweep,
     ],
   )
 

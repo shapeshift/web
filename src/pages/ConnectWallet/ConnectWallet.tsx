@@ -296,10 +296,7 @@ export const ConnectWallet = () => {
             <Stack mt='auto' spacing={6}>
               <Flex flexDir='row' textAlign='left' fontSize='2xl' letterSpacing='tight'>
                 <RawText color='white' lineHeight='1' userSelect={'none'}>
-                  {translate('connectWalletPage.exploreThe')}{' '}
-                  <RawText color='white' fontWeight='bold' as='span'>
-                    {translate('connectWalletPage.defiUniverse')}
-                  </RawText>
+                  {translate('connectWalletPage.title')}
                 </RawText>
               </Flex>
               <Divider borderWidth={2} opacity='1' borderColor='white' maxWidth='80px' />
@@ -309,7 +306,7 @@ export const ConnectWallet = () => {
                 fontSize='lg'
                 mb={12}
                 textAlign='left'
-                translation={'connectWalletPage.body2'}
+                translation={'connectWalletPage.body'}
               />
             </Stack>
           </Center>

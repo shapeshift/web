@@ -11,7 +11,10 @@ import {
   selectAccountNumberByAccountId,
   selectPortfolioAccountIdByNumberByChainId,
 } from 'state/slices/portfolioSlice/selectors'
-import { selectBuyAccountId, selectSellAccountId } from 'state/slices/swappersSlice/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+} from 'state/slices/swappersSlice/selectors'
 import {
   selectLastHopBuyAsset,
   selectTotalProtocolFeeByAsset,
@@ -21,8 +24,8 @@ import { useAppSelector } from 'state/store'
 export const useInsufficientBalanceProtocolFeeMeta = () => {
   const wallet = useWallet().state.wallet
 
-  const sellAssetAccountId = useAppSelector(selectSellAccountId)
-  const buyAssetAccountId = useAppSelector(selectBuyAccountId)
+  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const buyAssetAccountId = useAppSelector(selectLastHopBuyAccountId)
   const sellAssetAccountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, { accountId: sellAssetAccountId }),
   )

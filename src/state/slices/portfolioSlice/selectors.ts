@@ -17,6 +17,7 @@ import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
+import type { PartialRecord } from 'lib/utils'
 import { hashCode, isValidAccountNumber } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -801,18 +802,23 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
 export const selectAccountIdByAccountNumberAndChainId = createSelector(
   selectWalletAccountIds,
   selectPortfolioAccountMetadata,
-  selectAccountNumberParamFromFilter,
-  selectChainIdParamFromFilter,
-  (walletAccountIds, accountMetadata, accountNumber, chainId): AccountId | undefined => {
-    if (!isValidAccountNumber(accountNumber))
-      throw new Error(`invalid account number: ${accountNumber}`)
-    if (chainId === undefined) throw new Error('undefined chain id')
+  (walletAccountIds, accountMetadata): PartialRecord<number, PartialRecord<ChainId, AccountId>> => {
+    const result: PartialRecord<number, PartialRecord<ChainId, AccountId>> = {}
 
-    return walletAccountIds.find(accountId => {
-      if (fromAccountId(accountId).chainId !== chainId) return false
-      if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
-      return true
-    })
+    for (const accountId of walletAccountIds) {
+      const { chainId } = fromAccountId(accountId)
+      const { accountNumber } = accountMetadata[accountId].bip44Params
+
+      const entry = result[accountNumber]
+
+      if (entry === undefined) {
+        result[accountNumber] = { [chainId]: accountId }
+      } else {
+        entry[chainId] = accountId
+      }
+    }
+
+    return result
   },
 )
 

@@ -79,6 +79,7 @@ export type TradeAmountInputProps = {
   labelPostFix?: JSX.Element
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
+  isAccountSelectionDisabled?: boolean
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -92,6 +93,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     onMaxClick,
     onPercentOptionClick,
     onAccountIdChange,
+    isAccountSelectionDisabled,
     cryptoAmount,
     isReadOnly,
     isSendMaxDisabled,
@@ -197,7 +199,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               defaultAccountId={accountId}
               assetId={assetId}
               onChange={onAccountIdChange}
-              disabled={false}
+              disabled={isAccountSelectionDisabled}
               autoSelectHighestBalance
               buttonProps={buttonProps}
               boxProps={boxProps}

@@ -391,45 +391,23 @@ export const TradeInput = memo(() => {
   const sellTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
-        accountId={sellAssetAccountId}
-        onAccountIdChange={setSellAssetAccountId}
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
-        label={translate('trade.from')}
         onAssetChange={setSellAsset}
       />
     ),
-    [
-      handleSellAssetClick,
-      sellAsset.assetId,
-      sellAssetAccountId,
-      setSellAsset,
-      setSellAssetAccountId,
-      translate,
-    ],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
-        accountId={buyAssetAccountId}
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
-        onAccountIdChange={setBuyAssetAccountId}
-        accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-        label={translate('trade.to')}
         onAssetChange={setBuyAsset}
       />
     ),
-    [
-      buyAsset.assetId,
-      buyAssetAccountId,
-      handleBuyAssetClick,
-      setBuyAsset,
-      setBuyAssetAccountId,
-      swapperSupportsCrossAccountTrade,
-      translate,
-    ],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   return (
@@ -503,6 +481,7 @@ export const TradeInput = memo(() => {
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
               onAccountIdChange={setBuyAssetAccountId}
+              isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
             >

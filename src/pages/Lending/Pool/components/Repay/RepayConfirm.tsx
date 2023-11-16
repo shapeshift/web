@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,6 +33,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
@@ -136,6 +136,7 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
+      isLoanClosePending,
     }),
     [
       collateralAccountId,
@@ -143,6 +144,7 @@ export const RepayConfirm = ({
       repaymentAccountId,
       repaymentAsset?.assetId,
       repaymentPercent,
+      isLoanClosePending,
     ],
   )
 
@@ -154,13 +156,11 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  // TODO(gomes): handle error (including trading halted) and loading states here
   const handleRepay = useCallback(async () => {
     if (
       !(
         repaymentAsset &&
         wallet &&
-        supportsETH(wallet) &&
         chainAdapter &&
         lendingQuoteCloseData &&
         repaymentAmountCryptoPrecision
@@ -223,6 +223,15 @@ export const RepayConfirm = ({
     selectedCurrency,
     wallet,
   ])
+
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      repaymentAccountId,
+      repaymentPercent,
+      repaymentAsset,
+    })
 
   if (!collateralAsset || !repaymentAsset) return null
   return (
@@ -302,7 +311,9 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteCloseLoading)}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>

@@ -1,7 +1,10 @@
-import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
+import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -9,46 +12,105 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import type { LendingDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
 import { getMaybeThorchainLendingOpenQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  selectFirstAccountIdByChainId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {
   collateralAssetId: AssetId
+  borrowAccountId: AccountId
+  collateralAccountId: AccountId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
+  isLoanOpenPending?: boolean
 }
+
+const selectLendingQuoteQuery = memoize(
+  ({
+    data,
+    collateralAssetMarketData,
+    borrowAssetMarketData,
+  }: {
+    data: LendingDepositQuoteResponseSuccess
+    collateralAssetMarketData: MarketData
+    borrowAssetMarketData: MarketData
+  }) => {
+    const quote = data
+
+    const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
+      quote.expected_collateral_deposited,
+    ).toString()
+    const quoteCollateralAmountFiatUserCurrency = fromThorBaseUnit(
+      quote.expected_collateral_deposited,
+    )
+      .times(collateralAssetMarketData.price)
+      .toString()
+    const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
+    const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
+      quote.expected_amount_out,
+    ).toString()
+    const quoteBorrowedAmountUserCurrency = bnOrZero(quoteBorrowedAmountCryptoPrecision)
+      .times(borrowAssetMarketData?.price ?? 0)
+      .toString()
+
+    const quoteCollateralizationRatioPercent = bnOrZero(quote.expected_collateralization_ratio).div(
+      100,
+    )
+    const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
+      .div(100)
+      .toString()
+    const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
+      .div(BASE_BPS_POINTS)
+      .toString()
+    const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
+      .times(borrowAssetMarketData?.price ?? 0)
+      .toString()
+    // getting the amount before all fees, so we can determine the slippage denominated in receive asset
+    const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
+      bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
+    )
+    const quoteSlippageBorrowedAssetCryptoPrecision = borrowAmountBeforeFeesCryptoPrecision
+      .times(quoteSlippagePercentageDecimal)
+      .toString()
+
+    const quoteInboundAddress = quote.inbound_address
+    const quoteMemo = quote.memo
+
+    return {
+      quoteCollateralAmountCryptoPrecision,
+      quoteCollateralAmountFiatUserCurrency,
+      quoteDebtAmountUsd,
+      quoteBorrowedAmountCryptoPrecision,
+      quoteBorrowedAmountUserCurrency,
+      quoteCollateralizationRatioPercentDecimal,
+      quoteSlippageBorrowedAssetCryptoPrecision,
+      quoteTotalFeesFiatUserCurrency,
+      quoteInboundAddress,
+      quoteMemo,
+    }
+  },
+)
+
 export const useLendingQuoteOpenQuery = ({
   collateralAssetId,
+  collateralAccountId,
+  borrowAccountId,
   borrowAssetId,
   depositAmountCryptoPrecision,
+  isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
   const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
-  // TODO(gomes): programmatic
-  const accountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
 
-  // TODO(gomes): programmatic
-  const destinationAccountId =
-    useAppSelector(state =>
-      borrowAssetId
-        ? selectFirstAccountIdByChainId(state, fromAssetId(borrowAssetId).chainId)
-        : undefined,
-    ) ?? ''
   const destinationAccountMetadataFilter = useMemo(
-    () => ({ accountId: destinationAccountId }),
-    [destinationAccountId],
+    () => ({ accountId: borrowAccountId }),
+    [borrowAccountId],
   )
   const destinationAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, destinationAccountMetadataFilter),
@@ -62,10 +124,10 @@ export const useLendingQuoteOpenQuery = ({
   const borrowAssetMarketData = useAppSelector(state => selectMarketDataById(state, borrowAssetId))
 
   const getBorrowAssetReceiveAddress = useCallback(async () => {
-    if (!wallet || !destinationAccountId || !destinationAccountMetadata || !borrowAsset) return
+    if (!wallet || !borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
 
     const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(destinationAccountId).account : undefined
+    const pubKey = isLedger(wallet) ? fromAccountId(borrowAccountId).account : undefined
 
     return getReceiveAddress({
       asset: borrowAsset,
@@ -74,7 +136,7 @@ export const useLendingQuoteOpenQuery = ({
       accountMetadata: destinationAccountMetadata,
       pubKey,
     })
-  }, [borrowAsset, destinationAccountId, destinationAccountMetadata, wallet])
+  }, [borrowAsset, borrowAccountId, destinationAccountMetadata, wallet])
 
   useEffect(() => {
     ;(async () => {
@@ -96,9 +158,6 @@ export const useLendingQuoteOpenQuery = ({
     500,
   ) as unknown as [string, UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }]
 
-  // Fetch the current lending position data
-  // TODO(gomes): either move me up so we can use this for the borrowed amount, or even better, create a queries namespace
-  // for reusable queries and move me there
   const query = useQuery({
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {
@@ -120,70 +179,20 @@ export const useLendingQuoteOpenQuery = ({
         ),
         receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
       })
-      return position
+
+      if (position.isErr()) throw new Error(position.unwrapErr())
+      return position.unwrap()
     },
-    // TODO(gomes): now that we've extracted this to a hook, we might use some memoization pattern on the selectFn
-    // since it is run every render, regardless of data fetching happening.
-    // This may not be needed for such small logic, but we should keep this in mind for future hooks
-    select: data => {
-      // TODO(gomes): error handling
-      const quote = data.unwrap()
-
-      const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
-        quote.expected_collateral_deposited,
-      ).toString()
-      const quoteCollateralAmountFiatUserCurrency = fromThorBaseUnit(
-        quote.expected_collateral_deposited,
-      )
-        .times(collateralAssetMarketData.price)
-        .toString()
-      const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
-      const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
-        quote.expected_amount_out,
-      ).toString()
-      const quoteBorrowedAmountUserCurrency = bnOrZero(quoteBorrowedAmountCryptoPrecision)
-        .times(borrowAssetMarketData?.price ?? 0)
-        .toString()
-
-      const quoteCollateralizationRatioPercent = bnOrZero(
-        quote.expected_collateralization_ratio,
-      ).div(100)
-      const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
-        .div(100)
-        .toString()
-      const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
-        .div(BASE_BPS_POINTS)
-        .toString()
-      const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
-        .times(borrowAssetMarketData?.price ?? 0)
-        .toString()
-      // getting the amount before all fees, so we can determine the slippage denominated in receive asset
-      const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
-        bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
-      )
-      const quoteSlippageBorrowedAssetCryptoPrecision = borrowAmountBeforeFeesCryptoPrecision
-        .times(quoteSlippagePercentageDecimal)
-        .toString()
-
-      const quoteInboundAddress = quote.inbound_address
-      const quoteMemo = quote.memo
-
-      return {
-        quoteCollateralAmountCryptoPrecision,
-        quoteCollateralAmountFiatUserCurrency,
-        quoteDebtAmountUsd,
-        quoteBorrowedAmountCryptoPrecision,
-        quoteBorrowedAmountUserCurrency,
-        quoteCollateralizationRatioPercentDecimal,
-        quoteSlippageBorrowedAssetCryptoPrecision,
-        quoteTotalFeesFiatUserCurrency,
-        quoteInboundAddress,
-        quoteMemo,
-      }
-    },
+    select: data =>
+      selectLendingQuoteQuery({
+        data,
+        collateralAssetMarketData,
+        borrowAssetMarketData,
+      }),
     enabled: Boolean(
-      bnOrZero(depositAmountCryptoPrecision).gt(0) &&
-        accountId &&
+      !isLoanOpenPending &&
+        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
+        collateralAccountId &&
         borrowAssetId &&
         destinationAccountMetadata &&
         collateralAsset &&

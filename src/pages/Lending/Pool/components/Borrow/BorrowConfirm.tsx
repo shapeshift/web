@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -20,7 +19,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import type { SendInput } from 'components/Modals/Send/Form'
-import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { handleSend } from 'components/Modals/Send/utils'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
@@ -34,6 +33,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -60,6 +60,7 @@ export const BorrowConfirm = ({
   collateralAssetId,
   depositAmount,
   collateralAccountId,
+  borrowAccountId,
   borrowAsset,
 }: BorrowConfirmProps) => {
   const {
@@ -103,15 +104,21 @@ export const BorrowConfirm = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
       borrowAssetId,
       depositAmountCryptoPrecision: depositAmount ?? '0',
+      isLoanOpenPending,
     }),
-    [collateralAssetId, borrowAssetId, depositAmount],
+    [
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId,
+      depositAmount,
+      isLoanOpenPending,
+    ],
   )
-  // TODO(gomes): accept enabled as prop and pass it down as _enabled
-  // so we have a safety to not refetch quotes while borrow is pending
-  // perhaps a shared react-query mutation hook would make sense in handleSend(), so we have a way to introspect pending status
-  // from input components and disable inputs as well?
   const {
     data,
     isLoading: isLendingQuoteLoading,
@@ -166,16 +173,24 @@ export const BorrowConfirm = ({
     collateralAssetId,
   ])
 
-  // TODO(gomes): handle error (including trading halted) and loading states here
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    })
+
   const handleDeposit = useCallback(async () => {
     if (
       !(
         collateralAssetId &&
         depositAmount &&
         wallet &&
-        supportsETH(wallet) &&
         chainAdapter &&
-        lendingQuoteData
+        lendingQuoteData &&
+        estimatedFeesData?.estimatedFees
       )
     )
       return
@@ -184,19 +199,7 @@ export const BorrowConfirm = ({
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
-    const estimatedFees = await estimateFees({
-      cryptoAmount: depositAmount,
-      assetId: collateralAssetId,
-      from,
-      memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
-        ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
-        : lendingQuoteData.quoteMemo,
-      to: lendingQuoteData.quoteInboundAddress,
-      sendMax: false,
-      accountId: collateralAccountId,
-      contractAddress: undefined,
-    })
-
+    const { estimatedFees } = estimatedFeesData
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
@@ -236,6 +239,7 @@ export const BorrowConfirm = ({
     wallet,
     chainAdapter,
     lendingQuoteData,
+    estimatedFeesData,
     getFromAddress,
     collateralAccountId,
     selectedCurrency,
@@ -311,7 +315,9 @@ export const BorrowConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>
@@ -319,7 +325,9 @@ export const BorrowConfirm = ({
             borderTopWidth={0}
             mt={0}
             collateralAssetId={collateralAssetId}
+            collateralAccountId={collateralAccountId}
             borrowAssetId={borrowAssetId}
+            borrowAccountId={borrowAccountId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
           <CardFooter px={4} py={4}>

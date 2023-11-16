@@ -22,7 +22,7 @@ import type {
   TradeQuote,
 } from 'lib/swapper/types'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
+import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -171,25 +171,29 @@ export const getThorTradeQuote = async (
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
 
   // recommended_min_amount_in should be the same value for both types of swaps
-  const recommendedMinAmountInCryptoBaseUnit = swapQuote.recommended_min_amount_in
-    ? convertPrecision({
-        value: swapQuote.recommended_min_amount_in,
-        inputExponent: THORCHAIN_FIXED_PRECISION,
-        outputExponent: sellAsset.precision,
-      })
-    : undefined
+  // TODO(gomes): We may or may not want to bring this back in at some point, but the recommended_min_amount_in is currently way too high,
+  // resulting in users unable to do trades less than 200+$ depending on pairs
+  // const recommendedMinAmountInCryptoBaseUnit =
+  // swapQuote.recommended_min_amount_in
+  // ? convertPrecision({
+  // value: swapQuote.recommended_min_amount_in,
+  // inputExponent: THORCHAIN_FIXED_PRECISION,
+  // outputExponent: sellAsset.precision,
+  // })
+  // :
+  // undefined
 
-  if (
-    recommendedMinAmountInCryptoBaseUnit &&
-    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
-  ) {
-    return Err(
-      createTradeAmountTooSmallErr({
-        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
-        assetId: sellAsset.assetId,
-      }),
-    )
-  }
+  // if (
+  // recommendedMinAmountInCryptoBaseUnit &&
+  // bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
+  // ) {
+  // return Err(
+  // createTradeAmountTooSmallErr({
+  // minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
+  // assetId: sellAsset.assetId,
+  // }),
+  // )
+  // }
 
   const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
     source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,

@@ -845,6 +845,8 @@ export const Deposit: React.FC<DepositProps> = ({
   )
   const handlePercentClick = useCallback(
     async (percent: number) => {
+      if (!contextDispatch) return
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       setIsSendMax(percent === 1)
 
       const _percentageCryptoAmountPrecisionBeforeTxFees =
@@ -980,6 +982,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const _percentageFiatAmount = _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
         marketData.price,
       )
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
         amountCryptoPrecision: _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
         fiatAmount: _percentageFiatAmount.toFixed(),
@@ -989,6 +992,7 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId,
       asset,
       assetId,
+      contextDispatch,
       cryptoAmountAvailable,
       fromAddress,
       marketData,

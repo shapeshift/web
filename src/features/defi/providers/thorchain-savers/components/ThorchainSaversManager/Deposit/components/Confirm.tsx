@@ -266,7 +266,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       supportedEvmChainIds,
     ])
 
-  const getSafeEstimatedFees = useCallback(async () => {
+  const getEstimatedFees = useCallback(async () => {
     const estimateFeesArgs = await getEstimateFeesArgs()
     if (!estimateFeesArgs) return
     return estimateFees(estimateFeesArgs)
@@ -364,7 +364,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!contextDispatch) return
     ;(async () => {
       // TODO(gomes): use new fees estimation hook here instead once support for non-UTXO chains and EVM assets is handled at consumption level
-      const estimatedFees = await (isTokenDeposit ? getCustomTxFees() : getSafeEstimatedFees())
+      const estimatedFees = await (isTokenDeposit ? getCustomTxFees() : getEstimatedFees())
       if (!estimatedFees) return
 
       setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
@@ -378,7 +378,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     contextDispatch,
     getCustomTxFees,
-    getSafeEstimatedFees,
+    getEstimatedFees,
     isTokenDeposit,
     state?.deposit.estimatedGasCryptoPrecision,
   ])
@@ -387,16 +387,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (isTokenDeposit) return
     if (!contextDispatch) return
     if (!(accountId && assetId && feeAsset)) return
-    debugger
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
     }
 
     try {
-      // TODO(gomes): this may not be required now that we have moved the reconciliation to its own step
-      // Estimated fees tend to produce too low fees on e.g Dogecoin
-      // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
-      const estimatedFees = await getSafeEstimatedFees()
+      const estimatedFees = await getEstimatedFees()
       if (!estimatedFees) return
       setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
       contextDispatch({
@@ -458,7 +454,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const memoUtf8 = quote.memo
 
-      debugger
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         assetId,
@@ -490,7 +485,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     feeAsset,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
-    getSafeEstimatedFees,
+    getEstimatedFees,
     asset,
     chainId,
     maybeFromUTXOAccountAddress,

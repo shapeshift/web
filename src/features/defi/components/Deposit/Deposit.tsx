@@ -172,10 +172,7 @@ export const Deposit = ({
       setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
-      // TODO(gomes): actually do it in this PR
-      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
+      setValue(Field.CryptoAmount, percentageCryptoAmount.toFixed(), {
         shouldValidate: true,
       })
       onChange && onChange(percentageFiatAmount.toString(), percentageCryptoAmountHuman)

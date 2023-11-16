@@ -136,9 +136,6 @@ export const Pool = () => {
     ),
     [isRepaymentLockLoading, repaymentLock],
   )
-  const handleValueChange = useCallback((value: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(value.target.value)
-  }, [])
   return (
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
@@ -233,9 +230,6 @@ export const Pool = () => {
                 </TabPanel>
               </TabPanels>
             </Tabs>
-            <Stack px={4} py={2}>
-              <Input value={value} onChange={handleValueChange} />
-            </Stack>
           </Card>
         </Stack>
       </Flex>

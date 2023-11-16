@@ -306,7 +306,7 @@ export const ConnectWallet = () => {
                 fontSize='lg'
                 mb={12}
                 textAlign='left'
-                translation={'connectWalletPage.body2'}
+                translation={'connectWalletPage.body'}
               />
             </Stack>
           </Center>

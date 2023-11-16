@@ -30,14 +30,13 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     queryFn: async () => {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
-      const maybePosition = await (async () => {
+      const positionPromise = (async () => {
         if (!(accountId && assetId)) return null
         const position = await getThorchainLendingPosition({ accountId, assetId })
         return position
       })()
 
-      const maybeBlockHeightPromise = (async () => {
-        if (!maybePosition) return null
+      const blockHeightPromise = (async () => {
         const { data: block } = await axios.get<ThorchainBlock>(`${daemonUrl}/lcd/thorchain/block`)
         const blockHeight = block.header.height
         return blockHeight
@@ -45,37 +44,38 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       const mimirPromise = axios.get<Record<string, unknown>>(`${daemonUrl}/lcd/thorchain/mimir`)
 
-      const [maybeBlockHeight, { data: mimir }] = await Promise.all([
-        maybeBlockHeightPromise,
+      const [position, blockHeight, { data: mimir }] = await Promise.all([
+        positionPromise,
+        blockHeightPromise,
         mimirPromise,
       ])
       if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
-          maybePosition,
-          maybeBlockHeight,
+          position,
+          blockHeight,
         }
       return null
     },
     select: data => {
       if (!data) return null
-      const { repaymentMaturity, maybePosition, maybeBlockHeight } = data
+      const { repaymentMaturity, position, blockHeight } = data
       // Current blocktime as per https://thorchain.network/stats
       const thorchainBlockTimeSeconds = '6.1'
 
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
-      if (!maybePosition)
+      if (!position)
         return bnOrZero(repaymentMaturity)
           .times(thorchainBlockTimeSeconds)
           .div(60 * 60 * 24)
           .toString()
 
-      const { last_open_height } = maybePosition
+      const { last_open_height } = position
 
       const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
 
       const repaymentLock = bnOrZero(repaymentBlock)
-        .minus(maybeBlockHeight!)
+        .minus(blockHeight)
         .times(thorchainBlockTimeSeconds)
         .div(60 * 60 * 24)
         .toFixed(1)

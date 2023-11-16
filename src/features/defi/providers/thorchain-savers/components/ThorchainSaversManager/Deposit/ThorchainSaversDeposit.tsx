@@ -14,7 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import type { DefiStepProps } from 'components/DeFi/components/Steps'
+import type { DefiStepProps, StepComponentProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -145,6 +145,15 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     })()
   }, [accountId, accountMetadata, assetId, fromAddress, wallet])
 
+  const makeHandleSweepBack = useCallback(
+    (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Info),
+    [],
+  )
+  const makeHandleSweepSeen = useCallback(
+    (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Confirm),
+    [],
+  )
+
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
       [DefiStep.Info]: {
@@ -168,8 +177,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
             accountId={accountId}
             fromAddress={fromAddress}
             assetId={assetId}
-            onBack={() => onNext(DefiStep.Info)}
-            onSweepSeen={() => onNext(DefiStep.Confirm)}
+            onBack={makeHandleSweepBack(onNext)}
+            onSweepSeen={makeHandleSweepSeen(onNext)}
           />
         ),
       },
@@ -187,7 +196,16 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [translate, underlyingAsset?.symbol, accountId, fromAddress, handleAccountIdChange, assetId])
+  }, [
+    translate,
+    underlyingAsset?.symbol,
+    accountId,
+    fromAddress,
+    handleAccountIdChange,
+    assetId,
+    makeHandleSweepBack,
+    makeHandleSweepSeen,
+  ])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

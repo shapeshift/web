@@ -2,11 +2,11 @@ import { Skeleton, useToast } from '@chakra-ui/react'
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  FeeDataEstimate,
-  GetFeeDataInput,
-  UtxoBaseAdapter,
-  UtxoChainId,
+import {
+  type FeeDataEstimate,
+  type GetFeeDataInput,
+  type UtxoBaseAdapter,
+  type UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
@@ -53,6 +53,7 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
+import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   queryFn as getEstimatedFeesQueryFn,
@@ -375,19 +376,38 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
+  const { data: thorchainSaversDepositQuote, isLoading: isThorchainSaversDepositQuoteLoading } =
+    useGetThorchainSaversDepositQuoteQuery({
+      accountNumber,
+      isApprovalRequired,
+      asset,
+      amountCryptoBaseUnit: bnOrZero(inputValues?.cryptoAmount).times(bn(10).pow(asset.precision)),
+    })
+
   const {
     data: estimatedFeesData,
     isLoading: isEstimatedFeesDataLoading,
     isSuccess: isEstimatedFeesDataSuccess,
-  } = useGetEstimatedFeesQuery({
-    cryptoAmount: inputValues?.cryptoAmount ?? '0',
-    assetId,
-    to: fromAddress ?? '',
-    sendMax: false,
-    accountId: accountId ?? '',
-    contractAddress: undefined,
-    enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
-  })
+  } = useGetEstimatedFeesQuery(
+    (() => {
+      const maybeCustomTxInput = thorchainSaversDepositQuote?.customTxInput
+      const quote = thorchainSaversDepositQuote?.quote
+      return {
+        cryptoAmount: inputValues?.cryptoAmount ?? '0',
+        memo: maybeCustomTxInput?.data,
+        assetId,
+        to: quote?.inbound_address ?? '', // Actually defined at runtime, see enabled below
+        sendMax: false,
+        accountId: accountId ?? '',
+        contractAddress: undefined,
+        enabled: Boolean(
+          thorchainSaversDepositQuote && !isThorchainSaversDepositQuoteLoading && accountId,
+        ),
+      }
+    })(),
+  )
+
+  console.log({ estimatedFeesData })
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
   // TODO(gomes): actually check for enough balance here
@@ -740,7 +760,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
 
       const fiatBalance = balanceCryptoPrecision.times(marketData.price)
-      if (fiatBalance.isZero() || fiatBalance.lte(value)) return 'common.insufficientFunds'
+      if (fiatBalance.isZero() || fiatBalance.lt(value)) return 'common.insufficientFunds'
 
       const valueCryptoBaseUnit = valueCryptoPrecision.times(bn(10).pow(asset.precision))
 
@@ -1054,6 +1074,8 @@ export const Deposit: React.FC<DepositProps> = ({
 
     if (bn(amountCryptoBaseUnit).isZero()) return
 
+    // TODO(gomes): now that we use a react-query query, we don't need this debounce anymore
+    // and can referentially invalidate with a debounce of the queryKey
     const debounced = debounce(async () => {
       setQuoteLoading(true)
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({

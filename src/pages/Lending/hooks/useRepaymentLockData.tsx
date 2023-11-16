@@ -19,10 +19,10 @@ type ThorchainBlock = {
 }
 
 export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
-  const repaymentLockQueryKey: [
-    string,
-    { accountId: AccountId | undefined; assetId: AssetId | undefined },
-  ] = useMemo(() => ['thorchainLendingRepaymentLock', { accountId, assetId }], [accountId, assetId])
+  const repaymentLockQueryKey = useMemo(
+    () => ['thorchainLendingRepaymentLock', { accountId, assetId }],
+    [accountId, assetId],
+  )
 
   const repaymentLockData = useQuery({
     staleTime: Infinity,

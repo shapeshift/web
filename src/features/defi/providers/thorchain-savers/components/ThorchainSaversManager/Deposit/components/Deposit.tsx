@@ -605,6 +605,7 @@ export const Deposit: React.FC<DepositProps> = ({
     browserHistory.goBack()
   }, [browserHistory])
 
+  // TODO(gomes): abstract me into a pure method when implementing sweep for withdraw, and handle non-UTXO chains
   const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = useCallback(
     async (valueCryptoPrecision: string) => {
       const isUtxoChain = isUtxoChainId(asset.chainId)

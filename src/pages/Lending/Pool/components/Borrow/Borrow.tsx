@@ -108,6 +108,7 @@ const BorrowRoutes = memo(
               cryptoDepositAmount={cryptoDepositAmount}
               fiatDepositAmount={fiatDepositAmount}
               collateralAccountId={collateralAccountId}
+              borrowAccountId={borrowAccountId}
               onCollateralAccountIdChange={handleCollateralAccountIdChange}
               onBorrowAccountIdChange={handleBorrowAccountIdChange}
               onDepositAmountChange={onDepositAmountChange}

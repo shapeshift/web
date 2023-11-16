@@ -857,9 +857,11 @@ export const Deposit: React.FC<DepositProps> = ({
         fromAddress && accountId && isUtxoChainId(asset.chainId),
       )
       // Fees before fees isn't a typo, it's an actual flow:
-      // 1. We get the initial fees to proceed to fee deduction to get the amount after fees
-      // However, the amount we get is not reliable just yet, since send max, by definition, do not create a change output
-      // and are effectively cheaper than partial sends here
+      // Here, we get the initial fees to proceed to fee deduction to get the amount after fees
+      // However, the amount we get is not necessarily reliable just yet since max sends, by definition, do not create a change output
+      // and are effectively cheaper than partial sends
+      // So we get "fees after fees" below in estimatedFeesAfterFeesQueryArgs i.e the fees of a fee-deducted max send
+      // which ensures that the amount we get after fee deduction is able to go through and isn't failing fee deduction checks
       const estimatedFeesBeforeFeesQueryArgs = {
         estimateFeesInput: {
           cryptoAmount: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),

@@ -246,10 +246,11 @@
     "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
+    "title": "The Original Multichain Exchange",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
-    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
@@ -934,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
+        "consolidateFunds": "Consolidate"
+      },
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",

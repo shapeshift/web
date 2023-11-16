@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -15,10 +15,11 @@ import { RawText } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
+import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectFirstAccountIdByChainId, selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const FromToStack: React.FC<StackProps> = props => {
@@ -42,7 +43,8 @@ type LoanSummaryProps = {
   (
     | {
         borrowAssetId: AssetId
-        collateralAccountId?: never
+        borrowAccountId: AccountId
+        collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision?: never
         debtRepaidAmountUsd?: never
         depositAmountCryptoPrecision: string
@@ -53,6 +55,7 @@ type LoanSummaryProps = {
       }
     | {
         borrowAssetId?: never
+        borrowAccountId?: never
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
@@ -75,6 +78,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   repaymentPercent,
   repaymentAccountId,
   collateralAccountId,
+  borrowAccountId,
   ...rest
 }) => {
   const isRepay = useMemo(() => Boolean(repayAmountCryptoPrecision), [repayAmountCryptoPrecision])
@@ -84,11 +88,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  // TODO(gomes): programmatic - this assumes account 0 for now
-  const accountId =
-    useAppSelector(state =>
-      selectFirstAccountIdByChainId(state, fromAssetId(collateralAssetId).chainId),
-    ) ?? ''
+  const accountId = collateralAccountId ?? ''
 
   const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
     () => ['thorchainLendingPosition', { accountId, assetId: collateralAssetId }],
@@ -129,10 +129,18 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
+      collateralAccountId,
+      borrowAccountId: borrowAccountId ?? '',
       borrowAssetId: borrowAssetId ?? '',
       depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
     }),
-    [collateralAssetId, borrowAssetId, depositAmountCryptoPrecision],
+    [
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId,
+      depositAmountCryptoPrecision,
+    ],
   )
   const {
     data: lendingQuoteData,
@@ -159,6 +167,17 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
 
   const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
     useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  const useRepaymentLockDataArgs = useMemo(
+    () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
+    [collateralAccountId, collateralAssetId],
+  )
+  const { data: positionRepaymentLock, isLoading: isPositionRepaymentLockLoading } =
+    useRepaymentLockData(useRepaymentLockDataArgs)
+
+  const useRepaymentLockNetworkDataArgs = useMemo(() => ({}), [])
+  const { data: networkRepaymentLock, isLoading: isNetworkRepaymentLockLoading } =
+    useRepaymentLockData(useRepaymentLockNetworkDataArgs)
 
   if (!collateralAsset || isLendingQuoteError) return null
 
@@ -249,18 +268,10 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
             <Row.Label>{translate('lending.repaymentLock')}</Row.Label>
           </HelperTooltip>
           <Row.Value>
-            <Skeleton
-              isLoaded={
-                !isLoading &&
-                !isLendingPositionDataLoading &&
-                !isLendingQuoteLoading &&
-                !isLendingQuoteCloseLoading
-              }
-            >
+            <Skeleton isLoaded={!(isPositionRepaymentLockLoading || isNetworkRepaymentLockLoading)}>
               <FromToStack>
-                <RawText color='text.subtle'>25 days</RawText>
-                {/* TODO(gomes): programmatic */}
-                <RawText>30 days</RawText>
+                <RawText color='text.subtle'>{positionRepaymentLock} days</RawText>
+                <RawText>{networkRepaymentLock} days</RawText>
               </FromToStack>
             </Skeleton>
           </Row.Value>

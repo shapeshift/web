@@ -25,15 +25,17 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -119,9 +121,10 @@ export const RepayInput = ({
   )
 
   const {
-    data,
+    data: lendingQuoteCloseData,
     isLoading: isLendingQuoteCloseLoading,
     isError: isLendingQuoteCloseError,
+    error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -131,7 +134,7 @@ export const RepayInput = ({
     buyAssetSearch.open({
       onClick: setRepaymentAsset,
       title: 'lending.borrow',
-      assets: repaymentSupportedAssets, // TODO(gomes)
+      assets: repaymentSupportedAssets,
     })
   }, [buyAssetSearch, repaymentSupportedAssets, setRepaymentAsset])
 
@@ -197,6 +200,64 @@ export const RepayInput = ({
 
     return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
   }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
+
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId,
+      collateralAccountId,
+      repaymentAccountId,
+      repaymentPercent,
+      repaymentAsset,
+    })
+
+  const balanceFilter = useMemo(
+    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    [repaymentAsset?.assetId, repaymentAccountId],
+  )
+
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  )
+  const amountAvailableCryptoPrecision = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    [balance, collateralAsset?.precision],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () =>
+      bnOrZero(repaymentAmountCryptoPrecision)
+        .plus(
+          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
+            bn(10).pow(repaymentAsset?.precision ?? '0'),
+          ),
+        )
+        .lte(amountAvailableCryptoPrecision),
+    [
+      amountAvailableCryptoPrecision,
+      estimatedFeesData?.txFeeCryptoBaseUnit,
+      repaymentAmountCryptoPrecision,
+      repaymentAsset?.precision,
+    ],
+  )
+
+  const quoteErrorTranslation = useMemo(() => {
+    if (!hasEnoughBalance) return 'common.insufficientFunds'
+    if (isLendingQuoteCloseError) {
+      if (
+        /not enough fee/i.test(lendingQuoteCloseError.message) ||
+        /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
+      ) {
+        return 'trade.errors.amountTooSmallUnknownMinimum'
+      }
+      if (
+        /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
+        /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
+      ) {
+        return 'Repayment not yet available'
+      }
+    }
+    return null
+  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError])
 
   if (!seenNotice) {
     return (
@@ -264,8 +325,8 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
-        cryptoAmount={data?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={data?.quoteDebtRepaidAmountUsd}
+        cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
+        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={false}
@@ -282,11 +343,11 @@ export const RepayInput = ({
         <LoanSummary
           collateralAssetId={collateralAssetId}
           repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? ''}
-          debtRepaidAmountUsd={data?.quoteDebtRepaidAmountUsd ?? '0'}
+          debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
           collateralDecreaseAmountCryptoPrecision={
-            data?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+            lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
           }
           repaymentAccountId={repaymentAccountId}
           collateralAccountId={collateralAccountId}
@@ -307,7 +368,7 @@ export const RepayInput = ({
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
               <Amount.Crypto
-                value={data?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
+                value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
                 symbol={collateralAsset?.symbol ?? ''}
               />
             </Skeleton>
@@ -316,8 +377,8 @@ export const RepayInput = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
-              <Amount.Fiat value='TODO' />
+            <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteCloseLoading)}>
+              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -325,18 +386,30 @@ export const RepayInput = ({
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
-              <Amount.Fiat value={data?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
         <Button
           size='lg'
-          colorScheme={isLendingQuoteCloseError ? 'red' : 'blue'}
+          colorScheme={
+            !isLendingQuoteCloseLoading &&
+            !isEstimatedFeesDataLoading &&
+            (isLendingQuoteCloseError || quoteErrorTranslation)
+              ? 'red'
+              : 'blue'
+          }
           mx={-2}
           onClick={onSubmit}
-          isDisabled={isLendingQuoteCloseError}
+          isLoading={isLendingQuoteCloseLoading || isEstimatedFeesDataLoading}
+          isDisabled={Boolean(
+            isLendingQuoteCloseLoading ||
+              isEstimatedFeesDataLoading ||
+              isLendingQuoteCloseError ||
+              quoteErrorTranslation,
+          )}
         >
-          {translate('lending.repay')}
+          {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.repay')}
         </Button>
       </Stack>
     </Stack>

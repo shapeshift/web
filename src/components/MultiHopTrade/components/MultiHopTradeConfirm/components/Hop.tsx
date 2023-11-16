@@ -26,6 +26,8 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepperStep } from 'components/MultiHopTrade/types'
 import { RawText } from 'components/Text'
 
+import { JuicyGreenCheck } from './JuicyGreenCheck'
+
 const cardBorderRadius = { base: 'xl' }
 
 export const Hop = ({
@@ -103,9 +105,13 @@ export const Hop = ({
     >
       <HStack width='full' justifyContent='space-between' paddingLeft={6} marginTop={4}>
         <HStack>
-          <Circle size={8} borderColor={borderColor} borderWidth={2}>
-            <RawText as='b'>{hopIndex + 1}</RawText>
-          </Circle>
+          {activeStep >= steps.length ? (
+            <JuicyGreenCheck />
+          ) : (
+            <Circle size={8} borderColor={borderColor} borderWidth={2}>
+              <RawText as='b'>{hopIndex + 1}</RawText>
+            </Circle>
+          )}
           <RawText as='b'>{title}</RawText>
         </HStack>
         {rightComponent}

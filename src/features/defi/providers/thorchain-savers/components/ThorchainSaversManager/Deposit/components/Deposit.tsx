@@ -312,8 +312,6 @@ export const Deposit: React.FC<DepositProps> = ({
             wallet,
           })
 
-          // TODO(gomes): moved to estimateFees just so that we can use useGetEstimatedFeesQuery() instead of adapter.getFeeData()
-          // now all there's to do is actually use that instead
           const fees = (await estimateFees({
             accountId,
             contractAddress: undefined,

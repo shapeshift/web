@@ -231,10 +231,11 @@
     "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
+    "title": "The Original Multichain Exchange",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
-    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",

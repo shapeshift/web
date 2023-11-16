@@ -225,7 +225,7 @@ export const RepayInput = ({
         percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
-        label={'Repay Amount'}
+        label={translate('lending.repayAmount')}
         onAccountIdChange={handleRepaymentAccountIdChange}
         formControlProps={formControlProps}
         layout='inline'
@@ -255,7 +255,7 @@ export const RepayInput = ({
           variant='outline'
           borderColor='border.base'
           zIndex={1}
-          aria-label='Switch Assets'
+          aria-label={translate('lending.switchAssets')}
           icon={swapIcon}
         />
         <Divider />
@@ -270,7 +270,7 @@ export const RepayInput = ({
         percentOptions={percentOptions}
         showInputSkeleton={false}
         showFiatSkeleton={false}
-        label={'Unlocked Collateral'}
+        label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly
         hideAmounts

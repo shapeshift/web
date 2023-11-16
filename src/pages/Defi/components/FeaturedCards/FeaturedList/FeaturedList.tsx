@@ -3,6 +3,7 @@ import type { BoxProps } from '@chakra-ui/react'
 import { Box, Flex, Grid, IconButton, useToken } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
 type FeatureListProps = {
@@ -28,6 +29,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
   slideGap = 4,
   ...rest
 }) => {
+  const translate = useTranslate()
   const ref = useRef<HTMLDivElement>(null)
   const gridGap = useToken('sizes', slideGap)
   const gridPaddingLeft = useMemo(() => ({ base: gridGap, md: 0 }), [gridGap])
@@ -90,7 +92,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
           <IconButton
             size='sm'
             icon={arrowBackIcon}
-            aria-label='Back'
+            aria-label={translate('common.carousel.back')}
             onClick={handleBack}
             isDisabled={isScrollStart}
             display={display}
@@ -98,7 +100,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
           <IconButton
             icon={arrowForwardIcon}
             size='sm'
-            aria-label='Next'
+            aria-label={translate('common.carousel.next')}
             onClick={handleNext}
             isDisabled={isScrollEnd}
             display={display}

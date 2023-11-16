@@ -237,7 +237,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
                 colorScheme='whiteAlpha'
                 onClick={handleRefreshClick}
                 icon={faSyncIcon}
-                aria-label='Refresh'
+                aria-label={translate('nft.refresh')}
               />
               {customizeLink && (
                 <Button

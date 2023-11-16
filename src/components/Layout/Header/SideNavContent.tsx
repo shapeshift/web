@@ -56,7 +56,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
         <Flex direction='column' rowGap={2} columnGap={2} width='full'>
           <IconButton
             ml='auto'
-            aria-label='Close Nav'
+            aria-label={translate('navBar.closeNav')}
             variant='ghost'
             icon={closeIcon}
             onClick={onClose}

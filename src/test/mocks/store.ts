@@ -2,7 +2,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
-import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
+import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -184,6 +184,7 @@ export const mockStore: ReduxState = {
     activeQuoteIndex: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
-    tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
+    tradeExecutionState: MultiHopExecutionState.Unknown,
+    initialApprovalRequirements: undefined,
   },
 }

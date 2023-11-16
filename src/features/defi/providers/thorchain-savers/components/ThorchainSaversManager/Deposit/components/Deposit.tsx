@@ -861,7 +861,7 @@ export const Deposit: React.FC<DepositProps> = ({
       // However, the amount we get is not necessarily reliable just yet since max sends, by definition, do not create a change output
       // and are effectively cheaper than partial sends
       // So we get "fees after fees" below in estimatedFeesAfterFeesQueryArgs i.e the fees of a fee-deducted max send
-      // which ensures that the amount we get after fee deduction is able to go through and isn't failing fee deduction checks
+      // which ensures that the final amount we get after fee deduction is able to go through and isn't failing fee deduction checks
       const estimatedFeesBeforeFeesQueryArgs = {
         estimateFeesInput: {
           cryptoAmount: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),

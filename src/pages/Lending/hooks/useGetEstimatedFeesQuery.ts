@@ -14,7 +14,7 @@ export type EstimatedFeesQueryKey = [
     enabled: boolean
     asset: Asset | undefined
     assetMarketData: MarketData
-    estimateFeesInput: EstimateFeesInput
+    estimateFeesInput: EstimateFeesInput | undefined
   },
 ]
 
@@ -23,7 +23,7 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
   const { estimateFeesInput, asset, assetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!asset || !estimateFeesInput.to || !estimateFeesInput.accountId) return
+  if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bnOrZero(estimatedFees.fast.txFee)

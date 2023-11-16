@@ -846,7 +846,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
   const handlePercentClick = useCallback(
     async (percent: number) => {
-      if (!contextDispatch) return
+      if (!contextDispatch) return { amountCryptoPrecision: '0', fiatAmount: '0' }
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       setIsSendMax(percent === 1)
 

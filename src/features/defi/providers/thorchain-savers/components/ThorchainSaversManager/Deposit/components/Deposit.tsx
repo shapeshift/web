@@ -597,7 +597,7 @@ export const Deposit: React.FC<DepositProps> = ({
         bn(10).pow(asset.precision),
       )
 
-      if (balanceCryptoPrecision.isZero() || balanceCryptoPrecision.lte(value))
+      if (balanceCryptoPrecision.isZero() || balanceCryptoPrecision.lt(value))
         return 'common.insufficientFunds'
 
       const valueCryptoPrecision = bnOrZero(value)

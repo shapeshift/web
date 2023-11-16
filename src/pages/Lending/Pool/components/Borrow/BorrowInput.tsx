@@ -45,6 +45,7 @@ type BorrowInputProps = {
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
   collateralAccountId: AccountId
+  borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
   borrowAsset: Asset | null
@@ -57,6 +58,7 @@ export const BorrowInput = ({
   fiatDepositAmount,
   onDepositAmountChange,
   collateralAccountId,
+  borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
   borrowAsset,

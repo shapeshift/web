@@ -157,7 +157,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
             <IconButton
               variant='ghost'
               size='md'
-              aria-label='Exapnd Row'
+              aria-label={translate('common.table.expandRow')}
               isActive={row.isExpanded}
               icon={row.isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
             />

@@ -54,9 +54,10 @@ const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   }, [limit, txIds])
 
   if (limitTxIds.length === 0) {
+    const translatedStatus = translate(`transactionRow.${txStatus.toLowerCase()}`)
     return (
       <RawText px={paddingProp} color='text.subtle'>
-        {translate('transactionRow.emptyMessage', { status: txStatus })}
+        {translate('transactionRow.emptyMessage', { status: translatedStatus })}
       </RawText>
     )
   }
@@ -80,7 +81,7 @@ export const TxWindow = memo(() => {
     <>
       <Box position='relative'>
         <IconButton
-          aria-label='Pending Transactions'
+          aria-label={translate('navBar.pendingTransactions')}
           icon={hasPendingTxs ? <CircularProgress size='18px' /> : <TxHistoryIcon />}
           onClick={handleToggleIsOpen}
         />

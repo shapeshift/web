@@ -196,7 +196,7 @@ export const Details = () => {
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
-        aria-label='Back'
+        aria-label={translate('common.back')}
         position='absolute'
         top={2}
         left={3}

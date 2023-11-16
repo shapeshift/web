@@ -5,6 +5,7 @@ import Autoplay from 'embla-carousel-autoplay'
 import useEmblaCarousel from 'embla-carousel-react'
 import type { MouseEvent } from 'react'
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { Arrow } from './Arrow'
 import { DotButton } from './DotButton'
@@ -19,6 +20,7 @@ export const Carousel = ({
   autoPlay,
   renderHeader,
 }: CarouselProps) => {
+  const translate = useTranslate()
   const autoplayRef = useRef(
     Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
   )
@@ -105,15 +107,23 @@ export const Carousel = ({
   const Controls = useMemo(() => {
     return (
       <Flex>
-        <Arrow aria-label='left' isDisabled={!prevBtnEnabled} onClick={scrollPrev}>
+        <Arrow
+          aria-label={translate('common.carousel.prev')}
+          isDisabled={!prevBtnEnabled}
+          onClick={scrollPrev}
+        >
           <ArrowBackIcon />
         </Arrow>
-        <Arrow aria-label='right' isDisabled={!nextBtnEnabled} onClick={scrollNext}>
+        <Arrow
+          aria-label={translate('common.carousel.next')}
+          isDisabled={!nextBtnEnabled}
+          onClick={scrollNext}
+        >
           <ArrowForwardIcon />
         </Arrow>
       </Flex>
     )
-  }, [nextBtnEnabled, prevBtnEnabled, scrollNext, scrollPrev])
+  }, [nextBtnEnabled, prevBtnEnabled, scrollNext, scrollPrev, translate])
 
   return (
     <Flex flexDir='column' gap={4}>
@@ -134,7 +144,11 @@ export const Carousel = ({
         {(showDots || showArrows) && scrollSnaps.length > 1 && (
           <Flex justifyContent='space-between' alignItems='center' mt={4} width='full'>
             {showArrows && (
-              <Arrow aria-label='left' isDisabled={!prevBtnEnabled} onClick={scrollPrev}>
+              <Arrow
+                aria-label={translate('common.carousel.prev')}
+                isDisabled={!prevBtnEnabled}
+                onClick={scrollPrev}
+              >
                 <ArrowBackIcon />
               </Arrow>
             )}
@@ -152,7 +166,11 @@ export const Carousel = ({
               </Flex>
             )}
             {showArrows && (
-              <Arrow aria-label='right' isDisabled={!nextBtnEnabled} onClick={scrollNext}>
+              <Arrow
+                aria-label={translate('common.carousel.next')}
+                isDisabled={!nextBtnEnabled}
+                onClick={scrollNext}
+              >
                 <ArrowForwardIcon />
               </Arrow>
             )}

@@ -106,7 +106,7 @@ export const DegradedStateBanner = memo(() => {
         <IconButton
           variant='ghost-filled'
           colorScheme='yellow'
-          aria-label='Degraded State'
+          aria-label={translate('common.degradedState')}
           icon={warningIcon}
         />
       </PopoverTrigger>

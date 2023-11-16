@@ -209,7 +209,11 @@ export const Header = memo(() => {
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
             <Box flex={1} display={displayProp}>
-              <IconButton aria-label='Open menu' onClick={onToggle} icon={hamburgerIcon} />
+              <IconButton
+                aria-label={translate('navBar.openMenu')}
+                onClick={onToggle}
+                icon={hamburgerIcon}
+              />
             </Box>
 
             <Box display={displayProp} mx='auto'>

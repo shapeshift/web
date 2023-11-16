@@ -22,6 +22,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { FaAdjust, FaGasPump, FaProcedures } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepperStep } from 'components/MultiHopTrade/types'
 import { RawText } from 'components/Text'
@@ -56,6 +57,7 @@ export const Hop = ({
   estimatedExecutionTimeMs?: number
   onToggleIsOpen: () => void
 }) => {
+  const translate = useTranslate()
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
 
@@ -81,7 +83,7 @@ export const Hop = ({
         return (
           <Box width='auto'>
             <IconButton
-              aria-label='expand'
+              aria-label={translate('trade.expand')}
               variant='link'
               p={4}
               borderTopRadius='none'
@@ -95,7 +97,15 @@ export const Hop = ({
       default:
         return null
     }
-  }, [chevronDownIcon, chevronUpIcon, estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
+  }, [
+    chevronDownIcon,
+    chevronUpIcon,
+    estimatedExecutionTimeMs,
+    isOpen,
+    onToggleIsOpen,
+    translate,
+    txStatus,
+  ])
 
   const stepperSteps = useMemo(
     () =>

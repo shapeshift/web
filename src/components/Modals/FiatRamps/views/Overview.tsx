@@ -352,7 +352,7 @@ export const Overview: React.FC<OverviewProps> = ({
                         >
                           <IconButton
                             icon={copyIcon}
-                            aria-label='copy-icon'
+                            aria-label={translate('common.copy')}
                             size='sm'
                             isRound
                             variant='ghost'
@@ -362,7 +362,7 @@ export const Overview: React.FC<OverviewProps> = ({
                             <IconButton
                               icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
                               onClick={handleVerify}
-                              aria-label='check-icon'
+                              aria-label={translate('common.verify')}
                               size='sm'
                               color={
                                 shownOnDisplay

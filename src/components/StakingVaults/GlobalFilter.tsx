@@ -10,6 +10,7 @@ import {
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 const faTimes = <FaTimes />
 
@@ -24,6 +25,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
   inputGroupProps,
   ...rest
 }) => {
+  const translate = useTranslate()
   const [value, setValue] = useState(searchQuery)
   const [loading, setLoading] = useState(false)
 
@@ -74,7 +76,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
             size='xs'
             variant='ghost'
             icon={faTimes}
-            aria-label='Clear'
+            aria-label={translate('common.clear')}
             isLoading={loading}
             onClick={handleReset}
           />

@@ -29,7 +29,7 @@ export const CopyButton = ({ value }: { value: string }) => {
     <IconButton
       variant='ghost'
       size='small'
-      aria-label='Copy'
+      aria-label={translate('common.copy')}
       icon={copyIcon}
       p={2}
       onClick={handleCopyClick}

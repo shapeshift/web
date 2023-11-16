@@ -116,7 +116,11 @@ export const SlippagePopover: FC = () => {
   return (
     <Popover placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
-        <IconButton aria-label='Trade Settings' icon={faSlidersH} variant='ghost' />
+        <IconButton
+          aria-label={translate('trade.tradeSettings')}
+          icon={faSlidersH}
+          variant='ghost'
+        />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>

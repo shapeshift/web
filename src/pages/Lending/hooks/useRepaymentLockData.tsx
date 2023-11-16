@@ -19,10 +19,10 @@ type ThorchainBlock = {
 }
 
 export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
-  const repaymentLockQueryKey: [
-    string,
-    { accountId: AccountId | undefined; assetId: AssetId | undefined },
-  ] = useMemo(() => ['thorchainLendingRepaymentLock', { accountId, assetId }], [accountId, assetId])
+  const repaymentLockQueryKey = useMemo(
+    () => ['thorchainLendingRepaymentLock', { accountId, assetId }],
+    [accountId, assetId],
+  )
 
   const repaymentLockData = useQuery({
     staleTime: Infinity,
@@ -49,9 +49,6 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
         maybeBlockHeightPromise,
         mimirPromise,
       ])
-      // TODO(gomes): this is the repayment lock of the pool - not the borrower's
-      // we will want to make it programmatic in case there's an active position.
-      // https://dev.thorchain.org/thorchain-dev/lending/quick-start-guide
       if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,

@@ -1,4 +1,4 @@
-import { CheckIcon, CloseIcon, StarIcon } from '@chakra-ui/icons'
+import { CloseIcon, StarIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -27,19 +27,16 @@ import { assertUnreachable } from 'lib/utils'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { TradeType } from '../types'
+import { JuicyGreenCheck } from './JuicyGreenCheck'
 
 const getStatusIcon = (txStatus: TxStatus) => {
   // TODO: proper light/dark mode colors here
   switch (txStatus) {
     case TxStatus.Confirmed:
-      return (
-        <Circle bg='green.500' size='100%'>
-          <CheckIcon />
-        </Circle>
-      )
+      return <JuicyGreenCheck />
     case TxStatus.Failed:
       return (
-        <Circle bg='red.500' size='100%'>
+        <Circle bg='red.500' size={8}>
           <CloseIcon p={1} />
         </Circle>
       )
@@ -48,7 +45,7 @@ const getStatusIcon = (txStatus: TxStatus) => {
     case TxStatus.Unknown:
     default:
       return (
-        <Circle bg='gray.750' size='100%'>
+        <Circle bg='gray.750' size={8}>
           <Spinner />
         </Circle>
       )
@@ -177,31 +174,31 @@ export const getAssetSummaryStep = ({
 
 export const getHopSummaryStep = ({
   swapperName,
-  buyAssetChainId,
-  sellAssetChainId,
-  buyAmountCryptoFormatted,
-  sellAmountCryptoFormatted,
+  stepBuyAssetChainId,
+  stepSellAssetChainId,
+  stepBuyAmountCryptoFormatted,
+  stepSellAmountCryptoFormatted,
   txHash,
   txLink,
   txStatus,
   onSign,
 }: {
   swapperName: SwapperName
-  buyAssetChainId: ChainId
-  sellAssetChainId: ChainId
-  buyAmountCryptoFormatted: string
-  sellAmountCryptoFormatted: string
+  stepBuyAssetChainId: ChainId
+  stepSellAssetChainId: ChainId
+  stepBuyAmountCryptoFormatted: string
+  stepSellAmountCryptoFormatted: string
   txHash?: string
   txLink?: string
   txStatus?: TxStatus
   onSign: () => void
 }): StepperStep => {
   const chainAdapterManager = getChainAdapterManager()
-  const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
-  const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
-  const tradeType = buyAssetChainId === sellAssetChainId ? TradeType.Swap : TradeType.Bridge
-  const sellChainSymbol = getChainShortName(sellAssetChainId as KnownChainIds)
-  const buyChainSymbol = getChainShortName(buyAssetChainId as KnownChainIds)
+  const sellChainName = chainAdapterManager.get(stepSellAssetChainId)?.getDisplayName()
+  const buyChainName = chainAdapterManager.get(stepBuyAssetChainId)?.getDisplayName()
+  const tradeType = stepBuyAssetChainId === stepSellAssetChainId ? TradeType.Swap : TradeType.Bridge
+  const sellChainSymbol = getChainShortName(stepSellAssetChainId as KnownChainIds)
+  const buyChainSymbol = getChainShortName(stepBuyAssetChainId as KnownChainIds)
   const stepIndicator =
     txStatus !== undefined ? getStatusIcon(txStatus) : <SwapperIcon swapperName={swapperName} />
 
@@ -210,7 +207,7 @@ export const getHopSummaryStep = ({
   const description = (
     <VStack>
       <RawText>
-        {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
+        {`${stepSellAmountCryptoFormatted}.${sellChainSymbol} -> ${stepBuyAmountCryptoFormatted}.${buyChainSymbol}`}
       </RawText>
       {txHash !== undefined && <RawText>TX: {txHash}</RawText>}
       {txLink && (

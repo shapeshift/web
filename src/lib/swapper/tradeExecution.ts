@@ -94,34 +94,40 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
+    supportsEIP1559,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
-    const buildSignBroadcast = async (
-      swapper: Swapper & SwapperApi,
-      {
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-      }: CommonGetUnsignedTransactionArgs,
-    ) => {
-      if (!swapper.getUnsignedEvmTransaction) {
-        throw Error('missing implementation for getUnsignedEvmTransaction')
-      }
-      if (!swapper.executeEvmTransaction) {
-        throw Error('missing implementation for executeEvmTransaction')
-      }
+    const buildSignBroadcast =
+      (_supportsEIP1559: boolean) =>
+      async (
+        swapper: Swapper & SwapperApi,
+        {
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+        }: CommonGetUnsignedTransactionArgs,
+      ) => {
+        if (!swapper.getUnsignedEvmTransaction) {
+          throw Error('missing implementation for getUnsignedEvmTransaction')
+        }
+        if (!swapper.executeEvmTransaction) {
+          throw Error('missing implementation for executeEvmTransaction')
+        }
 
-      const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        from,
-      })
+        const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
+          tradeQuote,
+          chainId,
+          stepIndex,
+          slippageTolerancePercentageDecimal,
+          from,
+          supportsEIP1559: _supportsEIP1559,
+        })
 
-      return await swapper.executeEvmTransaction(unsignedTxResult, { signAndBroadcastTransaction })
-    }
+        return await swapper.executeEvmTransaction(unsignedTxResult, {
+          signAndBroadcastTransaction,
+        })
+      }
 
     return await this._execWalletAgnostic(
       {
@@ -130,7 +136,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
       },
-      buildSignBroadcast,
+      buildSignBroadcast(supportsEIP1559),
     )
   }
 

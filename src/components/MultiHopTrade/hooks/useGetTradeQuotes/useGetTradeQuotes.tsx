@@ -17,10 +17,10 @@ import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
 import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
-  selectBuyAccountId,
   selectBuyAsset,
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
   selectPortfolioAccountMetadataByAccountId,
-  selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
   selectUserSlippagePercentageDecimal,
@@ -112,8 +112,8 @@ export const useGetTradeQuotes = () => {
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const userWillDonate = useAppSelector(selectWillDonate)
 
-  const sellAccountId = useAppSelector(selectSellAccountId)
-  const buyAccountId = useAppSelector(selectBuyAccountId)
+  const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const userSlippageTolerancePercentage = useAppSelector(selectUserSlippagePercentageDecimal)
 

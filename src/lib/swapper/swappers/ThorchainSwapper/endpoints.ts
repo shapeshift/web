@@ -57,6 +57,7 @@ export const thorchainApi: SwapperApi = {
     chainId,
     from,
     tradeQuote,
+    supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
@@ -96,6 +97,8 @@ export const thorchainApi: SwapperApi = {
       api.getGasFees(),
     ])
 
+    const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+
     return {
       chainId: Number(fromChainId(chainId).chainReference),
       data,
@@ -103,7 +106,9 @@ export const thorchainApi: SwapperApi = {
       gasLimit,
       to,
       value,
-      ...gasFees,
+      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+        ? { maxFeePerGas, maxPriorityFeePerGas }
+        : { gasPrice }),
     }
   },
 

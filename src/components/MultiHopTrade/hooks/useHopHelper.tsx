@@ -3,10 +3,11 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/common-selectors'
-import { selectSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
+  selectLastHopSellAccountId,
   selectLastHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -20,21 +21,18 @@ export const useHopHelper = () => {
   // the network fee asset for the last hop in the trade
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
-  // this is the account we're selling from - in this implementation, network fees are always paid
-  // from the sell account regardless of how many hops we have
-  const sellAccountId = useAppSelector(selectSellAccountId)
+  // this is the account we're selling from - network fees are paid from the sell account for the current hop
+  const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const lastHopSellAccountId = useAppSelector(selectLastHopSellAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
-    [sellAccountId, firstHopSellFeeAsset?.assetId],
+    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: firstHopSellAccountId ?? '' }),
+    [firstHopSellAccountId, firstHopSellFeeAsset?.assetId],
   )
 
-  // TODO(woodenfurniture): sellAccountId should be specific to the second hop since it may be a different
-  // account to the first hop. This explains why multi hop quotes always have insufficient balance
-  // for gas.
   const lastHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
-    [sellAccountId, lastHopSellFeeAsset?.assetId],
+    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: lastHopSellAccountId ?? '' }),
+    [lastHopSellAccountId, lastHopSellFeeAsset?.assetId],
   )
 
   const firstHopFeeAssetBalancePrecision = useAppSelector(s =>
@@ -46,8 +44,8 @@ export const useHopHelper = () => {
   )
 
   const sellAssetBalanceFilter = useMemo(
-    () => ({ accountId: sellAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
-    [sellAccountId, firstHopSellAsset?.assetId],
+    () => ({ accountId: firstHopSellAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
+    [firstHopSellAccountId, firstHopSellAsset?.assetId],
   )
 
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>

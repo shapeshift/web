@@ -21,6 +21,7 @@ import {
   selectLastHop,
   selectTradeExecutionStatus,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -50,6 +51,7 @@ export const MultiHopTradeConfirm = memo(() => {
 
   const handleBack = useCallback(() => {
     dispatch(swappersSlice.actions.clear())
+    dispatch(tradeQuoteSlice.actions.clear())
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history])
 

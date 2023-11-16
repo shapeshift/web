@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { selectBuyAccountId, selectSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId, selectLastHopBuyAccountId } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -11,18 +11,21 @@ export const useAccountIds = (): {
   setSellAssetAccountId: (accountId: AccountId) => void
 } => {
   const dispatch = useAppDispatch()
-  const sellAssetAccountId = useAppSelector(selectSellAccountId)
-  const buyAssetAccountId = useAppSelector(selectBuyAccountId)
+
+  // currently, a multi-hop trade will be automagically routed though the accountId corresponding to
+  // the accountNumber for the first hop.
+  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const buyAssetAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const setSellAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>
-      dispatch(swappers.actions.setSellAssetAccountId(accountId)),
+      dispatch(swappers.actions.setSellAssetAccountNumber(accountId)),
     [dispatch],
   )
 
   const setBuyAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>
-      dispatch(swappers.actions.setBuyAssetAccountId(accountId)),
+      dispatch(swappers.actions.setBuyAssetAccountNumber(accountId)),
     [dispatch],
   )
 

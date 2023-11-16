@@ -175,7 +175,6 @@ export async function getTradeQuote(
             selectedLifiRoute.toAmount,
           ).toPrecision()
 
-          // TODO: Add buySideNetworkFeeCryptoBaseUnit when we implement multihop
           const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
             .plus(sellSideProtocolFeeBuyAssetBaseUnit)
             .plus(buySideProtocolFeeCryptoBaseUnit)

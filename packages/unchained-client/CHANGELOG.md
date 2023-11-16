@@ -354,9 +354,9 @@ Co-authored-by: Apotheosis <97164662+0xApotheosis@users.noreply.github.com>
 
 * chore: remove toString() and associated comment
 
-* chore: remove string litirals
+* chore: remove string literals
 
-* chore: optimise imports
+* chore: optimize imports
 
 * chore: use string union for AssetNamespace
 

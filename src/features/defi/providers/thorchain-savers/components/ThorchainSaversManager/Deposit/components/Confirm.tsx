@@ -514,20 +514,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return txid
   }, [wallet, accountNumber, getCustomTxInput, chainId])
 
-  const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
-    if (!wallet) return
-
-    const sendInput = await getSendInput()
-    if (!sendInput) throw new Error('Error building send input')
-    if (!wallet) throw new Error('Wallet is required')
-
-    const txId = await handleSend({
-      sendInput,
-      wallet,
-    })
-    return txId
-  }, [getSendInput, wallet])
-
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params && accountType)) return
     ;(async () => {
@@ -583,7 +569,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const sendInput = await getSendInput()
         if (!sendInput) throw new Error('Error building send input')
 
-        return handleMultiTxSend()
+        const txId = await handleSend({
+          sendInput,
+          wallet,
+        })
+
+        return txId
       })()
 
       if (!maybeTxId) {
@@ -638,7 +629,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assets,
     isTokenDeposit,
     getSendInput,
-    handleMultiTxSend,
     handleCustomTx,
     toast,
     translate,

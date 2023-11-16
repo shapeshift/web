@@ -42,7 +42,7 @@ export const useMockTradeExecution = () => {
       setTimeout(() => {
         setTradeStatus(TxStatus.Confirmed)
         resolve(undefined)
-      }, 5000)
+      }, 15000)
     })
 
     return promise

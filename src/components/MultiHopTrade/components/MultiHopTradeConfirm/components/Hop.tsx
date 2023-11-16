@@ -27,6 +27,7 @@ import type { StepperStep } from 'components/MultiHopTrade/types'
 import { RawText } from 'components/Text'
 
 import { JuicyGreenCheck } from './JuicyGreenCheck'
+import { TimeRemaining } from './TimeRemaining'
 
 const cardBorderRadius = { base: 'xl' }
 
@@ -41,7 +42,6 @@ export const Hop = ({
   txStatus,
   isOpen,
   estimatedExecutionTimeMs,
-  executionTimeRemainingMs,
   onToggleIsOpen,
 }: {
   steps: StepperStep[]
@@ -54,7 +54,6 @@ export const Hop = ({
   txStatus?: TxStatus
   isOpen: boolean
   estimatedExecutionTimeMs?: number
-  executionTimeRemainingMs?: number
   onToggleIsOpen: () => void
 }) => {
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
@@ -71,8 +70,8 @@ export const Hop = ({
         )
       case TxStatus.Pending:
         return (
-          executionTimeRemainingMs !== undefined && (
-            <RawText>{prettyMilliseconds(executionTimeRemainingMs)}</RawText>
+          estimatedExecutionTimeMs !== undefined && (
+            <TimeRemaining initialTimeMs={estimatedExecutionTimeMs} />
           )
         )
       case TxStatus.Confirmed:
@@ -93,7 +92,7 @@ export const Hop = ({
       default:
         return null
     }
-  }, [estimatedExecutionTimeMs, executionTimeRemainingMs, isOpen, onToggleIsOpen, txStatus])
+  }, [estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
 
   return (
     <Card

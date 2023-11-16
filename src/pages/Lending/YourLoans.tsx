@@ -16,6 +16,7 @@ import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useLendingPositionData } from './hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
+import { useRepaymentLockData } from './hooks/useRepaymentLockData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -34,6 +35,13 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
       assetId: asset.assetId,
       accountId,
     })
+
+  const useRepaymentLockDataArgs = useMemo(
+    () => ({ assetId: asset.assetId, accountId }),
+    [asset.assetId, accountId],
+  )
+  const { data: repaymentLockData, isLoading: isRepaymentLockDataLoading } =
+    useRepaymentLockData(useRepaymentLockDataArgs)
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId, accountId)
@@ -81,9 +89,8 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
             />
           </Stack>
         </Skeleton>
-        <Skeleton isLoaded={!isLendingPositionDataLoading}>
-          {/* TODO(gomes): programmatic */}
-          <RawText>30 days</RawText>
+        <Skeleton isLoaded={!isRepaymentLockDataLoading}>
+          <RawText>{repaymentLockData} days</RawText>
         </Skeleton>
       </Button>
     </Stack>

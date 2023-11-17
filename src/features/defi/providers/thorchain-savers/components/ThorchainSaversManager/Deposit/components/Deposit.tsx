@@ -2,6 +2,8 @@ import { Skeleton, useToast } from '@chakra-ui/react'
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { useQueryClient } from '@tanstack/react-query'
@@ -25,6 +27,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -306,14 +309,22 @@ export const Deposit: React.FC<DepositProps> = ({
             wallet,
           })
 
-          const averageTxFeeCryptoBaseUnit = customTxInput.networkFeeCryptoBaseUnit
+          const fees = (await estimateFees({
+            accountId,
+            contractAddress: undefined,
+            assetId,
+            sendMax: false,
+            cryptoAmount: '0',
+            to: customTxInput.to,
+            from: fromAccountId(accountId).account,
+            memo: customTxInput.data,
+          })) as FeeDataEstimate<KnownChainIds.EthereumMainnet>
 
-          const averageFeeCryptoPrecision = fromBaseUnit(
-            averageTxFeeCryptoBaseUnit,
-            feeAsset.precision,
-          )
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
 
-          return averageFeeCryptoPrecision
+          const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision))
+
+          return fastFeeCryptoPrecision.toString()
         }
 
         const adapter = chainAdapters.get(chainId)!
@@ -813,7 +824,10 @@ export const Deposit: React.FC<DepositProps> = ({
     [contextDispatch],
   )
   const handlePercentClick = useCallback(
-    async (percent: number) => {
+    async (_percent: number) => {
+      // Arbitrary buffer on UTXO max sends to account for possible UTXO set discrepancies
+      const percent = isUtxoChainId(asset.chainId) && _percent === 1 ? 0.99 : _percent
+
       if (!contextDispatch) return { amountCryptoPrecision: '0', fiatAmount: '0' }
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       setIsSendMax(percent === 1)
@@ -824,14 +838,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimateFeesQueryEnabled = Boolean(
         fromAddress && accountId && isUtxoChainId(asset.chainId),
       )
-      // Fees before fees isn't a typo, it's an actual flow:
-      // Here, we get the initial fees to proceed to fee deduction to get the amount after fees
-      // However, the amount we get is not necessarily reliable just yet since max sends, by definition, do not create a change output
-      // and are effectively cheaper than partial sends
-      // So we get "fees after fees" below in estimatedFeesAfterFeesQueryArgs i.e the fees of a fee-deducted max send
-      // and deduct that of the original amount before fees, which ensures
-      // that the final amount we get after fee deduction is able to go through and isn't failing fee deduction checks
-      const estimatedFeesBeforeFeesQueryArgs = {
+      const estimatedFeesQueryArgs = {
         estimateFeesInput: {
           cryptoAmount: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
           assetId,
@@ -844,20 +851,17 @@ export const Deposit: React.FC<DepositProps> = ({
         assetMarketData: marketData,
         enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
       }
-      const estimatedFeesBeforeFeesQueryKey: EstimatedFeesQueryKey = [
-        'estimateFees',
-        estimatedFeesBeforeFeesQueryArgs,
-      ]
+      const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
 
-      const _estimatedFeesBeforeFeesData = estimateFeesQueryEnabled
+      const _estimatedFeesData = estimateFeesQueryEnabled
         ? await queryClient.fetchQuery({
-            queryKey: estimatedFeesBeforeFeesQueryKey,
+            queryKey: estimatedFeesQueryKey,
             queryFn: getEstimatedFeesQueryFn,
           })
         : undefined
 
       const isSweepNeededQueryEnabled = Boolean(
-        _percentageCryptoAmountPrecisionBeforeTxFees.gt(0) && _estimatedFeesBeforeFeesData,
+        _percentageCryptoAmountPrecisionBeforeTxFees.gt(0) && _estimatedFeesData,
       )
 
       const isSweepNeededQueryArgs = {
@@ -909,48 +913,15 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const _percentageCryptoAmountPrecisionAfterTxFeesAndSweep =
         _percentageCryptoAmountPrecisionBeforeTxFees
-          .minus(
-            fromBaseUnit(_estimatedFeesBeforeFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
-          )
+          .minus(fromBaseUnit(_estimatedFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
           .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
 
-      const estimatedFeesAfterFeesQueryArgs = {
-        estimateFeesInput: {
-          cryptoAmount: _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
-          assetId,
-          to: fromAddress ?? '',
-          sendMax: false,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        asset,
-        assetMarketData: marketData,
-        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
-      }
-      const estimatedFeesAfterFeesQueryKey: EstimatedFeesQueryKey = [
-        'estimateFees',
-        estimatedFeesAfterFeesQueryArgs,
-      ]
-
-      const _estimatedFeesAfterFeesData = estimateFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedFeesAfterFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-
-      const _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep =
-        _percentageCryptoAmountPrecisionBeforeTxFees
-          .minus(
-            fromBaseUnit(_estimatedFeesAfterFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
-          )
-          .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
-      const _percentageFiatAmount = _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
+      const _percentageFiatAmount = _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
         marketData.price,
       )
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
-        amountCryptoPrecision: _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
+        amountCryptoPrecision: _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
         fiatAmount: _percentageFiatAmount.toFixed(),
       }
     },

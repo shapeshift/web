@@ -105,8 +105,8 @@ export const Sweep = ({
         fn: () =>
           (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({ pubkey: fromAddress }),
         validate: (utxos: Utxo[]) => utxos.some(utxo => utxo.txid === txId),
-        interval: 1000,
-        maxAttempts: 10,
+        interval: 15_000,
+        maxAttempts: 2,
       })
     })()
     handleSwepSeen()

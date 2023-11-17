@@ -31,7 +31,6 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -211,8 +210,6 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
-
   const saversRouterContractAddress = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
@@ -324,10 +321,9 @@ export const Deposit: React.FC<DepositProps> = ({
           })) as FeeDataEstimate<KnownChainIds.EthereumMainnet>
 
           const fastFeeCryptoBaseUnit = fees.fast.txFee
+          const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision)
 
-          const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision))
-
-          return fastFeeCryptoPrecision.toString()
+          return fastFeeCryptoPrecision
         }
 
         const adapter = chainAdapters.get(chainId)!
@@ -336,16 +332,14 @@ export const Deposit: React.FC<DepositProps> = ({
           value: amountCryptoBaseUnit,
           chainSpecific: {
             pubkey: userAddress,
-            // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
-            // Cosmos assets fees are hardcoded, and UTXOs will never hit this method
-            from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+            from: fromAccountId(accountId).account,
           },
           sendMax: Boolean(state?.deposit.sendMax),
         }
         const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
+        const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, asset.precision)
 
-        const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, asset.precision))
-        return bnOrZero(fastFeeCryptoPrecision).toString()
+        return fastFeeCryptoPrecision
       } catch (error) {
         console.error(error)
         toast({
@@ -372,7 +366,6 @@ export const Deposit: React.FC<DepositProps> = ({
       isTokenDeposit,
       isApprovalRequired,
       chainId,
-      supportedEvmChainIds,
       state?.deposit.sendMax,
       saversRouterContractAddress,
       assetId,

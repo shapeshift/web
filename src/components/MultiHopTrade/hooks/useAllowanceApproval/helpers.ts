@@ -102,7 +102,6 @@ export const getApprovalTxData = async ({
       to: assetReference,
       value,
       wallet,
-      networkFeeCryptoBaseUnit,
       ...fees,
     },
   }

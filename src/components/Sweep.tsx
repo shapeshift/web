@@ -207,7 +207,7 @@ export const Sweep = ({
                     value={fromBaseUnit(
                       estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
                       asset.precision,
-                    ).toString()}
+                    )}
                     symbol={asset.symbol}
                   />
                 </Box>

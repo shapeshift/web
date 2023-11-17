@@ -868,7 +868,8 @@ export const Deposit: React.FC<DepositProps> = ({
       const isSweepNeededQueryArgs = {
         assetId,
         address: fromAddress,
-        // Assune 0 fees, so that sweep needed properly return true/false
+        // Assume 0 fees, so that sweep needed properly return true/false
+        // The reason this works is because the final amount we're getting *is* fee-deducted, so we don't want to consider fees in this specific call
         txFeeCryptoBaseUnit: '0',
         amountCryptoBaseUnit: toBaseUnit(
           _percentageCryptoAmountPrecisionBeforeTxFees,

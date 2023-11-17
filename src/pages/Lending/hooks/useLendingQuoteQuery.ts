@@ -22,7 +22,6 @@ import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {
-  borrowAssetReceiveAddress: string
   collateralAssetId: AssetId
   borrowAccountId: AccountId
   collateralAccountId: AccountId
@@ -30,6 +29,8 @@ type UseLendingQuoteQueryProps = {
   depositAmountCryptoPrecision: string
   isLoanOpenPending?: boolean
 }
+
+type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
 
 const selectLendingQuoteQuery = memoize(
   ({
@@ -105,7 +106,7 @@ export const useLendingQuoteOpenQuery = ({
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
   isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
-  const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
+  const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
 
@@ -113,7 +114,7 @@ export const useLendingQuoteOpenQuery = ({
     () => [
       'lendingQuoteQuery',
       {
-        borrowAssetReceiveAddress,
+        borrowAssetReceiveAddress: _borrowAssetReceiveAddress,
         collateralAccountId: _collateralAccountId,
         collateralAssetId: _collateralAssetId,
         borrowAssetId: _borrowAssetId,
@@ -122,19 +123,25 @@ export const useLendingQuoteOpenQuery = ({
       },
     ],
     500,
-  ) as unknown as [string, UseLendingQuoteQueryProps]
+  ) as unknown as [string, UseLendingQuoteQueryKey]
 
-  const { collateralAccountId, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision } =
-    useMemo(
-      () => ({
-        borrowAccountId: lendingQuoteQueryKey[1].borrowAccountId,
-        collateralAccountId: lendingQuoteQueryKey[1].collateralAccountId,
-        collateralAssetId: lendingQuoteQueryKey[1].collateralAssetId,
-        borrowAssetId: lendingQuoteQueryKey[1].borrowAssetId,
-        depositAmountCryptoPrecision: lendingQuoteQueryKey[1].depositAmountCryptoPrecision,
-      }),
-      [lendingQuoteQueryKey],
-    )
+  const {
+    borrowAssetReceiveAddress,
+    collateralAccountId,
+    collateralAssetId,
+    borrowAssetId,
+    depositAmountCryptoPrecision,
+  } = useMemo(
+    () => ({
+      borrowAccountId: lendingQuoteQueryKey[1].borrowAccountId,
+      collateralAccountId: lendingQuoteQueryKey[1].collateralAccountId,
+      collateralAssetId: lendingQuoteQueryKey[1].collateralAssetId,
+      borrowAssetId: lendingQuoteQueryKey[1].borrowAssetId,
+      depositAmountCryptoPrecision: lendingQuoteQueryKey[1].depositAmountCryptoPrecision,
+      borrowAssetReceiveAddress: lendingQuoteQueryKey[1].borrowAssetReceiveAddress,
+    }),
+    [lendingQuoteQueryKey],
+  )
 
   const destinationAccountMetadataFilter = useMemo(
     () => ({ accountId: _borrowAccountId }),
@@ -205,6 +212,10 @@ export const useLendingQuoteOpenQuery = ({
         collateralAssetMarketData,
         borrowAssetMarketData,
       }),
+    // This avoids retrying errored queries - i.e smaller amounts will error with "failed to simulate swap: fail swap, not enough fee"
+    // Failed queries go stale and don't honor "staleTime", which means smaller amounts would trigger a THOR daemon fetch from all consumers (3 currently)
+    // vs. the failed query being considered fresh
+    retry: false,
     enabled: Boolean(
       !isLoanOpenPending &&
         bnOrZero(depositAmountCryptoPrecision).gt(0) &&

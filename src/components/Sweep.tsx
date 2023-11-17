@@ -63,8 +63,9 @@ export const Sweep = ({
     setIsSweepPending(true)
 
     try {
-      if (!fromAddress || !accountId)
+      if (!fromAddress)
         throw new Error(`Cannot get from address for accountId: $accountIdcollateralAccountId}`)
+      if (!accountId) throw new Error('accountId is required')
       if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
       const sendInput = {
         accountId,

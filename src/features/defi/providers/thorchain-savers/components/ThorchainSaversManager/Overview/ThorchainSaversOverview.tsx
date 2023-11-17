@@ -33,15 +33,15 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { SwapperName } from 'lib/swapper/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -101,9 +101,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({
         asset,
         amountCryptoBaseUnit: BigNumber.max(
-          THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId],
-          bn(1).times(bn(10).pow(asset.precision)).toString(),
-        ).toString(),
+          THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+          toBaseUnit(1, asset.precision),
+        ),
       })
       if (
         maybeQuote.isErr() &&

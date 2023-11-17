@@ -52,7 +52,7 @@ import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -385,7 +385,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // i.e 10 Gwei for EVM chains
       // This function call is super dumb, and the param we pass as `amount` isn't actually the amount we intend to withdraw
       // In addition to being used as the `memo` positional param, it is also the value of ETH to be sent with the Tx to actually trigger a withdraw
-      const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+      const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId]
 
       const data = encodeFunctionData({
         abi: thorContract.abi,

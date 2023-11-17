@@ -4,7 +4,8 @@ import { useMemo } from 'react'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,8 +27,7 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
   if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
-  const txFeeFiat = bnOrZero(estimatedFees.fast.txFee)
-    .div(bn(10).pow(asset.precision))
+  const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
     .times(assetMarketData.price)
     .toString()
   return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }

@@ -21,7 +21,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
@@ -47,7 +48,7 @@ const formControlProps = {
 
 type BorrowInputProps = {
   collateralAssetId: AssetId
-  cryptoDepositAmount: string | null
+  depositAmountCryptoPrecision: string | null
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
   collateralAccountId: AccountId
@@ -60,7 +61,7 @@ type BorrowInputProps = {
 
 export const BorrowInput = ({
   collateralAssetId,
-  cryptoDepositAmount,
+  depositAmountCryptoPrecision,
   fiatDepositAmount,
   onDepositAmountChange,
   collateralAccountId,
@@ -150,7 +151,7 @@ export const BorrowInput = ({
     collateralAccountId,
     borrowAccountId,
     borrowAssetId: borrowAsset?.assetId ?? '',
-    depositAmountCryptoPrecision: cryptoDepositAmount ?? '0',
+    depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
   })
 
   const balanceFilter = useMemo(
@@ -161,24 +162,20 @@ export const BorrowInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balanceCryptoBaseUnit).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    () => fromBaseUnit(balanceCryptoBaseUnit, collateralAsset?.precision ?? 0),
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
   const hasEnoughBalanceForTx = useMemo(() => {
     if (!isEstimatedFeesDataSuccess) return false
 
-    return bnOrZero(cryptoDepositAmount)
-      .plus(
-        bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).div(
-          bn(10).pow(collateralAsset?.precision ?? '0'),
-        ),
-      )
+    return bnOrZero(depositAmountCryptoPrecision)
+      .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
       .lte(amountAvailableCryptoPrecision)
   }, [
     amountAvailableCryptoPrecision,
     collateralAsset?.precision,
-    cryptoDepositAmount,
+    depositAmountCryptoPrecision,
     estimatedFeesData,
     isEstimatedFeesDataSuccess,
   ])
@@ -187,19 +184,22 @@ export const BorrowInput = ({
     () => ({
       assetId: collateralAssetId,
       address: fromAddress,
-      amountCryptoBaseUnit: bnOrZero(cryptoDepositAmount ?? '0')
-        .times(bn(10).pow(collateralAsset?.precision ?? 0))
-        .toString(),
+      amountCryptoBaseUnit: toBaseUnit(
+        depositAmountCryptoPrecision ?? 0,
+        collateralAsset?.precision ?? 0,
+      ),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', // actually defined at runtime, see "enabled" below
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
-        bnOrZero(cryptoDepositAmount).gt(0) && isEstimatedFeesDataSuccess && hasEnoughBalanceForTx,
+        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
+          isEstimatedFeesDataSuccess &&
+          hasEnoughBalanceForTx,
       ),
     }),
     [
       collateralAsset?.precision,
       collateralAssetId,
-      cryptoDepositAmount,
+      depositAmountCryptoPrecision,
       estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
       hasEnoughBalanceForTx,
@@ -230,22 +230,16 @@ export const BorrowInput = ({
     if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
       return false
 
-    return bnOrZero(cryptoDepositAmount)
+    return bnOrZero(depositAmountCryptoPrecision)
+      .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
       .plus(
-        bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).div(
-          bn(10).pow(collateralAsset?.precision ?? '0'),
-        ),
-      )
-      .plus(
-        bnOrZero(estimatedSweepFeesData.txFeeCryptoBaseUnit).div(
-          bn(10).pow(collateralAsset?.precision ?? '0'),
-        ),
+        fromBaseUnit(estimatedSweepFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0),
       )
       .lte(amountAvailableCryptoPrecision)
   }, [
     amountAvailableCryptoPrecision,
     collateralAsset?.precision,
-    cryptoDepositAmount,
+    depositAmountCryptoPrecision,
     estimatedFeesData?.txFeeCryptoBaseUnit,
     estimatedSweepFeesData,
     isEstimatedFeesDataSuccess,
@@ -284,14 +278,14 @@ export const BorrowInput = ({
       collateralAccountId,
       borrowAccountId,
       borrowAssetId: borrowAsset?.assetId ?? '',
-      depositAmountCryptoPrecision: cryptoDepositAmount ?? '0',
+      depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
     }),
     [
       borrowAccountId,
       borrowAsset?.assetId,
       collateralAccountId,
       collateralAssetId,
-      cryptoDepositAmount,
+      depositAmountCryptoPrecision,
     ],
   )
   const {
@@ -335,7 +329,7 @@ export const BorrowInput = ({
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}
           onChange={handleDepositInputChange}
-          cryptoAmount={cryptoDepositAmount ?? '0'}
+          cryptoAmount={depositAmountCryptoPrecision ?? '0'}
           fiatAmount={fiatDepositAmount ?? '0'}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
@@ -382,7 +376,7 @@ export const BorrowInput = ({
           <LoanSummary
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
-            depositAmountCryptoPrecision={cryptoDepositAmount ?? '0'}
+            depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
             borrowAssetId={borrowAsset?.assetId ?? ''}
             borrowAccountId={borrowAccountId}
           />

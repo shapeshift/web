@@ -35,7 +35,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
@@ -68,7 +68,7 @@ import {
   fromThorBaseUnit,
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -179,7 +179,7 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!assetId) return '0'
 
     // We only want to display the outbound fee as a minimum for assets which have a zero dust threshold i.e EVM and Cosmos assets
-    if (!bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).isZero()) return '0'
+    if (!bn(THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId]).isZero()) return '0'
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
     const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
 
@@ -249,7 +249,7 @@ export const Deposit: React.FC<DepositProps> = ({
     error: thorchainSaversDepositQuoteError,
   } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: bnOrZero(inputValues?.cryptoAmount).times(bn(10).pow(asset.precision)),
+    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
   })
 
   // TODO(gomes): use useGetEstimatedFeesQuery instead of this.
@@ -325,9 +325,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
           const fastFeeCryptoBaseUnit = fees.fast.txFee
 
-          const fastFeeCryptoPrecision = bnOrZero(
-            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
-          )
+          const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision))
 
           return fastFeeCryptoPrecision.toString()
         }
@@ -346,9 +344,7 @@ export const Deposit: React.FC<DepositProps> = ({
         }
         const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
 
-        const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-        )
+        const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, asset.precision))
         return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         console.error(error)
@@ -420,8 +416,8 @@ export const Deposit: React.FC<DepositProps> = ({
       if (balanceCryptoBaseUnitBn.isZero()) return false
 
       return bnOrZero(amountCryptoPrecision)
-        .plus(bnOrZero(txFeeCryptoBaseUnit).div(bn(10).pow(precision ?? '0')))
-        .lte(balanceCryptoBaseUnitBn.div(bn(10).pow(precision)))
+        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
     },
     [],
   )
@@ -430,9 +426,7 @@ export const Deposit: React.FC<DepositProps> = ({
     () => ({
       assetId,
       address: fromAddress,
-      amountCryptoBaseUnit: bnOrZero(inputValues?.cryptoAmount ?? '0')
-        .times(bn(10).pow(feeAsset?.precision ?? 0))
-        .toString(),
+      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount ?? 0, feeAsset?.precision ?? 0),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
@@ -480,9 +474,9 @@ export const Deposit: React.FC<DepositProps> = ({
       if (balanceCryptoBaseUnitBn.isZero()) return false
 
       return bnOrZero(amountCryptoPrecision)
-        .plus(bnOrZero(txFeeCryptoBaseUnit).div(bn(10).pow(precision ?? '0')))
-        .plus(bnOrZero(sweepTxFeeCryptoBaseUnit).div(bn(10).pow(precision ?? '0')))
-        .lte(balanceCryptoBaseUnitBn.div(bn(10).pow(precision)))
+        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+        .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0))
     },
     [],
   )
@@ -498,9 +492,7 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
         const estimatedGasCryptoPrecision = isUtxoChainId(chainId)
-          ? bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit)
-              .div(bn(10).pow(feeAsset.precision))
-              .toFixed()
+          ? fromBaseUnit(estimatedFeesData?.txFeeCryptoBaseUnit ?? 0, feeAsset.precision)
           : await getDepositGasEstimateCryptoPrecision(formValues)
 
         if (!estimatedGasCryptoPrecision) return
@@ -546,9 +538,10 @@ export const Deposit: React.FC<DepositProps> = ({
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(approvalFees.networkFeeCryptoBaseUnit)
-                .div(bn(10).pow(feeAsset.precision))
-                .toString(),
+              estimatedGasCryptoPrecision: fromBaseUnit(
+                approvalFees.networkFeeCryptoBaseUnit,
+                feeAsset.precision,
+              ),
             },
           })
 
@@ -612,9 +605,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const isUtxoChain = isUtxoChainId(asset.chainId)
       const estimateFeesQueryEnabled = Boolean(fromAddress && accountId && isUtxoChain)
 
-      const amountCryptoBaseUnit = bn(valueCryptoPrecision)
-        .times(bn(10).pow(asset.precision))
-        .toString()
+      const amountCryptoBaseUnit = toBaseUnit(valueCryptoPrecision, asset.precision)
 
       const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
         'thorchainSaversDepositQuote',
@@ -734,9 +725,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     async (value: string) => {
       const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
-      const balanceCryptoPrecision = bnOrZero(balanceCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
-      )
+      const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
       if (balanceCryptoPrecision.isZero() || balanceCryptoPrecision.lt(value))
         return 'common.insufficientFunds'
@@ -749,12 +738,11 @@ export const Deposit: React.FC<DepositProps> = ({
         bn(outboundFeeCryptoBaseUnit).gt(0) &&
         bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
 
-      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
-        bn(10).pow(asset.precision),
+      const minLimitCryptoPrecision = fromBaseUnit(
+        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+        asset.precision,
       )
-      const outboundFeeCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
-      )
+      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, asset.precision)
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -781,26 +769,23 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     async (value: string) => {
       const valueCryptoPrecision = bnOrZero(value).div(marketData.price)
-      const balanceCryptoPrecision = bnOrZero(balanceCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
-      )
+      const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
       const fiatBalance = balanceCryptoPrecision.times(marketData.price)
       if (fiatBalance.isZero() || fiatBalance.lt(value)) return 'common.insufficientFunds'
 
-      const valueCryptoBaseUnit = valueCryptoPrecision.times(bn(10).pow(asset.precision))
+      const valueCryptoBaseUnit = toBaseUnit(valueCryptoPrecision, asset.precision)
 
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
         bn(outboundFeeCryptoBaseUnit).gt(0) &&
         bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
 
-      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
-        bn(10).pow(asset.precision),
+      const minLimitCryptoPrecision = fromBaseUnit(
+        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+        asset.precision,
       )
-      const outboundFeeCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
-      )
+      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, asset.precision)
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -824,13 +809,13 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balanceCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+  const balanceCryptoPrecision = useMemo(
+    () => bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision)),
     [balanceCryptoBaseUnit, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
-    [cryptoAmountAvailable, marketData?.price],
+    () => bnOrZero(balanceCryptoPrecision).times(marketData.price),
+    [balanceCryptoPrecision, marketData?.price],
   )
 
   const setIsSendMax = useCallback(
@@ -851,7 +836,7 @@ export const Deposit: React.FC<DepositProps> = ({
       setIsSendMax(percent === 1)
 
       const _percentageCryptoAmountPrecisionBeforeTxFees =
-        bnOrZero(cryptoAmountAvailable).times(percent)
+        bnOrZero(balanceCryptoPrecision).times(percent)
 
       const estimateFeesQueryEnabled = Boolean(
         fromAddress && accountId && isUtxoChainId(asset.chainId),
@@ -897,9 +882,10 @@ export const Deposit: React.FC<DepositProps> = ({
         address: fromAddress,
         // Assune 0 fees, so that sweep needed properly return true/false
         txFeeCryptoBaseUnit: '0',
-        amountCryptoBaseUnit: _percentageCryptoAmountPrecisionBeforeTxFees
-          .times(bn(10).pow(asset.precision))
-          .toString(),
+        amountCryptoBaseUnit: toBaseUnit(
+          _percentageCryptoAmountPrecisionBeforeTxFees,
+          asset.precision,
+        ),
       }
 
       const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
@@ -940,13 +926,9 @@ export const Deposit: React.FC<DepositProps> = ({
       const _percentageCryptoAmountPrecisionAfterTxFeesAndSweep =
         _percentageCryptoAmountPrecisionBeforeTxFees
           .minus(
-            bnOrZero(_estimatedFeesBeforeFeesData?.txFeeCryptoBaseUnit).div(
-              bn(10).pow(asset.precision),
-            ),
+            fromBaseUnit(_estimatedFeesBeforeFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
           )
-          .minus(
-            bnOrZero(_estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-          )
+          .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
 
       const estimatedFeesAfterFeesQueryArgs = {
         estimateFeesInput: {
@@ -976,13 +958,9 @@ export const Deposit: React.FC<DepositProps> = ({
       const _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep =
         _percentageCryptoAmountPrecisionBeforeTxFees
           .minus(
-            bnOrZero(_estimatedFeesAfterFeesData?.txFeeCryptoBaseUnit).div(
-              bn(10).pow(asset.precision),
-            ),
+            fromBaseUnit(_estimatedFeesAfterFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
           )
-          .minus(
-            bnOrZero(_estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
-          )
+          .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
       const _percentageFiatAmount = _finalPercentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
         marketData.price,
       )
@@ -997,7 +975,7 @@ export const Deposit: React.FC<DepositProps> = ({
       asset,
       assetId,
       contextDispatch,
-      cryptoAmountAvailable,
+      balanceCryptoPrecision,
       fromAddress,
       marketData,
       queryClient,
@@ -1100,7 +1078,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={bnOrZero(opportunityData?.apy).toString()}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
       fiatInputValidation={fiatInputValidation}

@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { bn, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,7 +9,7 @@ import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -204,9 +204,10 @@ export const Sweep = ({
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit)
-                      .div(bn(10).pow(asset?.precision ?? '0'))
-                      .toString()}
+                    value={fromBaseUnit(
+                      estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+                      asset.precision,
+                    ).toString()}
                     symbol={asset.symbol}
                   />
                 </Box>

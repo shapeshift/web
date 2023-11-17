@@ -9,7 +9,6 @@ import {
   Flex,
   Heading,
   IconButton,
-  Input,
   Skeleton,
   Stack,
   Tab,
@@ -78,7 +77,6 @@ export const Pool = () => {
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
   const translate = useTranslate()
-  const [value, setValue] = useState<number | string>()
 
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
@@ -156,7 +154,6 @@ export const Pool = () => {
                   component={collateralBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
-                  {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.collateralValue'
@@ -164,7 +161,6 @@ export const Pool = () => {
                   component={collateralValueComponent}
                   isLoading={isRepaymentLockLoading}
                   flex={1}
-                  {...(value ? { newValue: { value } } : {})}
                 />
               </Flex>
               <Flex>
@@ -174,7 +170,6 @@ export const Pool = () => {
                   component={debtBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
-                  {...(value ? { newValue: { value } } : {})}
                 />
                 <DynamicComponent
                   label='lending.repaymentLock'
@@ -182,7 +177,6 @@ export const Pool = () => {
                   component={repaymentLockComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
-                  {...(value ? { newValue: { children: '30 days' } } : {})}
                 />
               </Flex>
             </CardBody>

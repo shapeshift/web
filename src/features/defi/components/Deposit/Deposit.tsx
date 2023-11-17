@@ -38,7 +38,7 @@ type DepositProps = {
   onAccountIdChange?: AccountDropdownProps['onChange']
   onPercentClick?: (
     percent: number,
-  ) => Promise<{ amountCryptoPrecision: string; fiatAmount: string }>
+  ) => Promise<{ percentageCryptoAmount: string; percentageFiatAmount: string }>
   onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
@@ -149,11 +149,13 @@ export const Deposit = ({
     async (percent: number) => {
       const { percentageCryptoAmount, percentageFiatAmount } = await (async () => {
         if (onPercentClick) {
-          const { amountCryptoPrecision: _amountCryptoPrecision, fiatAmount: _fiatAmount } =
-            await onPercentClick(percent)
+          const {
+            percentageCryptoAmount: _percentageCryptoAmount,
+            percentageFiatAmount: _percentageFiatAmount,
+          } = await onPercentClick(percent)
           return {
-            percentageCryptoAmount: bn(_amountCryptoPrecision),
-            percentageFiatAmount: _fiatAmount,
+            percentageCryptoAmount: bn(_percentageCryptoAmount),
+            percentageFiatAmount: _percentageFiatAmount,
           }
         }
 

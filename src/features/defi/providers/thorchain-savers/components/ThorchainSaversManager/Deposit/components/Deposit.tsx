@@ -828,12 +828,13 @@ export const Deposit: React.FC<DepositProps> = ({
       // Arbitrary buffer on UTXO max sends to account for possible UTXO set discrepancies
       const percent = isUtxoChainId(asset.chainId) && _percent === 1 ? 0.99 : _percent
 
-      if (!contextDispatch) return { amountCryptoPrecision: '0', fiatAmount: '0' }
+      if (!contextDispatch) return { percentageCryptoAmount: '0', percentageFiatAmount: '0' }
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       setIsSendMax(percent === 1)
 
-      const _percentageCryptoAmountPrecisionBeforeTxFees =
-        bnOrZero(balanceCryptoPrecision).times(percent)
+      const _percentageCryptoAmountPrecisionBeforeTxFees = bnOrZero(balanceCryptoPrecision)
+        .times(percent)
+        .dp(asset.precision)
 
       const estimateFeesQueryEnabled = Boolean(
         fromAddress && accountId && isUtxoChainId(asset.chainId),
@@ -921,8 +922,8 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
-        amountCryptoPrecision: _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
-        fiatAmount: _percentageFiatAmount.toFixed(),
+        percentageCryptoAmount: _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.toFixed(),
+        percentageFiatAmount: _percentageFiatAmount.toFixed(),
       }
     },
     [

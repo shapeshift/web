@@ -28,8 +28,10 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
   selectBuyAsset,
+  selectManualReceiveAddress,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAsset,
 } from 'state/slices/selectors'
@@ -71,6 +73,14 @@ export const VerifyAddresses = () => {
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
 
+  const shouldVerifyBuyAddress = useMemo(
+    () =>
+      buyAssetAccountId &&
+      buyAccountMetadata &&
+      walletSupportsChain({ chainId: buyAsset.chainId, wallet, isSnapInstalled: false }),
+    [buyAssetAccountId, buyAccountMetadata, buyAsset.chainId, wallet],
+  )
+
   const isAddressVerified = useCallback(
     (address: string) => verifiedAddresses.has(address.toLowerCase()),
     [verifiedAddresses],
@@ -101,15 +111,9 @@ export const VerifyAddresses = () => {
     history.push({ pathname: TradeRoutePaths.Confirm })
   }, [history, sellAssetAccountId, tradeQuoteStep, wallet])
 
+  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const fetchAddresses = useCallback(async () => {
-    if (
-      !wallet ||
-      !sellAssetAccountId ||
-      !buyAssetAccountId ||
-      !sellAccountMetadata ||
-      !buyAccountMetadata
-    )
-      return
+    if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
 
     const deviceId = await wallet.getDeviceID()
 
@@ -120,24 +124,28 @@ export const VerifyAddresses = () => {
       accountMetadata: sellAccountMetadata,
       pubKey: fromAccountId(sellAssetAccountId).account,
     })
-    const fetchedBuyAddress = await getReceiveAddress({
-      asset: buyAsset,
-      wallet,
-      deviceId,
-      accountMetadata: buyAccountMetadata,
-      pubKey: fromAccountId(buyAssetAccountId).account,
-    })
+    const fetchedOrManualBuyAddress = shouldVerifyBuyAddress
+      ? await getReceiveAddress({
+          asset: buyAsset,
+          wallet,
+          deviceId,
+          accountMetadata: buyAccountMetadata!,
+          pubKey: fromAccountId(buyAssetAccountId!).account,
+        })
+      : maybeManualReceiveAddress
 
     setSellAddress(fetchedSellAddress)
-    setBuyAddress(fetchedBuyAddress)
+    setBuyAddress(fetchedOrManualBuyAddress)
   }, [
     wallet,
     sellAssetAccountId,
-    buyAssetAccountId,
     sellAccountMetadata,
-    buyAccountMetadata,
     sellAsset,
+    shouldVerifyBuyAddress,
     buyAsset,
+    buyAccountMetadata,
+    buyAssetAccountId,
+    maybeManualReceiveAddress,
   ])
 
   useEffect(() => {
@@ -149,6 +157,15 @@ export const VerifyAddresses = () => {
       if (type === 'sell') {
         setIsSellVerifying(true)
       } else if (type === 'buy') {
+        if (!shouldVerifyBuyAddress) {
+          return (
+            maybeManualReceiveAddress &&
+            setVerifiedAddresses(
+              new Set([...verifiedAddresses, maybeManualReceiveAddress.toLowerCase() ?? '']),
+            )
+          )
+        }
+
         setIsBuyVerifying(true)
       }
 
@@ -190,6 +207,9 @@ export const VerifyAddresses = () => {
       }
     },
     [
+      shouldVerifyBuyAddress,
+      maybeManualReceiveAddress,
+      verifiedAddresses,
       sellAsset,
       buyAsset,
       sellAccountMetadata,
@@ -197,7 +217,6 @@ export const VerifyAddresses = () => {
       sellAddress,
       buyAddress,
       wallet,
-      verifiedAddresses,
     ],
   )
 
@@ -256,7 +275,7 @@ export const VerifyAddresses = () => {
         onClick={handleContinue}
         size='lg'
         colorScheme='blue'
-        isDisabled={!(sellVerified && buyVerified)}
+        isDisabled={Boolean(!sellVerified || (shouldVerifyBuyAddress && !buyVerified))}
         width='full'
       >
         <Text translation='common.continue' />
@@ -270,6 +289,7 @@ export const VerifyAddresses = () => {
     isBuyVerifying,
     isSellVerifying,
     sellVerified,
+    shouldVerifyBuyAddress,
     translate,
     verifyBuyAssetTranslation,
     verifySellAssetTranslation,

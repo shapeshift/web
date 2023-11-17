@@ -96,19 +96,54 @@ const selectLendingCloseQueryData = memoize(
 )
 
 export const useLendingQuoteCloseQuery = ({
-  repaymentAssetId,
-  collateralAssetId,
+  repaymentAssetId: _repaymentAssetId,
+  collateralAssetId: _collateralAssetId,
   repaymentPercent: _repaymentPercent,
-  repaymentAccountId,
-  collateralAccountId,
-  isLoanClosePending,
+  repaymentAccountId: _repaymentAccountId,
+  collateralAccountId: _collateralAccountId,
+  isLoanClosePending: _isLoanClosePending,
 }: UseLendingQuoteCloseQueryProps) => {
-  const repaymentPercent = useMemo(() => {
+  const repaymentPercentOrDefault = useMemo(() => {
     const repaymentPercentBn = bnOrZero(_repaymentPercent)
     // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
     if (!repaymentPercentBn.eq(100)) return _repaymentPercent
     return repaymentPercentBn.plus('1').toNumber()
   }, [_repaymentPercent])
+
+  const lendingQuoteCloseQueryKey = useDebounce(
+    () => [
+      'lendingQuoteCloseQuery',
+      {
+        collateralAssetAddress: lendingPositionData?.address ?? '',
+        repaymentAssetId: _repaymentAssetId,
+        repaymentAccountId: _repaymentAccountId,
+        collateralAssetId: _collateralAssetId,
+        collateralAccountId: _collateralAccountId,
+        repaymentPercent: repaymentPercentOrDefault,
+        isLoanClosePending: _isLoanClosePending,
+      },
+    ],
+    500,
+  ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
+
+  const {
+    repaymentAssetId,
+    repaymentAccountId,
+    collateralAssetId,
+    collateralAccountId,
+    repaymentPercent,
+    isLoanClosePending,
+  } = useMemo(
+    () => ({
+      repaymentAssetId: lendingQuoteCloseQueryKey[1].repaymentAssetId,
+      repaymentAccountId: lendingQuoteCloseQueryKey[1].repaymentAccountId,
+      collateralAssetId: lendingQuoteCloseQueryKey[1].collateralAssetId,
+      collateralAccountId: lendingQuoteCloseQueryKey[1].collateralAccountId,
+      repaymentPercent: lendingQuoteCloseQueryKey[1].repaymentPercent,
+      isLoanClosePending: lendingQuoteCloseQueryKey[1].isLoanClosePending,
+    }),
+    [lendingQuoteCloseQueryKey],
+  )
 
   const collateralAccountMetadataFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -142,31 +177,18 @@ export const useLendingQuoteCloseQuery = ({
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData) return null
 
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
       .times(debtBalanceUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercentOrDefault])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null
 
     return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
   }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
-
-  const lendingQuoteCloseQueryKey = useDebounce(
-    () => [
-      'lendingQuoteCloseQuery',
-      {
-        collateralAssetAddress: lendingPositionData?.address ?? '',
-        repaymentAssetId,
-        collateralAssetId,
-        repaymentPercent,
-      },
-    ],
-    500,
-  ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
 
   const query = useQuery({
     staleTime: 5_000,
@@ -200,7 +222,7 @@ export const useLendingQuoteCloseQuery = ({
     enabled: Boolean(
       !isLoanClosePending &&
         lendingPositionData?.address &&
-        bnOrZero(repaymentPercent).gt(0) &&
+        bnOrZero(repaymentPercentOrDefault).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&

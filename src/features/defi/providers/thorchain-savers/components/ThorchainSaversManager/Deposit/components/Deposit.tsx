@@ -2,8 +2,6 @@ import { Skeleton, useToast } from '@chakra-ui/react'
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { useQueryClient } from '@tanstack/react-query'
@@ -27,7 +25,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -309,21 +306,14 @@ export const Deposit: React.FC<DepositProps> = ({
             wallet,
           })
 
-          const fees = (await estimateFees({
-            accountId,
-            contractAddress: undefined,
-            assetId,
-            sendMax: false,
-            cryptoAmount: '0',
-            to: customTxInput.to,
-            from: fromAccountId(accountId).account,
-            memo: customTxInput.data,
-          })) as FeeDataEstimate<KnownChainIds.EthereumMainnet>
+          const averageTxFeeCryptoBaseUnit = customTxInput.networkFeeCryptoBaseUnit
 
-          const fastFeeCryptoBaseUnit = fees.fast.txFee
-          const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision)
+          const averageFeeCryptoPrecision = fromBaseUnit(
+            averageTxFeeCryptoBaseUnit,
+            feeAsset.precision,
+          )
 
-          return fastFeeCryptoPrecision
+          return averageFeeCryptoPrecision
         }
 
         const adapter = chainAdapters.get(chainId)!
@@ -336,10 +326,10 @@ export const Deposit: React.FC<DepositProps> = ({
           },
           sendMax: Boolean(state?.deposit.sendMax),
         }
-        const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
-        const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, asset.precision)
+        const averageFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).average.txFee
+        const averageFeeCryptoPrecision = fromBaseUnit(averageFeeCryptoBaseUnit, asset.precision)
 
-        return fastFeeCryptoPrecision
+        return averageFeeCryptoPrecision
       } catch (error) {
         console.error(error)
         toast({
@@ -873,7 +863,8 @@ export const Deposit: React.FC<DepositProps> = ({
       const isSweepNeededQueryArgs = {
         assetId,
         address: fromAddress,
-        // Assune 0 fees, so that sweep needed properly return true/false
+        // Assume 0 fees, so that sweep needed properly return true/false
+        // The reason this works is because the final amount we're getting *is* fee-deducted, so we don't want to consider fees in this specific call
         txFeeCryptoBaseUnit: '0',
         amountCryptoBaseUnit: toBaseUnit(
           _percentageCryptoAmountPrecisionBeforeTxFees,

@@ -69,7 +69,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     (data: NftItemWithCollection[], searchQuery: string) => {
       const search = searchQuery.trim().toLowerCase()
       const keys = ['name', 'collection.name', 'collection.assetId', 'assetId', 'id']
-      return matchSorter(data, search, { keys })
+      return matchSorter(data, search, { keys, threshold: matchSorter.rankings.CONTAINS })
     },
     [],
   )

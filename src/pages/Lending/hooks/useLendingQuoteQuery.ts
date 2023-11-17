@@ -159,6 +159,7 @@ export const useLendingQuoteOpenQuery = ({
   ) as unknown as [string, UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }]
 
   const query = useQuery({
+    staleTime: 5_000,
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {
       const [

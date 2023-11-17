@@ -199,6 +199,7 @@ export const useLendingQuoteCloseQuery = ({
   ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
 
   const query = useQuery({
+    staleTime: 5_000,
     queryKey: lendingQuoteQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey

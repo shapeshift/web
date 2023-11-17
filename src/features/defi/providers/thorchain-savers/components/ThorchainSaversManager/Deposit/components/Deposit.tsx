@@ -116,7 +116,6 @@ export const Deposit: React.FC<DepositProps> = ({
     fiatAmount: string
     cryptoAmount: string
   } | null>(null)
-  const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const assets = useAppSelector(selectAssets)
@@ -245,6 +244,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const {
     data: thorchainSaversDepositQuote,
     isLoading: isThorchainSaversDepositQuoteLoading,
+    isSuccess: isThorchainSaversDepositQuoteSuccess,
     isError: isThorchainSaversDepositQuoteError,
     error: thorchainSaversDepositQuoteError,
   } = useGetThorchainSaversDepositQuoteQuery({
@@ -1016,8 +1016,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
     // TODO(gomes): we should now be able to return these from the query itself to make things cleaner
     const debounced = debounce(() => {
-      setQuoteLoading(true)
-
       if (isThorchainSaversDepositQuoteError)
         throw new Error(thorchainSaversDepositQuoteError.message)
 
@@ -1044,7 +1042,6 @@ export const Deposit: React.FC<DepositProps> = ({
         apy: opportunityData?.apy,
       })
       setDaysToBreakEven(daysToBreakEven)
-      setQuoteLoading(false)
     })
 
     debounced()
@@ -1115,12 +1112,17 @@ export const Deposit: React.FC<DepositProps> = ({
       onChange={handleInputChange}
       percentOptions={percentOptions}
       enableSlippage={false}
-      isLoading={isEstimatedFeesDataLoading || isSweepNeededLoading || state.loading}
+      isLoading={
+        isEstimatedFeesDataLoading ||
+        isSweepNeededLoading ||
+        isThorchainSaversDepositQuoteLoading ||
+        state.loading
+      }
     >
       <Row>
         <Row.Label>{translate('common.slippage')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!quoteLoading}>
+          <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
             <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
           </Skeleton>
         </Row.Value>
@@ -1132,7 +1134,7 @@ export const Deposit: React.FC<DepositProps> = ({
           </HelperTooltip>
         </Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!quoteLoading}>
+          <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
             {translate(
               `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
               { amount: daysToBreakEven ?? '0' },

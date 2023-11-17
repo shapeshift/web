@@ -356,23 +356,18 @@ export const RepayInput = ({
         labelPostFix={collateralAssetSelectComponent}
       />
       <Collapse in={true}>
-        <Skeleton isLoaded={Boolean(isLendingQuoteCloseSuccess && repaymentAmountCryptoPrecision)}>
-          <LoanSummary
-            collateralAssetId={collateralAssetId}
-            // Actually defined at display time, see isLoaded above
-            repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
-            // Actually defined at display time, see isLoaded above
-            debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
-            repaymentAsset={repaymentAsset}
-            repaymentPercent={repaymentPercent}
-            // Actually defined at display time, see isLoaded above
-            collateralDecreaseAmountCryptoPrecision={
-              lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
-            }
-            repaymentAccountId={repaymentAccountId}
-            collateralAccountId={collateralAccountId}
-          />
-        </Skeleton>
+        <LoanSummary
+          collateralAssetId={collateralAssetId}
+          repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
+          debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+          repaymentAsset={repaymentAsset}
+          repaymentPercent={repaymentPercent}
+          collateralDecreaseAmountCryptoPrecision={
+            lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+          }
+          repaymentAccountId={repaymentAccountId}
+          collateralAccountId={collateralAccountId}
+        />
       </Collapse>
       <Stack
         borderTopWidth={1}

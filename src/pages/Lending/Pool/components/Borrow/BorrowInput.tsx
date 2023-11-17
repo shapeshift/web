@@ -370,8 +370,8 @@ export const BorrowInput = ({
           isReadOnly
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
-          showInputSkeleton={false}
-          showFiatSkeleton={false}
+          showInputSkeleton={isLendingQuoteLoading}
+          showFiatSkeleton={isLendingQuoteLoading}
           label={translate('lending.borrow')}
           onAccountIdChange={handleBorrowAccountIdChange}
           formControlProps={formControlProps}

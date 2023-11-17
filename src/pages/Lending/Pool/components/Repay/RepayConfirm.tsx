@@ -328,24 +328,20 @@ export const RepayConfirm = ({
               </Row.Value>
             </Row>
           </Stack>
-          <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-            <LoanSummary
-              repaymentAsset={repaymentAsset}
-              collateralAssetId={collateralAssetId}
-              repaymentPercent={repaymentPercent ?? 0}
-              repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
-              // Actually defined at display time, see isLoaded above
-              collateralDecreaseAmountCryptoPrecision={
-                lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
-              }
-              repaymentAccountId={repaymentAccountId}
-              collateralAccountId={collateralAccountId}
-              // Actually defined at display time, see isLoaded above
-              debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
-              borderTopWidth={0}
-              mt={0}
-            />
-          </Skeleton>
+          <LoanSummary
+            repaymentAsset={repaymentAsset}
+            collateralAssetId={collateralAssetId}
+            repaymentPercent={repaymentPercent ?? 0}
+            repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
+            collateralDecreaseAmountCryptoPrecision={
+              lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
+            }
+            repaymentAccountId={repaymentAccountId}
+            collateralAccountId={collateralAccountId}
+            debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+            borderTopWidth={0}
+            mt={0}
+          />
           <CardFooter px={4} py={4}>
             <Button
               isLoading={

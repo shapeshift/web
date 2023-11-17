@@ -267,6 +267,13 @@ export const RepayInput = ({
       ) {
         return 'Repayment not yet available'
       }
+      // This should never happen but it may
+      // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
+      if (/loan contains no collateral to redeem/i.test(lendingQuoteCloseError.message)) {
+        console.error(
+          'No collateral found. Ensure the loan_owner parameter is the correct address for the position',
+        )
+      }
     }
     return null
   }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError])

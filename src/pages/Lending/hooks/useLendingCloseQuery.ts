@@ -1,14 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
@@ -113,10 +110,6 @@ export const useLendingQuoteCloseQuery = ({
     return repaymentPercentBn.plus('1').toNumber()
   }, [_repaymentPercent])
 
-  const [collateralAssetAddress, setCollateralAssetAddress] = useState<string | null>(null)
-
-  const wallet = useWallet().state.wallet
-
   const collateralAccountMetadataFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
     [collateralAccountId],
@@ -129,32 +122,9 @@ export const useLendingQuoteCloseQuery = ({
     selectMarketDataById(state, repaymentAssetId),
   )
 
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-
-  const getCollateralAssetAddress = useCallback(async () => {
-    if (!wallet || !collateralAccountId || !collateralAccountMetadata || !collateralAsset) return
-
-    const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(collateralAccountId).account : undefined
-
-    return getReceiveAddress({
-      asset: collateralAsset,
-      wallet,
-      deviceId,
-      accountMetadata: collateralAccountMetadata,
-      pubKey,
-    })
-  }, [collateralAsset, collateralAccountId, collateralAccountMetadata, wallet])
-
-  useEffect(() => {
-    ;(async () => {
-      const address = await getCollateralAssetAddress()
-      if (address) setCollateralAssetAddress(address)
-    })()
-  }, [getCollateralAssetAddress])
 
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
@@ -185,11 +155,11 @@ export const useLendingQuoteCloseQuery = ({
     return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
   }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
 
-  const lendingQuoteQueryKey = useDebounce(
+  const lendingQuoteCloseQueryKey = useDebounce(
     () => [
-      'lendingQuoteQuery',
+      'lendingQuoteCloseQuery',
       {
-        collateralAssetAddress,
+        collateralAssetAddress: lendingPositionData?.address ?? '',
         repaymentAssetId,
         collateralAssetId,
         repaymentPercent,
@@ -200,10 +170,10 @@ export const useLendingQuoteCloseQuery = ({
 
   const query = useQuery({
     staleTime: 5_000,
-    queryKey: lendingQuoteQueryKey,
+    queryKey: lendingQuoteCloseQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
-      const position = await getMaybeThorchainLendingCloseQuote({
+      const quote = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
         collateralAssetId,
         repaymentAmountCryptoBaseUnit: toBaseUnit(
@@ -213,9 +183,13 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option
       })
 
-      if (position.isErr()) throw new Error(position.unwrapErr())
-      return position.unwrap()
+      if (quote.isErr()) throw new Error(quote.unwrapErr())
+      return quote.unwrap()
     },
+    // This avoids retrying errored queries - i.e smaller amounts, or repayment locked will error
+    // Failed queries go stale and don't honor "staleTime", which meaans failed queries would trigger a THOR daemon fetch from all consumers
+    // vs. the failed query being considered fresh
+    retry: false,
     select: data =>
       selectLendingCloseQueryData({
         data,
@@ -225,12 +199,12 @@ export const useLendingQuoteCloseQuery = ({
       }),
     enabled: Boolean(
       !isLoanClosePending &&
+        lendingPositionData?.address &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
-        collateralAssetAddress?.length &&
         repaymentAssetMarketData.price !== '0' &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAmountCryptoPrecision,

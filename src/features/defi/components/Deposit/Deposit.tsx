@@ -157,8 +157,10 @@ export const Deposit = ({
           }
         }
 
-        const _percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-        const _percentageFiatAmount = _percentageCryptoAmount.times(marketData.price)
+        const _percentageCryptoAmount = bnOrZero(cryptoAmountAvailable)
+          .times(percent)
+          .dp(asset.precision)
+        const _percentageFiatAmount = _percentageCryptoAmount.times(marketData.price).toString()
 
         return {
           percentageCryptoAmount: _percentageCryptoAmount,
@@ -166,16 +168,13 @@ export const Deposit = ({
         }
       })()
 
-      const percentageCryptoAmountHuman = percentageCryptoAmount
-        .decimalPlaces(asset.precision)
-        .toFixed()
       setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
       setValue(Field.CryptoAmount, percentageCryptoAmount.toFixed(), {
         shouldValidate: true,
       })
-      onChange && onChange(percentageFiatAmount.toString(), percentageCryptoAmountHuman)
+      onChange && onChange(percentageFiatAmount.toString(), percentageFiatAmount)
     },
     [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
   )

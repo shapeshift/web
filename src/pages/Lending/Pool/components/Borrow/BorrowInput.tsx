@@ -303,7 +303,8 @@ export const BorrowInput = ({
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const quoteErrorTranslation = useMemo(() => {
-    if (!hasEnoughBalanceForTxPlusSweep) return 'common.insufficientFunds'
+    if (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+      return 'common.insufficientFunds'
     if (isLendingQuoteError) {
       if (
         /not enough fee/.test(lendingQuoteError.message) ||
@@ -313,7 +314,13 @@ export const BorrowInput = ({
       }
     }
     return null
-  }, [hasEnoughBalanceForTxPlusSweep, isLendingQuoteError, lendingQuoteError?.message])
+  }, [
+    hasEnoughBalanceForTxPlusSweep,
+    isEstimatedFeesDataSuccess,
+    isLendingQuoteError,
+    isLendingQuoteSuccess,
+    lendingQuoteError?.message,
+  ])
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
@@ -419,13 +426,7 @@ export const BorrowInput = ({
           </Row>
           <Button
             size='lg'
-            colorScheme={
-              !isLendingQuoteLoading &&
-              !isEstimatedFeesDataLoading &&
-              (isLendingQuoteError || quoteErrorTranslation)
-                ? 'red'
-                : 'blue'
-            }
+            colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
             mx={-2}
             onClick={onSubmit}
             isLoading={

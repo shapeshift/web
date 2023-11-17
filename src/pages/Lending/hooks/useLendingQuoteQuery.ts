@@ -22,6 +22,7 @@ import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {
+  borrowAssetReceiveAddress: string
   collateralAssetId: AssetId
   borrowAccountId: AccountId
   collateralAccountId: AccountId
@@ -97,20 +98,47 @@ const selectLendingQuoteQuery = memoize(
 )
 
 export const useLendingQuoteOpenQuery = ({
-  collateralAssetId,
-  collateralAccountId,
-  borrowAccountId,
-  borrowAssetId,
-  depositAmountCryptoPrecision,
+  collateralAssetId: _collateralAssetId,
+  collateralAccountId: _collateralAccountId,
+  borrowAccountId: _borrowAccountId,
+  borrowAssetId: _borrowAssetId,
+  depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
   isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
   const [borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
 
+  const lendingQuoteQueryKey = useDebounce(
+    () => [
+      'lendingQuoteQuery',
+      {
+        borrowAssetReceiveAddress,
+        collateralAccountId: _collateralAccountId,
+        collateralAssetId: _collateralAssetId,
+        borrowAssetId: _borrowAssetId,
+        borrowAccountId: _borrowAccountId,
+        depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
+      },
+    ],
+    500,
+  ) as unknown as [string, UseLendingQuoteQueryProps]
+
+  const { collateralAccountId, collateralAssetId, borrowAssetId, depositAmountCryptoPrecision } =
+    useMemo(
+      () => ({
+        borrowAccountId: lendingQuoteQueryKey[1].borrowAccountId,
+        collateralAccountId: lendingQuoteQueryKey[1].collateralAccountId,
+        collateralAssetId: lendingQuoteQueryKey[1].collateralAssetId,
+        borrowAssetId: lendingQuoteQueryKey[1].borrowAssetId,
+        depositAmountCryptoPrecision: lendingQuoteQueryKey[1].depositAmountCryptoPrecision,
+      }),
+      [lendingQuoteQueryKey],
+    )
+
   const destinationAccountMetadataFilter = useMemo(
-    () => ({ accountId: borrowAccountId }),
-    [borrowAccountId],
+    () => ({ accountId: _borrowAccountId }),
+    [_borrowAccountId],
   )
   const destinationAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, destinationAccountMetadataFilter),
@@ -120,14 +148,14 @@ export const useLendingQuoteOpenQuery = ({
     selectMarketDataById(state, collateralAssetId),
   )
 
-  const borrowAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
-  const borrowAssetMarketData = useAppSelector(state => selectMarketDataById(state, borrowAssetId))
+  const borrowAsset = useAppSelector(state => selectAssetById(state, _borrowAssetId))
+  const borrowAssetMarketData = useAppSelector(state => selectMarketDataById(state, _borrowAssetId))
 
   const getBorrowAssetReceiveAddress = useCallback(async () => {
-    if (!wallet || !borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
+    if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
 
     const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(borrowAccountId).account : undefined
+    const pubKey = isLedger(wallet) ? fromAccountId(_borrowAccountId).account : undefined
 
     return getReceiveAddress({
       asset: borrowAsset,
@@ -136,7 +164,7 @@ export const useLendingQuoteOpenQuery = ({
       accountMetadata: destinationAccountMetadata,
       pubKey,
     })
-  }, [borrowAsset, borrowAccountId, destinationAccountMetadata, wallet])
+  }, [borrowAsset, _borrowAccountId, destinationAccountMetadata, wallet])
 
   useEffect(() => {
     ;(async () => {
@@ -144,19 +172,6 @@ export const useLendingQuoteOpenQuery = ({
       if (address) setBorrowAssetReceiveAddress(address)
     })()
   }, [getBorrowAssetReceiveAddress])
-
-  const lendingQuoteQueryKey = useDebounce(
-    () => [
-      'lendingQuoteQuery',
-      {
-        borrowAssetReceiveAddress,
-        collateralAssetId,
-        borrowAssetId,
-        depositAmountCryptoPrecision,
-      },
-    ],
-    500,
-  ) as unknown as [string, UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }]
 
   const query = useQuery({
     staleTime: 5_000,
@@ -194,12 +209,12 @@ export const useLendingQuoteOpenQuery = ({
       !isLoanOpenPending &&
         bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         collateralAccountId &&
+        collateralAccountId &&
         borrowAssetId &&
         destinationAccountMetadata &&
         collateralAsset &&
         borrowAssetReceiveAddress &&
-        collateralAssetMarketData.price !== '0' &&
-        bnOrZero(depositAmountCryptoPrecision).gt(0),
+        collateralAssetMarketData.price !== '0',
     ),
   })
 

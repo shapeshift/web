@@ -143,6 +143,7 @@ export const BorrowInput = ({
   const {
     data: estimatedFeesData,
     isLoading: isEstimatedFeesDataLoading,
+    isError: isEstimatedFeesDataError,
     isSuccess: isEstimatedFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId,
@@ -164,22 +165,23 @@ export const BorrowInput = ({
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
-  const hasEnoughBalanceForTx = useMemo(
-    () =>
-      bnOrZero(cryptoDepositAmount)
-        .plus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(collateralAsset?.precision ?? '0'),
-          ),
-        )
-        .lte(amountAvailableCryptoPrecision),
-    [
-      amountAvailableCryptoPrecision,
-      collateralAsset?.precision,
-      cryptoDepositAmount,
-      estimatedFeesData?.txFeeCryptoBaseUnit,
-    ],
-  )
+  const hasEnoughBalanceForTx = useMemo(() => {
+    if (!isEstimatedFeesDataSuccess) return false
+
+    return bnOrZero(cryptoDepositAmount)
+      .plus(
+        bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).div(
+          bn(10).pow(collateralAsset?.precision ?? '0'),
+        ),
+      )
+      .lte(amountAvailableCryptoPrecision)
+  }, [
+    amountAvailableCryptoPrecision,
+    collateralAsset?.precision,
+    cryptoDepositAmount,
+    estimatedFeesData,
+    isEstimatedFeesDataSuccess,
+  ])
 
   const isSweepNeededArgs = useMemo(
     () => ({
@@ -188,7 +190,7 @@ export const BorrowInput = ({
       amountCryptoBaseUnit: bnOrZero(cryptoDepositAmount ?? '0')
         .times(bn(10).pow(collateralAsset?.precision ?? 0))
         .toString(),
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', // actually defined at runtime, see "enabled" below
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
         bnOrZero(cryptoDepositAmount).gt(0) && isEstimatedFeesDataSuccess && hasEnoughBalanceForTx,
@@ -210,39 +212,45 @@ export const BorrowInput = ({
     isSuccess: isSweepNeededSuccess,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
 
-  const { data: estimatedSweepFeesData, isLoading: isEstimatedSweepFeesDataLoading } =
-    useGetEstimatedFeesQuery({
-      cryptoAmount: '0',
-      assetId: collateralAssetId,
-      to: fromAddress ?? '',
-      sendMax: true,
-      accountId: collateralAccountId,
-      contractAddress: undefined,
-      enabled: isSweepNeededSuccess,
-    })
+  const {
+    data: estimatedSweepFeesData,
+    isLoading: isEstimatedSweepFeesDataLoading,
+    isSuccess: isEstimatedSweepFeesDataSuccess,
+  } = useGetEstimatedFeesQuery({
+    cryptoAmount: '0',
+    assetId: collateralAssetId,
+    to: fromAddress ?? '',
+    sendMax: true,
+    accountId: collateralAccountId,
+    contractAddress: undefined,
+    enabled: isSweepNeededSuccess,
+  })
 
-  const hasEnoughBalanceForTxPlusSweep = useMemo(
-    () =>
-      bnOrZero(cryptoDepositAmount)
-        .plus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(collateralAsset?.precision ?? '0'),
-          ),
-        )
-        .plus(
-          bnOrZero(estimatedSweepFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(collateralAsset?.precision ?? '0'),
-          ),
-        )
-        .lte(amountAvailableCryptoPrecision),
-    [
-      amountAvailableCryptoPrecision,
-      collateralAsset?.precision,
-      cryptoDepositAmount,
-      estimatedFeesData?.txFeeCryptoBaseUnit,
-      estimatedSweepFeesData?.txFeeCryptoBaseUnit,
-    ],
-  )
+  const hasEnoughBalanceForTxPlusSweep = useMemo(() => {
+    if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
+      return false
+
+    return bnOrZero(cryptoDepositAmount)
+      .plus(
+        bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).div(
+          bn(10).pow(collateralAsset?.precision ?? '0'),
+        ),
+      )
+      .plus(
+        bnOrZero(estimatedSweepFeesData.txFeeCryptoBaseUnit).div(
+          bn(10).pow(collateralAsset?.precision ?? '0'),
+        ),
+      )
+      .lte(amountAvailableCryptoPrecision)
+  }, [
+    amountAvailableCryptoPrecision,
+    collateralAsset?.precision,
+    cryptoDepositAmount,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    estimatedSweepFeesData,
+    isEstimatedFeesDataSuccess,
+    isEstimatedSweepFeesDataSuccess,
+  ])
 
   const onSubmit = useCallback(() => {
     if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
@@ -289,6 +297,7 @@ export const BorrowInput = ({
   const {
     data,
     isLoading: isLendingQuoteLoading,
+    isSuccess: isLendingQuoteSuccess,
     isError: isLendingQuoteError,
     error: lendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
@@ -384,7 +393,7 @@ export const BorrowInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.slippage')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={!isLendingQuoteLoading}>
+              <Skeleton isLoaded={isLendingQuoteSuccess}>
                 <Amount.Crypto
                   value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
                   symbol='BTC'
@@ -395,7 +404,7 @@ export const BorrowInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
+              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
                 <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
               </Skeleton>
             </Row.Value>
@@ -403,7 +412,7 @@ export const BorrowInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.fees')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={!isLendingQuoteLoading}>
+              <Skeleton isLoaded={isLendingQuoteSuccess}>
                 <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
               </Skeleton>
             </Row.Value>
@@ -428,8 +437,9 @@ export const BorrowInput = ({
             }
             isDisabled={Boolean(
               isLendingQuoteError ||
-                quoteErrorTranslation ||
                 isLendingQuoteLoading ||
+                quoteErrorTranslation ||
+                isEstimatedFeesDataError ||
                 isEstimatedFeesDataLoading,
             )}
           >

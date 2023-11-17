@@ -44,16 +44,19 @@ export const Sweep = ({
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useGetEstimatedFeesQuery({
-      cryptoAmount: '0',
-      assetId,
-      to: fromAddress ?? '',
-      sendMax: true,
-      accountId: accountId ?? '',
-      contractAddress: undefined,
-      enabled: Boolean(accountId),
-    })
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useGetEstimatedFeesQuery({
+    cryptoAmount: '0',
+    assetId,
+    to: fromAddress ?? '',
+    sendMax: true,
+    accountId: accountId ?? '',
+    contractAddress: undefined,
+    enabled: Boolean(accountId),
+  })
 
   const handleSweep = useCallback(async () => {
     if (!wallet) return
@@ -196,7 +199,7 @@ export const Sweep = ({
           <Row>
             <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
+              <Skeleton isLoaded={isEstimatedFeesDataSuccess}>
                 <Box textAlign='right'>
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                   <Amount.Crypto

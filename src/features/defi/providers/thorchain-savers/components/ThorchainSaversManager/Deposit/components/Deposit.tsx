@@ -322,9 +322,9 @@ export const Deposit: React.FC<DepositProps> = ({
 
           const fastFeeCryptoBaseUnit = fees.fast.txFee
 
-          const fastFeeCryptoPrecision = bn(fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision))
+          const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, feeAsset.precision)
 
-          return fastFeeCryptoPrecision.toString()
+          return fastFeeCryptoPrecision
         }
 
         const adapter = chainAdapters.get(chainId)!
@@ -337,10 +337,10 @@ export const Deposit: React.FC<DepositProps> = ({
           },
           sendMax: Boolean(state?.deposit.sendMax),
         }
-        const averageFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).average.txFee
-        const averageFeeCryptoPrecision = fromBaseUnit(averageFeeCryptoBaseUnit, asset.precision)
+        const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
+        const fastFeeCryptoPrecision = fromBaseUnit(fastFeeCryptoBaseUnit, asset.precision)
 
-        return averageFeeCryptoPrecision
+        return fastFeeCryptoPrecision
       } catch (error) {
         console.error(error)
         toast({
@@ -868,8 +868,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const isSweepNeededQueryArgs = {
         assetId,
         address: fromAddress,
-        // Assume 0 fees, so that sweep needed properly return true/false
-        // The reason this works is because the final amount we're getting *is* fee-deducted, so we don't want to consider fees in this specific call
+        // Assune 0 fees, so that sweep needed properly return true/false
         txFeeCryptoBaseUnit: '0',
         amountCryptoBaseUnit: toBaseUnit(
           _percentageCryptoAmountPrecisionBeforeTxFees,

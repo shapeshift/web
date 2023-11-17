@@ -19,15 +19,15 @@ import {
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
-  selectTradeExecutionStatus,
+  selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
+import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { FirstHop } from './components/FirstHop'
 import { Footer } from './components/Footer'
-import { SecondHop } from './components/SecondHop'
+import { Hop } from './components/Hop'
+import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 
 const cardBorderRadius = { base: 'xl' }
 
@@ -37,8 +37,8 @@ export const MultiHopTradeConfirm = memo(() => {
   const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
-  const previousTradeExecutionStatus = usePrevious(tradeExecutionStatus)
+  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
+  const previousTradeExecutionState = usePrevious(tradeExecutionState)
   const history = useHistory()
 
   const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure({
@@ -49,6 +49,14 @@ export const MultiHopTradeConfirm = memo(() => {
     defaultIsOpen: true,
   })
 
+  const { isApprovalInitiallyNeeded, isLoading } = useIsApprovalInitiallyNeeded()
+
+  // set initial approval requirements
+  useEffect(() => {
+    if (isLoading) return
+    dispatch(tradeQuoteSlice.actions.setInitialApprovalRequirements(isApprovalInitiallyNeeded))
+  }, [dispatch, isApprovalInitiallyNeeded, isLoading])
+
   const handleBack = useCallback(() => {
     dispatch(swappersSlice.actions.clear())
     dispatch(tradeQuoteSlice.actions.clear())
@@ -58,12 +66,9 @@ export const MultiHopTradeConfirm = memo(() => {
   // toggle hop open states as we transition to the next hop
   useEffect(() => {
     if (
-      previousTradeExecutionStatus !== tradeExecutionStatus &&
-      tradeExecutionStatus === MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
+      previousTradeExecutionState !== tradeExecutionState &&
+      previousTradeExecutionState === MultiHopExecutionState.Hop1AwaitingTradeExecution
     ) {
-      // TODO: single hop trades should redirect to completed page
-      // if (!isMultiHopTrade) history.push(TradeRoutePaths.Complete)
-
       if (isFirstHopOpen) onToggleFirstHop()
       if (!isSecondHopOpen) onToggleSecondHop()
     }
@@ -72,19 +77,19 @@ export const MultiHopTradeConfirm = memo(() => {
     isSecondHopOpen,
     onToggleFirstHop,
     onToggleSecondHop,
-    previousTradeExecutionStatus,
-    tradeExecutionStatus,
+    previousTradeExecutionState,
+    tradeExecutionState,
   ])
 
   // TODO: redirect to completed page when trade is complete
   // useEffect(() => {
   //   if (
-  //     previousTradeExecutionStatus !== tradeExecutionStatus &&
-  //     tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete
+  //     previousTradeExecutionState !== tradeExecutionState &&
+  //     tradeExecutionState === MultiHopExecutionState.TradeComplete
   //   ) {
   //     history.push(TradeRoutePaths.Complete)
   //   }
-  // }, [history, previousTradeExecutionStatus, tradeExecutionStatus])
+  // }, [history, previousTradeExecutionState, tradeExecutionState])
 
   if (!firstHop || !swapperName) return null
 
@@ -100,17 +105,18 @@ export const MultiHopTradeConfirm = memo(() => {
         </CardHeader>
         <CardBody pb={0} px={0}>
           <Stack spacing={6}>
-            <FirstHop
+            <Hop
               tradeQuoteStep={firstHop}
               swapperName={swapperName}
-              isMultiHopTrade={!!isMultiHopTrade}
+              hopIndex={0}
               isOpen={isFirstHopOpen}
               onToggleIsOpen={onToggleFirstHop}
             />
             {isMultiHopTrade && lastHop && (
-              <SecondHop
+              <Hop
                 tradeQuoteStep={lastHop}
                 swapperName={swapperName}
+                hopIndex={1}
                 isOpen={isSecondHopOpen}
                 onToggleIsOpen={onToggleSecondHop}
               />

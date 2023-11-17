@@ -325,7 +325,7 @@ export const BorrowInput = ({
           percentOptions={percentOptions}
           showInputSkeleton={false}
           showFiatSkeleton={false}
-          label={`Deposit ${collateralAsset.symbol}`}
+          label={translate('lending.depositAsset', { asset: collateralAsset.symbol })}
           onAccountIdChange={handleCollateralAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
@@ -340,7 +340,7 @@ export const BorrowInput = ({
             variant='outline'
             borderColor='border.base'
             zIndex={1}
-            aria-label='Switch Assets'
+            aria-label={translate('lending.switchAssets')}
             icon={swapIcon}
           />
           <Divider />
@@ -356,7 +356,7 @@ export const BorrowInput = ({
           percentOptions={percentOptions}
           showInputSkeleton={false}
           showFiatSkeleton={false}
-          label={'Borrow'}
+          label={translate('lending.borrow')}
           onAccountIdChange={handleBorrowAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'

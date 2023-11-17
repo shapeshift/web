@@ -2,20 +2,23 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { TradeQuote } from 'lib/swapper/types'
 
-import { MultiHopExecutionStatus } from './types'
+import { MultiHopExecutionState } from './types'
+import { getNextTradeExecutionState } from './utils'
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
   confirmedQuote: TradeQuote | undefined // the quote being executed
-  tradeExecutionStatus: MultiHopExecutionStatus
+  tradeExecutionState: MultiHopExecutionState
+  initialApprovalRequirements: [boolean, boolean] | undefined // whether each hop requires approval - calculated when user confirms a quote
 }
 
 const initialState: TradeQuoteSliceState = {
   activeQuoteIndex: undefined,
   confirmedQuote: undefined,
   activeStep: undefined,
-  tradeExecutionStatus: MultiHopExecutionStatus.Previewing,
+  tradeExecutionState: MultiHopExecutionState.Previewing,
+  initialApprovalRequirements: undefined,
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -46,21 +49,29 @@ export const tradeQuoteSlice = createSlice({
       state.confirmedQuote = undefined
     },
     incrementTradeExecutionState: state => {
-      if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
+      // this should never happen but if it does exit to prevent corrupting the current state
+      if (state.initialApprovalRequirements === undefined) {
+        return
+      }
 
       const isMultiHopTrade =
         state.confirmedQuote !== undefined && state.confirmedQuote.steps.length > 1
 
-      // skip second hop states for single hop trades
-      if (
-        !isMultiHopTrade &&
-        state.tradeExecutionStatus > MultiHopExecutionStatus.Hop1AwaitingTradeExecution
-      ) {
-        state.tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
-        return
-      }
+      const [firstHopRequiresApproval, secondHopRequiresApproval] =
+        state.initialApprovalRequirements
 
-      state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
+      state.tradeExecutionState = getNextTradeExecutionState(
+        state.tradeExecutionState,
+        isMultiHopTrade,
+        firstHopRequiresApproval,
+        secondHopRequiresApproval,
+      )
+    },
+    setInitialApprovalRequirements: (
+      state,
+      action: PayloadAction<[boolean, boolean] | undefined>,
+    ) => {
+      state.initialApprovalRequirements = action.payload
     },
   },
 })

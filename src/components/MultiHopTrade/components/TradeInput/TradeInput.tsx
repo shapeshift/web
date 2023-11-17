@@ -425,7 +425,7 @@ export const TradeInput = memo(() => {
                     <FadeTransition>
                       <IconButton
                         variant='ghost'
-                        aria-label='Quote status'
+                        aria-label={translate('trade.quoteStatus')}
                         icon={countdownCircleTimerIcon}
                       />
                     </FadeTransition>
@@ -456,7 +456,7 @@ export const TradeInput = memo(() => {
                 variant='outline'
                 borderColor='border.base'
                 zIndex={1}
-                aria-label='Switch Assets'
+                aria-label={translate('lending.switchAssets')}
                 icon={arrowDownIcon}
               />
               <Divider />

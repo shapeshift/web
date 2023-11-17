@@ -4,7 +4,9 @@ import type { MarketData } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/types'
-import type { PartialRecord } from 'lib/utils'
+import { assertUnreachable, type PartialRecord } from 'lib/utils'
+
+import { MultiHopExecutionState } from './types'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)
@@ -96,4 +98,65 @@ export const sumProtocolFeesToDenom = ({
       return acc.plus(convertedPrecisionAmountCryptoBaseUnit.times(rate))
     }, bn(0))
     .toString()
+}
+
+// determines the next trade execution state
+// please don't abstract or enhance this -
+// it's intended to be as simple as possible to prevent bugs at the cost of being very verbose
+export const getNextTradeExecutionState = (
+  tradeExecutionState: MultiHopExecutionState,
+  isMultiHopTrade: boolean,
+  firstHopRequiresApproval: boolean,
+  secondHopRequiresApproval: boolean,
+) => {
+  switch (tradeExecutionState) {
+    case MultiHopExecutionState.Unknown:
+      return MultiHopExecutionState.Previewing
+    case MultiHopExecutionState.Previewing:
+      if (!firstHopRequiresApproval) {
+        return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
+      }
+      return MultiHopExecutionState.Hop1AwaitingApprovalConfirmation
+    case MultiHopExecutionState.Hop1AwaitingApprovalConfirmation:
+      if (!firstHopRequiresApproval) {
+        return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
+      }
+      return MultiHopExecutionState.Hop1AwaitingApprovalExecution
+    case MultiHopExecutionState.Hop1AwaitingApprovalExecution:
+      return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
+    case MultiHopExecutionState.Hop1AwaitingTradeConfirmation:
+      return MultiHopExecutionState.Hop1AwaitingTradeExecution
+    case MultiHopExecutionState.Hop1AwaitingTradeExecution:
+      if (!isMultiHopTrade) {
+        return MultiHopExecutionState.TradeComplete
+      }
+      if (!secondHopRequiresApproval) {
+        return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
+      }
+      return MultiHopExecutionState.Hop2AwaitingApprovalConfirmation
+    case MultiHopExecutionState.Hop2AwaitingApprovalConfirmation:
+      if (!isMultiHopTrade) {
+        return MultiHopExecutionState.TradeComplete
+      }
+      if (!secondHopRequiresApproval) {
+        return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
+      }
+      return MultiHopExecutionState.Hop2AwaitingApprovalExecution
+    case MultiHopExecutionState.Hop2AwaitingApprovalExecution:
+      if (!isMultiHopTrade) {
+        return MultiHopExecutionState.TradeComplete
+      }
+      return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
+    case MultiHopExecutionState.Hop2AwaitingTradeConfirmation:
+      if (!isMultiHopTrade) {
+        return MultiHopExecutionState.TradeComplete
+      }
+      return MultiHopExecutionState.Hop2AwaitingTradeExecution
+    case MultiHopExecutionState.Hop2AwaitingTradeExecution:
+      return MultiHopExecutionState.TradeComplete
+    case MultiHopExecutionState.TradeComplete:
+      return MultiHopExecutionState.TradeComplete
+    default:
+      assertUnreachable(tradeExecutionState)
+  }
 }

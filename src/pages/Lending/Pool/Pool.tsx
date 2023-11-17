@@ -52,7 +52,11 @@ const PoolHeader = () => {
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
       <Flex gap={4} alignItems='center'>
-        <IconButton icon={backIcon} aria-label='Back to lending' onClick={handleBack} />
+        <IconButton
+          icon={backIcon}
+          aria-label={translate('lending.backToLending')}
+          onClick={handleBack}
+        />
         <Heading>{translate('lending.lending')}</Heading>
       </Flex>
     </Container>

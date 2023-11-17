@@ -157,7 +157,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
             <IconButton
               variant='ghost'
               size='md'
-              aria-label='Exapnd Row'
+              aria-label={translate('common.table.expandRow')}
               isActive={row.isExpanded}
               icon={row.isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
             />
@@ -182,9 +182,10 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       }
       const assetIds = rows.map(row => row.assetId)
       const rowAssets = assets.filter(asset => assetIds.includes(asset.assetId))
-      const matchedAssets = matchSorter(rowAssets, search, { keys: ['name', 'symbol'] }).map(
-        asset => asset.assetId,
-      )
+      const matchedAssets = matchSorter(rowAssets, search, {
+        keys: ['name', 'symbol'],
+        threshold: matchSorter.rankings.CONTAINS,
+      }).map(asset => asset.assetId)
       const results = rows.filter(row => matchedAssets.includes(row.assetId))
       return results
     },

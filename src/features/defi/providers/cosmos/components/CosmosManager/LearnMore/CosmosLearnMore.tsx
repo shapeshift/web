@@ -9,6 +9,7 @@ import type {
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import rewards from 'assets/rewards.svg'
 import risk from 'assets/risk.svg'
@@ -55,6 +56,7 @@ const minWidthProps = { base: '100%', md: '500px' }
 const maxWidthProps = { base: 'full', md: '500px' }
 
 export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
+  const translate = useTranslate()
   const history = useHistory()
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -100,7 +102,7 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
-        aria-label={'common.back'}
+        aria-label={translate('common.back')}
         position='absolute'
         top={2}
         left={3}

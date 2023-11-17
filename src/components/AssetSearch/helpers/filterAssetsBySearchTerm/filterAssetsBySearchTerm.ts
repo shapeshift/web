@@ -14,5 +14,8 @@ export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
     )
   }
 
-  return matchSorter(assets, search, { keys: ['name', 'symbol'] })
+  return matchSorter(assets, search, {
+    keys: ['name', 'symbol'],
+    threshold: matchSorter.rankings.CONTAINS,
+  })
 }

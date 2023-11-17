@@ -116,6 +116,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const {
       number: { localeParts },
     } = useLocaleFormatter()
+    const translate = useTranslate()
     const amountRef = useRef<string | null>(null)
     const [isFiat, toggleIsFiat] = useToggle(false)
     const [isFocused, setIsFocused] = useState(false)
@@ -168,11 +169,11 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           fiatBalance={fiatBalance ?? ''}
           symbol={assetSymbol}
           isFiat={isFiat}
-          label={'Balance:'}
+          label={`${translate('common.balance')}:`}
           textAlign='right'
         />
       ),
-      [assetSymbol, balance, fiatBalance, isFiat],
+      [assetSymbol, balance, fiatBalance, isFiat, translate],
     )
 
     return (

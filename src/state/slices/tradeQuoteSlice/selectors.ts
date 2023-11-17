@@ -109,7 +109,7 @@ export const selectSwapperSupportsCrossAccountTrade: Selector<ReduxState, boolea
 export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectActiveQuote,
-    (_state: ReduxState, step: 0 | 1) => step,
+    (_state: ReduxState, step: number) => step,
     (quote, step) =>
       quote && quote.steps[step]
         ? getHopTotalProtocolFeesFiatPrecision(quote.steps[step])
@@ -119,7 +119,7 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
 export const selectHopTotalNetworkFeeFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectActiveQuote,
-    (_state: ReduxState, step: 0 | 1) => step,
+    (_state: ReduxState, step: number) => step,
     (quote, step) =>
       quote && quote.steps[step]
         ? getHopTotalNetworkFeeFiatPrecision(quote.steps[step])
@@ -425,9 +425,9 @@ export const selectQuoteDonationAmountUsd = createSelector(
   },
 )
 
-export const selectTradeExecutionStatus = createSelector(
+export const selectTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
-  swappers => swappers.tradeExecutionStatus,
+  swappers => swappers.tradeExecutionState,
 )
 
 // selects the account ID we're buying into for the first hop
@@ -465,4 +465,9 @@ export const selectLastHopSellAccountId = createSelector(
     // multi hop trade - the second hop sell account id is the same as the first hop buy account id
     return firstHopBuyAccountId
   },
+)
+
+export const selectInitialApprovalRequirements = createSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.initialApprovalRequirements,
 )

@@ -137,7 +137,7 @@ export const WalletViewsSwitch = () => {
             {!match?.isExact && showBackButton && (
               <IconButton
                 icon={arrowBackIcon}
-                aria-label='Back'
+                aria-label={translate('common.back')}
                 variant='ghost'
                 fontSize='xl'
                 size='sm'

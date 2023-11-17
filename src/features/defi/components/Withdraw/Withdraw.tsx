@@ -219,7 +219,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             <PopoverTrigger>
               <IconButton
                 size='sm'
-                aria-label='Slippage Settings'
+                aria-label={translate('modals.withdraw.slippageSettings')}
                 variant='ghost'
                 icon={sliderIcon}
               />

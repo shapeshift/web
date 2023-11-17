@@ -312,7 +312,12 @@ export const GlobalSeachButton = memo(() => {
   return (
     <>
       <Box maxWidth='xl' width={widthProp} mr={mrProp}>
-        <IconButton display={displayProp1} icon={searchIcon} aria-label='Search' onClick={onOpen} />
+        <IconButton
+          display={displayProp1}
+          icon={searchIcon}
+          aria-label={translate('common.search')}
+          onClick={onOpen}
+        />
         <Button
           width='full'
           leftIcon={searchIcon}

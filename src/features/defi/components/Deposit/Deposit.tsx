@@ -125,7 +125,7 @@ export const Deposit = ({
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
-        const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
+        const cryptoAmount = bnOrZero(value).div(marketData.price).toFixed()
         setValue(Field.FiatAmount, value, { shouldValidate: true })
         setValue(Field.CryptoAmount, cryptoAmount, {
           shouldValidate: true,
@@ -168,7 +168,7 @@ export const Deposit = ({
 
       const percentageCryptoAmountHuman = percentageCryptoAmount
         .decimalPlaces(asset.precision)
-        .toString()
+        .toFixed()
       setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })

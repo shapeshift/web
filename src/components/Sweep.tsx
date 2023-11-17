@@ -28,8 +28,6 @@ type SweepProps = {
   onSweepSeen: () => void
 }
 
-const providerIcon = 'https://assets.coincap.io/assets/icons/rune@2x.png'
-
 export const Sweep = ({
   assetId,
   fromAddress,
@@ -125,47 +123,45 @@ export const Sweep = ({
             color='text.subtle'
             pt={6}
           >
-            {providerIcon && (
-              <Flex gap={2} alignItems='center' flexDir='column'>
-                <Flex gap={4}>
-                  <AssetIcon size='xs' src={asset.icon} />
-                  <AssetIcon position='relative' size='xs' src={asset.icon} mt={-4} />
-                  <AssetIcon size='xs' src={asset.icon} />
-                </Flex>
-                <Box position='relative'>
-                  <Box
-                    position='absolute'
-                    width='50px'
-                    height='auto'
-                    borderBottomWidth={2}
-                    borderStyle='dotted'
-                    borderColor='border.base'
-                    transform='rotate(90deg)'
-                  />
-                  <Box
-                    position='absolute'
-                    width='50px'
-                    height='auto'
-                    borderBottomWidth={2}
-                    borderStyle='dotted'
-                    borderColor='border.base'
-                    transformOrigin='0 0'
-                    transform='rotate(-135deg) translate(-45%)'
-                  />
-                  <Box
-                    position='absolute'
-                    width='50px'
-                    height='auto'
-                    borderBottomWidth={2}
-                    borderStyle='dotted'
-                    borderColor='border.base'
-                    transformOrigin='100% 0'
-                    transform='rotate(-45deg) translate(30%)'
-                  />
-                  <AssetIcon size='md' src={asset.icon} />
-                </Box>
+            <Flex gap={2} alignItems='center' flexDir='column'>
+              <Flex gap={4}>
+                <AssetIcon size='xs' src={asset.icon} />
+                <AssetIcon position='relative' size='xs' src={asset.icon} mt={-4} />
+                <AssetIcon size='xs' src={asset.icon} />
               </Flex>
-            )}
+              <Box position='relative'>
+                <Box
+                  position='absolute'
+                  width='50px'
+                  height='auto'
+                  borderBottomWidth={2}
+                  borderStyle='dotted'
+                  borderColor='border.base'
+                  transform='rotate(90deg)'
+                />
+                <Box
+                  position='absolute'
+                  width='50px'
+                  height='auto'
+                  borderBottomWidth={2}
+                  borderStyle='dotted'
+                  borderColor='border.base'
+                  transformOrigin='0 0'
+                  transform='rotate(-135deg) translate(-45%)'
+                />
+                <Box
+                  position='absolute'
+                  width='50px'
+                  height='auto'
+                  borderBottomWidth={2}
+                  borderStyle='dotted'
+                  borderColor='border.base'
+                  transformOrigin='100% 0'
+                  transform='rotate(-45deg) translate(30%)'
+                />
+                <AssetIcon size='md' src={asset.icon} />
+              </Box>
+            </Flex>
           </Stack>
           <Stack>
             <CText color='text.subtle'>

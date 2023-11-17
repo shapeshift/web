@@ -21,10 +21,10 @@ import {
   selectLastHopBuyAsset,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
-  selectTradeExecutionStatus,
+  selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { MultiHopExecutionStatus } from 'state/slices/tradeQuoteSlice/types'
+import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const Footer = () => {
@@ -32,7 +32,7 @@ export const Footer = () => {
   const dispatch = useAppDispatch()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
-  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const { isModeratePriceImpact } = usePriceImpact()
@@ -107,7 +107,7 @@ export const Footer = () => {
 
   return (
     <CardFooter flexDir='column' gap={2} px={4}>
-      {tradeExecutionStatus === MultiHopExecutionStatus.Previewing && (
+      {tradeExecutionState === MultiHopExecutionState.Previewing && (
         <>
           {tradeWarning}
           {swapperName === SwapperName.LIFI && (

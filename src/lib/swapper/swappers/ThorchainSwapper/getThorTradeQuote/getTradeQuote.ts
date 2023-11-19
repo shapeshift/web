@@ -13,6 +13,7 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
+import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
@@ -21,13 +22,6 @@ export type ThorEvmTradeQuote = TradeQuote &
     router: string
     data: string
   }
-
-enum TradeType {
-  LongTailToLongTail,
-  LongTailToL1,
-  L1ToLongTail,
-  L1ToL1,
-}
 
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
@@ -38,8 +32,6 @@ export const getThorTradeQuote = async (
   assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const { sellAsset, buyAsset, chainId, receiveAddress } = input
-
-  console.log('xxx getThorTradeQuote')
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
@@ -82,26 +74,8 @@ export const getThorTradeQuote = async (
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
-  const tradeType = (() => {
-    switch (true) {
-      case !sellAssetPool && !buyAssetPool:
-        return TradeType.LongTailToLongTail
-      case !sellAssetPool && !!buyAssetPool:
-        return TradeType.LongTailToL1
-      case !!sellAssetPool && !buyAssetPool:
-        return TradeType.L1ToLongTail
-      case !!sellAssetPool && !!buyAssetPool:
-      case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
-      case !!sellAssetPool && !buyAssetPool && buyPoolId !== 'THOR.RUNE':
-        return TradeType.L1ToL1
-      default:
-        return undefined
-    }
-  })()
-
+  const tradeType = getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
   if (tradeType === undefined) return Err(makeSwapErrorRight({ message: 'Unknown trade type' }))
-
-  console.log('xxx tradeType', tradeType)
 
   const streamingInterval =
     sellAssetPool && buyAssetPool
@@ -113,7 +87,7 @@ export const getThorTradeQuote = async (
           if (swapDepthBps.lt(5000)) return 10
           // Moderate health for the pools of this swap - use a moderate streaming interval
           if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
-          // Pool is at 90%+ health - use a 1 block strqwareaming interval
+          // Pool is at 90%+ health - use a 1 block streaming interval
           return 1
         })()
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this

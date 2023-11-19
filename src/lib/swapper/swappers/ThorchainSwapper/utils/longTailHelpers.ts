@@ -2,6 +2,7 @@ import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshi
 import { Token } from '@uniswap/sdk-core'
 import type { Asset } from 'lib/asset-service'
 
+import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
 export const getWrappedToken = (nativeAsset: Asset): Token => {
@@ -22,4 +23,33 @@ export const getTokenFromAsset = (asset: Asset): Token => {
   const chainReference = Number(fromAssetId(assetId).chainReference)
   const assetReference = fromAssetId(assetId).assetReference
   return new Token(chainReference, assetReference, precision, symbol, name)
+}
+
+export enum TradeType {
+  LongTailToLongTail,
+  LongTailToL1,
+  L1ToLongTail,
+  L1ToL1,
+}
+
+export function getTradeType(
+  sellAssetPool: ThornodePoolResponse | undefined,
+  buyAssetPool: ThornodePoolResponse | undefined,
+  sellPoolId: string | undefined,
+  buyPoolId: string | undefined,
+): TradeType | undefined {
+  switch (true) {
+    case !sellAssetPool && !buyAssetPool:
+      return TradeType.LongTailToLongTail
+    case !sellAssetPool && !!buyAssetPool:
+      return TradeType.LongTailToL1
+    case !!sellAssetPool && !buyAssetPool:
+      return TradeType.L1ToLongTail
+    case !!sellAssetPool && !!buyAssetPool:
+    case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
+    case !!sellAssetPool && !buyAssetPool && buyPoolId !== 'THOR.RUNE':
+      return TradeType.L1ToL1
+    default:
+      return undefined
+  }
 }

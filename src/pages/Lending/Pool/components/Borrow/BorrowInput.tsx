@@ -1,14 +1,4 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  CardFooter,
-  Collapse,
-  Divider,
-  Flex,
-  IconButton,
-  Skeleton,
-  Stack,
-} from '@chakra-ui/react'
+import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -88,8 +78,6 @@ export const BorrowInput = ({
   }, [lendingSupportedAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-
-  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const percentOptions = useMemo(() => [0], [])
 
@@ -341,20 +329,6 @@ export const BorrowInput = ({
           layout='inline'
           labelPostFix={depositAssetSelectComponent}
         />
-        <Flex alignItems='center' justifyContent='center' my={-2}>
-          <Divider />
-          <IconButton
-            isRound
-            size='sm'
-            position='relative'
-            variant='outline'
-            borderColor='border.base'
-            zIndex={1}
-            aria-label={translate('lending.switchAssets')}
-            icon={swapIcon}
-          />
-          <Divider />
-        </Flex>
         <TradeAssetInput
           assetId={borrowAsset?.assetId ?? ''}
           assetSymbol={borrowAsset.symbol}

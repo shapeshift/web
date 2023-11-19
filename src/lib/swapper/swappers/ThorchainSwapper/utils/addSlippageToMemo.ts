@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { DEFAULT_STREAMING_NUM_SWAPS, LIMIT_PART_DELIMITER, MEMO_PART_DELIMITER } from './constants'
@@ -7,6 +7,7 @@ import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = ({
   expectedAmountOutThorBaseUnit,
+  affiliateFeesThorBaseUnit,
   quotedMemo,
   slippageBps,
   isStreaming,
@@ -15,6 +16,7 @@ export const addSlippageToMemo = ({
   streamingInterval,
 }: {
   expectedAmountOutThorBaseUnit: string
+  affiliateFeesThorBaseUnit: string
   quotedMemo: string | undefined
   slippageBps: BigNumber.Value
   chainId: ChainId
@@ -29,7 +31,9 @@ export const addSlippageToMemo = ({
     quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
-    expectedAmountOutThorBaseUnit,
+    bn(expectedAmountOutThorBaseUnit)
+      .minus(affiliateFeesThorBaseUnit)
+      .toFixed(0, BigNumber.ROUND_DOWN),
     slippageBps,
     BigNumber.ROUND_DOWN,
   )

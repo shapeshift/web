@@ -280,6 +280,7 @@ export const getThorTradeQuote = async (
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
               quotedMemo: quote.memo,
+              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               slippageBps: inputSlippageBps,
               chainId: sellAsset.chainId,
               affiliateBps,
@@ -363,6 +364,7 @@ export const getThorTradeQuote = async (
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
+              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
               slippageBps: inputSlippageBps,
               isStreaming,
@@ -459,6 +461,7 @@ export const getThorTradeQuote = async (
             }).toFixed()
 
             const updatedMemo = addSlippageToMemo({
+              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               expectedAmountOutThorBaseUnit,
               quotedMemo: quote.memo,
               slippageBps: inputSlippageBps,

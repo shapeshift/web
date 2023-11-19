@@ -38,7 +38,7 @@ import {
   fromThorBaseUnit,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -238,7 +238,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             ],
           })
 
-          const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+          const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId]
 
           const customTxInput = await createBuildCustomTxInput({
             accountNumber,

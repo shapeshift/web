@@ -148,8 +148,11 @@ export const RepayConfirm = ({
     ],
   )
 
-  const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
-    useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+  const {
+    data: lendingQuoteCloseData,
+    isLoading: isLendingQuoteCloseLoading,
+    isSuccess: isLendingQuoteCloseSuccess,
+  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   const chainAdapter = getChainAdapterManager().get(
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
@@ -224,14 +227,17 @@ export const RepayConfirm = ({
     wallet,
   ])
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useQuoteEstimatedFeesQuery({
-      collateralAssetId,
-      collateralAccountId,
-      repaymentAccountId,
-      repaymentPercent,
-      repaymentAsset,
-    })
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId,
+    collateralAccountId,
+    repaymentAccountId,
+    repaymentPercent,
+    repaymentAsset,
+  })
 
   if (!collateralAsset || !repaymentAsset) return null
   return (
@@ -259,7 +265,7 @@ export const RepayConfirm = ({
             <Row>
               <Row.Label>{translate('common.send')}</Row.Label>
               <Row.Value textAlign='right'>
-                <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+                <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
                       value={repaymentAmountCryptoPrecision ?? '0'}
@@ -267,6 +273,7 @@ export const RepayConfirm = ({
                     />
                     <Amount.Fiat
                       color='text.subtle'
+                      // Actually defined at display time, see isLoaded above
                       value={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
                       prefix='≈'
                     />
@@ -274,12 +281,13 @@ export const RepayConfirm = ({
                 </Skeleton>
               </Row.Value>
             </Row>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row>
                 <Row.Label>{translate('common.receive')}</Row.Label>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
+                      // Actually defined at display time, see isLoaded above
                       value={
                         lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
                       }
@@ -287,6 +295,7 @@ export const RepayConfirm = ({
                     />
                     <Amount.Fiat
                       color='text.subtle'
+                      // Actually defined at display time, see isLoaded above
                       value={
                         lendingQuoteCloseData?.quoteLoanCollateralDecreaseFiatUserCurrency ?? '0'
                       }
@@ -296,13 +305,14 @@ export const RepayConfirm = ({
                 </Row.Value>
               </Row>
             </Skeleton>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row fontSize='sm' fontWeight='medium'>
                 <HelperTooltip label='tbd'>
                   <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
                 </HelperTooltip>
                 <Row.Value>
                   <Amount.Fiat
+                    // Actually defined at display time, see isLoaded above
                     value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'}
                   />
                 </Row.Value>
@@ -311,7 +321,8 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteCloseLoading)}>
+                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
+                  {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
               </Row.Value>
@@ -333,7 +344,9 @@ export const RepayConfirm = ({
           />
           <CardFooter px={4} py={4}>
             <Button
-              isLoading={isLoanClosePending}
+              isLoading={
+                isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
+              }
               disabled={isLoanClosePending}
               onClick={handleRepay}
               colorScheme='blue'

@@ -1,42 +1,15 @@
-import {
-  Box,
-  Button,
-  CardHeader,
-  Divider,
-  Flex,
-  Heading,
-  Skeleton,
-  Stack,
-  Text as CText,
-} from '@chakra-ui/react'
+import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaExchangeAlt } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { handleSend } from 'components/Modals/Send/utils'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { Sweep } from 'components/Sweep'
 import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn } from 'lib/bignumber/bignumber'
-import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import { getThorchainFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  selectAssetById,
-  selectFeeAssetByChainId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'
@@ -51,18 +24,13 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     state: { wallet },
   } = useWallet()
 
-  const [isSweepPending, setIsSweepPending] = useState(false)
   const [fromAddress, setFromAddress] = useState<string | null>(null)
-  const [txId, setTxId] = useState<string | null>(null)
 
   const history = useHistory()
-  const translate = useTranslate()
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
   }, [history])
-  const divider = useMemo(() => <Divider />, [])
 
   const collateralAccountFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -92,80 +60,10 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     })()
   }, [getBorrowFromAddress, fromAddress])
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useGetEstimatedFeesQuery({
-      cryptoAmount: '0',
-      assetId: collateralAssetId,
-      to: fromAddress ?? '',
-      sendMax: true,
-      accountId: collateralAccountId,
-      contractAddress: undefined,
-      enabled: true,
-    })
+  const handleSwepSeen = useCallback(() => {
+    history.push(BorrowRoutePaths.Confirm)
+  }, [history])
 
-  const handleSweep = useCallback(async () => {
-    if (!wallet) return
-
-    setIsSweepPending(true)
-
-    try {
-      const fromAddress = await getBorrowFromAddress()
-      if (!fromAddress)
-        throw new Error(`Cannot get from address for accountId: ${collateralAccountId}`)
-      if (!estimatedFeesData) throw new Error('Cannot get estimated fees')
-      const sendInput = {
-        accountId: collateralAccountId,
-        to: fromAddress,
-        input: fromAddress,
-        assetId: collateralAssetId,
-        from: '',
-        cryptoAmount: '0',
-        sendMax: true,
-        estimatedFees: estimatedFeesData.estimatedFees,
-        amountFieldError: '',
-        fiatAmount: '',
-        vanityAddress: '',
-        feeType: FeeDataKey.Fast,
-        fiatSymbol: '',
-      }
-
-      const txId = await handleSend({ wallet, sendInput })
-      setTxId(txId)
-    } catch (e) {
-      console.error(e)
-    }
-  }, [collateralAccountId, collateralAssetId, estimatedFeesData, getBorrowFromAddress, wallet])
-
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(collateralAssetId).chainId),
-  )
-
-  const adapter = getChainAdapterManager().get(fromAssetId(feeAsset?.assetId ?? '').chainId)
-
-  const { poll } = usePoll()
-  useEffect(() => {
-    if (!adapter || !fromAddress) return
-    // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
-    // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
-    if (!txId) return
-    ;(async () => {
-      await poll({
-        fn: () =>
-          (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({ pubkey: fromAddress }),
-        validate: (utxos: Utxo[]) => utxos.some(utxo => utxo.txid === txId),
-        interval: 1000,
-        maxAttempts: 10,
-      })
-
-      history.push(BorrowRoutePaths.Confirm)
-    })()
-  }, [adapter, fromAddress, history, poll, txId])
-
-  const providerIcon = 'https://assets.coincap.io/assets/icons/rune@2x.png'
-
-  if (!collateralAsset || !feeAsset) return null
-
-  // TODO(gomes): move the guts of this to a <Sweep /> component to be reused at repayment step, as well as in savers
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -176,75 +74,13 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
             </Heading>
           </WithBackButton>
         </CardHeader>
-        <Stack spacing={0} divider={divider}>
-          <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
-            <Stack flex={1} spacing={6} p={4} textAlign='center'>
-              <Stack
-                spacing={4}
-                direction='row'
-                alignItems='center'
-                justifyContent='center'
-                color='text.subtle'
-                pt={6}
-              >
-                {providerIcon && (
-                  <>
-                    <AssetIcon src={collateralAsset.icon} />
-                    <FaExchangeAlt />
-                    <AssetIcon src={providerIcon} size='md' />
-                  </>
-                )}
-              </Stack>
-              <Stack>
-                <CText color='text.subtle'>
-                  {translate('modals.send.consolidate.body', { asset: collateralAsset.name })}
-                </CText>
-              </Stack>
-              <Stack justifyContent='space-between'>
-                <Button
-                  onClick={handleSweep}
-                  disabled={isEstimatedFeesDataLoading || isSweepPending}
-                  size='lg'
-                  colorScheme={'blue'}
-                  width='full'
-                  data-test='utxo-sweep-button'
-                  isLoading={isEstimatedFeesDataLoading || isSweepPending}
-                  loadingText={translate('common.loadingText')}
-                >
-                  {translate('modals.send.consolidate.consolidateFunds')}
-                </Button>
-                <Button
-                  onClick={handleBack}
-                  size='lg'
-                  width='full'
-                  colorScheme='gray'
-                  isDisabled={false}
-                >
-                  {translate('modals.approve.reject')}
-                </Button>
-              </Stack>
-            </Stack>
-            <Stack p={4}>
-              <Row>
-                <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
-                    <Box textAlign='right'>
-                      <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-                      <Amount.Crypto
-                        color='text.subtle'
-                        value={bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit)
-                          .div(bn(10).pow(collateralAsset?.precision ?? '0'))
-                          .toString()}
-                        symbol={feeAsset.symbol}
-                      />
-                    </Box>
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            </Stack>
-          </Stack>
-        </Stack>
+        <Sweep
+          accountId={collateralAccountId}
+          assetId={collateralAssetId}
+          fromAddress={fromAddress}
+          onBack={handleBack}
+          onSweepSeen={handleSwepSeen}
+        />
       </Flex>
     </SlideTransition>
   )

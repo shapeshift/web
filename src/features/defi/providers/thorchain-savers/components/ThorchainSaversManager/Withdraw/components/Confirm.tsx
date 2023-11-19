@@ -52,7 +52,7 @@ import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -385,7 +385,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // i.e 10 Gwei for EVM chains
       // This function call is super dumb, and the param we pass as `amount` isn't actually the amount we intend to withdraw
       // In addition to being used as the `memo` positional param, it is also the value of ETH to be sent with the Tx to actually trigger a withdraw
-      const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS[feeAsset.assetId]
+      const amount = THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId]
 
       const data = encodeFunctionData({
         abi: thorContract.abi,
@@ -661,6 +661,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }).catch(async e => {
       if (!isUtxoChainId(chainId)) throw e
 
+      // TODO(gomes): remove me and use the same logic as deposits
       // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
       const preWithdrawInput = await getPreWithdrawInput()
       if (!preWithdrawInput) throw new Error('Error building send input')

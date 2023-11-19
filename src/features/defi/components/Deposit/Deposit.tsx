@@ -15,7 +15,7 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
   accountId?: AccountId | undefined
@@ -36,7 +36,9 @@ type DepositProps = {
   // Asset market data
   marketData: MarketData
   onAccountIdChange?: AccountDropdownProps['onChange']
-  onPercentClick?: (percent: number) => void
+  onPercentClick?: (
+    percent: number,
+  ) => Promise<{ percentageCryptoAmount: string; percentageFiatAmount: string }>
   onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
@@ -123,7 +125,7 @@ export const Deposit = ({
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
-        const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
+        const cryptoAmount = bnOrZero(value).div(marketData.price).toFixed()
         setValue(Field.FiatAmount, value, { shouldValidate: true })
         setValue(Field.CryptoAmount, cryptoAmount, {
           shouldValidate: true,
@@ -144,23 +146,37 @@ export const Deposit = ({
   )
 
   const handlePercentClick = useCallback(
-    (percent: number) => {
-      if (onPercentClick) onPercentClick(percent)
-      // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
-      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
-      const percentageCryptoAmountHuman = percentageCryptoAmount
-        .decimalPlaces(asset.precision)
-        .toString()
+    async (percent: number) => {
+      const { percentageCryptoAmount, percentageFiatAmount } = await (async () => {
+        if (onPercentClick) {
+          const {
+            percentageCryptoAmount: _percentageCryptoAmount,
+            percentageFiatAmount: _percentageFiatAmount,
+          } = await onPercentClick(percent)
+          return {
+            percentageCryptoAmount: bn(_percentageCryptoAmount),
+            percentageFiatAmount: _percentageFiatAmount,
+          }
+        }
+
+        const _percentageCryptoAmount = bnOrZero(cryptoAmountAvailable)
+          .times(percent)
+          .dp(asset.precision)
+        const _percentageFiatAmount = _percentageCryptoAmount.times(marketData.price).toString()
+
+        return {
+          percentageCryptoAmount: _percentageCryptoAmount,
+          percentageFiatAmount: _percentageFiatAmount,
+        }
+      })()
+
       setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
-      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
+      setValue(Field.CryptoAmount, percentageCryptoAmount.toFixed(), {
         shouldValidate: true,
       })
-      onChange && onChange(percentageFiatAmount.toString(), percentageCryptoAmountHuman)
+      onChange && onChange(percentageFiatAmount.toString(), percentageFiatAmount)
     },
     [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
   )
@@ -223,7 +239,7 @@ export const Deposit = ({
           size='lg'
           width='full'
           colorScheme={fieldError ? 'red' : 'blue'}
-          isDisabled={!isValid}
+          isDisabled={!isValid || isLoading}
           isLoading={isLoading}
           type='submit'
           data-test='defi-modal-continue-button'

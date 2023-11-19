@@ -20,6 +20,7 @@ import { isSome } from 'lib/utils'
 import { executeEvmTransaction } from 'lib/utils/evm'
 
 const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+const thorswapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORSWAP_LONGTAIL
 
 const getSupportedAssets = async (): Promise<[AssetId[], AssetId[]]> => {
   let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
@@ -38,7 +39,7 @@ const getSupportedAssets = async (): Promise<[AssetId[], AssetId[]]> => {
         .filter(isSome)
     : []
 
-  const allTokens = [...longtailTokens, ...l1Tokens]
+  const allTokens = thorswapLongtailEnabled ? [...longtailTokens, ...l1Tokens] : l1Tokens
 
   allTokens.forEach(assetId => {
     const chainId = fromAssetId(assetId).chainId as ThorChainId

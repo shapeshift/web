@@ -1,12 +1,10 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
 
-import { RepayConfirm } from './RepayConfirm'
-import { RepayInput } from './RepayInput'
 import { RepayRoutePaths } from './types'
 
 const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
@@ -57,6 +55,19 @@ type RepayRoutesProps = {
   onRepaymentAccountIdChange: (accountId: AccountId) => void
 }
 
+const RepayInput = lazy(() =>
+  import('./RepayInput').then(({ RepayInput }) => ({
+    default: RepayInput,
+  })),
+)
+const RepayConfirm = lazy(() =>
+  import('./RepayConfirm').then(({ RepayConfirm }) => ({
+    default: RepayConfirm,
+  })),
+)
+
+const suspenseFallback = <div>Loading...</div>
+
 const RepayRoutes = memo(
   ({
     collateralAssetId,
@@ -70,31 +81,67 @@ const RepayRoutes = memo(
     const location = useLocation()
     const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
 
+    const renderRepayInput = useCallback(
+      () => (
+        <RepayInput
+          collateralAssetId={collateralAssetId}
+          repaymentPercent={repaymentPercent}
+          collateralAccountId={collateralAccountId}
+          repaymentAccountId={repaymentAccountId}
+          onCollateralAccountIdChange={handleCollateralAccountIdChange}
+          onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
+          onRepaymentPercentChange={onRepaymentPercentChange}
+          repaymentAsset={repaymentAsset}
+          setRepaymentAsset={setRepaymentAsset}
+        />
+      ),
+      [
+        collateralAssetId,
+        repaymentPercent,
+        collateralAccountId,
+        repaymentAccountId,
+        handleCollateralAccountIdChange,
+        handleRepaymentAccountIdChange,
+        onRepaymentPercentChange,
+        repaymentAsset,
+        setRepaymentAsset,
+      ],
+    )
+
+    const renderRepayConfirm = useCallback(
+      () => (
+        <RepayConfirm
+          collateralAssetId={collateralAssetId}
+          repaymentPercent={repaymentPercent}
+          collateralAccountId={collateralAccountId}
+          repaymentAccountId={repaymentAccountId}
+          repaymentAsset={repaymentAsset}
+        />
+      ),
+      [
+        collateralAssetId,
+        repaymentPercent,
+        collateralAccountId,
+        repaymentAccountId,
+        repaymentAsset,
+      ],
+    )
+
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location}>
-          <Route key={RepayRoutePaths.Input} path={RepayRoutePaths.Input}>
-            <RepayInput
-              collateralAssetId={collateralAssetId}
-              repaymentPercent={repaymentPercent}
-              collateralAccountId={collateralAccountId}
-              repaymentAccountId={repaymentAccountId}
-              onCollateralAccountIdChange={handleCollateralAccountIdChange}
-              onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
-              onRepaymentPercentChange={onRepaymentPercentChange}
-              repaymentAsset={repaymentAsset}
-              setRepaymentAsset={setRepaymentAsset}
+          <Suspense fallback={suspenseFallback}>
+            <Route
+              key={RepayRoutePaths.Input}
+              path={RepayRoutePaths.Input}
+              render={renderRepayInput}
             />
-          </Route>
-          <Route key={RepayRoutePaths.Confirm} path={RepayRoutePaths.Confirm}>
-            <RepayConfirm
-              collateralAssetId={collateralAssetId}
-              repaymentPercent={repaymentPercent}
-              collateralAccountId={collateralAccountId}
-              repaymentAccountId={repaymentAccountId}
-              repaymentAsset={repaymentAsset}
+            <Route
+              key={RepayRoutePaths.Confirm}
+              path={RepayRoutePaths.Confirm}
+              render={renderRepayConfirm}
             />
-          </Route>
+          </Suspense>
         </Switch>
       </AnimatePresence>
     )

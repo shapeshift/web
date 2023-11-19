@@ -122,25 +122,28 @@ export const BorrowConfirm = ({
     ],
   )
   const {
-    data,
+    data: lendingQuoteData,
+    isSuccess: isLendingQuoteSuccess,
     isLoading: isLendingQuoteLoading,
     isError: isLendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
-
-  const lendingQuoteData = isLendingQuoteError ? null : data
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useQuoteEstimatedFeesQuery({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId: borrowAsset?.assetId ?? '',
-      depositAmountCryptoPrecision: depositAmount ?? '0',
-    })
+  const {
+    data: estimatedFeesData,
+    isSuccess: isEstimatedFeesDataSuccess,
+    isLoading: isEstimatedFeesDataLoading,
+    isError: isEstimatedFeesDataError,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId,
+    collateralAccountId,
+    borrowAccountId,
+    borrowAssetId: borrowAsset?.assetId ?? '',
+    depositAmountCryptoPrecision: depositAmount ?? '0',
+  })
 
   const collateralAccountFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -156,8 +159,8 @@ export const BorrowConfirm = ({
         depositAmount &&
         wallet &&
         chainAdapter &&
-        lendingQuoteData &&
-        estimatedFeesData?.estimatedFees &&
+        isLendingQuoteSuccess &&
+        isEstimatedFeesDataSuccess &&
         collateralAccountMetadata
       )
     )
@@ -211,10 +214,13 @@ export const BorrowConfirm = ({
     depositAmount,
     wallet,
     chainAdapter,
-    lendingQuoteData,
-    estimatedFeesData,
+    isLendingQuoteSuccess,
+    isEstimatedFeesDataSuccess,
     collateralAccountMetadata,
     collateralAccountId,
+    estimatedFeesData,
+    lendingQuoteData?.quoteInboundAddress,
+    lendingQuoteData?.quoteMemo,
     selectedCurrency,
   ])
 
@@ -245,7 +251,7 @@ export const BorrowConfirm = ({
             <Row>
               <Row.Label>Send</Row.Label>
               <Row.Value textAlign='right'>
-                <Skeleton isLoaded={!isLendingQuoteLoading}>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
                     <Amount.Fiat
@@ -259,17 +265,19 @@ export const BorrowConfirm = ({
                 </Skeleton>
               </Row.Value>
             </Row>
-            <Skeleton isLoaded={!isLendingQuoteLoading}>
+            <Skeleton isLoaded={isLendingQuoteSuccess}>
               <Row>
                 <Row.Label>{translate('common.receive')}</Row.Label>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
+                      // Actually defined at display time, see isLoaded above
                       value={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
                       symbol={debtAsset?.symbol ?? ''}
                     />
                     <Amount.Fiat
                       color='text.subtle'
+                      // Actually defined at display time, see isLoaded above
                       value={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
                       prefix='≈'
                     />
@@ -282,13 +290,17 @@ export const BorrowConfirm = ({
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
               </HelperTooltip>
               <Row.Value>
-                <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                  {/* Actually defined at display time, see isLoaded above */}
+                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={!(isEstimatedFeesDataLoading || isLendingQuoteLoading)}>
+                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
+                  {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
               </Row.Value>
@@ -309,8 +321,14 @@ export const BorrowConfirm = ({
               size='lg'
               width='full'
               onClick={handleDeposit}
-              isLoading={isLoanOpenPending}
-              disabled={isLoanOpenPending}
+              isLoading={isLoanOpenPending || isEstimatedFeesDataLoading || isLendingQuoteLoading}
+              disabled={
+                isLoanOpenPending ||
+                isEstimatedFeesDataLoading ||
+                isEstimatedFeesDataError ||
+                isLendingQuoteLoading ||
+                isLendingQuoteError
+              }
             >
               {translate('lending.confirmAndBorrow')}
             </Button>

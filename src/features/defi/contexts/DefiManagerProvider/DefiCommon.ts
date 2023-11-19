@@ -20,6 +20,7 @@ export enum DefiStep {
   Info = 'info',
   Approve = 'approve',
   Confirm = 'confirm',
+  Sweep = 'sweep',
   Status = 'status',
 }
 

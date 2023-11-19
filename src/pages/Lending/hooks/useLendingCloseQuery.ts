@@ -1,14 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
@@ -99,23 +96,54 @@ const selectLendingCloseQueryData = memoize(
 )
 
 export const useLendingQuoteCloseQuery = ({
-  repaymentAssetId,
-  collateralAssetId,
+  repaymentAssetId: _repaymentAssetId,
+  collateralAssetId: _collateralAssetId,
   repaymentPercent: _repaymentPercent,
-  repaymentAccountId,
-  collateralAccountId,
-  isLoanClosePending,
+  repaymentAccountId: _repaymentAccountId,
+  collateralAccountId: _collateralAccountId,
+  isLoanClosePending: _isLoanClosePending,
 }: UseLendingQuoteCloseQueryProps) => {
-  const repaymentPercent = useMemo(() => {
+  const repaymentPercentOrDefault = useMemo(() => {
     const repaymentPercentBn = bnOrZero(_repaymentPercent)
     // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
     if (!repaymentPercentBn.eq(100)) return _repaymentPercent
     return repaymentPercentBn.plus('1').toNumber()
   }, [_repaymentPercent])
 
-  const [collateralAssetAddress, setCollateralAssetAddress] = useState<string | null>(null)
+  const lendingQuoteCloseQueryKey = useDebounce(
+    () => [
+      'lendingQuoteCloseQuery',
+      {
+        collateralAssetAddress: lendingPositionData?.address ?? '',
+        repaymentAssetId: _repaymentAssetId,
+        repaymentAccountId: _repaymentAccountId,
+        collateralAssetId: _collateralAssetId,
+        collateralAccountId: _collateralAccountId,
+        repaymentPercent: repaymentPercentOrDefault,
+        isLoanClosePending: _isLoanClosePending,
+      },
+    ],
+    500,
+  ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
 
-  const wallet = useWallet().state.wallet
+  const {
+    repaymentAssetId,
+    repaymentAccountId,
+    collateralAssetId,
+    collateralAccountId,
+    repaymentPercent,
+    isLoanClosePending,
+  } = useMemo(
+    () => ({
+      repaymentAssetId: lendingQuoteCloseQueryKey[1].repaymentAssetId,
+      repaymentAccountId: lendingQuoteCloseQueryKey[1].repaymentAccountId,
+      collateralAssetId: lendingQuoteCloseQueryKey[1].collateralAssetId,
+      collateralAccountId: lendingQuoteCloseQueryKey[1].collateralAccountId,
+      repaymentPercent: lendingQuoteCloseQueryKey[1].repaymentPercent,
+      isLoanClosePending: lendingQuoteCloseQueryKey[1].isLoanClosePending,
+    }),
+    [lendingQuoteCloseQueryKey],
+  )
 
   const collateralAccountMetadataFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -129,32 +157,9 @@ export const useLendingQuoteCloseQuery = ({
     selectMarketDataById(state, repaymentAssetId),
   )
 
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-
-  const getCollateralAssetAddress = useCallback(async () => {
-    if (!wallet || !collateralAccountId || !collateralAccountMetadata || !collateralAsset) return
-
-    const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(collateralAccountId).account : undefined
-
-    return getReceiveAddress({
-      asset: collateralAsset,
-      wallet,
-      deviceId,
-      accountMetadata: collateralAccountMetadata,
-      pubKey,
-    })
-  }, [collateralAsset, collateralAccountId, collateralAccountMetadata, wallet])
-
-  useEffect(() => {
-    ;(async () => {
-      const address = await getCollateralAssetAddress()
-      if (address) setCollateralAssetAddress(address)
-    })()
-  }, [getCollateralAssetAddress])
 
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
@@ -172,12 +177,12 @@ export const useLendingQuoteCloseQuery = ({
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData) return null
 
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
       .times(debtBalanceUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercentOrDefault])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null
@@ -185,24 +190,12 @@ export const useLendingQuoteCloseQuery = ({
     return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
   }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
 
-  const lendingQuoteQueryKey = useDebounce(
-    () => [
-      'lendingQuoteQuery',
-      {
-        collateralAssetAddress,
-        repaymentAssetId,
-        collateralAssetId,
-        repaymentPercent,
-      },
-    ],
-    500,
-  ) as unknown as [string, UseLendingQuoteCloseQueryProps & { collateralAssetAddress: string }]
-
   const query = useQuery({
-    queryKey: lendingQuoteQueryKey,
+    staleTime: 5_000,
+    queryKey: lendingQuoteCloseQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
-      const position = await getMaybeThorchainLendingCloseQuote({
+      const quote = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
         collateralAssetId,
         repaymentAmountCryptoBaseUnit: toBaseUnit(
@@ -212,9 +205,13 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option
       })
 
-      if (position.isErr()) throw new Error(position.unwrapErr())
-      return position.unwrap()
+      if (quote.isErr()) throw new Error(quote.unwrapErr())
+      return quote.unwrap()
     },
+    // This avoids retrying errored queries - i.e smaller amounts, or repayment locked will error
+    // Failed queries go stale and don't honor "staleTime", which meaans failed queries would trigger a THOR daemon fetch from all consumers
+    // vs. the failed query being considered fresh
+    retry: false,
     select: data =>
       selectLendingCloseQueryData({
         data,
@@ -224,12 +221,12 @@ export const useLendingQuoteCloseQuery = ({
       }),
     enabled: Boolean(
       !isLoanClosePending &&
-        bnOrZero(repaymentPercent).gt(0) &&
+        lendingPositionData?.address &&
+        bnOrZero(repaymentPercentOrDefault).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
-        collateralAssetAddress?.length &&
         repaymentAssetMarketData.price !== '0' &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAmountCryptoPrecision,

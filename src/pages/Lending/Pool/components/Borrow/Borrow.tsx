@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useState } from 'react'
+import { lazy, memo, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
@@ -8,10 +8,17 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { BorrowConfirm } from './BorrowConfirm'
-import { BorrowInput } from './BorrowInput'
-import { BorrowSweep } from './BorrowSweep'
 import { BorrowRoutePaths } from './types'
+
+const BorrowInput = lazy(() =>
+  import('./BorrowInput').then(({ BorrowInput }) => ({ default: BorrowInput })),
+)
+const BorrowSweep = lazy(() =>
+  import('./BorrowSweep').then(({ BorrowSweep }) => ({ default: BorrowSweep })),
+)
+const BorrowConfirm = lazy(() =>
+  import('./BorrowConfirm').then(({ BorrowConfirm }) => ({ default: BorrowConfirm })),
+)
 
 const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
 
@@ -99,38 +106,77 @@ const BorrowRoutes = memo(
     const location = useLocation()
     const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
 
+    const renderBorrowInput = useCallback(
+      () => (
+        <BorrowInput
+          collateralAssetId={collateralAssetId}
+          depositAmountCryptoPrecision={cryptoDepositAmount}
+          fiatDepositAmount={fiatDepositAmount}
+          collateralAccountId={collateralAccountId}
+          borrowAccountId={borrowAccountId}
+          onCollateralAccountIdChange={handleCollateralAccountIdChange}
+          onBorrowAccountIdChange={handleBorrowAccountIdChange}
+          onDepositAmountChange={onDepositAmountChange}
+          borrowAsset={borrowAsset}
+          setBorrowAsset={setBorrowAsset}
+        />
+      ),
+      [
+        collateralAssetId,
+        cryptoDepositAmount,
+        fiatDepositAmount,
+        collateralAccountId,
+        borrowAccountId,
+        handleCollateralAccountIdChange,
+        handleBorrowAccountIdChange,
+        onDepositAmountChange,
+        borrowAsset,
+        setBorrowAsset,
+      ],
+    )
+
+    const renderBorrowSweep = useCallback(
+      () => (
+        <BorrowSweep
+          collateralAssetId={collateralAssetId}
+          collateralAccountId={collateralAccountId}
+        />
+      ),
+      [collateralAssetId, collateralAccountId],
+    )
+
+    const renderBorrowConfirm = useCallback(
+      () => (
+        <BorrowConfirm
+          collateralAssetId={collateralAssetId}
+          depositAmount={cryptoDepositAmount}
+          borrowAccountId={borrowAccountId}
+          collateralAccountId={collateralAccountId}
+          borrowAsset={borrowAsset}
+        />
+      ),
+      [collateralAssetId, cryptoDepositAmount, borrowAccountId, collateralAccountId, borrowAsset],
+    )
+
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location}>
-          <Route key={BorrowRoutePaths.Input} path={BorrowRoutePaths.Input}>
-            <BorrowInput
-              collateralAssetId={collateralAssetId}
-              cryptoDepositAmount={cryptoDepositAmount}
-              fiatDepositAmount={fiatDepositAmount}
-              collateralAccountId={collateralAccountId}
-              borrowAccountId={borrowAccountId}
-              onCollateralAccountIdChange={handleCollateralAccountIdChange}
-              onBorrowAccountIdChange={handleBorrowAccountIdChange}
-              onDepositAmountChange={onDepositAmountChange}
-              borrowAsset={borrowAsset}
-              setBorrowAsset={setBorrowAsset}
-            />
-          </Route>
-          <Route key={BorrowRoutePaths.Sweep} path={BorrowRoutePaths.Sweep}>
-            <BorrowSweep
-              collateralAssetId={collateralAssetId}
-              collateralAccountId={collateralAccountId}
-            />
-          </Route>
-          <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>
-            <BorrowConfirm
-              collateralAssetId={collateralAssetId}
-              depositAmount={cryptoDepositAmount}
-              borrowAccountId={borrowAccountId}
-              collateralAccountId={collateralAccountId}
-              borrowAsset={borrowAsset}
-            />
-          </Route>
+          <Route
+            key={BorrowRoutePaths.Input}
+            path={BorrowRoutePaths.Input}
+            render={renderBorrowInput}
+          />
+          <Route
+            key={BorrowRoutePaths.Sweep}
+            path={BorrowRoutePaths.Sweep}
+            render={renderBorrowSweep}
+          />
+
+          <Route
+            key={BorrowRoutePaths.Confirm}
+            path={BorrowRoutePaths.Confirm}
+            render={renderBorrowConfirm}
+          />
         </Switch>
       </AnimatePresence>
     )

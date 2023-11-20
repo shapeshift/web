@@ -842,8 +842,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
             withdrawAmountcryptoPrecision.toFixed(),
           ))
 
-        console.log({ hasValidBalance })
-
         if (valueCryptoPrecision.isEqualTo(0)) return ''
         return hasValidBalance || 'trade.errors.insufficientFunds'
       } catch (e) {

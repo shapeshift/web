@@ -41,13 +41,13 @@ export const poll = <T>({
   const execute = async (resolve: (arg: T) => void, reject: (err: unknown) => void) => {
     for (let attempts = 0; attempts < maxAttempts; attempts++) {
       if (isCancelled) return // dont resolve/reject - leave promise on event loop
+      await sleep(interval)
       try {
         const result = await fn()
         if (validate(result)) {
           resolve(result)
           return
         }
-        await sleep(interval)
       } catch (e) {
         reject(e)
         return

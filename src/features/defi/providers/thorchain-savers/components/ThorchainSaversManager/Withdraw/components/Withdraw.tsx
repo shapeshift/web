@@ -625,7 +625,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
         precision: asset.precision,
         balanceCryptoBaseUnit,
-        amountCryptoPrecision: withdrawAmountCryptoPrecision,
+        amountCryptoPrecision: dustAmountCryptoPrecision,
         txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
       })
 
@@ -684,7 +684,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         getHasEnoughBalanceForTxPlusFeesPlusSweep({
           precision: asset.precision,
           balanceCryptoBaseUnit,
-          amountCryptoPrecision: withdrawAmountCryptoPrecision,
+          amountCryptoPrecision: dustAmountCryptoPrecision,
           txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
           sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
         })

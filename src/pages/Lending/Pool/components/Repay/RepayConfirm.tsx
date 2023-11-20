@@ -341,7 +341,7 @@ export const RepayConfirm = ({
               isLoading={
                 isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
               }
-              disabled={isLoanClosePending}
+              disabled={isLoanClosePending || repaymentPercent === 0}
               onClick={handleRepay}
               colorScheme='blue'
               size='lg'

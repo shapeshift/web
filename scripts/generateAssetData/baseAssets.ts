@@ -12,9 +12,9 @@ export const ethereum: AssetWithNetworkName = {
   precision: 18,
   color: '#5C6BC0',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
-  explorer: 'https://etherscan.io',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  explorerTxLink: 'https://etherscan.io/tx/',
+  explorer: 'https://eth.blockscout.com',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
 }
 
 export const bitcoin: AssetWithNetworkName = {
@@ -126,9 +126,9 @@ export const optimism: AssetWithNetworkName = {
   networkColor: '#FC0424',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   networkIcon: 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png?1660904599',
-  explorer: 'https://optimistic.etherscan.io',
-  explorerAddressLink: 'https://optimistic.etherscan.io/address/',
-  explorerTxLink: 'https://optimistic.etherscan.io/tx/',
+  explorer: 'https://optimism.blockscout.com',
+  explorerAddressLink: 'https://optimism.blockscout.com/address/',
+  explorerTxLink: 'https://optimism.blockscout.com/tx/',
 }
 
 export const bnbsmartchain: AssetWithNetworkName = {
@@ -154,9 +154,9 @@ export const polygon: AssetWithNetworkName = {
   precision: 18,
   color: '#8f00ff',
   icon: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912',
-  explorer: 'https://polygonscan.com/',
-  explorerAddressLink: 'https://polygonscan.com/address/',
-  explorerTxLink: 'https://polygonscan.com/tx/',
+  explorer: 'https://polygon.blockscout.com/',
+  explorerAddressLink: 'https://polygon.blockscout.com/address/',
+  explorerTxLink: 'https://polygon.blockscout.com/tx/',
 }
 
 export const gnosis: AssetWithNetworkName = {
@@ -170,9 +170,9 @@ export const gnosis: AssetWithNetworkName = {
   icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/11062/large/Aatar_green_white.png?1643204471',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const arbitrum: AssetWithNetworkName = {
@@ -204,7 +204,7 @@ export const arbitrumNova: AssetWithNetworkName = {
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/93/large/AN_logomark.png?1695026131',
-  explorer: 'https://nova.arbiscan.io',
-  explorerAddressLink: 'https://nova.arbiscan.io/address/',
-  explorerTxLink: 'https://nova.arbiscan.io/tx/',
+  explorer: 'https://nova-explorer.arbitrum.io',
+  explorerAddressLink: 'https://nova-explorer.arbitrum.io/address/',
+  explorerTxLink: 'https://nova-explorer.arbitrum.io/tx/',
 }

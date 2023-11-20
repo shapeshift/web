@@ -33,21 +33,14 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
   useGetThorchainSaversWithdrawQuoteQuery,
 } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import {
-  queryFn as getEstimatedFeesQueryFn,
-  useGetEstimatedFeesQuery,
-} from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import {
-  queryFn as isSweepNeededQueryFn,
-  useIsSweepNeededQuery,
-} from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   BASE_BPS_POINTS,
@@ -449,31 +442,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
     useIsSweepNeededQuery(isSweepNeededArgs)
 
-  const getHasEnoughBalanceForTxPlusFeesPlusSweep = useCallback(
-    ({
-      balanceCryptoBaseUnit,
-      amountCryptoPrecision,
-      txFeeCryptoBaseUnit,
-      precision,
-      sweepTxFeeCryptoBaseUnit,
-    }: {
-      balanceCryptoBaseUnit: string
-      amountCryptoPrecision: string
-      txFeeCryptoBaseUnit: string
-      precision: number
-      sweepTxFeeCryptoBaseUnit: string
-    }) => {
-      const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-      if (balanceCryptoBaseUnitBn.isZero()) return false
-
-      return bnOrZero(amountCryptoPrecision)
-        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
-        .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
-        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0))
-    },
-    [],
-  )
-
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
       if (!(userAddress && opportunityData && accountId && dispatch)) return
@@ -582,135 +550,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [amountAvailableCryptoPrecision, assetMarketData, setValue],
   )
 
-  // TODO(gomes): abstract me into a pure method when implementing sweep for withdraw, and handle non-UTXO chains
-  const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = useCallback(
-    async (withdrawAmountCryptoPrecision: string) => {
-      if (!accountId) return
-      const isUtxoChain = isUtxoChainId(asset.chainId)
-      const estimateFeesQueryEnabled = Boolean(fromAddress && accountId && isUtxoChain)
-
-      const amountCryptoBaseUnit = toBaseUnit(withdrawAmountCryptoPrecision, asset.precision)
-
-      const thorchainSaversWithdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = [
-        'thorchainSaversWithdrawQuote',
-        { asset, accountId, amountCryptoBaseUnit },
-      ]
-
-      const _thorchainSaversWithdrawQuote = await queryClient.fetchQuery({
-        queryKey: thorchainSaversWithdrawQuoteQueryKey,
-        queryFn: getThorchainSaversWithdrawQuoteQueryFn,
-        staleTime: 5000,
-      })
-
-      const dustAmountCryptoPrecision = fromThorBaseUnit(
-        _thorchainSaversWithdrawQuote?.dust_amount ?? 0,
-      ).toFixed()
-
-      const estimatedFeesQueryArgs = {
-        estimateFeesInput: {
-          cryptoAmount: dustAmountCryptoPrecision,
-          assetId,
-          to: _thorchainSaversWithdrawQuote?.inbound_address ?? '',
-          sendMax: false,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        asset,
-        assetMarketData,
-        enabled: estimateFeesQueryEnabled,
-      }
-
-      const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
-
-      const _estimatedFeesData = estimateFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-
-      const _hasEnoughBalanceForTxPlusFees = getHasEnoughBalanceForTxPlusFees({
-        precision: asset.precision,
-        balanceCryptoBaseUnit,
-        amountCryptoPrecision: dustAmountCryptoPrecision,
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '',
-      })
-
-      const isSweepNeededQueryEnabled = Boolean(
-        bnOrZero(withdrawAmountCryptoPrecision).gt(0) &&
-          _estimatedFeesData &&
-          _hasEnoughBalanceForTxPlusFees,
-      )
-
-      const isSweepNeededQueryArgs = {
-        assetId,
-        address: fromAddress,
-        txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-        amountCryptoBaseUnit,
-      }
-
-      const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
-
-      const _isSweepNeeded = isSweepNeededQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: isSweepNeededQueryKey,
-            queryFn: isSweepNeededQueryFn,
-          })
-        : undefined
-
-      const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
-
-      const estimatedSweepFeesQueryArgs = {
-        asset,
-        assetMarketData,
-        estimateFeesInput: {
-          cryptoAmount: '0',
-          assetId,
-          to: fromAddress ?? '',
-          sendMax: true,
-          accountId: accountId ?? '',
-          contractAddress: undefined,
-        },
-        enabled: isEstimateSweepFeesQueryEnabled,
-      }
-
-      const estimatedSweepFeesQueryKey: EstimatedFeesQueryKey = [
-        'estimateFees',
-        estimatedSweepFeesQueryArgs,
-      ]
-
-      const _estimatedSweepFeesData = isEstimateSweepFeesQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: estimatedSweepFeesQueryKey,
-            queryFn: getEstimatedFeesQueryFn,
-          })
-        : undefined
-
-      const hasEnoughBalanceForTxPlusFeesPlusSweep =
-        bnOrZero(balanceCryptoBaseUnit).gt(0) &&
-        getHasEnoughBalanceForTxPlusFeesPlusSweep({
-          precision: asset.precision,
-          balanceCryptoBaseUnit,
-          amountCryptoPrecision: dustAmountCryptoPrecision,
-          txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-          sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
-        })
-
-      return hasEnoughBalanceForTxPlusFeesPlusSweep
-    },
-    [
-      accountId,
-      asset,
-      assetId,
-      assetMarketData,
-      balanceCryptoBaseUnit,
-      fromAddress,
-      getHasEnoughBalanceForTxPlusFees,
-      getHasEnoughBalanceForTxPlusFeesPlusSweep,
-      queryClient,
-    ],
-  )
-
   const validateCryptoAmount = useCallback(
     async (value: string) => {
       if (!opportunityData) return false
@@ -779,9 +618,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const hasValidBalance =
           balanceCryptoPrecision.gt(0) &&
           withdrawAmountCryptoPrecision.gt(0) &&
-          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep(
-            withdrawAmountCryptoPrecision.toFixed(),
-          ))
+          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
+            accountId,
+            asset,
+            type: 'withdraw',
+            fromAddress,
+          }))
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
           .minus(outboundFeeCryptoBaseUnit)
           .lt(0)
@@ -814,7 +657,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       getOutboundFeeCryptoBaseUnit,
       getWithdrawGasEstimateCryptoBaseUnit,
       amountAvailableCryptoPrecision,
-      fetchHasEnoughBalanceForTxPlusFeesPlusSweep,
+      fromAddress,
       translate,
     ],
   )
@@ -838,9 +681,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           amountAvailableFiat.gt(0) &&
           valueCryptoPrecision.gt(0) &&
           amountAvailableFiat.gte(value) &&
-          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep(
-            withdrawAmountcryptoPrecision.toFixed(),
-          ))
+          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+            amountCryptoPrecision: withdrawAmountcryptoPrecision.toFixed(),
+            accountId,
+            asset,
+            type: 'withdraw',
+            fromAddress,
+          }))
 
         if (valueCryptoPrecision.isEqualTo(0)) return ''
         return hasValidBalance || 'trade.errors.insufficientFunds'
@@ -854,9 +701,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [
       accountId,
       amountAvailableCryptoPrecision,
+      asset,
       assetMarketData.price,
       dispatch,
-      fetchHasEnoughBalanceForTxPlusFeesPlusSweep,
+      fromAddress,
       opportunityData,
       translate,
     ],

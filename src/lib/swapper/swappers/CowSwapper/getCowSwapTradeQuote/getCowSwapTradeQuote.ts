@@ -1,9 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
-import { bn } from 'lib/bignumber/bignumber'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -25,7 +23,6 @@ import {
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
-import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
@@ -69,19 +66,6 @@ export async function getCowSwapTradeQuote(
   )
 
   if (maybeQuoteResponse.isErr()) {
-    const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError)?.response?.data
-    if (
-      (err.cause as AxiosError)?.isAxiosError &&
-      errData?.errorType === 'SellAmountDoesNotCoverFee'
-    ) {
-      return Err(
-        createTradeAmountTooSmallErr({
-          assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
-        }),
-      )
-    }
     return Err(maybeQuoteResponse.unwrapErr())
   }
 

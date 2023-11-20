@@ -7,6 +7,7 @@ import {
   Heading,
   Skeleton,
   Stack,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -26,7 +27,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
@@ -34,7 +34,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -68,24 +67,6 @@ export const RepayConfirm = ({
     state: { wallet },
   } = useWallet()
 
-  const { refetch: refetchLendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
-
-  useEffect(() => {
-    // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanClosePending(true)
-    ;(async () => {
-      // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash, queryClient).promise
-      setIsLoanClosePending(false)
-      await refetchLendingPositionData()
-    })()
-  }, [refetchLendingPositionData, txHash])
-
   const history = useHistory()
   const translate = useTranslate()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -100,6 +81,19 @@ export const RepayConfirm = ({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
+
+  const previousLendingPositionData = usePrevious(lendingPositionData)
+
+  useEffect(() => {
+    if (!(lendingPositionData && previousLendingPositionData && txHash)) return
+    if (
+      lendingPositionData.collateralBalanceCryptoPrecision ===
+        previousLendingPositionData.collateralBalanceCryptoPrecision ||
+      lendingPositionData.debtBalanceFiatUSD === previousLendingPositionData.debtBalanceFiatUSD
+    )
+      return
+    setIsLoanClosePending(false)
+  }, [lendingPositionData, previousLendingPositionData, txHash])
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 

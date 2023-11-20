@@ -18,7 +18,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -26,7 +25,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import type {
   ThornodePoolResponse,
   ThornodeStatusResponse,
@@ -346,18 +344,6 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
   SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.includes(assetId)
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
-
-export const waitForThorchainUpdate = (txHash: string, queryClient?: QueryClient) =>
-  poll({
-    fn: () => {
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      return getThorchainTransactionStatus(txHash)
-    },
-    validate: status => Boolean(status && status === TxStatus.Confirmed),
-    interval: 60000,
-    maxAttempts: 10,
-  })
 
 export const makeDaysToBreakEven = ({
   expectedAmountOutThorBaseUnit,

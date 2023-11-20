@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isSome } from 'lib/utils'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
@@ -18,7 +19,6 @@ import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlic
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
-  waitForThorchainUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'

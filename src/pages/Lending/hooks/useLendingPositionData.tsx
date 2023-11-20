@@ -20,7 +20,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
 
   const lendingPositionData = useQuery({
     // 2 minutes before the data is considered stale, meaning firing this query will trigger queryFn
-    staleTime: 120_000,
+    staleTime: 60_000,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -44,6 +44,9 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
       }
     },
     enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: true,
   })
 
   return lendingPositionData

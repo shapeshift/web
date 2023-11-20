@@ -21,8 +21,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectAssets,

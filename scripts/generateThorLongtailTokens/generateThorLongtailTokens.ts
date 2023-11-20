@@ -26,11 +26,11 @@ type TokenList = {
 }
 
 const ethUrl =
-  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/ethtokens/eth_mainnet_latest.json'
+  'https://gitlab.com/thorchain/thornode/-/raw/develop/common/tokenlist/ethtokens/eth_mainnet_latest.json'
 const avaxUrl =
-  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/avaxtokens/avax_mainnet_latest.json'
+  'https://gitlab.com/thorchain/thornode/-/raw/develop/common/tokenlist/avaxtokens/avax_mainnet_latest.json'
 const bscUrl =
-  'https://gitlab.com/thorchain/thornode/-/raw/4601fe74d5f990052e11d29b036dce5b727da990/common/tokenlist/bsctokens/bsc_mainnet_latest.json'
+  'https://gitlab.com/thorchain/thornode/-/raw/develop/common/tokenlist/bsctokens/bsc_mainnet_latest.json'
 
 const outputPath =
   '../../src/lib/swapper/swappers/ThorchainSwapper/generated/generatedThorLongtailTokens.json'
@@ -45,9 +45,22 @@ const axiosConfig = {
 
 export const generateThorLongtailTokens = async () => {
   const thorService = axios.create(axiosConfig)
-  const ethResponse = await thorService.get<TokenList>(ethUrl)
-  const avaxResponse = await thorService.get<TokenList>(avaxUrl)
-  const bscResponse = await thorService.get<TokenList>(bscUrl)
+
+  // Fetch token lists concurrently using Promise.all
+  const [ethResponse, avaxResponse, bscResponse] = await Promise.all([
+    thorService.get<TokenList>(ethUrl).catch(err => {
+      console.error('ETH token list not found, the URL might have changed upstream:', err)
+      process.exit(1)
+    }),
+    thorService.get<TokenList>(avaxUrl).catch(err => {
+      console.error('AVAX token list not found, the URL might have changed upstream:', err)
+      process.exit(1)
+    }),
+    thorService.get<TokenList>(bscUrl).catch(err => {
+      console.error('BSC token list not found, the URL might have changed upstream:', err)
+      process.exit(1)
+    }),
+  ])
 
   if (ethResponse.status !== 200 || avaxResponse.status !== 200 || bscResponse.status !== 200) {
     console.error('Network error', { ethResponse, avaxResponse, bscResponse })

@@ -151,7 +151,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   ])
 
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
-  // user info
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )

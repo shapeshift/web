@@ -107,7 +107,14 @@ export const HopTransactionStep = ({
   )
 
   const content = useMemo(
-    () => (txStatus === undefined ? <Button onClick={handleSignTx}>Sign message</Button> : <></>),
+    () =>
+      txStatus === undefined ? (
+        <Button colorScheme='blue' onClick={handleSignTx}>
+          Sign message
+        </Button>
+      ) : (
+        <></>
+      ),
     [handleSignTx, txStatus],
   )
 
@@ -133,7 +140,7 @@ export const HopTransactionStep = ({
     )
 
     return (
-      <VStack>
+      <VStack alignItems='flex-start'>
         <RawText>
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>

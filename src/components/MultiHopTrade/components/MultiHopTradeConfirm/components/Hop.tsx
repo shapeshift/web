@@ -14,8 +14,10 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo, useState } from 'react'
-import { FaAdjust, FaGasPump, FaProcedures } from 'react-icons/fa'
+import { FaGasPump } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
+import { ProtocolIcon } from 'components/Icons/Protocol'
+import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
@@ -39,7 +41,7 @@ import { JuicyGreenCheck } from './JuicyGreenCheck'
 import { TimeRemaining } from './TimeRemaining'
 import { TwirlyToggle } from './TwirlyToggle'
 
-const cardBorderRadius = { base: 'xl' }
+const collapseWidth = { width: '100%' }
 
 export const Hop = ({
   swapperName,
@@ -54,7 +56,6 @@ export const Hop = ({
   isOpen: boolean
   onToggleIsOpen?: () => void
 }) => {
-  const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
@@ -76,7 +77,9 @@ export const Hop = ({
       case TxStatus.Unknown:
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
-            <RawText>{prettyMilliseconds(tradeQuoteStep.estimatedExecutionTimeMs)}</RawText>
+            <RawText fontWeight='bold'>
+              {prettyMilliseconds(tradeQuoteStep.estimatedExecutionTimeMs)}
+            </RawText>
           )
         )
       case TxStatus.Pending:
@@ -132,14 +135,8 @@ export const Hop = ({
   const shouldRenderFinalSteps = !isMultiHopTrade || hopIndex === 1
 
   return (
-    <Card
-      flex={1}
-      borderRadius={cardBorderRadius}
-      width='full'
-      backgroundColor={backgroundColor}
-      borderColor={borderColor}
-    >
-      <HStack width='full' justifyContent='space-between' paddingLeft={6} marginTop={4}>
+    <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
+      <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
         <HStack>
           {hopExecutionState === HopExecutionState.Complete ? (
             <JuicyGreenCheck />
@@ -160,7 +157,7 @@ export const Hop = ({
               amountCryptoBaseUnit={tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit}
             />
           )}
-          <Collapse in={isApprovalInitiallyNeeded}>
+          <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             <ApprovalStep
               tradeQuoteStep={tradeQuoteStep}
               hopExecutionState={hopExecutionState}
@@ -191,7 +188,7 @@ export const Hop = ({
           )}
         </Stepper>
       </Collapse>
-      <Divider />
+      <Divider width='auto' ml={6} borderColor='border.base' opacity={1} />
       <CardFooter>
         <HStack width='full' justifyContent='space-between'>
           {/* Hovering over this should render a popover with details */}
@@ -206,7 +203,7 @@ export const Hop = ({
           <Flex alignItems='center'>
             {/* Placeholder - use correct icon here */}
             <Box marginRight={2} color='text.subtle'>
-              <FaProcedures />
+              <ProtocolIcon />
             </Box>
             <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
@@ -214,7 +211,7 @@ export const Hop = ({
           <Flex alignItems='center'>
             {/* Placeholder - use correct icon here */}
             <Box marginRight={2} color='text.subtle'>
-              <FaAdjust />
+              <SlippageIcon />
             </Box>
             <Amount.Percent value={slippageDecimalPercentage} display='inline' />
           </Flex>

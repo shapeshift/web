@@ -33,7 +33,7 @@ export const StepperStep = ({
     <Step>
       <StepIndicator>{isLoading ? <SkeletonCircle /> : stepIndicator}</StepIndicator>
 
-      <Box flexShrink='0'>
+      <Box flex={1}>
         <StepTitle>
           <SkeletonText noOfLines={1} skeletonHeight={6} isLoaded={!isLoading}>
             {title}
@@ -48,7 +48,7 @@ export const StepperStep = ({
             )}
           </StepDescription>
         )}
-        {isActive && content}
+        {isActive && <Box mt={4}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}
       </Box>
       <StepSeparator />

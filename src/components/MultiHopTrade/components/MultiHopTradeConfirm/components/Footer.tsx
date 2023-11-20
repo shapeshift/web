@@ -106,7 +106,7 @@ export const Footer = () => {
   }, [swapperName, lastHopBuyAsset, translate])
 
   return (
-    <CardFooter flexDir='column' gap={2} px={4}>
+    <CardFooter flexDir='column' gap={2} px={4} borderTopWidth={1} borderColor='border.base'>
       {tradeExecutionState === MultiHopExecutionState.Previewing && (
         <>
           {tradeWarning}

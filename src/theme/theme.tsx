@@ -20,6 +20,7 @@ import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
 import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
 import { StackDividerStyle as StackDivider } from 'components/StackDivider/StackDivider.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
+import { stepperTheme as Stepper } from 'components/Stepper.theme'
 import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
@@ -141,6 +142,7 @@ export const theme = extendTheme({
     StackDivider,
     Skeleton,
     Steps: CustomSteps,
+    Stepper,
     Popover,
   },
   sizes: {

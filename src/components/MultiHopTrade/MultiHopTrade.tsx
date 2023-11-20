@@ -85,15 +85,17 @@ export const MultiHopTrade = memo(
     }, [defaultBuyAsset, defaultSellAsset, dispatch, routeBuyAsset])
 
     return (
-      <Card {...cardProps}>
-        <CardBody px={0} py={0}>
-          <FormProvider {...methods}>
-            <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-              <MultiHopRoutes />
-            </MemoryRouter>
-          </FormProvider>
-        </CardBody>
-      </Card>
+      <>
+        <Card {...cardProps}>
+          <CardBody px={0} py={0}>
+            <FormProvider {...methods}>
+              <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
+                <MultiHopRoutes />
+              </MemoryRouter>
+            </FormProvider>
+          </CardBody>
+        </Card>
+      </>
     )
   },
 )

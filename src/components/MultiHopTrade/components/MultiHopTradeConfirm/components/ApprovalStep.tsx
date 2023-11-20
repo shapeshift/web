@@ -1,4 +1,5 @@
 import { Box, Button, Card, Icon, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -69,8 +70,10 @@ export const ApprovalStep = ({
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const txStatus =
-    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
+    hopExecutionState === HopExecutionState.Complete
+      ? TxStatus.Confirmed
+      : HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
+        HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
       ? _approvalTxStatus
       : undefined
 

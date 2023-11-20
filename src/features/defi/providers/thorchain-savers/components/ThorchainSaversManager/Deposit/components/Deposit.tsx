@@ -609,6 +609,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const _thorchainSaversDepositQuote = await queryClient.fetchQuery({
         queryKey: thorchainSaversDepositQuoteQueryKey,
         queryFn: getThorchainSaversDepositQuoteQueryFn,
+        staleTime: 5000,
       })
 
       const estimatedFeesQueryArgs = {

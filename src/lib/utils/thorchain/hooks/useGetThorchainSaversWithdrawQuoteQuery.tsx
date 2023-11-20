@@ -2,7 +2,7 @@ import { type AccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Asset } from 'lib/asset-service'
-import type { BigNumber } from 'lib/bignumber/bignumber'
+import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
@@ -15,17 +15,24 @@ export type GetThorchainSaversWithdrawQuoteQueryKey = [
   'thorchainSaversWithdrawQuote',
   {
     asset: Asset
-    accountId: AccountId | undefined
-    amountCryptoBaseUnit: BigNumber.Value | null | undefined
-  },
+    accountId: AccountId
+  } & (
+    | {
+        amountCryptoBaseUnit: BigNumber.Value | null | undefined
+        withdrawBps?: string
+      }
+    | {
+        amountCryptoBaseUnit?: never
+        withdrawBps: string
+      }
+  ),
 ]
 export const queryFn = async ({
   queryKey,
 }: {
   queryKey: GetThorchainSaversWithdrawQuoteQueryKey
 }) => {
-  const [, { asset, accountId, amountCryptoBaseUnit }] = queryKey
-  if (!accountId) return
+  const [, { asset, accountId, amountCryptoBaseUnit, withdrawBps }] = queryKey
 
   const { chainId, assetNamespace, assetReference } = fromAssetId(asset.assetId)
   const opportunityId = toOpportunityId({ chainId, assetNamespace, assetReference })
@@ -33,15 +40,17 @@ export const queryFn = async ({
     userStakingId: serializeUserStakingId(accountId, opportunityId ?? ''),
   })
 
-  const withdrawBps = getWithdrawBps({
-    withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit ?? 0,
-    stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-    rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-  })
+  const _withdrawBps =
+    withdrawBps ||
+    getWithdrawBps({
+      withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit ?? 0,
+      stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+    })
 
   const maybeQuote = await getThorchainSaversWithdrawQuote({
     asset,
-    bps: withdrawBps,
+    bps: _withdrawBps,
     accountId,
   })
 
@@ -50,14 +59,13 @@ export const queryFn = async ({
   return maybeQuote.unwrap()
 }
 
-// TODO(gomes): consume me everywhere instead of getThorchainSaversWithdrawQuote
 export const useGetThorchainSaversWithdrawQuoteQuery = ({
   asset,
   accountId,
   amountCryptoBaseUnit,
 }: {
   asset: Asset
-  accountId: AccountId | undefined
+  accountId: AccountId
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
 }) => {
   const withdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = useMemo(
@@ -68,7 +76,7 @@ export const useGetThorchainSaversWithdrawQuoteQuery = ({
   const withdrawQuoteQuery = useQuery({
     queryKey: withdrawQuoteQueryKey,
     queryFn,
-    enabled: Boolean(accountId),
+    enabled: Boolean(accountId && bnOrZero(amountCryptoBaseUnit).gt(0)),
     staleTime: 5000,
   })
 

@@ -187,6 +187,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [handlePercentClick],
   )
 
+  const colorScheme = useMemo(() => {
+    if (isLoading) return 'blue'
+    if (fieldError) return 'red'
+
+    return 'blue'
+  }, [fieldError, isLoading])
+
   if (!asset) return null
 
   return (
@@ -242,7 +249,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       )}
 
       <Button
-        colorScheme={fieldError ? 'red' : 'blue'}
+        colorScheme={colorScheme}
         isDisabled={!isValid}
         size='lg'
         width='full'

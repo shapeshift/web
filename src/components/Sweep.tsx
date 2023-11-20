@@ -2,14 +2,13 @@ import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@cha
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
+import { sleep } from 'lib/poll/poll'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -93,24 +92,19 @@ export const Sweep = ({
 
   const adapter = getChainAdapterManager().get(fromAssetId(assetId).chainId)
 
-  const { poll } = usePoll()
-
   useEffect(() => {
     if (!adapter || !fromAddress) return
     // Once we have a Txid, the Tx is in the mempool which is enough to broadcast the actual Tx
     // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
     if (!txId) return
     ;(async () => {
-      await poll({
-        fn: () =>
-          (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({ pubkey: fromAddress }),
-        validate: (utxos: Utxo[]) => utxos.some(utxo => utxo.txid === txId),
-        interval: 15_000,
-        maxAttempts: 2,
+      await sleep(15_000)
+      const utxos = await (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({
+        pubkey: fromAddress,
       })
+      if (utxos.some(utxo => utxo.txid === txId)) handleSwepSeen()
     })()
-    handleSwepSeen()
-  }, [adapter, fromAddress, handleSwepSeen, poll, txId])
+  }, [adapter, fromAddress, handleSwepSeen, txId])
 
   if (!asset) return null
 

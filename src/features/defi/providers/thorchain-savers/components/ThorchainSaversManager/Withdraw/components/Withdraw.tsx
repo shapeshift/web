@@ -176,7 +176,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       if (!accountId) return null
 
       const maybeQuote = await (async () => {
-        if (_quote && _quote.isOk()) return _quote
+        if (
+          _quote &&
+          _quote.isOk() &&
+          // Too small of quotes may not be able to be withdrawn, hence will not include any fees.outbound
+          bnOrZero(_quote.unwrap().expected_amount_out).gt(0) &&
+          _quote.unwrap().fees.outbound
+        )
+          return _quote
 
         // Attempt getting a quote with 100000 bps, i.e 100% withdraw
         // - If this succeeds, this allows us to know the oubtound fee, which is always the same regarding of the withdraw bps

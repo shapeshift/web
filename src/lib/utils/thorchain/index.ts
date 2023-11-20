@@ -43,7 +43,7 @@ const getHasEnoughBalanceForTxPlusFees = ({
   if (balanceCryptoBaseUnitBn.isZero()) return false
 
   return bnOrZero(amountCryptoPrecision)
-    .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+    .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
     .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
 }
 
@@ -65,13 +65,13 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
 
   return {
     hasEnoughBalance: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
-      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
-      .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0)),
+      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
+      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision))
+      .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision)),
     missingFunds: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
-      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
-      .minus(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0)),
+      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
+      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision))
+      .minus(fromBaseUnit(balanceCryptoBaseUnitBn, precision)),
   }
 }
 

@@ -15,7 +15,7 @@ const makeEthMockCoincapResponse = () => ({
   priceUsd: '3887.1310740534754598',
   changePercent24Hr: '1.7301970732523704',
   vwap24Hr: '3796.0013297212388563',
-  explorer: 'https://etherscan.io/',
+  explorer: 'https://eth.blockscout.com/',
 })
 
 const makeFoxMockCoincapResponse = () => ({
@@ -30,7 +30,7 @@ const makeFoxMockCoincapResponse = () => ({
   priceUsd: '0.6503729763580659',
   changePercent24Hr: '-3.1066427856364231',
   vwap24Hr: '0.6546275575306273',
-  explorer: 'https://etherscan.io/token/0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  explorer: 'https://eth.blockscout.com/token/0xc770eefad204b5180df6a14ee197d99d808ee52d',
 })
 
 const makeBtcMockCoincapResponse = () => ({

@@ -9,9 +9,9 @@ export const rune: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/13677/thumb/IMG_20210123_132049_458.png?1612179252',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
   symbol: 'RUNE',
 }
 
@@ -23,9 +23,9 @@ export const ethereum: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
 }
 
 export const usdc: Asset = {
@@ -36,18 +36,18 @@ export const usdc: Asset = {
   precision: 6,
   color: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
 }
 
 export const zero: Asset = {
   chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
   color: '#FFFFFF',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
   icon: 'https://assets.coingecko.com/coins/images/13706/thumb/0.exchange_%28logo%29.jpg?1617070530',
   name: '0 exchange',
   precision: 18,
@@ -58,9 +58,9 @@ export const fox: Asset = {
   chainId: ethChainId,
   assetId: foxAssetId,
   color: '#FFFFFF',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
   name: 'Fox',
   precision: 18,
@@ -76,7 +76,7 @@ export const bitcoin: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
   explorer: 'https://live.blockcypher.com',
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
   symbol: 'BTC',
 }
 

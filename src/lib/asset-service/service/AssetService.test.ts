@@ -16,9 +16,9 @@ const EthAsset: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-  explorer: 'https://etherscan.io/',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
+  explorer: 'https://eth.blockscout.com/',
+  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorerAddressLink: 'https://eth.blockscout.com/address/',
 }
 
 jest.mock('./descriptions', () => ({
@@ -109,9 +109,9 @@ describe('AssetService', () => {
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         chainId: 'eip155:1',
-        explorer: 'https://etherscan.io',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        explorerAddressLink: 'https://etherscan.io/address/',
+        explorer: 'https://eth.blockscout.com',
+        explorerTxLink: 'https://eth.blockscout.com/tx/',
+        explorerAddressLink: 'https://eth.blockscout.com/address/',
         name: 'Test Token',
         precision: 18,
         color: '#FFFFFF',

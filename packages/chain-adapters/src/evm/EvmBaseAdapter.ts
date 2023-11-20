@@ -222,17 +222,17 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.GnosisMainnet]: {
         name: 'xDAI',
         symbol: 'xDAI',
-        explorer: 'https://gnosisscan.io/',
+        explorer: 'gnosis.blockscout.com',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://etherscan.io',
+        explorer: 'https://eth.blockscout.com',
       },
       [KnownChainIds.OptimismMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://optimistic.etherscan.io',
+        explorer: 'https://optimism.blockscout.com',
       },
       [KnownChainIds.ArbitrumMainnet]: {
         name: 'Ethereum',
@@ -242,7 +242,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.ArbitrumNovaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://nova.arbiscan.io',
+        explorer: 'https://nova-explorer.arbitrum.io',
       },
     }[this.chainId]
 

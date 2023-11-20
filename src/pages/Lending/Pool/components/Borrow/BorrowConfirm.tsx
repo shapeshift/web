@@ -203,6 +203,7 @@ export const BorrowConfirm = ({
       throw new Error('Error sending THORCHain savers Txs')
     }
 
+    setIsLoanOpenPending(true)
     setTxHash(maybeTxId)
 
     return maybeTxId

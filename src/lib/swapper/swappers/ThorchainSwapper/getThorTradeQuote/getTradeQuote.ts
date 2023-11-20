@@ -31,6 +31,7 @@ export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
   assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+  const thorswapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORSWAP_LONGTAIL
   const { sellAsset, buyAsset, chainId, receiveAddress } = input
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
@@ -74,7 +75,9 @@ export const getThorTradeQuote = async (
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
-  const tradeType = getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
+  const tradeType = thorswapLongtailEnabled
+    ? getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
+    : TradeType.L1ToL1
   if (tradeType === undefined) return Err(makeSwapErrorRight({ message: 'Unknown trade type' }))
 
   const streamingInterval =

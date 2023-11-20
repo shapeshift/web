@@ -15,7 +15,7 @@ import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
 import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
-import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
+import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 export const getLongtailToL1Quote = async (
   input: GetTradeQuoteInput,
@@ -87,6 +87,10 @@ export const getLongtailToL1Quote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
+  const thorchainQuote = await getL1quote(
+    l1Tol1QuoteInput,
+    streamingInterval,
+    TradeType.LongTailToL1,
+  )
   return thorchainQuote
 }

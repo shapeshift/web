@@ -17,14 +17,16 @@ import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
-export type ThorEvmTradeQuote = TradeQuote & {
-  router: string
-  data: string
-}
-
 type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
-type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
-export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    data: string
+    tradeType: TradeType
+  }
+
+export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,

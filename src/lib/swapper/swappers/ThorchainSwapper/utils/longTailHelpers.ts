@@ -20,8 +20,8 @@ export const getWrappedToken = (nativeAsset: Asset): Token => {
 
 export const getTokenFromAsset = (asset: Asset): Token => {
   const { symbol, name, precision, assetId } = asset
-  const chainReference = Number(fromAssetId(assetId).chainReference)
-  const assetReference = fromAssetId(assetId).assetReference
+  const { chainReference: chainReferenceStr, assetReference } = fromAssetId(assetId)
+  const chainReference = Number(chainReferenceStr)
   return new Token(chainReference, assetReference, precision, symbol, name)
 }
 

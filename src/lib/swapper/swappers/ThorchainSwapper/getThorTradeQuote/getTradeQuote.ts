@@ -31,7 +31,7 @@ export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
   assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
-  const thorswapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORSWAP_LONGTAIL
+  const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
   const { sellAsset, buyAsset, chainId, receiveAddress } = input
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
@@ -75,7 +75,7 @@ export const getThorTradeQuote = async (
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
-  const tradeType = thorswapLongtailEnabled
+  const tradeType = thorchainSwapLongtailEnabled
     ? getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
     : TradeType.L1ToL1
   if (tradeType === undefined) return Err(makeSwapErrorRight({ message: 'Unknown trade type' }))
@@ -102,7 +102,6 @@ export const getThorTradeQuote = async (
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
     case TradeType.LongTailToLongTail:
-      return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     case TradeType.L1ToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:

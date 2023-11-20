@@ -1,6 +1,6 @@
 import { Box, Button, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -87,8 +87,10 @@ export const HopTransactionStep = ({
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const txStatus =
-    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
+    hopExecutionState === HopExecutionState.Complete
+      ? TxStatus.Confirmed
+      : HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
+        HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
       ? tradeStatus
       : undefined
 

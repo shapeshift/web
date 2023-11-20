@@ -61,12 +61,18 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
   sweepTxFeeCryptoBaseUnit: string
 }) => {
   const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-  if (balanceCryptoBaseUnitBn.isZero()) return false
+  if (balanceCryptoBaseUnitBn.isZero()) return { hasEnoughBalance: false, missingFunds: null }
 
-  return bnOrZero(amountCryptoPrecision)
-    .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
-    .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
-    .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0))
+  return {
+    hasEnoughBalance: bnOrZero(amountCryptoPrecision)
+      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
+      .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0)),
+    missingFunds: bnOrZero(amountCryptoPrecision)
+      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision ?? 0))
+      .minus(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0)),
+  }
 }
 
 export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
@@ -209,15 +215,16 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
       })
     : undefined
 
-  const hasEnoughBalanceForTxPlusFeesPlusSweep =
-    bnOrZero(balanceCryptoBaseUnit).gt(0) &&
-    getHasEnoughBalanceForTxPlusFeesPlusSweep({
-      precision: asset.precision,
-      balanceCryptoBaseUnit,
-      amountCryptoPrecision,
-      txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-      sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
-    })
+  const { hasEnoughBalance, missingFunds } = getHasEnoughBalanceForTxPlusFeesPlusSweep({
+    precision: asset.precision,
+    balanceCryptoBaseUnit,
+    amountCryptoPrecision,
+    txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+    sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
+  })
 
-  return hasEnoughBalanceForTxPlusFeesPlusSweep
+  const hasEnoughBalanceForTxPlusFeesPlusSweep =
+    bnOrZero(balanceCryptoBaseUnit).gt(0) && hasEnoughBalance
+
+  return { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds }
 }

@@ -595,7 +595,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      const hasEnoughBalanceForTxPlusFeesPlusSweep =
+      const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep } =
         await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
           amountCryptoPrecision: value,
           accountId,
@@ -645,7 +645,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      const hasEnoughBalanceForTxPlusFeesPlusSweep =
+      const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep } =
         await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
           amountCryptoPrecision: valueCryptoPrecision.toFixed(),
           accountId,

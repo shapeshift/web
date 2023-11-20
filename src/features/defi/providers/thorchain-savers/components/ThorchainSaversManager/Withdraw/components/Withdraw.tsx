@@ -1,4 +1,4 @@
-import { Skeleton, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
@@ -21,12 +21,14 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
+import { Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -75,6 +77,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
+  const [missingFunds, setMissingFunds] = useState<string | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -560,6 +563,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const withdrawAmountCryptoBaseUnit = toBaseUnit(value, asset.precision)
         const amountCryptoBaseUnit = toBaseUnit(withdrawAmountCryptoPrecision, asset.precision)
 
+        setMissingFunds(null)
         setQuoteLoading(true)
 
         const thorchainSaversWithdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = [
@@ -614,16 +618,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
         const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
-        const hasValidBalance =
-          balanceCryptoPrecision.gt(0) &&
-          withdrawAmountCryptoPrecision.gt(0) &&
-          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
             amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
             accountId,
             asset,
             type: 'withdraw',
             fromAddress,
-          }))
+          })
+
+        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+
+        const hasValidBalance =
+          balanceCryptoPrecision.gt(0) &&
+          withdrawAmountCryptoPrecision.gt(0) &&
+          hasEnoughBalanceForTxPlusFeesPlusSweep
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
           .minus(outboundFeeCryptoBaseUnit)
           .lt(0)
@@ -639,7 +648,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         }
 
         if (withdrawAmountCryptoPrecision.isEqualTo(0)) return ''
-        return hasValidBalance || 'trade.errors.insufficientFunds'
+        return hasValidBalance || 'common.insufficientFunds'
       } catch (e) {
         console.error(e)
       } finally {
@@ -661,13 +670,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     ],
   )
 
+  const missingFundsForGasTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'modals.confirm.missingFundsForGas',
+      {
+        cryptoAmountHuman: bn(missingFunds ?? 0).toFixed(6, BigNumber.ROUND_UP),
+        assetSymbol: feeAsset.symbol,
+      },
+    ],
+    [missingFunds, feeAsset.symbol],
+  )
+
   const validateFiatAmount = useCallback(
     async (value: string) => {
       if (!(opportunityData && accountId && dispatch)) return false
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
 
+      setMissingFunds(null)
       setQuoteLoading(true)
-      const withdrawAmountcryptoPrecision = bnOrZero(value).div(assetMarketData.price)
+      const withdrawAmountCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
       try {
         const amountAvailableCryptoPrecisionBn = bnOrZero(
           amountAvailableCryptoPrecision.toPrecision(),
@@ -676,20 +697,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(assetMarketData.price)
         const valueCryptoPrecision = bnOrZero(value)
 
-        const hasValidBalance =
-          amountAvailableFiat.gt(0) &&
-          valueCryptoPrecision.gt(0) &&
-          amountAvailableFiat.gte(value) &&
-          (await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-            amountCryptoPrecision: withdrawAmountcryptoPrecision.toFixed(),
+        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
             accountId,
             asset,
             type: 'withdraw',
             fromAddress,
-          }))
+          })
+
+        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+
+        const hasValidBalance =
+          amountAvailableFiat.gt(0) &&
+          valueCryptoPrecision.gt(0) &&
+          amountAvailableFiat.gte(value) &&
+          hasEnoughBalanceForTxPlusFeesPlusSweep
 
         if (valueCryptoPrecision.isEqualTo(0)) return ''
-        return hasValidBalance || 'trade.errors.insufficientFunds'
+        return hasValidBalance || 'common.insufficientFunds'
       } catch (e) {
         return translate('trade.errors.amountTooSmallUnknownMinimum')
       } finally {
@@ -756,6 +782,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
             </Skeleton>
           </Row.Value>
         </Row>
+        {bnOrZero(missingFunds).gt(0) && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={missingFundsForGasTranslation} />
+          </Alert>
+        )}
       </ReusableWithdraw>
     </FormProvider>
   )

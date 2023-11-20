@@ -12,6 +12,7 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../types'
+import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
@@ -53,6 +54,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9360638:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,
@@ -87,6 +89,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:10291578/10/0:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,

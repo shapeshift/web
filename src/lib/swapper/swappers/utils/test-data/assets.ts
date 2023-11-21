@@ -36,9 +36,9 @@ export const WETH: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
-  explorer: 'https://eth.blockscout.com',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'WETH',
 }
 
@@ -49,9 +49,9 @@ export const FOX_MAINNET: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-  explorer: 'https://eth.blockscout.com',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'FOX',
 }
 
@@ -72,9 +72,9 @@ export const WBTC: Asset = {
   assetId: 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   chainId: ethChainId,
   color: '#FFFFFF',
-  explorer: 'https://eth.blockscout.com',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
   name: 'Wrapped Bitcoin',
   precision: 8,
@@ -89,9 +89,9 @@ export const ETH: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-  explorer: 'https://eth.blockscout.com',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
 }
 
 export const UNSUPPORTED: Asset = {
@@ -102,9 +102,9 @@ export const UNSUPPORTED: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-  explorer: 'https://eth.blockscout.com',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
 }
 
 export const USDC_MAINNET: Asset = {
@@ -115,9 +115,9 @@ export const USDC_MAINNET: Asset = {
   precision: 6,
   color: '#2373CB',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  explorer: 'https://eth.blockscout.com',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
 }
 
 export const USDC_GNOSIS: Asset = {

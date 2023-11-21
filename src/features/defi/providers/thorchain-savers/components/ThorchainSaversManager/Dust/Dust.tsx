@@ -94,7 +94,7 @@ export const Dust: React.FC<DustProps> = () => {
           <Row variant='gutter' px={0}>
             <Row.Label>{translate('defi.modals.saversVaults.addressToSendTo')}</Row.Label>
             <Row.Value fontSize='md'>
-              <Address explorerAddressLink='https://eth.blockscout.com/address/' address='0000' />
+              <Address explorerAddressLink='https://etherscan.io/address/' address='0000' />
             </Row.Value>
           </Row>
           <Row variant='gutter' px={0}>

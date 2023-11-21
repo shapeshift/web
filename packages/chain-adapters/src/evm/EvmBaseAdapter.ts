@@ -227,7 +227,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://eth.blockscout.com',
+        explorer: 'https://etherscan.io',
       },
       [KnownChainIds.OptimismMainnet]: {
         name: 'Ethereum',
@@ -242,7 +242,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.ArbitrumNovaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://nova-explorer.arbitrum.io',
+        explorer: 'https://nova.arbiscan.io',
       },
     }[this.chainId]
 

@@ -42,9 +42,9 @@ export async function getUniswapTokens(): Promise<Asset[]> {
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: token.logoURI,
       symbol: token.symbol,
-      explorer: 'https://eth.blockscout.com',
-      explorerAddressLink: 'https://eth.blockscout.com/address/',
-      explorerTxLink: 'https://eth.blockscout.com/tx/',
+      explorer: 'https://etherscan.io',
+      explorerAddressLink: 'https://etherscan.io/address/',
+      explorerTxLink: 'https://etherscan.io/tx/',
     }
     acc.push(result)
     return acc

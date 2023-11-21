@@ -114,10 +114,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (accountNumber > 0 && !isMultiAccountWallet) break
 
         const input = { accountNumber, chainIds, wallet }
-        const result = await deriveAccountIdsAndMetadata(input)
-        const accountIds = Object.keys(result)
+        const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+        const accountIds = Object.keys(accountIdsAndMetadata)
 
-        Object.assign(accountMetadataByAccountId, result)
+        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
         const { getAccount } = portfolioApi.endpoints
         const accountPromises = accountIds.map(accountId =>
@@ -140,7 +140,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           // don't add accounts with no activity past account 0
           if (accountNumber > 0 && !hasActivity) return delete accountMetadataByAccountId[accountId]
 
+          // unique set to handle utxo chains with multiple account types per account
           chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+
           dispatch(portfolio.actions.upsertPortfolio(account))
         })
 

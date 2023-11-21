@@ -361,7 +361,7 @@ export const waitForThorchainUpdate = ({
     },
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
-    maxAttempts: 10,
+    maxAttempts: 20,
   })
 
 export const makeDaysToBreakEven = ({

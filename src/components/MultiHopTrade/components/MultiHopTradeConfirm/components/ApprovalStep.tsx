@@ -3,6 +3,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -94,7 +95,7 @@ export const ApprovalStep = ({
   const txLink = useMemo(() => {
     return (
       <Link isExternal href='#' color='text.link'>
-        {txHash}
+        <MiddleEllipsis value={txHash ?? ''} />
       </Link>
     )
   }, [txHash])

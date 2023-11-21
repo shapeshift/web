@@ -51,7 +51,6 @@ import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import type { EstimatedFeesQueryKey } from 'lib/utils/thorchain/types'
 import {
   queryFn as getEstimatedFeesQueryFn,
   useGetEstimatedFeesQuery,
@@ -61,6 +60,7 @@ import {
   queryFn as isSweepNeededQueryFn,
   useIsSweepNeededQuery,
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useQuoteEstimatedFees/types'
 import {
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,

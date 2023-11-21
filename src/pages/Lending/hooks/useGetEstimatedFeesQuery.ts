@@ -4,9 +4,10 @@ import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { EstimatedFeesQueryKey } from 'lib/utils/thorchain/types'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import type { EstimatedFeesQueryKey } from './useQuoteEstimatedFees/types'
 
 // For use outside of react with queryClient.fetchQuery()
 export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {

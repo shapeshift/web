@@ -6,6 +6,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useQuoteEstimatedFees/types'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -21,7 +22,6 @@ import {
   type GetThorchainSaversWithdrawQuoteQueryKey,
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
-import type { EstimatedFeesQueryKey } from './types'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
 // the current workaround is to not do fee deduction for non-UTXO chains,

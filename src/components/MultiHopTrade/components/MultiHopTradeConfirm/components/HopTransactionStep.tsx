@@ -3,6 +3,7 @@ import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -41,6 +42,7 @@ export const HopTransactionStep = ({
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
 
   const {
     // TODO: use the message to better ux
@@ -111,13 +113,17 @@ export const HopTransactionStep = ({
   const content = useMemo(
     () =>
       txStatus === undefined ? (
-        <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
-          Sign message
-        </Button>
+        <Card width='full'>
+          <CardBody px={2} py={2}>
+            <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
+              {translate('common.signMessage')}
+            </Button>
+          </CardBody>
+        </Card>
       ) : (
         <></>
       ),
-    [handleSignTx, signIcon, txStatus],
+    [handleSignTx, signIcon, translate, txStatus],
   )
 
   const description = useMemo(() => {

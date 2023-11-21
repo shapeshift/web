@@ -10,6 +10,8 @@ import {
   StepTitle,
 } from '@chakra-ui/react'
 
+const width = { width: '100%' }
+
 export type StepperStepProps = {
   title: string
   description?: string | JSX.Element
@@ -30,7 +32,7 @@ export const StepperStep = ({
   isLoading,
 }: StepperStepProps) => {
   return (
-    <Step>
+    <Step style={width}>
       <StepIndicator>{isLoading ? <SkeletonCircle /> : stepIndicator}</StepIndicator>
 
       <Box flex={1}>
@@ -48,7 +50,7 @@ export const StepperStep = ({
             )}
           </StepDescription>
         )}
-        {isActive && <Box mt={4}>{content}</Box>}
+        {isActive && <Box mt={2}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}
       </Box>
       <StepSeparator />

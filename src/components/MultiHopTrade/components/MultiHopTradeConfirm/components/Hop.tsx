@@ -8,7 +8,6 @@ import {
   Flex,
   HStack,
   Stepper,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -16,6 +15,7 @@ import prettyMilliseconds from 'pretty-ms'
 import { useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
@@ -55,7 +55,6 @@ export const Hop = ({
   isOpen: boolean
   onToggleIsOpen?: () => void
 }) => {
-  const borderColor = useColorModeValue('gray.50', 'gray.650')
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
   )
@@ -133,19 +132,37 @@ export const Hop = ({
 
   const shouldRenderFinalSteps = !isMultiHopTrade || hopIndex === 1
 
+  const stepIcon = useMemo(() => {
+    switch (hopExecutionState) {
+      case HopExecutionState.Complete:
+        return (
+          <Circle size={8} bg='background.success'>
+            <CheckCircleIcon color='text.success' />
+          </Circle>
+        )
+      case HopExecutionState.AwaitingApprovalConfirmation:
+      case HopExecutionState.AwaitingApprovalExecution:
+      case HopExecutionState.AwaitingTradeConfirmation:
+      case HopExecutionState.AwaitingTradeExecution:
+        return (
+          <Circle size={8} bg='background.surface.raised.base'>
+            <CircularProgress size={4} />
+          </Circle>
+        )
+      default:
+        return (
+          <Circle size={8} borderColor='border.base' borderWidth={2}>
+            <RawText as='b'>{hopIndex + 1}</RawText>
+          </Circle>
+        )
+    }
+  }, [hopExecutionState, hopIndex])
+
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
       <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
         <HStack>
-          {hopExecutionState === HopExecutionState.Complete ? (
-            <Circle size={8} bg='background.success'>
-              <CheckCircleIcon color='text.success' />
-            </Circle>
-          ) : (
-            <Circle size={8} borderColor={borderColor} borderWidth={2}>
-              <RawText as='b'>{hopIndex + 1}</RawText>
-            </Circle>
-          )}
+          {stepIcon}
           <RawText as='b'>{title}</RawText>
         </HStack>
         {rightComponent}∂

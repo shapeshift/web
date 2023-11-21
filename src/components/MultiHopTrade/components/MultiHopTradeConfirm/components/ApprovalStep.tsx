@@ -1,7 +1,7 @@
-import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { Box, Button, Card, Center, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -78,7 +78,14 @@ export const ApprovalStep = ({
       : undefined
 
   const stepIndicator = useMemo(
-    () => (txStatus !== undefined ? <StatusIcon txStatus={txStatus} /> : <></>),
+    () =>
+      txStatus !== undefined ? (
+        <StatusIcon txStatus={txStatus} />
+      ) : (
+        <Center fontSize='sm'>
+          <FaThumbsUp />
+        </Center>
+      ),
     [txStatus],
   )
 
@@ -86,7 +93,7 @@ export const ApprovalStep = ({
 
   const txLink = useMemo(() => {
     return (
-      <Link isExternal href='#'>
+      <Link isExternal href='#' color='text.link'>
         {txHash}
       </Link>
     )
@@ -128,7 +135,7 @@ export const ApprovalStep = ({
               </Row.Value>
             </Row>
             <Button width='full' colorScheme='blue' onClick={handleSignAllowanceApproval}>
-              Approve
+              {translate('common.approve')}
             </Button>
           </VStack>
         )}
@@ -140,7 +147,11 @@ export const ApprovalStep = ({
   return (
     <StepperStep
       title='Token allowance approval'
-      description={txHash ? txLink : `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`}
+      description={
+        txHash
+          ? txLink
+          : translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })
+      }
       stepIndicator={stepIndicator}
       content={content}
       isActive={isActive}

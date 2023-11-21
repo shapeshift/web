@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, Center, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
@@ -100,6 +101,8 @@ export const ApprovalStep = ({
     )
   }, [txHash])
 
+  const leftIcon = useMemo(() => <CheckCircleIcon />, [])
+
   const content = useMemo(
     () => (
       <Card p='2' width='full'>
@@ -135,14 +138,29 @@ export const ApprovalStep = ({
                 />
               </Row.Value>
             </Row>
-            <Button width='full' colorScheme='blue' onClick={handleSignAllowanceApproval}>
+            <Button
+              width='full'
+              size='sm'
+              leftIcon={leftIcon}
+              colorScheme='blue'
+              isLoading={hopExecutionState === HopExecutionState.AwaitingApprovalExecution}
+              onClick={handleSignAllowanceApproval}
+            >
               {translate('common.approve')}
             </Button>
           </VStack>
         )}
       </Card>
     ),
-    [handleSignAllowanceApproval, isExactAllowance, toggleIsExactAllowance, translate, txHash],
+    [
+      handleSignAllowanceApproval,
+      hopExecutionState,
+      isExactAllowance,
+      leftIcon,
+      toggleIsExactAllowance,
+      translate,
+      txHash,
+    ],
   )
 
   return (

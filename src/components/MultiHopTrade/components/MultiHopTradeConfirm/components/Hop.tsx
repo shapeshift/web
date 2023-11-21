@@ -1,5 +1,5 @@
+import { CheckCircleIcon } from '@chakra-ui/icons'
 import {
-  Box,
   Card,
   CardFooter,
   Circle,
@@ -37,7 +37,6 @@ import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { DonationStep } from './DonationStep'
 import { HopTransactionStep } from './HopTransactionStep'
-import { JuicyGreenCheck } from './JuicyGreenCheck'
 import { TimeRemaining } from './TimeRemaining'
 import { TwirlyToggle } from './TwirlyToggle'
 
@@ -139,7 +138,9 @@ export const Hop = ({
       <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
         <HStack>
           {hopExecutionState === HopExecutionState.Complete ? (
-            <JuicyGreenCheck />
+            <Circle size={8} bg='background.success'>
+              <CheckCircleIcon color='text.success' />
+            </Circle>
           ) : (
             <Circle size={8} borderColor={borderColor} borderWidth={2}>
               <RawText as='b'>{hopIndex + 1}</RawText>
@@ -189,30 +190,30 @@ export const Hop = ({
         </Stepper>
       </Collapse>
       <Divider width='auto' ml={6} borderColor='border.base' opacity={1} />
-      <CardFooter>
+      <CardFooter fontSize='sm'>
         <HStack width='full' justifyContent='space-between'>
           {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center'>
-            <Box marginRight={2} color='text.subtle'>
+          <Flex alignItems='center' gap={2}>
+            <Flex color='text.subtle'>
               <FaGasPump />
-            </Box>
+            </Flex>
             <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
           {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center'>
+          <Flex alignItems='center' gap={2}>
             {/* Placeholder - use correct icon here */}
-            <Box marginRight={2} color='text.subtle'>
+            <Flex color='text.subtle'>
               <ProtocolIcon />
-            </Box>
+            </Flex>
             <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
-          <Flex alignItems='center'>
+          <Flex alignItems='center' gap={2}>
             {/* Placeholder - use correct icon here */}
-            <Box marginRight={2} color='text.subtle'>
+            <Flex color='text.subtle'>
               <SlippageIcon />
-            </Box>
+            </Flex>
             <Amount.Percent value={slippageDecimalPercentage} display='inline' />
           </Flex>
         </HStack>

@@ -1,6 +1,7 @@
 import { CheckCircleIcon, CloseIcon } from '@chakra-ui/icons'
-import { Circle, Spinner } from '@chakra-ui/react'
+import { Circle } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 export const StatusIcon = (props: { txStatus: TxStatus }) => {
   // TODO: proper light/dark mode colors here
@@ -23,7 +24,7 @@ export const StatusIcon = (props: { txStatus: TxStatus }) => {
     default:
       return (
         <Circle size={8}>
-          <Spinner />
+          <CircularProgress size={4} />
         </Circle>
       )
   }

@@ -157,9 +157,9 @@ export const OPTIMISM: Asset = {
   networkColor: '#FC0424',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   networkIcon: 'https://assets.coingecko.com/coins/images/25244/thumb/Optimism.png?1660904599',
-  explorer: 'https://optimism.blockscout.com',
-  explorerAddressLink: 'https://optimism.blockscout.com/address/',
-  explorerTxLink: 'https://optimism.blockscout.com/tx/',
+  explorer: 'https://optimistic.etherscan.io',
+  explorerAddressLink: 'https://optimistic.etherscan.io/address/',
+  explorerTxLink: 'https://optimistic.etherscan.io/tx/',
 }
 
 export const BSC: Asset = {

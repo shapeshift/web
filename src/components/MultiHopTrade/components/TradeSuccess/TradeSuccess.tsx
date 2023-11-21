@@ -89,7 +89,9 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
             </Button>
             <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />
           </HStack>
-          <Collapse in={isOpen}>{children}</Collapse>
+          <Box mx={-4}>
+            <Collapse in={isOpen}>{children}</Collapse>
+          </Box>
         </SlideTransition>
       </CardFooter>
     </>

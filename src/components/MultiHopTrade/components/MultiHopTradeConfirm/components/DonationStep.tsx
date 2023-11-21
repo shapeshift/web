@@ -1,5 +1,6 @@
-import { StarIcon } from '@chakra-ui/icons'
 import { useMemo } from 'react'
+import { FaGift } from 'react-icons/fa'
+import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectQuoteDonationAmountUsd } from 'state/slices/tradeQuoteSlice/selectors'
@@ -18,7 +19,11 @@ export const DonationStep = ({ isLastStep }: DonationStepProps) => {
   const donationAmountUsd = useAppSelector(selectQuoteDonationAmountUsd)
 
   const stepIndicator = useMemo(() => {
-    return <StarIcon />
+    return (
+      <RawText color='text.success'>
+        <FaGift />
+      </RawText>
+    )
   }, [])
 
   const shouldRenderDonation = useMemo(() => bnOrZero(donationAmountUsd).gt(0), [donationAmountUsd])

@@ -69,6 +69,10 @@ export const semanticTokens = {
           _dark: 'darkNeutral.900',
         },
       },
+      success: {
+        default: 'green.50',
+        _dark: 'rgba(92, 223, 189, 0.20)',
+      },
     },
 
     border: {

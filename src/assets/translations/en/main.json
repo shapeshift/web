@@ -121,6 +121,7 @@
     "showAll": "Show All",
     "showLess": "Show Less",
     "yourBalance": "Your balance",
+    "signMessage": "Sign message",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -813,7 +814,8 @@
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
-    "enableMetaMaskSnap": "use the multichain snap"
+    "enableMetaMaskSnap": "use the multichain snap",
+    "approvalGasFee": "Approval gas fee %{fee}"
   },
   "modals": {
     "popup": {

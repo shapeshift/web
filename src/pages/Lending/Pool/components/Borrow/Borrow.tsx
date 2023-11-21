@@ -197,10 +197,17 @@ const BorrowRoutes = memo(
           collateralAccountId={collateralAccountId}
           depositAmountCryptoPrecision={cryptoDepositAmount ?? '0'}
           activeQuoteData={activeQuoteData}
-          txHash={'foo'}
+          txHash={activeTxHash}
         />
       ),
-      [collateralAssetId, collateralAccountId, cryptoDepositAmount, activeQuoteData, activeTxHash],
+      [
+        borrowAsset,
+        collateralAssetId,
+        collateralAccountId,
+        cryptoDepositAmount,
+        activeQuoteData,
+        activeTxHash,
+      ],
     )
 
     return (

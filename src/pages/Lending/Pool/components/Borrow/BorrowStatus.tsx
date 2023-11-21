@@ -26,7 +26,7 @@ import { BorrowRoutePaths } from './types'
 type BorrowStatusProps = {
   txHash: string | null
   collateralAssetId: AssetId
-  borrowAsset: Asset
+  borrowAsset: Asset | null
   collateralAccountId: AccountId
   depositAmountCryptoPrecision: string
   activeQuoteData: LendingQuoteData | null
@@ -85,7 +85,7 @@ export const BorrowStatus = ({
     }
   })()
 
-  if (!(collateralAsset && activeQuoteData && txHash)) return null
+  if (!(collateralAsset && activeQuoteData && txHash && borrowAsset)) return null
 
   return (
     <SlideTransition>

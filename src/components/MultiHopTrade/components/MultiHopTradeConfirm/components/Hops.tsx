@@ -1,5 +1,5 @@
-import { Stack } from '@chakra-ui/react'
-import { memo } from 'react'
+import { Box, Stack } from '@chakra-ui/react'
+import { memo, useMemo } from 'react'
 import {
   selectActiveSwapperName,
   selectFirstHop,
@@ -24,10 +24,15 @@ export const Hops = memo((props: HopsProps) => {
   const lastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
+  const divider = useMemo(
+    () => <Box height={2} borderColor='border.bold' bg='background.surface.base' />,
+    [],
+  )
+
   if (!firstHop || !swapperName) return null
 
   return (
-    <Stack spacing={6}>
+    <Stack spacing={0} divider={divider} borderColor='border.base'>
       <Hop
         tradeQuoteStep={firstHop}
         swapperName={swapperName}

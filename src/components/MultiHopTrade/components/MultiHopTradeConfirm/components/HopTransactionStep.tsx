@@ -1,9 +1,10 @@
-import { Box, Button, Link, VStack } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo } from 'react'
-import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { useTranslate } from 'react-polyglot'
+import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
@@ -41,6 +42,7 @@ export const HopTransactionStep = ({
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
 
   const {
     // TODO: use the message to better ux
@@ -106,9 +108,22 @@ export const HopTransactionStep = ({
     [swapperName, txStatus],
   )
 
+  const signIcon = useMemo(() => <CheckCircleIcon />, [])
+
   const content = useMemo(
-    () => (txStatus === undefined ? <Button onClick={handleSignTx}>Sign message</Button> : <></>),
-    [handleSignTx, txStatus],
+    () =>
+      txStatus === undefined ? (
+        <Card width='full'>
+          <CardBody px={2} py={2}>
+            <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
+              {translate('common.signMessage')}
+            </Button>
+          </CardBody>
+        </Card>
+      ) : (
+        <></>
+      ),
+    [handleSignTx, signIcon, translate, txStatus],
   )
 
   const description = useMemo(() => {
@@ -133,22 +148,20 @@ export const HopTransactionStep = ({
     )
 
     return (
-      <VStack>
+      <VStack alignItems='flex-start'>
         <RawText>
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>
         {txHash !== undefined && <RawText>TX: {txHash}</RawText>}
         {txLink && (
-          <Row px={4}>
-            <Row.Label>
-              <RawText>Tx ID</RawText>
-            </Row.Label>
-            <Box textAlign='right'>
+          <Card width='full'>
+            <CardBody display='flex' gap={4} justifyContent='space-between' px={4} py={2}>
+              <RawText color='text.subtle'>TX ID</RawText>
               <Link isExternal color='blue.500' href={txLink}>
-                <Text translation='trade.viewTransaction' />
+                {txHash}
               </Link>
-            </Box>
-          </Row>
+            </CardBody>
+          </Card>
         )}
       </VStack>
     )

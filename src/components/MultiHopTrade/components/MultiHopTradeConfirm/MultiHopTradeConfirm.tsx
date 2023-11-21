@@ -66,10 +66,10 @@ export const MultiHopTradeConfirm = memo(() => {
 
   return (
     <SlideTransition>
-      <Card flex={1} borderRadius={cardBorderRadius} width='full' padding={6}>
-        <CardHeader px={0} pt={0}>
+      <Card flex={1} borderRadius={cardBorderRadius} width='full' variant='dashboard'>
+        <CardHeader px={6} pt={4}>
           <WithBackButton handleBack={handleBack}>
-            <Heading textAlign='center'>
+            <Heading textAlign='center' fontSize='md'>
               <Text
                 translation={
                   tradeExecutionState === MultiHopExecutionState.Previewing
@@ -86,7 +86,7 @@ export const MultiHopTradeConfirm = memo(() => {
           </TradeSuccess>
         ) : (
           <>
-            <CardBody pb={0} px={0}>
+            <CardBody py={0} px={0}>
               <Hops
                 isFirstHopOpen={isFirstHopOpen}
                 isSecondHopOpen={isSecondHopOpen}

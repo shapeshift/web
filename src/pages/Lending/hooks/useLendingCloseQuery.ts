@@ -110,6 +110,11 @@ export const useLendingQuoteCloseQuery = ({
     return repaymentPercentBn.plus('1').toNumber()
   }, [_repaymentPercent])
 
+  const { data: lendingPositionData } = useLendingPositionData({
+    assetId: _collateralAssetId,
+    accountId: _collateralAccountId,
+  })
+
   const lendingQuoteCloseQueryKey = useDebounce(
     () => [
       'lendingQuoteCloseQuery',
@@ -160,11 +165,6 @@ export const useLendingQuoteCloseQuery = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-
-  const { data: lendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 

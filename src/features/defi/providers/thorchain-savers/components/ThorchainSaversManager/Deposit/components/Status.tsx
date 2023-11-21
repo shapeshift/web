@@ -21,8 +21,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -86,7 +86,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       ;(async () => {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        await waitForThorchainUpdate(confirmedTransaction.txid).promise
+        await waitForThorchainUpdate({ txHash: confirmedTransaction.txid, skipOutbound: true })
+          .promise
 
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({

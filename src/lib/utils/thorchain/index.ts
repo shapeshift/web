@@ -1,8 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { QueryClient } from '@tanstack/react-query'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { poll } from 'lib/poll/poll'
 import {
   type EstimatedFeesQueryKey,
   queryFn as getEstimatedFeesQueryFn,
@@ -11,7 +14,10 @@ import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeeded
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  fromThorBaseUnit,
+  getThorchainTransactionStatus,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -22,6 +28,26 @@ import {
   type GetThorchainSaversWithdrawQuoteQueryKey,
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
+
+export const waitForThorchainUpdate = ({
+  txHash,
+  queryClient,
+  skipOutbound,
+}: {
+  txHash: string
+  queryClient?: QueryClient
+  skipOutbound?: boolean
+}) =>
+  poll({
+    fn: () => {
+      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
+      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
+      return getThorchainTransactionStatus(txHash, skipOutbound)
+    },
+    validate: status => Boolean(status && status === TxStatus.Confirmed),
+    interval: 60000,
+    maxAttempts: 20,
+  })
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
 // the current workaround is to not do fee deduction for non-UTXO chains,

@@ -107,17 +107,13 @@ export const Hop = ({
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingTradeConfirmation:
       case HopExecutionState.AwaitingTradeExecution:
-        if (isApprovalInitiallyNeeded) {
-          return hopIndex === 0 ? 2 : 1
-        } else {
-          return hopIndex === 0 ? 1 : 0
-        }
+        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
         return Infinity
       default:
         assertUnreachable(hopExecutionState)
     }
-  }, [hopExecutionState, hopIndex, isApprovalInitiallyNeeded])
+  }, [hopExecutionState, hopIndex])
 
   const slippageDecimalPercentage = useMemo(
     () => getDefaultSlippageDecimalPercentageForSwapper(swapperName),

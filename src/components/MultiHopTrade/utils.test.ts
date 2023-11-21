@@ -4,10 +4,8 @@ import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { SwapperName } from 'lib/swapper/types'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
-jest.mock('lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain', () => ({
-  ...jest.requireActual(
-    'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain',
-  ),
+jest.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', () => ({
+  ...jest.requireActual('lib/utils/thorchain/getInboundAddressDataForChain.ts'),
   getInboundAddressDataForChain: jest.fn(),
 }))
 

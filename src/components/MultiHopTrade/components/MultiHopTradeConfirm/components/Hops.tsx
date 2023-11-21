@@ -1,5 +1,4 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { use } from 'chai'
 import { memo, useMemo } from 'react'
 import {
   selectActiveSwapperName,

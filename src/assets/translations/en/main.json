@@ -2214,6 +2214,7 @@
     "risky": "Risky",
     "confirmAndBorrow": "Confirm and Borrow",
     "confirmAndRepay": "Confirm and Repay",
+    "borrowAgain": "Borrow Again",
     "transactionInfo": "Transaction Summary",
     "repayNoticeTitle": "Hold Up!",
     "repayNoticeCta": "I understand",

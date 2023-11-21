@@ -13,7 +13,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -69,6 +69,7 @@ export const BorrowConfirm = ({
     state: { wallet },
   } = useWallet()
 
+  const [isPendingBroadcast, setIsPendingBroadcast] = useState(false)
   const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
   const translate = useTranslate()
@@ -140,6 +141,7 @@ export const BorrowConfirm = ({
       )
     )
       return
+    setIsPendingBroadcast(true)
     setActiveQuoteData(null)
 
     const from = await getThorchainFromAddress({
@@ -182,6 +184,7 @@ export const BorrowConfirm = ({
       throw new Error('Error sending THORCHain savers Txs')
     }
 
+    setIsPendingBroadcast(false)
     setActiveQuoteData(lendingQuoteData)
     setActiveTxHash(maybeTxId)
 
@@ -303,7 +306,7 @@ export const BorrowConfirm = ({
               size='lg'
               width='full'
               onClick={handleDeposit}
-              isLoading={isEstimatedFeesDataLoading || isLendingQuoteLoading}
+              isLoading={isPendingBroadcast || isEstimatedFeesDataLoading || isLendingQuoteLoading}
               disabled={false}
             >
               {translate('lending.confirmAndBorrow')}

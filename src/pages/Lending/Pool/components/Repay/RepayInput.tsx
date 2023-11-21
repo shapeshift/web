@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -86,6 +86,12 @@ export const RepayInput = ({
   const percentOptions = useMemo(() => [0], [])
 
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
+
+  useEffect(() => {
+    if (!lendingSupportedAssets) return
+
+    setRepaymentAsset(lendingSupportedAssets[0])
+  }, [lendingSupportedAssets, setRepaymentAsset])
 
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({

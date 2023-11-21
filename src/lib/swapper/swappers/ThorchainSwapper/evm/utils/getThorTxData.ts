@@ -2,7 +2,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import { depositWithExpiry } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 type GetEvmThorTxInfoArgs = {

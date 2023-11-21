@@ -314,8 +314,8 @@ export const RepayInput = ({
             <Skeleton isLoaded={isLendingPositionDataSuccess}>
               <Amount.Fiat value={0} />
             </Skeleton>
-            {/* Actually defined at display time, see isLoaded above */}
             <Skeleton isLoaded={isLendingPositionDataSuccess}>
+              {/* Actually defined at display time, see isLoaded above */}
               <Amount.Fiat value={debtBalanceUserCurrency ?? '0'} />
             </Skeleton>
           </Flex>

@@ -25,12 +25,15 @@ export const Hops = memo((props: HopsProps) => {
   const lastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
-  const divider = useMemo(() => <Box height={2} bg='background.surface.base' />, [])
+  const divider = useMemo(
+    () => <Box height={2} borderColor='border.bold' bg='background.surface.base' />,
+    [],
+  )
 
   if (!firstHop || !swapperName) return null
 
   return (
-    <Stack spacing={0} divider={divider}>
+    <Stack spacing={0} divider={divider} borderColor='border.base'>
       <Hop
         tradeQuoteStep={firstHop}
         swapperName={swapperName}

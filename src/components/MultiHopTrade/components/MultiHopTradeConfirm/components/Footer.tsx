@@ -105,7 +105,7 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return (
+  return tradeExecutionState === MultiHopExecutionState.Previewing ? (
     <CardFooter
       flexDir='column'
       gap={2}
@@ -115,35 +115,29 @@ export const Footer = () => {
       bg='background.surface.raised.base'
       borderBottomRadius='md'
     >
-      {tradeExecutionState === MultiHopExecutionState.Previewing && (
-        <>
-          {tradeWarning}
-          {swapperName === SwapperName.LIFI && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
-            </Alert>
-          )}
-          {isFeeRatioOverThreshold && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button
-            colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
-            size='lg'
-            width='full'
-            onClick={handleConfirm}
-          >
-            <Text
-              translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
-            />
-          </Button>
-        </>
+      {tradeWarning}
+      {swapperName === SwapperName.LIFI && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+        </Alert>
       )}
+      {isFeeRatioOverThreshold && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
+          </AlertDescription>
+        </Alert>
+      )}
+      <Button
+        colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
+        size='lg'
+        width='full'
+        onClick={handleConfirm}
+      >
+        <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
+      </Button>
     </CardFooter>
-  )
+  ) : null
 }

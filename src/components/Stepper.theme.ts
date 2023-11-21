@@ -8,7 +8,7 @@ const baseStyle = {
     },
     '&[data-status=incomplete]': {
       bg: 'background.surface.raised.base',
-      borderColor: 'transparent',
+      borderColor: 'border.base',
     },
     '&[data-status=complete]': {
       bg: 'background.success',
@@ -17,7 +17,7 @@ const baseStyle = {
   separator: {
     bg: 'border.base',
     '&[data-status=complete]': {
-      bg: 'border.base',
+      bg: 'green.500',
     },
     '&[data-status=active]': {
       bg: 'border.base',

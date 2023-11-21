@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -26,14 +26,12 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import { isSome } from 'lib/utils'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
-  selectAssets,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectUserCurrencyToUsdRate,
@@ -87,21 +85,7 @@ export const RepayInput = ({
 
   const percentOptions = useMemo(() => [0], [])
 
-  const assetsById = useAppSelector(selectAssets)
-
-  const [repaymentSupportedAssets, setRepaymentSupportedAssets] = useState<Asset[]>([])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!repaymentAsset) setRepaymentAsset(assetsById[collateralAssetId] as Asset)
-
-      const assets = Object.values(assetsById) as Asset[]
-      const thorSellAssets = (await thorchainSwapper.filterAssetIdsBySellable(assets))
-        .map(assetId => assetsById[assetId])
-        .filter(isSome)
-      setRepaymentSupportedAssets(thorSellAssets)
-    })()
-  }, [assetsById, collateralAssetId, repaymentAsset, setRepaymentAsset])
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
@@ -130,14 +114,14 @@ export const RepayInput = ({
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {
-    if (!repaymentSupportedAssets.length) return
+    if (!lendingSupportedAssets?.length) return
 
     buyAssetSearch.open({
       onClick: setRepaymentAsset,
-      title: 'lending.borrow',
-      assets: repaymentSupportedAssets,
+      title: 'lending.repay',
+      assets: lendingSupportedAssets,
     })
-  }, [buyAssetSearch, repaymentSupportedAssets, setRepaymentAsset])
+  }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)

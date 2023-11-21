@@ -15,7 +15,7 @@ type UseAllLendingPositionsDataProps = {
 }
 
 export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
 
   const accounts = useMemo(
     () =>

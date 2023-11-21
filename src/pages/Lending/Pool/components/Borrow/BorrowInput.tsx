@@ -69,13 +69,13 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+  const { data: borrowAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
   useEffect(() => {
-    if (!lendingSupportedAssets) return
+    if (!borrowAssets) return
 
-    setBorrowAsset(lendingSupportedAssets[0])
-  }, [lendingSupportedAssets, setBorrowAsset])
+    setBorrowAsset(borrowAssets[0])
+  }, [borrowAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
@@ -86,9 +86,9 @@ export const BorrowInput = ({
     buyAssetSearch.open({
       onClick: setBorrowAsset,
       title: 'lending.borrow',
-      assets: lendingSupportedAssets,
+      assets: borrowAssets,
     })
-  }, [buyAssetSearch, lendingSupportedAssets, setBorrowAsset])
+  }, [borrowAssets, buyAssetSearch, setBorrowAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
@@ -239,10 +239,11 @@ export const BorrowInput = ({
     history.push(BorrowRoutePaths.Sweep)
   }, [history, isSweepNeeded])
 
-  const depositAssetSelectComponent = useMemo(() => {
+  const collateralAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
+        // no-op
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={handleAssetChange}
         isReadOnly
@@ -327,7 +328,7 @@ export const BorrowInput = ({
           onAccountIdChange={handleCollateralAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={depositAssetSelectComponent}
+          labelPostFix={collateralAssetSelectComponent}
         />
         <TradeAssetInput
           assetId={borrowAsset?.assetId ?? ''}

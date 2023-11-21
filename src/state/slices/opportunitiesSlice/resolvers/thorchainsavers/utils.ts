@@ -24,6 +24,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
+import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
@@ -37,10 +38,6 @@ import type {
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
-export const THOR_PRECISION = '8'
-export const BASE_BPS_POINTS = '10000'
-
-export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
 

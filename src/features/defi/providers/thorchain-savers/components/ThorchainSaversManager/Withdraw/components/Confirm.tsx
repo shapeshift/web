@@ -46,9 +46,9 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
-  BASE_BPS_POINTS,
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,

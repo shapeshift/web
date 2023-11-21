@@ -21,12 +21,12 @@ import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/commo
 import type { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { THOR_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
+import { THOR_PRECISION } from './constants'
 import type { GetThorchainSaversDepositQuoteQueryKey } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import { queryFn as getThorchainSaversDepositQuoteQueryFn } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {

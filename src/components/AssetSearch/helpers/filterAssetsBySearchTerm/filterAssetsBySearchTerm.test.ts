@@ -13,8 +13,8 @@ const assets: Asset[] = [
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
-    explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
   },
   {
     chainId: 'eip155:1',

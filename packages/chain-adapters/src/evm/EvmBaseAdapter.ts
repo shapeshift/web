@@ -232,7 +232,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.OptimismMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
-        explorer: 'https://optimism.blockscout.com',
+        explorer: 'https://optimistic.etherscan.io',
       },
       [KnownChainIds.ArbitrumMainnet]: {
         name: 'Ethereum',

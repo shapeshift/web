@@ -138,7 +138,7 @@ export const selectPortfolioLoadingStatus = createSelector(
   selectPortfolioLoadingStatusGranular,
   (portfolioLoadingStatusGranular): PortfolioLoadingStatus => {
     const vals = values(portfolioLoadingStatusGranular)
-    if (vals.every(val => val === 'loading')) return 'loading'
+    if (vals.some(val => val === 'loading')) return 'loading'
     if (vals.some(val => val === 'error')) return 'error'
     return 'success'
   },

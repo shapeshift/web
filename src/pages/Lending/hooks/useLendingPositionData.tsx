@@ -19,7 +19,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const lendingPositionData = useQuery({
-    // 2 minutes before the data is considered stale, meaning firing this query will trigger queryFn
+    // The time before the data is considered stale, meaning firing this query after it elapses will trigger queryFn
     staleTime: 60_000,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {

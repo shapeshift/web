@@ -129,7 +129,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       } else if (shouldRefetchSaversOpportunities) {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        waitForThorchainUpdate(txid).promise.then(() => {
+        waitForThorchainUpdate({ txHash: txid }).promise.then(() => {
           dispatch(
             getOpportunitiesUserData.initiate(
               [

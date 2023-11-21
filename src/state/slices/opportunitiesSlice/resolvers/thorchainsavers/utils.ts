@@ -153,7 +153,7 @@ export const getAllThorchainSaversPositions = async (
   return opportunitiesData
 }
 
-export const getThorchainTransactionStatus = async (txHash: string) => {
+export const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: boolean) => {
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
@@ -167,10 +167,7 @@ export const getThorchainTransactionStatus = async (txHash: string) => {
     // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
     thorTxData.stages.inbound_finalised?.completed === false ||
     thorTxData.stages.swap_status?.pending === true ||
-    // Note, this does not apply to all Txs, e.g savers deposit won't have this property
-    // the *presence* of outbound_signed?.completed as false *will* indicate a pending outbound Tx, but the opposite is not neccessarily true
-    // i.e a succesful end-to-end "swap" might be succesful despite the *absence* of outbound_signed property
-    thorTxData.stages.outbound_signed?.completed === false
+    (!skipOutbound && thorTxData.stages.outbound_signed?.completed === false)
   )
     return TxStatus.Pending
   if (thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
@@ -347,12 +344,20 @@ export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
-export const waitForThorchainUpdate = (txHash: string, queryClient?: QueryClient) =>
+export const waitForThorchainUpdate = ({
+  txHash,
+  queryClient,
+  skipOutbound,
+}: {
+  txHash: string
+  queryClient?: QueryClient
+  skipOutbound?: boolean
+}) =>
   poll({
     fn: () => {
       // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
       queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      return getThorchainTransactionStatus(txHash)
+      return getThorchainTransactionStatus(txHash, skipOutbound)
     },
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,

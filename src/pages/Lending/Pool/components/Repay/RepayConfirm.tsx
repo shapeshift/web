@@ -80,7 +80,7 @@ export const RepayConfirm = ({
     setIsLoanClosePending(true)
     ;(async () => {
       // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash, queryClient).promise
+      await waitForThorchainUpdate({ txHash, queryClient }).promise
       setIsLoanClosePending(false)
       await refetchLendingPositionData()
     })()

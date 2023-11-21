@@ -45,15 +45,14 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
-  fromThorBaseUnit,
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-  toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'

@@ -7,6 +7,7 @@ import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { toBaseUnit } from 'lib/math'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataById,
@@ -14,10 +15,7 @@ import {
 } from 'state/slices/marketDataSlice/selectors'
 import type { LendingWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
 import { getMaybeThorchainLendingCloseQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import {
-  BASE_BPS_POINTS,
-  fromThorBaseUnit,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { BASE_BPS_POINTS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

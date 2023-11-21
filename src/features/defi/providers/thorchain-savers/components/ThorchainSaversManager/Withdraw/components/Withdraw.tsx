@@ -35,7 +35,7 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep, fromThorBaseUnit } from 'lib/utils/thorchain'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
@@ -46,7 +46,6 @@ import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   BASE_BPS_POINTS,
-  fromThorBaseUnit,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'

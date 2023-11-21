@@ -46,15 +46,13 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
-  fromThorBaseUnit,
   getMaybeThorchainSaversDepositQuote,
-  getThorchainFromAddress,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
-  toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {

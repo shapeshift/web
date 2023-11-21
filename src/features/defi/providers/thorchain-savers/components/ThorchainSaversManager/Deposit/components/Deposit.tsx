@@ -47,7 +47,7 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep, fromThorBaseUnit } from 'lib/utils/thorchain'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
@@ -61,7 +61,6 @@ import {
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import {
   BASE_BPS_POINTS,
-  fromThorBaseUnit,
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,

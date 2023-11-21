@@ -23,7 +23,7 @@ import { useRepaymentLockData } from './hooks/useRepaymentLockData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: 'repeat(4, 1fr)',
+  md: 'repeat(5, 1fr)',
 }
 
 type LendingRowGridProps = {

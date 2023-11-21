@@ -405,7 +405,8 @@ export const BorrowInput = ({
               isSweepNeededLoading
             }
             isDisabled={Boolean(
-              isLendingQuoteError ||
+              bnOrZero(depositAmountCryptoPrecision).isZero() ||
+                isLendingQuoteError ||
                 isLendingQuoteLoading ||
                 quoteErrorTranslation ||
                 isEstimatedFeesDataError ||

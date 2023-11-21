@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, useCallback, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
@@ -21,6 +21,8 @@ const BorrowConfirm = lazy(() =>
 )
 
 const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
+
+const suspenseFallback = <div>Loading...</div>
 
 type BorrowProps = {
   collateralAccountId: AccountId
@@ -161,22 +163,24 @@ const BorrowRoutes = memo(
     return (
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location}>
-          <Route
-            key={BorrowRoutePaths.Input}
-            path={BorrowRoutePaths.Input}
-            render={renderBorrowInput}
-          />
-          <Route
-            key={BorrowRoutePaths.Sweep}
-            path={BorrowRoutePaths.Sweep}
-            render={renderBorrowSweep}
-          />
+          <Suspense fallback={suspenseFallback}>
+            <Route
+              key={BorrowRoutePaths.Input}
+              path={BorrowRoutePaths.Input}
+              render={renderBorrowInput}
+            />
+            <Route
+              key={BorrowRoutePaths.Sweep}
+              path={BorrowRoutePaths.Sweep}
+              render={renderBorrowSweep}
+            />
 
-          <Route
-            key={BorrowRoutePaths.Confirm}
-            path={BorrowRoutePaths.Confirm}
-            render={renderBorrowConfirm}
-          />
+            <Route
+              key={BorrowRoutePaths.Confirm}
+              path={BorrowRoutePaths.Confirm}
+              render={renderBorrowConfirm}
+            />
+          </Suspense>
         </Switch>
       </AnimatePresence>
     )

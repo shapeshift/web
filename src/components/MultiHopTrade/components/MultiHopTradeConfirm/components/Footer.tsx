@@ -105,37 +105,39 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return (
-    <CardFooter flexDir='column' gap={2} px={4}>
-      {tradeExecutionState === MultiHopExecutionState.Previewing && (
-        <>
-          {tradeWarning}
-          {swapperName === SwapperName.LIFI && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
-            </Alert>
-          )}
-          {isFeeRatioOverThreshold && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button
-            colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
-            size='lg'
-            width='full'
-            onClick={handleConfirm}
-          >
-            <Text
-              translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
-            />
-          </Button>
-        </>
+  return tradeExecutionState === MultiHopExecutionState.Previewing ? (
+    <CardFooter
+      flexDir='column'
+      gap={2}
+      px={4}
+      borderTopWidth={1}
+      borderColor='border.base'
+      bg='background.surface.raised.base'
+      borderBottomRadius='md'
+    >
+      {tradeWarning}
+      {swapperName === SwapperName.LIFI && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+        </Alert>
       )}
+      {isFeeRatioOverThreshold && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
+          </AlertDescription>
+        </Alert>
+      )}
+      <Button
+        colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
+        size='lg'
+        width='full'
+        onClick={handleConfirm}
+      >
+        <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
+      </Button>
     </CardFooter>
-  )
+  ) : null
 }

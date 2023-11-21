@@ -22,7 +22,7 @@ export const AccountTxHistory: React.FC = () => {
 
   return !feeAsset ? null : (
     <Main titleComponent={assetHeader}>
-      <AssetTransactionHistory assetId={feeAssetId} accountId={accountId} useCompactMode={false} />
+      <AssetTransactionHistory accountId={accountId} useCompactMode={false} />
     </Main>
   )
 }

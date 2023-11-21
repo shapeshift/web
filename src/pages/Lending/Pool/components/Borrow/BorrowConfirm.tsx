@@ -33,7 +33,6 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import {
   selectAssetById,
   selectMarketDataById,

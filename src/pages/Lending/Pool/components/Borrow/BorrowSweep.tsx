@@ -8,7 +8,7 @@ import { Sweep } from 'components/Sweep'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

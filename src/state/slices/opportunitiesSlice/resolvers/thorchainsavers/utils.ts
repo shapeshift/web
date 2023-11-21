@@ -8,24 +8,19 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
-  fromAccountId,
   fromAssetId,
   ltcAssetId,
 } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import memoize from 'lodash/memoize'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
   MidgardPoolPeriod,
@@ -79,39 +74,6 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
 
 const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
   assetId => fromAssetId(assetId).chainId,
-)
-
-const getAccountAddressesWithBalances = async (
-  accountId: AccountId,
-): Promise<{ address: string; balance: string }[]> => {
-  if (isUtxoAccountId(accountId)) {
-    const { chainId, account: pubkey } = fromAccountId(accountId)
-    const chainAdapters = getChainAdapterManager()
-    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-
-    const {
-      chainSpecific: { addresses },
-    } = await adapter.getAccount(pubkey)
-
-    if (!addresses) return []
-
-    return addresses.map(({ pubkey, balance }) => {
-      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
-
-      return { address, balance }
-    })
-  }
-
-  // We don't need balances for chain others than UTXOs
-  return [{ address: fromAccountId(accountId).account, balance: '' }]
-}
-
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(
-  async (accountId: AccountId): Promise<string[]> =>
-    (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
 
 export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {

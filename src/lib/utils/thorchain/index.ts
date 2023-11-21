@@ -1,10 +1,12 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
+import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { Asset } from 'lib/asset-service'
@@ -18,11 +20,10 @@ import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEs
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import type { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -33,6 +34,7 @@ import {
   type GetThorchainSaversWithdrawQuoteQueryKey,
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import type { getThorchainLendingPosition } from './lending'
 
 const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: boolean) => {
   const thorTxHash = txHash.replace(/^0x/, '')
@@ -346,3 +348,36 @@ export const getThorchainFromAddress = async ({
     return firstReceiveAddress
   }
 }
+
+const getAccountAddressesWithBalances = async (
+  accountId: AccountId,
+): Promise<{ address: string; balance: string }[]> => {
+  if (isUtxoAccountId(accountId)) {
+    const { chainId, account: pubkey } = fromAccountId(accountId)
+    const chainAdapters = getChainAdapterManager()
+    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+
+    const {
+      chainSpecific: { addresses },
+    } = await adapter.getAccount(pubkey)
+
+    if (!addresses) return []
+
+    return addresses.map(({ pubkey, balance }) => {
+      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
+
+      return { address, balance }
+    })
+  }
+
+  // We don't need balances for chain others than UTXOs
+  return [{ address: fromAccountId(accountId).account, balance: '' }]
+}
+
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+export const getAccountAddresses = memoize(
+  async (accountId: AccountId): Promise<string[]> =>
+    (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
+)

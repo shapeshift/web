@@ -190,7 +190,7 @@ export const Hop = ({
         </Stepper>
       </Collapse>
       <Divider width='auto' ml={6} borderColor='border.base' opacity={1} />
-      <CardFooter fontSize='sm'>
+      <CardFooter fontSize='sm' pl={8}>
         <HStack width='full' justifyContent='space-between'>
           {/* Hovering over this should render a popover with details */}
           <Flex alignItems='center' gap={2}>

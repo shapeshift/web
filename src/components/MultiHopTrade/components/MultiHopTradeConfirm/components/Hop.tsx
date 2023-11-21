@@ -1,4 +1,3 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
   Box,
   Card,
@@ -8,7 +7,6 @@ import {
   Divider,
   Flex,
   HStack,
-  IconButton,
   Stepper,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -17,7 +15,6 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo, useState } from 'react'
 import { FaAdjust, FaGasPump, FaProcedures } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
@@ -40,6 +37,7 @@ import { DonationStep } from './DonationStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { JuicyGreenCheck } from './JuicyGreenCheck'
 import { TimeRemaining } from './TimeRemaining'
+import { TwirlyToggle } from './TwirlyToggle'
 
 const cardBorderRadius = { base: 'xl' }
 
@@ -54,13 +52,10 @@ export const Hop = ({
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isOpen: boolean
-  onToggleIsOpen: () => void
+  onToggleIsOpen?: () => void
 }) => {
-  const translate = useTranslate()
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
-  const chevronUpIcon = useMemo(() => <ChevronUpIcon boxSize='16px' />, [])
-  const chevronDownIcon = useMemo(() => <ChevronDownIcon boxSize='16px' />, [])
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
   )
@@ -91,32 +86,13 @@ export const Hop = ({
           )
         )
       case TxStatus.Confirmed:
-        return (
-          <Box width='auto'>
-            <IconButton
-              aria-label={translate('trade.expand')}
-              variant='link'
-              p={4}
-              borderTopRadius='none'
-              colorScheme='blue'
-              onClick={onToggleIsOpen}
-              width='full'
-              icon={isOpen ? chevronUpIcon : chevronDownIcon}
-            />
-          </Box>
-        )
+        return onToggleIsOpen ? (
+          <TwirlyToggle isOpen={isOpen} onToggle={onToggleIsOpen} p={4} />
+        ) : null
       default:
         return null
     }
-  }, [
-    chevronDownIcon,
-    chevronUpIcon,
-    tradeQuoteStep.estimatedExecutionTimeMs,
-    isOpen,
-    onToggleIsOpen,
-    translate,
-    txStatus,
-  ])
+  }, [tradeQuoteStep.estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
 
   const initialApprovalRequirements = useAppSelector(selectInitialApprovalRequirements)
   const isApprovalInitiallyNeeded = initialApprovalRequirements?.[hopIndex]

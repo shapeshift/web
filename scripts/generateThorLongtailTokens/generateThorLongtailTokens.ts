@@ -71,8 +71,9 @@ export const generateThorLongtailTokens = async () => {
   const avaxData = avaxResponse.data
   const bscData = bscResponse.data
 
-  const tokens = [...ethData.tokens, ...avaxData.tokens, ...bscData.tokens]
-  const assetIds = tokens.map(token =>
+  const erc20Tokens = [...ethData.tokens, ...avaxData.tokens]
+  const bep20Tokens = bscData.tokens
+  const erc20AssetIds = erc20Tokens.map(token =>
     toAssetId({
       chainNamespace: CHAIN_NAMESPACE.Evm,
       chainReference: String(token.chainId) as ChainReference,
@@ -80,6 +81,16 @@ export const generateThorLongtailTokens = async () => {
       assetReference: token.address,
     }),
   )
+  const bep20AssetIds = bep20Tokens.map(token =>
+    toAssetId({
+      chainNamespace: CHAIN_NAMESPACE.Evm,
+      chainReference: String(token.chainId) as ChainReference,
+      assetNamespace: ASSET_NAMESPACE.bep20,
+      assetReference: token.address,
+    }),
+  )
+
+  const assetIds = [...erc20AssetIds, ...bep20AssetIds]
 
   await fs.promises.writeFile(
     path.join(__dirname, outputPath),

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Asset } from 'lib/asset-service'
-import type { BigNumber } from 'lib/bignumber/bignumber'
+import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 export type GetThorchainSaversDepositQuoteQueryKey = [
@@ -43,7 +43,7 @@ export const useGetThorchainSaversDepositQuoteQuery = ({
   const depositQuoteQuery = useQuery({
     queryKey: depositQuoteQueryKey,
     queryFn,
-    enabled: true,
+    enabled: Boolean(bnOrZero(amountCryptoBaseUnit).gt(0)),
     staleTime: 5000,
   })
 

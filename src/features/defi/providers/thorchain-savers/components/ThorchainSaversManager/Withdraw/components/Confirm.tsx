@@ -470,81 +470,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [contextDispatch, getCustomTxFees, getEstimateFeesArgs, isTokenWithdraw])
 
-  const getPreWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
-    if (
-      !(
-        accountId &&
-        assetId &&
-        state?.withdraw?.estimatedGasCryptoBaseUnit &&
-        opportunityData?.stakedAmountCryptoBaseUnit &&
-        contextDispatch
-      )
-    )
-      return
-
-    try {
-      const estimateFeesArgs = await getEstimateFeesArgs()
-      if (!estimateFeesArgs) return
-      const estimatedFees = await estimateFees(estimateFeesArgs)
-
-      contextDispatch({
-        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-        payload: {
-          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
-        },
-      })
-
-      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
-      const bps = getWithdrawBps({
-        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
-        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-      })
-
-      const maybeQuote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
-
-      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
-      const quote = maybeQuote.unwrap()
-
-      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
-        throw new Error('Account address required to withdraw from THORChain savers')
-      }
-
-      const sendInput: SendInput = {
-        cryptoAmount: '',
-        assetId,
-        from: '', // Let coinselect do its magic here
-        to: maybeFromUTXOAccountAddress,
-        sendMax: true,
-        accountId,
-        amountFieldError: '',
-        estimatedFees,
-        feeType: FeeDataKey.Fast,
-        fiatAmount: '',
-        fiatSymbol: selectedCurrency,
-        vanityAddress: '',
-        input: quote.inbound_address,
-      }
-
-      return sendInput
-    } catch (e) {
-      console.error(e)
-    }
-  }, [
-    accountId,
-    assetId,
-    state?.withdraw?.estimatedGasCryptoBaseUnit,
-    state?.withdraw.cryptoAmount,
-    opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsCryptoBaseUnit?.amounts,
-    contextDispatch,
-    getEstimateFeesArgs,
-    asset,
-    chainId,
-    maybeFromUTXOAccountAddress,
-    selectedCurrency,
-  ])
-
   const getWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId && opportunityData?.stakedAmountCryptoBaseUnit && contextDispatch))
       return
@@ -637,51 +562,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return
 
-    // THORChain Txs need to always be sent from the same address, since the address (NOT the pubkey) is used to identify an active position
-    // The way THORChain does this is by not being xpub-compliant, and only exposing a single address for UTXOs in their UI
-    // All deposit/withdraws done from their UI are always done with one/many UTXOs from the same address, and change sent back to the same address
-    // We also do this EXCLUSIVELY for THORChain Txs. The rest of the app uses xpubs, so the initially deposited from address isn't guaranteed to be populated
-    // if users send other UTXO Txs in the meantime after depositing
-    // Additionally, we select their highest balance UTXO address as a first deposit, which isn't guaranteed to contain enough value
-    //
-    // For both re/deposit flows, we will possibly need a pre-Tx to populate their highest UTXO/previously deposited from address with enough value
-
     const withdrawInput = await getWithdrawInput()
     if (!withdrawInput) throw new Error('Error building send input')
 
-    // Try/catching and evaluating to something in the catch isn't a good pattern usually
-    // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
-    // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
-    // and finally evaluate to either the original Tx or a falsy empty string
-    // 1. Try to deposit from the originally deposited from / highest UTXO balance address
-    // If this is enough, no other Tx is needed
     const txId = await handleSend({
       sendInput: withdrawInput,
       wallet,
-    }).catch(async e => {
-      if (!isUtxoChainId(chainId)) throw e
-
-      // TODO(gomes): remove me and use the same logic as deposits
-      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
-      const preWithdrawInput = await getPreWithdrawInput()
-      if (!preWithdrawInput) throw new Error('Error building send input')
-
-      return handleSend({
-        sendInput: preWithdrawInput,
-        wallet: wallet!,
-      }).then(async () => {
-        // Safety factor for the Tx to be seen in the mempool
-        await new Promise(resolve => setTimeout(resolve, 5000))
-        // 3. Sign and broadcast the depooosit Tx again
-        return handleSend({
-          sendInput: withdrawInput,
-          wallet: wallet!,
-        })
-      })
     })
-
     return txId
-  }, [chainId, getPreWithdrawInput, getWithdrawInput, wallet])
+  }, [getWithdrawInput, wallet])
 
   const handleConfirm = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return

@@ -34,9 +34,9 @@ describe('TransactionHistoryRow/utils', () => {
       color: '#222E51',
       icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png',
       symbol: 'FOX',
-      explorer: 'https://eth.blockscout.com',
-      explorerAddressLink: 'https://eth.blockscout.com/address/',
-      explorerTxLink: 'https://eth.blockscout.com/tx/',
+      explorer: 'https://etherscan.io',
+      explorerAddressLink: 'https://etherscan.io/address/',
+      explorerTxLink: 'https://etherscan.io/tx/',
     }
 
     it('can parse erc20 parser revokes', () => {

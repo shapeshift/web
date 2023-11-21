@@ -12,9 +12,9 @@ export const ethereum: AssetWithNetworkName = {
   precision: 18,
   color: '#5C6BC0',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
-  explorer: 'https://eth.blockscout.com',
-  explorerAddressLink: 'https://eth.blockscout.com/address/',
-  explorerTxLink: 'https://eth.blockscout.com/tx/',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
 }
 
 export const bitcoin: AssetWithNetworkName = {
@@ -154,9 +154,9 @@ export const polygon: AssetWithNetworkName = {
   precision: 18,
   color: '#8f00ff',
   icon: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912',
-  explorer: 'https://polygon.blockscout.com/',
-  explorerAddressLink: 'https://polygon.blockscout.com/address/',
-  explorerTxLink: 'https://polygon.blockscout.com/tx/',
+  explorer: 'https://polygonscan.com/',
+  explorerAddressLink: 'https://polygonscan.com/address/',
+  explorerTxLink: 'https://polygonscan.com/tx/',
 }
 
 export const gnosis: AssetWithNetworkName = {
@@ -204,7 +204,7 @@ export const arbitrumNova: AssetWithNetworkName = {
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/93/large/AN_logomark.png?1695026131',
-  explorer: 'https://nova-explorer.arbitrum.io',
-  explorerAddressLink: 'https://nova-explorer.arbitrum.io/address/',
-  explorerTxLink: 'https://nova-explorer.arbitrum.io/tx/',
+  explorer: 'https://nova.arbiscan.io',
+  explorerAddressLink: 'https://nova.arbiscan.io/address/',
+  explorerTxLink: 'https://nova.arbiscan.io/tx/',
 }

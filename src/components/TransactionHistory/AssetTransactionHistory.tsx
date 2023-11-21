@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, type ChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -29,21 +29,22 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
 }) => {
   const translate = useTranslate()
   const location = useLocation()
-  const generatedPath = `${location.pathname}/transactions`
-  const {
-    state: { wallet },
-  } = useWallet()
-
+  const wallet = useWallet().state.wallet
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const chainId: ChainId = asset?.chainId ?? ''
 
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const chainId: ChainId = (() => {
+    if (asset) return asset.chainId
+    if (accountId) return fromAccountId(accountId).chainId
+    return ''
+  })()
+
   const isSnapInstalled = useIsSnapInstalled()
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, isSnapInstalled })
+
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
-  if (!assetId) return null
-  if (!walletSupportsChain) return null
+  if (!chainId || !walletSupportsChain) return null
 
   return (
     <Card variant='dashboard'>
@@ -61,7 +62,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
             size='sm'
             colorScheme='blue'
             as={NavLink}
-            to={generatedPath}
+            to={`${location.pathname}/transactions`}
             rightIcon={arrowForwardIcon}
           >
             {translate('common.seeAll')}

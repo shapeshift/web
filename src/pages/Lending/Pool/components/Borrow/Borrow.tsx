@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { LendingQuoteData } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -18,6 +19,10 @@ const BorrowSweep = lazy(() =>
 )
 const BorrowConfirm = lazy(() =>
   import('./BorrowConfirm').then(({ BorrowConfirm }) => ({ default: BorrowConfirm })),
+)
+
+const BorrowStatus = lazy(() =>
+  import('./BorrowStatus').then(({ BorrowStatus }) => ({ default: BorrowStatus })),
 )
 
 const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
@@ -38,6 +43,8 @@ export const Borrow = ({
 }: BorrowProps) => {
   const [cryptoDepositAmount, setCryptoDepositAmount] = useState<string | null>(null)
   const [fiatDepositAmount, setFiatDepositAmount] = useState<string | null>(null)
+  const [activeQuoteData, setActiveQuoteData] = useState<LendingQuoteData | null>(null)
+  const [activeTxHash, setActiveTxHash] = useState<string | null>(null)
 
   const collateralAssetId = useRouteAssetId()
 
@@ -78,6 +85,10 @@ export const Borrow = ({
         borrowAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
         onBorrowAccountIdChange={handleBorrowAccountIdChange}
+        activeQuoteData={activeQuoteData}
+        setActiveQuoteData={setActiveQuoteData}
+        activeTxHash={activeTxHash}
+        setActiveTxHash={setActiveTxHash}
       />
     </MemoryRouter>
   )
@@ -92,6 +103,10 @@ type BorrowRoutesProps = {
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
+  activeQuoteData: LendingQuoteData | null
+  setActiveQuoteData: (quoteData: LendingQuoteData | null) => void
+  activeTxHash: string | null
+  setActiveTxHash: (txHash: string | null) => void
 }
 
 const BorrowRoutes = memo(
@@ -104,6 +119,10 @@ const BorrowRoutes = memo(
     borrowAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
+    activeQuoteData,
+    setActiveQuoteData,
+    activeTxHash,
+    setActiveTxHash,
   }: BorrowRoutesProps) => {
     const location = useLocation()
     const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
@@ -151,13 +170,37 @@ const BorrowRoutes = memo(
       () => (
         <BorrowConfirm
           collateralAssetId={collateralAssetId}
-          depositAmount={cryptoDepositAmount}
+          depositAmountCryptoPrecision={cryptoDepositAmount}
           borrowAccountId={borrowAccountId}
           collateralAccountId={collateralAccountId}
           borrowAsset={borrowAsset}
+          setActiveQuoteData={setActiveQuoteData}
+          setActiveTxHash={setActiveTxHash}
         />
       ),
-      [collateralAssetId, cryptoDepositAmount, borrowAccountId, collateralAccountId, borrowAsset],
+      [
+        collateralAssetId,
+        cryptoDepositAmount,
+        borrowAccountId,
+        collateralAccountId,
+        borrowAsset,
+        setActiveQuoteData,
+        setActiveTxHash,
+      ],
+    )
+
+    const renderBorrowStatus = useCallback(
+      () => (
+        <BorrowStatus
+          borrowAsset={borrowAsset}
+          collateralAssetId={collateralAssetId}
+          collateralAccountId={collateralAccountId}
+          depositAmountCryptoPrecision={cryptoDepositAmount ?? '0'}
+          activeQuoteData={activeQuoteData}
+          txHash={'foo'}
+        />
+      ),
+      [collateralAssetId, collateralAccountId, cryptoDepositAmount, activeQuoteData, activeTxHash],
     )
 
     return (
@@ -179,6 +222,11 @@ const BorrowRoutes = memo(
               key={BorrowRoutePaths.Confirm}
               path={BorrowRoutePaths.Confirm}
               render={renderBorrowConfirm}
+            />
+            <Route
+              key={BorrowRoutePaths.Status}
+              path={BorrowRoutePaths.Status}
+              render={renderBorrowStatus}
             />
           </Suspense>
         </Switch>

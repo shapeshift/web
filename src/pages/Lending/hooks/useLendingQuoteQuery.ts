@@ -27,10 +27,23 @@ type UseLendingQuoteQueryProps = {
   collateralAccountId: AccountId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
-  isLoanOpenPending?: boolean
 }
 
 type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
+
+export type LendingQuoteData = {
+  quoteCollateralAmountCryptoPrecision: string
+  quoteCollateralAmountFiatUserCurrency: string
+  quoteDebtAmountUsd: string
+  quoteBorrowedAmountCryptoPrecision: string
+  quoteBorrowedAmountUserCurrency: string
+  quoteCollateralizationRatioPercentDecimal: string
+  quoteSlippageBorrowedAssetCryptoPrecision: string
+  quoteTotalFeesFiatUserCurrency: string
+  quoteTotalFeesCryptoPrecision: string
+  quoteInboundAddress: string
+  quoteMemo: string
+}
 
 const selectLendingQuoteQuery = memoize(
   ({
@@ -41,7 +54,7 @@ const selectLendingQuoteQuery = memoize(
     data: LendingDepositQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     borrowAssetMarketData: MarketData
-  }) => {
+  }): LendingQuoteData => {
     const quote = data
 
     const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
@@ -72,6 +85,7 @@ const selectLendingQuoteQuery = memoize(
     const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
       .times(borrowAssetMarketData?.price ?? 0)
       .toString()
+    const quoteTotalFeesCryptoPrecision = fromThorBaseUnit(quote.fees.total).toFixed()
     // getting the amount before all fees, so we can determine the slippage denominated in receive asset
     const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
       bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
@@ -92,6 +106,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralizationRatioPercentDecimal,
       quoteSlippageBorrowedAssetCryptoPrecision,
       quoteTotalFeesFiatUserCurrency,
+      quoteTotalFeesCryptoPrecision,
       quoteInboundAddress,
       quoteMemo,
     }
@@ -104,7 +119,6 @@ export const useLendingQuoteOpenQuery = ({
   borrowAccountId: _borrowAccountId,
   borrowAssetId: _borrowAssetId,
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
-  isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
@@ -217,8 +231,7 @@ export const useLendingQuoteOpenQuery = ({
     // vs. the failed query being considered fresh
     retry: false,
     enabled: Boolean(
-      !isLoanOpenPending &&
-        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
+      bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         collateralAccountId &&
         collateralAccountId &&
         borrowAssetId &&

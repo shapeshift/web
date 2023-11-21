@@ -66,7 +66,7 @@ export const MultiHopTradeConfirm = memo(() => {
 
   return (
     <SlideTransition>
-      <Card flex={1} borderRadius={cardBorderRadius} width='full'>
+      <Card flex={1} borderRadius={cardBorderRadius} width='full' variant='dashboard'>
         <CardHeader px={6} pt={4}>
           <WithBackButton handleBack={handleBack}>
             <Heading textAlign='center' fontSize='md'>

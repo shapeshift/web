@@ -6,6 +6,10 @@ const baseStyle = {
       bg: 'background.surface.raised.base',
       borderColor: 'blue.500',
     },
+    '&[data-status=incomplete]': {
+      bg: 'background.surface.raised.base',
+      borderColor: 'transparent',
+    },
     '&[data-status=complete]': {
       bg: 'background.success',
     },

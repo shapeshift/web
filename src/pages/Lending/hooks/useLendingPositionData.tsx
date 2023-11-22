@@ -3,8 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectMarketDataById,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/marketDataSlice/selectors'
+import { store, useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {
   accountId: AccountId
@@ -36,9 +39,15 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         .toString()
       const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
+      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
+        .times(userCurrencyToUsdRate)
+        .toString()
+
       return {
         collateralBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
+        debtBalanceFiatUserCurrency,
         debtBalanceFiatUSD,
         address: data?.owner,
       }

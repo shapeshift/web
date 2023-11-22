@@ -91,7 +91,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
           <Stack spacing={0}>
-            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUSD ?? '0'} />
+            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>

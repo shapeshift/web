@@ -38,7 +38,8 @@ export const LendingHeader = () => {
     ]
   }, [])
 
-  const { isLoading, collateralValueUserCurrency, debtValueUsd } = useAllLendingPositionsData()
+  const { isLoading, collateralValueUserCurrency, debtValueUserCurrency } =
+    useAllLendingPositionsData()
   return (
     <Stack>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
@@ -62,7 +63,7 @@ export const LendingHeader = () => {
           <Card flex={1}>
             <CardBody>
               <Skeleton isLoaded={!isLoading}>
-                <Amount.Fiat value={debtValueUsd} fontSize='4xl' fontWeight='bold' />
+                <Amount.Fiat value={debtValueUserCurrency} fontSize='4xl' fontWeight='bold' />
               </Skeleton>
               <Text color='purple.300' fontWeight='medium' translation='lending.debtValue' />
             </CardBody>

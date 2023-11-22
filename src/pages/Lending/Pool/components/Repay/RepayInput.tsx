@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -388,14 +389,16 @@ export const RepayInput = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        {bnOrZero(lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency).gt(0) && (
-          <Row fontSize='sm' fontWeight='medium'>
+        <Row fontSize='sm' fontWeight='medium'>
+          <HelperTooltip label={translate('lending.feesNotice')}>
             <Row.Label>{translate('common.fees')}</Row.Label>
-            <Row.Value>
-              <Amount.Fiat value={lendingQuoteCloseData!.quoteTotalFeesFiatUserCurrency} />
-            </Row.Value>
-          </Row>
-        )}
+          </HelperTooltip>
+          <Row.Value>
+            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
         <Button
           size='lg'
           colorScheme={

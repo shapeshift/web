@@ -311,7 +311,7 @@ export const RepayConfirm = ({
             </Skeleton>
             <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row fontSize='sm' fontWeight='medium'>
-                <HelperTooltip label='tbd'>
+                <HelperTooltip label={translate('lending.feesNotice')}>
                   <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
                 </HelperTooltip>
                 <Row.Value>

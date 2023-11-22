@@ -193,10 +193,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     if (!wallet) return
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
-    // this looks useless, but prevents attempting to subscribe multiple times
-    // something further up the tree from this provider is causing renders when the portfolio status changes,
-    // even though it shouldn't
-    if (portfolioLoadingStatus === 'loading') return
     ;(() => {
       accountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)

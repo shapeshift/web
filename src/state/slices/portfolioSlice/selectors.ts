@@ -144,6 +144,13 @@ export const selectPortfolioLoadingStatus = createSelector(
   },
 )
 
+export const selectPortfolioDegradedState = createSelector(
+  selectPortfolioLoadingStatusGranular,
+  (portfolioLoadingStatusGranular): boolean => {
+    return values(portfolioLoadingStatusGranular).some(val => val === 'error')
+  },
+)
+
 export const selectPortfolioTotalUserCurrencyBalance = createSelector(
   selectPortfolioUserCurrencyBalances,
   (portfolioUserCurrencyBalances): string =>

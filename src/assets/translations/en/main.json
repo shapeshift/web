@@ -2202,6 +2202,7 @@
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",
+    "unlocked": "Unlocked",
     "unlockedCollateral": "Unlocked Collateral",
     "depositAsset": "Deposit %{asset}",
     "switchAssets": "Switch Assets",

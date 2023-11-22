@@ -29,7 +29,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -75,13 +75,19 @@ type MatchParams = {
 
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
-const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => (
-  <Skeleton isLoaded={isLoaded}>
-    <RawText fontSize='2xl' fontWeight='medium'>
-      {value} days
-    </RawText>
-  </Skeleton>
-)
+const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
+  const isRepaymentLocked = bnOrZero(value).gt(0)
+
+  const translate = useTranslate()
+
+  return (
+    <Skeleton isLoaded={isLoaded}>
+      <RawText color={isRepaymentLocked ? 'white' : 'green.500'} fontSize='2xl' fontWeight='medium'>
+        {isRepaymentLocked ? `${value} days` : translate('lending.unlocked')}
+      </RawText>
+    </Skeleton>
+  )
+}
 
 export const Pool = () => {
   const { poolAccountId } = useParams<MatchParams>()

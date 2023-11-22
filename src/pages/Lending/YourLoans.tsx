@@ -33,6 +33,7 @@ type LendingRowGridProps = {
 }
 
 const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) => {
+  const translate = useTranslate()
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: asset.assetId,
@@ -59,6 +60,8 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     () => ['accounts.accountNumber', { accountNumber }],
     [accountNumber],
   )
+
+  const isRepaymentLocked = bnOrZero(repaymentLockData).gt(0)
 
   if (
     lendingPositionData &&
@@ -108,7 +111,9 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isRepaymentLockDataLoading}>
-          <RawText>{repaymentLockData} days</RawText>
+          <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
+            {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
+          </RawText>
         </Skeleton>
       </Button>
     </Stack>

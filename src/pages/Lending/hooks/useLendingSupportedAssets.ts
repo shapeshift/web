@@ -33,7 +33,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     [type],
   )
 
-  const lendingPositionData = useQuery({
+  const lendingSupportedAssetsQuery = useQuery({
     staleTime: Infinity,
     queryKey,
     queryFn: async () => {
@@ -50,5 +50,5 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     select: selectSupportedAssets,
   })
 
-  return lendingPositionData
+  return lendingSupportedAssetsQuery
 }

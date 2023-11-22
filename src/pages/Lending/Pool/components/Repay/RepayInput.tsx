@@ -221,7 +221,7 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
+    () => bnOrZero(balance).times(bn(10).pow(collateralAsset?.precision ?? '0')),
     [balance, collateralAsset?.precision],
   )
 

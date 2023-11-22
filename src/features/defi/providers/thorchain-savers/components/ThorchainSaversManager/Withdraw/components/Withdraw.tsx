@@ -35,7 +35,9 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
@@ -44,11 +46,7 @@ import {
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import {
-  BASE_BPS_POINTS,
-  fromThorBaseUnit,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {

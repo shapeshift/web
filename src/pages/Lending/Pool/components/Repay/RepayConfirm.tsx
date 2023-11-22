@@ -210,7 +210,7 @@ export const RepayConfirm = ({
     })()
 
     if (!maybeTxId) {
-      throw new Error('Error sending THORCHain savers Txs')
+      throw new Error('Error sending THORCHain lending Txs')
     }
 
     setTxHash(maybeTxId)

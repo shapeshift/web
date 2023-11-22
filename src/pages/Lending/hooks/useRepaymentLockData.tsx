@@ -4,7 +4,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 
 type UseLendingPositionDataProps = {
   accountId?: AccountId

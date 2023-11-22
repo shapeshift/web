@@ -18,10 +18,8 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  getThorchainFromAddress,
-  getThorchainSaversPosition,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,

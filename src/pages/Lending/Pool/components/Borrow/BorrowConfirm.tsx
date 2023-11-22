@@ -31,12 +31,11 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { getThorchainFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -200,7 +199,7 @@ export const BorrowConfirm = ({
     })()
 
     if (!maybeTxId) {
-      throw new Error('Error sending THORCHain savers Txs')
+      throw new Error('Error sending THORCHain lending Txs')
     }
 
     setTxHash(maybeTxId)

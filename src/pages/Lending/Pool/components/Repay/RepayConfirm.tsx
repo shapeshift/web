@@ -285,7 +285,9 @@ export const RepayConfirm = ({
             </Row>
             <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row>
-                <Row.Label>{translate('common.receive')}</Row.Label>
+                <HelperTooltip label={translate('lending.repayNoticeTitle')}>
+                  <Row.Label>{translate('common.receive')}</Row.Label>
+                </HelperTooltip>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto

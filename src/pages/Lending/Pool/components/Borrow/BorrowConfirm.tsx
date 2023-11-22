@@ -88,7 +88,9 @@ export const BorrowConfirm = ({
 
     setIsLoanOpenPending(true)
     ;(async () => {
-      await waitForThorchainUpdate({ txHash, queryClient, skipOutbound: true }).promise
+      await waitForThorchainUpdate({ txHash, skipOutbound: true }).promise
+      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
+      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
       setIsLoanOpenPending(false)
       await refetchLendingPositionData()
     })()

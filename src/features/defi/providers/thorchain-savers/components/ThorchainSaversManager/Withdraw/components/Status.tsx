@@ -16,6 +16,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -87,6 +88,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         // This way, we ensure "View Position" actually routes to the updated position
         await waitForThorchainUpdate({ txHash: confirmedTransaction.txid, skipOutbound: true })
           .promise
+        // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
+        queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
 
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({

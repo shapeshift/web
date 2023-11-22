@@ -3,7 +3,6 @@ import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshif
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -45,19 +44,13 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
 
 export const waitForThorchainUpdate = ({
   txHash,
-  queryClient,
   skipOutbound,
 }: {
   txHash: string
-  queryClient?: QueryClient
   skipOutbound?: boolean
 }) =>
   poll({
-    fn: () => {
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      return getThorchainTransactionStatus(txHash, skipOutbound)
-    },
+    fn: () => getThorchainTransactionStatus(txHash, skipOutbound),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
     maxAttempts: 20,

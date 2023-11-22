@@ -78,7 +78,9 @@ export const RepayConfirm = ({
 
     setIsLoanClosePending(true)
     ;(async () => {
-      await waitForThorchainUpdate({ txHash, queryClient, skipOutbound: true }).promise
+      await waitForThorchainUpdate({ txHash, skipOutbound: true }).promise
+      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
+      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
       setIsLoanClosePending(false)
       await refetchLendingPositionData()
     })()

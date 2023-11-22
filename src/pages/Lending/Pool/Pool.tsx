@@ -78,7 +78,7 @@ type MatchParams = {
 const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => (
   <Skeleton isLoaded={isLoaded}>
     <RawText fontSize='2xl' fontWeight='medium'>
-      {value ?? '0'} days
+      {value} days
     </RawText>
   </Skeleton>
 )

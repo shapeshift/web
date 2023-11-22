@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { useCallback } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
@@ -17,9 +18,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
       const availablePools = data.filter(
         pool =>
           pool.status === 'Available' &&
-          (type === 'borrow' ||
-            // This is weird, but THORChain API is currently returning a loan_cr of 20000 for pools which don't support lending
-            (pool.loan_cr !== '20000' && pool.loan_cr !== '0')),
+          (type === 'borrow' || bnOrZero(pool.loan_collateral).gt(0)),
       )
 
       return availablePools

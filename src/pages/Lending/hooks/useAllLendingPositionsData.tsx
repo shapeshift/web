@@ -5,7 +5,11 @@ import { bn } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { Borrower } from 'lib/utils/thorchain/lending/types'
-import { selectAccountIdsByAssetId, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectUsdRateByAssetId,
+  selectUserCurrencyRateByAssetId,
+} from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { useLendingSupportedAssets } from './useLendingSupportedAssets'
@@ -33,7 +37,11 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
 
   const positions = useQueries({
     queries: accounts.map(({ accountId, assetId: accountAssetId }) => {
-      const poolAssetMarketData = selectMarketDataById(store.getState(), accountAssetId)
+      const assetUsdRate = selectUsdRateByAssetId(store.getState(), accountAssetId) ?? '0'
+      const assetUserCurrencyRate = selectUserCurrencyRateByAssetId(
+        store.getState(),
+        accountAssetId,
+      )
       const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = [
         'thorchainLendingPosition',
         { accountId, assetId: accountAssetId },
@@ -54,13 +62,15 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
           ).toString()
 
           const collateralBalanceFiatUsd = fromThorBaseUnit(data?.collateral_current)
-          const collateralBalanceFiatUserCurrency = collateralBalanceFiatUsd
-            .times(poolAssetMarketData.price)
+            .times(assetUsdRate)
+            .toString()
+          const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
+            .times(assetUserCurrencyRate)
             .toString()
           const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
           return {
-            collateralBalanceFiatUsd: collateralBalanceFiatUsd.toString(),
+            collateralBalanceFiatUsd,
             collateralBalanceCryptoPrecision,
             collateralBalanceFiatUserCurrency,
             debtBalanceFiatUSD,
@@ -99,12 +109,28 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
     [positions],
   )
 
+  console.log({ collateralValueUsd, debtValueUsd })
+
+  const collateralValueUserCurrency = useMemo(
+    () =>
+      positions
+        .reduce((acc, position) => {
+          if (position.data?.collateralBalanceFiatUserCurrency) {
+            return acc.plus(position.data.collateralBalanceFiatUserCurrency)
+          }
+          return acc
+        }, bn(0))
+        .toString(),
+    [positions],
+  )
+
   const isLoading = useMemo(() => positions.some(position => position.isLoading), [positions])
   const isActive = useMemo(() => positions.some(position => position.data), [positions])
 
   return {
     debtValueUsd,
     collateralValueUsd,
+    collateralValueUserCurrency,
     positions,
     isLoading,
     isActive,

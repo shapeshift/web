@@ -200,40 +200,45 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {...rest}
     >
       <RawText fontWeight='bold'>{translate('lending.loanInformation')}</RawText>
-      <Row>
-        <HelperTooltip label='TBD'>
-          <Row.Label>{translate('lending.collateral')}</Row.Label>
-        </HelperTooltip>
-        <Row.Value>
-          <Skeleton
-            isLoaded={
-              !isLoading &&
-              !isLendingPositionDataLoading &&
-              !isLendingQuoteLoading &&
-              !isLendingQuoteCloseLoading
-            }
-          >
-            <FromToStack>
-              <Amount.Crypto
-                color='text.subtle'
-                value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
-                symbol={collateralAsset.symbol}
-              />
-              <Amount.Crypto
-                value={(isRepay
-                  ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
-                      lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
-                    )
-                  : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
-                      lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
-                    )
-                ).toString()}
-                symbol={collateralAsset.symbol}
-              />
-            </FromToStack>
-          </Skeleton>
-        </Row.Value>
-      </Row>
+      {(bnOrZero(lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision).gt(0) ||
+        bnOrZero(lendingQuoteData?.quoteCollateralAmountCryptoPrecision).gt(0)) && (
+        <Row>
+          <HelperTooltip label='TBD'>
+            <Row.Label>{translate('lending.collateral')}</Row.Label>
+          </HelperTooltip>
+          <Row.Value>
+            <Skeleton
+              isLoaded={Boolean(
+                !isLoading &&
+                  !isLendingPositionDataLoading &&
+                  !isLendingQuoteLoading &&
+                  !isLendingQuoteCloseLoading &&
+                  lendingPositionData &&
+                  lendingPositionData?.collateralBalanceCryptoPrecision,
+              )}
+            >
+              <FromToStack>
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
+                  symbol={collateralAsset.symbol}
+                />
+                <Amount.Crypto
+                  value={(isRepay
+                    ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
+                        lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
+                      )
+                    : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
+                        lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
+                      )
+                  ).toString()}
+                  symbol={collateralAsset.symbol}
+                />
+              </FromToStack>
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      )}
       <Row>
         <HelperTooltip label='TBD'>
           <Row.Label>{translate('lending.debt')}</Row.Label>

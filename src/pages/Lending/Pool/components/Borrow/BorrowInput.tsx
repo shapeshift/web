@@ -376,7 +376,7 @@ export const BorrowInput = ({
           <LoanSummary
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
-            debtOccuredAmountUsd={lendingQuoteData?.quoteDebtAmountUsd ?? '0'}
+            debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
             depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
             borrowAssetId={borrowAsset?.assetId ?? ''}
             borrowAccountId={borrowAccountId}

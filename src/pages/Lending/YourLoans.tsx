@@ -63,7 +63,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
   if (
     lendingPositionData &&
     bnOrZero(lendingPositionData.collateralBalanceCryptoPrecision)
-      .plus(lendingPositionData.debtBalanceFiatUSD)
+      .plus(lendingPositionData.debtBalanceFiatUserCurrency)
       .isZero()
   )
     return null

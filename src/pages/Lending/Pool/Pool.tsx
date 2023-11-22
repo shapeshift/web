@@ -231,19 +231,19 @@ export const Pool = () => {
     () => (
       <Amount.Fiat
         fontSize='2xl'
-        value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
+        value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
         fontWeight='medium'
       />
     ),
-    [lendingPositionData?.debtBalanceFiatUSD],
+    [lendingPositionData?.debtBalanceFiatUserCurrency],
   )
 
   const newDebt = useMemo(() => {
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
         newValue: {
-          value: bnOrZero(lendingPositionData.debtBalanceFiatUSD)
-            .plus(lendingQuoteOpenData.quoteDebtAmountUsd)
+          value: bnOrZero(lendingPositionData.debtBalanceFiatUserCurrency)
+            .plus(lendingQuoteOpenData.quoteDebtAmountUserCurrency)
             .toFixed(),
         },
       }
@@ -251,7 +251,7 @@ export const Pool = () => {
       return {
         newValue: {
           value: BigNumber.max(
-            bnOrZero(lendingPositionData.debtBalanceFiatUSD).minus(
+            bnOrZero(lendingPositionData.debtBalanceFiatUserCurrency).minus(
               lendingQuoteCloseData.quoteDebtRepaidAmountUsd,
             ),
             0,

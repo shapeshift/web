@@ -37,7 +37,6 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(poolAssetMarketData.price)
         .toString()
-      const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
 
       const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
       const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
@@ -48,7 +47,6 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         collateralBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
         debtBalanceFiatUserCurrency,
-        debtBalanceFiatUSD,
         address: data?.owner,
       }
     },

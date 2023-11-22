@@ -347,7 +347,7 @@ export const RepayInput = ({
         <LoanSummary
           collateralAssetId={collateralAssetId}
           repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
-          debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+          debtRepaidAmountUserCurrency={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
           collateralDecreaseAmountCryptoPrecision={

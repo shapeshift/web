@@ -19,8 +19,8 @@ import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQu
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectMarketDataById, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const FromToStack: React.FC<StackProps> = props => {
   const dividerIcon = useMemo(() => <ArrowForwardIcon color='text.subtle' borderLeft={0} />, [])
@@ -46,8 +46,8 @@ type LoanSummaryProps = {
         borrowAccountId: AccountId
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision?: never
-        debtRepaidAmountUsd?: never
-        debtOccuredAmountUsd: string
+        debtRepaidAmountUserCurrency?: never
+        debtOccuredAmountUserCurrency: string
         depositAmountCryptoPrecision: string
         repayAmountCryptoPrecision?: never
         repaymentAccountId?: never
@@ -59,8 +59,8 @@ type LoanSummaryProps = {
         borrowAccountId?: never
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision: string
-        debtRepaidAmountUsd: string
-        debtOccuredAmountUsd?: never
+        debtRepaidAmountUserCurrency: string
+        debtOccuredAmountUserCurrency?: never
         depositAmountCryptoPrecision?: never
         repayAmountCryptoPrecision: string
         repaymentAccountId: AccountId
@@ -75,8 +75,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   borrowAssetId,
   depositAmountCryptoPrecision,
   repayAmountCryptoPrecision,
-  debtRepaidAmountUsd,
-  debtOccuredAmountUsd,
+  debtRepaidAmountUserCurrency,
+  debtOccuredAmountUserCurrency,
   repaymentAsset,
   repaymentPercent,
   repaymentAccountId,
@@ -118,12 +118,15 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
         .times(collateralAssetMarketData.price)
         .toString()
-      const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
+      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
+        .times(userCurrencyToUsdRate)
+        .toString()
 
       return {
         collateralBalanceCryptoPrecision,
         collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUSD,
+        debtBalanceFiatUserCurrency,
       }
     },
     enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
@@ -247,18 +250,18 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
             <FromToStack>
               <Amount.Fiat
                 color='text.subtle'
-                value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
+                value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
               />
               <Amount.Fiat
                 value={(isRepay
                   ? BigNumber.max(
-                      bnOrZero(lendingPositionData?.debtBalanceFiatUSD).minus(
-                        debtRepaidAmountUsd ?? 0,
+                      bnOrZero(lendingPositionData?.debtBalanceFiatUserCurrency).minus(
+                        debtRepaidAmountUserCurrency ?? 0,
                       ),
                       0,
                     )
-                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(
-                      debtOccuredAmountUsd ?? 0,
+                  : bnOrZero(lendingPositionData?.debtBalanceFiatUserCurrency).plus(
+                      debtOccuredAmountUserCurrency ?? 0,
                     )
                 ).toString()}
               />

@@ -100,10 +100,10 @@ export const RepayConfirm = ({
   })
 
   const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData?.debtBalanceFiatUSD) return null
+    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(lendingPositionData.debtBalanceFiatUSD)
+      .times(lendingPositionData.debtBalanceFiatUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
@@ -338,7 +338,7 @@ export const RepayConfirm = ({
             }
             repaymentAccountId={repaymentAccountId}
             collateralAccountId={collateralAccountId}
-            debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+            debtRepaidAmountUserCurrency={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
             borderTopWidth={0}
             mt={0}
           />

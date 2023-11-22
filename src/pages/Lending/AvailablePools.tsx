@@ -57,7 +57,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
         </Flex>
       </Skeleton>
       <Skeleton isLoaded={!isPoolDataLoading}>
-        <Amount.Fiat value={poolData?.totalDebtUSD ?? '0'} />
+        <Amount.Fiat value={poolData?.totalDebtUserCurrency ?? '0'} />
       </Skeleton>
       <Skeleton isLoaded={!isPoolDataLoading}>
         <Amount.Crypto

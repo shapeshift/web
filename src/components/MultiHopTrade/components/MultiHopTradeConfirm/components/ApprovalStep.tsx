@@ -6,9 +6,10 @@ import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/selectors'
@@ -93,22 +94,38 @@ export const ApprovalStep = ({
 
   const translate = useTranslate()
 
-  const txLink = useMemo(() => {
+  const description = useMemo(() => {
+    if (!txHash) {
+      return translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })
+    }
+
+    const href = getTxLink({
+      name: tradeQuoteStep.source,
+      defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+      tradeId: txHash,
+    })
+
     return (
-      <Link isExternal href='#' color='text.link'>
-        <MiddleEllipsis value={txHash ?? ''} />
+      <Link isExternal href={href} color='text.link'>
+        <MiddleEllipsis value={txHash} />
       </Link>
     )
-  }, [txHash])
+  }, [
+    approvalNetworkFeeCryptoFormatted,
+    tradeQuoteStep.sellAsset.explorerTxLink,
+    tradeQuoteStep.source,
+    translate,
+    txHash,
+  ])
 
   const leftIcon = useMemo(() => <CheckCircleIcon />, [])
 
   const content = useMemo(
-    () => (
-      <Card p='2' width='full'>
-        {txHash ? (
-          <RawText>TX: {txHash}</RawText>
-        ) : (
+    () =>
+      txHash ? (
+        <></>
+      ) : (
+        <Card p='2' width='full'>
           <VStack width='full'>
             <Row px={2}>
               <Row.Label display='flex' alignItems='center'>
@@ -149,9 +166,8 @@ export const ApprovalStep = ({
               {translate('common.approve')}
             </Button>
           </VStack>
-        )}
-      </Card>
-    ),
+        </Card>
+      ),
     [
       handleSignAllowanceApproval,
       hopExecutionState,
@@ -166,11 +182,7 @@ export const ApprovalStep = ({
   return (
     <StepperStep
       title='Token allowance approval'
-      description={
-        txHash
-          ? txLink
-          : translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })
-      }
+      description={description}
       stepIndicator={stepIndicator}
       content={content}
       isActive={isActive}

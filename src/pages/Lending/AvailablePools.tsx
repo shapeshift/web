@@ -86,7 +86,7 @@ export const AvailablePools = () => {
     [history, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
 
   const lendingRows = useMemo(() => {
     if (!lendingSupportedAssets) return new Array(2).fill(null).map(() => <Skeleton height={16} />)

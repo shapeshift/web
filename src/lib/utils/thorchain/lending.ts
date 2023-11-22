@@ -6,10 +6,10 @@ import { getConfig } from 'config'
 import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { getAccountAddresses, toThorBaseUnit } from '../thorchainsavers/utils'
 import type {
   Borrower,
   BorrowersResponse,
@@ -18,7 +18,7 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingWithdrawQuoteResponse,
   LendingWithdrawQuoteResponseSuccess,
-} from './types'
+} from './lending/types'
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
 // but we might need e.g min_out and affiliate_bps

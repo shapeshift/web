@@ -37,7 +37,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { SwapperName } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
 import {
@@ -45,15 +44,15 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
-  BASE_BPS_POINTS,
-  fromThorBaseUnit,
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-  toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'

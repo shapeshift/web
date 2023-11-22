@@ -37,7 +37,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import type { SwapErrorRight } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
@@ -47,9 +46,11 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   queryFn as getEstimatedFeesQueryFn,
   useGetEstimatedFeesQuery,
@@ -59,9 +60,8 @@ import {
   queryFn as isSweepNeededQueryFn,
   useIsSweepNeededQuery,
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useQuoteEstimatedFees/types'
 import {
-  BASE_BPS_POINTS,
-  fromThorBaseUnit,
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,

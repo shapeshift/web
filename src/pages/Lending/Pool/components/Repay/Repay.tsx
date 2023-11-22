@@ -32,13 +32,6 @@ export const Repay = ({
 }: RepayProps) => {
   const collateralAssetId = useRouteAssetId()
 
-  const handleDepositAmountChange = useCallback(
-    (value: number) => {
-      setRepaymentPercent(value)
-    },
-    [setRepaymentPercent],
-  )
-
   return (
     <MemoryRouter initialEntries={RepayEntries} initialIndex={0}>
       <RepayRoutes
@@ -46,7 +39,7 @@ export const Repay = ({
         setRepaymentAsset={setRepaymentAsset}
         collateralAssetId={collateralAssetId}
         repaymentPercent={repaymentPercent}
-        onRepaymentPercentChange={handleDepositAmountChange}
+        onRepaymentPercentChange={setRepaymentPercent}
         collateralAccountId={collateralAccountId}
         repaymentAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}

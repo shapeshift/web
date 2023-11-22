@@ -34,7 +34,6 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -173,25 +172,15 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const debtBalanceUserCurrency = useMemo(() => {
-    if (!lendingPositionData) return null
-
-    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
-      .times(userCurrencyToUsdRate)
-      .toFixed()
-  }, [lendingPositionData, userCurrencyToUsdRate])
-
   const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!(lendingPositionData && debtBalanceUserCurrency)) return null
+    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(debtBalanceUserCurrency)
+      .times(lendingPositionData?.debtBalanceFiatUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [lendingPositionData, repaymentPercent])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null
@@ -316,7 +305,7 @@ export const RepayInput = ({
             </Skeleton>
             <Skeleton isLoaded={isLendingPositionDataSuccess}>
               {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={debtBalanceUserCurrency ?? '0'} />
+              <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Flex>
         </Stack>

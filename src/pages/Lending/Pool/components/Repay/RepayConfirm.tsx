@@ -39,7 +39,6 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectSelectedCurrency,
-  selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -100,23 +99,15 @@ export const RepayConfirm = ({
     accountId: collateralAccountId,
   })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const debtBalanceUserCurrency = useMemo(() => {
-    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
-      .times(userCurrencyToUsdRate)
-      .toFixed()
-  }, [lendingPositionData, userCurrencyToUsdRate])
-
   const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData) return null
+    if (!lendingPositionData?.debtBalanceFiatUSD) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(debtBalanceUserCurrency)
+      .times(lendingPositionData.debtBalanceFiatUSD)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [lendingPositionData, repaymentPercent])
 
   const repaymentAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),

@@ -55,7 +55,6 @@ export const AssetSummaryStep = ({
       title={amountCryptoFormatted}
       description={`${amountFiatFormatted} on ${chainName}`}
       stepIndicator={assetIcon}
-      isActive={false}
       isLastStep={isLastStep}
     />
   )

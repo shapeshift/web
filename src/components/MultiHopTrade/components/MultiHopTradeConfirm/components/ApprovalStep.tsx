@@ -120,64 +120,64 @@ export const ApprovalStep = ({
 
   const leftIcon = useMemo(() => <CheckCircleIcon />, [])
 
-  const content = useMemo(
-    () =>
-      txHash ? (
-        <></>
-      ) : (
-        <Card p='2' width='full'>
-          <VStack width='full'>
-            <Row px={2}>
-              <Row.Label display='flex' alignItems='center'>
-                <Text color='text.subtle' translation='trade.allowance' />
-                <Tooltip label={translate('trade.allowanceTooltip')}>
-                  <Box ml={1}>
-                    <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
-                  </Box>
-                </Tooltip>
-              </Row.Label>
-              <Row.Value textAlign='right' display='flex' alignItems='center'>
-                <Text
-                  color={isExactAllowance ? 'text.subtle' : 'white'}
-                  translation='trade.unlimited'
-                  fontWeight='bold'
-                />
-                <Switch
-                  size='sm'
-                  mx={2}
-                  isChecked={isExactAllowance}
-                  onChange={toggleIsExactAllowance}
-                />
-                <Text
-                  color={isExactAllowance ? 'white' : 'text.subtle'}
-                  translation='trade.exact'
-                  fontWeight='bold'
-                />
-              </Row.Value>
-            </Row>
-            <Button
-              width='full'
-              size='sm'
-              leftIcon={leftIcon}
-              colorScheme='blue'
-              isLoading={hopExecutionState === HopExecutionState.AwaitingApprovalExecution}
-              onClick={handleSignAllowanceApproval}
-            >
-              {translate('common.approve')}
-            </Button>
-          </VStack>
-        </Card>
-      ),
-    [
-      handleSignAllowanceApproval,
-      hopExecutionState,
-      isExactAllowance,
-      leftIcon,
-      toggleIsExactAllowance,
-      translate,
-      txHash,
-    ],
-  )
+  const content = useMemo(() => {
+    // only render the approval button when the component is active and we don't yet have a tx hash
+    if (txHash !== undefined || !isActive) return
+
+    return (
+      <Card p='2' width='full'>
+        <VStack width='full'>
+          <Row px={2}>
+            <Row.Label display='flex' alignItems='center'>
+              <Text color='text.subtle' translation='trade.allowance' />
+              <Tooltip label={translate('trade.allowanceTooltip')}>
+                <Box ml={1}>
+                  <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+                </Box>
+              </Tooltip>
+            </Row.Label>
+            <Row.Value textAlign='right' display='flex' alignItems='center'>
+              <Text
+                color={isExactAllowance ? 'text.subtle' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch
+                size='sm'
+                mx={2}
+                isChecked={isExactAllowance}
+                onChange={toggleIsExactAllowance}
+              />
+              <Text
+                color={isExactAllowance ? 'white' : 'text.subtle'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </Row.Value>
+          </Row>
+          <Button
+            width='full'
+            size='sm'
+            leftIcon={leftIcon}
+            colorScheme='blue'
+            isLoading={hopExecutionState === HopExecutionState.AwaitingApprovalExecution}
+            onClick={handleSignAllowanceApproval}
+          >
+            {translate('common.approve')}
+          </Button>
+        </VStack>
+      </Card>
+    )
+  }, [
+    handleSignAllowanceApproval,
+    hopExecutionState,
+    isActive,
+    isExactAllowance,
+    leftIcon,
+    toggleIsExactAllowance,
+    translate,
+    txHash,
+  ])
 
   return (
     <StepperStep
@@ -185,7 +185,6 @@ export const ApprovalStep = ({
       description={description}
       stepIndicator={stepIndicator}
       content={content}
-      isActive={isActive}
       isLastStep={isLastStep}
       isLoading={isLoading}
     />

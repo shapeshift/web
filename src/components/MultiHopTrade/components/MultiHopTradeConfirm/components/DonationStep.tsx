@@ -39,7 +39,6 @@ export const DonationStep = ({ isLastStep }: DonationStepProps) => {
       title={donationAmountFiatFormatted}
       description='ShapeShift Donation'
       stepIndicator={stepIndicator}
-      isActive={false}
       isLastStep={isLastStep}
     />
   )

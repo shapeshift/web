@@ -62,9 +62,9 @@ export const FOX_GNOSIS: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
   symbol: 'FOX',
 }
 
@@ -128,9 +128,9 @@ export const USDC_GNOSIS: Asset = {
   precision: 6,
   color: '#2373CB',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const AVAX: Asset = {
@@ -187,9 +187,9 @@ export const XDAI: Asset = {
   icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/11062/large/Aatar_green_white.png?1643204471',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const RUNE: Asset = {

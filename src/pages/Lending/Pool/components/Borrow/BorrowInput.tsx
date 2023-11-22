@@ -1,5 +1,6 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -243,13 +244,12 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        // no-op
-        onAssetClick={handleBorrowAssetClick}
+        onAssetClick={noop}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAssetId, handleAssetChange, handleBorrowAssetClick])
+  }, [collateralAssetId, handleAssetChange])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (

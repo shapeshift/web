@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import type { ResponsiveValue } from '@chakra-ui/react'
+import type { ResponsiveValue, SkeletonOptions } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
@@ -22,15 +22,19 @@ import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useParams } from 'react-router'
+import type { AmountProps } from 'components/Amount/Amount'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
+import type { Asset } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'
+import { useLendingQuoteOpenQuery } from '../hooks/useLendingQuoteQuery'
 import { useRepaymentLockData } from '../hooks/useRepaymentLockData'
 import { Borrow } from './components/Borrow/Borrow'
 import { Faq } from './components/Faq'
@@ -67,9 +71,24 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', l
 type MatchParams = {
   poolAccountId?: AccountId
 }
+
+// Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
+// component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
+const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => (
+  <Skeleton isLoaded={isLoaded}>
+    <RawText fontSize='2xl' fontWeight='medium'>
+      {value ?? '0'} days
+    </RawText>
+  </Skeleton>
+)
+
 export const Pool = () => {
   const { poolAccountId } = useParams<MatchParams>()
   const [collateralAccountId, setCollateralAccountId] = useState<AccountId>(poolAccountId ?? '')
+  const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
+  const [depositAmountCryptoPrecision, setDepositAmountCryptoPrecision] = useState<string | null>(
+    null,
+  )
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
   const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId>('')
 
@@ -90,8 +109,29 @@ export const Pool = () => {
   )
   const { data: repaymentLock, isLoading: isRepaymentLockLoading } =
     useRepaymentLockData(useRepaymentLockDataArgs)
+  const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
+    useRepaymentLockData({})
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
+
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      collateralAssetId: poolAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
+    }),
+    [
+      poolAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAsset?.assetId,
+      depositAmountCryptoPrecision,
+    ],
+  )
+  const { data: lendingQuoteOpenData, isSuccess: isLendingQuoteSuccess } =
+    useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const collateralBalanceComponent = useMemo(
     () => (
@@ -104,6 +144,23 @@ export const Pool = () => {
     ),
     [asset?.symbol, lendingPositionData?.collateralBalanceCryptoPrecision],
   )
+  const newCollateralCrypto = useMemo(() => {
+    // TODO(gomes): discriminate borrow/repay using tabIndex
+    if (isLendingQuoteSuccess && lendingQuoteOpenData)
+      return {
+        newValue: {
+          value: bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision)
+            .plus(lendingQuoteOpenData?.quoteCollateralAmountCryptoPrecision ?? '0')
+            .toFixed(),
+        },
+      }
+    return {}
+  }, [
+    isLendingQuoteSuccess,
+    lendingPositionData?.collateralBalanceCryptoPrecision,
+    lendingQuoteOpenData,
+  ])
+
   const collateralValueComponent = useMemo(
     () => (
       <Amount.Fiat
@@ -114,6 +171,24 @@ export const Pool = () => {
     ),
     [lendingPositionData?.collateralBalanceFiatUserCurrency],
   )
+
+  const newCollateralFiat = useMemo(() => {
+    // TODO(gomes): discriminate borrow/repay using tabIndex
+    if (isLendingQuoteSuccess && lendingQuoteOpenData)
+      return {
+        newValue: {
+          value: bnOrZero(lendingPositionData?.collateralBalanceFiatUserCurrency)
+            .plus(lendingQuoteOpenData?.quoteCollateralAmountFiatUserCurrency ?? '0')
+            .toFixed(),
+        },
+      }
+    return {}
+  }, [
+    isLendingQuoteSuccess,
+    lendingPositionData?.collateralBalanceFiatUserCurrency,
+    lendingQuoteOpenData,
+  ])
+
   const debtBalanceComponent = useMemo(
     () => (
       <Amount.Fiat
@@ -124,16 +199,53 @@ export const Pool = () => {
     ),
     [lendingPositionData?.debtBalanceFiatUSD],
   )
+
+  const newDebt = useMemo(() => {
+    // TODO(gomes): discriminate borrow/repay using tabIndex
+    if (isLendingQuoteSuccess && lendingQuoteOpenData)
+      return {
+        newValue: {
+          value: bnOrZero(lendingPositionData?.debtBalanceFiatUSD)
+            .plus(lendingQuoteOpenData.quoteDebtAmountUsd ?? '0')
+            .toFixed(),
+        },
+      }
+    return {}
+  }, [isLendingQuoteSuccess, lendingPositionData?.debtBalanceFiatUSD, lendingQuoteOpenData])
+
   const repaymentLockComponent = useMemo(
     () => (
-      <Skeleton isLoaded={!isRepaymentLockLoading}>
-        <RawText fontSize='2xl' fontWeight='medium'>
-          {repaymentLock ?? '0'} days
-        </RawText>
-      </Skeleton>
+      <RepaymentLockComponentWithValue
+        value={repaymentLock ?? '0'}
+        isLoaded={!isRepaymentLockLoading}
+      />
     ),
     [isRepaymentLockLoading, repaymentLock],
   )
+
+  const newRepaymentLock = useMemo(() => {
+    // TODO(gomes): discriminate borrow/repay using tabIndex
+    if (
+      isLendingQuoteSuccess &&
+      lendingQuoteOpenData &&
+      isDefaultRepaymentLockSuccess &&
+      defaultRepaymentLock
+    )
+      return {
+        newValue: {
+          value: defaultRepaymentLock,
+        },
+      }
+    return {}
+  }, [
+    isLendingQuoteSuccess,
+    lendingQuoteOpenData,
+    isDefaultRepaymentLockSuccess,
+    defaultRepaymentLock,
+  ])
+
+  console.log({ newRepaymentLock })
+
   return (
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
@@ -154,6 +266,7 @@ export const Pool = () => {
                   component={collateralBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
+                  {...newCollateralCrypto}
                 />
                 <DynamicComponent
                   label='lending.collateralValue'
@@ -161,6 +274,7 @@ export const Pool = () => {
                   component={collateralValueComponent}
                   isLoading={isRepaymentLockLoading}
                   flex={1}
+                  {...newCollateralFiat}
                 />
               </Flex>
               <Flex>
@@ -170,6 +284,7 @@ export const Pool = () => {
                   component={debtBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
+                  {...newDebt}
                 />
                 <DynamicComponent
                   label='lending.repaymentLock'
@@ -177,6 +292,7 @@ export const Pool = () => {
                   component={repaymentLockComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
+                  {...newRepaymentLock}
                 />
               </Flex>
             </CardBody>
@@ -208,7 +324,11 @@ export const Pool = () => {
               <TabPanels>
                 <TabPanel px={0} py={0}>
                   <Borrow
+                    borrowAsset={borrowAsset}
+                    setBorrowAsset={setBorrowAsset}
                     collateralAccountId={collateralAccountId}
+                    depositAmountCryptoPrecision={depositAmountCryptoPrecision}
+                    setCryptoDepositAmount={setDepositAmountCryptoPrecision}
                     borrowAccountId={borrowAccountId}
                     onCollateralAccountIdChange={setCollateralAccountId}
                     onBorrowAccountIdChange={setBorrowAccountId}

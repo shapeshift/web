@@ -47,6 +47,7 @@ type LoanSummaryProps = {
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision?: never
         debtRepaidAmountUsd?: never
+        debtOccuredAmountUsd: string
         depositAmountCryptoPrecision: string
         repayAmountCryptoPrecision?: never
         repaymentAccountId?: never
@@ -59,6 +60,7 @@ type LoanSummaryProps = {
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUsd: string
+        debtOccuredAmountUsd?: never
         depositAmountCryptoPrecision?: never
         repayAmountCryptoPrecision: string
         repaymentAccountId: AccountId
@@ -74,6 +76,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   depositAmountCryptoPrecision,
   repayAmountCryptoPrecision,
   debtRepaidAmountUsd,
+  debtOccuredAmountUsd,
   repaymentAsset,
   repaymentPercent,
   repaymentAccountId,
@@ -254,7 +257,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                       ),
                       0,
                     )
-                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(debtRepaidAmountUsd ?? 0)
+                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(
+                      debtOccuredAmountUsd ?? 0,
+                    )
                 ).toString()}
               />
             </FromToStack>

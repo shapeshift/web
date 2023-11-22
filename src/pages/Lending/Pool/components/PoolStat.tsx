@@ -31,6 +31,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
   // Clone the child component and merge the newValue props if provided
   const previousProps = component.props
   const mergedProps = newValue ? { ...previousProps, ...newValue } : previousProps
+  console.log({ mergedProps, newValue })
   const clonedComponent = React.cloneElement(component, mergedProps)
   const previousComponent = React.cloneElement(component, previousProps)
   return (

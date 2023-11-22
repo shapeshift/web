@@ -222,7 +222,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.GnosisMainnet]: {
         name: 'xDAI',
         symbol: 'xDAI',
-        explorer: 'https://gnosisscan.io/',
+        explorer: 'https://gnosis.blockscout.com',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',

@@ -71,10 +71,13 @@ export const getLongtailToL1Quote = async (
     publicClient,
   })
 
+  const tokenIn = token0 === tokenA.address ? token0 : token1
+  const tokenOut = token1 === tokenB.address ? token1 : token0
+
   const quotedAmountOut = await quoterContract.simulate
     .quoteExactInputSingle([
-      token0,
-      token1,
+      tokenIn, // one of these is the sell asset
+      tokenOut, // the other is the network fee asset. Work out which is which.
       fee,
       BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
       BigInt(0),

@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useState } from 'react'
+import { lazy, memo, Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
@@ -12,27 +12,38 @@ const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
 type RepayProps = {
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
+  repaymentAsset: Asset | null
+  setRepaymentAsset: (asset: Asset | null) => void
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
+  repaymentPercent: number
+  setRepaymentPercent: (value: number) => void
 }
 
 export const Repay = ({
   collateralAccountId,
   repaymentAccountId: borrowAccountId,
+  repaymentAsset,
+  setRepaymentAsset,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
+  repaymentPercent,
+  setRepaymentPercent,
 }: RepayProps) => {
-  const [repaymentPercent, setRepaymentPercent] = useState<number>(100)
-
   const collateralAssetId = useRouteAssetId()
 
-  const handleDepositAmountChange = useCallback((value: number) => {
-    setRepaymentPercent(value)
-  }, [])
+  const handleDepositAmountChange = useCallback(
+    (value: number) => {
+      setRepaymentPercent(value)
+    },
+    [setRepaymentPercent],
+  )
 
   return (
     <MemoryRouter initialEntries={RepayEntries} initialIndex={0}>
       <RepayRoutes
+        repaymentAsset={repaymentAsset}
+        setRepaymentAsset={setRepaymentAsset}
         collateralAssetId={collateralAssetId}
         repaymentPercent={repaymentPercent}
         onRepaymentPercentChange={handleDepositAmountChange}
@@ -47,6 +58,8 @@ export const Repay = ({
 
 type RepayRoutesProps = {
   collateralAssetId: AssetId
+  repaymentAsset: Asset | null
+  setRepaymentAsset: (asset: Asset | null) => void
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
   collateralAccountId: AccountId
@@ -72,6 +85,8 @@ const RepayRoutes = memo(
   ({
     collateralAssetId,
     repaymentPercent,
+    repaymentAsset,
+    setRepaymentAsset,
     onRepaymentPercentChange,
     collateralAccountId,
     repaymentAccountId,
@@ -79,7 +94,6 @@ const RepayRoutes = memo(
     onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   }: RepayRoutesProps) => {
     const location = useLocation()
-    const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
 
     const renderRepayInput = useCallback(
       () => (

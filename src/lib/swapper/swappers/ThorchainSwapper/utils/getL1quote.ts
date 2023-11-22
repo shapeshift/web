@@ -20,6 +20,7 @@ import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/ut
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   convertDecimalPercentageToBasisPoints,
@@ -132,7 +133,6 @@ export const getL1quote = async (
   }
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
-    const THOR_PRECISION = 8
     const sellAmountCryptoPrecision = baseUnitToPrecision({
       value: sellAmountCryptoBaseUnit,
       inputExponent: sellAsset.precision,

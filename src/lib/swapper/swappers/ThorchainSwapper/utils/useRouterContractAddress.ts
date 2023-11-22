@@ -2,8 +2,7 @@ import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import { useCallback, useEffect, useState } from 'react'
-
-import { getInboundAddressDataForChain } from './getInboundAddressDataForChain'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 // Fetches the THOR router contract address for a given feeAssetId
 // This is used to determine the correct router contract address for THOR contract approvals, swaps, and savers deposits/withdraws.

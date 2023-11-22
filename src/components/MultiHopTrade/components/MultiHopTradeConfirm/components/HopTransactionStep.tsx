@@ -4,6 +4,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -69,7 +70,7 @@ export const HopTransactionStep = ({
       return {
         txLink: getTxLink({
           name: tradeQuoteStep.source,
-          defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink ?? '',
+          defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           tradeId: buyTxHash,
         }),
         txHash: buyTxHash,
@@ -78,10 +79,10 @@ export const HopTransactionStep = ({
       return {
         txLink: getTxLink({
           name: tradeQuoteStep.source,
-          defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink ?? '',
+          defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           tradeId: sellTxHash,
         }),
-        txHash: buyTxHash,
+        txHash: sellTxHash,
       }
 
     return {}
@@ -152,16 +153,10 @@ export const HopTransactionStep = ({
         <RawText>
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>
-        {txHash !== undefined && <RawText>TX: {txHash}</RawText>}
         {txLink && (
-          <Card width='full'>
-            <CardBody display='flex' gap={4} justifyContent='space-between' px={4} py={2}>
-              <RawText color='text.subtle'>TX ID</RawText>
-              <Link isExternal color='blue.500' href={txLink}>
-                {txHash}
-              </Link>
-            </CardBody>
-          </Card>
+          <Link isExternal color='text.link' href={txLink}>
+            <MiddleEllipsis value={txHash} />
+          </Link>
         )}
       </VStack>
     )

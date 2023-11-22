@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -25,6 +25,23 @@ export const MultiHopTradeConfirm = memo(() => {
   const history = useHistory()
 
   const { isApprovalInitiallyNeeded, isLoading } = useIsApprovalInitiallyNeeded()
+
+  // NOTE: we use dom manipulation to move the component around without losing the component
+  // internal state. If we decide this approach isn't suitable we'll need to rewrite the trade
+  // execution hooks and components to store state and metadata inside redux
+  const containerRef = useRef<HTMLDivElement>(null)
+  const tradeCompleteSummaryRef = useRef<HTMLDivElement>(null)
+  const tradeExecutionRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const currentTargetRef =
+      tradeExecutionState === MultiHopExecutionState.TradeComplete
+        ? tradeCompleteSummaryRef
+        : tradeExecutionRef
+
+    if (containerRef.current && currentTargetRef.current) {
+      currentTargetRef.current.appendChild(containerRef.current)
+    }
+  }, [tradeExecutionState]) // Rerun when tradeExecutionState changes
 
   // set initial approval requirements
   useEffect(() => {
@@ -64,40 +81,50 @@ export const MultiHopTradeConfirm = memo(() => {
     tradeExecutionState,
   ])
 
+  const isTradeComplete = useMemo(
+    () => tradeExecutionState === MultiHopExecutionState.TradeComplete,
+    [tradeExecutionState],
+  )
+
   return (
-    <SlideTransition>
-      <Card flex={1} borderRadius={cardBorderRadius} width='full' variant='dashboard'>
-        <CardHeader px={6} pt={4}>
-          <WithBackButton handleBack={handleBack}>
-            <Heading textAlign='center' fontSize='md'>
-              <Text
-                translation={
-                  tradeExecutionState === MultiHopExecutionState.Previewing
-                    ? 'trade.confirmDetails'
-                    : 'trade.trade'
-                }
-              />
-            </Heading>
-          </WithBackButton>
-        </CardHeader>
-        {tradeExecutionState === MultiHopExecutionState.TradeComplete ? (
-          <TradeSuccess handleBack={handleBack}>
-            <Hops isFirstHopOpen isSecondHopOpen />
-          </TradeSuccess>
-        ) : (
-          <>
-            <CardBody py={0} px={0}>
-              <Hops
-                isFirstHopOpen={isFirstHopOpen}
-                isSecondHopOpen={isSecondHopOpen}
-                onToggleFirstHop={onToggleFirstHop}
-                onToggleSecondHop={onToggleSecondHop}
-              />
-            </CardBody>
-            <Footer />
-          </>
-        )}
-      </Card>
-    </SlideTransition>
+    <>
+      <SlideTransition>
+        <Card flex={1} borderRadius={cardBorderRadius} width='full' variant='dashboard'>
+          <CardHeader px={6} pt={4}>
+            <WithBackButton handleBack={handleBack}>
+              <Heading textAlign='center' fontSize='md'>
+                <Text
+                  translation={
+                    tradeExecutionState === MultiHopExecutionState.Previewing
+                      ? 'trade.confirmDetails'
+                      : 'trade.trade'
+                  }
+                />
+              </Heading>
+            </WithBackButton>
+          </CardHeader>
+          {isTradeComplete ? (
+            <TradeSuccess handleBack={handleBack}>
+              <div ref={tradeCompleteSummaryRef} />
+            </TradeSuccess>
+          ) : (
+            <>
+              <CardBody py={0} px={0}>
+                <div ref={tradeExecutionRef} />
+              </CardBody>
+              <Footer />
+            </>
+          )}
+        </Card>
+      </SlideTransition>
+      <div ref={containerRef}>
+        <Hops
+          isFirstHopOpen={isTradeComplete || isFirstHopOpen}
+          isSecondHopOpen={isTradeComplete || isSecondHopOpen}
+          onToggleFirstHop={isTradeComplete ? undefined : onToggleFirstHop}
+          onToggleSecondHop={isTradeComplete ? undefined : onToggleSecondHop}
+        />
+      </div>
+    </>
   )
 })

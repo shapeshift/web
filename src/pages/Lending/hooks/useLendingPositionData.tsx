@@ -1,9 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {

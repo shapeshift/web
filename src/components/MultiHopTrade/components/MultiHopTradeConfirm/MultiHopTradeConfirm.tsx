@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -30,11 +30,13 @@ export const MultiHopTradeConfirm = memo(() => {
   // internal state. If we decide this approach isn't suitable we'll need to rewrite the trade
   // execution hooks and components to store state and metadata inside redux
   const containerRef = useRef<HTMLDivElement>(null)
-  const targetRef1 = useRef<HTMLDivElement>(null)
-  const targetRef2 = useRef<HTMLDivElement>(null)
+  const tradeCompleteSummaryRef = useRef<HTMLDivElement>(null)
+  const tradeExecutionRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const currentTargetRef =
-      tradeExecutionState === MultiHopExecutionState.TradeComplete ? targetRef1 : targetRef2
+      tradeExecutionState === MultiHopExecutionState.TradeComplete
+        ? tradeCompleteSummaryRef
+        : tradeExecutionRef
 
     if (containerRef.current && currentTargetRef.current) {
       currentTargetRef.current.appendChild(containerRef.current)
@@ -79,6 +81,11 @@ export const MultiHopTradeConfirm = memo(() => {
     tradeExecutionState,
   ])
 
+  const isTradeComplete = useMemo(
+    () => tradeExecutionState === MultiHopExecutionState.TradeComplete,
+    [tradeExecutionState],
+  )
+
   return (
     <>
       <SlideTransition>
@@ -96,14 +103,14 @@ export const MultiHopTradeConfirm = memo(() => {
               </Heading>
             </WithBackButton>
           </CardHeader>
-          {tradeExecutionState === MultiHopExecutionState.TradeComplete ? (
+          {isTradeComplete ? (
             <TradeSuccess handleBack={handleBack}>
-              <div ref={targetRef1} />
+              <div ref={tradeCompleteSummaryRef} />
             </TradeSuccess>
           ) : (
             <>
               <CardBody py={0} px={0}>
-                <div ref={targetRef2} />
+                <div ref={tradeExecutionRef} />
               </CardBody>
               <Footer />
             </>
@@ -112,22 +119,10 @@ export const MultiHopTradeConfirm = memo(() => {
       </SlideTransition>
       <div ref={containerRef}>
         <Hops
-          isFirstHopOpen={
-            tradeExecutionState === MultiHopExecutionState.TradeComplete || isFirstHopOpen
-          }
-          isSecondHopOpen={
-            tradeExecutionState === MultiHopExecutionState.TradeComplete || isSecondHopOpen
-          }
-          onToggleFirstHop={
-            tradeExecutionState === MultiHopExecutionState.TradeComplete
-              ? undefined
-              : onToggleFirstHop
-          }
-          onToggleSecondHop={
-            tradeExecutionState === MultiHopExecutionState.TradeComplete
-              ? undefined
-              : onToggleSecondHop
-          }
+          isFirstHopOpen={isTradeComplete || isFirstHopOpen}
+          isSecondHopOpen={isTradeComplete || isSecondHopOpen}
+          onToggleFirstHop={isTradeComplete ? undefined : onToggleFirstHop}
+          onToggleSecondHop={isTradeComplete ? undefined : onToggleSecondHop}
         />
       </div>
     </>

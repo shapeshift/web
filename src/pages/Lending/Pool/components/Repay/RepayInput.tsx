@@ -399,15 +399,14 @@ export const RepayInput = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-              {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
+        {bnOrZero(lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency).gt(0) && (
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.fees')}</Row.Label>
+            <Row.Value>
+              <Amount.Fiat value={lendingQuoteCloseData!.quoteTotalFeesFiatUserCurrency} />
+            </Row.Value>
+          </Row>
+        )}
         <Button
           size='lg'
           colorScheme={

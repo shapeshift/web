@@ -52,7 +52,9 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
-      skipValidation: priceOrQuote === 'price', // don't validate allowances for price queries
+      // Always skips allowance validation. i.e we want to get a quote regardless of validation, and when
+      // getting a final quote before broadcasting, we're already in a state with allowance granted
+      skipValidation: true,
       slippagePercentage:
         slippageTolerancePercentage ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),

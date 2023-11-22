@@ -60,7 +60,7 @@ export async function getZrxTradeQuote(
   }
 
   const maybeZrxPriceResponse = await fetchFromZrx({
-    priceOrQuote: 'price',
+    priceOrQuote: 'quote',
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,

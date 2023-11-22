@@ -29,7 +29,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -250,9 +250,12 @@ export const Pool = () => {
     if (stepIndex === 1 && lendingQuoteCloseData && lendingPositionData)
       return {
         newValue: {
-          value: bnOrZero(lendingPositionData.debtBalanceFiatUSD)
-            .minus(lendingQuoteCloseData.quoteDebtRepaidAmountUsd)
-            .toFixed(),
+          value: BigNumber.max(
+            bnOrZero(lendingPositionData.debtBalanceFiatUSD).minus(
+              lendingQuoteCloseData.quoteDebtRepaidAmountUsd,
+            ),
+            0,
+          ).toFixed(),
         },
       }
 

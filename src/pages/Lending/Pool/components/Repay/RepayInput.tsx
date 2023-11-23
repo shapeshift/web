@@ -228,7 +228,13 @@ export const RepayInput = ({
     [repaymentAssetBalanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
-  const hasEnoughBalance = useMemo(() => {
+  const hasEnoughBalanceForTx = useMemo(() => {
+    if (!(feeAsset && repaymentAsset)) return
+
+    return bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision)
+  }, [amountAvailableCryptoPrecision, feeAsset, repaymentAmountCryptoPrecision, repaymentAsset])
+
+  const hasEnoughBalanceForTxPlusFees = useMemo(() => {
     if (!(feeAsset && repaymentAsset)) return
 
     if (feeAsset.assetId === repaymentAsset.assetId)
@@ -254,7 +260,7 @@ export const RepayInput = ({
   ])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (!hasEnoughBalance) return 'common.insufficientFunds'
+    if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
@@ -279,7 +285,12 @@ export const RepayInput = ({
       }
     }
     return null
-  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError])
+  }, [
+    hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
+    isLendingQuoteCloseError,
+    lendingQuoteCloseError?.message,
+  ])
 
   if (!seenNotice) {
     return (

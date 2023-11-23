@@ -9,7 +9,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,7 +24,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { isToken } from 'lib/utils'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -178,6 +177,11 @@ export const BorrowInput = ({
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
+  const hasEnoughBalanceForTx = useMemo(
+    () => bnOrZero(depositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision),
+    [amountAvailableCryptoPrecision, depositAmountCryptoPrecision],
+  )
+
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
     if (!(isEstimatedFeesDataSuccess && feeAsset)) return false
 
@@ -319,7 +323,10 @@ export const BorrowInput = ({
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+    if (
+      !hasEnoughBalanceForTx ||
+      (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+    )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
       if (
@@ -332,6 +339,7 @@ export const BorrowInput = ({
     }
     return null
   }, [
+    hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,

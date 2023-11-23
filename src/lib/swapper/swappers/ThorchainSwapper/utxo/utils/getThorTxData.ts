@@ -1,6 +1,6 @@
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 type GetThorTxInfoArgs = {
   sellAsset: Asset

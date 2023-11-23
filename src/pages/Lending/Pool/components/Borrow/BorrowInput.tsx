@@ -1,5 +1,6 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -13,13 +14,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { getThorchainFromAddress } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -69,13 +70,13 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+  const { data: borrowAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
   useEffect(() => {
-    if (!lendingSupportedAssets) return
+    if (!borrowAssets) return
 
-    setBorrowAsset(lendingSupportedAssets[0])
-  }, [lendingSupportedAssets, setBorrowAsset])
+    setBorrowAsset(borrowAssets[0])
+  }, [borrowAssets, setBorrowAsset])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
@@ -86,9 +87,9 @@ export const BorrowInput = ({
     buyAssetSearch.open({
       onClick: setBorrowAsset,
       title: 'lending.borrow',
-      assets: lendingSupportedAssets,
+      assets: borrowAssets,
     })
-  }, [buyAssetSearch, lendingSupportedAssets, setBorrowAsset])
+  }, [borrowAssets, buyAssetSearch, setBorrowAsset])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     return console.info(asset)
@@ -239,16 +240,16 @@ export const BorrowInput = ({
     history.push(BorrowRoutePaths.Sweep)
   }, [history, isSweepNeeded])
 
-  const depositAssetSelectComponent = useMemo(() => {
+  const collateralAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        onAssetClick={handleBorrowAssetClick}
+        onAssetClick={noop}
         onAssetChange={handleAssetChange}
         isReadOnly
       />
     )
-  }, [collateralAssetId, handleAssetChange, handleBorrowAssetClick])
+  }, [collateralAssetId, handleAssetChange])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -327,7 +328,7 @@ export const BorrowInput = ({
           onAccountIdChange={handleCollateralAccountIdChange}
           formControlProps={formControlProps}
           layout='inline'
-          labelPostFix={depositAssetSelectComponent}
+          labelPostFix={collateralAssetSelectComponent}
         />
         <TradeAssetInput
           assetId={borrowAsset?.assetId ?? ''}
@@ -405,7 +406,8 @@ export const BorrowInput = ({
               isSweepNeededLoading
             }
             isDisabled={Boolean(
-              isLendingQuoteError ||
+              bnOrZero(depositAmountCryptoPrecision).isZero() ||
+                isLendingQuoteError ||
                 isLendingQuoteLoading ||
                 quoteErrorTranslation ||
                 isEstimatedFeesDataError ||

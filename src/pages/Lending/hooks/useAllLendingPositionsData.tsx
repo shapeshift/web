@@ -2,9 +2,9 @@ import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'
-import type { Borrower } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
+import type { Borrower } from 'lib/utils/thorchain/lending/types'
 import { selectAccountIdsByAssetId, selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -15,7 +15,7 @@ type UseAllLendingPositionsDataProps = {
 }
 
 export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets()
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
 
   const accounts = useMemo(
     () =>

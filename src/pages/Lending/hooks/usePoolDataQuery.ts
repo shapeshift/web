@@ -2,11 +2,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  getAllThorchainLendingPositions,
-  getThorchainPoolInfo,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
   const poolDataQueryKey: [string, { assetId: AssetId }] = useMemo(

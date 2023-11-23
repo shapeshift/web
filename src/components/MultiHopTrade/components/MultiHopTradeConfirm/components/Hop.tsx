@@ -1,6 +1,5 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon } from '@chakra-ui/icons'
 import {
-  Box,
   Card,
   CardFooter,
   Circle,
@@ -8,17 +7,17 @@ import {
   Divider,
   Flex,
   HStack,
-  IconButton,
   Stepper,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo, useState } from 'react'
-import { FaAdjust, FaGasPump, FaProcedures } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
+import { FaGasPump } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { ProtocolIcon } from 'components/Icons/Protocol'
+import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
@@ -38,10 +37,10 @@ import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { DonationStep } from './DonationStep'
 import { HopTransactionStep } from './HopTransactionStep'
-import { JuicyGreenCheck } from './JuicyGreenCheck'
 import { TimeRemaining } from './TimeRemaining'
+import { TwirlyToggle } from './TwirlyToggle'
 
-const cardBorderRadius = { base: 'xl' }
+const collapseWidth = { width: '100%' }
 
 export const Hop = ({
   swapperName,
@@ -54,13 +53,8 @@ export const Hop = ({
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isOpen: boolean
-  onToggleIsOpen: () => void
+  onToggleIsOpen?: () => void
 }) => {
-  const translate = useTranslate()
-  const backgroundColor = useColorModeValue('gray.100', 'gray.750')
-  const borderColor = useColorModeValue('gray.50', 'gray.650')
-  const chevronUpIcon = useMemo(() => <ChevronUpIcon boxSize='16px' />, [])
-  const chevronDownIcon = useMemo(() => <ChevronDownIcon boxSize='16px' />, [])
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
   )
@@ -81,7 +75,9 @@ export const Hop = ({
       case TxStatus.Unknown:
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
-            <RawText>{prettyMilliseconds(tradeQuoteStep.estimatedExecutionTimeMs)}</RawText>
+            <RawText fontWeight='bold'>
+              {prettyMilliseconds(tradeQuoteStep.estimatedExecutionTimeMs)}
+            </RawText>
           )
         )
       case TxStatus.Pending:
@@ -91,32 +87,13 @@ export const Hop = ({
           )
         )
       case TxStatus.Confirmed:
-        return (
-          <Box width='auto'>
-            <IconButton
-              aria-label={translate('trade.expand')}
-              variant='link'
-              p={4}
-              borderTopRadius='none'
-              colorScheme='blue'
-              onClick={onToggleIsOpen}
-              width='full'
-              icon={isOpen ? chevronUpIcon : chevronDownIcon}
-            />
-          </Box>
-        )
+        return onToggleIsOpen ? (
+          <TwirlyToggle isOpen={isOpen} onToggle={onToggleIsOpen} p={4} />
+        ) : null
       default:
         return null
     }
-  }, [
-    chevronDownIcon,
-    chevronUpIcon,
-    tradeQuoteStep.estimatedExecutionTimeMs,
-    isOpen,
-    onToggleIsOpen,
-    translate,
-    txStatus,
-  ])
+  }, [tradeQuoteStep.estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
 
   const initialApprovalRequirements = useAppSelector(selectInitialApprovalRequirements)
   const isApprovalInitiallyNeeded = initialApprovalRequirements?.[hopIndex]
@@ -130,17 +107,13 @@ export const Hop = ({
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingTradeConfirmation:
       case HopExecutionState.AwaitingTradeExecution:
-        if (isApprovalInitiallyNeeded) {
-          return hopIndex === 0 ? 2 : 1
-        } else {
-          return hopIndex === 0 ? 1 : 0
-        }
+        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
         return Infinity
       default:
         assertUnreachable(hopExecutionState)
     }
-  }, [hopExecutionState, hopIndex, isApprovalInitiallyNeeded])
+  }, [hopExecutionState, hopIndex])
 
   const slippageDecimalPercentage = useMemo(
     () => getDefaultSlippageDecimalPercentageForSwapper(swapperName),
@@ -155,23 +128,37 @@ export const Hop = ({
 
   const shouldRenderFinalSteps = !isMultiHopTrade || hopIndex === 1
 
+  const stepIcon = useMemo(() => {
+    switch (hopExecutionState) {
+      case HopExecutionState.Complete:
+        return (
+          <Circle size={8} bg='background.success'>
+            <CheckCircleIcon color='text.success' />
+          </Circle>
+        )
+      case HopExecutionState.AwaitingApprovalConfirmation:
+      case HopExecutionState.AwaitingApprovalExecution:
+      case HopExecutionState.AwaitingTradeConfirmation:
+      case HopExecutionState.AwaitingTradeExecution:
+        return (
+          <Circle size={8} bg='background.surface.raised.base'>
+            <CircularProgress size={4} />
+          </Circle>
+        )
+      default:
+        return (
+          <Circle size={8} borderColor='border.base' borderWidth={2}>
+            <RawText as='b'>{hopIndex + 1}</RawText>
+          </Circle>
+        )
+    }
+  }, [hopExecutionState, hopIndex])
+
   return (
-    <Card
-      flex={1}
-      borderRadius={cardBorderRadius}
-      width='full'
-      backgroundColor={backgroundColor}
-      borderColor={borderColor}
-    >
-      <HStack width='full' justifyContent='space-between' paddingLeft={6} marginTop={4}>
+    <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
+      <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
         <HStack>
-          {hopExecutionState === HopExecutionState.Complete ? (
-            <JuicyGreenCheck />
-          ) : (
-            <Circle size={8} borderColor={borderColor} borderWidth={2}>
-              <RawText as='b'>{hopIndex + 1}</RawText>
-            </Circle>
-          )}
+          {stepIcon}
           <RawText as='b'>{title}</RawText>
         </HStack>
         {rightComponent}∂
@@ -184,7 +171,7 @@ export const Hop = ({
               amountCryptoBaseUnit={tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit}
             />
           )}
-          <Collapse in={isApprovalInitiallyNeeded}>
+          <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             <ApprovalStep
               tradeQuoteStep={tradeQuoteStep}
               hopExecutionState={hopExecutionState}
@@ -215,31 +202,31 @@ export const Hop = ({
           )}
         </Stepper>
       </Collapse>
-      <Divider />
-      <CardFooter>
+      <Divider width='auto' ml={6} borderColor='border.base' opacity={1} />
+      <CardFooter fontSize='sm' pl={8}>
         <HStack width='full' justifyContent='space-between'>
           {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center'>
-            <Box marginRight={2} color='text.subtle'>
+          <Flex alignItems='center' gap={2}>
+            <Flex color='text.subtle'>
               <FaGasPump />
-            </Box>
+            </Flex>
             <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
           {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center'>
+          <Flex alignItems='center' gap={2}>
             {/* Placeholder - use correct icon here */}
-            <Box marginRight={2} color='text.subtle'>
-              <FaProcedures />
-            </Box>
+            <Flex color='text.subtle'>
+              <ProtocolIcon />
+            </Flex>
             <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
-          <Flex alignItems='center'>
+          <Flex alignItems='center' gap={2}>
             {/* Placeholder - use correct icon here */}
-            <Box marginRight={2} color='text.subtle'>
-              <FaAdjust />
-            </Box>
+            <Flex color='text.subtle'>
+              <SlippageIcon />
+            </Flex>
             <Amount.Percent value={slippageDecimalPercentage} display='inline' />
           </Flex>
         </HStack>

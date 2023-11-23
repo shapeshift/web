@@ -7,17 +7,15 @@ import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { toBaseUnit } from 'lib/math'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { getMaybeThorchainLendingCloseQuote } from 'lib/utils/thorchain/lending'
+import type { LendingWithdrawQuoteResponseSuccess } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataById,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
-import type { LendingWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/types'
-import { getMaybeThorchainLendingCloseQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import {
-  BASE_BPS_POINTS,
-  fromThorBaseUnit,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -110,6 +108,11 @@ export const useLendingQuoteCloseQuery = ({
     return repaymentPercentBn.plus('1').toNumber()
   }, [_repaymentPercent])
 
+  const { data: lendingPositionData } = useLendingPositionData({
+    assetId: _collateralAssetId,
+    accountId: _collateralAccountId,
+  })
+
   const lendingQuoteCloseQueryKey = useDebounce(
     () => [
       'lendingQuoteCloseQuery',
@@ -160,11 +163,6 @@ export const useLendingQuoteCloseQuery = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-
-  const { data: lendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 

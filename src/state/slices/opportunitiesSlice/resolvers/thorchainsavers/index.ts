@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -21,7 +22,6 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 import {
-  fromThorBaseUnit,
   getAllThorchainSaversPositions,
   getMidgardPools,
   getThorchainPools,

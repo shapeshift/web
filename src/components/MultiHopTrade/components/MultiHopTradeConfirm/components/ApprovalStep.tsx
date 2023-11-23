@@ -1,11 +1,15 @@
-import { Box, Button, Card, Icon, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Box, Button, Card, Center, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/selectors'
@@ -69,26 +73,61 @@ export const ApprovalStep = ({
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const txStatus =
-    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
+    hopExecutionState === HopExecutionState.Complete
+      ? TxStatus.Confirmed
+      : HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
+        HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
       ? _approvalTxStatus
       : undefined
 
   const stepIndicator = useMemo(
-    () => (txStatus !== undefined ? <StatusIcon txStatus={txStatus} /> : <></>),
+    () =>
+      txStatus !== undefined ? (
+        <StatusIcon txStatus={txStatus} />
+      ) : (
+        <Center fontSize='sm'>
+          <FaThumbsUp />
+        </Center>
+      ),
     [txStatus],
   )
 
   const translate = useTranslate()
 
+  const description = useMemo(() => {
+    if (!txHash) {
+      return translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })
+    }
+
+    const href = getTxLink({
+      name: tradeQuoteStep.source,
+      defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+      tradeId: txHash,
+    })
+
+    return (
+      <Link isExternal href={href} color='text.link'>
+        <MiddleEllipsis value={txHash} />
+      </Link>
+    )
+  }, [
+    approvalNetworkFeeCryptoFormatted,
+    tradeQuoteStep.sellAsset.explorerTxLink,
+    tradeQuoteStep.source,
+    translate,
+    txHash,
+  ])
+
+  const leftIcon = useMemo(() => <CheckCircleIcon />, [])
+
   const content = useMemo(
-    () => (
-      <Card p='2'>
-        {txHash ? (
-          <RawText>TX: {txHash}</RawText>
-        ) : (
-          <VStack>
-            <Row>
+    () =>
+      txHash ? (
+        <></>
+      ) : (
+        <Card p='2' width='full'>
+          <VStack width='full'>
+            <Row px={2}>
               <Row.Label display='flex' alignItems='center'>
                 <Text color='text.subtle' translation='trade.allowance' />
                 <Tooltip label={translate('trade.allowanceTooltip')}>
@@ -116,18 +155,34 @@ export const ApprovalStep = ({
                 />
               </Row.Value>
             </Row>
-            <Button onClick={handleSignAllowanceApproval}>Approve</Button>
+            <Button
+              width='full'
+              size='sm'
+              leftIcon={leftIcon}
+              colorScheme='blue'
+              isLoading={hopExecutionState === HopExecutionState.AwaitingApprovalExecution}
+              onClick={handleSignAllowanceApproval}
+            >
+              {translate('common.approve')}
+            </Button>
           </VStack>
-        )}
-      </Card>
-    ),
-    [handleSignAllowanceApproval, isExactAllowance, toggleIsExactAllowance, translate, txHash],
+        </Card>
+      ),
+    [
+      handleSignAllowanceApproval,
+      hopExecutionState,
+      isExactAllowance,
+      leftIcon,
+      toggleIsExactAllowance,
+      translate,
+      txHash,
+    ],
   )
 
   return (
     <StepperStep
       title='Token allowance approval'
-      description={txHash ?? `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`}
+      description={description}
       stepIndicator={stepIndicator}
       content={content}
       isActive={isActive}

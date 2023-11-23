@@ -29,7 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectPortfolioLoadingStatus,
+  selectPortfolioDegradedState,
   selectShowSnapsModal,
   selectWalletAccountIds,
   selectWalletId,
@@ -59,7 +59,7 @@ const hamburgerIcon = <HamburgerIcon />
 
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
+  const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
   const isSnapInstalled = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)

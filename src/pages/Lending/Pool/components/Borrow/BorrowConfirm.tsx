@@ -31,14 +31,11 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import {
-  getThorchainFromAddress,
-  waitForThorchainUpdate,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -91,8 +88,7 @@ export const BorrowConfirm = ({
 
     setIsLoanOpenPending(true)
     ;(async () => {
-      // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash, queryClient).promise
+      await waitForThorchainUpdate({ txHash, queryClient, skipOutbound: true }).promise
       setIsLoanOpenPending(false)
       await refetchLendingPositionData()
     })()
@@ -203,7 +199,7 @@ export const BorrowConfirm = ({
     })()
 
     if (!maybeTxId) {
-      throw new Error('Error sending THORCHain savers Txs')
+      throw new Error('Error sending THORCHain lending Txs')
     }
 
     setTxHash(maybeTxId)

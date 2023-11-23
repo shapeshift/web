@@ -41,7 +41,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         <RelatedAssets assetId={assetId} />
         <AssetAccounts assetId={assetId} accountId={isUtxoAccountId(accountId) ? '' : accountId} />
         <EarnOpportunities assetId={assetId} accountId={accountId} />
-        <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
+        <AssetTransactionHistory limit={10} accountId={accountId} />
       </Stack>
       <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={flexMaxWidth} gap={4}>
         <MultiHopTrade display={displayMdBlock} />

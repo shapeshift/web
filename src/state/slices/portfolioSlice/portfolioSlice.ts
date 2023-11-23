@@ -167,7 +167,7 @@ export const portfolioApi = createApi({
           console.error(e)
           const data = cloneDeep(initialState)
           data.accounts.ids.push(accountId)
-          data.accounts.byId[accountId] = { assetIds: [] }
+          data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
           dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         }

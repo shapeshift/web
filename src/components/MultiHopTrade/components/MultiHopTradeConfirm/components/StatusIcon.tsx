@@ -1,14 +1,17 @@
-import { CloseIcon } from '@chakra-ui/icons'
-import { Circle, Spinner } from '@chakra-ui/react'
+import { CheckCircleIcon, CloseIcon } from '@chakra-ui/icons'
+import { Circle } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-
-import { JuicyGreenCheck } from './JuicyGreenCheck'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 export const StatusIcon = (props: { txStatus: TxStatus }) => {
   // TODO: proper light/dark mode colors here
   switch (props.txStatus) {
     case TxStatus.Confirmed:
-      return <JuicyGreenCheck />
+      return (
+        <Circle size={8}>
+          <CheckCircleIcon color='text.success' />
+        </Circle>
+      )
     case TxStatus.Failed:
       return (
         <Circle bg='red.500' size={8}>
@@ -20,8 +23,8 @@ export const StatusIcon = (props: { txStatus: TxStatus }) => {
     case TxStatus.Unknown:
     default:
       return (
-        <Circle bg='gray.750' size={8}>
-          <Spinner />
+        <Circle size={8}>
+          <CircularProgress size={4} />
         </Circle>
       )
   }

@@ -139,6 +139,7 @@ export const useQuoteEstimatedFeesQuery = ({
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
     enabled: Boolean(asset && (lendingQuoteData || lendingQuoteCloseData)),
+    retry: false,
   })
 
   return useQuoteEstimatedFeesQuery

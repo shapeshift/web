@@ -49,6 +49,7 @@ const formControlProps = {
 }
 
 type BorrowInputProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAssetId: AssetId
   depositAmountCryptoPrecision: string | null
   fiatDepositAmount: string | null
@@ -62,6 +63,7 @@ type BorrowInputProps = {
 }
 
 export const BorrowInput = ({
+  isAccountSelectionDisabled,
   collateralAssetId,
   depositAmountCryptoPrecision,
   fiatDepositAmount,
@@ -362,6 +364,7 @@ export const BorrowInput = ({
           onChange={handleDepositInputChange}
           cryptoAmount={depositAmountCryptoPrecision ?? '0'}
           fiatAmount={fiatDepositAmount ?? '0'}
+          isAccountSelectionDisabled={isAccountSelectionDisabled}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}

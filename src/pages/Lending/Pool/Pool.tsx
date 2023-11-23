@@ -400,6 +400,7 @@ export const Pool = () => {
               <TabPanels>
                 <TabPanel px={0} py={0}>
                   <Borrow
+                    isAccountSelectionDisabled={Boolean(poolAccountId)}
                     borrowAsset={borrowAsset}
                     setBorrowAsset={setBorrowAsset}
                     collateralAccountId={collateralAccountId}
@@ -414,6 +415,7 @@ export const Pool = () => {
                 </TabPanel>
                 <TabPanel px={0} py={0}>
                   <Repay
+                    isAccountSelectionDisabled={Boolean(poolAccountId)}
                     collateralAccountId={collateralAccountId}
                     repaymentAsset={repaymentAsset}
                     repaymentPercent={repaymentPercent}

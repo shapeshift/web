@@ -49,6 +49,7 @@ const formControlProps = {
 }
 
 type RepayInputProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAssetId: AssetId
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
@@ -66,6 +67,7 @@ const handleCollateralAccountIdChange = () => {}
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
+  isAccountSelectionDisabled,
   onRepaymentPercentChange,
   collateralAccountId,
   repaymentAccountId,
@@ -366,6 +368,7 @@ export const RepayInput = ({
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
         cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
         fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd}
+        isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={isLendingQuoteCloseLoading}

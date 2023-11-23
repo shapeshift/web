@@ -17,11 +17,13 @@ import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
+// This just gets uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
   assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+  // todo: early exit if Avalanche - UniV3 is only on Ethereum & BSC
   const chainAdapterManager = getChainAdapterManager()
   const sellChainId = input.sellAsset.chainId
   const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
@@ -37,8 +39,8 @@ export const getLongtailToL1Quote = async (
   }
 
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
-  const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
-  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+  const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
+  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
 
   const tokenA = getTokenFromAsset(input.sellAsset)
   const tokenB = getWrappedToken(nativeBuyAsset)

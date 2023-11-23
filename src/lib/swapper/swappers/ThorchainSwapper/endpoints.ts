@@ -1,11 +1,15 @@
 import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
+import { Contract } from 'ethers'
+import type { Address } from 'viem'
+import { encodeFunctionData, getContract, parseAbiItem } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -22,6 +26,7 @@ import type {
 } from 'lib/swapper/types'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { viemClientByChainId } from 'lib/viem-client'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -30,6 +35,7 @@ import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
+import { TradeType } from './utils/longTailHelpers'
 
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
@@ -65,7 +71,7 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
-    const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
+    const { router: to, data, steps, memo: tcMemo, tradeType } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
@@ -104,16 +110,69 @@ export const thorchainApi: SwapperApi = {
 
     const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
 
-    return {
-      chainId: Number(fromChainId(chainId).chainReference),
-      data,
-      from,
-      gasLimit,
-      to,
-      value,
-      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
-        ? { maxFeePerGas, maxPriorityFeePerGas }
-        : { gasPrice }),
+    /* 
+    TODO: Add a switch statement here to return either a thorchain TX or a swapIn TX
+      - compute the tcMemo for the THORChain swapIn
+    */
+
+    console.log('xxx debug', { tcMemo, tradeType })
+    switch (tradeType) {
+      case TradeType.L1ToL1: {
+        return {
+          chainId: Number(fromChainId(chainId).chainReference),
+          data,
+          from,
+          gasLimit,
+          to,
+          value,
+          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+            ? { maxFeePerGas, maxPriorityFeePerGas }
+            : { gasPrice }),
+        }
+      }
+      case TradeType.LongTailToL1: {
+        const swapInAbiItem = parseAbiItem(
+          'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
+        )
+
+        const publicClient = viemClientByChainId[chainId as EvmChainId]
+        assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+
+        const tcRouter: Address = '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146'
+        const tcVault: Address = '0x7A93cBCCD9596C26076FB15D49df3F7A4180945a' // FIXME: the buy asset L1 pool?
+        const token: Address = '0x0000000' // todo: the sell token
+        const amount: bigint = BigInt(0) // todo: the sell amount
+        const amountOutMin: bigint = BigInt(0) // todo: the buy amount
+        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
+        const oneMinute = BigInt(60)
+        const deadline = currentTimestamp + oneMinute
+        const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
+
+        const data = encodeFunctionData({
+          abi: [swapInAbiItem],
+          functionName: 'swapIn',
+          args: params,
+        })
+
+        console.log('xxx debug 2', { data })
+
+        return {
+          chainId: Number(fromChainId(chainId).chainReference),
+          data,
+          from,
+          gasLimit,
+          to,
+          value,
+          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+            ? { maxFeePerGas, maxPriorityFeePerGas }
+            : { gasPrice }),
+        }
+      }
+      case TradeType.L1ToLongTail:
+      case TradeType.LongTailToLongTail:
+      default:
+        // TODO
+        break
     }
   },
 

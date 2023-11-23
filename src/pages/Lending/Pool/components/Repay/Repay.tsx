@@ -18,6 +18,8 @@ type RepayProps = {
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentPercent: number
   setRepaymentPercent: (value: number) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 export const Repay = ({
@@ -29,6 +31,8 @@ export const Repay = ({
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentPercent,
   setRepaymentPercent,
+  txId,
+  setTxid,
 }: RepayProps) => {
   const collateralAssetId = useRouteAssetId()
 
@@ -44,6 +48,8 @@ export const Repay = ({
         repaymentAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
         onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
+        txId={txId}
+        setTxid={setTxid}
       />
     </MemoryRouter>
   )
@@ -59,6 +65,8 @@ type RepayRoutesProps = {
   repaymentAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 const RepayInput = lazy(() =>
@@ -85,6 +93,8 @@ const RepayRoutes = memo(
     repaymentAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
+    txId,
+    setTxid,
   }: RepayRoutesProps) => {
     const location = useLocation()
 
@@ -123,6 +133,8 @@ const RepayRoutes = memo(
           collateralAccountId={collateralAccountId}
           repaymentAccountId={repaymentAccountId}
           repaymentAsset={repaymentAsset}
+          txId={txId}
+          setTxid={setTxid}
         />
       ),
       [
@@ -131,6 +143,8 @@ const RepayRoutes = memo(
         collateralAccountId,
         repaymentAccountId,
         repaymentAsset,
+        txId,
+        setTxid,
       ],
     )
 

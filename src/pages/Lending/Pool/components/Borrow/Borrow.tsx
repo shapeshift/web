@@ -33,6 +33,8 @@ type BorrowProps = {
   setCryptoDepositAmount: (amount: string | null) => void
   borrowAsset: Asset | null
   setBorrowAsset: (asset: Asset | null) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 export const Borrow = ({
   borrowAsset,
@@ -43,6 +45,8 @@ export const Borrow = ({
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
   depositAmountCryptoPrecision,
   setCryptoDepositAmount,
+  txId,
+  setTxid,
 }: BorrowProps) => {
   const [fiatDepositAmount, setFiatDepositAmount] = useState<string | null>(null)
 
@@ -87,6 +91,8 @@ export const Borrow = ({
         borrowAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
         onBorrowAccountIdChange={handleBorrowAccountIdChange}
+        txId={txId}
+        setTxid={setTxid}
       />
     </MemoryRouter>
   )
@@ -103,6 +109,8 @@ type BorrowRoutesProps = {
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 const BorrowRoutes = memo(
@@ -117,6 +125,8 @@ const BorrowRoutes = memo(
     borrowAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
+    txId,
+    setTxid,
   }: BorrowRoutesProps) => {
     const location = useLocation()
 
@@ -167,9 +177,19 @@ const BorrowRoutes = memo(
           borrowAccountId={borrowAccountId}
           collateralAccountId={collateralAccountId}
           borrowAsset={borrowAsset}
+          txId={txId}
+          setTxid={setTxid}
         />
       ),
-      [collateralAssetId, cryptoDepositAmount, borrowAccountId, collateralAccountId, borrowAsset],
+      [
+        collateralAssetId,
+        cryptoDepositAmount,
+        borrowAccountId,
+        collateralAccountId,
+        borrowAsset,
+        txId,
+        setTxid,
+      ],
     )
 
     return (

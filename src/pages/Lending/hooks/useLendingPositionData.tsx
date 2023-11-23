@@ -12,9 +12,14 @@ import { store, useAppSelector } from 'state/store'
 type UseLendingPositionDataProps = {
   accountId: AccountId
   assetId: AssetId
+  skip?: boolean
 }
 
-export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
+export const useLendingPositionData = ({
+  accountId,
+  assetId,
+  skip,
+}: UseLendingPositionDataProps) => {
   const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
     () => ['thorchainLendingPosition', { accountId, assetId }],
     [accountId, assetId],
@@ -50,7 +55,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         address: data?.owner,
       }
     },
-    enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),
+    enabled: Boolean(!skip && accountId && assetId && poolAssetMarketData.price !== '0'),
     refetchOnMount: true,
     refetchInterval: 60_000,
     refetchIntervalInBackground: true,

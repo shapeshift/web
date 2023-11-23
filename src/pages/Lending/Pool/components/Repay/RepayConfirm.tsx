@@ -12,8 +12,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -51,6 +52,8 @@ type RepayConfirmProps = {
   repaymentPercent: number
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 export const RepayConfirm = ({
@@ -59,10 +62,9 @@ export const RepayConfirm = ({
   repaymentPercent,
   collateralAccountId,
   repaymentAccountId,
+  txId,
+  setTxid,
 }: RepayConfirmProps) => {
-  const [isLoanClosePending, setIsLoanClosePending] = useState<boolean | undefined>(undefined)
-  const [txHash, setTxHash] = useState<string | null>(null)
-
   const {
     state: { wallet },
   } = useWallet()
@@ -72,19 +74,27 @@ export const RepayConfirm = ({
     accountId: collateralAccountId,
   })
 
+  const { mutateAsync } = useMutation({
+    mutationKey: [txId],
+    mutationFn: async (_txId: string) => {
+      await waitForThorchainUpdate({ txId: _txId, skipOutbound: true }).promise
+      queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
+    },
+  })
+
+  const lendingMutationStatus = useMutationState({
+    filters: { mutationKey: [txId] },
+    select: mutation => mutation.state.status,
+  })
+
+  const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
   useEffect(() => {
     // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanClosePending(true)
+    if (!txId) return
     ;(async () => {
-      await waitForThorchainUpdate({ txHash, skipOutbound: true }).promise
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      setIsLoanClosePending(false)
-      await refetchLendingPositionData()
+      await mutateAsync(txId)
     })()
-  }, [refetchLendingPositionData, txHash])
+  }, [mutateAsync, refetchLendingPositionData, txId])
 
   const history = useHistory()
   const translate = useTranslate()
@@ -128,15 +138,15 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      isLoanClosePending,
+      isLoanClosePending: loanTxStatus === 'pending',
     }),
     [
-      collateralAccountId,
       collateralAssetId,
-      repaymentAccountId,
       repaymentAsset?.assetId,
       repaymentPercent,
-      isLoanClosePending,
+      repaymentAccountId,
+      collateralAccountId,
+      loanTxStatus,
     ],
   )
 
@@ -152,7 +162,11 @@ export const RepayConfirm = ({
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const handleConfirm = useCallback(async () => {
-    if (isLoanClosePending === false) return history.push(RepayRoutePaths.Input)
+    if (loanTxStatus === 'pending' || loanTxStatus === 'success') {
+      // Reset values when going back to input step
+      setTxid(null)
+      return history.push(RepayRoutePaths.Input)
+    }
 
     if (
       !(
@@ -208,18 +222,19 @@ export const RepayConfirm = ({
       throw new Error('Error sending THORCHain lending Txs')
     }
 
-    setTxHash(maybeTxId)
+    setTxid(maybeTxId)
 
     return maybeTxId
   }, [
     chainAdapter,
     history,
-    isLoanClosePending,
     lendingQuoteCloseData,
+    loanTxStatus,
     repaymentAccountId,
     repaymentAmountCryptoPrecision,
     repaymentAsset,
     selectedCurrency,
+    setTxid,
     wallet,
   ])
 
@@ -236,10 +251,10 @@ export const RepayConfirm = ({
   })
 
   const swapStatus = useMemo(() => {
-    if (isLoanClosePending === false) return TxStatus.Confirmed
-    if (isLoanClosePending) return TxStatus.Pending
+    if (loanTxStatus === 'success') return TxStatus.Confirmed
+    if (loanTxStatus === 'pending') return TxStatus.Pending
     return TxStatus.Unknown
-  }, [isLoanClosePending])
+  }, [loanTxStatus])
 
   if (!collateralAsset || !repaymentAsset) return null
   return (
@@ -349,16 +364,18 @@ export const RepayConfirm = ({
           <CardFooter px={4} py={4}>
             <Button
               isLoading={
-                isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
+                isLendingQuoteCloseLoading ||
+                isEstimatedFeesDataLoading ||
+                loanTxStatus === 'pending'
               }
-              disabled={isLoanClosePending}
+              disabled={loanTxStatus === 'pending'}
               onClick={handleConfirm}
               colorScheme='blue'
               size='lg'
               width='full'
             >
               {translate(
-                isLoanClosePending === false ? 'lending.borrowAgain' : 'lending.confirmAndRepay',
+                loanTxStatus === 'success' ? 'lending.repayAgain' : 'lending.confirmAndRepay',
               )}
             </Button>
           </CardFooter>

@@ -43,14 +43,14 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
 }
 
 export const waitForThorchainUpdate = ({
-  txHash,
+  txId,
   skipOutbound,
 }: {
-  txHash: string
+  txId: string
   skipOutbound?: boolean
 }) =>
   poll({
-    fn: () => getThorchainTransactionStatus(txHash, skipOutbound),
+    fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
     maxAttempts: 20,

@@ -18,6 +18,7 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -92,6 +93,8 @@ const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & Skel
 export const Pool = () => {
   const { poolAccountId } = useParams<MatchParams>()
   const [stepIndex, setStepIndex] = useState<number>(0)
+  const [borrowTxid, setBorrowTxid] = useState<string | null>(null)
+  const [repayTxid, setRepayTxid] = useState<string | null>(null)
   const [collateralAccountId, setCollateralAccountId] = useState<AccountId>(poolAccountId ?? '')
   const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
   const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
@@ -107,12 +110,6 @@ export const Pool = () => {
 
   const translate = useTranslate()
 
-  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
-    useLendingPositionData({
-      assetId: poolAssetId,
-      accountId: collateralAccountId,
-    })
-
   const useRepaymentLockDataArgs = useMemo(
     () => ({ assetId: poolAssetId, accountId: poolAccountId }),
     [poolAccountId, poolAssetId],
@@ -123,6 +120,20 @@ export const Pool = () => {
     useRepaymentLockData({})
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
+
+  const lendingMutationStatus = useMutationState({
+    filters: { mutationKey: [borrowTxid] },
+    select: mutation => mutation.state.status,
+  })
+  const isLoanPending = lendingMutationStatus?.[0] === 'pending'
+  const isLoanUpdated = lendingMutationStatus?.[0] === 'success'
+
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
+    useLendingPositionData({
+      assetId: poolAssetId,
+      accountId: collateralAccountId,
+      skip: isLoanPending,
+    })
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
@@ -140,6 +151,7 @@ export const Pool = () => {
       depositAmountCryptoPrecision,
     ],
   )
+
   const { data: lendingQuoteOpenData, isSuccess: isLendingQuoteSuccess } =
     useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
@@ -175,6 +187,8 @@ export const Pool = () => {
     [asset?.symbol, lendingPositionData?.collateralBalanceCryptoPrecision],
   )
   const newCollateralCrypto = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && isLendingQuoteSuccess && lendingQuoteOpenData)
       return {
         newValue: {
@@ -195,6 +209,7 @@ export const Pool = () => {
   }, [
     isLendingQuoteCloseSuccess,
     isLendingQuoteSuccess,
+    isLoanUpdated,
     lendingPositionData?.collateralBalanceCryptoPrecision,
     lendingQuoteCloseData,
     lendingQuoteOpenData,
@@ -213,6 +228,8 @@ export const Pool = () => {
   )
 
   const newCollateralFiat = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
         newValue: {
@@ -231,7 +248,7 @@ export const Pool = () => {
       }
 
     return {}
-  }, [lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
 
   const debtBalanceComponent = useMemo(
     () => (
@@ -245,6 +262,8 @@ export const Pool = () => {
   )
 
   const newDebt = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
         newValue: {
@@ -266,7 +285,7 @@ export const Pool = () => {
       }
 
     return {}
-  }, [lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
 
   const repaymentLockComponent = useMemo(
     () => (
@@ -279,6 +298,8 @@ export const Pool = () => {
   )
 
   const newRepaymentLock = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (
       stepIndex === 0 &&
       isLendingQuoteSuccess &&
@@ -293,6 +314,7 @@ export const Pool = () => {
       }
     return {}
   }, [
+    isLoanUpdated,
     stepIndex,
     isLendingQuoteSuccess,
     lendingQuoteOpenData,
@@ -386,6 +408,8 @@ export const Pool = () => {
                     borrowAccountId={borrowAccountId}
                     onCollateralAccountIdChange={setCollateralAccountId}
                     onBorrowAccountIdChange={setBorrowAccountId}
+                    txId={borrowTxid}
+                    setTxid={setBorrowTxid}
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
@@ -398,6 +422,8 @@ export const Pool = () => {
                     repaymentAccountId={repaymentAccountId}
                     onCollateralAccountIdChange={setCollateralAccountId}
                     onRepaymentAccountIdChange={setRepaymentAccountId}
+                    txId={repayTxid}
+                    setTxid={setRepayTxid}
                   />
                 </TabPanel>
               </TabPanels>

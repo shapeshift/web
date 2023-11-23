@@ -12,8 +12,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -26,14 +27,12 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
@@ -53,6 +52,8 @@ type BorrowConfirmProps = {
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   borrowAsset: Asset | null
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 export const BorrowConfirm = ({
@@ -61,13 +62,12 @@ export const BorrowConfirm = ({
   collateralAccountId,
   borrowAccountId,
   borrowAsset,
+  txId,
+  setTxid,
 }: BorrowConfirmProps) => {
   const {
     state: { wallet },
   } = useWallet()
-
-  const [txHash, setTxHash] = useState<string | null>(null)
-  const [isLoanOpenPending, setIsLoanOpenPending] = useState(false)
 
   const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
@@ -77,24 +77,26 @@ export const BorrowConfirm = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  const { refetch: refetchLendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
+  const { mutateAsync } = useMutation({
+    mutationKey: [txId],
+    mutationFn: (_txId: string) =>
+      waitForThorchainUpdate({ txId: _txId, skipOutbound: true }).promise,
   })
+
+  const lendingMutationStatus = useMutationState({
+    filters: { mutationKey: [txId] },
+    select: mutation => mutation.state.status,
+  })
+
+  const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
 
   useEffect(() => {
     // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanOpenPending(true)
+    if (!txId) return
     ;(async () => {
-      await waitForThorchainUpdate({ txHash, skipOutbound: true }).promise
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      setIsLoanOpenPending(false)
-      await refetchLendingPositionData()
+      await mutateAsync(txId)
     })()
-  }, [refetchLendingPositionData, txHash])
+  }, [mutateAsync, txId])
 
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
@@ -108,16 +110,8 @@ export const BorrowConfirm = ({
       borrowAccountId,
       borrowAssetId,
       depositAmountCryptoPrecision: depositAmount ?? '0',
-      isLoanOpenPending,
     }),
-    [
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmount,
-      isLoanOpenPending,
-    ],
+    [collateralAssetId, collateralAccountId, borrowAccountId, borrowAssetId, depositAmount],
   )
   const {
     data: lendingQuoteData,
@@ -150,7 +144,13 @@ export const BorrowConfirm = ({
   const collateralAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
   )
-  const handleDeposit = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
+    if (loanTxStatus === 'pending' || loanTxStatus === 'success') {
+      // Reset values when going back to input step
+      setTxid(null)
+      return history.push(BorrowRoutePaths.Input)
+    }
+
     if (
       !(
         collateralAssetId &&
@@ -204,10 +204,11 @@ export const BorrowConfirm = ({
       throw new Error('Error sending THORCHain lending Txs')
     }
 
-    setTxHash(maybeTxId)
+    setTxid(maybeTxId)
 
     return maybeTxId
   }, [
+    loanTxStatus,
     collateralAssetId,
     depositAmount,
     wallet,
@@ -217,6 +218,8 @@ export const BorrowConfirm = ({
     collateralAccountMetadata,
     collateralAccountId,
     estimatedFeesData,
+    setTxid,
+    history,
     lendingQuoteData?.quoteInboundAddress,
     lendingQuoteData?.quoteMemo,
     selectedCurrency,
@@ -319,17 +322,21 @@ export const BorrowConfirm = ({
               colorScheme='blue'
               size='lg'
               width='full'
-              onClick={handleDeposit}
-              isLoading={isLoanOpenPending || isEstimatedFeesDataLoading || isLendingQuoteLoading}
+              onClick={handleConfirm}
+              isLoading={
+                loanTxStatus === 'pending' || isEstimatedFeesDataLoading || isLendingQuoteLoading
+              }
               disabled={
-                isLoanOpenPending ||
+                loanTxStatus === 'pending' ||
                 isEstimatedFeesDataLoading ||
                 isEstimatedFeesDataError ||
                 isLendingQuoteLoading ||
                 isLendingQuoteError
               }
             >
-              {translate('lending.confirmAndBorrow')}
+              {translate(
+                loanTxStatus === 'success' ? 'lending.borrowAgain' : 'lending.confirmAndBorrow',
+              )}
             </Button>
           </CardFooter>
         </Stack>

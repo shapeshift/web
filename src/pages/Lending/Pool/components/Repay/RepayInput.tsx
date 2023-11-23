@@ -33,6 +33,7 @@ import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupport
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -76,6 +77,7 @@ export const RepayInput = ({
   const translate = useTranslate()
   const history = useHistory()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, repaymentAsset?.assetId ?? ''))
 
   const onSubmit = useCallback(() => {
     history.push(RepayRoutePaths.Confirm)
@@ -207,30 +209,49 @@ export const RepayInput = ({
     [repaymentAsset?.assetId, repaymentAccountId],
   )
 
-  const balance = useAppSelector(state =>
+  const repaymentAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
-  const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balance).times(bn(10).pow(collateralAsset?.precision ?? '0')),
-    [balance, collateralAsset?.precision],
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    [feeAsset?.assetId, repaymentAccountId],
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
-  const hasEnoughBalance = useMemo(
+  const amountAvailableCryptoPrecision = useMemo(
     () =>
-      bnOrZero(repaymentAmountCryptoPrecision)
+      bnOrZero(repaymentAssetBalanceCryptoBaseUnit).times(
+        bn(10).pow(collateralAsset?.precision ?? '0'),
+      ),
+    [repaymentAssetBalanceCryptoBaseUnit, collateralAsset?.precision],
+  )
+
+  const hasEnoughBalance = useMemo(() => {
+    if (!(feeAsset && repaymentAsset)) return
+
+    if (feeAsset.assetId === repaymentAsset.assetId)
+      return bnOrZero(repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(repaymentAsset?.precision ?? '0'),
+            bn(10).pow(repaymentAsset.precision ?? '0'),
           ),
         )
-        .lte(amountAvailableCryptoPrecision),
-    [
-      amountAvailableCryptoPrecision,
-      estimatedFeesData?.txFeeCryptoBaseUnit,
-      repaymentAmountCryptoPrecision,
-      repaymentAsset?.precision,
-    ],
-  )
+        .lte(amountAvailableCryptoPrecision)
+
+    return (
+      bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
+      bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+    )
+  }, [
+    amountAvailableCryptoPrecision,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
+    repaymentAmountCryptoPrecision,
+    repaymentAsset,
+  ])
 
   const quoteErrorTranslation = useMemo(() => {
     if (!hasEnoughBalance) return 'common.insufficientFunds'

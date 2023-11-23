@@ -9,7 +9,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,6 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { isToken } from 'lib/utils'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -33,6 +34,7 @@ import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupport
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -161,22 +163,42 @@ export const BorrowInput = ({
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: collateralAccountId }),
+    [collateralAccountId, feeAsset?.assetId],
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
+
   const amountAvailableCryptoPrecision = useMemo(
     () => fromBaseUnit(balanceCryptoBaseUnit, collateralAsset?.precision ?? 0),
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
-  const hasEnoughBalanceForTx = useMemo(() => {
-    if (!isEstimatedFeesDataSuccess) return false
+  const hasEnoughBalanceForTxPlusFees = useMemo(() => {
+    if (!(isEstimatedFeesDataSuccess && feeAsset)) return false
 
-    return bnOrZero(depositAmountCryptoPrecision)
-      .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
-      .lte(amountAvailableCryptoPrecision)
+    // This is a native asset, so we can deduct the fees from the value
+    if (feeAsset.assetId === collateralAssetId)
+      return bnOrZero(depositAmountCryptoPrecision)
+        .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
+        .lte(amountAvailableCryptoPrecision)
+
+    return (
+      bnOrZero(depositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
+      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+    )
   }, [
     amountAvailableCryptoPrecision,
     collateralAsset?.precision,
+    collateralAssetId,
     depositAmountCryptoPrecision,
-    estimatedFeesData,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
     isEstimatedFeesDataSuccess,
   ])
 
@@ -193,7 +215,7 @@ export const BorrowInput = ({
       enabled: Boolean(
         bnOrZero(depositAmountCryptoPrecision).gt(0) &&
           isEstimatedFeesDataSuccess &&
-          hasEnoughBalanceForTx,
+          hasEnoughBalanceForTxPlusFees,
       ),
     }),
     [
@@ -202,7 +224,7 @@ export const BorrowInput = ({
       depositAmountCryptoPrecision,
       estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
-      hasEnoughBalanceForTx,
+      hasEnoughBalanceForTxPlusFees,
       isEstimatedFeesDataSuccess,
     ],
   )
@@ -319,7 +341,7 @@ export const BorrowInput = ({
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
-  if (!(collateralAsset && borrowAsset)) return null
+  if (!(collateralAsset && borrowAsset && feeAsset)) return null
 
   return (
     <SlideTransition>

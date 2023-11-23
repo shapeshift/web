@@ -392,6 +392,47 @@ export const RepayInput = ({
           repaymentAccountId={repaymentAccountId}
           collateralAccountId={collateralAccountId}
         />
+        <Stack
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
+        >
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+                <Amount.Crypto
+                  // Actually defined at display time, see isLoaded above
+                  value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
+                  symbol={collateralAsset?.symbol ?? ''}
+                />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
+                {/* Actually defined at display time, see isLoaded above */}
+                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <HelperTooltip label={translate('lending.feesNotice')}>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+            </HelperTooltip>
+            <Row.Value>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+                <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        </Stack>
       </Collapse>
       <Stack
         borderTopWidth={1}
@@ -403,37 +444,6 @@ export const RepayInput = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-              <Amount.Crypto
-                // Actually defined at display time, see isLoaded above
-                value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
-                symbol={collateralAsset?.symbol ?? ''}
-              />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
-              {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <HelperTooltip label={translate('lending.feesNotice')}>
-            <Row.Label>{translate('common.fees')}</Row.Label>
-          </HelperTooltip>
-          <Row.Value>
-            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
         <Button
           size='lg'
           colorScheme={

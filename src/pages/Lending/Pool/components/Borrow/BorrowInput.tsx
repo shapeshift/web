@@ -406,7 +406,7 @@ export const BorrowInput = ({
           layout='inline'
           labelPostFix={borrowAssetSelectComponent}
         />
-        <Collapse in={true}>
+        <Collapse in={isLendingQuoteSuccess}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
@@ -415,6 +415,43 @@ export const BorrowInput = ({
             borrowAssetId={borrowAsset?.assetId ?? ''}
             borrowAccountId={borrowAccountId}
           />
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+          >
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                  <Amount.Crypto
+                    value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                    symbol='BTC'
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </CardFooter>
         </Collapse>
         <CardFooter
           borderTopWidth={1}
@@ -426,33 +463,6 @@ export const BorrowInput = ({
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteSuccess}>
-                <Amount.Crypto
-                  value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                  symbol='BTC'
-                />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.fees')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteSuccess}>
-                <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
           <Button
             size='lg'
             colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}

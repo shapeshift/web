@@ -66,6 +66,8 @@
     "privacy": "Політика конфіденційності",
     "terms": "Умови обслуговування",
     "days": "Днів",
+    "clear": "Очистити.",
+    "copy": "Зрозуміло.",
     "copied": "Скопійовано в буфер обміну.",
     "copyFailed": "Не вдалося скопіювати в буфер обміну",
     "copyFailedDescription": "Скопіюйте, будь ласка, вручну",
@@ -118,7 +120,20 @@
     "learnMore": "Дізнатись більше",
     "showAll": "Показати більше",
     "showLess": "Показати менше",
-    "yourBalance": "Ваш баланс"
+    "yourBalance": "Ваш баланс",
+    "carousel": {
+      "next": "Далі",
+      "prev": "Попередній",
+      "back": "Назад",
+      "dot": "Dot"
+    },
+    "table": {
+      "nextPage": "Наступна сторінка",
+      "prevPage": "Попередня сторінка",
+      "sortedAsc": "Відсортовано за зростанням",
+      "sortedDesc": "Відсортовано за спаданням",
+      "expandRow": "Розгорнути рядок"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,9 +246,11 @@
     "notSupported": "%{asset} не підтримується %{wallet}"
   },
   "connectWalletPage": {
+    "title": "Оригінальна мультимережева біржа",
     "shapeshift": "ShapeShift",
     "exploreThe": "Ознайомтеся з",
     "defiUniverse": "Всесвітом DeFi",
+    "body": "Торгуй, бріджи та заробляй. Приватна. У власності громади. Необмежена. Децентралізована.",
     "body2": "Ласкаво просимо до нового ShapeShift. 100% безкоштовний. З відкритим вихідним кодом. Належить громаді. Незалежний. Конфіденційний.",
     "header": "Для початку роботи під'єднайте гаманець",
     "cta": "Під'єднати гаманець",
@@ -508,9 +525,13 @@
     "accountAsset": "Активи на рахунку",
     "accountDetails": "Реквізити рахунку",
     "defi": "DeFi",
+    "openMenu": "Відкрити меню",
+    "closeNav": "Закрити навігацію",
+    "openNotif": "Відкрити сповіщення",
     "transactionHistory": "Історія транзакцій",
     "overview": "Огляд",
     "transactions": "Транзакції",
+    "pendingTransactions": "Транзакції в очікуванні",
     "tradeHistory": "Історія торгівлі",
     "foxToken": "Можливості FOX",
     "dApps": "dApps",
@@ -659,6 +680,7 @@
     "rate": "Курс",
     "tradeFrom": "Обміняти з",
     "priceImpact": "Вплив на ціну",
+    "tradeSettings": "Налаштування торгівлі",
     "slippage": {
       "maxSlippage": "Максимальне прослизання",
       "auto": "Автоматичне",
@@ -673,6 +695,8 @@
     "payWith": "Оплатити за допомогою",
     "youGet": "Ви отримуєте",
     "tradeTo": "Обміняти на",
+    "quoteStatus": "Статус котирування",
+    "expand": "Розгорнути",
     "availableRoutes": "Доступні маршрути",
     "minerFee": "Комісія майнерам",
     "donation": "Пожертвування на ShapeShift",
@@ -911,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift поважає дизайн безпеки %{asset}використовуючи нову адресу для кожної транзакції. Щоб відповідати протоколу THORChain, який працює з однією адресою, ми консолідуємо ваші кошти на одній адресі.",
+        "consolidateFunds": "Консолідація"
+      },
       "getBalanceError": "Помилка при отриманні залишків на гаманці",
       "broadcastingTransaction": "Транзакція відправляється",
       "youHaveSent": "Ви успішно відправили %{amount} %{symbol}",
@@ -1266,7 +1294,14 @@
         "header": "Імпорт акаунтів Ledger",
         "body": "Щоб побачити свої баланси для кожної мережі, вам потрібно підключити кожен додаток.",
         "availableChains": "Доступні мережі",
-        "error": "Виникла помилка при підключенні вашого гаманця"
+        "error": "Виникла помилка при підключенні вашого гаманця",
+        "followTheInstructions": "Дотримуйтесь інструкцій",
+        "toGetTheRuneApp": "щоб отримати додаток RUN на своєму пристрої",
+        "added": "Додано",
+        "connect": "Підключитися"
+      },
+      "verify": {
+        "confirmOnDevice": "Підтвердіть на пристрої"
       },
       "success": {
         "header": "Ledger підключено",
@@ -1645,7 +1680,8 @@
     "youCanNowUse": "Тепер ви можете користуватися %{name} Акаунт #%{accountNumber}",
     "showAssets": "Показати активи",
     "hideAssets": "Приховати активи",
-    "viewAccount": "Переглянути акаунти"
+    "viewAccount": "Переглянути акаунти",
+    "expandAccount": "Розширити рахунок"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2081,7 +2117,8 @@
     "aboutCollection": "Про %{collectionName}",
     "emptyTitle": "Куди поділися всі NFT?",
     "emptyBody": "Не хвилюйтеся, ми відправили пошукову групу, щоб знайти ще більше дивовижних NFT. А тим часом, не соромтеся дивитися на цей порожній простір і роздумувати про сенс існування.",
-    "reportSpam": "Повідомити про спам"
+    "reportSpam": "Повідомити про спам",
+    "refresh": "Оновити"
   },
   "missions": {
     "subtitle": "Місії FOX",
@@ -2162,6 +2199,11 @@
     "repaymentLock": "Блокування виплат",
     "borrow": "Позичити",
     "repay": "Погасити",
+    "repayAmount": "Сума до погашення",
+    "unlockedCollateral": "Розблокована застава",
+    "depositAsset": "Внести %{asset}",
+    "switchAssets": "Переключити активи",
+    "backToLending": "Назад до кредитування",
     "outstandingDebt": "Непогашена заборгованість",
     "collateral": "Забезпечення",
     "debt": "Борг",

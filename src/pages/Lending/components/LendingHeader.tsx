@@ -14,6 +14,7 @@ import { Amount } from 'components/Amount/Amount'
 import { DonutChart } from 'components/DonutChart/DonutChart'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
@@ -40,6 +41,7 @@ export const LendingHeader = () => {
 
   const { isLoading, collateralValueUserCurrency, debtValueUserCurrency } =
     useAllLendingPositionsData()
+  const ltv = bnOrZero(debtValueUserCurrency).div(collateralValueUserCurrency).toNumber()
   return (
     <Stack>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
@@ -70,7 +72,7 @@ export const LendingHeader = () => {
           </Card>
           <Card flex={1} flexDir='row' justifyContent='space-between' alignItems='center'>
             <CardBody>
-              <Amount.Percent value='0' fontSize='4xl' fontWeight='bold' />
+              <Amount.Percent value={ltv} fontSize='4xl' fontWeight='bold' />
               <Text color='text.subtle' fontWeight='medium' translation='lending.loanToValue' />
             </CardBody>
             <CardFooter>

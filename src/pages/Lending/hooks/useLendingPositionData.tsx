@@ -15,6 +15,16 @@ type UseLendingPositionDataProps = {
   skip?: boolean
 }
 
+export const thorchainLendingPositionQueryFn = async ({
+  queryKey,
+}: {
+  queryKey: [string, { accountId: AccountId; assetId: AssetId }]
+}) => {
+  const [, { accountId, assetId }] = queryKey
+  const position = await getThorchainLendingPosition({ accountId, assetId })
+  return position
+}
+
 export const useLendingPositionData = ({
   accountId,
   assetId,
@@ -28,7 +38,7 @@ export const useLendingPositionData = ({
 
   const lendingPositionData = useQuery({
     // The time before the data is considered stale, meaning firing this query after it elapses will trigger queryFn
-    staleTime: 60_000,
+    staleTime: 300_000,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -57,7 +67,7 @@ export const useLendingPositionData = ({
     },
     enabled: Boolean(!skip && accountId && assetId && poolAssetMarketData.price !== '0'),
     refetchOnMount: true,
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
     refetchIntervalInBackground: true,
   })
 

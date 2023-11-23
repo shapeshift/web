@@ -303,9 +303,10 @@ export const BorrowInput = ({
       if (
         /not enough fee/.test(lendingQuoteError.message) ||
         /not enough to pay transaction fee/.test(lendingQuoteError.message)
-      ) {
+      )
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      }
+      if (/trading is halted/.test(lendingQuoteError.message))
+        return 'trade.errors.tradingNotActiveNoAssetSymbol'
     }
     return null
   }, [

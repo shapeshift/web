@@ -238,15 +238,17 @@ export const RepayInput = ({
       if (
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
         /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
-      ) {
+      )
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      }
       if (
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
-      ) {
+      )
         return 'Repayment not yet available'
-      }
+
+      if (/trading is halted/i.test(lendingQuoteCloseError.message))
+        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
       if (/loan contains no collateral to redeem/i.test(lendingQuoteCloseError.message)) {

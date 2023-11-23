@@ -15,6 +15,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { Asset } from 'lib/asset-service'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -93,9 +94,14 @@ export const getAllThorchainSaversPositions = async (
 
   if (!poolId) return []
 
-  const { data: opportunitiesData } = await axios.get<ThorchainSaverPositionResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
-  )
+  const { data: opportunitiesData } = await queryClient.fetchQuery({
+    queryKey: ['thorchainSaversPositions', poolId],
+    queryFn: () =>
+      axios.get<ThorchainSaverPositionResponse[]>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
+      ),
+    staleTime: 60_000,
+  })
 
   if (!opportunitiesData) return []
 

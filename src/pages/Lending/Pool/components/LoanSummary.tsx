@@ -4,7 +4,6 @@ import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,14 +12,12 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
+import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 const FromToStack: React.FC<StackProps> = props => {
   const dividerIcon = useMemo(() => <ArrowForwardIcon color='text.subtle' borderLeft={0} />, [])
@@ -88,49 +85,13 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
-  )
   const accountId = collateralAccountId ?? ''
 
-  const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPosition', { accountId, assetId: collateralAssetId }],
-    [accountId, collateralAssetId],
-  )
-
-  // Fetch the current lending position data
-  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
-    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
-    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
-    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
-    // this is a good way to avoid spamming the API during develpment
-    staleTime: Infinity,
-    queryKey: lendingPositionQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [, { accountId, assetId }] = queryKey
-      const position = await getThorchainLendingPosition({ accountId, assetId })
-      return position
-    },
-    select: data => {
-      // returns actual derived data, or zero's out fields in case there is no active position
-      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
-
-      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
-        .times(collateralAssetMarketData.price)
-        .toString()
-      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
-      const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
-        .times(userCurrencyToUsdRate)
-        .toString()
-
-      return {
-        collateralBalanceCryptoPrecision,
-        collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUserCurrency,
-      }
-    },
-    enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
-  })
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
+    useLendingPositionData({
+      accountId,
+      assetId: collateralAssetId,
+    })
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({

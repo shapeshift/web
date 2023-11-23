@@ -165,7 +165,6 @@ export const RepayInput = ({
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
   )
 
-  console.log({ collateralAccountId })
   const {
     data: lendingPositionData,
     isLoading: isLendingPositionDataLoading,
@@ -175,8 +174,6 @@ export const RepayInput = ({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
-
-  console.log({ lendingPositionData, isLendingPositionDataSuccess })
 
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null

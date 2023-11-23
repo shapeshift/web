@@ -477,7 +477,8 @@
     "steps": {
       "deposit": {
         "info": {
-          "title": "Informação do Depósito"
+          "title": "Informação do Depósito",
+          "description": "Insira a quantia do %{asset} que você deseja depositar"
         }
       },
       "withdraw": {
@@ -2200,6 +2201,7 @@
     "repay": "Pagar de volta",
     "repayAmount": "Pagar Quantia",
     "unlockedCollateral": "Colateral Desbloqueada",
+    "depositAsset": "Deposite %{asset}",
     "switchAssets": "Trocar ativos",
     "backToLending": "Voltar aos empréstimos",
     "outstandingDebt": "Débito Pendente",

@@ -66,6 +66,8 @@
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "days": "日程",
+    "clear": "クリア",
+    "copy": "コピー",
     "copied": "クリップボードにコピーされました",
     "copyFailed": "クリップボードへのコピーに失敗しました",
     "copyFailedDescription": "コピーしてください",
@@ -118,7 +120,20 @@
     "learnMore": "詳細",
     "showAll": "すべて表示",
     "showLess": "表示を減らす",
-    "yourBalance": "バランス"
+    "yourBalance": "バランス",
+    "carousel": {
+      "next": "次",
+      "prev": "前",
+      "back": "戻る",
+      "dot": "ドット"
+    },
+    "table": {
+      "nextPage": "次のページ",
+      "prevPage": "前のページ",
+      "sortedAsc": "昇順でソート",
+      "sortedDesc": "降順でソート",
+      "expandRow": "行を広げる"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,9 +246,11 @@
     "notSupported": "%{asset} は %{wallet} でサポートされていません"
   },
   "connectWalletPage": {
+    "title": "オリジナルのマルチチェーン取引所",
     "shapeshift": "ShapeShift",
     "exploreThe": "をエクスプローラーしてください",
     "defiUniverse": "DeFi空間",
+    "body": "取引し、ブリッジし、獲得しましょう。プライベートであり、コミュニティが所有した、ノンカストディアルな分散型の取引所です。",
     "body2": "新しいShapeShiftへようこそ。完全無料・オープンソース・コミュニティ所有・ノンカストディアル・プライベート",
     "header": "始めるにはウォレットを接続してください",
     "cta": "ウォレットを接続する",
@@ -508,9 +525,13 @@
     "accountAsset": "アカウント資産",
     "accountDetails": "アカウント詳細",
     "defi": "DeFi",
+    "openMenu": "メニューを開く",
+    "closeNav": "ナビゲーションを閉じる",
+    "openNotif": "通知を開く",
     "transactionHistory": "取引履歴",
     "overview": "概要",
     "transactions": "取引",
+    "pendingTransactions": "保留中のトランザクション",
     "tradeHistory": "取引履歴",
     "foxToken": "FOXの機会",
     "dApps": "dApps",
@@ -659,6 +680,7 @@
     "rate": "レート",
     "tradeFrom": "取引元",
     "priceImpact": "価格への影響",
+    "tradeSettings": "取引設定",
     "slippage": {
       "maxSlippage": "最大スリッページ",
       "auto": "自動",
@@ -673,6 +695,8 @@
     "payWith": "支払い方法",
     "youGet": "獲得",
     "tradeTo": "取引先",
+    "quoteStatus": "見積ステータス",
+    "expand": "広げる",
     "availableRoutes": "利用可能なルート",
     "minerFee": "マイナー手数料",
     "donation": "SjapeShiftの寄付",
@@ -911,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift は、トランザクションごとに新しいアドレスを使用することにより、%{asset} のセキュリティ設計を尊重します。単一のアドレスで動作するTHORChainのプロトコルに合わせるために、私たちはあなたの資金を単一のアドレスに統合します。",
+        "consolidateFunds": "統合する"
+      },
       "getBalanceError": "ウォレット残高取得エラー",
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
@@ -1266,7 +1294,14 @@
         "header": "Ledgerアカウントのインポート",
         "body": "各チェーンの残高を確認するには、各アプリを接続する必要があります。",
         "availableChains": "利用可能なチェーン",
-        "error": "ウォレットの接続中にエラーが発生しました"
+        "error": "ウォレットの接続中にエラーが発生しました",
+        "followTheInstructions": "デバイスにRUNEアプリを入手するには",
+        "toGetTheRuneApp": "指示に従ってください",
+        "added": "追加した",
+        "connect": "接続する"
+      },
+      "verify": {
+        "confirmOnDevice": "デバイス上で確認する"
       },
       "success": {
         "header": "Ledgerが接続されました",
@@ -1645,7 +1680,8 @@
     "youCanNowUse": "%{name} アカウント #%{accountNumber} を使用できるようになりました",
     "showAssets": "アセットの表示",
     "hideAssets": "アセットを非表示にする",
-    "viewAccount": "アカウントをみる"
+    "viewAccount": "アカウントをみる",
+    "expandAccount": "アカウントを広げる"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2081,7 +2117,8 @@
     "aboutCollection": "%{collectionName}について",
     "emptyTitle": "すべてのNFTはどこに行ったのでしょうか?",
     "emptyBody": "心配しないでください、私たちはより素晴らしいNFTを取り戻すために捜索隊を派遣しました。その間、何もない空間を見つめて、存在の意味をじっくり考えてみてください。",
-    "reportSpam": "スパム報告"
+    "reportSpam": "スパム報告",
+    "refresh": "リフレッシュ"
   },
   "missions": {
     "subtitle": "FOXミッション",
@@ -2162,6 +2199,11 @@
     "repaymentLock": "返済ロック",
     "borrow": "借りる",
     "repay": "返済",
+    "repayAmount": "返済額",
+    "unlockedCollateral": "ロック解除された担保",
+    "depositAsset": "入金 %{asset}",
+    "switchAssets": "アセットの切り替え",
+    "backToLending": "レンディングに戻る",
     "outstandingDebt": "負債残高",
     "collateral": "担保",
     "debt": "借金",

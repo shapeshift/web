@@ -61,14 +61,12 @@ type RepayInputProps = {
   setRepaymentAsset: (asset: Asset) => void
 }
 
-// no-op, this is read-only
-const handleCollateralAccountIdChange = () => {}
-
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
   isAccountSelectionDisabled,
   onRepaymentPercentChange,
+  onCollateralAccountIdChange: handleCollateralAccountIdChange,
   collateralAccountId,
   repaymentAccountId,
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
@@ -167,6 +165,7 @@ export const RepayInput = ({
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
   )
 
+  console.log({ collateralAccountId })
   const {
     data: lendingPositionData,
     isLoading: isLendingPositionDataLoading,
@@ -176,6 +175,8 @@ export const RepayInput = ({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
+
+  console.log({ lendingPositionData, isLendingPositionDataSuccess })
 
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null

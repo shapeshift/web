@@ -66,6 +66,8 @@
     "privacy": "隐私政策",
     "terms": "服务条款",
     "days": "天",
+    "clear": "清除",
+    "copy": "复制",
     "copied": "复制到剪贴板。",
     "copyFailed": "无法复制到剪贴板",
     "copyFailedDescription": "请手动复制",
@@ -98,7 +100,10 @@
     "all": "全部",
     "viewAll": "查看全部",
     "slippage": "滑点",
+    "feesPlusSlippage": "费用+滑点",
     "best": "最好的",
+    "gasFee": "手续费",
+    "fees": "费用",
     "alternative": "可供选择",
     "validator": "%{name} 验证器",
     "needAsset": "需要一些 %{asset} 吗？",
@@ -115,7 +120,20 @@
     "learnMore": "了解更多",
     "showAll": "显示全部",
     "showLess": "显示较少",
-    "yourBalance": "你的余额"
+    "yourBalance": "你的余额",
+    "carousel": {
+      "next": "下一个",
+      "prev": "上一个",
+      "back": "后退",
+      "dot": "点"
+    },
+    "table": {
+      "nextPage": "下一页",
+      "prevPage": "上一页",
+      "sortedAsc": "升序排序",
+      "sortedDesc": "降序排序",
+      "expandRow": "展开行"
+    }
   },
   "consentBanner": {
     "body": {
@@ -228,9 +246,11 @@
     "notSupported": "%{asset} 不被 %{wallet}  支持 "
   },
   "connectWalletPage": {
+    "title": "最初的多链交易所",
     "shapeshift": "ShapeShift",
     "exploreThe": "探索",
     "defiUniverse": "DeFi 宇宙",
+    "body": "交易、跨链桥和赚取收益。隐私的。社区所有。无监护。去中心化的。",
     "body2": "欢迎使用新的 ShapeShift。100% 免费、开源化、社区所有、非监管和隐私的。",
     "header": "请连接钱包以开始",
     "cta": "连接钱包",
@@ -505,9 +525,13 @@
     "accountAsset": "账户资产",
     "accountDetails": "账户详细资料",
     "defi": "DeFi",
+    "openMenu": "打开菜单",
+    "closeNav": "关闭导航",
+    "openNotif": "打开通知",
     "transactionHistory": "交易记录",
     "overview": "总览",
     "transactions": "交易",
+    "pendingTransactions": "待交易",
     "tradeHistory": "交易记录",
     "foxToken": "FOX 机会",
     "dApps": "dApps",
@@ -523,7 +547,8 @@
     "buyCryptoShort": "买/卖",
     "arkeo": "Arkeo 空投",
     "foxMissions": "FOX 任务",
-    "foxMissionsShort": "任务"
+    "foxMissionsShort": "任务",
+    "lending": "贷款"
   },
   "transactionRow": {
     "send": "已发送",
@@ -643,6 +668,10 @@
   "trade": {
     "trade": "交易",
     "allowance": "额度",
+    "verifyAddresses": "验证地址",
+    "assetAddress": "%{asset} 地址",
+    "verifyAsset": "验证 %{asset}",
+    "verifyAddressMessage": "在继续之前确保您的地址正确。",
     "slippageInfo": "如果价格不利变化超过此百分比，你的交易将恢复。",
     "allowanceTooltip": "你授予智能合约允许使用的数量。",
     "searchingRate": "利率...",
@@ -651,6 +680,7 @@
     "rate": "利率",
     "tradeFrom": "交易从",
     "priceImpact": "价格影响",
+    "tradeSettings": "交易设置",
     "slippage": {
       "maxSlippage": "最大滑点",
       "auto": "自动",
@@ -665,6 +695,8 @@
     "payWith": "支付使用",
     "youGet": "你得到",
     "tradeTo": "交易成",
+    "quoteStatus": "报价状态",
+    "expand": "扩张",
     "availableRoutes": "可用路径",
     "minerFee": "矿工费",
     "donation": "ShapeShift 捐款",
@@ -903,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift 通过为每笔交易使用新地址来尊重 %{asset} 的安全设计。为了与使用单一地址运行的 THORChain 协议保持一致，我们会将您的资金整合到一个地址中。",
+        "consolidateFunds": "合并"
+      },
       "getBalanceError": "获取钱包余额时出错",
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
@@ -1258,7 +1294,14 @@
         "header": "导入 Ledger 账户",
         "body": "要查看每个链的余额，你需要连接每个应用程序。",
         "availableChains": "可用的链",
-        "error": "连接你的钱包时出错"
+        "error": "连接你的钱包时出错",
+        "followTheInstructions": "按照说明操作",
+        "toGetTheRuneApp": "在你的设备上安装 RUNE 应用程序",
+        "added": "添加",
+        "connect": "连接"
+      },
+      "verify": {
+        "confirmOnDevice": "在设备上确认"
       },
       "success": {
         "header": "Ledger 已连接",
@@ -1637,7 +1680,8 @@
     "youCanNowUse": "你现在可以使用 %{name} 账户 #%{accountNumber}",
     "showAssets": "显示资产",
     "hideAssets": "隐藏资产",
-    "viewAccount": "查看账户"
+    "viewAccount": "查看账户",
+    "expandAccount": "展开账户"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2073,7 +2117,8 @@
     "aboutCollection": "关于 %{collectionName}",
     "emptyTitle": "所有的 NFT 都去哪儿了？",
     "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
-    "reportSpam": "举报垃圾信息"
+    "reportSpam": "举报垃圾信息",
+    "refresh": "刷新"
   },
   "missions": {
     "subtitle": "FOX 任务",
@@ -2132,14 +2177,57 @@
     }
   },
   "lending": {
+    "lending": "贷款",
+    "lendingBody": "所有可以零利息和零清算借款的资金池的列表。",
+    "collateralValue": "抵押品价值",
+    "debtValue": "债务价值",
+    "loanToValue": "贷款价值",
+    "availablePools": "可用池",
+    "yourLoans": "你的借贷",
+    "pool": "池",
+    "poolDepth": "池深度",
+    "totalDebtBalance": "总债务余额",
+    "totalCollateral": "抵押品总额",
+    "estCollateralizationRatio": "预估抵押比例",
+    "collateralizationRatio": "抵押比例",
+    "totalBorrowers": "借款人总数",
+    "myLoanInformation": "我的借贷信息",
+    "loanInformation": "借贷概要",
+    "poolInformation": "池信息",
+    "collateralBalance": "抵押品余额",
+    "debtBalance": "债务余额",
+    "repaymentLock": "还款锁定",
+    "borrow": "借",
+    "repay": "还款",
+    "repayAmount": "还款金额",
+    "unlockedCollateral": "解锁抵押品",
+    "depositAsset": "充值 %{asset}",
+    "switchAssets": "转换资产",
+    "backToLending": "回到贷款",
+    "outstandingDebt": "未尝债务",
+    "collateral": "抵押品",
+    "debt": "债务",
+    "healthy": "健康度",
+    "caution": "警告",
+    "risky": "风险",
+    "confirmAndBorrow": "确认并借用",
+    "confirmAndRepay": "确认并偿还",
+    "transactionInfo": "交易概要",
+    "repayNoticeTitle": "耽误！",
+    "repayNoticeCta": "我理解",
+    "repayNotice": "要拿回抵押品，你需要偿还 100% 的债务。",
     "faq": {
+      "title": "常见问题",
       "lending": {
+        "title": "什么是 THORChain 借贷？",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "borrowing": {
+        "title": "借贷如何运作？",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       },
       "repayments": {
+        "title": "还款如何运作？",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
     }

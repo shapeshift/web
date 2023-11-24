@@ -85,12 +85,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && contextDispatch) {
       ;(async () => {
-        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
-        // This way, we ensure "View Position" actually routes to the updated position
+        // Skipping outbound detection since there's no outbound tx involved here - as long as the inner swap is confirmed, we're gucci
         await waitForThorchainUpdate({ txId: confirmedTransaction.txid, skipOutbound: true })
           .promise
-        // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-        queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
 
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({

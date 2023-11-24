@@ -40,7 +40,10 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
     (!skipOutbound && thorTxData.stages.outbound_signed?.completed === false)
   )
     return TxStatus.Pending
-  if (thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
+  // Skips outbound checks. If the swap is complete, we assume the transaction as confirmed
+  if (skipOutbound && thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
+  // When enforcing outbound checks, ensures the outbound Tx is signed and an out Tx is present
+  if (thorTxData.stages.outbound_signed?.completed && thorTxData.out_txs) return TxStatus.Confirmed
 
   // We shouldn't end up here, but just in case
   return TxStatus.Unknown
@@ -57,7 +60,7 @@ export const waitForThorchainUpdate = ({
     fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
-    maxAttempts: 20,
+    maxAttempts: 60,
   })
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>

@@ -131,8 +131,23 @@ export type ThorChainId =
   | ThorEvmSupportedChainId
   | ThorUtxoSupportedChainId
 
+type ThorNodeCoinSchema = {
+  asset: string
+  amount: string
+  decimals?: number
+}
+
+type ThorNodeTxSchema = {
+  id: string
+  chain: string
+  from_address: string
+  to_address: string
+  coins: ThorNodeCoinSchema[]
+  gas: ThorNodeCoinSchema[]
+  memo?: string
+}
+
 type ThorNodeStatusResponseSuccess = {
-  // Non-exhaustive. https://daemon.thorchain.shapeshift.com/lcd/thorchain/doc for the full response type.
   tx?: {
     id: string
     memo: string
@@ -159,6 +174,13 @@ type ThorNodeStatusResponseSuccess = {
       completed: boolean
     }
   }
+  out_txs?: ThorNodeTxSchema[]
+  planned_out_txs?: {
+    chain: string
+    to_address: string
+    coin: ThorNodeCoinSchema
+    refund: boolean
+  }[]
 }
 
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeQuoteResponseError

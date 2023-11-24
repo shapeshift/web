@@ -77,7 +77,7 @@ export const RepayConfirm = ({
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: async (_txId: string) => {
-      // Skipping outbound when repaying 100% since that will trigger a collateral refund transfer
+      // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
       // which we *want* to wait for before considering the repay as complete
       await waitForThorchainUpdate({ txId: _txId, skipOutbound: bn(repaymentPercent).lt(100) })
         .promise

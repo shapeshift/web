@@ -66,6 +66,8 @@
     "privacy": "Datenschutz-Bestimmungen",
     "terms": "Nutzungsbedingungen",
     "days": "Tage",
+    "clear": "Löschen",
+    "copy": "Kopieren",
     "copied": "In die Zwischenablage kopiert.",
     "copyFailed": "Fehler beim Kopieren in die Zwischenablage",
     "copyFailedDescription": "Bitte manuell kopieren",
@@ -118,7 +120,20 @@
     "learnMore": "Erfahre mehr",
     "showAll": "Zeige alles",
     "showLess": "Zeige weniger",
-    "yourBalance": "Ihr Kontostand"
+    "yourBalance": "Ihr Kontostand",
+    "carousel": {
+      "next": "Weiter",
+      "prev": "Zuvor",
+      "back": "Zurück",
+      "dot": "Punkt"
+    },
+    "table": {
+      "nextPage": "Nächste Seite",
+      "prevPage": "Vorherige Seite",
+      "sortedAsc": "Aufsteigend sortiert",
+      "sortedDesc": "Absteigend sortiert",
+      "expandRow": "Zeile erweitern"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,10 +246,11 @@
     "notSupported": "%{asset} wird von %{wallet} nicht unterstützt"
   },
   "connectWalletPage": {
+    "title": "Die originale Multichain-Börse",
     "shapeshift": "ShapeShift",
     "exploreThe": "Entdecken Sie das",
     "defiUniverse": "DeFi Universum",
-    "body": "100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
+    "body": "Handeln, wechseln und verdienen. Privat. Gemeinschaftseigentum. Nicht haftpflichtig. Dezentral.",
     "body2": "Willkommen beim neuen ShapeShift. 100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
     "cta": "Wallet verbinden",
@@ -509,9 +525,13 @@
     "accountAsset": "Konto Vermögenswert",
     "accountDetails": "Kontodetails",
     "defi": "DeFi",
+    "openMenu": "Menü öffnen",
+    "closeNav": "Navigation schließen",
+    "openNotif": "Benachrichtigungen öffnen",
     "transactionHistory": "Bisherige Transaktionen",
     "overview": "Übersicht",
     "transactions": "Transaktionen",
+    "pendingTransactions": "ausstehende Transaktionen",
     "tradeHistory": "Handelsverlauf",
     "foxToken": "FOX Verdienstmöglichkeiten ",
     "dApps": "dApps",
@@ -660,6 +680,7 @@
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
     "priceImpact": "Preisauswirkungen",
+    "tradeSettings": "Handelseinstellungen",
     "slippage": {
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
@@ -674,6 +695,8 @@
     "payWith": "Bezahle mit",
     "youGet": "Sie bekommen",
     "tradeTo": "Handel bis",
+    "quoteStatus": "Angebotsstatus",
+    "expand": "Erweitern",
     "availableRoutes": "Verfügbare Routen",
     "minerFee": "Miner-Gebühr",
     "donation": "Spende an ShapeShift",
@@ -912,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift berücksichtigt das Sicherheitsdesign von %{asset}, indem es für jede Transaktion eine neue Adresse verwendet. Zur Anpassung an das THORChain-Protokoll, das mit einer einzigen Adresse arbeitet, konsolidieren wir Ihre Gelder an einer einzigen Adresse.",
+        "consolidateFunds": "Konsolidieren"
+      },
       "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
@@ -1267,7 +1294,14 @@
         "header": "Ledger Konten importieren",
         "body": "Um Ihre Guthaben für jede Kette anzuzeigen, müssen Sie jede App verbinden.",
         "availableChains": "Verfügbare Ketten",
-        "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten"
+        "error": "Beim Verbinden Ihrer Wallet ist ein Fehler aufgetreten",
+        "followTheInstructions": "Folge den Anweisungen",
+        "toGetTheRuneApp": "um die RUNE-App auf Ihr Gerät zu laden",
+        "added": "Hinzugefügt",
+        "connect": "Verbinden"
+      },
+      "verify": {
+        "confirmOnDevice": "Auf dem Gerät bestätigen"
       },
       "success": {
         "header": "Ledger Verbunden",
@@ -1646,7 +1680,8 @@
     "youCanNowUse": "Verwenden Sie nun %{name} Konto #%{accountNumber}",
     "showAssets": "Vermögen anzeigen",
     "hideAssets": "Vermögenswerte ausblenden",
-    "viewAccount": "Konto ansehen"
+    "viewAccount": "Konto ansehen",
+    "expandAccount": "Konto erweitern"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2082,7 +2117,8 @@
     "aboutCollection": "Über %{collectionName}",
     "emptyTitle": "Wo sind all die NFTs hin?",
     "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)",
-    "reportSpam": "Spam melden"
+    "reportSpam": "Spam melden",
+    "refresh": "Aktualisierung"
   },
   "missions": {
     "subtitle": "FOX Missionen",
@@ -2163,6 +2199,11 @@
     "repaymentLock": "Rückzahlungssperre",
     "borrow": "Ausleihen",
     "repay": "Zurückzahlen",
+    "repayAmount": "Rückzahlungsbetrag",
+    "unlockedCollateral": "Freigeschaltete Sicherheiten",
+    "depositAsset": "Einzahlen von %{asset}",
+    "switchAssets": "Vermögenswerte wechseln",
+    "backToLending": "Zurück zur Kreditvergabe",
     "outstandingDebt": "Restschuld",
     "collateral": "Sicherheit",
     "debt": "Schulden",

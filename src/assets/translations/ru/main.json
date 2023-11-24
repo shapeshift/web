@@ -66,6 +66,8 @@
     "privacy": "Политика конфиденциальности",
     "terms": "Условия обслуживания",
     "days": "Дней",
+    "clear": "Очистить",
+    "copy": "Копировать",
     "copied": "Скопировано в буфер обмена.",
     "copyFailed": "Не удалось скопировать в буфер обмена",
     "copyFailedDescription": "Пожалуйста, скопируйте вручную",
@@ -118,7 +120,20 @@
     "learnMore": "Подробнее",
     "showAll": "Показать больше",
     "showLess": "Показать меньше",
-    "yourBalance": "Ваш баланс"
+    "yourBalance": "Ваш баланс",
+    "carousel": {
+      "next": "Далее",
+      "prev": "Предыдущий",
+      "back": "Назад",
+      "dot": "Dot"
+    },
+    "table": {
+      "nextPage": "Следующая страница",
+      "prevPage": "Предыдущая страница",
+      "sortedAsc": "Сортировка по возрастанию",
+      "sortedDesc": "Сортировка по убыванию",
+      "expandRow": "Развернуть ряд"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,10 +246,11 @@
     "notSupported": "%{asset} не поддерживается %{wallet}"
   },
   "connectWalletPage": {
+    "title": "Оригинальная мультичейн биржа",
     "shapeshift": "ShapeShift",
     "exploreThe": "Исследуйте",
     "defiUniverse": "Вселенную DeFi",
-    "body": "100% Бесплатно. Открытый код. Принадлежит сообществу. Некастодиальный. Приватный.",
+    "body": "Торговля, бридж и заработок. Частный. В собственности общества. Децентрализованная.",
     "body2": "Добро пожаловать в новый ShapeShift. 100% свободный. С открытым исходным кодом. Принадлежит сообществу. Без посредника. Приватный.",
     "header": "Пожалуйста, подключите кошелек, чтобы начать",
     "cta": "Подключить кошелек",
@@ -509,9 +525,13 @@
     "accountAsset": "Активы аккаунта",
     "accountDetails": "Детали аккаунта",
     "defi": "DeFi",
+    "openMenu": "Открыть меню",
+    "closeNav": "Закрыть навигацию",
+    "openNotif": "Открыть уведомления",
     "transactionHistory": "История транзакций",
     "overview": "Обзор",
     "transactions": "Транзакции",
+    "pendingTransactions": "Незавершенные сделки",
     "tradeHistory": "История торгов",
     "foxToken": "FOX возможности",
     "dApps": "dApps",
@@ -660,6 +680,7 @@
     "rate": "Курс",
     "tradeFrom": "Обменять от",
     "priceImpact": "Влияние на цену",
+    "tradeSettings": "Торговые настройки",
     "slippage": {
       "maxSlippage": "Максимальное проскальзывание",
       "auto": "Автоматическое",
@@ -674,6 +695,8 @@
     "payWith": "Оплатить с помощью",
     "youGet": "Вы получаете",
     "tradeTo": "Обменять на",
+    "quoteStatus": "Статус котировки",
+    "expand": "Развернуть",
     "availableRoutes": "Доступные маршруты",
     "minerFee": "Комиссия майнеров",
     "donation": "Пожертвование ShapeShift",
@@ -912,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "В ShapeShift соблюдена конструкция безопасности %{asset} для каждой транзакции используется новый адрес. Чтобы соответствовать протоколу THORChain, который работает с одним адресом, мы объединяем ваши средства в один адрес.",
+        "consolidateFunds": "Консолидировать"
+      },
       "getBalanceError": "Ошибка при получении данных о балансе кошелька",
       "broadcastingTransaction": "Мониторинг транзакции",
       "youHaveSent": "Вы успешно отправили %{amount} %{symbol}",
@@ -1267,7 +1294,14 @@
         "header": "Импорт счетов Ledger",
         "body": "Чтобы увидеть остатки по каждой сети, необходимо подключить каждое приложение.",
         "availableChains": "Доступные сети",
-        "error": "Произошла ошибка при подключении вашего кошелька"
+        "error": "Произошла ошибка при подключении вашего кошелька",
+        "followTheInstructions": "Следуйте инструкциям",
+        "toGetTheRuneApp": "чтобы установить приложение RUNE на свое устройство",
+        "added": "Добавлен",
+        "connect": "Подключить"
+      },
+      "verify": {
+        "confirmOnDevice": "Подтвердите на устройстве"
       },
       "success": {
         "header": "Ledger подключен",
@@ -1646,7 +1680,8 @@
     "youCanNowUse": "Теперь вы можете использовать %{name} Аккаунт #%{accountNumber}",
     "showAssets": "Показать активы",
     "hideAssets": "Скрыть активы",
-    "viewAccount": "Просмотр аккаунта"
+    "viewAccount": "Просмотр аккаунта",
+    "expandAccount": "Расширить счет"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2082,7 +2117,8 @@
     "aboutCollection": "О %{collectionName}",
     "emptyTitle": "Куда делись все NFT?",
     "emptyBody": "Не волнуйтесь, мы отправили поисковую группу, чтобы вернуть больше удивительных NFT. А тем временем, не стесняйтесь смотреть на это пустое место и размышлять о смысле существования.",
-    "reportSpam": "Сообщить о спаме"
+    "reportSpam": "Сообщить о спаме",
+    "refresh": "Обновить"
   },
   "missions": {
     "subtitle": "Миссии FOX",
@@ -2163,6 +2199,11 @@
     "repaymentLock": "Блокировка погашения",
     "borrow": "Занять",
     "repay": "Погасить",
+    "repayAmount": "Сумма погашения",
+    "unlockedCollateral": "Разблокированный залог",
+    "depositAsset": "Deposit %{asset}",
+    "switchAssets": "Переключить активы",
+    "backToLending": "Назад к кредитованию",
     "outstandingDebt": "Непогашенная задолженность",
     "collateral": "Обеспечение",
     "debt": "Долг",

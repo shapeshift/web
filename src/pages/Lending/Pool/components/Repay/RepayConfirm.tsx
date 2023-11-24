@@ -31,7 +31,7 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
@@ -77,7 +77,10 @@ export const RepayConfirm = ({
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: async (_txId: string) => {
-      await waitForThorchainUpdate({ txId: _txId, skipOutbound: true }).promise
+      // Skipping outbound when repaying 100% since that will trigger a collateral refund transfer
+      // which we *want* to wait for before considering the repay as complete
+      await waitForThorchainUpdate({ txId: _txId, skipOutbound: bn(repaymentPercent).lt(100) })
+        .promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
     },
   })

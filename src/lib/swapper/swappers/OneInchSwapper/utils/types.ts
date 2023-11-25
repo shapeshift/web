@@ -12,19 +12,25 @@ export const oneInchSupportedChainIds = [
 export type OneInchSupportedChainId = (typeof oneInchSupportedChainIds)[number]
 
 export type OneInchQuoteApiInput = {
-  fromTokenAddress: string
-  toTokenAddress: string
+  src: string
+  dst: string
   amount: string
   fee?: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
+  includeTokensInfo?: boolean
+  includeProtocols?: boolean
+  includeGas?: boolean
 }
 
 // https://docs.1inch.io/docs/aggregation-protocol/api/swap-params/
 export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   slippage: number
-  fromAddress: string
-  referrerAddress?: string
+  from: string
+  referrer?: string
   allowPartialFill: boolean
   disableEstimate: boolean
+  includeTokensInfo?: boolean
+  includeProtocols?: boolean
+  includeGas?: boolean
 }
 
 export type OneInchSpenderResponse = {
@@ -37,11 +43,17 @@ export type OneInchTokenResponse = {
   address: string
   decimals: number
   logoURI: string
+  tags: string[]
 }
 
-export type OneInchQuoteResponse = OneInchBaseResponse & {
-  estimatedGas: string
+type OneInchProtocol = {
+  name: string
+  part: number
+  src: string
+  dst: string
 }
+
+export type OneInchQuoteResponse = OneInchBaseResponse
 
 export type OneInchSwapResponse = OneInchBaseResponse & {
   tx: EvmTransaction
@@ -50,8 +62,10 @@ export type OneInchSwapResponse = OneInchBaseResponse & {
 export type OneInchBaseResponse = {
   fromToken: OneInchTokenResponse
   toToken: OneInchTokenResponse
-  toTokenAmount: string
+  protocols: OneInchProtocol[][][]
+  toAmount: string
   fromTokenAmount: string
+  gas?: number
 }
 
 export type EvmTransaction = {

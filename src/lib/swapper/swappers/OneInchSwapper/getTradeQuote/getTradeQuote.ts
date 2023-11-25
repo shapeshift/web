@@ -3,6 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
+import { bn } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
@@ -45,12 +46,15 @@ export async function getTradeQuote(
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
   const params: OneInchQuoteApiInput = {
-    fromTokenAddress: getOneInchTokenAddress(sellAsset),
-    toTokenAddress: getOneInchTokenAddress(buyAsset),
+    src: getOneInchTokenAddress(sellAsset),
+    dst: getOneInchTokenAddress(buyAsset),
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     ...(maybeTreasuryAddress && {
       fee: buyTokenPercentageFee,
     }),
+    includeTokensInfo: true,
+    includeProtocols: true,
+    includeGas: true,
   }
 
   const { chainReference } = fromChainId(chainId)
@@ -62,7 +66,7 @@ export async function getTradeQuote(
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
 
   const { data: quote } = maybeQuoteResponse.unwrap()
-  const { toTokenAmount: buyAmountAfterFeesCryptoBaseUnit } = quote
+  const { toAmount: buyAmountAfterFeesCryptoBaseUnit } = quote
   const buyAmountBeforeFeesCryptoBaseUnit = addBasisPointAmount(
     buyAmountAfterFeesCryptoBaseUnit,
     affiliateBps,
@@ -78,12 +82,14 @@ export async function getTradeQuote(
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
+  if (!quote.gas) throw new Error('1inch quote missing gas')
+
   try {
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559,
-      gasLimit: quote.estimatedGas,
+      gasLimit: bn(quote.gas).toString(),
       l1GasLimit: '0', // TODO: support l1 gas limit for accurate optimism estimations
     })
 

@@ -24,7 +24,7 @@ export const getRate = (response: OneInchBaseResponse): BigNumber => {
     response.fromTokenAmount,
     response.fromToken.decimals,
   )
-  const toTokenAmountCryptoHuman = fromBaseUnit(response.toTokenAmount, response.toToken.decimals)
+  const toTokenAmountCryptoHuman = fromBaseUnit(response.toAmount, response.toToken.decimals)
   return bn(toTokenAmountCryptoHuman).div(fromTokenAmountCryptoHuman)
 }
 

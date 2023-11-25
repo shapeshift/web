@@ -139,8 +139,9 @@ const validators = {
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
-    default: 'https://api-shapeshift.1inch.io/v5.0',
+    default: 'https://api.1inch.dev/swap/v5.2',
   }),
+  REACT_APP_ONE_INCH_API_KEY: str({ default: '2qToPh5P1hx2Db8wtXUjkjozkaFa6fhI' }),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),

@@ -96,9 +96,9 @@ export const avax: AssetWithNetworkName = {
   precision: 18,
   color: '#FFFFFF', // this will get picked up by the color generation script,
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
-  explorer: 'https://snowtrace.io',
-  explorerAddressLink: 'https://snowtrace.io/address/',
-  explorerTxLink: 'https://snowtrace.io/tx/',
+  explorer: 'https://snowtrace.dev',
+  explorerAddressLink: 'https://snowtrace.dev/address/',
+  explorerTxLink: 'https://snowtrace.dev/tx/',
 }
 
 export const thorchain: AssetWithNetworkName = {

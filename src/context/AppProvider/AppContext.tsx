@@ -42,6 +42,7 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
@@ -106,6 +107,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         walletSupportsChain({ chainId, wallet, isSnapInstalled }),
       )
 
+      const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
         // only some wallets support multi account
@@ -114,6 +116,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const input = { accountNumber, chainIds, wallet }
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
         const accountIds = Object.keys(accountIdsAndMetadata)
+
+        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
         const { getAccount } = portfolioApi.endpoints
         const accountPromises = accountIds.map(accountId =>
@@ -134,7 +138,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const { hasActivity } = account.accounts.byId[accountId]
 
           // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !hasActivity) return
+          if (accountNumber > 0 && !hasActivity) return delete accountMetadataByAccountId[accountId]
 
           // unique set to handle utxo chains with multiple account types per account
           chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
@@ -143,8 +147,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         })
 
         chainIds = chainIdsWithActivity
-        dispatch(portfolio.actions.upsertAccountMetadata(accountIdsAndMetadata))
       }
+
+      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 

@@ -5,7 +5,7 @@ import { RawText } from 'components/Text'
 import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
-type AmountProps = {
+export type AmountProps = {
   value: number | string
   prefix?: string
   suffix?: string

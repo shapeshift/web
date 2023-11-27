@@ -29,14 +29,21 @@ type BorrowProps = {
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
+  depositAmountCryptoPrecision: string | null
+  setCryptoDepositAmount: (amount: string | null) => void
+  borrowAsset: Asset | null
+  setBorrowAsset: (asset: Asset | null) => void
 }
 export const Borrow = ({
+  borrowAsset,
+  setBorrowAsset,
   collateralAccountId,
   borrowAccountId,
   onCollateralAccountIdChange: handleCollateralAccountIdChange,
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
+  depositAmountCryptoPrecision,
+  setCryptoDepositAmount,
 }: BorrowProps) => {
-  const [cryptoDepositAmount, setCryptoDepositAmount] = useState<string | null>(null)
   const [fiatDepositAmount, setFiatDepositAmount] = useState<string | null>(null)
 
   const collateralAssetId = useRouteAssetId()
@@ -64,14 +71,16 @@ export const Borrow = ({
       setCryptoDepositAmount(crypto)
       setFiatDepositAmount(fiat)
     },
-    [collateralAssetMarketData?.price],
+    [collateralAssetMarketData?.price, setCryptoDepositAmount],
   )
 
   return (
     <MemoryRouter initialEntries={BorrowEntries} initialIndex={0}>
       <BorrowRoutes
+        borrowAsset={borrowAsset}
+        setBorrowAsset={setBorrowAsset}
         collateralAssetId={collateralAssetId}
-        cryptoDepositAmount={cryptoDepositAmount}
+        cryptoDepositAmount={depositAmountCryptoPrecision}
         fiatDepositAmount={fiatDepositAmount}
         onDepositAmountChange={handleDepositAmountChange}
         collateralAccountId={collateralAccountId}
@@ -84,6 +93,8 @@ export const Borrow = ({
 }
 
 type BorrowRoutesProps = {
+  borrowAsset: Asset | null
+  setBorrowAsset: (asset: Asset | null) => void
   collateralAssetId: AssetId
   cryptoDepositAmount: string | null
   fiatDepositAmount: string | null
@@ -96,6 +107,8 @@ type BorrowRoutesProps = {
 
 const BorrowRoutes = memo(
   ({
+    borrowAsset,
+    setBorrowAsset,
     collateralAssetId,
     cryptoDepositAmount,
     fiatDepositAmount,
@@ -106,7 +119,6 @@ const BorrowRoutes = memo(
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
   }: BorrowRoutesProps) => {
     const location = useLocation()
-    const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
 
     const renderBorrowInput = useCallback(
       () => (

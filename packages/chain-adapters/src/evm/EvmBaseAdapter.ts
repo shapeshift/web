@@ -207,7 +207,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.AvalancheMainnet]: {
         name: 'Avalanche',
         symbol: 'AVAX',
-        explorer: 'https://snowtrace.io',
+        explorer: 'https://snowtrace.dev',
       },
       [KnownChainIds.BnbSmartChainMainnet]: {
         name: 'BNB',

@@ -91,11 +91,8 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
   selectWalletAccountIds,
-  (accountMetadata, walletAccountIds): AccountMetadataById => {
-    return pickBy(accountMetadata, (_, accountId: AccountId) =>
-      walletAccountIds.includes(accountId),
-    )
-  },
+  (accountMetadata, walletAccountIds): AccountMetadataById =>
+    pickBy(accountMetadata, (_, accountId: AccountId) => walletAccountIds.includes(accountId)),
 )
 
 export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(

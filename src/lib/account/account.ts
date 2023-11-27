@@ -55,15 +55,17 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     ),
   )
 
-  const fulfilledAccountIdsAndMetadata = settledAccountIdsAndMetadata
-    .filter(result => {
+  const fulfilledAccountIdsAndMetadata = settledAccountIdsAndMetadata.reduce<AccountMetadataById[]>(
+    (acc, result) => {
       if (isRejected(result)) {
         console.error(result.reason)
-        return false
+      } else if (isFulfilled(result)) {
+        acc.push(result.value)
       }
-      return isFulfilled(result)
-    })
-    .map(result => (result as PromiseFulfilledResult<AccountMetadataById>).value)
+      return acc
+    },
+    [],
+  )
 
   return merge({}, ...fulfilledAccountIdsAndMetadata)
 }

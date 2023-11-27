@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import merge from 'lodash/merge'
+import { isFulfilled, isRejected } from 'lib/utils'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
@@ -44,7 +45,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     return acc
   }, initial)
 
-  const result = await Promise.all(
+  const settledAccountIdsAndMetadata = await Promise.allSettled(
     Object.entries(chainIdsByChainNamespace).map(([chainNamespace, chainIds]) =>
       deriveAccountIdsAndMetadataForChainNamespace[chainNamespace as ChainNamespaceKey]({
         accountNumber,
@@ -53,5 +54,16 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
       }),
     ),
   )
-  return merge({}, ...result)
+
+  const fulfilledValues = settledAccountIdsAndMetadata
+    .filter(result => {
+      if (isRejected(result)) {
+        console.error(result.reason)
+        return false
+      }
+      return isFulfilled(result)
+    })
+    .map(result => (result as PromiseFulfilledResult<AccountMetadataById>).value)
+
+  return merge({}, ...fulfilledValues)
 }

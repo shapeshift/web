@@ -42,7 +42,6 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,

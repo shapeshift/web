@@ -1,7 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, Center, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -27,6 +27,7 @@ export type ApprovalStepProps = {
   hopExecutionState: HopExecutionState
   isLastStep?: boolean
   isLoading?: boolean
+  onError: () => void
 }
 
 export const ApprovalStep = ({
@@ -35,16 +36,16 @@ export const ApprovalStep = ({
   hopExecutionState,
   isLastStep,
   isLoading,
+  onError,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
+  const [isError, setIsError] = useState<boolean>(false)
 
-  // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
   const {
-    // isApprovalNeeded,
     executeAllowanceApproval,
     approvalTxId: txHash,
     approvalTxStatus: _approvalTxStatus,
@@ -56,11 +57,16 @@ export const ApprovalStep = ({
     dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
 
     // execute the allowance approval
-    await executeAllowanceApproval()
+    const finalTxStatus = await executeAllowanceApproval()
 
-    // next state
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
-  }, [dispatch, executeAllowanceApproval])
+    // next state if trade was successful
+    if (finalTxStatus === TxStatus.Confirmed) {
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    } else if (finalTxStatus === TxStatus.Failed) {
+      setIsError(true)
+      onError()
+    }
+  }, [dispatch, executeAllowanceApproval, onError])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =
@@ -73,10 +79,8 @@ export const ApprovalStep = ({
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const txStatus =
-    hopExecutionState === HopExecutionState.Complete
-      ? TxStatus.Confirmed
-      : HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-        HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
+    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
+    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
       ? _approvalTxStatus
       : undefined
 
@@ -95,8 +99,17 @@ export const ApprovalStep = ({
   const translate = useTranslate()
 
   const description = useMemo(() => {
+    const errorMsg = isError ? (
+      <Text color='text.error' translation='trade.approvalFailed' fontWeight='bold' />
+    ) : null
+
     if (!txHash) {
-      return translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })
+      return (
+        <>
+          {errorMsg}
+          {translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted })}
+        </>
+      )
     }
 
     const href = getTxLink({
@@ -106,12 +119,16 @@ export const ApprovalStep = ({
     })
 
     return (
-      <Link isExternal href={href} color='text.link'>
-        <MiddleEllipsis value={txHash} />
-      </Link>
+      <>
+        {errorMsg}
+        <Link isExternal href={href} color='text.link'>
+          <MiddleEllipsis value={txHash} />
+        </Link>
+      </>
     )
   }, [
     approvalNetworkFeeCryptoFormatted,
+    isError,
     tradeQuoteStep.sellAsset.explorerTxLink,
     tradeQuoteStep.source,
     translate,
@@ -187,6 +204,7 @@ export const ApprovalStep = ({
       content={content}
       isLastStep={isLastStep}
       isLoading={isLoading}
+      isError={txStatus === TxStatus.Failed}
     />
   )
 }

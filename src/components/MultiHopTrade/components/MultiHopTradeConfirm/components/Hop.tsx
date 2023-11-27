@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardFooter,
@@ -12,7 +12,7 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -68,6 +68,7 @@ export const Hop = ({
   }, [hopIndex, tradeExecutionState])
 
   const [txStatus, setTxStatus] = useState<TxStatus | undefined>()
+  const [isError, setIsError] = useState<boolean>(false)
 
   const rightComponent = useMemo(() => {
     switch (txStatus) {
@@ -129,6 +130,14 @@ export const Hop = ({
   const shouldRenderFinalSteps = !isMultiHopTrade || hopIndex === 1
 
   const stepIcon = useMemo(() => {
+    if (isError) {
+      return (
+        <Circle size={8} bg='background.error'>
+          <WarningIcon color='text.error' />
+        </Circle>
+      )
+    }
+
     switch (hopExecutionState) {
       case HopExecutionState.Complete:
         return (
@@ -152,7 +161,9 @@ export const Hop = ({
           </Circle>
         )
     }
-  }, [hopExecutionState, hopIndex])
+  }, [hopExecutionState, hopIndex, isError])
+
+  const handleError = useCallback(() => setIsError(true), [])
 
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
@@ -161,7 +172,7 @@ export const Hop = ({
           {stepIcon}
           <RawText as='b'>{title}</RawText>
         </HStack>
-        {rightComponent}∂
+        {rightComponent}
       </HStack>
       <Collapse in={isOpen}>
         <Stepper index={activeStep} orientation='vertical' gap='0' margin={6}>
@@ -179,6 +190,7 @@ export const Hop = ({
                 HopExecutionState.AwaitingApprovalConfirmation,
                 HopExecutionState.AwaitingApprovalExecution,
               ].includes(hopExecutionState)}
+              onError={handleError}
             />
           </Collapse>
           <HopTransactionStep
@@ -191,6 +203,7 @@ export const Hop = ({
             hopExecutionState={hopExecutionState}
             onTxStatusChange={setTxStatus}
             isLastStep={!shouldRenderFinalSteps}
+            onError={handleError}
           />
           {shouldRenderFinalSteps && <DonationStep />}
           {shouldRenderFinalSteps && (

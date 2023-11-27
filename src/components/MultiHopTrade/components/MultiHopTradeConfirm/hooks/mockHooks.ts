@@ -5,6 +5,11 @@ import type { FailedSwap } from 'components/MultiHopTrade/hooks/useThorStreaming
 import { sleep } from 'lib/poll/poll'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 
+// toggle this to force the mock hooks to always fail - useful for testing failure modes
+const MOCK_FAIL_APPROVAL = true
+const MOCK_FAIL_SWAP = false
+const MOCK_FAIL_STREAMING_SWAP = false
+
 // TODO: remove me
 export const useMockAllowanceApproval = (
   _tradeQuoteStep: TradeQuoteStep,
@@ -18,8 +23,9 @@ export const useMockAllowanceApproval = (
     const promise = new Promise((resolve, _reject) => {
       setTimeout(() => setApprovalTxId('0x12345678901234567890'), 2000)
       setTimeout(() => {
-        setApprovalTxStatus(TxStatus.Confirmed)
-        resolve(undefined)
+        const finalStatus = MOCK_FAIL_APPROVAL ? TxStatus.Failed : TxStatus.Confirmed
+        setApprovalTxStatus(finalStatus)
+        resolve(finalStatus)
       }, 5000)
     })
 
@@ -45,8 +51,9 @@ export const useMockTradeExecution = () => {
       setTradeStatus(TxStatus.Pending)
       setTimeout(() => setSellTxHash('0x12345678901234567890'), 2000)
       setTimeout(() => {
-        setTradeStatus(TxStatus.Confirmed)
-        resolve(undefined)
+        const finalStatus = MOCK_FAIL_SWAP ? TxStatus.Failed : TxStatus.Confirmed
+        setTradeStatus(finalStatus)
+        resolve(finalStatus)
       }, 15000)
     })
 
@@ -85,12 +92,13 @@ export const useMockThorStreamingProgress = (
       // mock the middle swap failing
       await sleep(1500)
       setCount(2)
-      setFailedSwaps([
-        {
-          reason: 'mock reason',
-          swapIndex: 1,
-        },
-      ])
+      MOCK_FAIL_STREAMING_SWAP &&
+        setFailedSwaps([
+          {
+            reason: 'mock reason',
+            swapIndex: 1,
+          },
+        ])
 
       await sleep(1500)
       setCount(3)

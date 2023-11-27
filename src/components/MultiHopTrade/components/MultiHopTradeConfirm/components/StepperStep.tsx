@@ -17,7 +17,6 @@ export type StepperStepProps = {
   description?: string | JSX.Element
   stepIndicator: JSX.Element
   content?: JSX.Element
-  isActive: boolean
   isLastStep?: boolean
   isLoading?: boolean
 }
@@ -27,7 +26,6 @@ export const StepperStep = ({
   stepIndicator,
   description,
   content,
-  isActive,
   isLastStep,
   isLoading,
 }: StepperStepProps) => {
@@ -50,7 +48,7 @@ export const StepperStep = ({
             )}
           </StepDescription>
         )}
-        {isActive && <Box mt={2}>{content}</Box>}
+        {content !== undefined && <Box mt={2}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}
       </Box>
       <StepSeparator />

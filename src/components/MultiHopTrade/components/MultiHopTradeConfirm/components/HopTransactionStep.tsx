@@ -10,6 +10,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HOP_EXECUTION_STATE_ORDERED, HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -21,6 +22,7 @@ import { TradeType } from '../types'
 import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
+import { StreamingSwap } from './StreamingSwap'
 
 export type HopTransactionStepProps = {
   swapperName: SwapperName
@@ -111,9 +113,9 @@ export const HopTransactionStep = ({
 
   const signIcon = useMemo(() => <CheckCircleIcon />, [])
 
-  const content = useMemo(
-    () =>
-      txStatus === undefined ? (
+  const content = useMemo(() => {
+    if (isActive && txStatus === undefined) {
+      return (
         <Card width='full'>
           <CardBody px={2} py={2}>
             <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
@@ -121,11 +123,21 @@ export const HopTransactionStep = ({
             </Button>
           </CardBody>
         </Card>
-      ) : (
-        <></>
-      ),
-    [handleSignTx, signIcon, translate, txStatus],
-  )
+      )
+    }
+
+    const isThorStreamingSwap = tradeQuoteStep.source === THORCHAIN_STREAM_SWAP_SOURCE
+
+    if (sellTxHash !== undefined && isThorStreamingSwap) {
+      return (
+        <Card width='full'>
+          <CardBody px={2} py={2}>
+            <StreamingSwap sellTxHash={sellTxHash} />
+          </CardBody>
+        </Card>
+      )
+    }
+  }, [handleSignTx, isActive, sellTxHash, signIcon, tradeQuoteStep, translate, txStatus])
 
   const description = useMemo(() => {
     const sellChainSymbol = getChainShortName(tradeQuoteStep.sellAsset.chainId as KnownChainIds)
@@ -197,7 +209,6 @@ export const HopTransactionStep = ({
       description={description}
       stepIndicator={stepIndicator}
       content={content}
-      isActive={isActive}
       isLastStep={isLastStep}
     />
   )

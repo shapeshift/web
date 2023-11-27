@@ -46,7 +46,7 @@ type DepositProps = {
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
-  onChange?(fiatAmount: string, cryptoAmount: string): void
+  onChange?({ fiatAmount, cryptoAmount }: { fiatAmount: string; cryptoAmount: string }): void
   inputIcons?: string[]
 } & PropsWithChildren
 
@@ -130,7 +130,7 @@ export const Deposit = ({
         setValue(Field.CryptoAmount, cryptoAmount, {
           shouldValidate: true,
         })
-        onChange && onChange(value, cryptoAmount)
+        onChange && onChange({ cryptoAmount, fiatAmount: value })
       } else {
         const fiatAmount = bnOrZero(value).times(marketData.price).toString()
         setValue(Field.FiatAmount, fiatAmount, {
@@ -139,7 +139,7 @@ export const Deposit = ({
         setValue(Field.CryptoAmount, value, {
           shouldValidate: true,
         })
-        onChange && onChange(fiatAmount, value)
+        onChange && onChange({ fiatAmount, cryptoAmount: value })
       }
     },
     [marketData.price, onChange, setValue],
@@ -176,7 +176,11 @@ export const Deposit = ({
       setValue(Field.CryptoAmount, percentageCryptoAmount.toFixed(), {
         shouldValidate: true,
       })
-      onChange && onChange(percentageFiatAmount.toString(), percentageFiatAmount)
+      onChange &&
+        onChange({
+          fiatAmount: percentageFiatAmount.toString(),
+          cryptoAmount: percentageCryptoAmount.toString(),
+        })
     },
     [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
   )

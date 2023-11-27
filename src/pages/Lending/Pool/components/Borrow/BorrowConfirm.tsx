@@ -80,7 +80,9 @@ export const BorrowConfirm = ({
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: (_txId: string) =>
-      waitForThorchainUpdate({ txId: _txId, skipOutbound: true }).promise,
+      // Ensuring we wait for the outbound Tx to exist
+      // Else, the position will update before the borrowed asset is received and users will be confused
+      waitForThorchainUpdate({ txId: _txId, skipOutbound: false }).promise,
   })
 
   const lendingMutationStatus = useMutationState({

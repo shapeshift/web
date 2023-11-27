@@ -860,9 +860,12 @@ export const Deposit: React.FC<DepositProps> = ({
     thorchainSaversDepositQuoteError?.message,
   ])
 
-  const handleInputChange = useCallback((fiatAmount: string, cryptoAmount: string) => {
-    setInputValues({ fiatAmount, cryptoAmount })
-  }, [])
+  const handleInputChange = useCallback(
+    ({ fiatAmount, cryptoAmount }: { fiatAmount: string; cryptoAmount: string }) => {
+      setInputValues({ fiatAmount, cryptoAmount })
+    },
+    [],
+  )
 
   const handleBack = useCallback(() => {
     history.push({

@@ -100,7 +100,6 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
 
   useEffect(() => {
     if (!(accountId && wallet && accountMetadata)) return
-    if (fromAddress) return
     ;(async () => {
       const _fromAddress = await getThorchainFromAddress({
         accountId,

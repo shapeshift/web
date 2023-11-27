@@ -61,7 +61,7 @@ export const RepayConfirm = ({
   collateralAccountId,
   repaymentAccountId,
 }: RepayConfirmProps) => {
-  const [isLoanClosePending, setIsLoanClosePending] = useState(false)
+  const [isLoanClosePending, setIsLoanClosePending] = useState<boolean | undefined>(undefined)
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const {
@@ -158,7 +158,9 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const handleRepay = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
+    if (isLoanClosePending === false) return history.push(RepayRoutePaths.Input)
+
     if (
       !(
         repaymentAsset &&
@@ -218,6 +220,8 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
+    history,
+    isLoanClosePending,
     lendingQuoteCloseData,
     repaymentAccountId,
     repaymentAmountCryptoPrecision,
@@ -238,6 +242,12 @@ export const RepayConfirm = ({
     repaymentAsset,
   })
 
+  const swapStatus = useMemo(() => {
+    if (isLoanClosePending === false) return TxStatus.Confirmed
+    if (isLoanClosePending) return TxStatus.Pending
+    return TxStatus.Unknown
+  }, [isLoanClosePending])
+
   if (!collateralAsset || !repaymentAsset) return null
   return (
     <SlideTransition>
@@ -255,7 +265,7 @@ export const RepayConfirm = ({
             sellIcon={repaymentAsset?.icon ?? ''}
             buyColor={collateralAsset?.color ?? ''}
             sellColor={repaymentAsset?.color ?? ''}
-            status={TxStatus.Unknown}
+            status={swapStatus}
             px={6}
             mb={4}
           />
@@ -347,12 +357,14 @@ export const RepayConfirm = ({
                 isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
               }
               disabled={isLoanClosePending}
-              onClick={handleRepay}
+              onClick={handleConfirm}
               colorScheme='blue'
               size='lg'
               width='full'
             >
-              {translate('lending.confirmAndRepay')}
+              {translate(
+                isLoanClosePending === false ? 'lending.borrowAgain' : 'lending.confirmAndRepay',
+              )}
             </Button>
           </CardFooter>
         </Stack>

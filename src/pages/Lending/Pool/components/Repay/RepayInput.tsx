@@ -313,6 +313,8 @@ export const RepayInput = ({
           <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
             <Skeleton isLoaded={isLendingPositionDataSuccess}>
               <Amount.Fiat value={0} />
+            </Skeleton>
+            <Skeleton isLoaded={isLendingPositionDataSuccess}>
               {/* Actually defined at display time, see isLoaded above */}
               <Amount.Fiat value={debtBalanceUserCurrency ?? '0'} />
             </Skeleton>

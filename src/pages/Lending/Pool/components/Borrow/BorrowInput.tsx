@@ -254,6 +254,8 @@ export const BorrowInput = ({
     enabled: isSweepNeededSuccess,
   })
 
+  console.log({ estimatedSweepFeesData, isSweepNeeded })
+
   const hasEnoughBalanceForTxPlusSweep = useMemo(() => {
     if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
       return false
@@ -443,6 +445,18 @@ export const BorrowInput = ({
                 </Skeleton>
               </Row.Value>
             </Row>
+            {isSweepNeeded && (
+              <Row fontSize='sm' fontWeight='medium'>
+                <Row.Label>{translate('common.consolidationFee')}</Row.Label>
+                <Row.Value>
+                  <Skeleton
+                    isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
+                  >
+                    <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiat ?? '0'} />
+                  </Skeleton>
+                </Row.Value>
+              </Row>
+            )}
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.fees')}</Row.Label>
               <Row.Value>

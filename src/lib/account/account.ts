@@ -55,7 +55,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     ),
   )
 
-  const fulfilledValues = settledAccountIdsAndMetadata
+  const fulfilledAccountIdsAndMetadata = settledAccountIdsAndMetadata
     .filter(result => {
       if (isRejected(result)) {
         console.error(result.reason)
@@ -65,5 +65,5 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     })
     .map(result => (result as PromiseFulfilledResult<AccountMetadataById>).value)
 
-  return merge({}, ...fulfilledValues)
+  return merge({}, ...fulfilledAccountIdsAndMetadata)
 }

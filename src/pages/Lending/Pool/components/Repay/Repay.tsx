@@ -10,6 +10,7 @@ import { RepayRoutePaths } from './types'
 const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
 
 type RepayProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
   repaymentAsset: Asset | null
@@ -18,9 +19,12 @@ type RepayProps = {
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentPercent: number
   setRepaymentPercent: (value: number) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 export const Repay = ({
+  isAccountSelectionDisabled,
   collateralAccountId,
   repaymentAccountId: borrowAccountId,
   repaymentAsset,
@@ -29,12 +33,15 @@ export const Repay = ({
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentPercent,
   setRepaymentPercent,
+  txId,
+  setTxid,
 }: RepayProps) => {
   const collateralAssetId = useRouteAssetId()
 
   return (
     <MemoryRouter initialEntries={RepayEntries} initialIndex={0}>
       <RepayRoutes
+        isAccountSelectionDisabled={isAccountSelectionDisabled}
         repaymentAsset={repaymentAsset}
         setRepaymentAsset={setRepaymentAsset}
         collateralAssetId={collateralAssetId}
@@ -44,12 +51,15 @@ export const Repay = ({
         repaymentAccountId={borrowAccountId}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
         onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
+        txId={txId}
+        setTxid={setTxid}
       />
     </MemoryRouter>
   )
 }
 
 type RepayRoutesProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAssetId: AssetId
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset | null) => void
@@ -59,6 +69,8 @@ type RepayRoutesProps = {
   repaymentAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 const RepayInput = lazy(() =>
@@ -76,6 +88,7 @@ const suspenseFallback = <div>Loading...</div>
 
 const RepayRoutes = memo(
   ({
+    isAccountSelectionDisabled,
     collateralAssetId,
     repaymentPercent,
     repaymentAsset,
@@ -85,12 +98,15 @@ const RepayRoutes = memo(
     repaymentAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
+    txId,
+    setTxid,
   }: RepayRoutesProps) => {
     const location = useLocation()
 
     const renderRepayInput = useCallback(
       () => (
         <RepayInput
+          isAccountSelectionDisabled={isAccountSelectionDisabled}
           collateralAssetId={collateralAssetId}
           repaymentPercent={repaymentPercent}
           collateralAccountId={collateralAccountId}
@@ -103,6 +119,7 @@ const RepayRoutes = memo(
         />
       ),
       [
+        isAccountSelectionDisabled,
         collateralAssetId,
         repaymentPercent,
         collateralAccountId,
@@ -123,6 +140,8 @@ const RepayRoutes = memo(
           collateralAccountId={collateralAccountId}
           repaymentAccountId={repaymentAccountId}
           repaymentAsset={repaymentAsset}
+          txId={txId}
+          setTxid={setTxid}
         />
       ),
       [
@@ -131,6 +150,8 @@ const RepayRoutes = memo(
         collateralAccountId,
         repaymentAccountId,
         repaymentAsset,
+        txId,
+        setTxid,
       ],
     )
 

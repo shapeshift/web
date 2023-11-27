@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -32,9 +33,9 @@ import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupport
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,6 +49,7 @@ const formControlProps = {
 }
 
 type RepayInputProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAssetId: AssetId
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
@@ -59,13 +61,12 @@ type RepayInputProps = {
   setRepaymentAsset: (asset: Asset) => void
 }
 
-// no-op, this is read-only
-const handleCollateralAccountIdChange = () => {}
-
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
+  isAccountSelectionDisabled,
   onRepaymentPercentChange,
+  onCollateralAccountIdChange: handleCollateralAccountIdChange,
   collateralAccountId,
   repaymentAccountId,
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
@@ -76,6 +77,7 @@ export const RepayInput = ({
   const translate = useTranslate()
   const history = useHistory()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, repaymentAsset?.assetId ?? ''))
 
   const onSubmit = useCallback(() => {
     history.push(RepayRoutePaths.Confirm)
@@ -173,25 +175,15 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const debtBalanceUserCurrency = useMemo(() => {
-    if (!lendingPositionData) return null
-
-    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
-      .times(userCurrencyToUsdRate)
-      .toFixed()
-  }, [lendingPositionData, userCurrencyToUsdRate])
-
   const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!(lendingPositionData && debtBalanceUserCurrency)) return null
+    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(debtBalanceUserCurrency)
+      .times(lendingPositionData?.debtBalanceFiatUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [lendingPositionData, repaymentPercent])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null
@@ -217,46 +209,73 @@ export const RepayInput = ({
     [repaymentAsset?.assetId, repaymentAccountId],
   )
 
-  const balance = useAppSelector(state =>
+  const repaymentAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
-  const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(collateralAsset?.precision ?? '0')),
-    [balance, collateralAsset?.precision],
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    [feeAsset?.assetId, repaymentAccountId],
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
-  const hasEnoughBalance = useMemo(
+  const amountAvailableCryptoPrecision = useMemo(
     () =>
-      bnOrZero(repaymentAmountCryptoPrecision)
+      bnOrZero(repaymentAssetBalanceCryptoBaseUnit).times(
+        bn(10).pow(collateralAsset?.precision ?? '0'),
+      ),
+    [repaymentAssetBalanceCryptoBaseUnit, collateralAsset?.precision],
+  )
+
+  const hasEnoughBalanceForTx = useMemo(() => {
+    if (!(feeAsset && repaymentAsset)) return
+
+    return bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision)
+  }, [amountAvailableCryptoPrecision, feeAsset, repaymentAmountCryptoPrecision, repaymentAsset])
+
+  const hasEnoughBalanceForTxPlusFees = useMemo(() => {
+    if (!(feeAsset && repaymentAsset)) return
+
+    if (feeAsset.assetId === repaymentAsset.assetId)
+      return bnOrZero(repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(repaymentAsset?.precision ?? '0'),
+            bn(10).pow(repaymentAsset.precision ?? '0'),
           ),
         )
-        .lte(amountAvailableCryptoPrecision),
-    [
-      amountAvailableCryptoPrecision,
-      estimatedFeesData?.txFeeCryptoBaseUnit,
-      repaymentAmountCryptoPrecision,
-      repaymentAsset?.precision,
-    ],
-  )
+        .lte(amountAvailableCryptoPrecision)
+
+    return (
+      bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
+      bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+    )
+  }, [
+    amountAvailableCryptoPrecision,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
+    repaymentAmountCryptoPrecision,
+    repaymentAsset,
+  ])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (!hasEnoughBalance) return 'common.insufficientFunds'
+    if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
         /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
-      ) {
+      )
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      }
       if (
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
-      ) {
+      )
         return 'Repayment not yet available'
-      }
+
+      if (/trading is halted/i.test(lendingQuoteCloseError.message))
+        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
       if (/loan contains no collateral to redeem/i.test(lendingQuoteCloseError.message)) {
@@ -266,7 +285,12 @@ export const RepayInput = ({
       }
     }
     return null
-  }, [hasEnoughBalance, isLendingQuoteCloseError, lendingQuoteCloseError])
+  }, [
+    hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
+    isLendingQuoteCloseError,
+    lendingQuoteCloseError?.message,
+  ])
 
   if (!seenNotice) {
     return (
@@ -316,7 +340,7 @@ export const RepayInput = ({
             </Skeleton>
             <Skeleton isLoaded={isLendingPositionDataSuccess}>
               {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={debtBalanceUserCurrency ?? '0'} />
+              <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Flex>
         </Stack>
@@ -342,6 +366,7 @@ export const RepayInput = ({
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
         cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
         fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd}
+        isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={isLendingQuoteCloseLoading}
@@ -358,7 +383,7 @@ export const RepayInput = ({
         <LoanSummary
           collateralAssetId={collateralAssetId}
           repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
-          debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+          debtRepaidAmountUserCurrency={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
           collateralDecreaseAmountCryptoPrecision={
@@ -367,6 +392,47 @@ export const RepayInput = ({
           repaymentAccountId={repaymentAccountId}
           collateralAccountId={collateralAccountId}
         />
+        <Stack
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
+        >
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+                <Amount.Crypto
+                  // Actually defined at display time, see isLoaded above
+                  value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
+                  symbol={collateralAsset?.symbol ?? ''}
+                />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
+                {/* Actually defined at display time, see isLoaded above */}
+                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <HelperTooltip label={translate('lending.feesNotice')}>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+            </HelperTooltip>
+            <Row.Value>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+                <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        </Stack>
       </Collapse>
       <Stack
         borderTopWidth={1}
@@ -378,36 +444,6 @@ export const RepayInput = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-              <Amount.Crypto
-                // Actually defined at display time, see isLoaded above
-                value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
-                symbol={collateralAsset?.symbol ?? ''}
-              />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
-              {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
-              {/* Actually defined at display time, see isLoaded above */}
-              <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
         <Button
           size='lg'
           colorScheme={

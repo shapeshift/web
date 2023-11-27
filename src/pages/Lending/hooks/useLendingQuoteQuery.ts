@@ -15,9 +15,12 @@ import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingOpenQuote } from 'lib/utils/thorchain/lending'
 import type { LendingDepositQuoteResponseSuccess } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import {
+  selectMarketDataById,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {
   collateralAssetId: AssetId
@@ -50,7 +53,11 @@ const selectLendingQuoteQuery = memoize(
     )
       .times(collateralAssetMarketData.price)
       .toString()
-    const quoteDebtAmountUsd = fromThorBaseUnit(quote.expected_debt_issued).toString()
+    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+    const quoteDebtAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_issued)
+      .times(userCurrencyToUsdRate)
+      .toString()
+
     const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
@@ -84,7 +91,7 @@ const selectLendingQuoteQuery = memoize(
     return {
       quoteCollateralAmountCryptoPrecision,
       quoteCollateralAmountFiatUserCurrency,
-      quoteDebtAmountUsd,
+      quoteDebtAmountUserCurrency,
       quoteBorrowedAmountCryptoPrecision,
       quoteBorrowedAmountUserCurrency,
       quoteCollateralizationRatioPercentDecimal,

@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
     "gasFee": "Gas Fee",
+    "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
@@ -2202,6 +2203,7 @@
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",
+    "unlocked": "Unlocked",
     "unlockedCollateral": "Unlocked Collateral",
     "depositAsset": "Deposit %{asset}",
     "switchAssets": "Switch Assets",
@@ -2215,10 +2217,12 @@
     "confirmAndBorrow": "Confirm and Borrow",
     "confirmAndRepay": "Confirm and Repay",
     "borrowAgain": "Borrow Again",
+    "repayAgain": "Repay Again",
     "transactionInfo": "Transaction Summary",
     "repayNoticeTitle": "Hold Up!",
     "repayNoticeCta": "I understand",
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
+    "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
     "faq": {
       "title": "FAQ",
       "lending": {

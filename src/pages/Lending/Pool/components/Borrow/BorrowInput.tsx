@@ -33,6 +33,7 @@ import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupport
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -48,6 +49,7 @@ const formControlProps = {
 }
 
 type BorrowInputProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAssetId: AssetId
   depositAmountCryptoPrecision: string | null
   fiatDepositAmount: string | null
@@ -61,6 +63,7 @@ type BorrowInputProps = {
 }
 
 export const BorrowInput = ({
+  isAccountSelectionDisabled,
   collateralAssetId,
   depositAmountCryptoPrecision,
   fiatDepositAmount,
@@ -161,22 +164,47 @@ export const BorrowInput = ({
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: collateralAccountId }),
+    [collateralAccountId, feeAsset?.assetId],
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
+
   const amountAvailableCryptoPrecision = useMemo(
     () => fromBaseUnit(balanceCryptoBaseUnit, collateralAsset?.precision ?? 0),
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
-  const hasEnoughBalanceForTx = useMemo(() => {
-    if (!isEstimatedFeesDataSuccess) return false
+  const hasEnoughBalanceForTx = useMemo(
+    () => bnOrZero(depositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision),
+    [amountAvailableCryptoPrecision, depositAmountCryptoPrecision],
+  )
 
-    return bnOrZero(depositAmountCryptoPrecision)
-      .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
-      .lte(amountAvailableCryptoPrecision)
+  const hasEnoughBalanceForTxPlusFees = useMemo(() => {
+    if (!(isEstimatedFeesDataSuccess && feeAsset)) return false
+
+    // This is a native asset, so we can deduct the fees from the value
+    if (feeAsset.assetId === collateralAssetId)
+      return bnOrZero(depositAmountCryptoPrecision)
+        .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
+        .lte(amountAvailableCryptoPrecision)
+
+    return (
+      bnOrZero(depositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
+      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+    )
   }, [
     amountAvailableCryptoPrecision,
     collateralAsset?.precision,
+    collateralAssetId,
     depositAmountCryptoPrecision,
-    estimatedFeesData,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
     isEstimatedFeesDataSuccess,
   ])
 
@@ -193,7 +221,7 @@ export const BorrowInput = ({
       enabled: Boolean(
         bnOrZero(depositAmountCryptoPrecision).gt(0) &&
           isEstimatedFeesDataSuccess &&
-          hasEnoughBalanceForTx,
+          hasEnoughBalanceForTxPlusFees,
       ),
     }),
     [
@@ -202,7 +230,7 @@ export const BorrowInput = ({
       depositAmountCryptoPrecision,
       estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
-      hasEnoughBalanceForTx,
+      hasEnoughBalanceForTxPlusFees,
       isEstimatedFeesDataSuccess,
     ],
   )
@@ -225,6 +253,8 @@ export const BorrowInput = ({
     contractAddress: undefined,
     enabled: isSweepNeededSuccess,
   })
+
+  console.log({ estimatedSweepFeesData, isSweepNeeded })
 
   const hasEnoughBalanceForTxPlusSweep = useMemo(() => {
     if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
@@ -297,18 +327,23 @@ export const BorrowInput = ({
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+    if (
+      !hasEnoughBalanceForTx ||
+      (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+    )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
       if (
         /not enough fee/.test(lendingQuoteError.message) ||
         /not enough to pay transaction fee/.test(lendingQuoteError.message)
-      ) {
+      )
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      }
+      if (/trading is halted/.test(lendingQuoteError.message))
+        return 'trade.errors.tradingNotActiveNoAssetSymbol'
     }
     return null
   }, [
+    hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,
@@ -318,7 +353,7 @@ export const BorrowInput = ({
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
-  if (!(collateralAsset && borrowAsset)) return null
+  if (!(collateralAsset && borrowAsset && feeAsset)) return null
 
   return (
     <SlideTransition>
@@ -331,6 +366,7 @@ export const BorrowInput = ({
           onChange={handleDepositInputChange}
           cryptoAmount={depositAmountCryptoPrecision ?? '0'}
           fiatAmount={fiatDepositAmount ?? '0'}
+          isAccountSelectionDisabled={isAccountSelectionDisabled}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={false}
@@ -372,15 +408,64 @@ export const BorrowInput = ({
           layout='inline'
           labelPostFix={borrowAssetSelectComponent}
         />
-        <Collapse in={true}>
+        <Collapse in={isLendingQuoteSuccess}>
           <LoanSummary
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
-            debtOccuredAmountUsd={lendingQuoteData?.quoteDebtAmountUsd ?? '0'}
+            debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
             depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
             borrowAssetId={borrowAsset?.assetId ?? ''}
             borrowAccountId={borrowAccountId}
           />
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+          >
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                  <Amount.Crypto
+                    value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                    symbol={borrowAsset.symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            {isSweepNeeded && (
+              <Row fontSize='sm' fontWeight='medium'>
+                <Row.Label>{translate('common.consolidationFee')}</Row.Label>
+                <Row.Value>
+                  <Skeleton
+                    isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
+                  >
+                    <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiat ?? '0'} />
+                  </Skeleton>
+                </Row.Value>
+              </Row>
+            )}
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </CardFooter>
         </Collapse>
         <CardFooter
           borderTopWidth={1}
@@ -392,33 +477,6 @@ export const BorrowInput = ({
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteSuccess}>
-                <Amount.Crypto
-                  value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                  symbol='BTC'
-                />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
-                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.fees')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteSuccess}>
-                <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
           <Button
             size='lg'
             colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}

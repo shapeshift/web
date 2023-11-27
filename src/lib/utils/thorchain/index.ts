@@ -3,7 +3,6 @@ import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshif
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -12,7 +11,11 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import type { ThornodeStatusResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  ThornodePoolResponse,
+  ThornodeStatusResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -44,20 +47,14 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
 }
 
 export const waitForThorchainUpdate = ({
-  txHash,
-  queryClient,
+  txId,
   skipOutbound,
 }: {
-  txHash: string
-  queryClient?: QueryClient
+  txId: string
   skipOutbound?: boolean
 }) =>
   poll({
-    fn: () => {
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      return getThorchainTransactionStatus(txHash, skipOutbound)
-    },
+    fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
     maxAttempts: 20,
@@ -160,3 +157,17 @@ export const getAccountAddresses = memoize(
   async (accountId: AccountId): Promise<string[]> =>
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
+
+export const getThorchainAvailablePools = async () => {
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
+    `${daemonUrl}/lcd/thorchain/pools`,
+  )
+  if (poolResponse.isOk()) {
+    const allPools = poolResponse.unwrap().data
+    const availablePools = allPools.filter(pool => pool.status === 'Available')
+    return availablePools
+  }
+
+  return []
+}

@@ -14,6 +14,7 @@ import { Amount } from 'components/Amount/Amount'
 import { DonutChart } from 'components/DonutChart/DonutChart'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
@@ -38,7 +39,9 @@ export const LendingHeader = () => {
     ]
   }, [])
 
-  const { isLoading, collateralValueUsd, debtValueUsd } = useAllLendingPositionsData()
+  const { isLoading, collateralValueUserCurrency, debtValueUserCurrency } =
+    useAllLendingPositionsData()
+  const ltv = bnOrZero(debtValueUserCurrency).div(collateralValueUserCurrency).toNumber()
   return (
     <Stack>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
@@ -50,7 +53,7 @@ export const LendingHeader = () => {
           <Card flex={1}>
             <CardBody>
               <Skeleton isLoaded={!isLoading}>
-                <Amount.Fiat value={collateralValueUsd} fontSize='4xl' fontWeight='bold' />
+                <Amount.Fiat value={collateralValueUserCurrency} fontSize='4xl' fontWeight='bold' />
               </Skeleton>
               <Text
                 color='text.success'
@@ -62,14 +65,14 @@ export const LendingHeader = () => {
           <Card flex={1}>
             <CardBody>
               <Skeleton isLoaded={!isLoading}>
-                <Amount.Fiat value={debtValueUsd} fontSize='4xl' fontWeight='bold' />
+                <Amount.Fiat value={debtValueUserCurrency} fontSize='4xl' fontWeight='bold' />
               </Skeleton>
               <Text color='purple.300' fontWeight='medium' translation='lending.debtValue' />
             </CardBody>
           </Card>
           <Card flex={1} flexDir='row' justifyContent='space-between' alignItems='center'>
             <CardBody>
-              <Amount.Percent value='0' fontSize='4xl' fontWeight='bold' />
+              <Amount.Percent value={ltv} fontSize='4xl' fontWeight='bold' />
               <Text color='text.subtle' fontWeight='medium' translation='lending.loanToValue' />
             </CardBody>
             <CardFooter>

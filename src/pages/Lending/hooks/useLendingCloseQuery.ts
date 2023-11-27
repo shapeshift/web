@@ -12,10 +12,7 @@ import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingCloseQuote } from 'lib/utils/thorchain/lending'
 import type { LendingWithdrawQuoteResponseSuccess } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import {
-  selectMarketDataById,
-  selectUserCurrencyToUsdRate,
-} from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -164,23 +161,15 @@ export const useLendingQuoteCloseQuery = ({
     selectMarketDataById(state, collateralAssetId),
   )
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const debtBalanceUserCurrency = useMemo(() => {
-    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
-      .times(userCurrencyToUsdRate)
-      .toFixed()
-  }, [lendingPositionData?.debtBalanceFiatUSD, userCurrencyToUsdRate])
-
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
-      .times(debtBalanceUserCurrency)
+      .times(lendingPositionData?.debtBalanceFiatUserCurrency ?? 0)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercentOrDefault])
+  }, [lendingPositionData, repaymentPercentOrDefault])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null

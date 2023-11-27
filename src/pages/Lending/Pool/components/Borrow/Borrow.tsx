@@ -25,6 +25,7 @@ const BorrowEntries = [BorrowRoutePaths.Input, BorrowRoutePaths.Confirm]
 const suspenseFallback = <div>Loading...</div>
 
 type BorrowProps = {
+  isAccountSelectionDisabled?: boolean
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
@@ -33,9 +34,12 @@ type BorrowProps = {
   setCryptoDepositAmount: (amount: string | null) => void
   borrowAsset: Asset | null
   setBorrowAsset: (asset: Asset | null) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 export const Borrow = ({
   borrowAsset,
+  isAccountSelectionDisabled,
   setBorrowAsset,
   collateralAccountId,
   borrowAccountId,
@@ -43,6 +47,8 @@ export const Borrow = ({
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
   depositAmountCryptoPrecision,
   setCryptoDepositAmount,
+  txId,
+  setTxid,
 }: BorrowProps) => {
   const [fiatDepositAmount, setFiatDepositAmount] = useState<string | null>(null)
 
@@ -85,8 +91,11 @@ export const Borrow = ({
         onDepositAmountChange={handleDepositAmountChange}
         collateralAccountId={collateralAccountId}
         borrowAccountId={borrowAccountId}
+        isAccountSelectionDisabled={isAccountSelectionDisabled}
         onCollateralAccountIdChange={handleCollateralAccountIdChange}
         onBorrowAccountIdChange={handleBorrowAccountIdChange}
+        txId={txId}
+        setTxid={setTxid}
       />
     </MemoryRouter>
   )
@@ -99,10 +108,13 @@ type BorrowRoutesProps = {
   cryptoDepositAmount: string | null
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
+  isAccountSelectionDisabled?: boolean
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 const BorrowRoutes = memo(
@@ -112,17 +124,21 @@ const BorrowRoutes = memo(
     collateralAssetId,
     cryptoDepositAmount,
     fiatDepositAmount,
+    isAccountSelectionDisabled,
     onDepositAmountChange,
     collateralAccountId,
     borrowAccountId,
     onCollateralAccountIdChange: handleCollateralAccountIdChange,
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
+    txId,
+    setTxid,
   }: BorrowRoutesProps) => {
     const location = useLocation()
 
     const renderBorrowInput = useCallback(
       () => (
         <BorrowInput
+          isAccountSelectionDisabled={isAccountSelectionDisabled}
           collateralAssetId={collateralAssetId}
           depositAmountCryptoPrecision={cryptoDepositAmount}
           fiatDepositAmount={fiatDepositAmount}
@@ -136,6 +152,7 @@ const BorrowRoutes = memo(
         />
       ),
       [
+        isAccountSelectionDisabled,
         collateralAssetId,
         cryptoDepositAmount,
         fiatDepositAmount,
@@ -167,9 +184,19 @@ const BorrowRoutes = memo(
           borrowAccountId={borrowAccountId}
           collateralAccountId={collateralAccountId}
           borrowAsset={borrowAsset}
+          txId={txId}
+          setTxid={setTxid}
         />
       ),
-      [collateralAssetId, cryptoDepositAmount, borrowAccountId, collateralAccountId, borrowAsset],
+      [
+        collateralAssetId,
+        cryptoDepositAmount,
+        borrowAccountId,
+        collateralAccountId,
+        borrowAsset,
+        txId,
+        setTxid,
+      ],
     )
 
     return (

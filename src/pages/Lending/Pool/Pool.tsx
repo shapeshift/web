@@ -18,6 +18,7 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +30,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -75,17 +76,25 @@ type MatchParams = {
 
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
-const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => (
-  <Skeleton isLoaded={isLoaded}>
-    <RawText fontSize='2xl' fontWeight='medium'>
-      {value} days
-    </RawText>
-  </Skeleton>
-)
+const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
+  const isRepaymentLocked = bnOrZero(value).gt(0)
+
+  const translate = useTranslate()
+
+  return (
+    <Skeleton isLoaded={isLoaded}>
+      <RawText color={isRepaymentLocked ? 'white' : 'green.500'} fontSize='2xl' fontWeight='medium'>
+        {isRepaymentLocked ? `${value} days` : translate('lending.unlocked')}
+      </RawText>
+    </Skeleton>
+  )
+}
 
 export const Pool = () => {
   const { poolAccountId } = useParams<MatchParams>()
   const [stepIndex, setStepIndex] = useState<number>(0)
+  const [borrowTxid, setBorrowTxid] = useState<string | null>(null)
+  const [repayTxid, setRepayTxid] = useState<string | null>(null)
   const [collateralAccountId, setCollateralAccountId] = useState<AccountId>(poolAccountId ?? '')
   const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
   const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
@@ -101,12 +110,6 @@ export const Pool = () => {
 
   const translate = useTranslate()
 
-  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
-    useLendingPositionData({
-      assetId: poolAssetId,
-      accountId: collateralAccountId,
-    })
-
   const useRepaymentLockDataArgs = useMemo(
     () => ({ assetId: poolAssetId, accountId: poolAccountId }),
     [poolAccountId, poolAssetId],
@@ -117,6 +120,20 @@ export const Pool = () => {
     useRepaymentLockData({})
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
+
+  const lendingMutationStatus = useMutationState({
+    filters: { mutationKey: [borrowTxid] },
+    select: mutation => mutation.state.status,
+  })
+  const isLoanPending = lendingMutationStatus?.[0] === 'pending'
+  const isLoanUpdated = lendingMutationStatus?.[0] === 'success'
+
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
+    useLendingPositionData({
+      assetId: poolAssetId,
+      accountId: collateralAccountId,
+      skip: isLoanPending,
+    })
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
@@ -134,6 +151,7 @@ export const Pool = () => {
       depositAmountCryptoPrecision,
     ],
   )
+
   const { data: lendingQuoteOpenData, isSuccess: isLendingQuoteSuccess } =
     useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
@@ -169,6 +187,8 @@ export const Pool = () => {
     [asset?.symbol, lendingPositionData?.collateralBalanceCryptoPrecision],
   )
   const newCollateralCrypto = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && isLendingQuoteSuccess && lendingQuoteOpenData)
       return {
         newValue: {
@@ -189,6 +209,7 @@ export const Pool = () => {
   }, [
     isLendingQuoteCloseSuccess,
     isLendingQuoteSuccess,
+    isLoanUpdated,
     lendingPositionData?.collateralBalanceCryptoPrecision,
     lendingQuoteCloseData,
     lendingQuoteOpenData,
@@ -207,6 +228,8 @@ export const Pool = () => {
   )
 
   const newCollateralFiat = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
         newValue: {
@@ -225,39 +248,44 @@ export const Pool = () => {
       }
 
     return {}
-  }, [lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
 
   const debtBalanceComponent = useMemo(
     () => (
       <Amount.Fiat
         fontSize='2xl'
-        value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
+        value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
         fontWeight='medium'
       />
     ),
-    [lendingPositionData?.debtBalanceFiatUSD],
+    [lendingPositionData?.debtBalanceFiatUserCurrency],
   )
 
   const newDebt = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
         newValue: {
-          value: bnOrZero(lendingPositionData.debtBalanceFiatUSD)
-            .plus(lendingQuoteOpenData.quoteDebtAmountUsd)
+          value: bnOrZero(lendingPositionData.debtBalanceFiatUserCurrency)
+            .plus(lendingQuoteOpenData.quoteDebtAmountUserCurrency)
             .toFixed(),
         },
       }
     if (stepIndex === 1 && lendingQuoteCloseData && lendingPositionData)
       return {
         newValue: {
-          value: bnOrZero(lendingPositionData.debtBalanceFiatUSD)
-            .minus(lendingQuoteCloseData.quoteDebtRepaidAmountUsd)
-            .toFixed(),
+          value: BigNumber.max(
+            bnOrZero(lendingPositionData.debtBalanceFiatUserCurrency).minus(
+              lendingQuoteCloseData.quoteDebtRepaidAmountUsd,
+            ),
+            0,
+          ).toFixed(),
         },
       }
 
     return {}
-  }, [lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
 
   const repaymentLockComponent = useMemo(
     () => (
@@ -270,6 +298,8 @@ export const Pool = () => {
   )
 
   const newRepaymentLock = useMemo(() => {
+    if (isLoanUpdated) return {}
+
     if (
       stepIndex === 0 &&
       isLendingQuoteSuccess &&
@@ -284,6 +314,7 @@ export const Pool = () => {
       }
     return {}
   }, [
+    isLoanUpdated,
     stepIndex,
     isLendingQuoteSuccess,
     lendingQuoteOpenData,
@@ -369,6 +400,7 @@ export const Pool = () => {
               <TabPanels>
                 <TabPanel px={0} py={0}>
                   <Borrow
+                    isAccountSelectionDisabled={Boolean(poolAccountId)}
                     borrowAsset={borrowAsset}
                     setBorrowAsset={setBorrowAsset}
                     collateralAccountId={collateralAccountId}
@@ -377,10 +409,13 @@ export const Pool = () => {
                     borrowAccountId={borrowAccountId}
                     onCollateralAccountIdChange={setCollateralAccountId}
                     onBorrowAccountIdChange={setBorrowAccountId}
+                    txId={borrowTxid}
+                    setTxid={setBorrowTxid}
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
                   <Repay
+                    isAccountSelectionDisabled={Boolean(poolAccountId)}
                     collateralAccountId={collateralAccountId}
                     repaymentAsset={repaymentAsset}
                     repaymentPercent={repaymentPercent}
@@ -389,6 +424,8 @@ export const Pool = () => {
                     repaymentAccountId={repaymentAccountId}
                     onCollateralAccountIdChange={setCollateralAccountId}
                     onRepaymentAccountIdChange={setRepaymentAccountId}
+                    txId={repayTxid}
+                    setTxid={setRepayTxid}
                   />
                 </TabPanel>
               </TabPanels>

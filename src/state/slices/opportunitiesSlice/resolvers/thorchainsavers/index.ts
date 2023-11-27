@@ -1,7 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getThorchainAvailablePools } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -24,14 +25,18 @@ import type {
 import {
   getAllThorchainSaversPositions,
   getMidgardPools,
-  getThorchainPools,
   getThorchainSaversPosition,
 } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
-  const thorchainPools = await getThorchainPools()
+  const thorchainPools = await queryClient.fetchQuery({
+    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
+    staleTime: 60_000,
+    queryKey: ['thorchainAvailablePools'],
+    queryFn: getThorchainAvailablePools,
+  })
 
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
@@ -85,7 +90,12 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     throw new Error('Error fetching THORChain midgard pools')
   }
 
-  const thorchainPools = await getThorchainPools()
+  const thorchainPools = await queryClient.fetchQuery({
+    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
+    staleTime: 60_000,
+    queryKey: ['thorchainAvailablePools'],
+    queryFn: getThorchainAvailablePools,
+  })
 
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')

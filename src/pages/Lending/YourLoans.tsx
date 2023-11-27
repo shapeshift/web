@@ -33,6 +33,7 @@ type LendingRowGridProps = {
 }
 
 const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) => {
+  const translate = useTranslate()
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: asset.assetId,
@@ -60,10 +61,12 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     [accountNumber],
   )
 
+  const isRepaymentLocked = bnOrZero(repaymentLockData).gt(0)
+
   if (
     lendingPositionData &&
     bnOrZero(lendingPositionData.collateralBalanceCryptoPrecision)
-      .plus(lendingPositionData.debtBalanceFiatUSD)
+      .plus(lendingPositionData.debtBalanceFiatUserCurrency)
       .isZero()
   )
     return null
@@ -91,7 +94,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
           <Stack spacing={0}>
-            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUSD ?? '0'} />
+            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
@@ -108,7 +111,9 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isRepaymentLockDataLoading}>
-          <RawText>{repaymentLockData} days</RawText>
+          <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
+            {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
+          </RawText>
         </Skeleton>
       </Button>
     </Stack>

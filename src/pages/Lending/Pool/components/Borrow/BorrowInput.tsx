@@ -430,7 +430,7 @@ export const BorrowInput = ({
                 <Skeleton isLoaded={isLendingQuoteSuccess}>
                   <Amount.Crypto
                     value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                    symbol='BTC'
+                    symbol={borrowAsset.symbol}
                   />
                 </Skeleton>
               </Row.Value>

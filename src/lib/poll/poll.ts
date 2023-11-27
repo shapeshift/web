@@ -5,7 +5,7 @@ export type PollArgs<T> = {
   maxAttempts: number
 }
 
-const sleep = async (intervalMs: number) =>
+export const sleep = async (intervalMs: number) =>
   await new Promise(resolve => setTimeout(resolve, intervalMs))
 
 /**

@@ -6,10 +6,10 @@ import { getConfig } from 'config'
 import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { getAccountAddresses, toThorBaseUnit } from '../thorchainsavers/utils'
 import type {
   Borrower,
   BorrowersResponse,
@@ -58,8 +58,8 @@ export const getMaybeThorchainLendingOpenQuote = async ({
     `&destination=${receiveAssetAddress}`
 
   const { data } = await axios.get<LendingDepositQuoteResponse>(url)
-  if (!data || 'error' in data)
-    return Err('Error fetching Thorchain lending deposit quote: no data received')
+  if (!data) return Err('Could not get quote data')
+  if ('error' in data) return Err(data.error)
 
   return Ok(data)
 }
@@ -68,12 +68,12 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // but we might need e.g min_out and affiliate_bps
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
-  repaymentlAssetId: collateralAssetId,
+  collateralAssetId,
   repaymentAmountCryptoBaseUnit: collateralAmountCryptoBaseUnit,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
-  repaymentlAssetId: AssetId
+  collateralAssetId: AssetId
   repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   repaymentAssetId: AssetId
   collateralAssetAddress: string
@@ -103,8 +103,10 @@ export const getMaybeThorchainLendingCloseQuote = async ({
 
   const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error
-  if (!data || 'error' in data)
-    return Err('Error fetching Thorchain lending deposit quote: no data received')
+  // i.e
+  // "failed to simulate handler: loan repayment is unavailable: loan hasn't reached maturity"
+  if (!data) return Err('Could not get quote data')
+  if ('error' in data) return Err(data.error)
 
   return Ok(data)
 }

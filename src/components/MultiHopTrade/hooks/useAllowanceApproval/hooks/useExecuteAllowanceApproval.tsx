@@ -1,29 +1,37 @@
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuoteStep } from 'lib/swapper/types'
 import { buildAndBroadcast, isEvmChainAdapter } from 'lib/utils/evm'
-import { selectSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { checkApprovalNeeded } from '../helpers'
 
 export const useExecuteAllowanceApproval = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuoteStep,
+  isFirstHop: boolean,
   buildCustomTxInput?: evm.BuildCustomTxInput,
 ) => {
   const [txId, setTxId] = useState<string | undefined>()
+  const [txStatus, setTxStatus] = useState<TxStatus>(TxStatus.Unknown)
   const { poll } = usePoll()
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet
 
-  const sellAssetAccountId = useAppSelector(selectSellAccountId)
+  const sellAssetAccountId = useAppSelector(
+    isFirstHop ? selectFirstHopSellAccountId : selectLastHopSellAccountId,
+  )
   const executeAllowanceApproval = useCallback(async () => {
+    setTxStatus(TxStatus.Pending)
+
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(tradeQuoteStep.sellAsset.chainId)
 
@@ -56,7 +64,10 @@ export const useExecuteAllowanceApproval = (
         interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
         maxAttempts: Infinity,
       })
+
+      setTxStatus(TxStatus.Confirmed)
     } catch (e) {
+      setTxStatus(TxStatus.Failed)
       showErrorToast(e)
     }
   }, [buildCustomTxInput, poll, sellAssetAccountId, showErrorToast, tradeQuoteStep, wallet])
@@ -64,5 +75,6 @@ export const useExecuteAllowanceApproval = (
   return {
     executeAllowanceApproval,
     txId,
+    txStatus,
   }
 }

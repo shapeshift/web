@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Center, Flex, IconButton, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
+import { useTranslate } from 'react-polyglot'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 
 type ExpandedMenuItemProps = {
@@ -17,6 +18,7 @@ export const SubmenuHeader = ({
   description,
   onBackClick: handleBackClick,
 }: ExpandedMenuItemProps) => {
+  const translate = useTranslate()
   const { handleBackClick: handleBackClickDefault } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
@@ -28,7 +30,7 @@ export const SubmenuHeader = ({
           isRound
           size='sm'
           onClick={handleBackClick ?? handleBackClickDefault}
-          aria-label='Go Back'
+          aria-label={translate('common.back')}
           icon={arrowBackIcon}
         />
         <Center fontWeight='bold' color={headerColor} fontSize='sm' flex={1} pr={7}>

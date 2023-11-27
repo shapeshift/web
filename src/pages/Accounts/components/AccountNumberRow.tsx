@@ -185,7 +185,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
               as={IconButton}
               size='sm'
               variant='ghost'
-              aria-label='Expand Account'
+              aria-label={translate('accounts.expandAccount')}
               icon={mdOutlineMoreVertIcon}
             />
             <MenuList>

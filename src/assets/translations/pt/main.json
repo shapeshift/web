@@ -66,6 +66,8 @@
     "privacy": "Política de Privacidade",
     "terms": "Termos de Serviço",
     "days": "Dias",
+    "clear": "Apagado",
+    "copy": "Copiado",
     "copied": "Copiado para área de transferência.",
     "copyFailed": "Não foi possível copiar.",
     "copyFailedDescription": "Por favor, copie manualmente",
@@ -118,7 +120,20 @@
     "learnMore": "Aprender mais",
     "showAll": "Mostrar tudo",
     "showLess": "Mostrar menos",
-    "yourBalance": "Seu saldo"
+    "yourBalance": "Seu saldo",
+    "carousel": {
+      "next": "Próximo",
+      "prev": "Anterior",
+      "back": "Voltar",
+      "dot": "Ponto"
+    },
+    "table": {
+      "nextPage": "Próxima Página",
+      "prevPage": "Página Anterior",
+      "sortedAsc": "Ordem crescente",
+      "sortedDesc": "Ordem decrescente",
+      "expandRow": "Expandir"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,10 +246,11 @@
     "notSupported": "%{asset} não é suportado pela %{wallet}"
   },
   "connectWalletPage": {
+    "title": "A Original Corretora Multichain",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
-    "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
+    "body": "Negocie, faça bridges e ganhe. Privado. Mantido pela comunidade. Autocustodial. Descentralizado.",
     "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Propriedade da Comunidade. Não custodial. Privada.",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
@@ -462,7 +478,7 @@
       "deposit": {
         "info": {
           "title": "Informação do Depósito",
-          "description": "Insira a quantia do %{ativo} que você deseja depositar"
+          "description": "Insira a quantia do %{asset} que você deseja depositar"
         }
       },
       "withdraw": {
@@ -509,9 +525,13 @@
     "accountAsset": "Ativo da conta",
     "accountDetails": "Detalhes da conta",
     "defi": "DeFi",
+    "openMenu": "Abrir menu",
+    "closeNav": "Fechar navegação",
+    "openNotif": "Abrir notificações",
     "transactionHistory": "Histórico",
     "overview": "Visão geral",
     "transactions": "Transações",
+    "pendingTransactions": "Transações pendentes",
     "tradeHistory": "Histórico",
     "foxToken": "Ganhe FOX",
     "dApps": "Conectar dApps",
@@ -660,6 +680,7 @@
     "rate": "Taxa",
     "tradeFrom": "Negocie de",
     "priceImpact": "Impacto no Preço",
+    "tradeSettings": "Configurações de trade",
     "slippage": {
       "maxSlippage": "Slippage máximo. ",
       "auto": "Automático",
@@ -674,6 +695,8 @@
     "payWith": "Pague Com",
     "youGet": "Você recebe",
     "tradeTo": "Negocie para",
+    "quoteStatus": "Status quote",
+    "expand": "Expandir",
     "availableRoutes": "Rotas Disponíveis",
     "minerFee": "Taxa de Mineração",
     "donation": "Doações da ShapeShift",
@@ -912,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "A ShapeShift respeita o design de segurança do %{asset} usando um novo endereço para cada transação. Para nos alinharmos ao protocolo THORChain, que opera com um único endereço, consolidaremos seus fundos em um único endereço.",
+        "consolidateFunds": "Consolidar"
+      },
       "getBalanceError": "Erro ao obter saldos da carteira",
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
@@ -1267,7 +1294,14 @@
         "header": "Importar contas da Ledger",
         "body": "Para ver seus saldos de cada rede, você precisará conectar cada aplicativo.",
         "availableChains": "Redes disponíveis",
-        "error": "Ocorreu um erro ao conectar sua carteira"
+        "error": "Ocorreu um erro ao conectar sua carteira",
+        "followTheInstructions": "Siga as instruções",
+        "toGetTheRuneApp": "para obter o aplicativo RUNE no seu dispositivo",
+        "added": "Adicionado",
+        "connect": "Conectar"
+      },
+      "verify": {
+        "confirmOnDevice": "Confirme no dispositivo"
       },
       "success": {
         "header": "Ledger conectada",
@@ -1646,7 +1680,8 @@
     "youCanNowUse": "Agora você pode usar %{name} Conta #%{accountNumber}",
     "showAssets": "Mostrar ativos",
     "hideAssets": "Esconder ativos",
-    "viewAccount": "Veja a conta"
+    "viewAccount": "Veja a conta",
+    "expandAccount": "Expandir conta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2082,7 +2117,8 @@
     "aboutCollection": "Sobre %{collectionName}",
     "emptyTitle": "Para onde foram todos os NFTs?",
     "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência.",
-    "reportSpam": "Reportar spam"
+    "reportSpam": "Reportar spam",
+    "refresh": "Atualizar"
   },
   "missions": {
     "subtitle": "Missões FOX",
@@ -2163,6 +2199,11 @@
     "repaymentLock": "Trava do Repagamento",
     "borrow": "Emprestar",
     "repay": "Pagar de volta",
+    "repayAmount": "Pagar Quantia",
+    "unlockedCollateral": "Colateral Desbloqueada",
+    "depositAsset": "Deposite %{asset}",
+    "switchAssets": "Trocar ativos",
+    "backToLending": "Voltar aos empréstimos",
     "outstandingDebt": "Débito Pendente",
     "collateral": "Garantia",
     "debt": "Dívida",

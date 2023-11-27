@@ -99,13 +99,13 @@ export async function getZrxTradeQuote(
 
     return Ok({
       id: uuid(),
-      estimatedExecutionTimeMs: undefined,
       receiveAddress,
       affiliateBps,
       slippageTolerancePercentage,
       rate,
       steps: [
         {
+          estimatedExecutionTimeMs: undefined,
           allowanceContract: allowanceTarget,
           buyAsset,
           sellAsset,

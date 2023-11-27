@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { Fragment, useCallback, useMemo, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
@@ -53,6 +54,7 @@ export const ReactTable = <T extends {}>({
   isLoading = false,
   variant = 'default',
 }: ReactTableProps<T>) => {
+  const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
   const tableColumns = useMemo(
@@ -183,9 +185,9 @@ export const ReactTable = <T extends {}>({
                     <Flex alignItems='center'>
                       {column.isSorted ? (
                         column.isSortedDesc ? (
-                          <ArrowDownIcon ml={2} aria-label='sorted descending' />
+                          <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
                         ) : (
-                          <ArrowUpIcon ml={2} aria-label='sorted ascending' />
+                          <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
                         )
                       ) : null}
                     </Flex>
@@ -217,7 +219,7 @@ export const ReactTable = <T extends {}>({
                   isDisabled={!canPreviousPage}
                   onClick={handlePrevious}
                   variant='ghost'
-                  aria-label='Previous Page'
+                  aria-label={translate('common.table.prevPage')}
                 />
                 <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
                 <IconButton
@@ -226,7 +228,7 @@ export const ReactTable = <T extends {}>({
                   isDisabled={!canNextPage}
                   onClick={handleNext}
                   variant='ghost'
-                  aria-label='Next Page'
+                  aria-label={translate('common.table.nextPage')}
                 />
               </Flex>
             </Td>

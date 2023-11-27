@@ -66,6 +66,8 @@
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
     "days": "Jours",
+    "clear": "Vider",
+    "copy": "Copier",
     "copied": "Copié dans le presse-papiers.",
     "copyFailed": "Échec de la copie vers le presse-papiers",
     "copyFailedDescription": "Veuillez copier manuellement",
@@ -118,7 +120,20 @@
     "learnMore": "En savoir plus",
     "showAll": "Montrer tout",
     "showLess": "Montrer moins",
-    "yourBalance": "Votre solde"
+    "yourBalance": "Votre solde",
+    "carousel": {
+      "next": "Suivant",
+      "prev": "Précédent",
+      "back": "Retour",
+      "dot": "Point"
+    },
+    "table": {
+      "nextPage": "Page suivante",
+      "prevPage": "Page précédente",
+      "sortedAsc": "Trié par ordre croissant",
+      "sortedDesc": "Trié par ordre décroissant",
+      "expandRow": "Développer la ligne"
+    }
   },
   "consentBanner": {
     "body": {
@@ -192,7 +207,7 @@
     },
     "tradeCard": {
       "trade": "Échanger",
-      "bridge": "Pont",
+      "bridge": "Bridger",
       "earn": "Gagner"
     }
   },
@@ -231,10 +246,11 @@
     "notSupported": "%{asset} n'est pas pris en charge par %{wallet}"
   },
   "connectWalletPage": {
+    "title": "L'échange multichaîne original",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explorez",
     "defiUniverse": "l'Univers DeFi",
-    "body": "100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
+    "body": "Échangez, bridgez et gagnez. Privé. Propriété communautaire. Non‑dépositaire. Décentralisé.",
     "body2": "Bienvenue sur le nouveau ShapeShift. 100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
@@ -509,9 +525,13 @@
     "accountAsset": "Actif de compte",
     "accountDetails": "Détails de compte",
     "defi": "DeFi",
+    "openMenu": "Ouvrir le menu",
+    "closeNav": "Fermer la navigation",
+    "openNotif": "Ouvrir les notifications",
     "transactionHistory": "Historique des transactions",
     "overview": "Vue d'ensemble",
     "transactions": "Transactions",
+    "pendingTransactions": "Transactions en attente",
     "tradeHistory": "Historique des échanges",
     "foxToken": "Opportunités FOX",
     "dApps": "dApps",
@@ -521,7 +541,7 @@
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
     "rewards": "Récompenses",
-    "trade": "Échanger/Déplacer",
+    "trade": "Échanger/Bridger",
     "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
@@ -629,15 +649,15 @@
     "unknown": "Transaction"
   },
   "bridge": {
-    "confirm": "Confirmer le déplacement",
+    "confirm": "Confirmer le transfert",
     "selectChain": "Sélectionner la chaîne",
     "selectAsset": "Sélectionner l'actif",
-    "startBridge": "Commencer le déplacement",
-    "confirmBridge": "Confirmer le déplacement",
-    "preview": "Prévisualiser le déplacement",
-    "transferring": "En cours de déplacement",
-    "transferComplete": "Déplacement terminé",
-    "bridgeAnother": "Déplacer un autre actif",
+    "startBridge": "Commencer le transfert",
+    "confirmBridge": "Confirmer le transfert",
+    "preview": "Prévisualiser le transfert",
+    "transferring": "En cours de transfert",
+    "transferComplete": "Transfert terminé",
+    "bridgeAnother": "Bridger un autre actif",
     "feeExceedsSend": "Les frais dépassent le montant à envoyer",
     "receiveAddress": "Adresse de réception",
     "route": "Route",
@@ -660,6 +680,7 @@
     "rate": "Taux",
     "tradeFrom": "Échanger de",
     "priceImpact": "Incidence sur le prix",
+    "tradeSettings": "Paramètres d'échange",
     "slippage": {
       "maxSlippage": "Glissement/Slippage max.",
       "auto": "Auto",
@@ -674,6 +695,8 @@
     "payWith": "Payez avec",
     "youGet": "Vous obtenez",
     "tradeTo": "Échanger en",
+    "quoteStatus": "Statut du devis",
+    "expand": "Développer",
     "availableRoutes": "Routes disponibles",
     "minerFee": "Frais de minage",
     "donation": "Don ShapeShift",
@@ -912,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift honore le concept de sécurité pour %{asset} en utilisant une nouvelle adresse pour chaque transaction. Pour nous aligner sur le protocole de THORChain, qui fonctionne avec une seule adresse, nous consoliderons vos fonds dans une seule adresse.",
+        "consolidateFunds": "Consolider"
+      },
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
@@ -1267,7 +1294,14 @@
         "header": "Importer les comptes Ledger",
         "body": "Pour consulter vos soldes sur chaque chaîne, vous devrez connecter chaque app.",
         "availableChains": "Chaînes disponibles",
-        "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie"
+        "error": "Une erreur s'est produite lors de la connexion de votre porte-monnaie",
+        "followTheInstructions": "Suivez les instructions",
+        "toGetTheRuneApp": "pour installer l'application RUNE sur votre appareil",
+        "added": "Ajoutée",
+        "connect": "Connecter"
+      },
+      "verify": {
+        "confirmOnDevice": "Confirmer sur l'appareil"
       },
       "success": {
         "header": "Ledger connecté",
@@ -1646,7 +1680,8 @@
     "youCanNowUse": "Vous pouvez maintenant utiliser %{name} Compte #%{accountNumber}",
     "showAssets": "Afficher les actifs",
     "hideAssets": "Masquer les actifs",
-    "viewAccount": "Voir le compte"
+    "viewAccount": "Voir le compte",
+    "expandAccount": "Développer le compte"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2032,7 +2067,7 @@
     "foxTokenHolders": {
       "title": "Détenteurs de jetons FOX",
       "body": "Hodler des jetons FOX. Plus votre poche est grande, plus votre Airdrop Arkeo est grand.",
-      "cta": "Échanger contre des FOX",
+      "cta": "Échanger pour des FOX",
       "secondary": "Acheter des FOX"
     },
     "foxFarmers": {
@@ -2082,7 +2117,8 @@
     "aboutCollection": "Informations sur %{collectionName}",
     "emptyTitle": "Où sont passés tous les NFT ?",
     "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence.",
-    "reportSpam": "Signaler comme spam"
+    "reportSpam": "Signaler comme spam",
+    "refresh": "Rafraîchir"
   },
   "missions": {
     "subtitle": "Missions FOX",
@@ -2163,6 +2199,11 @@
     "repaymentLock": "Verrou du remboursement",
     "borrow": "Emprunter",
     "repay": "Rembourser",
+    "repayAmount": "Rembourser le montant",
+    "unlockedCollateral": "Collatéral débloqué",
+    "depositAsset": "Déposer des %{asset}",
+    "switchAssets": "Inverser les actifs",
+    "backToLending": "Retour aux prêts",
     "outstandingDebt": "Dette en cours",
     "collateral": "Collatéral",
     "debt": "Dette",

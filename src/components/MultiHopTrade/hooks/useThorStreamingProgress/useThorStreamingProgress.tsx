@@ -24,7 +24,7 @@ export const getThorchainStreamingSwap = async (
   return streamingSwapData
 }
 
-type FailedSwap = {
+export type FailedSwap = {
   reason: string
   swapIndex: number
 }

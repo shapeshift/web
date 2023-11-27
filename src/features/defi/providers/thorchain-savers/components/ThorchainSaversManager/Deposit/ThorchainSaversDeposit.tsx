@@ -9,15 +9,19 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import type { DefiStepProps } from 'components/DeFi/components/Steps'
+import type { DefiStepProps, StepComponentProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
+import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -25,6 +29,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -46,6 +51,11 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const [fromAddress, setFromAddress] = useState<string | null>(null)
+
+  const {
+    state: { wallet },
+  } = useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -111,6 +121,36 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     })
   }, [history, location, query])
 
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+
+  useEffect(() => {
+    if (!(accountId && wallet && accountMetadata)) return
+    ;(async () => {
+      const _fromAddress = await getThorchainFromAddress({
+        accountId,
+        getPosition: getThorchainSaversPosition,
+        assetId,
+        wallet,
+        accountMetadata,
+      })
+
+      if (!_fromAddress) return
+      setFromAddress(_fromAddress)
+    })()
+  }, [accountId, accountMetadata, assetId, fromAddress, wallet])
+
+  const makeHandleSweepBack = useCallback(
+    (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Info),
+    [],
+  )
+  const makeHandleSweepSeen = useCallback(
+    (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Confirm),
+    [],
+  )
+
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
       [DefiStep.Info]: {
@@ -119,7 +159,24 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           asset: underlyingAsset?.symbol ?? '',
         }),
         component: ownProps => (
-          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <Deposit
+            {...ownProps}
+            accountId={accountId}
+            fromAddress={fromAddress}
+            onAccountIdChange={handleAccountIdChange}
+          />
+        ),
+      },
+      [DefiStep.Sweep]: {
+        label: translate('modals.send.consolidate.consolidateFunds'),
+        component: ({ onNext }) => (
+          <Sweep
+            accountId={accountId}
+            fromAddress={fromAddress}
+            assetId={assetId}
+            onBack={makeHandleSweepBack(onNext)}
+            onSweepSeen={makeHandleSweepSeen(onNext)}
+          />
         ),
       },
       [DefiStep.Approve]: {
@@ -136,7 +193,16 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [translate, underlyingAsset?.symbol, accountId, handleAccountIdChange])
+  }, [
+    translate,
+    underlyingAsset?.symbol,
+    accountId,
+    fromAddress,
+    handleAccountIdChange,
+    assetId,
+    makeHandleSweepBack,
+    makeHandleSweepSeen,
+  ])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

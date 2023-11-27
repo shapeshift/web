@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -32,9 +31,10 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { waitForThorchainUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -79,8 +79,7 @@ export const RepayConfirm = ({
 
     setIsLoanClosePending(true)
     ;(async () => {
-      // TODO(gomes): we might want to change heuristics here - this takes forever to be truthy, while the loan open itself is reflected way earlier, at least for ETH
-      await waitForThorchainUpdate(txHash, queryClient).promise
+      await waitForThorchainUpdate({ txHash, queryClient, skipOutbound: true }).promise
       setIsLoanClosePending(false)
       await refetchLendingPositionData()
     })()
@@ -136,6 +135,7 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
+      isLoanClosePending,
     }),
     [
       collateralAccountId,
@@ -143,24 +143,26 @@ export const RepayConfirm = ({
       repaymentAccountId,
       repaymentAsset?.assetId,
       repaymentPercent,
+      isLoanClosePending,
     ],
   )
 
-  const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
-    useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+  const {
+    data: lendingQuoteCloseData,
+    isLoading: isLendingQuoteCloseLoading,
+    isSuccess: isLendingQuoteCloseSuccess,
+  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   const chainAdapter = getChainAdapterManager().get(
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  // TODO(gomes): handle error (including trading halted) and loading states here
   const handleRepay = useCallback(async () => {
     if (
       !(
         repaymentAsset &&
         wallet &&
-        supportsETH(wallet) &&
         chainAdapter &&
         lendingQuoteCloseData &&
         repaymentAmountCryptoPrecision
@@ -208,7 +210,7 @@ export const RepayConfirm = ({
     })()
 
     if (!maybeTxId) {
-      throw new Error('Error sending THORCHain savers Txs')
+      throw new Error('Error sending THORCHain lending Txs')
     }
 
     setTxHash(maybeTxId)
@@ -223,6 +225,18 @@ export const RepayConfirm = ({
     selectedCurrency,
     wallet,
   ])
+
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId,
+    collateralAccountId,
+    repaymentAccountId,
+    repaymentPercent,
+    repaymentAsset,
+  })
 
   if (!collateralAsset || !repaymentAsset) return null
   return (
@@ -250,7 +264,7 @@ export const RepayConfirm = ({
             <Row>
               <Row.Label>{translate('common.send')}</Row.Label>
               <Row.Value textAlign='right'>
-                <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+                <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
                       value={repaymentAmountCryptoPrecision ?? '0'}
@@ -258,6 +272,7 @@ export const RepayConfirm = ({
                     />
                     <Amount.Fiat
                       color='text.subtle'
+                      // Actually defined at display time, see isLoaded above
                       value={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
                       prefix='≈'
                     />
@@ -265,12 +280,13 @@ export const RepayConfirm = ({
                 </Skeleton>
               </Row.Value>
             </Row>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row>
                 <Row.Label>{translate('common.receive')}</Row.Label>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
+                      // Actually defined at display time, see isLoaded above
                       value={
                         lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
                       }
@@ -278,6 +294,7 @@ export const RepayConfirm = ({
                     />
                     <Amount.Fiat
                       color='text.subtle'
+                      // Actually defined at display time, see isLoaded above
                       value={
                         lendingQuoteCloseData?.quoteLoanCollateralDecreaseFiatUserCurrency ?? '0'
                       }
@@ -287,13 +304,14 @@ export const RepayConfirm = ({
                 </Row.Value>
               </Row>
             </Skeleton>
-            <Skeleton isLoaded={!isLendingQuoteCloseLoading}>
+            <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row fontSize='sm' fontWeight='medium'>
                 <HelperTooltip label='tbd'>
                   <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
                 </HelperTooltip>
                 <Row.Value>
                   <Amount.Fiat
+                    // Actually defined at display time, see isLoaded above
                     value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? '0'}
                   />
                 </Row.Value>
@@ -302,7 +320,10 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Amount.Fiat value='TODO' />
+                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
+                  {/* Actually defined at display time, see isLoaded above */}
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
               </Row.Value>
             </Row>
           </Stack>
@@ -322,7 +343,9 @@ export const RepayConfirm = ({
           />
           <CardFooter px={4} py={4}>
             <Button
-              isLoading={isLoanClosePending}
+              isLoading={
+                isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
+              }
               disabled={isLoanClosePending}
               onClick={handleRepay}
               colorScheme='blue'

@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { type evm, type EvmChainAdapter, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -20,6 +21,11 @@ export const checkApprovalNeeded = async (
 
   if (!adapter) throw Error(`no chain adapter found for chain Id: ${sellAsset.chainId}`)
   if (!wallet) throw new Error('no wallet available')
+
+  // No approval needed for selling a non-EVM asset
+  if (!evmChainIds.includes(sellAsset.chainId as EvmChainId)) {
+    return false
+  }
 
   // No approval needed for selling a fee asset
   if (sellAsset.assetId === adapter.getFeeAssetId()) {

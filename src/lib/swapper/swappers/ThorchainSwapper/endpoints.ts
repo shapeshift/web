@@ -20,7 +20,9 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from 'lib/swapper/types'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
@@ -28,7 +30,6 @@ import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
-import { getInboundAddressDataForChain } from './utils/getInboundAddressDataForChain'
 
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
@@ -40,6 +41,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    assetsById: AssetsById,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 
@@ -47,16 +49,20 @@ export const thorchainApi: SwapperApi = {
       ? THORCHAIN_AFFILIATE_FEE_BPS
       : input.affiliateBps
 
-    return await getThorTradeQuote({
-      ...input,
-      affiliateBps,
-    })
+    return await getThorTradeQuote(
+      {
+        ...input,
+        affiliateBps,
+      },
+      assetsById,
+    )
   },
 
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
     tradeQuote,
+    supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
@@ -96,6 +102,8 @@ export const thorchainApi: SwapperApi = {
       api.getGasFees(),
     ])
 
+    const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+
     return {
       chainId: Number(fromChainId(chainId).chainReference),
       data,
@@ -103,7 +111,9 @@ export const thorchainApi: SwapperApi = {
       gasLimit,
       to,
       value,
-      ...gasFees,
+      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+        ? { maxFeePerGas, maxPriorityFeePerGas }
+        : { gasPrice }),
     }
   },
 

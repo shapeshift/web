@@ -16,15 +16,15 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/types'
-import { selectTradeExecutionStatus } from 'state/slices/swappersSlice/selectors'
-import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import {
   selectActiveSwapperName,
   selectLastHopBuyAsset,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const Footer = () => {
@@ -32,13 +32,13 @@ export const Footer = () => {
   const dispatch = useAppDispatch()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
-  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const { isModeratePriceImpact } = usePriceImpact()
 
   const handleConfirm = useCallback(() => {
-    dispatch(swappersSlice.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
   }, [dispatch])
 
   const networkFeeToTradeRatioPercentage = useMemo(
@@ -105,37 +105,39 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return (
-    <CardFooter flexDir='column' gap={2} px={4}>
-      {tradeExecutionStatus === MultiHopExecutionStatus.Previewing && (
-        <>
-          {tradeWarning}
-          {swapperName === SwapperName.LIFI && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
-            </Alert>
-          )}
-          {isFeeRatioOverThreshold && (
-            <Alert status='warning' size='sm'>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button
-            colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
-            size='lg'
-            width='full'
-            onClick={handleConfirm}
-          >
-            <Text
-              translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
-            />
-          </Button>
-        </>
+  return tradeExecutionState === MultiHopExecutionState.Previewing ? (
+    <CardFooter
+      flexDir='column'
+      gap={2}
+      px={4}
+      borderTopWidth={1}
+      borderColor='border.base'
+      bg='background.surface.raised.base'
+      borderBottomRadius='md'
+    >
+      {tradeWarning}
+      {swapperName === SwapperName.LIFI && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+        </Alert>
       )}
+      {isFeeRatioOverThreshold && (
+        <Alert status='warning' size='sm'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
+          </AlertDescription>
+        </Alert>
+      )}
+      <Button
+        colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
+        size='lg'
+        width='full'
+        onClick={handleConfirm}
+      >
+        <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
+      </Button>
     </CardFooter>
-  )
+  ) : null
 }

@@ -4,6 +4,7 @@ import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -108,6 +109,7 @@ export const useTradeExecution = () => {
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
+
         const output = await execution.execEvmMessage({
           swapperName,
           tradeQuote,
@@ -144,6 +146,7 @@ export const useTradeExecution = () => {
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
+          const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
           const output = await execution.execEvmTransaction({
             swapperName,
@@ -151,6 +154,7 @@ export const useTradeExecution = () => {
             stepIndex: activeStepOrDefault,
             slippageTolerancePercentageDecimal,
             from,
+            supportsEIP1559,
             signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
               const { txToSign } = await adapter.buildCustomTx({
                 ...transactionRequest,

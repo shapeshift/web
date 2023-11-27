@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -13,7 +13,6 @@ import {
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
-import pull from 'lodash/pull'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -25,8 +24,6 @@ import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import type { BN } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
@@ -45,6 +42,7 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
@@ -105,58 +103,53 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      const chainIds = Array.from(supportedChains).filter(chainId =>
+      let chainIds = Array.from(supportedChains).filter(chainId =>
         walletSupportsChain({ chainId, wallet, isSnapInstalled }),
       )
+
+      const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
         // only some wallets support multi account
         if (accountNumber > 0 && !isMultiAccountWallet) break
+
         const input = { accountNumber, chainIds, wallet }
-        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
-        const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
+        const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+        const accountIds = Object.keys(accountIdsAndMetadata)
+
+        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
+
         const { getAccount } = portfolioApi.endpoints
-        const opts = { forceRefetch: true }
-        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
         const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, opts)),
+          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
         )
+
         const accountResults = await Promise.allSettled(accountPromises)
-        /**
-         * because UTXO chains can have multiple accounts per number, we need to aggregate
-         * balance by chain id to see if we fetch the next by accountNumber
-         */
-        const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
-          if (res.status === 'rejected') return acc
+
+        let chainIdsWithActivity: string[] = []
+        accountResults.forEach((res, idx) => {
+          if (res.status === 'rejected') return
+
           const { data: account } = res.value
-          if (!account) return acc
+          if (!account) return
+
           const accountId = accountIds[idx]
           const { chainId } = fromAccountId(accountId)
-          const accountBalance = Object.values(account.accountBalances.byId).reduce<BN>(
-            (acc, byAssetId) => {
-              Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
-              return acc
-            },
-            bnOrZero(0),
-          )
-          acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
-          // don't upsert empty accounts past account 0
-          if (accountNumber > 0 && accountBalance.eq(0)) return acc
-          const accountMetadata = accountMetadataByAccountId[accountId]
-          const payload = { [accountId]: accountMetadata }
-          dispatch(portfolio.actions.upsertAccountMetadata(payload))
-          dispatch(portfolio.actions.upsertPortfolio(account))
-          return acc
-        }, {})
+          const { hasActivity } = account.accounts.byId[accountId]
 
-        /**
-         * if the balance for all accounts for the current chainId and accountNumber
-         * is zero, we've exhausted that chain, don't fetch more of them
-         */
-        Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
-          if (balance.eq(0)) pull(chainIds, chainId) // pull mutates chainIds, but we want to
+          // don't add accounts with no activity past account 0
+          if (accountNumber > 0 && !hasActivity) return delete accountMetadataByAccountId[accountId]
+
+          // unique set to handle utxo chains with multiple account types per account
+          chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+
+          dispatch(portfolio.actions.upsertPortfolio(account))
         })
+
+        chainIds = chainIdsWithActivity
       }
+
+      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
@@ -169,21 +162,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
     ;(async () => {
+      if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
 
       const { getAllTxHistory } = txHistoryApi.endpoints
 
-      try {
-        await dispatch(getAllTxHistory.initiate(requestedAccountIds))
-      } finally {
-        // add any nft assets detected in the tx history state.
-        // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
-        // additional nft asset upserts will be handled by the transactions websocket subscription.
-        // NOTE: We currently upsert NFTs in nftApi, which blockbook data currently overwrites, however, said blockbook data is borked
-        // TODO: remove me or uncomment me when blockbook data is fixed
-        // const txsById = store.getState().txHistory.txs.byId
-        // dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
-      }
+      await dispatch(getAllTxHistory.initiate(requestedAccountIds))
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 

@@ -4,6 +4,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -16,9 +17,11 @@ import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/type
 import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/types'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import { makeSwapErrorRight } from 'lib/swapper/utils'
+import { isFulfilled } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
+import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -26,7 +29,6 @@ export async function getTradeQuote(
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
   const {
-    chainId,
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -81,10 +83,7 @@ export async function getTradeQuote(
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
       exchanges: { deny: ['dodo'] },
-      // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
-      // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
-      // use the `allowSwitchChain` param above when implemented
-      allowSwitchChain: false,
+      allowSwitchChain: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
       fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   }
@@ -131,112 +130,107 @@ export async function getTradeQuote(
     )
   }
 
-  return Ok(
-    await Promise.all(
-      routes.slice(0, 3).map(async selectedLifiRoute => {
-        // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
-        // generate a multi-hop quote
-        const steps = await Promise.all(
-          selectedLifiRoute.steps.map(async lifiStep => {
-            // for the rate to be valid, both amounts must be converted to the same precision
-            const estimateRate = convertPrecision({
-              value: selectedLifiRoute.toAmountMin,
-              inputExponent: buyAsset.precision,
-              outputExponent: sellAsset.precision,
-            })
-              .dividedBy(bn(selectedLifiRoute.fromAmount))
-              .toString()
+  const promises = await Promise.allSettled(
+    routes.slice(0, 3).map(async selectedLifiRoute => {
+      // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
+      // generate a multi-hop quote
+      const steps = await Promise.all(
+        selectedLifiRoute.steps.map(async lifiStep => {
+          const stepSellAsset = lifiTokenToAsset(lifiStep.action.fromToken, assets)
+          const stepChainId = stepSellAsset.chainId
+          const stepBuyAsset = lifiTokenToAsset(lifiStep.action.toToken, assets)
 
-            const protocolFees = transformLifiStepFeeData({
-              chainId,
-              lifiStep,
-              assets,
-            })
+          // for the rate to be valid, both amounts must be converted to the same precision
+          const estimateRate = convertPrecision({
+            value: selectedLifiRoute.toAmountMin,
+            inputExponent: stepBuyAsset.precision,
+            outputExponent: stepSellAsset.precision,
+          })
+            .dividedBy(bn(selectedLifiRoute.fromAmount))
+            .toString()
 
-            const sellAssetProtocolFee = protocolFees[sellAsset.assetId]
-            const buyAssetProtocolFee = protocolFees[buyAsset.assetId]
-            const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(
-              sellAssetProtocolFee?.amountCryptoBaseUnit,
-            )
-            const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
-              convertPrecision({
-                value: sellSideProtocolFeeCryptoBaseUnit,
-                inputExponent: sellAsset.precision,
-                outputExponent: buyAsset.precision,
-              }),
-            ).times(estimateRate)
-            const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
-              buyAssetProtocolFee?.amountCryptoBaseUnit,
-            )
+          const protocolFees = transformLifiStepFeeData({
+            chainId: stepChainId,
+            lifiStep,
+            assets,
+          })
 
-            const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
-              selectedLifiRoute.toAmount,
-            ).toPrecision()
+          const sellAssetProtocolFee = protocolFees[stepSellAsset.assetId]
+          const buyAssetProtocolFee = protocolFees[stepBuyAsset.assetId]
+          const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(
+            sellAssetProtocolFee?.amountCryptoBaseUnit,
+          )
+          const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+            convertPrecision({
+              value: sellSideProtocolFeeCryptoBaseUnit,
+              inputExponent: stepSellAsset.precision,
+              outputExponent: stepBuyAsset.precision,
+            }),
+          ).times(estimateRate)
+          const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
+            buyAssetProtocolFee?.amountCryptoBaseUnit,
+          )
 
-            // TODO: Add buySideNetworkFeeCryptoBaseUnit when we implement multihop
-            const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-              .plus(sellSideProtocolFeeBuyAssetBaseUnit)
-              .plus(buySideProtocolFeeCryptoBaseUnit)
-              .toString()
+          const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
+            selectedLifiRoute.toAmount,
+          ).toPrecision()
 
-            const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
-              assets,
-              lifiStep,
-            )
+          const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+            .plus(sellSideProtocolFeeBuyAssetBaseUnit)
+            .plus(buySideProtocolFeeCryptoBaseUnit)
+            .toString()
 
-            const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-              chainId,
-              lifiStep,
-              supportsEIP1559,
-            })
+          const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 
-            const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
+          const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+            chainId: stepChainId,
+            lifiStep,
+            supportsEIP1559,
+          })
 
-            return {
-              allowanceContract: lifiStep.estimate.approvalAddress,
-              accountNumber,
-              buyAmountBeforeFeesCryptoBaseUnit,
-              buyAmountAfterFeesCryptoBaseUnit,
-              buyAsset,
-              intermediaryTransactionOutputs,
-              feeData: {
-                protocolFees,
-                networkFeeCryptoBaseUnit,
-              },
-              // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
-              // might be better replaced by inputOutputRatio downstream
-              rate: estimateRate,
-              sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              sellAsset,
-              source,
-            }
-          }),
-        )
+          const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
 
-        // The rate for the entire multi-hop swap
-        const netRate = convertPrecision({
-          value: selectedLifiRoute.toAmountMin,
-          inputExponent: buyAsset.precision,
-          outputExponent: sellAsset.precision,
-        })
-          .dividedBy(bn(selectedLifiRoute.fromAmount))
-          .toString()
+          return {
+            allowanceContract: lifiStep.estimate.approvalAddress,
+            accountNumber,
+            buyAmountBeforeFeesCryptoBaseUnit,
+            buyAmountAfterFeesCryptoBaseUnit,
+            buyAsset: stepBuyAsset,
+            intermediaryTransactionOutputs,
+            feeData: {
+              protocolFees,
+              networkFeeCryptoBaseUnit,
+            },
+            // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
+            // might be better replaced by inputOutputRatio downstream
+            rate: estimateRate,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAsset: stepSellAsset,
+            source,
+            estimatedExecutionTimeMs: 1000 * lifiStep.estimate.executionDuration,
+          }
+        }),
+      )
 
-        const estimatedExecutionTimeMs = selectedLifiRoute.steps.reduce(
-          (acc, step) => acc + 1000 * step.estimate.executionDuration,
-          0,
-        )
+      // The rate for the entire multi-hop swap
+      const netRate = convertPrecision({
+        value: selectedLifiRoute.toAmountMin,
+        inputExponent: buyAsset.precision,
+        outputExponent: sellAsset.precision,
+      })
+        .dividedBy(bn(selectedLifiRoute.fromAmount))
+        .toString()
 
-        return {
-          id: selectedLifiRoute.id,
-          receiveAddress,
-          affiliateBps,
-          steps,
-          rate: netRate,
-          estimatedExecutionTimeMs,
-          selectedLifiRoute,
-        }
-      }),
-    ),
+      return {
+        id: selectedLifiRoute.id,
+        receiveAddress,
+        affiliateBps,
+        steps,
+        rate: netRate,
+        selectedLifiRoute,
+      }
+    }),
   )
+
+  return Ok(promises.filter(isFulfilled).map(({ value }) => value))
 }

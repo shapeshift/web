@@ -96,9 +96,9 @@ export const avax: AssetWithNetworkName = {
   precision: 18,
   color: '#FFFFFF', // this will get picked up by the color generation script,
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
-  explorer: 'https://snowtrace.io',
-  explorerAddressLink: 'https://snowtrace.io/address/',
-  explorerTxLink: 'https://snowtrace.io/tx/',
+  explorer: 'https://snowtrace.dev',
+  explorerAddressLink: 'https://snowtrace.dev/address/',
+  explorerTxLink: 'https://snowtrace.dev/tx/',
 }
 
 export const thorchain: AssetWithNetworkName = {
@@ -170,9 +170,9 @@ export const gnosis: AssetWithNetworkName = {
   icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/11062/large/Aatar_green_white.png?1643204471',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const arbitrum: AssetWithNetworkName = {

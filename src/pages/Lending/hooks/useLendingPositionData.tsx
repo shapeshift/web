@@ -1,9 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { getThorchainLendingPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainLending/utils'
-import { fromThorBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {
@@ -19,8 +19,8 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const lendingPositionData = useQuery({
-    // 2 minutes before the data is considered stale, meaning firing this query will trigger queryFn
-    staleTime: 120_000,
+    // The time before the data is considered stale, meaning firing this query after it elapses will trigger queryFn
+    staleTime: 60_000,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -44,6 +44,9 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
       }
     },
     enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: true,
   })
 
   return lendingPositionData

@@ -27,7 +27,7 @@ import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { Message, ValidatorAction } from '../types'
 
-export const MIN_FEE = '2500'
+export const MIN_FEE = '5000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet

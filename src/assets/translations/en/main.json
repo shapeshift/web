@@ -66,6 +66,8 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "days": "Days",
+    "clear": "Clear",
+    "copy": "Copy",
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
@@ -118,7 +120,21 @@
     "learnMore": "Learn more",
     "showAll": "Show All",
     "showLess": "Show Less",
-    "yourBalance": "Your balance"
+    "yourBalance": "Your balance",
+    "signMessage": "Sign message",
+    "carousel": {
+      "next": "Next",
+      "prev": "Previous",
+      "back": "Back",
+      "dot": "Dot"
+    },
+    "table": {
+      "nextPage": "Next Page",
+      "prevPage": "Previous Page",
+      "sortedAsc": "Sorted ascending",
+      "sortedDesc": "Sorted descending",
+      "expandRow": "Expand Row"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,10 +247,11 @@
     "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
+    "title": "The Original Multichain Exchange",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
-    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
@@ -509,9 +526,13 @@
     "accountAsset": "Account Asset",
     "accountDetails": "Account Details",
     "defi": "DeFi",
+    "openMenu": "Open menu",
+    "closeNav": "Close Nav",
+    "openNotif": "Open notifications",
     "transactionHistory": "Transaction History",
     "overview": "Overview",
     "transactions": "Transactions",
+    "pendingTransactions": "Pending Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Opportunities",
     "dApps": "dApps",
@@ -660,6 +681,7 @@
     "rate": "Rate",
     "tradeFrom": "Trade from",
     "priceImpact": "Price Impact",
+    "tradeSettings": "Trade Settings",
     "slippage": {
       "maxSlippage": "Max Slippage",
       "auto": "Auto",
@@ -674,6 +696,8 @@
     "payWith": "Pay With",
     "youGet": "You Get",
     "tradeTo": "Trade to",
+    "quoteStatus": "Quote status",
+    "expand": "Expand",
     "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
     "donation": "ShapeShift Donation",
@@ -790,7 +814,8 @@
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
-    "enableMetaMaskSnap": "use the multichain snap"
+    "enableMetaMaskSnap": "use the multichain snap",
+    "approvalGasFee": "Approval gas fee %{fee}"
   },
   "modals": {
     "popup": {
@@ -912,6 +937,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
+        "consolidateFunds": "Consolidate"
+      },
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
@@ -1653,7 +1682,8 @@
     "youCanNowUse": "You can now use %{name} Account #%{accountNumber}",
     "showAssets": "Show assets",
     "hideAssets": "Hide assets",
-    "viewAccount": "View account"
+    "viewAccount": "View account",
+    "expandAccount": "Expand account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2089,7 +2119,8 @@
     "aboutCollection": "About %{collectionName}",
     "emptyTitle": "Where did all the NFTs go?",
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence.",
-    "reportSpam": "Report Spam"
+    "reportSpam": "Report Spam",
+    "refresh": "Refresh"
   },
   "missions": {
     "subtitle": "FOX Missions",
@@ -2170,6 +2201,11 @@
     "repaymentLock": "Repayment Lock",
     "borrow": "Borrow",
     "repay": "Repay",
+    "repayAmount": "Repay Amount",
+    "unlockedCollateral": "Unlocked Collateral",
+    "depositAsset": "Deposit %{asset}",
+    "switchAssets": "Switch Assets",
+    "backToLending": "Back to lending",
     "outstandingDebt": "Outstanding Debt",
     "collateral": "Collateral",
     "debt": "Debt",

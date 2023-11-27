@@ -4,6 +4,7 @@ import { Box, Grid, IconButton, useBreakpointValue, useToken } from '@chakra-ui/
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { PropsWithChildren } from 'react'
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 export type FeatureListProps = {
   slidesToShow?: Record<ThemeTypings['breakpoints'] | string, number>
@@ -33,6 +34,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
   slideGap = 4,
   ...rest
 }) => {
+  const translate = useTranslate()
   const gridColumns = useBreakpointValue(slidesToShow, { ssr: false, fallback: '4' }) ?? 4
   const offsetColumn = bnOrZero(gridColumns).minus(1)
   const ref = useRef<HTMLDivElement>(null)
@@ -91,7 +93,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
           <IconButton
             size='lg'
             icon={arrowbackIcon}
-            aria-label='Back'
+            aria-label={translate('common.carousel.back')}
             isRound
             onClick={handleBack}
             isDisabled={isScrollStart}
@@ -107,7 +109,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
           <IconButton
             icon={arrowForwardIcon}
             size='lg'
-            aria-label='Next'
+            aria-label={translate('common.carousel.next')}
             onClick={handleNext}
             isDisabled={isScrollEnd}
             _disabled={opacity0}

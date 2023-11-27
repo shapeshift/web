@@ -91,7 +91,7 @@ const _getQuote = async ({
 
   if (
     isError &&
-    (/not enough fee/.test(data.error) || /not enough to pay transaction fee/.test(data.error))
+    (/not enough fee/i.test(data.error) || /not enough to pay transaction fee/i.test(data.error))
   ) {
     return Err(createTradeAmountTooSmallErr())
   } else if (isError && /trading is halted/.test(data.error)) {

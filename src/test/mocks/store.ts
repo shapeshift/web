@@ -2,7 +2,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
-import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -97,6 +97,7 @@ export const mockStore: ReduxState = {
       ThorchainLending: false,
       LedgerWallet: false,
       MultiHopTrades: false,
+      ThorchainSwapLongtail: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -175,7 +176,6 @@ export const mockStore: ReduxState = {
     sellAssetAccountId: undefined,
     buyAssetAccountId: undefined,
     sellAmountCryptoPrecision: '0',
-    tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
     willDonate: true,
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
@@ -185,5 +185,7 @@ export const mockStore: ReduxState = {
     activeQuoteIndex: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
+    tradeExecutionState: MultiHopExecutionState.Unknown,
+    initialApprovalRequirements: undefined,
   },
 }

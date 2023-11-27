@@ -83,7 +83,7 @@ export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
     if (!searchQuery) return sortedAssets
     return matchSorter(sortedAssets, searchQuery ?? '', {
       keys: ['name', 'symbol', 'assetId'],
-      threshold: matchSorter.rankings.MATCHES,
+      threshold: matchSorter.rankings.CONTAINS,
     })
   },
 )

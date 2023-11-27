@@ -398,9 +398,9 @@ now refers to any UTXO chain
 
 * chore: remove toString() and associated comment
 
-* chore: remove string litirals
+* chore: remove string literals
 
-* chore: optimise imports
+* chore: optimize imports
 
 * chore: use string union for AssetNamespace
 

@@ -508,6 +508,22 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'eip155:56/bep20:0xbdeae1ca48894a1759a8374d63925f21f2ee2639': ['edu_bsc'],
   'eip155:1/erc20:0x701c244b988a513c945973defa05de933b23fe1d': ['oax_ethereum'],
   'eip155:56/bep20:0x5b1f874d0b0c5ee17a495cbb70ab8bf64107a3bd': ['bnx_bsc'],
+  'eip155:42161/slip44:60:': ['eth_arbitrum'],
+  'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': ['usdc_arbitrum'],
+  'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': ['usdt_arbitrum'],
+  'eip155:42161/erc20:0x912ce59144191c1204e64559fe8253a0e49e6548': ['arb_arbitrum'],
+  'eip155:42161/erc20:0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8': ['bal_arbitrum'],
+  'eip155:42161/erc20:0x11cdb42b0eb46d95f990bedd4695a6e3fa034978': ['crv_arbitrum'],
+  'eip155:42161/erc20:0xa0b862f60edef4452f25b4160f177db44deb6cf1': ['gno_arbitrum'],
+  'eip155:42161/erc20:0xf97f4df75117a78c1a5a0dbb814af92458539fb4': ['link_arbitrum'],
+  'eip155:42161/erc20:0x2e9a6df78e42a30712c10a9dc4b1c8656f8f2879': ['mkr_arbitrum'],
+  'eip155:42161/erc20:0xd4d42f0b6def4ce0383636770ef773390d85c61a': ['sushi_arbitrum'],
+  'eip155:42161/erc20:0x354a6da3fcde098f8389cad84b0182725c6c91de': ['comp_arbitrum'],
+  'eip155:42161/erc20:0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f': ['wbtc_arbitrum'],
+  'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1': ['weth_arbitrum'],
+  'eip155:42161/erc20:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': ['dai_arbitrum'],
+  'eip155:42161/erc20:0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0': ['uni_arbitrum'],
+  'eip155:42161/erc20:0x5979d7b546e38e414f7e9822514be443a4800529': ['wsteth_arbitrum'],
 }
 
 // explodes and inverts the assetId => tokenId[] map by creating a 1to1 token => assetId mapping

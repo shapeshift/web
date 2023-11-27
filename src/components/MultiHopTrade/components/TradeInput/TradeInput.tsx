@@ -394,45 +394,23 @@ export const TradeInput = memo(() => {
   const sellTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
-        accountId={sellAssetAccountId}
-        onAccountIdChange={setSellAssetAccountId}
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
-        label={translate('trade.from')}
         onAssetChange={setSellAsset}
       />
     ),
-    [
-      handleSellAssetClick,
-      sellAsset.assetId,
-      sellAssetAccountId,
-      setSellAsset,
-      setSellAssetAccountId,
-      translate,
-    ],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
-        accountId={buyAssetAccountId}
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
-        onAccountIdChange={setBuyAssetAccountId}
-        accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-        label={translate('trade.to')}
         onAssetChange={setBuyAsset}
       />
     ),
-    [
-      buyAsset.assetId,
-      buyAssetAccountId,
-      handleBuyAssetClick,
-      setBuyAsset,
-      setBuyAssetAccountId,
-      swapperSupportsCrossAccountTrade,
-      translate,
-    ],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   return (
@@ -450,7 +428,7 @@ export const TradeInput = memo(() => {
                     <FadeTransition>
                       <IconButton
                         variant='ghost'
-                        aria-label='Quote status'
+                        aria-label={translate('trade.quoteStatus')}
                         icon={countdownCircleTimerIcon}
                       />
                     </FadeTransition>
@@ -481,7 +459,7 @@ export const TradeInput = memo(() => {
                 variant='outline'
                 borderColor='border.base'
                 zIndex={1}
-                aria-label='Switch Assets'
+                aria-label={translate('lending.switchAssets')}
                 icon={arrowDownIcon}
               />
               <Divider />
@@ -506,6 +484,7 @@ export const TradeInput = memo(() => {
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
               onAccountIdChange={setBuyAssetAccountId}
+              isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
             >

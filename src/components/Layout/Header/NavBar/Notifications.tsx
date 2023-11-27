@@ -5,6 +5,7 @@ import type { CustomTheme, ThemeMode as ThemeModeType } from '@wherever/react-no
 import { getConfig } from 'config'
 import { utils } from 'ethers'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -33,6 +34,7 @@ const suspenseFallback = <div />
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 
 export const Notifications = memo(() => {
+  const translate = useTranslate()
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
@@ -150,7 +152,7 @@ export const Notifications = memo(() => {
           disableAnalytics={disableAnalytics}
         >
           <NotificationFeed gapFromBell={10} placement='bottom-end'>
-            <IconButton aria-label='Open notifications'>
+            <IconButton aria-label={translate('navBar.openNotif')}>
               <NotificationBell size={20} />
             </IconButton>
           </NotificationFeed>

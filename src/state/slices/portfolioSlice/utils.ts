@@ -24,7 +24,7 @@ import {
   toAccountId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
+import type { Account, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -176,17 +176,20 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
         const accountId = toAccountId({ chainId, account: pubkey })
-        portfolio.accountBalances.ids.push(accountId)
 
-        portfolio.accounts.byId[accountId] = { assetIds: [] }
-        portfolio.accounts.byId[accountId].assetIds.push(assetId)
+        const hasActivity =
+          bnOrZero(ethAccount.chainSpecific.nonce).gt(0) || bnOrZero(ethAccount.balance).gt(0)
+
         portfolio.accounts.ids.push(accountId)
-
-        portfolio.accountBalances.byId[accountId] = {
-          [assetId]: ethAccount.balance,
-        }
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
+          if (bnOrZero(token.balance).gt(0)) {
+            portfolio.accounts.byId[accountId].hasActivity = true
+          }
+
           // don't update portfolio if asset is not in the store except for nft assets,
           // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
           if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
@@ -208,39 +211,27 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
-
-          portfolio.accountBalances.byId[accountId] = {
-            ...portfolio.accountBalances.byId[accountId],
-            [token.assetId]: token.balance,
-          }
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
         })
+
         break
       }
       case CHAIN_NAMESPACE.Utxo: {
+        const utxoAccount = account as Account<UtxoChainId>
         const { balance, chainId, assetId, pubkey } = account
+
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountId = `${chainId}:${pubkey}`
 
+        const hasActivity =
+          bnOrZero(balance).gt(0) ||
+          bnOrZero(utxoAccount.chainSpecific.nextChangeAddressIndex).gt(0) ||
+          bnOrZero(utxoAccount.chainSpecific.nextReceiveAddressIndex).gt(0)
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
         portfolio.accountBalances.ids.push(accountId)
-
-        // initialize this
-        portfolio.accountBalances.byId[accountId] = {}
-
-        // add the balance from the top level of the account
-        portfolio.accountBalances.byId[accountId][assetId] = balance
-
-        // initialize
-        if (!portfolio.accounts.byId[accountId]?.assetIds.length) {
-          portfolio.accounts.byId[accountId] = {
-            assetIds: [],
-          }
-        }
-
-        portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountId]))
-
-        portfolio.accounts.byId[accountId].assetIds = Array.from(
-          new Set([...portfolio.accounts.byId[accountId].assetIds, assetId]),
-        )
+        portfolio.accountBalances.byId[accountId] = { [assetId]: balance }
 
         break
       }
@@ -248,31 +239,26 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
-        portfolio.accountBalances.ids.push(accountId)
 
-        portfolio.accounts.byId[accountId] = {
-          assetIds: [],
-        }
-
-        portfolio.accounts.byId[accountId].assetIds.push(assetId)
+        const hasActivity =
+          bnOrZero(cosmosAccount.chainSpecific.sequence).gt(0) ||
+          bnOrZero(cosmosAccount.balance).gt(0)
 
         portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         cosmosAccount.chainSpecific.assets?.forEach(asset => {
-          if (!args.assetIds.includes(asset.assetId)) {
-            return
+          if (bnOrZero(asset.amount).gt(0)) {
+            portfolio.accounts.byId[accountId].hasActivity = true
           }
-          portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
 
-          portfolio.accountBalances.byId[accountId] = {
-            ...portfolio.accountBalances.byId[accountId],
-            [asset.assetId]: asset.amount,
-          }
+          if (!args.assetIds.includes(asset.assetId)) return
+
+          portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
+          portfolio.accountBalances.byId[accountId][asset.assetId] = asset.amount
         })
-        portfolio.accountBalances.byId[accountId] = {
-          ...portfolio.accountBalances.byId[accountId],
-          [assetId]: account.balance,
-        }
 
         break
       }

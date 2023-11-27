@@ -207,7 +207,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.AvalancheMainnet]: {
         name: 'Avalanche',
         symbol: 'AVAX',
-        explorer: 'https://snowtrace.io',
+        explorer: 'https://snowtrace.dev',
       },
       [KnownChainIds.BnbSmartChainMainnet]: {
         name: 'BNB',
@@ -222,7 +222,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.GnosisMainnet]: {
         name: 'xDAI',
         symbol: 'xDAI',
-        explorer: 'https://gnosisscan.io/',
+        explorer: 'https://gnosis.blockscout.com',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',
@@ -394,6 +394,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
               assetNamespace: getAssetNamespace(token.type),
               assetReference: token.id ? `${token.contract}/${token.id}` : token.contract,
             }),
+            name: token.name,
+            precision: token.decimals,
+            symbol: token.symbol,
           })),
         },
         pubkey: data.pubkey,

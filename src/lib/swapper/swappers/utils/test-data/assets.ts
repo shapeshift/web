@@ -62,9 +62,9 @@ export const FOX_GNOSIS: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
   symbol: 'FOX',
 }
 
@@ -128,9 +128,9 @@ export const USDC_GNOSIS: Asset = {
   precision: 6,
   color: '#2373CB',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const AVAX: Asset = {
@@ -141,9 +141,9 @@ export const AVAX: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
-  explorer: 'https://snowtrace.io',
-  explorerAddressLink: 'https://snowtrace.io/address/',
-  explorerTxLink: 'https://snowtrace.io/tx/',
+  explorer: 'https://snowtrace.dev',
+  explorerAddressLink: 'https://snowtrace.dev/address/',
+  explorerTxLink: 'https://snowtrace.dev/tx/',
 }
 
 export const OPTIMISM: Asset = {
@@ -187,9 +187,9 @@ export const XDAI: Asset = {
   icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
   networkIcon:
     'https://assets.coingecko.com/asset_platforms/images/11062/large/Aatar_green_white.png?1643204471',
-  explorer: 'https://gnosisscan.io/',
-  explorerAddressLink: 'https://gnosisscan.io/address/',
-  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorer: 'https://gnosis.blockscout.com/',
+  explorerAddressLink: 'https://gnosis.blockscout.com/address/',
+  explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
 export const RUNE: Asset = {

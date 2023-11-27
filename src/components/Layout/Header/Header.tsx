@@ -29,7 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectPortfolioLoadingStatus,
+  selectPortfolioDegradedState,
   selectShowSnapsModal,
   selectWalletAccountIds,
   selectWalletId,
@@ -59,7 +59,7 @@ const hamburgerIcon = <HamburgerIcon />
 
 export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
+  const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
   const isSnapInstalled = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
@@ -209,7 +209,11 @@ export const Header = memo(() => {
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
             <Box flex={1} display={displayProp}>
-              <IconButton aria-label='Open menu' onClick={onToggle} icon={hamburgerIcon} />
+              <IconButton
+                aria-label={translate('navBar.openMenu')}
+                onClick={onToggle}
+                icon={hamburgerIcon}
+              />
             </Box>
 
             <Box display={displayProp} mx='auto'>

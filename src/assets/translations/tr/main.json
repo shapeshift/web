@@ -66,6 +66,8 @@
     "privacy": "Gizlilik Politikası",
     "terms": "Kullanım Şartları",
     "days": "Günler",
+    "clear": "Temizle",
+    "copy": "Kopyala",
     "copied": "Panoya kopyalandı.",
     "copyFailed": "Panoya kopyalanamadı",
     "copyFailedDescription": "Lütfen manuel olarak kopyalayın",
@@ -118,7 +120,20 @@
     "learnMore": "Daha fazla bilgi edin",
     "showAll": "Hepsini Göster",
     "showLess": "Daha Az",
-    "yourBalance": "Bakiyeniz"
+    "yourBalance": "Bakiyeniz",
+    "carousel": {
+      "next": "Sonraki",
+      "prev": "Önceki",
+      "back": "Geri",
+      "dot": "Nokta"
+    },
+    "table": {
+      "nextPage": "Sonraki Sayfa",
+      "prevPage": "Önceki Sayfa",
+      "sortedAsc": "Artan şekilde sırala",
+      "sortedDesc": "Azalan şekilde sırala",
+      "expandRow": "Satırı Genişlet"
+    }
   },
   "consentBanner": {
     "body": {
@@ -231,10 +246,11 @@
     "notSupported": "%{asset}, %{wallet} tarafından desteklenmiyor"
   },
   "connectWalletPage": {
+    "title": "Orijinal Çoklu Zincir Değişimi",
     "shapeshift": "ShapeShift",
     "exploreThe": "DeFi Dünyası'nı",
     "defiUniverse": "Keşfedin",
-    "body": "%100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
+    "body": "Ticaret yapın, köprü kurun ve kazanın. Özel. Topluluk sahibi. Gözetimsiz. Merkezi olmayan.",
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
     "cta": "Cüzdanı Bağla",
@@ -509,9 +525,13 @@
     "accountAsset": "Hesap Varlıkları",
     "accountDetails": "Hesap Detayları",
     "defi": "DeFi",
+    "openMenu": "Menüyü aç",
+    "closeNav": "Gezinmeyi Kapat",
+    "openNotif": "Bildirimleri aç",
     "transactionHistory": "İşlem Geçmişi",
     "overview": "Genel Bakış",
     "transactions": "İşlemler",
+    "pendingTransactions": "Bekleyen İşlemler",
     "tradeHistory": "Takas Geçmişi",
     "foxToken": "FOX Fırsatları",
     "dApps": "dApps",
@@ -660,6 +680,7 @@
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
     "priceImpact": "Fiyat Etkisi",
+    "tradeSettings": "Takas Ayarları",
     "slippage": {
       "maxSlippage": "Maks. Kayma",
       "auto": "Otomatik",
@@ -674,6 +695,8 @@
     "payWith": "İle Öde",
     "youGet": "Al",
     "tradeTo": "Buraya Takasla",
+    "quoteStatus": "Teklif durumu",
+    "expand": "Genişlet",
     "availableRoutes": "Mevcut Rotalar",
     "minerFee": "Madenci Ücreti",
     "donation": "ShapeShift Bağışı",
@@ -912,6 +935,10 @@
       }
     },
     "send": {
+      "consolidate": {
+        "body": "ShapeShift, her işlem için yeni bir adres kullanarak %{asset}'in güvenlik tasarımını onurlandırıyor. THORChain'in tek adresle çalışan protokolüne uyum sağlamak için fonlarınızı tek bir adreste birleştireceğiz.",
+        "consolidateFunds": "Birleştir"
+      },
       "getBalanceError": "Cüzdan bakiyeleri alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
@@ -1267,7 +1294,14 @@
         "header": "Ledger Hesaplarını İçe Aktar",
         "body": "Tüm zincirlere ait bakiyenizi görmek için her uygulamayı bağlamanız gerekir.",
         "availableChains": "Mevcut Zincirler",
-        "error": "Cüzdanınız bağlanırken bir hata oluştu"
+        "error": "Cüzdanınız bağlanırken bir hata oluştu",
+        "followTheInstructions": "Talimatları takip et",
+        "toGetTheRuneApp": "RUNE uygulamasını cihazınıza yüklemek için",
+        "added": "Eklendi",
+        "connect": "Bağlan"
+      },
+      "verify": {
+        "confirmOnDevice": "Cihazda onayla"
       },
       "success": {
         "header": "Ledger Bağlandı",
@@ -1646,7 +1680,8 @@
     "youCanNowUse": "Artık %{name} Hesabını kullanabilirsiniz #%{accountNumber}",
     "showAssets": "Varlıkları göster",
     "hideAssets": "Varlıkları gizle",
-    "viewAccount": "Hesabı görüntüle"
+    "viewAccount": "Hesabı görüntüle",
+    "expandAccount": "Hesabı genişlet"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2082,7 +2117,8 @@
     "aboutCollection": "%{collectionName} Hakkında",
     "emptyTitle": "Tüm NFT'ler nereye gitti?",
     "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin.",
-    "reportSpam": "Spam Bildir"
+    "reportSpam": "Spam Bildir",
+    "refresh": "Yenile"
   },
   "missions": {
     "subtitle": "FOX Görevleri",
@@ -2163,6 +2199,11 @@
     "repaymentLock": "Geri Ödeme Kilidi",
     "borrow": "Borç Al",
     "repay": "Geri Öde",
+    "repayAmount": "Geri Ödeme Tutarı",
+    "unlockedCollateral": "Kilidi Açılmış Teminat",
+    "depositAsset": "Depozit %{asset}",
+    "switchAssets": "Varlıkları Değiştir",
+    "backToLending": "Borç vermeye geri dön",
     "outstandingDebt": "Ödenmemiş Borç",
     "collateral": "Teminat",
     "debt": "Borç",

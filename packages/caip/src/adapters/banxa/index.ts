@@ -4,6 +4,7 @@ import toLower from 'lodash/toLower'
 import type { AssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
+  arbitrumAssetId,
   avalancheAssetId,
   avalancheChainId,
   btcAssetId,
@@ -29,6 +30,7 @@ const AssetIdToBanxaTickerMap = {
   [avalancheAssetId]: 'avax',
   [optimismAssetId]: 'eth',
   [polygonAssetId]: 'matic',
+  [arbitrumAssetId]: 'eth',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
@@ -55,6 +57,8 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
   'eip155:10/erc20:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58': 'usdt',
+  'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831': 'usdc',
+  'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 'usdt',
 } as Record<AssetId, string>
 
 export const getSupportedBanxaAssets = () =>

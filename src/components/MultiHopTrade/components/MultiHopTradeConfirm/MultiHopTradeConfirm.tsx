@@ -67,7 +67,7 @@ export const MultiHopTradeConfirm = memo(() => {
   useEffect(() => {
     if (
       previousTradeExecutionState !== tradeExecutionState &&
-      previousTradeExecutionState === MultiHopExecutionState.Hop1AwaitingTradeExecution
+      previousTradeExecutionState === MultiHopExecutionState.FirstHopAwaitingTradeExecution
     ) {
       if (isFirstHopOpen) onToggleFirstHop()
       if (!isSecondHopOpen) onToggleSecondHop()

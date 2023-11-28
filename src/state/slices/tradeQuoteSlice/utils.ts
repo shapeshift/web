@@ -6,7 +6,7 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/types'
 import { assertUnreachable, type PartialRecord } from 'lib/utils'
 
-import { MultiHopExecutionState } from './types'
+import { HopExecutionState, MultiHopExecutionState } from './types'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)
@@ -110,52 +110,101 @@ export const getNextTradeExecutionState = (
   secondHopRequiresApproval: boolean,
 ) => {
   switch (tradeExecutionState) {
-    case MultiHopExecutionState.Unknown:
-      return MultiHopExecutionState.Previewing
     case MultiHopExecutionState.Previewing:
       if (!firstHopRequiresApproval) {
-        return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
+        return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
       }
-      return MultiHopExecutionState.Hop1AwaitingApprovalConfirmation
-    case MultiHopExecutionState.Hop1AwaitingApprovalConfirmation:
+      return MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation
+    case MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation:
       if (!firstHopRequiresApproval) {
-        return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
+        return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
       }
-      return MultiHopExecutionState.Hop1AwaitingApprovalExecution
-    case MultiHopExecutionState.Hop1AwaitingApprovalExecution:
-      return MultiHopExecutionState.Hop1AwaitingTradeConfirmation
-    case MultiHopExecutionState.Hop1AwaitingTradeConfirmation:
-      return MultiHopExecutionState.Hop1AwaitingTradeExecution
-    case MultiHopExecutionState.Hop1AwaitingTradeExecution:
+      return MultiHopExecutionState.FirstHopAwaitingApprovalExecution
+    case MultiHopExecutionState.FirstHopAwaitingApprovalExecution:
+      return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
+    case MultiHopExecutionState.FirstHopAwaitingTradeConfirmation:
+      return MultiHopExecutionState.FirstHopAwaitingTradeExecution
+    case MultiHopExecutionState.FirstHopAwaitingTradeExecution:
       if (!isMultiHopTrade) {
         return MultiHopExecutionState.TradeComplete
       }
       if (!secondHopRequiresApproval) {
-        return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
+        return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
       }
-      return MultiHopExecutionState.Hop2AwaitingApprovalConfirmation
-    case MultiHopExecutionState.Hop2AwaitingApprovalConfirmation:
+      return MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation
+    case MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation:
       if (!isMultiHopTrade) {
         return MultiHopExecutionState.TradeComplete
       }
       if (!secondHopRequiresApproval) {
-        return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
+        return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
       }
-      return MultiHopExecutionState.Hop2AwaitingApprovalExecution
-    case MultiHopExecutionState.Hop2AwaitingApprovalExecution:
+      return MultiHopExecutionState.SecondHopAwaitingApprovalExecution
+    case MultiHopExecutionState.SecondHopAwaitingApprovalExecution:
       if (!isMultiHopTrade) {
         return MultiHopExecutionState.TradeComplete
       }
-      return MultiHopExecutionState.Hop2AwaitingTradeConfirmation
-    case MultiHopExecutionState.Hop2AwaitingTradeConfirmation:
+      return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
+    case MultiHopExecutionState.SecondHopAwaitingTradeConfirmation:
       if (!isMultiHopTrade) {
         return MultiHopExecutionState.TradeComplete
       }
-      return MultiHopExecutionState.Hop2AwaitingTradeExecution
-    case MultiHopExecutionState.Hop2AwaitingTradeExecution:
+      return MultiHopExecutionState.SeondHopAwaitingTradeExecution
+    case MultiHopExecutionState.SeondHopAwaitingTradeExecution:
       return MultiHopExecutionState.TradeComplete
     case MultiHopExecutionState.TradeComplete:
       return MultiHopExecutionState.TradeComplete
+    default:
+      assertUnreachable(tradeExecutionState)
+  }
+}
+
+export const getHopExecutionStates = (tradeExecutionState: MultiHopExecutionState) => {
+  switch (tradeExecutionState) {
+    case MultiHopExecutionState.Previewing:
+      return { firstHop: HopExecutionState.Pending, secondHop: HopExecutionState.Pending }
+    case MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation:
+      return {
+        firstHop: HopExecutionState.AwaitingApprovalConfirmation,
+        secondHop: HopExecutionState.Pending,
+      }
+    case MultiHopExecutionState.FirstHopAwaitingApprovalExecution:
+      return {
+        firstHop: HopExecutionState.AwaitingApprovalExecution,
+        secondHop: HopExecutionState.Pending,
+      }
+    case MultiHopExecutionState.FirstHopAwaitingTradeConfirmation:
+      return {
+        firstHop: HopExecutionState.AwaitingTradeConfirmation,
+        secondHop: HopExecutionState.Pending,
+      }
+    case MultiHopExecutionState.FirstHopAwaitingTradeExecution:
+      return {
+        firstHop: HopExecutionState.AwaitingTradeExecution,
+        secondHop: HopExecutionState.Pending,
+      }
+    case MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation:
+      return {
+        firstHop: HopExecutionState.Complete,
+        secondHop: HopExecutionState.AwaitingApprovalConfirmation,
+      }
+    case MultiHopExecutionState.SecondHopAwaitingApprovalExecution:
+      return {
+        firstHop: HopExecutionState.Complete,
+        secondHop: HopExecutionState.AwaitingApprovalExecution,
+      }
+    case MultiHopExecutionState.SecondHopAwaitingTradeConfirmation:
+      return {
+        firstHop: HopExecutionState.Complete,
+        secondHop: HopExecutionState.AwaitingTradeConfirmation,
+      }
+    case MultiHopExecutionState.SeondHopAwaitingTradeExecution:
+      return {
+        firstHop: HopExecutionState.Complete,
+        secondHop: HopExecutionState.AwaitingTradeExecution,
+      }
+    case MultiHopExecutionState.TradeComplete:
+      return { firstHop: HopExecutionState.Complete, secondHop: HopExecutionState.Complete }
     default:
       assertUnreachable(tradeExecutionState)
   }

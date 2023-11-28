@@ -27,7 +27,6 @@ export async function getTradeQuote(
     buyAsset,
     accountNumber,
     affiliateBps,
-    // TODO(gomes): handle potential/actual
     potentialAffiliateBps,
     supportsEIP1559,
     receiveAddress,

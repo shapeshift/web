@@ -97,6 +97,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
+  potentialAffiliateBps: undefined,
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   steps: [
     {
@@ -128,6 +129,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
+  potentialAffiliateBps: undefined,
   rate: '0.00004995640398295996',
   steps: [
     {
@@ -159,6 +161,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
+  potentialAffiliateBps: undefined,
   rate: '1.0003121775396440882',
   steps: [
     {
@@ -190,6 +193,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: undefined,
+  potentialAffiliateBps: undefined,
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   steps: [
     {
@@ -227,6 +231,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentage: '0.005', // 0.5%
@@ -252,6 +257,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentage: '0.005', // 0.5%
@@ -295,6 +301,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentage: '0.005', // 0.5%
@@ -338,6 +345,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentage: '0.005', // 0.5%
@@ -381,6 +389,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentage: '0.005', // 0.5%

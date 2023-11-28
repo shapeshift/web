@@ -79,6 +79,11 @@ type MidgardCoins = {
   asset: string
 }[]
 
+type MidgardActionIn = {
+  coins: MidgardCoins
+  txID: string
+}
+
 type MidgardActionOut = {
   coins: MidgardCoins
   txID: string
@@ -87,6 +92,7 @@ type MidgardActionOut = {
 type MidgardAction = {
   date: string
   height: string
+  in: MidgardActionIn[]
   out: MidgardActionOut[]
   status: string
   type: string

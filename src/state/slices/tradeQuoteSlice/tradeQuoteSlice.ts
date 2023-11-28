@@ -1,5 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TradeQuote } from 'lib/swapper/types'
 
 import type { HopExecutionMetadata } from './types'
@@ -94,6 +95,36 @@ export const tradeQuoteSlice = createSlice({
     ) => {
       state.tradeExecution.firstHop.approvalRequired = action.payload?.firstHop
       state.tradeExecution.secondHop.approvalRequired = action.payload?.secondHop
+    },
+    setFirstHopApprovalTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.firstHop.approvalTxHash = action.payload
+    },
+    setSecondHopApprovalTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.secondHop.approvalTxHash = action.payload
+    },
+    setFirstHopApprovalState: (state, action: PayloadAction<TxStatus | undefined>) => {
+      state.tradeExecution.firstHop.approvalState = action.payload
+    },
+    setSecondHopApprovalState: (state, action: PayloadAction<TxStatus | undefined>) => {
+      state.tradeExecution.secondHop.approvalState = action.payload
+    },
+    setFirstHopSwapState: (state, action: PayloadAction<TxStatus | undefined>) => {
+      state.tradeExecution.firstHop.swapState = action.payload
+    },
+    setSecondHopSwapState: (state, action: PayloadAction<TxStatus | undefined>) => {
+      state.tradeExecution.secondHop.swapState = action.payload
+    },
+    setFirstHopSwapSellTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.firstHop.swapSellTxHash = action.payload
+    },
+    setSecondHopSwapSellTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.secondHop.swapSellTxHash = action.payload
+    },
+    setFirstHopSwapBuyTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.firstHop.swapBuyTxHash = action.payload
+    },
+    setSecondHopSwapBuyTxHash: (state, action: PayloadAction<string>) => {
+      state.tradeExecution.secondHop.swapBuyTxHash = action.payload
     },
   },
 })

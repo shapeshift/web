@@ -4,66 +4,85 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FailedSwap } from 'components/MultiHopTrade/hooks/useThorStreamingProgress/useThorStreamingProgress'
 import { sleep } from 'lib/poll/poll'
 import type { TradeQuoteStep } from 'lib/swapper/types'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch } from 'state/store'
 
 // toggle this to force the mock hooks to always fail - useful for testing failure modes
-const MOCK_FAIL_APPROVAL = true
+const MOCK_FAIL_APPROVAL = false
 const MOCK_FAIL_SWAP = false
 const MOCK_FAIL_STREAMING_SWAP = false
 
 // TODO: remove me
 export const useMockAllowanceApproval = (
   _tradeQuoteStep: TradeQuoteStep,
-  _isFirstHop: boolean,
+  isFirstHop: boolean,
   _isExactAllowance: boolean,
 ) => {
-  const [approvalTxId, setApprovalTxId] = useState<string>()
-  const [approvalTxStatus, setApprovalTxStatus] = useState<TxStatus>(TxStatus.Unknown)
+  const dispatch = useAppDispatch()
+
   const executeAllowanceApproval = useCallback(() => {
-    setApprovalTxStatus(TxStatus.Pending)
+    isFirstHop
+      ? dispatch(tradeQuoteSlice.actions.setFirstHopApprovalState(TxStatus.Pending))
+      : dispatch(tradeQuoteSlice.actions.setSecondHopApprovalState(TxStatus.Pending))
+
     const promise = new Promise((resolve, _reject) => {
-      setTimeout(() => setApprovalTxId('0x12345678901234567890'), 2000)
+      setTimeout(() => {
+        isFirstHop
+          ? dispatch(
+              tradeQuoteSlice.actions.setFirstHopApprovalTxHash('first_hop_approval_tx_hash'),
+            )
+          : dispatch(
+              tradeQuoteSlice.actions.setSecondHopApprovalTxHash('second_hop_approval_tx_hash'),
+            )
+      }, 2000)
       setTimeout(() => {
         const finalStatus = MOCK_FAIL_APPROVAL ? TxStatus.Failed : TxStatus.Confirmed
-        setApprovalTxStatus(finalStatus)
+
+        isFirstHop
+          ? dispatch(tradeQuoteSlice.actions.setFirstHopApprovalState(finalStatus))
+          : dispatch(tradeQuoteSlice.actions.setSecondHopApprovalState(finalStatus))
+
         resolve(finalStatus)
       }, 5000)
     })
 
     return promise
-  }, [])
+  }, [dispatch, isFirstHop])
 
   return {
-    wasApprovalNeeded: true, // the original value of isApprovalNeeded, used for initial UI rendering
-    isApprovalNeeded: true,
     executeAllowanceApproval,
-    approvalTxId,
-    approvalTxStatus,
     approvalNetworkFeeCryptoBaseUnit: '12345678901234',
   }
 }
 
 // TODO: remove me
-export const useMockTradeExecution = () => {
-  const [tradeStatus, setTradeStatus] = useState(TxStatus.Unknown)
-  const [sellTxHash, setSellTxHash] = useState<string>()
+export const useMockTradeExecution = (isFirstHop: boolean) => {
+  const dispatch = useAppDispatch()
+
   const executeTrade = useCallback(() => {
     const promise = new Promise((resolve, _reject) => {
-      setTradeStatus(TxStatus.Pending)
-      setTimeout(() => setSellTxHash('0x12345678901234567890'), 2000)
+      isFirstHop
+        ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(TxStatus.Pending))
+        : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(TxStatus.Pending))
+
+      setTimeout(() => {
+        isFirstHop
+          ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapSellTxHash('first_hop_sell_tx_hash'))
+          : dispatch(tradeQuoteSlice.actions.setSecondHopSwapSellTxHash('second_hop_sell_tx_hash'))
+      }, 2000)
       setTimeout(() => {
         const finalStatus = MOCK_FAIL_SWAP ? TxStatus.Failed : TxStatus.Confirmed
-        setTradeStatus(finalStatus)
+        isFirstHop
+          ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(finalStatus))
+          : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(finalStatus))
         resolve(finalStatus)
       }, 15000)
     })
 
     return promise
-  }, [])
+  }, [dispatch, isFirstHop])
 
   return {
-    buyTxHash: undefined,
-    sellTxHash,
-    tradeStatus,
     executeTrade,
   }
 }
@@ -93,6 +112,7 @@ export const useMockThorStreamingProgress = (
       await sleep(1500)
       setCount(2)
       MOCK_FAIL_STREAMING_SWAP &&
+        // TODO: store this metadata in redux so we can display it in the summary after completion
         setFailedSwaps([
           {
             reason: 'mock reason',

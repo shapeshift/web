@@ -13,9 +13,10 @@ import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
+import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HOP_EXECUTION_STATE_ORDERED, HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useMockTradeExecution } from '../hooks/mockHooks'
@@ -29,7 +30,7 @@ export type HopTransactionStepProps = {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
   isActive: boolean
-  hopExecutionState: HopExecutionState
+  hopIndex: number
   isLastStep?: boolean
   onTxStatusChange: (txStatus?: TxStatus) => void
   onError: () => void
@@ -39,7 +40,7 @@ export const HopTransactionStep = ({
   swapperName,
   tradeQuoteStep,
   isActive,
-  hopExecutionState,
+  hopIndex,
   isLastStep,
   onTxStatusChange,
   onError,
@@ -52,13 +53,17 @@ export const HopTransactionStep = ({
   const [isError, setIsError] = useState<boolean>(false)
 
   const {
+    state: hopExecutionState,
+    swapState: txState,
+    swapSellTxHash: buyTxHash,
+    swapBuyTxHash: sellTxHash,
+  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+
+  const {
     // TODO: use the message to better ux
     // message,
-    buyTxHash,
-    sellTxHash,
-    tradeStatus,
     executeTrade,
-  } = useMockTradeExecution() // TODO: use the real hook here
+  } = useMockTradeExecution(hopIndex === 0) // TODO: use the real hook here
 
   const handleSignTx = useCallback(async () => {
     // next state
@@ -110,7 +115,7 @@ export const HopTransactionStep = ({
   const txStatus =
     HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
     HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
-      ? tradeStatus
+      ? txState
       : undefined
 
   useEffect(() => onTxStatusChange(txStatus), [onTxStatusChange, txStatus])

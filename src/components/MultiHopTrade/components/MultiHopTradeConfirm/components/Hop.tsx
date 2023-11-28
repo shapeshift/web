@@ -179,7 +179,7 @@ export const Hop = ({
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             <ApprovalStep
               tradeQuoteStep={tradeQuoteStep}
-              hopExecutionState={hopExecutionState}
+              hopIndex={hopIndex}
               isActive={[
                 HopExecutionState.AwaitingApprovalConfirmation,
                 HopExecutionState.AwaitingApprovalExecution,
@@ -194,7 +194,7 @@ export const Hop = ({
               HopExecutionState.AwaitingTradeConfirmation,
               HopExecutionState.AwaitingTradeExecution,
             ].includes(hopExecutionState)}
-            hopExecutionState={hopExecutionState}
+            hopIndex={hopIndex}
             onTxStatusChange={setTxStatus}
             isLastStep={!shouldRenderFinalSteps}
             onError={handleError}

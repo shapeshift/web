@@ -50,5 +50,6 @@ export type HopExecutionMetadata = {
   approvalState?: TxStatus
   approvalTxHash?: string
   swapState?: TxStatus
-  swapTxHash?: string
+  swapSellTxHash?: string
+  swapBuyTxHash?: string
 }

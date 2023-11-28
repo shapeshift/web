@@ -12,8 +12,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -30,7 +31,7 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
@@ -39,7 +40,6 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectSelectedCurrency,
-  selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -52,6 +52,8 @@ type RepayConfirmProps = {
   repaymentPercent: number
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
+  txId: string | null
+  setTxid: (txId: string | null) => void
 }
 
 export const RepayConfirm = ({
@@ -60,10 +62,9 @@ export const RepayConfirm = ({
   repaymentPercent,
   collateralAccountId,
   repaymentAccountId,
+  txId,
+  setTxid,
 }: RepayConfirmProps) => {
-  const [isLoanClosePending, setIsLoanClosePending] = useState(false)
-  const [txHash, setTxHash] = useState<string | null>(null)
-
   const {
     state: { wallet },
   } = useWallet()
@@ -73,17 +74,30 @@ export const RepayConfirm = ({
     accountId: collateralAccountId,
   })
 
+  const { mutateAsync } = useMutation({
+    mutationKey: [txId],
+    mutationFn: async (_txId: string) => {
+      // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
+      // which we *want* to wait for before considering the repay as complete
+      await waitForThorchainUpdate({ txId: _txId, skipOutbound: bn(repaymentPercent).lt(100) })
+        .promise
+      queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
+    },
+  })
+
+  const lendingMutationStatus = useMutationState({
+    filters: { mutationKey: [txId] },
+    select: mutation => mutation.state.status,
+  })
+
+  const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
   useEffect(() => {
     // don't start polling until we have a tx
-    if (!txHash) return
-
-    setIsLoanClosePending(true)
+    if (!txId) return
     ;(async () => {
-      await waitForThorchainUpdate({ txHash, queryClient, skipOutbound: true }).promise
-      setIsLoanClosePending(false)
-      await refetchLendingPositionData()
+      await mutateAsync(txId)
     })()
-  }, [refetchLendingPositionData, txHash])
+  }, [mutateAsync, refetchLendingPositionData, txId])
 
   const history = useHistory()
   const translate = useTranslate()
@@ -100,23 +114,15 @@ export const RepayConfirm = ({
     accountId: collateralAccountId,
   })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const debtBalanceUserCurrency = useMemo(() => {
-    return bnOrZero(lendingPositionData?.debtBalanceFiatUSD ?? 0)
-      .times(userCurrencyToUsdRate)
-      .toFixed()
-  }, [lendingPositionData, userCurrencyToUsdRate])
-
   const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData) return null
+    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
 
     const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(debtBalanceUserCurrency)
+      .times(lendingPositionData.debtBalanceFiatUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [debtBalanceUserCurrency, lendingPositionData, repaymentPercent])
+  }, [lendingPositionData, repaymentPercent])
 
   const repaymentAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
@@ -135,15 +141,15 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      isLoanClosePending,
+      isLoanClosePending: loanTxStatus === 'pending',
     }),
     [
-      collateralAccountId,
       collateralAssetId,
-      repaymentAccountId,
       repaymentAsset?.assetId,
       repaymentPercent,
-      isLoanClosePending,
+      repaymentAccountId,
+      collateralAccountId,
+      loanTxStatus,
     ],
   )
 
@@ -158,7 +164,13 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const handleRepay = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
+    if (loanTxStatus === 'pending' || loanTxStatus === 'success') {
+      // Reset values when going back to input step
+      setTxid(null)
+      return history.push(RepayRoutePaths.Input)
+    }
+
     if (
       !(
         repaymentAsset &&
@@ -213,16 +225,19 @@ export const RepayConfirm = ({
       throw new Error('Error sending THORCHain lending Txs')
     }
 
-    setTxHash(maybeTxId)
+    setTxid(maybeTxId)
 
     return maybeTxId
   }, [
     chainAdapter,
+    history,
     lendingQuoteCloseData,
+    loanTxStatus,
     repaymentAccountId,
     repaymentAmountCryptoPrecision,
     repaymentAsset,
     selectedCurrency,
+    setTxid,
     wallet,
   ])
 
@@ -237,6 +252,12 @@ export const RepayConfirm = ({
     repaymentPercent,
     repaymentAsset,
   })
+
+  const swapStatus = useMemo(() => {
+    if (loanTxStatus === 'success') return TxStatus.Confirmed
+    if (loanTxStatus === 'pending') return TxStatus.Pending
+    return TxStatus.Unknown
+  }, [loanTxStatus])
 
   if (!collateralAsset || !repaymentAsset) return null
   return (
@@ -255,7 +276,7 @@ export const RepayConfirm = ({
             sellIcon={repaymentAsset?.icon ?? ''}
             buyColor={collateralAsset?.color ?? ''}
             sellColor={repaymentAsset?.color ?? ''}
-            status={TxStatus.Unknown}
+            status={swapStatus}
             px={6}
             mb={4}
           />
@@ -282,7 +303,9 @@ export const RepayConfirm = ({
             </Row>
             <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row>
-                <Row.Label>{translate('common.receive')}</Row.Label>
+                <HelperTooltip label={translate('lending.repayNoticeTitle')}>
+                  <Row.Label>{translate('common.receive')}</Row.Label>
+                </HelperTooltip>
                 <Row.Value textAlign='right'>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
@@ -306,7 +329,7 @@ export const RepayConfirm = ({
             </Skeleton>
             <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
               <Row fontSize='sm' fontWeight='medium'>
-                <HelperTooltip label='tbd'>
+                <HelperTooltip label={translate('lending.feesNotice')}>
                   <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
                 </HelperTooltip>
                 <Row.Value>
@@ -337,22 +360,26 @@ export const RepayConfirm = ({
             }
             repaymentAccountId={repaymentAccountId}
             collateralAccountId={collateralAccountId}
-            debtRepaidAmountUsd={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+            debtRepaidAmountUserCurrency={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
             borderTopWidth={0}
             mt={0}
           />
           <CardFooter px={4} py={4}>
             <Button
               isLoading={
-                isLendingQuoteCloseLoading || isEstimatedFeesDataLoading || isLoanClosePending
+                isLendingQuoteCloseLoading ||
+                isEstimatedFeesDataLoading ||
+                loanTxStatus === 'pending'
               }
-              disabled={isLoanClosePending}
-              onClick={handleRepay}
+              disabled={loanTxStatus === 'pending'}
+              onClick={handleConfirm}
               colorScheme='blue'
               size='lg'
               width='full'
             >
-              {translate('lending.confirmAndRepay')}
+              {translate(
+                loanTxStatus === 'success' ? 'lending.repayAgain' : 'lending.confirmAndRepay',
+              )}
             </Button>
           </CardFooter>
         </Stack>

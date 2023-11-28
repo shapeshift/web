@@ -1,8 +1,18 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
+import type { AxiosStatic } from 'axios'
 import axios from 'axios'
 import { AssetService } from 'lib/asset-service'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
+
+jest.mock('lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    thorService: axios.create(),
+  }
+})
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>

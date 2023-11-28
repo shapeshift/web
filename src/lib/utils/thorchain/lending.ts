@@ -50,12 +50,15 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
+  // The THORChain quote endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
+  const parsedReceiveAddress = receiveAssetAddress.replace('bitcoincash:', '')
+
   const url =
     `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/open` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
-    `&destination=${receiveAssetAddress}`
+    `&destination=${parsedReceiveAddress}`
 
   const { data } = await axios.get<LendingDepositQuoteResponse>(url)
   if (!data) return Err('Could not get quote data')
@@ -94,12 +97,15 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
   if (!REACT_APP_THORCHAIN_NODE_URL) return Err('THORChain node URL is not configured')
 
+  // The THORChain quote endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
+  const parsedCollateralAssetAddress = collateralAssetAddress.replace('bitcoincash:', '')
+
   const url =
     `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
-    `&loan_owner=${collateralAssetAddress}`
+    `&loan_owner=${parsedCollateralAssetAddress}`
 
   const { data } = await axios.get<LendingWithdrawQuoteResponse>(url)
   // TODO(gomes): handle "loan hasn't reached maturity" which is a legit flow, not an actual error

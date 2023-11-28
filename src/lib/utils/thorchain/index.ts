@@ -3,7 +3,6 @@ import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshif
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { QueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -12,7 +11,11 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import type { ThornodeStatusResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  ThornodePoolResponse,
+  ThornodeStatusResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -37,30 +40,32 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
     (!skipOutbound && thorTxData.stages.outbound_signed?.completed === false)
   )
     return TxStatus.Pending
-  if (thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
+  if (
+    // Skips outbound checks. If the swap is complete, we assume the transaction as confirmed
+    (skipOutbound && thorTxData.stages.swap_status?.pending === false) ||
+    // When enforcing outbound checks, ensures the outbound Tx is signed and an out Tx is present
+    (thorTxData.stages.outbound_signed?.completed && thorTxData.out_txs)
+  ) {
+    // TODO(gomes): introspect thornode and handle failed refunds
+    return TxStatus.Confirmed
+  }
 
   // We shouldn't end up here, but just in case
   return TxStatus.Unknown
 }
 
 export const waitForThorchainUpdate = ({
-  txHash,
-  queryClient,
+  txId,
   skipOutbound,
 }: {
-  txHash: string
-  queryClient?: QueryClient
+  txId: string
   skipOutbound?: boolean
 }) =>
   poll({
-    fn: () => {
-      // Invalidate some react-queries everytime we poll - since status detection is currently suboptimal
-      queryClient?.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
-      return getThorchainTransactionStatus(txHash, skipOutbound)
-    },
+    fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => Boolean(status && status === TxStatus.Confirmed),
     interval: 60000,
-    maxAttempts: 20,
+    maxAttempts: 60,
   })
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
@@ -160,3 +165,17 @@ export const getAccountAddresses = memoize(
   async (accountId: AccountId): Promise<string[]> =>
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
+
+export const getThorchainAvailablePools = async () => {
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
+    `${daemonUrl}/lcd/thorchain/pools`,
+  )
+  if (poolResponse.isOk()) {
+    const allPools = poolResponse.unwrap().data
+    const availablePools = allPools.filter(pool => pool.status === 'Available')
+    return availablePools
+  }
+
+  return []
+}

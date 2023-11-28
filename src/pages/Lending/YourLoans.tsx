@@ -8,9 +8,12 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { selectAccountNumberByAccountId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
@@ -20,7 +23,7 @@ import { useRepaymentLockData } from './hooks/useRepaymentLockData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: 'repeat(4, 1fr)',
+  md: 'repeat(5, 1fr)',
 }
 
 type LendingRowGridProps = {
@@ -30,6 +33,7 @@ type LendingRowGridProps = {
 }
 
 const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) => {
+  const translate = useTranslate()
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: asset.assetId,
@@ -47,10 +51,22 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     onPoolClick(asset.assetId, accountId)
   }, [accountId, asset.assetId, onPoolClick])
 
+  const accountNumberFilter = useMemo(
+    () => ({ assetId: asset.assetId, accountId }),
+    [accountId, asset.assetId],
+  )
+  const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, accountNumberFilter))
+  const accountNumberTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['accounts.accountNumber', { accountNumber }],
+    [accountNumber],
+  )
+
+  const isRepaymentLocked = bnOrZero(repaymentLockData).gt(0)
+
   if (
     lendingPositionData &&
     bnOrZero(lendingPositionData.collateralBalanceCryptoPrecision)
-      .plus(lendingPositionData.debtBalanceFiatUSD)
+      .plus(lendingPositionData.debtBalanceFiatUserCurrency)
       .isZero()
   )
     return null
@@ -73,7 +89,12 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
         <AssetCell assetId={asset.assetId} />
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
           <Stack spacing={0}>
-            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUSD ?? '0'} />
+            <Text translation={accountNumberTranslation} />
+          </Stack>
+        </Skeleton>
+        <Skeleton isLoaded={!isLendingPositionDataLoading}>
+          <Stack spacing={0}>
+            <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
@@ -90,7 +111,9 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isRepaymentLockDataLoading}>
-          <RawText>{repaymentLockData} days</RawText>
+          <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
+            {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
+          </RawText>
         </Skeleton>
       </Button>
     </Stack>
@@ -160,6 +183,9 @@ export const YourLoans = () => {
           fontSize='sm'
         >
           <Text translation='lending.pool' />
+          <HelperTooltip label={translate('assets.assetDetails.assetAccounts.account')}>
+            <Text translation='assets.assetDetails.assetAccounts.account' textAlign='right' />
+          </HelperTooltip>
           <HelperTooltip label={translate('lending.outstandingDebt')}>
             <Text translation='lending.outstandingDebt' textAlign='right' />
           </HelperTooltip>

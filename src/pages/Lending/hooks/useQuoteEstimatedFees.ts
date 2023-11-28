@@ -6,7 +6,7 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingQuoteCloseQuery } from './useLendingCloseQuery'
@@ -82,12 +82,8 @@ export const useQuoteEstimatedFeesQuery = ({
 
   const { data: lendingQuoteCloseData } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
-  const asset = useAppSelector(state =>
-    selectAssetById(state, repaymentAsset?.assetId ?? collateralAssetId),
-  )
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAsset?.assetId ?? collateralAssetId),
-  )
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+  const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))
   const estimateFeesArgs = useMemo(() => {
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const cryptoAmount =
@@ -133,12 +129,12 @@ export const useQuoteEstimatedFeesQuery = ({
     queryFn: async () => {
       const estimatedFees = await estimateFees(estimateFeesArgs)
       const txFeeFiat = bnOrZero(estimatedFees.fast.txFee)
-        .div(bn(10).pow(asset!.precision)) // actually defined at runtime, see "enabled" below
-        .times(assetMarketData.price)
+        .div(bn(10).pow(feeAsset!.precision)) // actually defined at runtime, see "enabled" below
+        .times(feeAssetMarketData.price)
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: Boolean(asset && (lendingQuoteData || lendingQuoteCloseData)),
+    enabled: Boolean(feeAsset && (lendingQuoteData || lendingQuoteCloseData)),
     retry: false,
   })
 

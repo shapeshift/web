@@ -4,7 +4,6 @@ import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,13 +12,11 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
+import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const FromToStack: React.FC<StackProps> = props => {
@@ -46,7 +43,8 @@ type LoanSummaryProps = {
         borrowAccountId: AccountId
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision?: never
-        debtRepaidAmountUsd?: never
+        debtRepaidAmountUserCurrency?: never
+        debtOccuredAmountUserCurrency: string
         depositAmountCryptoPrecision: string
         repayAmountCryptoPrecision?: never
         repaymentAccountId?: never
@@ -58,7 +56,8 @@ type LoanSummaryProps = {
         borrowAccountId?: never
         collateralAccountId: AccountId
         collateralDecreaseAmountCryptoPrecision: string
-        debtRepaidAmountUsd: string
+        debtRepaidAmountUserCurrency: string
+        debtOccuredAmountUserCurrency?: never
         depositAmountCryptoPrecision?: never
         repayAmountCryptoPrecision: string
         repaymentAccountId: AccountId
@@ -73,7 +72,8 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   borrowAssetId,
   depositAmountCryptoPrecision,
   repayAmountCryptoPrecision,
-  debtRepaidAmountUsd,
+  debtRepaidAmountUserCurrency,
+  debtOccuredAmountUserCurrency,
   repaymentAsset,
   repaymentPercent,
   repaymentAccountId,
@@ -85,46 +85,13 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
-  )
   const accountId = collateralAccountId ?? ''
 
-  const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPosition', { accountId, assetId: collateralAssetId }],
-    [accountId, collateralAssetId],
-  )
-
-  // Fetch the current lending position data
-  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } = useQuery({
-    // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
-    // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
-    // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
-    // this is a good way to avoid spamming the API during develpment
-    staleTime: Infinity,
-    queryKey: lendingPositionQueryKey,
-    queryFn: async ({ queryKey }) => {
-      const [, { accountId, assetId }] = queryKey
-      const position = await getThorchainLendingPosition({ accountId, assetId })
-      return position
-    },
-    select: data => {
-      // returns actual derived data, or zero's out fields in case there is no active position
-      const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
-
-      const collateralBalanceFiatUserCurrency = fromThorBaseUnit(data?.collateral_current)
-        .times(collateralAssetMarketData.price)
-        .toString()
-      const debtBalanceFiatUSD = fromThorBaseUnit(data?.debt_current).toString()
-
-      return {
-        collateralBalanceCryptoPrecision,
-        collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUSD,
-      }
-    },
-    enabled: Boolean(accountId && collateralAssetId && collateralAssetMarketData.price !== '0'),
-  })
+  const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
+    useLendingPositionData({
+      accountId,
+      assetId: collateralAssetId,
+    })
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
@@ -194,40 +161,45 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {...rest}
     >
       <RawText fontWeight='bold'>{translate('lending.loanInformation')}</RawText>
-      <Row>
-        <HelperTooltip label='TBD'>
-          <Row.Label>{translate('lending.collateral')}</Row.Label>
-        </HelperTooltip>
-        <Row.Value>
-          <Skeleton
-            isLoaded={
-              !isLoading &&
-              !isLendingPositionDataLoading &&
-              !isLendingQuoteLoading &&
-              !isLendingQuoteCloseLoading
-            }
-          >
-            <FromToStack>
-              <Amount.Crypto
-                color='text.subtle'
-                value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
-                symbol={collateralAsset.symbol}
-              />
-              <Amount.Crypto
-                value={(isRepay
-                  ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
-                      lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
-                    )
-                  : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
-                      lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
-                    )
-                ).toString()}
-                symbol={collateralAsset.symbol}
-              />
-            </FromToStack>
-          </Skeleton>
-        </Row.Value>
-      </Row>
+      {(bnOrZero(lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision).gt(0) ||
+        bnOrZero(lendingQuoteData?.quoteCollateralAmountCryptoPrecision).gt(0)) && (
+        <Row>
+          <HelperTooltip label='TBD'>
+            <Row.Label>{translate('lending.collateral')}</Row.Label>
+          </HelperTooltip>
+          <Row.Value>
+            <Skeleton
+              isLoaded={Boolean(
+                !isLoading &&
+                  !isLendingPositionDataLoading &&
+                  !isLendingQuoteLoading &&
+                  !isLendingQuoteCloseLoading &&
+                  lendingPositionData &&
+                  lendingPositionData?.collateralBalanceCryptoPrecision,
+              )}
+            >
+              <FromToStack>
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
+                  symbol={collateralAsset.symbol}
+                />
+                <Amount.Crypto
+                  value={(isRepay
+                    ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
+                        lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
+                      )
+                    : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
+                        lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
+                      )
+                  ).toString()}
+                  symbol={collateralAsset.symbol}
+                />
+              </FromToStack>
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      )}
       <Row>
         <HelperTooltip label='TBD'>
           <Row.Label>{translate('lending.debt')}</Row.Label>
@@ -244,17 +216,19 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
             <FromToStack>
               <Amount.Fiat
                 color='text.subtle'
-                value={lendingPositionData?.debtBalanceFiatUSD ?? '0'}
+                value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
               />
               <Amount.Fiat
                 value={(isRepay
                   ? BigNumber.max(
-                      bnOrZero(lendingPositionData?.debtBalanceFiatUSD).minus(
-                        debtRepaidAmountUsd ?? 0,
+                      bnOrZero(lendingPositionData?.debtBalanceFiatUserCurrency).minus(
+                        debtRepaidAmountUserCurrency ?? 0,
                       ),
                       0,
                     )
-                  : bnOrZero(lendingPositionData?.debtBalanceFiatUSD).plus(debtRepaidAmountUsd ?? 0)
+                  : bnOrZero(lendingPositionData?.debtBalanceFiatUserCurrency).plus(
+                      debtOccuredAmountUserCurrency ?? 0,
+                    )
                 ).toString()}
               />
             </FromToStack>

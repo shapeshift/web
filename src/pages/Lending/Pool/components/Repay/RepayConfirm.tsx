@@ -195,7 +195,6 @@ export const RepayConfirm = ({
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
-    // Not exactly accurate for RUNE repayments as this is a MsgDeposit Tx, not a send
     const estimatedFees = await estimateFees({
       cryptoAmount: repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,

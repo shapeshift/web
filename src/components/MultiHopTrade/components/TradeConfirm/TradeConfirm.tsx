@@ -55,6 +55,8 @@ import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
+  selectActiveQuoteAffiliateBps,
+  selectActiveQuotePotentialDonationBps,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -66,7 +68,8 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectQuoteFeeAmountUserCurrency,
+  selectPotentialDonationAmountUsd,
+  selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -86,6 +89,7 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
+  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -148,7 +152,8 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteFeeAmountUserCurrency)
+  // TODO(gomes): double check that we're good on the USD / user currency distinction here
+  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -196,23 +201,59 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const { shapeShiftFee } = useMemo(() => {
+  const potentialDonationAmountUsd = useAppSelector(selectPotentialDonationAmountUsd)
+  // TODO(gomes): implement me properly
+  // const actualDonationAmountUsd = useAppSelector(selectPotentialDonationAmountUsd)
+  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
+  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
+
+  const { shapeShiftFee, donationAmount } = useMemo(() => {
     if (tradeQuote) {
       if (isFoxDiscountsEnabled) {
+        const feeUsdDiscount = bnOrZero(potentialDonationAmountUsd)
+          .minus(quoteAffiliateFeeFiatPrecision)
+          .toString()
         return {
-          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
-          amountBps: tradeQuote.affiliateBps ?? '0',
+          shapeShiftFee: {
+            amountAfterDiscountUsd: quoteAffiliateFeeFiatPrecision ?? '0',
+            amountBeforeDiscountUsd: potentialDonationAmountUsd ?? '0',
+            feeUsdDiscount,
+            affiliateBps: affiliateBps ?? '0',
+            potentialAffiliateBps: potentialAffiliateBps ?? '0',
+            foxDiscountPercent: bnOrZero(potentialAffiliateBps).minus(feeUsdDiscount).toString(),
+          },
         }
       } else {
-        return {
-          amountFiatPrecision: '0',
-          amountBps: '0',
+        // The donation/shapeshiftFee vernacular is weird but expected for THOR, see https://github.com/shapeshift/web/pull/5230
+        if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
+          return {
+            shapeshiftFee: {
+              amountAfterDiscountUsd: potentialDonationAmountUsd ?? '0',
+              amountBeforeDiscountUsd: potentialDonationAmountUsd ?? '0',
+              amountBps: tradeQuote.potentialAffiliateBps ?? '0',
+            },
+            donationAmount: undefined,
+          }
         }
+
+        return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
       }
     }
 
-    return { shapeShiftFee: undefined }
-  }, [tradeQuote, isFoxDiscountsEnabled, quoteAffiliateFeeFiatPrecision])
+    return {
+      shapeShiftFee: undefined,
+      donationAmount: undefined,
+    }
+  }, [
+    affiliateBps,
+    applyThorSwapAffiliateFees,
+    isFoxDiscountsEnabled,
+    potentialAffiliateBps,
+    potentialDonationAmountUsd,
+    quoteAffiliateFeeFiatPrecision,
+    swapperName,
+    tradeQuote,
+  ])
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -383,6 +424,7 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
+          donationAmount={donationAmount}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
@@ -401,6 +443,7 @@ export const TradeConfirm = () => {
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
       shapeShiftFee,
+      donationAmount,
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,

@@ -50,8 +50,12 @@ type ReceiveSummaryProps = {
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
   shapeShiftFee?: {
-    amountFiatPrecision: string
-    amountBps: string
+    amountBeforeDiscountUsd: string
+    amountAfterDiscountUsd: string
+    feeUsdDiscount?: string
+    potentialAffiliateBps: string
+    affiliateBps: string
+    foxDiscountPercent: string
   }
   slippageDecimalPercentage: string
   swapperName: string
@@ -82,6 +86,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     defaultIsOpen = false,
     ...rest
   }) => {
+    console.log({ shapeShiftFee })
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
     const [showFeeModal, setShowFeeModal] = useState(false)
@@ -90,6 +95,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
     const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
+
+    console.log({ shapeShiftFee, donationAmount })
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -136,8 +143,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
 
     const handleFeeModal = useCallback(() => {
+      if (!isFoxDiscountsEnabled) return
       setShowFeeModal(!showFeeModal)
-    }, [showFeeModal])
+    }, [isFoxDiscountsEnabled, showFeeModal])
 
     const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
       () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
@@ -233,22 +241,25 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row>
               <Row.Label display='flex'>
                 <Text translation={tradeFeeSourceTranslation} />
-                {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
-                  <RawText>&nbsp;{`(${shapeShiftFee.amountBps} bps)`}</RawText>
+                {shapeShiftFee && shapeShiftFee.amountAfterDiscountUsd !== '0' && (
+                  <RawText>&nbsp;{`(${shapeShiftFee.affiliateBps} bps)`}</RawText>
                 )}
               </Row.Label>
-              <Row.Value onClick={handleFeeModal} _hover={ShapeShiftFeeModalRowHover}>
+              <Row.Value
+                onClick={handleFeeModal}
+                _hover={isFoxDiscountsEnabled ? ShapeShiftFeeModalRowHover : undefined}
+              >
                 <Skeleton isLoaded={!isLoading}>
                   <Flex alignItems='center' gap={2}>
-                    {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
+                    {shapeShiftFee && shapeShiftFee.amountAfterDiscountUsd !== '0' ? (
                       <>
-                        <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
-                        <QuestionIcon />
+                        <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUsd} />
+                        {isFoxDiscountsEnabled && <QuestionIcon />}
                       </>
                     ) : (
                       <>
                         <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                        <QuestionIcon color={greenColor} />
+                        {isFoxDiscountsEnabled && <QuestionIcon color={greenColor} />}
                       </>
                     )}
                   </Flex>
@@ -318,12 +329,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               <TabPanels>
                 <TabPanel p={0}>
                   <FeeBreakdown
-                    feeBps={shapeShiftFee?.amountBps || '0'}
-                    feeUsd={shapeShiftFee?.amountFiatPrecision || '0'}
-                    foxDiscountPercent={'69.420'}
-                    feeUsdBeforeDiscount={'8.00'}
-                    feeUsdDiscount={'10.00'}
-                    feeBpsBeforeDiscount={'20'}
+                    feeBps={shapeShiftFee?.affiliateBps ?? '0'}
+                    feeUsd={shapeShiftFee?.amountAfterDiscountUsd ?? '0'}
+                    foxDiscountPercent={shapeShiftFee?.foxDiscountPercent ?? '0'}
+                    feeUsdBeforeDiscount={shapeShiftFee?.amountBeforeDiscountUsd ?? '0'}
+                    feeUsdDiscount={shapeShiftFee?.feeUsdDiscount ?? '0'}
+                    feeBpsBeforeDiscount={shapeShiftFee?.potentialAffiliateBps ?? '0'}
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>

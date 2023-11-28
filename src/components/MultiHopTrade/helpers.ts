@@ -8,8 +8,8 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
+  selectQuoteDonationAmountUserCurrency,
   selectQuoteFeeAmountUsd,
-  selectQuoteFeeAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUsd,
   selectSellAmountUserCurrency,
@@ -29,7 +29,7 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const _donationAmountUserCurrency = selectQuoteFeeAmountUserCurrency(state)
+  const _donationAmountUserCurrency = selectQuoteDonationAmountUserCurrency(state)
   const _donationAmountUsd = selectQuoteFeeAmountUsd(state)
   const sellAmountBeforeFeesUsd = selectSellAmountUsd(state)
   const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)

@@ -20,6 +20,8 @@ export async function getZrxTradeQuote(
     accountNumber,
     receiveAddress,
     affiliateBps,
+    // TODO(gomes): get two quotes for potential/actual bps
+    potentialAffiliateBps,
     chainId,
     supportsEIP1559,
     slippageTolerancePercentage,
@@ -100,6 +102,7 @@ export async function getZrxTradeQuote(
     return Ok({
       id: uuid(),
       receiveAddress,
+      potentialAffiliateBps,
       affiliateBps,
       slippageTolerancePercentage,
       rate,

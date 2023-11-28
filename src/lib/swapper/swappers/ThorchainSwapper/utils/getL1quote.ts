@@ -118,6 +118,8 @@ export const getL1quote = async (
     ),
     isStreaming,
     affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
+    // TODO(gomes): get two quotes for potential/actual
+    potentialAffiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
     estimatedExecutionTimeMs: quote.total_swap_seconds
       ? 1000 * quote.total_swap_seconds
       : undefined,
@@ -187,6 +189,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            potentialAffiliateBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -219,6 +222,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               data,
@@ -272,6 +276,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            potentialAffiliateBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -313,6 +318,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [
@@ -364,6 +370,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            potentialAffiliateBps,
           }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -390,6 +397,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [

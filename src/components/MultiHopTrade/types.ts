@@ -60,6 +60,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'receiveAddress'
   | 'accountNumber'
   | 'affiliateBps'
+  | 'potentialAffiliateBps'
   | 'allowMultiHop'
   | 'slippageTolerancePercentage'
 >

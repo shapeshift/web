@@ -4,6 +4,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -98,6 +99,7 @@ const isEqualExceptAffiliateBpsAndSlippage = (
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -113,7 +115,9 @@ export const useGetTradeQuotes = () => {
   )
   const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const userWillDonate = useAppSelector(selectWillDonate)
+  // User *may* donate if the fox discounts flag is off and they kept the donation checkbox on
+  // or if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
+  const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
@@ -136,9 +140,9 @@ export const useGetTradeQuotes = () => {
 
   const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
 
-  const { data: foxHeld, isLoading: isFoxHeldLoading } = useGetVotingPowerQuery()
-
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
+  const { data: foxHeld, isLoading: isFoxHeldLoading } = useGetVotingPowerQuery(undefined, {
+    skip: !isFoxDiscountsEnabled,
+  })
 
   useEffect(() => {
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isFoxHeldLoading) {
@@ -149,26 +153,22 @@ export const useGetTradeQuotes = () => {
         const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
         const isFromEvm = isEvmChainId(sellAsset.chainId)
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-        const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
+        const mayDonate = walletIsKeepKey ? userMayDonate && !isFromEvm : userMayDonate
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
+        const potentialAffiliateBps = mayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
         const affiliateBps = (() => {
-          let affiliateBps = willDonate
+          if (!isFoxDiscountsEnabled) return potentialAffiliateBps
+
+          // free trades if there's an error getting foxHeld
+          if (foxHeld === undefined) return '0'
+
+          const affiliateBps = mayDonate
             ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(foxHeld) }).feeBps.toFixed(0)
             : '0'
 
-          // free trades if there's an error getting foxHeld
-          if (foxHeld === undefined) affiliateBps = '0'
-
           return affiliateBps
         })()
-
-        console.log({
-          isFoxHeldLoading,
-          foxHeld,
-          tradeAmountUsd: tradeAmountUsd.toString(),
-          affiliateBps,
-        })
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -181,6 +181,7 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps,
+          potentialAffiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentage: userSlippageTolerancePercentage,
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
@@ -220,7 +221,7 @@ export const useGetTradeQuotes = () => {
     isFoxHeldLoading,
     tradeQuoteInput,
     wallet,
-    userWillDonate,
+    userMayDonate,
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentage,
     isFoxDiscountsEnabled,

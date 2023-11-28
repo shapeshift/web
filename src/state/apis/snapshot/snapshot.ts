@@ -81,8 +81,15 @@ export const snapshotApi = createApi({
             return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
           }),
         )
-        const data = BigNumber.sum(...votingPowerResults).toString()
-        return { data }
+        const foxHeld = BigNumber.sum(...votingPowerResults).toNumber()
+
+        // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+        if (isNaN(foxHeld)) {
+          const data = `Invalid foxHeld value: ${foxHeld}`
+          return { error: { data, status: 400 } }
+        }
+
+        return { data: foxHeld.toString() }
       },
     }),
   }),

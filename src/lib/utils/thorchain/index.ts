@@ -84,7 +84,7 @@ export const waitForThorchainUpdate = ({
 }) =>
   poll({
     fn: () => getThorchainTransactionStatus(txId, skipOutbound),
-    validate: status => Boolean([TxStatus.Confirmed, TxStatus.Failed].includes(status)),
+    validate: status => [TxStatus.Confirmed, TxStatus.Failed].includes(status),
     interval: 60000,
     maxAttempts: 60,
   })

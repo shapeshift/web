@@ -47,6 +47,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
 import { isKeplrHDWallet } from 'lib/utils'
+import { selectIsSnapshotApiQueriesPending } from 'state/apis/snapshot/selectors'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -168,9 +169,15 @@ export const TradeInput = memo(() => {
   const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+
   const isLoading = useMemo(
-    () => isQuoteLoading || isConfirmationLoading || isSupportedAssetsLoading,
-    [isConfirmationLoading, isQuoteLoading, isSupportedAssetsLoading],
+    () =>
+      isQuoteLoading ||
+      isConfirmationLoading ||
+      isSupportedAssetsLoading ||
+      isSnapshotApiQueriesPending,
+    [isConfirmationLoading, isQuoteLoading, isSnapshotApiQueriesPending, isSupportedAssetsLoading],
   )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =

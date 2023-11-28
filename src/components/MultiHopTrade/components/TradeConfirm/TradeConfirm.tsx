@@ -199,27 +199,27 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
   const potentialDonationAmountUserCurrency = useAppSelector(
     selectPotentialDonationAmountUserCurrency,
   )
   const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-  const { shapeShiftFee, donationAmount } = useMemo(() => {
+  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(() => {
     if (tradeQuote) {
       if (isFoxDiscountsEnabled) {
-        const feeUsdDiscount = bnOrZero(potentialDonationAmountUserCurrency)
-          .minus(donationAmountUserCurrency)
+        const feeDiscountUserCurrency = bnOrZero(potentialDonationAmountUserCurrency)
+          .minus(_donationAmountUserCurrency)
           .toString()
         return {
           shapeShiftFee: {
-            amountAfterDiscountUsd: donationAmountUserCurrency ?? '0',
-            amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
-            feeUsdDiscount,
+            amountAfterDiscountUserCurrency: _donationAmountUserCurrency ?? '0',
+            amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+            feeDiscountUserCurrency,
             affiliateBps: affiliateBps ?? '0',
             potentialAffiliateBps: potentialAffiliateBps ?? '0',
-            foxDiscountPercent: bnOrZero(feeUsdDiscount)
+            foxDiscountPercent: bnOrZero(feeDiscountUserCurrency)
               .div(potentialDonationAmountUserCurrency ?? 0)
               .toString(),
           },
@@ -229,21 +229,21 @@ export const TradeConfirm = () => {
         if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
           return {
             shapeshiftFee: {
-              amountAfterDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
-              amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
+              amountAfterDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+              amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
               amountBps: tradeQuote.potentialAffiliateBps ?? '0',
             },
-            donationAmount: undefined,
+            donationAmountUserCurrency: undefined,
           }
         }
 
-        return { shapeShiftFee: undefined, donationAmount: donationAmountUserCurrency }
+        return { shapeShiftFee: undefined, donationAmountUserCurrency: _donationAmountUserCurrency }
       }
     }
 
     return {
       shapeShiftFee: undefined,
-      donationAmount: undefined,
+      donationAmountUserCurrency: undefined,
     }
   }, [
     affiliateBps,
@@ -251,7 +251,7 @@ export const TradeConfirm = () => {
     isFoxDiscountsEnabled,
     potentialAffiliateBps,
     potentialDonationAmountUserCurrency,
-    donationAmountUserCurrency,
+    _donationAmountUserCurrency,
     swapperName,
     tradeQuote,
   ])
@@ -425,7 +425,7 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
-          donationAmount={donationAmount}
+          donationAmountUserCurrency={donationAmountUserCurrency}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
@@ -444,7 +444,7 @@ export const TradeConfirm = () => {
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
       shapeShiftFee,
-      donationAmount,
+      donationAmountUserCurrency,
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,

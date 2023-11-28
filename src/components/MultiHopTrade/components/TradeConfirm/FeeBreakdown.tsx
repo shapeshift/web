@@ -8,21 +8,21 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type FeeBreakdownProps = {
   feeBps: string
-  feeUsd: string
+  feeUserCurrency: string
   foxDiscountPercent: string
-  feeUsdBeforeDiscount: string
+  feeBeforeDiscountUserCurrency: string
   feeBpsBeforeDiscount: string
-  feeUsdDiscount: string
+  feeDiscountUserCurrency: string
 }
 
 const divider = <Divider />
 
 export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
-  feeUsd,
+  feeUserCurrency,
   foxDiscountPercent,
-  feeUsdBeforeDiscount,
+  feeBeforeDiscountUserCurrency,
   feeBpsBeforeDiscount,
-  feeUsdDiscount,
+  feeDiscountUserCurrency,
 }) => {
   const translate = useTranslate()
   return (
@@ -35,14 +35,14 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
         <Row>
           <Row.Label>{translate('foxDiscounts.tradeFee')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat value={feeUsdBeforeDiscount} />
+            <Amount.Fiat value={feeBeforeDiscountUserCurrency} />
             <Amount color='text.subtle' fontSize='sm' value={feeBpsBeforeDiscount} suffix='bps' />
           </Row.Value>
         </Row>
         <Row>
           <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat value={feeUsdDiscount} />
+            <Amount.Fiat value={feeDiscountUserCurrency} />
             <Amount.Percent fontSize='sm' value={foxDiscountPercent} color='text.success' />
           </Row.Value>
         </Row>
@@ -51,10 +51,10 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
       <Row px={8} py={4}>
         <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
-          {bnOrZero(feeUsd).eq(0) ? (
+          {bnOrZero(feeUserCurrency).eq(0) ? (
             <Text translation='common.free' color='text.success' />
           ) : (
-            <Amount.Fiat value={feeUsd} />
+            <Amount.Fiat value={feeUserCurrency} />
           )}
         </Row.Value>
       </Row>

@@ -50,16 +50,16 @@ type ReceiveSummaryProps = {
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
   shapeShiftFee?: {
-    amountBeforeDiscountUsd: string
-    amountAfterDiscountUsd: string
-    feeUsdDiscount?: string
+    amountBeforeDiscountUserCurrency: string
+    amountAfterDiscountUserCurrency: string
+    feeDiscountUserCurrency?: string
     potentialAffiliateBps: string
     affiliateBps: string
     foxDiscountPercent: string
   }
   slippageDecimalPercentage: string
   swapperName: string
-  donationAmount?: string
+  donationAmountUserCurrency?: string
   defaultIsOpen?: boolean
 } & RowProps
 
@@ -82,7 +82,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     slippageDecimalPercentage,
     swapperName,
     isLoading,
-    donationAmount,
+    donationAmountUserCurrency,
     defaultIsOpen = false,
     ...rest
   }) => {
@@ -95,8 +95,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
     const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
-
-    console.log({ shapeShiftFee, donationAmount })
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -241,7 +239,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row>
               <Row.Label display='flex'>
                 <Text translation={tradeFeeSourceTranslation} />
-                {shapeShiftFee && shapeShiftFee.amountAfterDiscountUsd !== '0' && (
+                {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' && (
                   <RawText>&nbsp;{`(${shapeShiftFee.affiliateBps} bps)`}</RawText>
                 )}
               </Row.Label>
@@ -251,9 +249,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               >
                 <Skeleton isLoaded={!isLoading}>
                   <Flex alignItems='center' gap={2}>
-                    {shapeShiftFee && shapeShiftFee.amountAfterDiscountUsd !== '0' ? (
+                    {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' ? (
                       <>
-                        <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUsd} />
+                        <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUserCurrency} />
                         {isFoxDiscountsEnabled && <QuestionIcon />}
                       </>
                     ) : (
@@ -266,20 +264,22 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 </Skeleton>
               </Row.Value>
             </Row>
-            {!isFoxDiscountsEnabled && donationAmount && donationAmount !== '0' && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.donation')}>
-                  <Row.Label>
-                    <Text translation='trade.donation' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Fiat value={donationAmount} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
+            {!isFoxDiscountsEnabled &&
+              donationAmountUserCurrency &&
+              donationAmountUserCurrency !== '0' && (
+                <Row>
+                  <HelperTooltip label={translate('trade.tooltip.donation')}>
+                    <Row.Label>
+                      <Text translation='trade.donation' />
+                    </Row.Label>
+                  </HelperTooltip>
+                  <Row.Value>
+                    <Skeleton isLoaded={!isLoading}>
+                      <Amount.Fiat value={donationAmountUserCurrency} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
             <>
               <Divider borderColor='border.base' />
               <Row>
@@ -330,10 +330,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <TabPanel p={0}>
                   <FeeBreakdown
                     feeBps={shapeShiftFee?.affiliateBps ?? '0'}
-                    feeUsd={shapeShiftFee?.amountAfterDiscountUsd ?? '0'}
+                    feeUserCurrency={shapeShiftFee?.amountAfterDiscountUserCurrency ?? '0'}
                     foxDiscountPercent={shapeShiftFee?.foxDiscountPercent ?? '0'}
-                    feeUsdBeforeDiscount={shapeShiftFee?.amountBeforeDiscountUsd ?? '0'}
-                    feeUsdDiscount={shapeShiftFee?.feeUsdDiscount ?? '0'}
+                    feeBeforeDiscountUserCurrency={
+                      shapeShiftFee?.amountBeforeDiscountUserCurrency ?? '0'
+                    }
+                    feeDiscountUserCurrency={shapeShiftFee?.feeDiscountUserCurrency ?? '0'}
                     feeBpsBeforeDiscount={shapeShiftFee?.potentialAffiliateBps ?? '0'}
                   />
                 </TabPanel>

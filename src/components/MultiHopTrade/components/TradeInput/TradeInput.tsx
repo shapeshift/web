@@ -272,27 +272,27 @@ export const TradeInput = memo(() => {
     [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
-  const donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
   const potentialDonationAmountUserCurrency = useAppSelector(
     selectPotentialDonationAmountUserCurrency,
   )
   const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-  const { shapeShiftFee, donationAmount } = useMemo(() => {
+  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(() => {
     if (activeQuote) {
       if (isFoxDiscountsEnabled) {
-        const feeUsdDiscount = bnOrZero(potentialDonationAmountUserCurrency)
-          .minus(donationAmountUserCurrency)
+        const feeDiscountUserCurrency = bnOrZero(potentialDonationAmountUserCurrency)
+          .minus(_donationAmountUserCurrency)
           .toString()
         return {
           shapeShiftFee: {
-            amountAfterDiscountUsd: donationAmountUserCurrency ?? '0',
-            amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
-            feeUsdDiscount,
+            amountAfterDiscountUserCurrency: _donationAmountUserCurrency ?? '0',
+            amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+            feeDiscountUserCurrency,
             affiliateBps: affiliateBps ?? '0',
             potentialAffiliateBps: potentialAffiliateBps ?? '0',
-            foxDiscountPercent: bnOrZero(feeUsdDiscount)
+            foxDiscountPercent: bnOrZero(feeDiscountUserCurrency)
               .div(potentialDonationAmountUserCurrency ?? 0)
               .toString(),
           },
@@ -310,27 +310,27 @@ export const TradeInput = memo(() => {
               amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
               amountBps: activeQuote.potentialAffiliateBps ?? '0',
             },
-            donationAmount: undefined,
+            donationAmountUserCurrency: undefined,
           }
         }
 
-        return { shapeShiftFee: undefined, donationAmount: donationAmountUserCurrency }
+        return { shapeShiftFee: undefined, _donationAmountUserCurrency }
       }
     }
 
     return {
       shapeShiftFee: undefined,
-      donationAmount: undefined,
+      donationAmountUserCurrency: undefined,
     }
   }, [
     activeQuote,
-    activeSwapperName,
-    affiliateBps,
-    applyThorSwapAffiliateFees,
     isFoxDiscountsEnabled,
-    potentialAffiliateBps,
     potentialDonationAmountUserCurrency,
-    donationAmountUserCurrency,
+    affiliateBps,
+    potentialAffiliateBps,
+    applyThorSwapAffiliateFees,
+    activeSwapperName,
+    _donationAmountUserCurrency,
   ])
 
   const ConfirmSummary: JSX.Element = useMemo(
@@ -363,7 +363,11 @@ export const TradeInput = memo(() => {
                 amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                 protocolFees={totalProtocolFees}
                 shapeShiftFee={shapeShiftFee}
-                donationAmount={shapeShiftFee?.amountAfterDiscountUsd ?? donationAmount ?? '0'}
+                donationAmountUserCurrency={
+                  shapeShiftFee?.amountAfterDiscountUserCurrency ??
+                  donationAmountUserCurrency ??
+                  '0'
+                }
                 slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
                 defaultIsOpen={true}
@@ -406,7 +410,7 @@ export const TradeInput = memo(() => {
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       buyAsset.symbol,
-      donationAmount,
+      donationAmountUserCurrency,
       hasUserEnteredAmount,
       isFoxDiscountsEnabled,
       isLoading,

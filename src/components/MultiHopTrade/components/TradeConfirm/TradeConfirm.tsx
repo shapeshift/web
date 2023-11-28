@@ -220,7 +220,9 @@ export const TradeConfirm = () => {
             feeUsdDiscount,
             affiliateBps: affiliateBps ?? '0',
             potentialAffiliateBps: potentialAffiliateBps ?? '0',
-            foxDiscountPercent: bnOrZero(potentialAffiliateBps).minus(feeUsdDiscount).toString(),
+            foxDiscountPercent: bnOrZero(feeUsdDiscount)
+              .div(potentialDonationAmountUsd ?? 0)
+              .toString(),
           },
         }
       } else {

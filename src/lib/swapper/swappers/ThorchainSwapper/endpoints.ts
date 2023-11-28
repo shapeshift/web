@@ -7,9 +7,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
-import { Contract } from 'ethers'
 import type { Address } from 'viem'
-import { encodeFunctionData, getContract, parseAbiItem } from 'viem'
+import { encodeFunctionData, parseAbiItem } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -171,8 +170,7 @@ export const thorchainApi: SwapperApi = {
       case TradeType.L1ToLongTail:
       case TradeType.LongTailToLongTail:
       default:
-        // TODO
-        break
+        throw Error(`Unsupported trade type: ${TradeType}`)
     }
   },
 

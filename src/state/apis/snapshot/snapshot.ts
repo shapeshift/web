@@ -5,6 +5,7 @@ import axios from 'axios'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 import type { ReduxState } from 'state/reducer'
+import { selectWalletAccountIds } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
@@ -50,8 +51,7 @@ export const snapshotApi = createApi({
     }),
     getVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
       queryFn: async (_, { dispatch, getState }) => {
-        const accountIds: AccountId[] =
-          (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
+        const accountIds: AccountId[] = selectWalletAccountIds(getState() as ReduxState)
         const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
         const strategies = strategiesResult?.data
         if (!strategies) {

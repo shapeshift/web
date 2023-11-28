@@ -68,7 +68,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectPotentialDonationAmountUsd,
+  selectPotentialDonationAmountUserCurrency,
   selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
@@ -152,8 +152,6 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  // TODO(gomes): double check that we're good on the USD / user currency distinction here
-  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -201,27 +199,28 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const potentialDonationAmountUsd = useAppSelector(selectPotentialDonationAmountUsd)
-  // TODO(gomes): implement me properly
-  // const actualDonationAmountUsd = useAppSelector(selectPotentialDonationAmountUsd)
+  const donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const potentialDonationAmountUserCurrency = useAppSelector(
+    selectPotentialDonationAmountUserCurrency,
+  )
   const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
   const { shapeShiftFee, donationAmount } = useMemo(() => {
     if (tradeQuote) {
       if (isFoxDiscountsEnabled) {
-        const feeUsdDiscount = bnOrZero(potentialDonationAmountUsd)
-          .minus(quoteAffiliateFeeFiatPrecision)
+        const feeUsdDiscount = bnOrZero(potentialDonationAmountUserCurrency)
+          .minus(donationAmountUserCurrency)
           .toString()
         return {
           shapeShiftFee: {
-            amountAfterDiscountUsd: quoteAffiliateFeeFiatPrecision ?? '0',
-            amountBeforeDiscountUsd: potentialDonationAmountUsd ?? '0',
+            amountAfterDiscountUsd: donationAmountUserCurrency ?? '0',
+            amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
             feeUsdDiscount,
             affiliateBps: affiliateBps ?? '0',
             potentialAffiliateBps: potentialAffiliateBps ?? '0',
             foxDiscountPercent: bnOrZero(feeUsdDiscount)
-              .div(potentialDonationAmountUsd ?? 0)
+              .div(potentialDonationAmountUserCurrency ?? 0)
               .toString(),
           },
         }
@@ -230,15 +229,15 @@ export const TradeConfirm = () => {
         if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
           return {
             shapeshiftFee: {
-              amountAfterDiscountUsd: potentialDonationAmountUsd ?? '0',
-              amountBeforeDiscountUsd: potentialDonationAmountUsd ?? '0',
+              amountAfterDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
+              amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
               amountBps: tradeQuote.potentialAffiliateBps ?? '0',
             },
             donationAmount: undefined,
           }
         }
 
-        return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
+        return { shapeShiftFee: undefined, donationAmount: donationAmountUserCurrency }
       }
     }
 
@@ -251,8 +250,8 @@ export const TradeConfirm = () => {
     applyThorSwapAffiliateFees,
     isFoxDiscountsEnabled,
     potentialAffiliateBps,
-    potentialDonationAmountUsd,
-    quoteAffiliateFeeFiatPrecision,
+    potentialDonationAmountUserCurrency,
+    donationAmountUserCurrency,
     swapperName,
     tradeQuote,
   ])

@@ -1,3 +1,4 @@
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -25,13 +26,20 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
         pool => type === 'borrow' || bnOrZero(pool.loan_collateral).gt(0),
       )
 
-      return pools
+      const supportedAssets = pools
         .map(pool => {
           const assetId = poolAssetIdToAssetId(pool.asset)
           const asset = selectAssetById(store.getState(), assetId ?? '')
           return asset
         })
         .filter(isSome)
+
+      if (type === 'borrow') {
+        const runeAsset = selectAssetById(store.getState(), thorchainAssetId)
+        if (!runeAsset) return
+        supportedAssets.push(runeAsset)
+      }
+      return supportedAssets
     },
     [availablePools, type],
   )

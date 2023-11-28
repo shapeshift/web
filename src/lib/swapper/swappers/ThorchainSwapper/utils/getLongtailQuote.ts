@@ -115,6 +115,7 @@ export const getLongtailToL1Quote = async (
           // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAsset: input.sellAsset,
         })),
       }))
 

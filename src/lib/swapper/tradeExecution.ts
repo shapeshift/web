@@ -124,6 +124,11 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
         })
 
+        console.log('unsignedTxResult', unsignedTxResult)
+
+        // Early return for debugging
+        return
+
         return await swapper.executeEvmTransaction(unsignedTxResult, {
           signAndBroadcastTransaction,
         })

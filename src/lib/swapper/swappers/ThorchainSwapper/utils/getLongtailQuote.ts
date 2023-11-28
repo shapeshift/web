@@ -1,6 +1,6 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import assert from 'assert'
 import type { Address } from 'viem'
@@ -92,10 +92,32 @@ export const getLongtailToL1Quote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuote = await getL1quote(
+  const thorchainQuotes = await getL1quote(
     l1Tol1QuoteInput,
     streamingInterval,
     TradeType.LongTailToL1,
   )
-  return thorchainQuote
+
+  return thorchainQuotes
+    .mapErr(e => {
+      console.error('Thorchain quote error:', e)
+      return makeSwapErrorRight({
+        message: 'makeSwapperAxiosServiceMonadic',
+        cause: e,
+        code: SwapErrorType.QUERY_FAILED,
+      })
+    })
+    .andThen(quotes => {
+      const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
+        ...q,
+        steps: q.steps.map(s => ({
+          ...s,
+          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+          sellAmountIncludingProtocolFeesCryptoBaseUnit:
+            input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        })),
+      }))
+
+      return Ok(updatedQuotes)
+    })
 }

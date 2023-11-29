@@ -111,10 +111,16 @@ export const Pool = () => {
   const translate = useTranslate()
 
   const useRepaymentLockDataArgs = useMemo(
-    () => ({ assetId: poolAssetId, accountId: poolAccountId }),
-    [poolAccountId, poolAssetId],
+    () => ({
+      assetId: poolAssetId,
+      accountId: collateralAccountId,
+      // When fetching position repayment lock, we want to ensure there's an AccountId and AssetId
+      // or we would fetch the default network's repayment lock instead
+      enabled: Boolean(poolAssetId && collateralAccountId),
+    }),
+    [collateralAccountId, poolAssetId],
   )
-  const { data: repaymentLock, isLoading: isRepaymentLockLoading } =
+  const { data: positionRepaymentLock, isSuccess: isPositionRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
@@ -290,11 +296,11 @@ export const Pool = () => {
   const repaymentLockComponent = useMemo(
     () => (
       <RepaymentLockComponentWithValue
-        value={repaymentLock ?? '0'}
-        isLoaded={!isRepaymentLockLoading}
+        value={positionRepaymentLock ?? '0'}
+        isLoaded={isPositionRepaymentLockSuccess}
       />
     ),
-    [isRepaymentLockLoading, repaymentLock],
+    [isPositionRepaymentLockSuccess, positionRepaymentLock],
   )
 
   const newRepaymentLock = useMemo(() => {
@@ -348,7 +354,7 @@ export const Pool = () => {
                   label='lending.collateralValue'
                   toolTipLabel={translate('lending.collateralValueDescription')}
                   component={collateralValueComponent}
-                  isLoading={isRepaymentLockLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...newCollateralFiat}
                 />

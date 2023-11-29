@@ -36,7 +36,7 @@ export const ApprovalStep = ({
   hopExecutionState,
   isLastStep,
   isLoading,
-  onError,
+  onError: handleError,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
@@ -64,9 +64,9 @@ export const ApprovalStep = ({
       dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
     } else if (finalTxStatus === TxStatus.Failed) {
       setIsError(true)
-      onError()
+      handleError()
     }
-  }, [dispatch, executeAllowanceApproval, onError])
+  }, [dispatch, executeAllowanceApproval, handleError])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =

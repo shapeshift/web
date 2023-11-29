@@ -90,7 +90,6 @@ export const useRepaymentLockData = ({
     return true
   }, [accountId, assetId, blockHeight, isPositionQuerySuccess, mimir])
 
-  console.log({ isEnabled: Boolean(enabled && isRepaymentLockQueryEnabled) })
   const repaymentLockData = useQuery({
     staleTime: Infinity,
     queryKey: repaymentLockQueryKey,

@@ -2233,15 +2233,15 @@
       "title": "FAQ",
       "lending": {
         "title": "What is THORChain Lending?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Lending allows users to deposit native collateral, and then create a debt at a collateralization ratio (CR). The debt is always denominated in USD (aka TOR), regardless of what L1 asset the user receives"
       },
       "borrowing": {
         "title": "How does borrowing work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Borrowing in THORChain involves using your deposited assets as collateral to take out a loan. The loan is denominated in USD (TOR) and can be received in various L1 assets. With a dynamic collateralization ratio, you can borrow flexibly without the worry of interest or liquidation"
       },
       "repayments": {
         "title": "How does repayment work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Repayment in THORChain is flexible, allowing you to repay at any time in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
       }
     },
     "quote": {

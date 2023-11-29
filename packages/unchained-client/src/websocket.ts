@@ -95,11 +95,6 @@ export class Client<T> {
     resolve: (value: boolean) => void,
     reject: (reason?: unknown) => void,
   ): void {
-    console.warn(
-      { fn: 'onClose', code: event.code, reason: event.reason, type: event.type },
-      'websocket closed',
-    )
-
     this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
     this.connections.txs?.interval && clearInterval(this.connections.txs.interval)
 

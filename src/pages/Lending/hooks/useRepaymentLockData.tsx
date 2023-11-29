@@ -61,7 +61,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     [accountId, assetId],
   )
 
-  const { data: position } = useQuery({
+  const { data: position, isSuccess: isPositionQuerySuccess } = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
     // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
     // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
@@ -77,11 +77,11 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     // We always need the LOANREPAYMENTMATURITY value from the mimir query as repaymentMaturity
     if (!mimir) return false
     // We need position data to calculate the repayment lock for a specific account's position
-    if (!!accountId && !!assetId) return !!position && !!blockHeight
+    if (!!accountId && !!assetId) return isPositionQuerySuccess && !!blockHeight
 
     // We have a mimir, and we're not looking for a specific position's repayment lock, so we can proceed with the query
     return true
-  }, [accountId, assetId, blockHeight, mimir, position])
+  }, [accountId, assetId, blockHeight, isPositionQuerySuccess, mimir])
 
   const repaymentLockData = useQuery({
     staleTime: Infinity,

@@ -20,6 +20,7 @@ export enum ActiveQuoteStatus {
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
   NoConnectedWallet = 'NoConnectedWallet',
+  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
   SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
   BuyAssetNotNotSupportedByWallet = 'BuyAssetNotNotSupportedByWallet',
   NoReceiveAddress = 'NoReceiveAddress',

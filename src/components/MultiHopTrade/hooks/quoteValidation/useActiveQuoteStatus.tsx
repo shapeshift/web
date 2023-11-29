@@ -1,11 +1,15 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { isAddress } from 'viem'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteValidation/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
+import { isSmartContractAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType } from 'lib/swapper/types'
+import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,
@@ -13,11 +17,14 @@ import {
 import {
   selectActiveQuote,
   selectActiveQuoteError,
+  selectActiveSwapperName,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
   selectLastHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
+
+import { useAccountIds } from '../useAccountIds'
 
 export const useActiveQuoteStatus = (): QuoteStatus => {
   const validationErrors = useQuoteValidationErrors()
@@ -33,6 +40,42 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
+  const activeSwapperName = useAppSelector(selectActiveSwapperName)
+
+  const { sellAssetAccountId } = useAccountIds()
+
+  const { data: _isSmartContractAddress } = useQuery({
+    queryKey: [
+      'isSmartContractAddress',
+      {
+        userAddress: sellAssetAccountId
+          ? fromAccountId(sellAssetAccountId).account.toLowerCase()
+          : '',
+      },
+    ],
+    queryFn: () =>
+      isSmartContractAddress(
+        sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '',
+      ),
+    enabled: Boolean(sellAssetAccountId?.length),
+  })
+
+  const disableSmartContractSwap = useMemo(() => {
+    // Swappers other than THORChain shouldn't be affected by this limitation
+    if (activeSwapperName !== SwapperName.Thorchain) return false
+    if (!sellAssetAccountId) return false
+    // Not an EVM address - we can assume this isn't a smart contrac
+    if (
+      !isAddress(sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '')
+    )
+      return false
+
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress, activeSwapperName, sellAssetAccountId])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -78,6 +121,9 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
     const firstError = quoteErrors[0]
+
+    // TODO(gomes): Shoehorning this here for an immediate fix, but errors should be handled at quote level like all others
+    if (disableSmartContractSwap) return 'trade.errors.smartContractWalletNotSupported'
 
     // Return a translation string based on the first error. We might want to show multiple one day.
     return (() => {
@@ -127,10 +173,11 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     })()
   }, [
     quoteErrors,
+    disableSmartContractSwap,
     tradeBuyAsset?.symbol,
     firstHopSellFeeAsset?.symbol,
     lastHopSellFeeAsset?.symbol,
-    firstHopSellAsset,
+    firstHopSellAsset?.symbol,
     translate,
     insufficientBalanceProtocolFeeMeta,
   ])

@@ -318,7 +318,7 @@ export const RepayConfirm = ({
                       value={
                         lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
                       }
-                      symbol={repaymentAsset?.symbol ?? ''}
+                      symbol={collateralAsset?.symbol ?? ''}
                     />
                     <Amount.Fiat
                       color='text.subtle'

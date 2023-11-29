@@ -111,8 +111,12 @@ export const Pool = () => {
   const translate = useTranslate()
 
   const useRepaymentLockDataArgs = useMemo(
-    () => ({ assetId: poolAssetId, accountId: poolAccountId }),
-    [poolAccountId, poolAssetId],
+    () => ({
+      assetId: poolAssetId,
+      accountId: collateralAccountId,
+      enabled: Boolean(poolAssetId && collateralAccountId),
+    }),
+    [collateralAccountId, poolAssetId],
   )
   const { data: repaymentLock, isSuccess: isRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)

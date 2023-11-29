@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -23,7 +24,13 @@ type ThorchainBlock = {
 const thorchainBlockTimeSeconds = '6.1'
 const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
-export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
+export const useRepaymentLockData = ({
+  accountId,
+  assetId,
+  // Let the parent pass its own query options
+  // enabled will be used in conjunction with this hook's own isRepaymentLockQueryEnabled to determine whether or not to run the query
+  enabled = true,
+}: UseLendingPositionDataProps & QueryObserverOptions) => {
   const repaymentLockQueryKey = useMemo(
     () => ['thorchainLendingRepaymentLock', { accountId, assetId }],
     [accountId, assetId],
@@ -118,7 +125,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       return repaymentLock
     },
-    enabled: isRepaymentLockQueryEnabled,
+    enabled: Boolean(enabled && isRepaymentLockQueryEnabled),
   })
 
   return repaymentLockData

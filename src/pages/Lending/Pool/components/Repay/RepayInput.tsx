@@ -14,10 +14,12 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { isAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -25,6 +27,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
@@ -259,7 +262,35 @@ export const RepayInput = ({
     repaymentAsset,
   ])
 
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
+    queryKey: [
+      'isSmartContractAddress',
+      {
+        userAddress: repaymentAccountId
+          ? fromAccountId(repaymentAccountId).account.toLowerCase()
+          : '',
+      },
+    ],
+    queryFn: () =>
+      isSmartContractAddress(
+        repaymentAccountId ? fromAccountId(repaymentAccountId).account.toLowerCase() : '',
+      ),
+  })
+
+  const disableSmartContractRepayment = useMemo(() => {
+    // Repayment AccountId still loading - disable confirm
+    if (!repaymentAccountId) return true
+    if (!isAddress(fromAccountId(repaymentAccountId).account)) return false
+
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress, repaymentAccountId])
+
   const quoteErrorTranslation = useMemo(() => {
+    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
@@ -286,6 +317,7 @@ export const RepayInput = ({
     }
     return null
   }, [
+    _isSmartContractAddress,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
@@ -454,7 +486,10 @@ export const RepayInput = ({
           mx={-2}
           onClick={onSubmit}
           isLoading={
-            isLendingPositionDataLoading || isLendingQuoteCloseLoading || isEstimatedFeesDataLoading
+            isLendingPositionDataLoading ||
+            isLendingQuoteCloseLoading ||
+            isEstimatedFeesDataLoading ||
+            isAddressByteCodeLoading
           }
           isDisabled={Boolean(
             isLendingPositionDataLoading ||
@@ -463,6 +498,7 @@ export const RepayInput = ({
               isEstimatedFeesDataLoading ||
               isLendingQuoteCloseError ||
               isEstimatedFeesDataError ||
+              disableSmartContractRepayment ||
               quoteErrorTranslation,
           )}
         >

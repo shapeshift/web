@@ -9,11 +9,13 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { isAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -22,6 +24,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -275,6 +278,33 @@ export const BorrowInput = ({
     isEstimatedSweepFeesDataSuccess,
   ])
 
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
+    queryKey: [
+      'isSmartContractAddress',
+      {
+        userAddress: collateralAccountId
+          ? fromAccountId(collateralAccountId).account.toLowerCase()
+          : '',
+      },
+    ],
+    queryFn: () =>
+      isSmartContractAddress(
+        collateralAccountId ? fromAccountId(collateralAccountId).account.toLowerCase() : '',
+      ),
+  })
+
+  const disableSmartContractDeposit = useMemo(() => {
+    // Collateral AccountId still loading - disable confirm
+    if (!collateralAccountId) return true
+    if (!isAddress(fromAccountId(collateralAccountId).account)) return false
+
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress, collateralAccountId])
+
   const onSubmit = useCallback(() => {
     if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
     history.push(BorrowRoutePaths.Sweep)
@@ -326,6 +356,7 @@ export const BorrowInput = ({
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
   const quoteErrorTranslation = useMemo(() => {
+    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
       (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
@@ -342,6 +373,7 @@ export const BorrowInput = ({
     }
     return null
   }, [
+    _isSmartContractAddress,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
@@ -488,7 +520,8 @@ export const BorrowInput = ({
               isEstimatedFeesDataLoading ||
               isEstimatedSweepFeesDataLoading ||
               isEstimatedSweepFeesDataLoading ||
-              isSweepNeededLoading
+              isSweepNeededLoading ||
+              isAddressByteCodeLoading
             }
             isDisabled={Boolean(
               bnOrZero(depositAmountCryptoPrecision).isZero() ||
@@ -496,7 +529,8 @@ export const BorrowInput = ({
                 isLendingQuoteLoading ||
                 quoteErrorTranslation ||
                 isEstimatedFeesDataError ||
-                isEstimatedFeesDataLoading,
+                isEstimatedFeesDataLoading ||
+                disableSmartContractDeposit,
             )}
           >
             {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}

@@ -22,7 +22,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router'
+import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import type { AmountProps } from 'components/Amount/Amount'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -50,9 +50,17 @@ const maxWidth = { base: '100%', md: '450px' }
 const PoolHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
+  const { path } = useRouteMatch()
   const handleBack = useCallback(() => {
-    history.goBack()
-  }, [history])
+    const isPoolPage = matchPath('/lending/pool/:poolAssetId', path)
+    const isPoolAccountPage = matchPath('/lending/poolAccount/:poolAccountId/:poolAssetId', path)
+
+    if (isPoolAccountPage) {
+      history.push('/lending/loans')
+    } else if (isPoolPage) {
+      history.push('/lending')
+    }
+  }, [history, path])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>

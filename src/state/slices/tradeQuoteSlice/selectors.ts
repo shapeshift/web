@@ -32,6 +32,7 @@ import {
 
 import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
+import type { StreamingSwapMetadata } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
@@ -487,3 +488,19 @@ export const selectSecondHopSellAccountId = createSelector(
 export const selectHopExecutionMetadata = createSelector(selectTradeQuoteSlice, swappers => {
   return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
 })
+
+export const selectHopStreamingSwapMetadata = createSelector(
+  selectHopExecutionMetadata,
+  (hopExecutionMetadata): StreamingSwapMetadata[] => {
+    const defaultValue = {
+      attemptedSwapCount: 0,
+      totalSwapCount: 0,
+      failedSwaps: [],
+    }
+
+    return [
+      hopExecutionMetadata[0].streamingSwap ?? defaultValue,
+      hopExecutionMetadata[1].streamingSwap ?? defaultValue,
+    ]
+  },
+)

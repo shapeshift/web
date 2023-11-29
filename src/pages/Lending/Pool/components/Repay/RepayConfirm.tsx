@@ -218,7 +218,7 @@ export const RepayConfirm = ({
         accountNumber: repaymentAccountNumber,
         value: bnOrZero(repaymentAmountCryptoPrecision)
           .times(bn(10).pow(repaymentAsset.precision))
-          .toFixed(),
+          .toFixed(0),
         memo: lendingQuoteCloseData.quoteMemo,
         chainSpecific: {
           gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.chainSpecific

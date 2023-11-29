@@ -2191,6 +2191,7 @@
     "yourLoans": "Your Loans",
     "pool": "Pool",
     "poolDepth": "Pool Depth",
+    "poolDepthDescription": "The healthiness of the pool",
     "totalDebtBalance": "Total Debt Balance",
     "totalCollateral": "Total Collateral",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
@@ -2242,6 +2243,13 @@
         "title": "How does repayment work?",
         "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       }
+    },
+    "quote": {
+      "collateral": "Total asset amount secured against your loan",
+      "debt": "The total value you'll owe based on your new loan amount",
+      "repaymentLock": "Time period before you can start repaying this loan",
+      "collateralizationRatio": "Ratio of your collateral value to the loan amount",
+      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THOR liquidity fees"
     }
   },
   "foxDiscounts": {

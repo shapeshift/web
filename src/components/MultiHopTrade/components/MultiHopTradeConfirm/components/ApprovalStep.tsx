@@ -13,9 +13,10 @@ import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HOP_EXECUTION_STATE_ORDERED, HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMockAllowanceApproval } from '../hooks/mockHooks'
 import { StatusIcon } from './StatusIcon'
@@ -23,8 +24,8 @@ import { StepperStep } from './StepperStep'
 
 export type ApprovalStepProps = {
   tradeQuoteStep: TradeQuoteStep
+  hopIndex: number
   isActive: boolean
-  hopExecutionState: HopExecutionState
   isLastStep?: boolean
   isLoading?: boolean
   onError: () => void
@@ -32,8 +33,8 @@ export type ApprovalStepProps = {
 
 export const ApprovalStep = ({
   tradeQuoteStep,
+  hopIndex,
   isActive,
-  hopExecutionState,
   isLastStep,
   isLoading,
   onError: handleError,
@@ -46,11 +47,16 @@ export const ApprovalStep = ({
   const [isError, setIsError] = useState<boolean>(false)
 
   const {
-    executeAllowanceApproval,
-    approvalTxId: txHash,
-    approvalTxStatus: _approvalTxStatus,
-    approvalNetworkFeeCryptoBaseUnit,
-  } = useMockAllowanceApproval(tradeQuoteStep, true, isExactAllowance) // TODO: use the real hook here
+    state: hopExecutionState,
+    approvalTxHash: txHash,
+    approvalState,
+  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+
+  const { executeAllowanceApproval, approvalNetworkFeeCryptoBaseUnit } = useMockAllowanceApproval(
+    tradeQuoteStep,
+    hopIndex === 0,
+    isExactAllowance,
+  ) // TODO: use the real hook here
 
   const handleSignAllowanceApproval = useCallback(async () => {
     // next state
@@ -81,7 +87,7 @@ export const ApprovalStep = ({
   const txStatus =
     HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
     HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
-      ? _approvalTxStatus
+      ? approvalState
       : undefined
 
   const stepIndicator = useMemo(

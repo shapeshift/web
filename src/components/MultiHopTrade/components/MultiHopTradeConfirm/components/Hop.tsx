@@ -22,17 +22,15 @@ import { RawText } from 'components/Text'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectHopExecutionMetadata,
   selectHopTotalNetworkFeeFiatPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
-  selectInitialApprovalRequirements,
   selectIsActiveQuoteMultiHop,
-  selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { TradeType } from '../types'
-import { getHopExecutionState } from '../utils/getHopExecutionState'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { DonationStep } from './DonationStep'
@@ -62,11 +60,6 @@ export const Hop = ({
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
-  const hopExecutionState = useMemo(() => {
-    return getHopExecutionState(tradeExecutionState, hopIndex)
-  }, [hopIndex, tradeExecutionState])
-
   const [txStatus, setTxStatus] = useState<TxStatus | undefined>()
   const [isError, setIsError] = useState<boolean>(false)
 
@@ -96,8 +89,9 @@ export const Hop = ({
     }
   }, [tradeQuoteStep.estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
 
-  const initialApprovalRequirements = useAppSelector(selectInitialApprovalRequirements)
-  const isApprovalInitiallyNeeded = initialApprovalRequirements?.[hopIndex]
+  const { state: hopExecutionState, approvalRequired: isApprovalInitiallyNeeded } = useAppSelector(
+    selectHopExecutionMetadata,
+  )[hopIndex]
 
   const activeStep = useMemo(() => {
     switch (hopExecutionState) {
@@ -185,7 +179,7 @@ export const Hop = ({
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             <ApprovalStep
               tradeQuoteStep={tradeQuoteStep}
-              hopExecutionState={hopExecutionState}
+              hopIndex={hopIndex}
               isActive={[
                 HopExecutionState.AwaitingApprovalConfirmation,
                 HopExecutionState.AwaitingApprovalExecution,
@@ -200,7 +194,7 @@ export const Hop = ({
               HopExecutionState.AwaitingTradeConfirmation,
               HopExecutionState.AwaitingTradeExecution,
             ].includes(hopExecutionState)}
-            hopExecutionState={hopExecutionState}
+            hopIndex={hopIndex}
             onTxStatusChange={setTxStatus}
             isLastStep={!shouldRenderFinalSteps}
             onError={handleError}

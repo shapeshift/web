@@ -7,8 +7,8 @@ import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectFirstHop,
-  selectLastHop,
-  selectLastHopSellAccountId,
+  selectSecondHop,
+  selectSecondHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,24 +51,25 @@ const useIsApprovalInitiallyNeededForHop = (
 
 export const useIsApprovalInitiallyNeeded = () => {
   const firstHop = useAppSelector(selectFirstHop)
-  const lastHop = useAppSelector(selectLastHop)
-  const firstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const lastHopSellAssetAccountId = useAppSelector(selectLastHopSellAccountId)
+  const secondHop = useAppSelector(selectSecondHop)
+  const FirstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const SecondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
 
   const {
     isLoading: isFirstHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
-  } = useIsApprovalInitiallyNeededForHop(firstHop, firstHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(firstHop, FirstHopSellAssetAccountId)
+
   const {
-    isLoading: isLastHopLoading,
-    isApprovalInitiallyNeeded: isApprovalInitiallyNeededForLastHop,
-  } = useIsApprovalInitiallyNeededForHop(lastHop, lastHopSellAssetAccountId)
+    isLoading: isSecondHopLoading,
+    isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
+  } = useIsApprovalInitiallyNeededForHop(secondHop, SecondHopSellAssetAccountId)
 
   return {
-    isLoading: isFirstHopLoading || isLastHopLoading,
-    isApprovalInitiallyNeeded: [
-      isApprovalInitiallyNeededForFirstHop,
-      isApprovalInitiallyNeededForLastHop,
-    ] as [boolean, boolean],
+    isLoading: isFirstHopLoading || isSecondHopLoading,
+    isApprovalInitiallyNeeded: {
+      firstHop: isApprovalInitiallyNeededForFirstHop,
+      secondHop: isApprovalInitiallyNeededForSecondHop,
+    },
   }
 }

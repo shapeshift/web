@@ -2,10 +2,11 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useMemo } from 'react'
+import type Polyglot from 'node-polyglot'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
@@ -31,6 +32,7 @@ export type HopTransactionStepProps = {
   hopExecutionState: HopExecutionState
   isLastStep?: boolean
   onTxStatusChange: (txStatus?: TxStatus) => void
+  onError: () => void
 }
 
 export const HopTransactionStep = ({
@@ -40,12 +42,14 @@ export const HopTransactionStep = ({
   hopExecutionState,
   isLastStep,
   onTxStatusChange,
+  onError,
 }: HopTransactionStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
+  const [isError, setIsError] = useState<boolean>(false)
 
   const {
     // TODO: use the message to better ux
@@ -60,12 +64,24 @@ export const HopTransactionStep = ({
     // next state
     dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
 
-    // execute the transaction for the current hop
-    await executeTrade()
+    const finalTxStatus = await executeTrade()
 
-    // next state
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
-  }, [dispatch, executeTrade])
+    // next state if trade was successful
+    if (finalTxStatus === TxStatus.Confirmed) {
+      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    } else if (finalTxStatus === TxStatus.Failed) {
+      setIsError(true)
+      onError()
+    }
+  }, [dispatch, executeTrade, onError])
+
+  const tradeType = useMemo(
+    () =>
+      tradeQuoteStep.buyAsset.chainId === tradeQuoteStep.sellAsset.chainId
+        ? TradeType.Swap
+        : TradeType.Bridge,
+    [tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId],
+  )
 
   const { txLink, txHash } = useMemo(() => {
     if (buyTxHash)
@@ -92,10 +108,8 @@ export const HopTransactionStep = ({
 
   // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
   const txStatus =
-    hopExecutionState === HopExecutionState.Complete
-      ? TxStatus.Confirmed
-      : HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-        HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
+    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
+    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
       ? tradeStatus
       : undefined
 
@@ -139,6 +153,11 @@ export const HopTransactionStep = ({
     }
   }, [handleSignTx, isActive, sellTxHash, signIcon, tradeQuoteStep, translate, txStatus])
 
+  const errorTranslation = useMemo(
+    (): [string, Polyglot.InterpolationOptions] => ['trade.swapFailed', { tradeType }],
+    [tradeType],
+  )
+
   const description = useMemo(() => {
     const sellChainSymbol = getChainShortName(tradeQuoteStep.sellAsset.chainId as KnownChainIds)
     const buyChainSymbol = getChainShortName(tradeQuoteStep.buyAsset.chainId as KnownChainIds)
@@ -165,6 +184,7 @@ export const HopTransactionStep = ({
         <RawText>
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>
+        {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
         {txLink && (
           <Link isExternal color='text.link' href={txLink}>
             <MiddleEllipsis value={txHash} />
@@ -173,6 +193,8 @@ export const HopTransactionStep = ({
       </VStack>
     )
   }, [
+    errorTranslation,
+    isError,
     toCrypto,
     tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
     tradeQuoteStep.buyAsset.chainId,
@@ -187,11 +209,6 @@ export const HopTransactionStep = ({
   ])
 
   const title = useMemo(() => {
-    const tradeType =
-      tradeQuoteStep.buyAsset.chainId === tradeQuoteStep.sellAsset.chainId
-        ? TradeType.Swap
-        : TradeType.Bridge
-
     const chainAdapterManager = getChainAdapterManager()
     const sellChainName = chainAdapterManager
       .get(tradeQuoteStep.sellAsset.chainId)
@@ -201,7 +218,7 @@ export const HopTransactionStep = ({
     return tradeType === TradeType.Swap
       ? `${tradeType} on ${sellChainName} via ${swapperName}`
       : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`
-  }, [swapperName, tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId])
+  }, [swapperName, tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId, tradeType])
 
   return (
     <StepperStep
@@ -210,6 +227,7 @@ export const HopTransactionStep = ({
       stepIndicator={stepIndicator}
       content={content}
       isLastStep={isLastStep}
+      isError={txStatus === TxStatus.Failed}
     />
   )
 }

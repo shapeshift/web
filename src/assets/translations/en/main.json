@@ -2248,11 +2248,11 @@
       }
     },
     "quote": {
-      "collateral": "Total asset amount secured against your loan",
-      "debt": "The total value you'll owe based on your new loan amount",
-      "repaymentLock": "Time period before you can start repaying this loan",
+      "collateral": "Total asset amount which will be secured against your loan",
+      "debt": "Total debt you'll owe based on your new loan amount",
+      "repaymentLock": "Minimum period before you can repay your loan",
       "collateralizationRatio": "Ratio of your collateral value to the loan amount",
-      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THOR liquidity fees"
+      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
     }
   },
   "foxDiscounts": {

@@ -207,37 +207,39 @@ export const RepayConfirm = ({
       contractAddress: undefined,
     })
 
-    if (repaymentAsset.assetId === thorchainAssetId) {
-      const { account } = fromAccountId(repaymentAccountId)
-
-      const adapter = chainAdapter as unknown as thorchain.ChainAdapter
-
-      // repayment using THOR is a MsgDeposit tx
-      const { txToSign } = await adapter.buildDepositTransaction({
-        from: account,
-        accountNumber: repaymentAccountNumber,
-        value: bnOrZero(repaymentAmountCryptoPrecision)
-          .times(bn(10).pow(repaymentAsset.precision))
-          .toFixed(0),
-        memo: lendingQuoteCloseData.quoteMemo,
-        chainSpecific: {
-          gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.chainSpecific
-            .gasLimit,
-          fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
-        },
-      })
-      const signedTx = await adapter.signTransaction({
-        txToSign,
-        wallet,
-      })
-      return adapter.broadcastTransaction({
-        senderAddress: account,
-        receiverAddress: lendingQuoteCloseData.quoteInboundAddress,
-        hex: signedTx,
-      })
-    }
-
     const maybeTxId = await (() => {
+      if (repaymentAsset.assetId === thorchainAssetId) {
+        return (async () => {
+          const { account } = fromAccountId(repaymentAccountId)
+
+          const adapter = chainAdapter as unknown as thorchain.ChainAdapter
+
+          // repayment using THOR is a MsgDeposit tx
+          const { txToSign } = await adapter.buildDepositTransaction({
+            from: account,
+            accountNumber: repaymentAccountNumber,
+            value: bnOrZero(repaymentAmountCryptoPrecision)
+              .times(bn(10).pow(repaymentAsset.precision))
+              .toFixed(0),
+            memo: lendingQuoteCloseData.quoteMemo,
+            chainSpecific: {
+              gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+                .chainSpecific.gasLimit,
+              fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+            },
+          })
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
+          return adapter.broadcastTransaction({
+            senderAddress: account,
+            receiverAddress: lendingQuoteCloseData.quoteInboundAddress,
+            hex: signedTx,
+          })
+        })()
+      }
+
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
         cryptoAmount: repaymentAmountCryptoPrecision,

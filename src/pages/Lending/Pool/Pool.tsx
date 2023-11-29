@@ -338,7 +338,7 @@ export const Pool = () => {
               <Flex>
                 <DynamicComponent
                   label='lending.collateralBalance'
-                  toolTipLabel='tbd'
+                  toolTipLabel={translate('lending.collateralBalanceDescription')}
                   component={collateralBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
@@ -346,7 +346,7 @@ export const Pool = () => {
                 />
                 <DynamicComponent
                   label='lending.collateralValue'
-                  toolTipLabel='tbd'
+                  toolTipLabel={translate('lending.collateralValueDescription')}
                   component={collateralValueComponent}
                   isLoading={isRepaymentLockLoading}
                   flex={1}
@@ -356,7 +356,7 @@ export const Pool = () => {
               <Flex>
                 <DynamicComponent
                   label='lending.debtBalance'
-                  toolTipLabel='tbd'
+                  toolTipLabel={translate('lending.debtBalanceDescription')}
                   component={debtBalanceComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}
@@ -364,7 +364,7 @@ export const Pool = () => {
                 />
                 <DynamicComponent
                   label='lending.repaymentLock'
-                  toolTipLabel='tbd'
+                  toolTipLabel={translate('lending.repaymentLockDescription')}
                   component={repaymentLockComponent}
                   isLoading={isLendingPositionDataLoading}
                   flex={1}

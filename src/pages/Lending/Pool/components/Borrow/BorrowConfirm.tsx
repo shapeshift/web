@@ -289,7 +289,7 @@ export const BorrowConfirm = ({
               </Row>
             </Skeleton>
             <Row fontSize='sm' fontWeight='medium'>
-              <HelperTooltip label='tbd'>
+              <HelperTooltip label={translate('lending.quote.feesPlusSlippage')}>
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
               </HelperTooltip>
               <Row.Value>

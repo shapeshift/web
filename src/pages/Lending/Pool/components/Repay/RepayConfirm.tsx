@@ -14,7 +14,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -69,6 +69,8 @@ export const RepayConfirm = ({
     state: { wallet },
   } = useWallet()
 
+  const [isLoanPending, setIsLoanPending] = useState(false)
+
   const { refetch: refetchLendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
@@ -96,6 +98,7 @@ export const RepayConfirm = ({
     if (!txId) return
     ;(async () => {
       await mutateAsync(txId)
+      setIsLoanPending(false)
     })()
   }, [mutateAsync, refetchLendingPositionData, txId])
 
@@ -181,6 +184,8 @@ export const RepayConfirm = ({
       )
     )
       return
+
+    setIsLoanPending(true)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const estimatedFees = await estimateFees({
@@ -369,7 +374,8 @@ export const RepayConfirm = ({
               isLoading={
                 isLendingQuoteCloseLoading ||
                 isEstimatedFeesDataLoading ||
-                loanTxStatus === 'pending'
+                loanTxStatus === 'pending' ||
+                isLoanPending
               }
               disabled={loanTxStatus === 'pending'}
               onClick={handleConfirm}

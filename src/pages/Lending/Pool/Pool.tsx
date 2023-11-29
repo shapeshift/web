@@ -114,7 +114,7 @@ export const Pool = () => {
     () => ({ assetId: poolAssetId, accountId: poolAccountId }),
     [poolAccountId, poolAssetId],
   )
-  const { data: repaymentLock, isLoading: isRepaymentLockLoading } =
+  const { data: repaymentLock, isSuccess: isRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
@@ -291,10 +291,10 @@ export const Pool = () => {
     () => (
       <RepaymentLockComponentWithValue
         value={repaymentLock ?? '0'}
-        isLoaded={!isRepaymentLockLoading}
+        isLoaded={isRepaymentLockSuccess}
       />
     ),
-    [isRepaymentLockLoading, repaymentLock],
+    [isRepaymentLockSuccess, repaymentLock],
   )
 
   const newRepaymentLock = useMemo(() => {
@@ -348,7 +348,7 @@ export const Pool = () => {
                   label='lending.collateralValue'
                   toolTipLabel={translate('lending.collateralValueDescription')}
                   component={collateralValueComponent}
-                  isLoading={isRepaymentLockLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...newCollateralFiat}
                 />

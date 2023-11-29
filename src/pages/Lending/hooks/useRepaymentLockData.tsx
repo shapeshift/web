@@ -73,11 +73,21 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     enabled: !!accountId && !!assetId,
   })
 
+  const isRepaymentLockQueryEnabled = useMemo(() => {
+    // We always need the LOANREPAYMENTMATURITY value from the mimir query as repaymentMaturity
+    if (!mimir) return false
+    // We need position data to calculate the repayment lock for a specific account's position
+    if (!!accountId && !!assetId) return !!position && !!blockHeight
+
+    // We have a mimir, and we're not looking for a specific position's repayment lock, so we can proceed with the query
+    return true
+  }, [accountId, assetId, blockHeight, mimir, position])
+
   const repaymentLockData = useQuery({
     staleTime: Infinity,
     queryKey: repaymentLockQueryKey,
     queryFn: () => {
-      if (mimir && 'LOANREPAYMENTMATURITY' in mimir)
+      if ('LOANREPAYMENTMATURITY' in mimir!)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
           position,
@@ -86,7 +96,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       return null
     },
     select: data => {
-      if (!(data && data?.blockHeight)) return null
+      if (!data) return null
       const { repaymentMaturity, position, blockHeight } = data
 
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
@@ -101,14 +111,14 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
 
       const repaymentLock = bnOrZero(repaymentBlock)
-        .minus(blockHeight)
+        .minus(blockHeight!) // actually defined at runtime, see isRepaymentLockQueryEnabled
         .times(thorchainBlockTimeSeconds)
         .div(60 * 60 * 24)
         .toFixed(1)
 
       return repaymentLock
     },
-    enabled: true,
+    enabled: isRepaymentLockQueryEnabled,
   })
 
   return repaymentLockData

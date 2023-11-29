@@ -44,7 +44,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     () => ({ assetId: asset.assetId, accountId }),
     [asset.assetId, accountId],
   )
-  const { data: repaymentLockData, isLoading: isRepaymentLockDataLoading } =
+  const { data: repaymentLockData, isSuccess: isRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)
 
   const handlePoolClick = useCallback(() => {
@@ -110,7 +110,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
             />
           </Stack>
         </Skeleton>
-        <Skeleton isLoaded={!isRepaymentLockDataLoading}>
+        <Skeleton isLoaded={isRepaymentLockSuccess}>
           <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
             {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
           </RawText>

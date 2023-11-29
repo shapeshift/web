@@ -686,15 +686,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         <Alert status='error' width='auto' fontSize='sm'>
           <AlertIcon />
           <Stack spacing={0}>
-            <AlertTitle>Smart contract wallets not supported</AlertTitle>
+            <AlertTitle>{translate('trade.errors.smartContractWalletNotSupported')}</AlertTitle>
             <AlertDescription lineHeight='short'>
-              The THORChain network currently does not support smart contract wallets.
+              {translate('trade.thorSmartContractWalletUnsupported')}
             </AlertDescription>
           </Stack>
         </Alert>
       </Flex>
     )
-  }, [disableSmartContractDeposit])
+  }, [disableSmartContractDeposit, translate])
 
   if (!state || !contextDispatch) return null
 

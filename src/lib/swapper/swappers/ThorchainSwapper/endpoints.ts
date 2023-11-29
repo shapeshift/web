@@ -104,21 +104,14 @@ export const thorchainApi: SwapperApi = {
       }
     })()
 
-    const [{ gasLimit }, { average: gasFees }] = await Promise.all([
-      api.estimateGas({ data, from, to, value }),
-      api.getGasFees(),
-    ])
-
-    const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
-
-    /* 
-    TODO: Add a switch statement here to return either a thorchain TX or a swapIn TX
-      - compute the tcMemo for the THORChain swapIn
-    */
-
-    console.log('xxx debug', { tcMemo, tradeType })
     switch (tradeType) {
       case TradeType.L1ToL1: {
+        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
+          api.estimateGas({ data, from, to, value }),
+          api.getGasFees(),
+        ])
+
+        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
         return {
           chainId: Number(fromChainId(chainId).chainReference),
           data,
@@ -166,7 +159,13 @@ export const thorchainApi: SwapperApi = {
           args: params,
         })
 
-        console.log('xxx debug 2', { data })
+        // FIXME: why is this request failing?
+        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
+          api.estimateGas({ data, from, to, value }),
+          api.getGasFees(),
+        ])
+
+        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),

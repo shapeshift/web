@@ -802,7 +802,8 @@
       "generalError": "A trade error has occurred",
       "quoteError": "An error occurred getting a quote",
       "tradeFailed": "Trade failed. Assets returned minus gas fee",
-      "noQuotesAvailable": "No quotes available for this trade"
+      "noQuotesAvailable": "No quotes available for this trade",
+      "smartContractWalletNotSupported": "Smart contract wallet not supported"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -816,7 +817,9 @@
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
-    "approvalGasFee": "Approval gas fee %{fee}"
+    "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalFailed": "A problem occurred during allowance approval",
+    "swapFailed": "A problem occurred executing the %{tradeType}"
   },
   "modals": {
     "popup": {

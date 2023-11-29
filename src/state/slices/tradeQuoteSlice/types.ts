@@ -1,3 +1,5 @@
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
+
 export enum HopExecutionState {
   Pending = 'Pending',
   AwaitingApprovalConfirmation = 'AwaitingApprovalConfirmation',
@@ -17,29 +19,37 @@ export const HOP_EXECUTION_STATE_ORDERED = [
 ]
 
 export enum MultiHopExecutionState {
-  Unknown = 'Unknown',
   Previewing = 'Previewing',
-  Hop1AwaitingApprovalConfirmation = `Hop1_${HopExecutionState.AwaitingApprovalConfirmation}`,
-  Hop1AwaitingApprovalExecution = `Hop1_${HopExecutionState.AwaitingApprovalExecution}`,
-  Hop1AwaitingTradeConfirmation = `Hop1_${HopExecutionState.AwaitingTradeConfirmation}`,
-  Hop1AwaitingTradeExecution = `Hop1_${HopExecutionState.AwaitingTradeExecution}`,
-  Hop2AwaitingApprovalConfirmation = `Hop2_${HopExecutionState.AwaitingApprovalConfirmation}`,
-  Hop2AwaitingApprovalExecution = `Hop2_${HopExecutionState.AwaitingApprovalExecution}`,
-  Hop2AwaitingTradeConfirmation = `Hop2_${HopExecutionState.AwaitingTradeConfirmation}`,
-  Hop2AwaitingTradeExecution = `Hop2_${HopExecutionState.AwaitingTradeExecution}`,
+  FirstHopAwaitingApprovalConfirmation = `firstHop_${HopExecutionState.AwaitingApprovalConfirmation}`,
+  FirstHopAwaitingApprovalExecution = `firstHop_${HopExecutionState.AwaitingApprovalExecution}`,
+  FirstHopAwaitingTradeConfirmation = `firstHop_${HopExecutionState.AwaitingTradeConfirmation}`,
+  FirstHopAwaitingTradeExecution = `firstHop_${HopExecutionState.AwaitingTradeExecution}`,
+  SecondHopAwaitingApprovalConfirmation = `secondHop_${HopExecutionState.AwaitingApprovalConfirmation}`,
+  SecondHopAwaitingApprovalExecution = `secondHop_${HopExecutionState.AwaitingApprovalExecution}`,
+  SecondHopAwaitingTradeConfirmation = `secondHop_${HopExecutionState.AwaitingTradeConfirmation}`,
+  SeondHopAwaitingTradeExecution = `secondHop_${HopExecutionState.AwaitingTradeExecution}`,
   TradeComplete = 'Complete',
 }
 
 export const MULTI_HOP_EXECUTION_STATE_ORDERED = [
-  MultiHopExecutionState.Unknown,
   MultiHopExecutionState.Previewing,
-  MultiHopExecutionState.Hop1AwaitingApprovalConfirmation,
-  MultiHopExecutionState.Hop1AwaitingApprovalExecution,
-  MultiHopExecutionState.Hop1AwaitingTradeConfirmation,
-  MultiHopExecutionState.Hop1AwaitingTradeExecution,
-  MultiHopExecutionState.Hop2AwaitingApprovalConfirmation,
-  MultiHopExecutionState.Hop2AwaitingApprovalExecution,
-  MultiHopExecutionState.Hop2AwaitingTradeConfirmation,
-  MultiHopExecutionState.Hop2AwaitingTradeExecution,
+  MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation,
+  MultiHopExecutionState.FirstHopAwaitingApprovalExecution,
+  MultiHopExecutionState.FirstHopAwaitingTradeConfirmation,
+  MultiHopExecutionState.FirstHopAwaitingTradeExecution,
+  MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation,
+  MultiHopExecutionState.SecondHopAwaitingApprovalExecution,
+  MultiHopExecutionState.SecondHopAwaitingTradeConfirmation,
+  MultiHopExecutionState.SeondHopAwaitingTradeExecution,
   MultiHopExecutionState.TradeComplete,
 ]
+
+export type HopExecutionMetadata = {
+  state: HopExecutionState
+  approvalRequired?: boolean
+  approvalState?: TxStatus
+  approvalTxHash?: string
+  swapState?: TxStatus
+  swapSellTxHash?: string
+  swapBuyTxHash?: string
+}

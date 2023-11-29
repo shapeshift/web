@@ -41,7 +41,14 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     })
 
   const useRepaymentLockDataArgs = useMemo(
-    () => ({ assetId: asset.assetId, accountId }),
+    () => ({
+      assetId: asset.assetId,
+      accountId,
+      // When fetching position repayment lock, we want to ensure there's an AccountId and AssetId
+      // or we would fetch the default network's repayment lock instead
+      // these should be defined according to types but you never know
+      enabled: Boolean(asset.assetId && accountId),
+    }),
     [asset.assetId, accountId],
   )
   const { data: repaymentLockData, isSuccess: isRepaymentLockSuccess } =

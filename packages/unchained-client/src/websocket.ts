@@ -156,7 +156,6 @@ export class Client<T> {
 
     connection.pingTimeout && clearTimeout(connection.pingTimeout)
     connection.pingTimeout = setTimeout(() => {
-      console.warn({ fn: 'pingTimeout' }, `${topic} heartbeat failed`)
       connection.ws?.close()
     }, this.pingInterval + 5000)
   }

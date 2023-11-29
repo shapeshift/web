@@ -94,7 +94,10 @@ export const useRepaymentLockData = ({
     staleTime: Infinity,
     queryKey: repaymentLockQueryKey,
     queryFn: () => {
-      if ('LOANREPAYMENTMATURITY' in mimir!)
+      // This should never happen given the enabled flag but just in case
+      if (!mimir) throw new Error('mimir must be defined to get the loan repayment maturity')
+
+      if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
           position,
@@ -117,8 +120,13 @@ export const useRepaymentLockData = ({
 
       const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
 
+      // This shouldn't happen, see isRepaymentLockQueryEnabled above.
+      // calling this hook with an `accountId` and an `assetId` requires `blockHeight` to be defined for this query to run
+      // But if anything changes, and we happen to not have a blockHeight, this brings safety
+      if (!blockHeight) return null
+
       const repaymentLock = bnOrZero(repaymentBlock)
-        .minus(blockHeight!) // actually defined at runtime, see isRepaymentLockQueryEnabled
+        .minus(blockHeight)
         .times(thorchainBlockTimeSeconds)
         .div(60 * 60 * 24)
         .toFixed(1)

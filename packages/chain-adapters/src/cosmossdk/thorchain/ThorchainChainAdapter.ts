@@ -188,7 +188,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const tx = Object.assign(input, {
         account,
         msg,
-        chainSpecific: { ...input.chainSpecific, fee },
+        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
       })
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)

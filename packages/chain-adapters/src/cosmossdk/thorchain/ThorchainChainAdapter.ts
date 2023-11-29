@@ -162,7 +162,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     return this.buildSendApiTransaction({ ...input, from })
   }
 
-  /* MsgDeposit is used for thorchain swap/lp operations */
+  /* MsgDeposit is used for thorchain swap/lp/repayment operations */
   async buildDepositTransaction(
     input: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
@@ -188,7 +188,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const tx = Object.assign(input, {
         account,
         msg,
-        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
+        chainSpecific: { ...input.chainSpecific, fee },
       })
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)

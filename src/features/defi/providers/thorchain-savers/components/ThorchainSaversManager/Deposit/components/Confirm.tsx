@@ -668,7 +668,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const disableSmartContractDeposit = useMemo(() => {
-    // Not an EVM address - we can assume this isn't a smart contrac
+    // Not an EVM address - we can assume this isn't a smart contract
     if (!isAddress(userAddress ?? '')) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm

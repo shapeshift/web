@@ -64,7 +64,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
     if (!sellAssetAccountId) return false
-    // Not an EVM address - we can assume this isn't a smart contrac
+    // Not an EVM address - we can assume this isn't a smart contract
     if (
       !isAddress(sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '')
     )

@@ -1,14 +1,16 @@
 import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
+import { type Result } from '@sniptt/monads/build'
+import assert from 'assert'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -130,6 +132,19 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.LongTailToL1: {
+        const l1AssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+        const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, l1AssetId)
+        assert(
+          maybeInboundAddress.isOk() !== false,
+          `no inbound address data found for assetId '${l1AssetId}'`,
+        )
+        const inboundAddress = maybeInboundAddress.unwrap()
+        const tcVault = inboundAddress.address as Address
+        const tcRouter = inboundAddress.router as Address | undefined
+
+        assert(tcRouter !== undefined, `no tcRouter found for assetId '${l1AssetId}'`)
+
         const swapInAbiItem = parseAbiItem(
           'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
         )
@@ -137,10 +152,8 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
-        const tcRouter: Address = '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146'
-        const tcVault: Address = '0x7A93cBCCD9596C26076FB15D49df3F7A4180945a' // FIXME: the buy asset L1 pool?
-        const token: Address = '0x0000000' // todo: the sell token
-        const amount: bigint = BigInt(0) // todo: the sell amount
+        const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
+        const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
         const amountOutMin: bigint = BigInt(0) // todo: the buy amount
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
         const oneMinute = BigInt(60)

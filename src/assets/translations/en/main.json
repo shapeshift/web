@@ -2187,12 +2187,14 @@
     "lending": "Lending",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
     "collateralValue": "Collateral Value",
+    "collateralValueDescription": "Current value of your asset used as collateral",
     "debtValue": "Debt Value",
     "loanToValue": "Loan to Value",
     "availablePools": "Available Pools",
     "yourLoans": "Your Loans",
     "pool": "Pool",
     "poolDepth": "Pool Depth",
+    "poolDepthDescription": "The healthiness of the pool",
     "totalDebtBalance": "Total Debt Balance",
     "totalCollateral": "Total Collateral",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
@@ -2202,8 +2204,11 @@
     "loanInformation": "Loan Summary",
     "poolInformation": "Pool Information",
     "collateralBalance": "Collateral Balance",
+    "collateralBalanceDescription": "Total amount of your asset currently held as collateral",
     "debtBalance": "Debt Balance",
+    "debtBalanceDescription": "Total amount of debt you owe for this loan",
     "repaymentLock": "Repayment Lock",
+    "repaymentLockDescription": "Minimum period before you can repay your loan",
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",
@@ -2231,16 +2236,23 @@
       "title": "FAQ",
       "lending": {
         "title": "What is THORChain Lending?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Lending allows users to deposit native collateral, and then create a debt at a collateralization ratio (CR). The debt is always denominated in USD (aka TOR), regardless of what L1 asset the user receives"
       },
       "borrowing": {
         "title": "How does borrowing work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Borrowing in THORChain involves using your deposited assets as collateral to take out a loan. The loan is denominated in USD (TOR) and can be received in various L1 assets. With a dynamic collateralization ratio, you can borrow flexibly without the worry of interest or liquidation"
       },
       "repayments": {
         "title": "How does repayment work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Repayment in THORChain is flexible, allowing you to repay at any time in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
       }
+    },
+    "quote": {
+      "collateral": "Total asset amount which will be secured against your loan",
+      "debt": "Total debt you'll owe based on your new loan amount",
+      "repaymentLock": "Minimum period before you can repay your loan",
+      "collateralizationRatio": "Ratio of your collateral value to the loan amount",
+      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
     }
   },
   "foxDiscounts": {

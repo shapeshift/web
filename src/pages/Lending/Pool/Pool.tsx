@@ -114,11 +114,13 @@ export const Pool = () => {
     () => ({
       assetId: poolAssetId,
       accountId: collateralAccountId,
+      // When fetching position repayment lock, we want to ensure there's an AccountId and AssetId
+      // or we would fetch the default network's repayment lock instead
       enabled: Boolean(poolAssetId && collateralAccountId),
     }),
     [collateralAccountId, poolAssetId],
   )
-  const { data: repaymentLock, isSuccess: isRepaymentLockSuccess } =
+  const { data: positionRepaymentLock, isSuccess: isPositionRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
@@ -294,11 +296,11 @@ export const Pool = () => {
   const repaymentLockComponent = useMemo(
     () => (
       <RepaymentLockComponentWithValue
-        value={repaymentLock ?? '0'}
-        isLoaded={isRepaymentLockSuccess}
+        value={positionRepaymentLock ?? '0'}
+        isLoaded={isPositionRepaymentLockSuccess}
       />
     ),
-    [isRepaymentLockSuccess, repaymentLock],
+    [isPositionRepaymentLockSuccess, positionRepaymentLock],
   )
 
   const newRepaymentLock = useMemo(() => {

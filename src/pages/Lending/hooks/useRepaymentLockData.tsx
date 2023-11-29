@@ -32,8 +32,8 @@ export const useRepaymentLockData = ({
   enabled = true,
 }: UseLendingPositionDataProps & QueryObserverOptions) => {
   const repaymentLockQueryKey = useMemo(
-    () => ['thorchainLendingRepaymentLock', { accountId, assetId }],
-    [accountId, assetId],
+    () => ['thorchainLendingRepaymentLock', { accountId, assetId, enabled }],
+    [accountId, assetId, enabled],
   )
 
   const { data: blockHeight } = useQuery({
@@ -90,6 +90,7 @@ export const useRepaymentLockData = ({
     return true
   }, [accountId, assetId, blockHeight, isPositionQuerySuccess, mimir])
 
+  console.log({ isEnabled: Boolean(enabled && isRepaymentLockQueryEnabled) })
   const repaymentLockData = useQuery({
     staleTime: Infinity,
     queryKey: repaymentLockQueryKey,

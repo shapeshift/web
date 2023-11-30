@@ -1,5 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
 import { ParentSize, ScaleSVG } from '@visx/responsive'
@@ -32,7 +33,6 @@ import { FeeSliders } from './FeeSliders'
 type FeeChartProps = {
   tradeSize: number
   foxHolding: number
-  onHover(hoverTradeSize: number, hoverFoxHolding: number): void
 }
 
 const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
@@ -305,13 +305,8 @@ type FeeExplainerProps = CardProps
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
   const [tradeSize, setTradeSize] = useState(FEE_CURVE_NO_FEE_THRESHOLD_USD) // default to max below free so we have a value
-  const [foxHolding, setFoxHolding] = useState(Number(currentFoxHoldings) || 0)
+  const [foxHolding, setFoxHolding] = useState(bnOrZero(currentFoxHoldings).toNumber())
   const translate = useTranslate()
-
-  const handleHover = useCallback((hoverTradeSize: number, hoverFoxHolding: number) => {
-    setTradeSize(hoverTradeSize)
-    setFoxHolding(hoverFoxHolding)
-  }, [])
 
   useEffect(() => {
     if (isLoading) return
@@ -338,7 +333,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} onHover={handleHover} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} />
         </CardBody>
       </Card>
     </Stack>

@@ -22,7 +22,7 @@ import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router'
+import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import type { AmountProps } from 'components/Amount/Amount'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -50,9 +50,17 @@ const maxWidth = { base: '100%', md: '450px' }
 const PoolHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
+  const { path } = useRouteMatch()
   const handleBack = useCallback(() => {
-    history.goBack()
-  }, [history])
+    const isPoolPage = matchPath('/lending/pool/:poolAssetId', path)
+    const isPoolAccountPage = matchPath('/lending/poolAccount/:poolAccountId/:poolAssetId', path)
+
+    if (isPoolAccountPage) {
+      history.push('/lending/loans')
+    } else if (isPoolPage) {
+      history.push('/lending')
+    }
+  }, [history, path])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
@@ -111,28 +119,42 @@ export const Pool = () => {
   const translate = useTranslate()
 
   const useRepaymentLockDataArgs = useMemo(
-    () => ({ assetId: poolAssetId, accountId: poolAccountId }),
-    [poolAccountId, poolAssetId],
+    () => ({
+      assetId: poolAssetId,
+      accountId: collateralAccountId,
+      // When fetching position repayment lock, we want to ensure there's an AccountId and AssetId
+      // or we would fetch the default network's repayment lock instead
+      enabled: Boolean(poolAssetId && collateralAccountId),
+    }),
+    [collateralAccountId, poolAssetId],
   )
-  const { data: repaymentLock, isLoading: isRepaymentLockLoading } =
+  const { data: positionRepaymentLock, isSuccess: isPositionRepaymentLockSuccess } =
     useRepaymentLockData(useRepaymentLockDataArgs)
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
 
-  const lendingMutationStatus = useMutationState({
+  const borrowMutationStatus = useMutationState({
     filters: { mutationKey: [borrowTxid] },
     select: mutation => mutation.state.status,
   })
-  const isLoanPending = lendingMutationStatus?.[0] === 'pending'
-  const isLoanUpdated = lendingMutationStatus?.[0] === 'success'
+  const isBorrowPending = borrowMutationStatus?.[0] === 'pending'
+  const isBorrowUpdated = borrowMutationStatus?.[0] === 'success'
+
+  const repayMutationStatus = useMutationState({
+    filters: { mutationKey: [repayTxid] },
+    select: mutation => mutation.state.status,
+  })
+
+  const isRepayPending = repayMutationStatus?.[0] === 'pending'
+  const isRepayUpdated = repayMutationStatus?.[0] === 'success'
 
   const { data: lendingPositionData, isLoading: isLendingPositionDataLoading } =
     useLendingPositionData({
       assetId: poolAssetId,
       accountId: collateralAccountId,
-      skip: isLoanPending,
+      skip: isBorrowPending || isRepayPending,
     })
 
   const useLendingQuoteQueryArgs = useMemo(
@@ -187,7 +209,7 @@ export const Pool = () => {
     [asset?.symbol, lendingPositionData?.collateralBalanceCryptoPrecision],
   )
   const newCollateralCrypto = useMemo(() => {
-    if (isLoanUpdated) return {}
+    if (isBorrowUpdated || isRepayUpdated) return {}
 
     if (stepIndex === 0 && isLendingQuoteSuccess && lendingQuoteOpenData)
       return {
@@ -207,13 +229,14 @@ export const Pool = () => {
       }
     return {}
   }, [
-    isLendingQuoteCloseSuccess,
-    isLendingQuoteSuccess,
-    isLoanUpdated,
-    lendingPositionData?.collateralBalanceCryptoPrecision,
-    lendingQuoteCloseData,
-    lendingQuoteOpenData,
+    isBorrowUpdated,
+    isRepayUpdated,
     stepIndex,
+    isLendingQuoteSuccess,
+    lendingQuoteOpenData,
+    lendingPositionData?.collateralBalanceCryptoPrecision,
+    isLendingQuoteCloseSuccess,
+    lendingQuoteCloseData,
   ])
 
   const collateralValueComponent = useMemo(
@@ -228,7 +251,7 @@ export const Pool = () => {
   )
 
   const newCollateralFiat = useMemo(() => {
-    if (isLoanUpdated) return {}
+    if (isBorrowUpdated || isRepayUpdated) return {}
 
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
@@ -248,7 +271,14 @@ export const Pool = () => {
       }
 
     return {}
-  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [
+    isBorrowUpdated,
+    isRepayUpdated,
+    lendingPositionData,
+    lendingQuoteCloseData,
+    lendingQuoteOpenData,
+    stepIndex,
+  ])
 
   const debtBalanceComponent = useMemo(
     () => (
@@ -262,7 +292,7 @@ export const Pool = () => {
   )
 
   const newDebt = useMemo(() => {
-    if (isLoanUpdated) return {}
+    if (isBorrowUpdated || isRepayUpdated) return {}
 
     if (stepIndex === 0 && lendingQuoteOpenData && lendingPositionData)
       return {
@@ -285,20 +315,27 @@ export const Pool = () => {
       }
 
     return {}
-  }, [isLoanUpdated, lendingPositionData, lendingQuoteCloseData, lendingQuoteOpenData, stepIndex])
+  }, [
+    isBorrowUpdated,
+    isRepayUpdated,
+    lendingPositionData,
+    lendingQuoteCloseData,
+    lendingQuoteOpenData,
+    stepIndex,
+  ])
 
   const repaymentLockComponent = useMemo(
     () => (
       <RepaymentLockComponentWithValue
-        value={repaymentLock ?? '0'}
-        isLoaded={!isRepaymentLockLoading}
+        value={positionRepaymentLock ?? '0'}
+        isLoaded={isPositionRepaymentLockSuccess}
       />
     ),
-    [isRepaymentLockLoading, repaymentLock],
+    [isPositionRepaymentLockSuccess, positionRepaymentLock],
   )
 
   const newRepaymentLock = useMemo(() => {
-    if (isLoanUpdated) return {}
+    if (isBorrowUpdated || isRepayUpdated) return {}
 
     if (
       stepIndex === 0 &&
@@ -314,7 +351,8 @@ export const Pool = () => {
       }
     return {}
   }, [
-    isLoanUpdated,
+    isBorrowUpdated,
+    isRepayUpdated,
     stepIndex,
     isLendingQuoteSuccess,
     lendingQuoteOpenData,
@@ -348,7 +386,7 @@ export const Pool = () => {
                   label='lending.collateralValue'
                   toolTipLabel={translate('lending.collateralValueDescription')}
                   component={collateralValueComponent}
-                  isLoading={isRepaymentLockLoading}
+                  isLoading={isLendingPositionDataLoading}
                   flex={1}
                   {...newCollateralFiat}
                 />

@@ -41,6 +41,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     queryKey,
     queryFn: () => availablePools,
     select: selectSupportedAssets,
+    enabled: Boolean(availablePools?.length),
   })
 
   return lendingSupportedAssetsQuery

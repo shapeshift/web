@@ -61,4 +61,3 @@ export const addSlippageToMemo = ({
   assertIsValidMemo(memo, chainId, affiliateBps)
   return memo
 }
-

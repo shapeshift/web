@@ -3,7 +3,7 @@ import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -65,7 +65,7 @@ export const snapshotApi = createApi({
             return acc
           }, new Set()),
         )
-        const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber()
+        const foxDiscountBlock = await getEthersProvider().getBlockNumber()
         const delegation = false // don't let people delegate for discounts - ambiguous in spec
         const votingPowerResults = await Promise.all(
           evmAddresses.map(async address => {

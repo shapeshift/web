@@ -17,11 +17,17 @@ import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
-export const getLongtailToL1Quote = async (
-  input: GetTradeQuoteInput,
-  streamingInterval: number,
-  assetsById: AssetsById,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+export const getLongtailToL1Quote = async ({
+  input,
+  streamingInterval,
+  streamingQuantity,
+  assetsById,
+}: {
+  input: GetTradeQuoteInput
+  streamingInterval: number
+  streamingQuantity: number
+  assetsById: AssetsById
+}): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const chainAdapterManager = getChainAdapterManager()
   const sellChainId = input.sellAsset.chainId
   const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
@@ -87,6 +93,10 @@ export const getLongtailToL1Quote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuote = await getL1quote(l1Tol1QuoteInput, streamingInterval)
+  const thorchainQuote = await getL1quote({
+    input: l1Tol1QuoteInput,
+    streamingInterval,
+    streamingQuantity,
+  })
   return thorchainQuote
 }

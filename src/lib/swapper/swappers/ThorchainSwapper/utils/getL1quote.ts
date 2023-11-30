@@ -36,10 +36,15 @@ import { getQuote } from './getQuote/getQuote'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
-export const getL1quote = async (
-  input: GetTradeQuoteInput,
-  streamingInterval: number,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+export const getL1quote = async ({
+  input,
+  streamingInterval,
+  streamingQuantity,
+}: {
+  input: GetTradeQuoteInput
+  streamingInterval: number
+  streamingQuantity: number
+}): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -200,6 +205,8 @@ export const getL1quote = async (
               affiliateBps,
               isStreaming,
               streamingInterval,
+              defaultStreamingQuantity: streamingQuantity,
+              streamingQuantity: quote.max_streaming_quantity ?? 0,
             })
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
@@ -285,6 +292,8 @@ export const getL1quote = async (
               chainId: sellAsset.chainId,
               affiliateBps,
               streamingInterval,
+              defaultStreamingQuantity: streamingQuantity,
+              streamingQuantity: quote.max_streaming_quantity ?? 0,
             })
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
@@ -383,6 +392,8 @@ export const getL1quote = async (
               chainId: sellAsset.chainId,
               affiliateBps,
               streamingInterval,
+              defaultStreamingQuantity: streamingQuantity,
+              streamingQuantity: quote.max_streaming_quantity ?? 0,
             })
 
             return {

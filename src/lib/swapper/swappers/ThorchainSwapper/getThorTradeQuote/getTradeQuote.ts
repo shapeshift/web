@@ -11,6 +11,7 @@ import { assertUnreachable } from 'lib/utils'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import type { ThornodePoolResponse } from '../types'
+import { DEFAULT_STREAMING_NUM_SWAPS } from '../utils/constants'
 import { getL1quote } from '../utils/getL1quote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
@@ -95,12 +96,20 @@ export const getThorTradeQuote = async (
         })()
       : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
         10
+  // Let the network decide the internal number of swaps
+  // Note, this gets overriden in addSlippageToMemo and uses the max_max_streaming_quantity instead
+  const defaultStreamingQuantity = DEFAULT_STREAMING_NUM_SWAPS
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1quote(input, streamingInterval)
+      return getL1quote({ input, streamingInterval, streamingQuantity: defaultStreamingQuantity })
     case TradeType.LongTailToL1:
-      return getLongtailToL1Quote(input, streamingInterval, assetsById)
+      return getLongtailToL1Quote({
+        input,
+        streamingInterval,
+        assetsById,
+        streamingQuantity: defaultStreamingQuantity,
+      })
     case TradeType.LongTailToLongTail:
     case TradeType.L1ToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))

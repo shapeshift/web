@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import { DEFAULT_STREAMING_NUM_SWAPS, LIMIT_PART_DELIMITER, MEMO_PART_DELIMITER } from './constants'
+import { LIMIT_PART_DELIMITER, MEMO_PART_DELIMITER } from './constants'
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = ({
@@ -14,6 +14,9 @@ export const addSlippageToMemo = ({
   chainId,
   affiliateBps,
   streamingInterval,
+  // Our own default streaming quantity, currently sitting at 0 (i.e let the network decide)
+  defaultStreamingQuantity,
+  streamingQuantity,
 }: {
   expectedAmountOutThorBaseUnit: string
   affiliateFeesThorBaseUnit: string
@@ -23,8 +26,15 @@ export const addSlippageToMemo = ({
   affiliateBps: string
   isStreaming: boolean
   streamingInterval: number
+  defaultStreamingQuantity: number
+  streamingQuantity: number
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
+
+  // If the network returns 0 as a streaming quantity, use that - else, use the optimized max_streaming_quantity
+  const optimizedStreamingQuantity = bn(streamingQuantity).gt(defaultStreamingQuantity)
+    ? streamingQuantity
+    : defaultStreamingQuantity
 
   // the missing element is the original limit with (optional, missing) streaming parameters
   const [prefix, pool, address, , affiliate, memoAffiliateBps] =
@@ -39,7 +49,7 @@ export const addSlippageToMemo = ({
   )
 
   const updatedLimitComponent = isStreaming
-    ? [limitWithManualSlippage, streamingInterval, DEFAULT_STREAMING_NUM_SWAPS].join(
+    ? [limitWithManualSlippage, streamingInterval, optimizedStreamingQuantity].join(
         LIMIT_PART_DELIMITER,
       )
     : [limitWithManualSlippage]
@@ -51,3 +61,4 @@ export const addSlippageToMemo = ({
   assertIsValidMemo(memo, chainId, affiliateBps)
   return memo
 }
+

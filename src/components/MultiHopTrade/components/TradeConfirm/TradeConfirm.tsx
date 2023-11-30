@@ -384,24 +384,26 @@ export const TradeConfirm = () => {
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
           donationAmount={donationAmount}
+          swapSource={tradeQuoteStep?.source}
         />
       </>
     ),
     [
-      translate,
-      sellAmountBeforeFeesCryptoPrecision,
-      sellAsset?.symbol,
-      sellAmountBeforeFeesUserCurrency,
-      buyAsset?.symbol,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
-      tradeQuoteStep?.feeData.protocolFees,
-      tradeQuoteStep?.intermediaryTransactionOutputs,
+      buyAsset?.symbol,
+      donationAmount,
+      netBuyAmountUserCurrency,
+      sellAmountBeforeFeesCryptoPrecision,
+      sellAmountBeforeFeesUserCurrency,
+      sellAsset?.symbol,
       shapeShiftFee,
       slippageDecimal,
-      netBuyAmountUserCurrency,
       swapperName,
-      donationAmount,
+      tradeQuoteStep?.source,
+      tradeQuoteStep?.feeData.protocolFees,
+      tradeQuoteStep?.intermediaryTransactionOutputs,
+      translate,
     ],
   )
 

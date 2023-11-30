@@ -163,11 +163,14 @@ type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
-export const accountToPortfolio: AccountToPortfolio = args => {
+export const accountToPortfolio: AccountToPortfolio = ({
+  assetIds,
+  nftCollectionsById,
+  portfolioAccounts,
+}) => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
-  const nftCollectionsById = args.nftCollectionsById
-  Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
+  Object.entries(portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
     const { chainId } = account
     const { chainNamespace } = fromChainId(chainId)
 
@@ -186,13 +189,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
-          if (bnOrZero(token.balance).gt(0)) {
-            portfolio.accounts.byId[accountId].hasActivity = true
-          }
-
           // don't update portfolio if asset is not in the store except for nft assets,
           // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
-          if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
+          if (!isNft(token.assetId) && !assetIds.includes(token.assetId)) return
 
           if (isNft(token.assetId)) {
             const { assetReference, chainId, assetNamespace } = fromAssetId(token.assetId)
@@ -205,10 +204,15 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
             const nftCollection = nftCollectionsById[collectionAssetId]
 
-            if (nftCollection?.isSpam) return
-            if ([nftCollection?.description ?? '', nftCollection?.name ?? ''].some(isSpammyNftText))
-              return
+            if (nftCollection) {
+              if (nftCollection.isSpam) return
+              if ([nftCollection.description, nftCollection.name].some(isSpammyNftText)) return
+            } else {
+              if ([token.name, token.symbol].some(isSpammyNftText)) return
+            }
           }
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
           portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
@@ -250,11 +254,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         cosmosAccount.chainSpecific.assets?.forEach(asset => {
-          if (bnOrZero(asset.amount).gt(0)) {
-            portfolio.accounts.byId[accountId].hasActivity = true
-          }
+          if (!assetIds.includes(asset.assetId)) return
 
-          if (!args.assetIds.includes(asset.assetId)) return
+          if (bnOrZero(asset.amount).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
 
           portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
           portfolio.accountBalances.byId[accountId][asset.assetId] = asset.amount

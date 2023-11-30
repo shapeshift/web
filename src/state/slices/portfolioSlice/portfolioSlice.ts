@@ -1,8 +1,8 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { arbitrumNovaChainId, fromAccountId, isNft } from '@shapeshiftoss/caip'
-import type { Account, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
+import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -11,6 +11,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
@@ -131,34 +132,35 @@ export const portfolioApi = createApi({
           const nftCollectionsById = selectNftCollections(state)
 
           const data = ((): Portfolio => {
-            switch (chainId) {
-              // add placeholder assets (evm tokens) for applicable chains where there is substantial missing data from coingecko
-              case arbitrumNovaChainId: {
-                const account = portfolioAccounts[pubkey] as Account<EvmChainId>
+            // add placeholder non spam assets for evm chains
+            if (evmChainIds.includes(chainId as EvmChainId)) {
+              const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
-                const assets = (account.chainSpecific.tokens ?? []).reduce<AssetsState>(
-                  (prev, token) => {
-                    // ignore existing assets and nfts (handled elsewhere)
-                    if (state.assets.byId[token.assetId] || isNft(token.assetId)) return prev
-                    prev.byId[token.assetId] = makeAsset({ ...token })
-                    prev.ids.push(token.assetId)
-                    return prev
-                  },
-                  { byId: {}, ids: [] },
-                )
+              const assets = (account.chainSpecific.tokens ?? []).reduce<AssetsState>(
+                (prev, token) => {
+                  const isSpam = [token.name, token.symbol].some(text => {
+                    if (isNft(token.assetId)) return isSpammyNftText(text)
+                    return isSpammyTokenText(text)
+                  })
+                  if (state.assets.byId[token.assetId] || isSpam) return prev
+                  prev.byId[token.assetId] = makeAsset({ ...token })
+                  prev.ids.push(token.assetId)
+                  return prev
+                },
+                { byId: {}, ids: [] },
+              )
 
-                // upsert placeholder assets
-                dispatch(assetSlice.actions.upsertAssets(assets))
+              // upsert placeholder assets
+              dispatch(assetSlice.actions.upsertAssets(assets))
 
-                return accountToPortfolio({
-                  portfolioAccounts,
-                  assetIds: assetIds.concat(assets.ids),
-                  nftCollectionsById,
-                })
-              }
-              default:
-                return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+              return accountToPortfolio({
+                portfolioAccounts,
+                assetIds: assetIds.concat(assets.ids),
+                nftCollectionsById,
+              })
             }
+
+            return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))

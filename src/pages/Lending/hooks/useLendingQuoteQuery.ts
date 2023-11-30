@@ -28,7 +28,6 @@ type UseLendingQuoteQueryProps = {
   collateralAccountId: AccountId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
-  isLoanOpenPending?: boolean
 }
 
 type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
@@ -109,7 +108,6 @@ export const useLendingQuoteOpenQuery = ({
   borrowAccountId: _borrowAccountId,
   borrowAssetId: _borrowAssetId,
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
-  isLoanOpenPending,
 }: UseLendingQuoteQueryProps) => {
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
@@ -222,8 +220,7 @@ export const useLendingQuoteOpenQuery = ({
     // vs. the failed query being considered fresh
     retry: false,
     enabled: Boolean(
-      !isLoanOpenPending &&
-        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
+      bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         collateralAccountId &&
         collateralAccountId &&
         borrowAssetId &&

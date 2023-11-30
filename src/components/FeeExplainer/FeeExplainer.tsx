@@ -44,8 +44,8 @@ const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
 )
 
 const accessors = {
-  xAccessor: (data: { x: number }) => data?.x,
-  yAccessor: (data: { y: number }) => data?.y,
+  xAccessor: (data: { x: number }) => data.x,
+  yAccessor: (data: { y: number }) => data.y,
 }
 
 const xTickValues = [1001, 100_000, 200_000, 300_000, 400_000]

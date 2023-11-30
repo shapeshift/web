@@ -147,7 +147,6 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      isLoanClosePending: loanTxStatus === 'pending',
     }),
     [
       collateralAssetId,
@@ -155,7 +154,6 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      loanTxStatus,
     ],
   )
 

@@ -31,12 +31,10 @@ const selectLendingCloseQueryData = memoize(
   ({
     data,
     collateralAssetMarketData,
-    repaymentAssetMarketData,
     repaymentAmountCryptoPrecision,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
-    repaymentAssetMarketData: MarketData
     repaymentAmountCryptoPrecision: string | null
   }) => {
     const quote = data
@@ -47,7 +45,7 @@ const selectLendingCloseQueryData = memoize(
     const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
       quote.expected_collateral_withdrawn,
     )
-      .times(repaymentAssetMarketData.price)
+      .times(collateralAssetMarketData.price)
       .toString()
     const quoteDebtRepaidAmountUsd = fromThorBaseUnit(quote.expected_debt_repaid).toString()
     const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
@@ -203,7 +201,6 @@ export const useLendingQuoteCloseQuery = ({
       selectLendingCloseQueryData({
         data,
         collateralAssetMarketData,
-        repaymentAssetMarketData,
         repaymentAmountCryptoPrecision,
       }),
     enabled: Boolean(
@@ -214,7 +211,6 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
-        repaymentAssetMarketData.price !== '0' &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAmountCryptoPrecision,
     ),

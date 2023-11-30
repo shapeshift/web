@@ -86,7 +86,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     defaultIsOpen = false,
     ...rest
   }) => {
-    console.log({ shapeShiftFee })
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
     const [showFeeModal, setShowFeeModal] = useState(false)

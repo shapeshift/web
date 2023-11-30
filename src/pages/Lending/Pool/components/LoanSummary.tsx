@@ -164,7 +164,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {(bnOrZero(lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision).gt(0) ||
         bnOrZero(lendingQuoteData?.quoteCollateralAmountCryptoPrecision).gt(0)) && (
         <Row>
-          <HelperTooltip label='TBD'>
+          <HelperTooltip label={translate('lending.quote.collateral')}>
             <Row.Label>{translate('lending.collateral')}</Row.Label>
           </HelperTooltip>
           <Row.Value>
@@ -201,7 +201,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </Row>
       )}
       <Row>
-        <HelperTooltip label='TBD'>
+        <HelperTooltip label={translate('lending.quote.debt')}>
           <Row.Label>{translate('lending.debt')}</Row.Label>
         </HelperTooltip>
         <Row.Value>
@@ -238,7 +238,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {!isRepay && (
         // This doesn't make sense for repayments - repayment lock shouldn't change when repaying, and will be zero'd out when fully repaying
         <Row>
-          <HelperTooltip label='TBD'>
+          <HelperTooltip label={translate('lending.quote.repaymentLock')}>
             <Row.Label>{translate('lending.repaymentLock')}</Row.Label>
           </HelperTooltip>
           <Row.Value>
@@ -254,7 +254,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {!isRepay && (
         // This doesn't make sense for repayments - the collateralization ratio won't change here
         <Row>
-          <HelperTooltip label='TBD'>
+          <HelperTooltip label={translate('lending.quote.collateralizationRatio')}>
             <Row.Label>{translate('lending.collateralizationRatio')}</Row.Label>
           </HelperTooltip>
           <Row.Value>
@@ -275,7 +275,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </Row>
       )}
       <Row>
-        <HelperTooltip label='TBD'>
+        <HelperTooltip label={translate('lending.poolDepthDescription')}>
           <Row.Label>{translate('lending.poolDepth')}</Row.Label>
         </HelperTooltip>
         <Row.Value>

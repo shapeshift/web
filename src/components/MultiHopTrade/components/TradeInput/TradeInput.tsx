@@ -12,7 +12,9 @@ import {
   Tooltip,
   useToken,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
@@ -20,6 +22,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { isAddress } from 'viem'
 import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -41,6 +44,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -171,17 +175,58 @@ export const TradeInput = memo(() => {
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
 
+  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
+    useAccountIds()
+
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
+    queryKey: [
+      'isSmartContractAddress',
+      {
+        userAddress: sellAssetAccountId
+          ? fromAccountId(sellAssetAccountId).account.toLowerCase()
+          : '',
+      },
+    ],
+    queryFn: () =>
+      isSmartContractAddress(
+        sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '',
+      ),
+    enabled: Boolean(sellAssetAccountId?.length),
+  })
+
+  const disableSmartContractSwap = useMemo(() => {
+    // Swappers other than THORChain shouldn't be affected by this limitation
+    if (activeSwapperName !== SwapperName.Thorchain) return false
+    if (!sellAssetAccountId) return false
+    // Not an EVM address - we can assume this isn't a smart contrac
+    if (
+      !isAddress(sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '')
+    )
+      return false
+
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress, activeSwapperName, sellAssetAccountId])
+
   const isLoading = useMemo(
     () =>
       isQuoteLoading ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
+      isAddressByteCodeLoading ||
       isSnapshotApiQueriesPending,
-    [isConfirmationLoading, isQuoteLoading, isSnapshotApiQueriesPending, isSupportedAssetsLoading],
+    [
+      isAddressByteCodeLoading,
+      isConfirmationLoading,
+      isQuoteLoading,
+      isSnapshotApiQueriesPending,
+      isSupportedAssetsLoading,
+    ],
   )
 
-  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds()
   const translate = useTranslate()
   const overlayTitle = useMemo(
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
@@ -267,9 +312,17 @@ export const TradeInput = memo(() => {
       manualReceiveAddressIsValidating ||
       isLoading ||
       !isSellAmountEntered ||
-      !activeQuote
+      !activeQuote ||
+      disableSmartContractSwap
     )
-  }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+  }, [
+    activeQuote,
+    disableSmartContractSwap,
+    isLoading,
+    isSellAmountEntered,
+    manualReceiveAddressIsValidating,
+    quoteHasError,
+  ])
 
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>

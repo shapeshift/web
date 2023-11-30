@@ -374,7 +374,8 @@ export const RepayInput = ({
         label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly
-        hideAmounts
+        // When repaying 100% of the loan, the user gets their collateral back
+        hideAmounts={bn(repaymentPercent).lt(100)}
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={collateralAssetSelectComponent}

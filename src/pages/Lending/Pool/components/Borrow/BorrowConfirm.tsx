@@ -14,7 +14,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -85,6 +85,7 @@ export const BorrowConfirm = ({
       waitForThorchainUpdate({ txId: _txId, skipOutbound: false }).promise,
   })
 
+  const [isLoanPending, setIsLoanPending] = useState(false)
   const lendingMutationStatus = useMutationState({
     filters: { mutationKey: [txId] },
     select: mutation => mutation.state.status,
@@ -97,6 +98,7 @@ export const BorrowConfirm = ({
     if (!txId) return
     ;(async () => {
       await mutateAsync(txId)
+      setIsLoanPending(false)
     })()
   }, [mutateAsync, txId])
 
@@ -165,6 +167,8 @@ export const BorrowConfirm = ({
       )
     )
       return
+
+    setIsLoanPending(true)
 
     const from = await getThorchainFromAddress({
       accountId: collateralAccountId,
@@ -289,7 +293,7 @@ export const BorrowConfirm = ({
               </Row>
             </Skeleton>
             <Row fontSize='sm' fontWeight='medium'>
-              <HelperTooltip label='tbd'>
+              <HelperTooltip label={translate('lending.quote.feesPlusSlippage')}>
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
               </HelperTooltip>
               <Row.Value>
@@ -330,6 +334,7 @@ export const BorrowConfirm = ({
               }
               disabled={
                 loanTxStatus === 'pending' ||
+                isLoanPending ||
                 isEstimatedFeesDataLoading ||
                 isEstimatedFeesDataError ||
                 isLendingQuoteLoading ||

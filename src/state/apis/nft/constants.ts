@@ -29,7 +29,11 @@ const NFT_NAME_BLACKLIST = [
   'ethstation',
   'jrnyclubnet',
   'jrnyclub.net',
+  '://',
 ]
+
+// This checks for whitespace only, url scheme, domain extension, and any explicit spam text not caught by the previous patterns
+const TOKEN_TEXT_REGEX_BLACKLIST = [/^\s*$/, /:\/\//, /\.[a-zA-Z]{2,4}/, /ETH\.\.\./]
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
 // e.g "$9999+ free giveaway *limited time only*" would not work without it
@@ -37,7 +41,10 @@ const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',
 )
-export const isSpammyNftText = (nftText: string) => nftNameBlacklistRegex.test(nftText)
+export const isSpammyNftText = (nftText: string) =>
+  nftText === '' || nftNameBlacklistRegex.test(nftText)
+export const isSpammyTokenText = (tokenText: string) =>
+  TOKEN_TEXT_REGEX_BLACKLIST.some(regex => regex.test(tokenText))
 const isSpammyDomain = (domain: string) =>
   NFT_DOMAINS_BLACKLIST.some(blacklistedDomain => domain.includes(blacklistedDomain))
 export const hasSpammyMedias = (medias: NftItem['medias']) =>

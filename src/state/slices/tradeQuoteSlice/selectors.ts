@@ -154,6 +154,10 @@ export const selectLastHop: Selector<ReduxState, TradeQuote['steps'][number] | u
     quote ? quote.steps[quote.steps.length - 1] : undefined,
   )
 
+// selects the second hop if it exists. This is different to "last hop"
+export const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
+  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
+
 export const selectFirstHopSellAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectFirstHop, firstHop =>
     firstHop ? firstHop.sellAsset : undefined,
@@ -445,7 +449,7 @@ export const selectQuoteFeeAmountUsd = createSelector(
 
 export const selectTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
-  swappers => swappers.tradeExecutionState,
+  swappers => swappers.tradeExecution.state,
 )
 
 // selects the account ID we're buying into for the first hop
@@ -485,7 +489,19 @@ export const selectLastHopSellAccountId = createSelector(
   },
 )
 
-export const selectInitialApprovalRequirements = createSelector(
-  selectTradeQuoteSlice,
-  swappers => swappers.initialApprovalRequirements,
+// selects the account ID we're selling from for the second hop if it exists. This is different to "last hop"
+export const selectSecondHopSellAccountId = createSelector(
+  selectIsActiveQuoteMultiHop,
+  selectFirstHopBuyAccountId,
+  (isMultiHopTrade, firstHopBuyAccountId) => {
+    // single hop trade - no sell account id for this hop as it doesn't exist
+    if (!isMultiHopTrade) return undefined
+
+    // multi hop trade - the second hop sell account id is the same as the first hop buy account id
+    return firstHopBuyAccountId
+  },
 )
+
+export const selectHopExecutionMetadata = createSelector(selectTradeQuoteSlice, swappers => {
+  return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
+})

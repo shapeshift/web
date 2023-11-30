@@ -47,6 +47,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
@@ -339,59 +340,29 @@ export const TradeInput = memo(() => {
   const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(() => {
-    if (activeQuote) {
-      if (isFoxDiscountsEnabled) {
-        const feeDiscountUserCurrency = bnOrZero(potentialDonationAmountUserCurrency)
-          .minus(_donationAmountUserCurrency)
-          .toString()
-        return {
-          shapeShiftFee: {
-            amountAfterDiscountUserCurrency: _donationAmountUserCurrency ?? '0',
-            amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
-            feeDiscountUserCurrency,
-            affiliateBps: affiliateBps ?? '0',
-            potentialAffiliateBps: potentialAffiliateBps ?? '0',
-            foxDiscountPercent: bnOrZero(feeDiscountUserCurrency)
-              .div(potentialDonationAmountUserCurrency ?? 0)
-              .toString(),
-          },
-        }
-      } else {
-        // The donation/shapeshiftFee vernacular is weird but expected for THOR, see https://github.com/shapeshift/web/pull/5230
-        if (
-          applyThorSwapAffiliateFees &&
-          activeSwapperName === SwapperName.Thorchain &&
-          activeQuote
-        ) {
-          return {
-            shapeshiftFee: {
-              amountAfterDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
-              amountBeforeDiscountUsd: potentialDonationAmountUserCurrency ?? '0',
-              amountBps: activeQuote.potentialAffiliateBps ?? '0',
-            },
-            donationAmountUserCurrency: undefined,
-          }
-        }
-
-        return { shapeShiftFee: undefined, _donationAmountUserCurrency }
-      }
-    }
-
-    return {
-      shapeShiftFee: undefined,
-      donationAmountUserCurrency: undefined,
-    }
-  }, [
-    activeQuote,
-    isFoxDiscountsEnabled,
-    potentialDonationAmountUserCurrency,
-    affiliateBps,
-    potentialAffiliateBps,
-    applyThorSwapAffiliateFees,
-    activeSwapperName,
-    _donationAmountUserCurrency,
-  ])
+  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(
+    () =>
+      calculateShapeShiftAndAffiliateFee({
+        quote: activeQuote,
+        isFoxDiscountsEnabled,
+        potentialDonationAmountUserCurrency,
+        donationAmountUserCurrency: _donationAmountUserCurrency,
+        affiliateBps,
+        potentialAffiliateBps,
+        applyThorSwapAffiliateFees,
+        swapperName: activeSwapperName,
+      }),
+    [
+      _donationAmountUserCurrency,
+      activeQuote,
+      activeSwapperName,
+      affiliateBps,
+      applyThorSwapAffiliateFees,
+      isFoxDiscountsEnabled,
+      potentialAffiliateBps,
+      potentialDonationAmountUserCurrency,
+    ],
+  )
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (

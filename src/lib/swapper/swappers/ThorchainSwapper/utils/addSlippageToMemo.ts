@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import { DEFAULT_STREAMING_NUM_SWAPS, LIMIT_PART_DELIMITER, MEMO_PART_DELIMITER } from './constants'
+import { MEMO_PART_DELIMITER } from './constants'
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = ({
@@ -13,7 +13,6 @@ export const addSlippageToMemo = ({
   isStreaming,
   chainId,
   affiliateBps,
-  streamingInterval,
 }: {
   expectedAmountOutThorBaseUnit: string
   affiliateFeesThorBaseUnit: string
@@ -22,9 +21,12 @@ export const addSlippageToMemo = ({
   chainId: ChainId
   affiliateBps: string
   isStreaming: boolean
-  streamingInterval: number
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
+
+  // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+  // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+  if (isStreaming) return quotedMemo
 
   // the missing element is the original limit with (optional, missing) streaming parameters
   const [prefix, pool, address, , affiliate, memoAffiliateBps] =
@@ -38,13 +40,7 @@ export const addSlippageToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  const updatedLimitComponent = isStreaming
-    ? [limitWithManualSlippage, streamingInterval, DEFAULT_STREAMING_NUM_SWAPS].join(
-        LIMIT_PART_DELIMITER,
-      )
-    : [limitWithManualSlippage]
-
-  const memo = [prefix, pool, address, updatedLimitComponent, affiliate, memoAffiliateBps].join(
+  const memo = [prefix, pool, address, limitWithManualSlippage, affiliate, memoAffiliateBps].join(
     MEMO_PART_DELIMITER,
   )
 

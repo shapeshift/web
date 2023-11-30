@@ -153,7 +153,7 @@ export const thorchainApi: SwapperApi = {
         const deadline = currentTimestamp + oneMinute
         const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
 
-        const data = encodeFunctionData({
+        const swapInData = encodeFunctionData({
           abi: [swapInAbiItem],
           functionName: 'swapIn',
           args: params,
@@ -161,7 +161,7 @@ export const thorchainApi: SwapperApi = {
 
         // FIXME: why is this request failing?
         const [{ gasLimit }, { average: gasFees }] = await Promise.all([
-          api.estimateGas({ data, from, to, value }),
+          api.estimateGas({ data: swapInData, from, to, value }),
           api.getGasFees(),
         ])
 
@@ -169,7 +169,7 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data,
+          data: swapInData,
           from,
           gasLimit,
           to,

@@ -21,7 +21,11 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText } from 'state/apis/nft/constants'
+import {
+  BLACKLISTED_COLLECTION_IDS,
+  isSpammyNftText,
+  isSpammyTokenText,
+} from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
@@ -103,19 +107,17 @@ export const initialState: TxHistory = {
 }
 
 const checkIsSpam = (tx: Tx): boolean => {
-  const transfers = tx.transfers
-  // Not an NFT, we don't need to filter this
-  if (!transfers.some(transfer => isNft(transfer.assetId))) return false
-  if (
-    transfers.some(
-      transfer =>
-        [transfer.token?.name ?? '', transfer.token?.symbol ?? ''].some(isSpammyNftText) ||
-        BLACKLISTED_COLLECTION_IDS.includes(transfer.assetId),
-    )
-  )
-    return true
+  return tx.transfers.some(({ assetId, token }) => {
+    if (!token) return false
 
-  return false
+    const { name, symbol } = token
+
+    if (isNft(assetId)) {
+      return [name, symbol].some(isSpammyNftText) || BLACKLISTED_COLLECTION_IDS.includes(assetId)
+    } else {
+      return [name, symbol].some(isSpammyTokenText)
+    }
+  })
 }
 
 /**
@@ -127,9 +129,7 @@ const checkIsSpam = (tx: Tx): boolean => {
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
   const { txs } = txHistory
 
-  const isSpam = checkIsSpam(tx)
-
-  if (isSpam) return
+  if (checkIsSpam(tx)) return
 
   const txIndex = serializeTxIndex(accountId, tx.txid, tx.address, tx.data)
 

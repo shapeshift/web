@@ -85,7 +85,7 @@ export const snapshotApi = createApi({
 
         // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
         if (isNaN(foxHeld)) {
-          const data = `Invalid foxHeld value: ${foxHeld}`
+          const data = 'NaN foxHeld value'
           return { error: { data, status: 400 } }
         }
 

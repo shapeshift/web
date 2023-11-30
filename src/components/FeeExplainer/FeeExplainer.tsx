@@ -303,15 +303,10 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 type FeeExplainerProps = CardProps
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
-  const { data: currentFoxHoldings, isLoading } = useGetVotingPowerQuery()
+  const { data: currentFoxHoldings } = useGetVotingPowerQuery()
   const [tradeSize, setTradeSize] = useState(FEE_CURVE_NO_FEE_THRESHOLD_USD) // default to max below free so we have a value
   const [foxHolding, setFoxHolding] = useState(bnOrZero(currentFoxHoldings).toNumber())
   const translate = useTranslate()
-
-  useEffect(() => {
-    if (isLoading) return
-    if (currentFoxHoldings) setFoxHolding(Number(currentFoxHoldings) || 0)
-  }, [currentFoxHoldings, isLoading])
 
   return (
     <Stack maxWidth='600px' width='full' mx='auto' spacing={0}>

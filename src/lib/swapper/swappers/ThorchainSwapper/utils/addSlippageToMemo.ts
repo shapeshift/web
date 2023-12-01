@@ -7,7 +7,6 @@ import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
 
 export const addSlippageToMemo = ({
   expectedAmountOutThorBaseUnit,
-  affiliateFeesThorBaseUnit,
   quotedMemo,
   slippageBps,
   isStreaming,
@@ -15,7 +14,6 @@ export const addSlippageToMemo = ({
   affiliateBps,
 }: {
   expectedAmountOutThorBaseUnit: string
-  affiliateFeesThorBaseUnit: string
   quotedMemo: string | undefined
   slippageBps: BigNumber.Value
   chainId: ChainId
@@ -33,9 +31,7 @@ export const addSlippageToMemo = ({
     quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
-    bn(expectedAmountOutThorBaseUnit)
-      .minus(affiliateFeesThorBaseUnit)
-      .toFixed(0, BigNumber.ROUND_DOWN),
+    bn(expectedAmountOutThorBaseUnit).toFixed(0, BigNumber.ROUND_DOWN),
     slippageBps,
     BigNumber.ROUND_DOWN,
   )

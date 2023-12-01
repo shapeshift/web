@@ -191,7 +191,6 @@ export const getL1quote = async (
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
               slippageBps,
               chainId: sellAsset.chainId,
@@ -276,7 +275,6 @@ export const getL1quote = async (
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
               slippageBps,
               isStreaming,
@@ -374,7 +372,6 @@ export const getL1quote = async (
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
-              affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
               slippageBps,
               isStreaming,

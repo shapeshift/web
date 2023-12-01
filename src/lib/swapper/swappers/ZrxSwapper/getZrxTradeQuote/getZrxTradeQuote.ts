@@ -20,6 +20,7 @@ export async function getZrxTradeQuote(
     accountNumber,
     receiveAddress,
     affiliateBps,
+    potentialAffiliateBps,
     chainId,
     supportsEIP1559,
     slippageTolerancePercentage,
@@ -100,6 +101,7 @@ export async function getZrxTradeQuote(
     return Ok({
       id: uuid(),
       receiveAddress,
+      potentialAffiliateBps,
       affiliateBps,
       slippageTolerancePercentage,
       rate,

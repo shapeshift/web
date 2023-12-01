@@ -24,7 +24,11 @@ export type GetTradeQuoteInputArgs = {
   receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
-  affiliateBps?: string
+  // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
+  potentialAffiliateBps: string
+  // Actual affiliate bps - if the FOX discounts is off, this will be the same as *affiliateBps*
+  // Otherwise, it will be the affiliate bps after the FOX discount is applied
+  affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
 }
@@ -40,6 +44,7 @@ export const getTradeQuoteArgs = async ({
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
   affiliateBps,
+  potentialAffiliateBps,
   slippageTolerancePercentage,
   pubKey,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
@@ -54,6 +59,7 @@ export const getTradeQuoteArgs = async ({
     receiveAddress,
     accountNumber: sellAccountNumber,
     affiliateBps: affiliateBps ?? '0',
+    potentialAffiliateBps: potentialAffiliateBps ?? '0',
     allowMultiHop,
     slippageTolerancePercentage,
   }

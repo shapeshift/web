@@ -149,8 +149,8 @@ export const thorchainApi: SwapperApi = {
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
         const amountOutMin: bigint = BigInt(0) // todo: the buy amount
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
-        const oneMinute = BigInt(60)
-        const deadline = currentTimestamp + oneMinute
+        const tenMinutes = BigInt(600)
+        const deadline = currentTimestamp + tenMinutes
         const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
 
         const swapInData = encodeFunctionData({

@@ -41,6 +41,8 @@ export const getLongtailToL1Quote = async (
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
   const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
+  const AGGREGATOR_CONTRACT = '0x1C0Ee4030f771a1BB8f72C86150730d063f6b3ff' // TSAggregatorUniswapV3 500
+  const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
   const tokenA = getTokenFromAsset(input.sellAsset)
   const tokenB = getWrappedToken(nativeBuyAsset)
@@ -110,13 +112,14 @@ export const getLongtailToL1Quote = async (
     .andThen(quotes => {
       const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
         ...q,
-        router: '0x1C0Ee4030f771a1BB8f72C86150730d063f6b3ff', // TSAggregatorUniswapV3 500
+        router: AGGREGATOR_CONTRACT,
         steps: q.steps.map(s => ({
           ...s,
           // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           sellAsset: input.sellAsset,
+          allowanceContract: ALLOWANCE_CONTRACT,
         })),
       }))
 

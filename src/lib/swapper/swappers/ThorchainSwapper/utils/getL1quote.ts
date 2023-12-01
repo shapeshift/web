@@ -22,10 +22,7 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
@@ -55,7 +52,7 @@ export const getL1quote = async (
   const inputSlippageBps = convertDecimalPercentageToBasisPoints(
     slippageTolerancePercentage ??
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-  ).toString()
+  )
 
   const maybeSwapQuote = await getQuote({
     sellAsset,
@@ -109,15 +106,15 @@ export const getL1quote = async (
   const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
     source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,
     quote,
-    // expected receive amount after slippage (no affiliate_fee or liquidity_fee taken out of this value)
-    // TODO: slippage is currently being applied on expected_amount_out which is emit_asset - outbound_fee,
-    //       should slippage actually be applied on emit_asset?
-    expectedAmountOutThorBaseUnit: subtractBasisPointAmount(
-      quote.expected_amount_out,
-      quote.fees.slippage_bps,
-    ),
+    // don't take affiliate fee into account, this will be displayed as a separate line item
+    expectedAmountOutThorBaseUnit: bnOrZero(quote.expected_amount_out)
+      .plus(bnOrZero(quote.fees.affiliate))
+      .toFixed(),
     isStreaming,
     affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
+    // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+    // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+    slippageBps: isStreaming ? bn(0) : inputSlippageBps,
     estimatedExecutionTimeMs: quote.total_swap_seconds
       ? 1000 * quote.total_swap_seconds
       : undefined,
@@ -187,6 +184,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            slippageBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -195,11 +193,10 @@ export const getL1quote = async (
               expectedAmountOutThorBaseUnit,
               affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
+              slippageBps,
               chainId: sellAsset.chainId,
               affiliateBps,
               isStreaming,
-              streamingInterval,
             })
             const { data, router } = await getEvmThorTxInfo({
               sellAsset,
@@ -272,6 +269,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            slippageBps,
           }): Promise<ThorTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -280,11 +278,10 @@ export const getL1quote = async (
               expectedAmountOutThorBaseUnit,
               affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
+              slippageBps,
               isStreaming,
               chainId: sellAsset.chainId,
               affiliateBps,
-              streamingInterval,
             })
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
@@ -364,6 +361,7 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
+            slippageBps,
           }): ThorTradeQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
@@ -378,11 +376,10 @@ export const getL1quote = async (
               expectedAmountOutThorBaseUnit,
               affiliateFeesThorBaseUnit: quote.fees.affiliate,
               quotedMemo: quote.memo,
-              slippageBps: inputSlippageBps,
+              slippageBps,
               isStreaming,
               chainId: sellAsset.chainId,
               affiliateBps,
-              streamingInterval,
             })
 
             return {

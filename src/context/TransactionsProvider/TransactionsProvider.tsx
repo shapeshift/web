@@ -1,6 +1,6 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -157,7 +157,10 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   )
 
   const maybeRefetchVotingPower = useCallback(
-    ({ status }: Transaction) => {
+    ({ status }: Transaction, chainId: ChainId) => {
+      // Only refetch voting power for EVM ChainIds. Refetching at Tx history provider is so we can refetch voting power on a best-effort basis,
+      // and we should probably do some king of interval refetching instead of relying on Tx history
+      if (!isEvmChainId(chainId)) return
       if (status !== TxStatus.Confirmed) return
 
       // Always refetch voting power on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
@@ -233,7 +236,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
               )
 
-              maybeRefetchVotingPower(msg)
+              maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)
               maybeRefetchNfts(msg)
 

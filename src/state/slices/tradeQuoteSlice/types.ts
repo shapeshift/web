@@ -44,6 +44,17 @@ export const MULTI_HOP_EXECUTION_STATE_ORDERED = [
   MultiHopExecutionState.TradeComplete,
 ]
 
+export type StreamingSwapFailedSwap = {
+  reason: string
+  swapIndex: number
+}
+
+export type StreamingSwapMetadata = {
+  attemptedSwapCount: number
+  totalSwapCount: number
+  failedSwaps: StreamingSwapFailedSwap[]
+}
+
 export type HopExecutionMetadata = {
   state: HopExecutionState
   approvalRequired?: boolean
@@ -52,4 +63,5 @@ export type HopExecutionMetadata = {
   swapState?: TxStatus
   swapSellTxHash?: string
   swapBuyTxHash?: string
+  streamingSwap?: StreamingSwapMetadata
 }

@@ -47,6 +47,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: false,
     rate: '137845.94361267605633802817',
     data: '0x',
@@ -80,6 +81,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: true,
     rate: '151555.07377464788732394366',
     data: '0x',

@@ -49,6 +49,7 @@ type CommonTradeInput = {
   receiveAddress: string
   accountNumber: number
   receiveAccountNumber?: number
+  potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentage?: string
@@ -103,6 +104,7 @@ export type TradeQuote = {
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string
   receiveAccountNumber?: number
+  potentialAffiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   isStreaming?: boolean
   slippageTolerancePercentage?: string

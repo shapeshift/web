@@ -13,6 +13,7 @@ export const setupQuote = () => {
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: undefined,
+    potentialAffiliateBps: undefined,
     rate: '1',
     steps: [
       {
@@ -42,6 +43,7 @@ export const setupQuote = () => {
     accountNumber: 0,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
     slippageTolerancePercentage: DEFAULT_SLIPPAGE,

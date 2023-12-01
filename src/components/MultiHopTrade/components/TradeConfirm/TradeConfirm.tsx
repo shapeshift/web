@@ -45,6 +45,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -55,6 +56,8 @@ import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
+  selectActiveQuoteAffiliateBps,
+  selectActiveQuotePotentialDonationBps,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -66,6 +69,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
+  selectPotentialDonationAmountUserCurrency,
   selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
@@ -149,11 +153,11 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const quoteAffiliateFeeFiatPrecision = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const { executeTrade, sellTxHash, buyTxHash, tradeStatus: status } = useTradeExecution()
 
@@ -196,19 +200,36 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const { shapeShiftFee, donationAmount } = useMemo(() => {
-    if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && tradeQuote) {
-      return {
-        shapeShiftFee: {
-          amountFiatPrecision: quoteAffiliateFeeFiatPrecision ?? '0',
-          amountBps: tradeQuote.affiliateBps ?? '0',
-        },
-        donationAmount: undefined,
-      }
-    }
+  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
+  const potentialDonationAmountUserCurrency = useAppSelector(
+    selectPotentialDonationAmountUserCurrency,
+  )
+  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
+  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-    return { shapeShiftFee: undefined, donationAmount: quoteAffiliateFeeFiatPrecision }
-  }, [applyThorSwapAffiliateFees, swapperName, tradeQuote, quoteAffiliateFeeFiatPrecision])
+  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(
+    () =>
+      calculateShapeShiftAndAffiliateFee({
+        quote: tradeQuote,
+        isFoxDiscountsEnabled,
+        potentialDonationAmountUserCurrency,
+        donationAmountUserCurrency: _donationAmountUserCurrency,
+        affiliateBps,
+        potentialAffiliateBps,
+        applyThorSwapAffiliateFees,
+        swapperName,
+      }),
+    [
+      _donationAmountUserCurrency,
+      affiliateBps,
+      applyThorSwapAffiliateFees,
+      isFoxDiscountsEnabled,
+      potentialAffiliateBps,
+      potentialDonationAmountUserCurrency,
+      swapperName,
+      tradeQuote,
+    ],
+  )
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -379,11 +400,11 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
+          donationAmountUserCurrency={donationAmountUserCurrency}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
-          donationAmount={donationAmount}
         />
       </>
     ),
@@ -398,10 +419,10 @@ export const TradeConfirm = () => {
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
       shapeShiftFee,
+      donationAmountUserCurrency,
       slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
-      donationAmount,
     ],
   )
 

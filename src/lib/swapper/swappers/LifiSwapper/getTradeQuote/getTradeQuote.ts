@@ -38,6 +38,7 @@ export async function getTradeQuote(
     slippageTolerancePercentage,
     supportsEIP1559,
     affiliateBps,
+    potentialAffiliateBps,
   } = input
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -225,6 +226,7 @@ export async function getTradeQuote(
         id: selectedLifiRoute.id,
         receiveAddress,
         affiliateBps,
+        potentialAffiliateBps,
         steps,
         rate: netRate,
         selectedLifiRoute,

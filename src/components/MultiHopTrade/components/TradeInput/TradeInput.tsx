@@ -52,7 +52,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/types'
 import { isKeplrHDWallet } from 'lib/utils'
-import { selectIsSnapshotApiQueriesPending } from 'state/apis/snapshot/selectors'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -175,6 +175,14 @@ export const TradeInput = memo(() => {
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const votingPower = useAppSelector(selectVotingPower)
+
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
+
+  console.log({ isSnapshotApiQueriesPending, votingPower })
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -218,13 +226,16 @@ export const TradeInput = memo(() => {
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isAddressByteCodeLoading ||
-      isSnapshotApiQueriesPending,
+      // Only consider snapshot API queries as pending if we don't have voting power yet
+      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
+      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
+      isVotingPowerLoading,
     [
       isAddressByteCodeLoading,
       isConfirmationLoading,
       isQuoteLoading,
-      isSnapshotApiQueriesPending,
       isSupportedAssetsLoading,
+      isVotingPowerLoading,
     ],
   )
 

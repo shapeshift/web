@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,6 +37,8 @@ type BorrowProps = {
   setBorrowAsset: (asset: Asset | null) => void
   txId: string | null
   setTxid: (txId: string | null) => void
+  confirmedQuote: LendingQuoteOpen | null
+  setConfirmedQuote: (quote: LendingQuoteOpen | null) => void
 }
 export const Borrow = ({
   borrowAsset,
@@ -49,6 +52,8 @@ export const Borrow = ({
   setCryptoDepositAmount,
   txId,
   setTxid,
+  confirmedQuote,
+  setConfirmedQuote,
 }: BorrowProps) => {
   const [fiatDepositAmount, setFiatDepositAmount] = useState<string | null>(null)
 
@@ -87,6 +92,7 @@ export const Borrow = ({
         setBorrowAsset={setBorrowAsset}
         collateralAssetId={collateralAssetId}
         cryptoDepositAmount={depositAmountCryptoPrecision}
+        setDepositAmount={setCryptoDepositAmount}
         fiatDepositAmount={fiatDepositAmount}
         onDepositAmountChange={handleDepositAmountChange}
         collateralAccountId={collateralAccountId}
@@ -96,6 +102,8 @@ export const Borrow = ({
         onBorrowAccountIdChange={handleBorrowAccountIdChange}
         txId={txId}
         setTxid={setTxid}
+        confirmedQuote={confirmedQuote}
+        setConfirmedQuote={setConfirmedQuote}
       />
     </MemoryRouter>
   )
@@ -106,6 +114,7 @@ type BorrowRoutesProps = {
   setBorrowAsset: (asset: Asset | null) => void
   collateralAssetId: AssetId
   cryptoDepositAmount: string | null
+  setDepositAmount: (amount: string | null) => void
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
   isAccountSelectionDisabled?: boolean
@@ -115,6 +124,8 @@ type BorrowRoutesProps = {
   onBorrowAccountIdChange: (accountId: AccountId) => void
   txId: string | null
   setTxid: (txId: string | null) => void
+  confirmedQuote: LendingQuoteOpen | null
+  setConfirmedQuote: (quote: LendingQuoteOpen | null) => void
 }
 
 const BorrowRoutes = memo(
@@ -123,6 +134,7 @@ const BorrowRoutes = memo(
     setBorrowAsset,
     collateralAssetId,
     cryptoDepositAmount,
+    setDepositAmount,
     fiatDepositAmount,
     isAccountSelectionDisabled,
     onDepositAmountChange,
@@ -132,6 +144,8 @@ const BorrowRoutes = memo(
     onBorrowAccountIdChange: handleBorrowAccountIdChange,
     txId,
     setTxid,
+    confirmedQuote,
+    setConfirmedQuote,
   }: BorrowRoutesProps) => {
     const location = useLocation()
 
@@ -149,6 +163,8 @@ const BorrowRoutes = memo(
           onDepositAmountChange={onDepositAmountChange}
           borrowAsset={borrowAsset}
           setBorrowAsset={setBorrowAsset}
+          confirmedQuote={confirmedQuote}
+          setConfirmedQuote={setConfirmedQuote}
         />
       ),
       [
@@ -163,6 +179,8 @@ const BorrowRoutes = memo(
         onDepositAmountChange,
         borrowAsset,
         setBorrowAsset,
+        confirmedQuote,
+        setConfirmedQuote,
       ],
     )
 
@@ -181,21 +199,27 @@ const BorrowRoutes = memo(
         <BorrowConfirm
           collateralAssetId={collateralAssetId}
           depositAmount={cryptoDepositAmount}
+          setDepositAmount={setDepositAmount}
           borrowAccountId={borrowAccountId}
           collateralAccountId={collateralAccountId}
           borrowAsset={borrowAsset}
           txId={txId}
           setTxid={setTxid}
+          confirmedQuote={confirmedQuote}
+          setConfirmedQuote={setConfirmedQuote}
         />
       ),
       [
         collateralAssetId,
         cryptoDepositAmount,
+        setDepositAmount,
         borrowAccountId,
         collateralAccountId,
         borrowAsset,
         txId,
         setTxid,
+        confirmedQuote,
+        setConfirmedQuote,
       ],
     )
 

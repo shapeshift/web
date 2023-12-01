@@ -4,6 +4,7 @@ import { Box, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import type { ReactElement } from 'react'
 import React from 'react'
+import { shallowEqual } from 'react-redux'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransitionX } from 'components/SlideTransitionX'
 import { Text } from 'components/Text'
@@ -33,6 +34,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
   const mergedProps = newValue ? { ...previousProps, ...newValue } : previousProps
   const clonedComponent = React.cloneElement(component, mergedProps)
   const previousComponent = React.cloneElement(component, previousProps)
+  const shouldShowNewValue = newValue !== undefined && !shallowEqual(previousProps, mergedProps)
   return (
     <Stack spacing={0} {...rest}>
       <Flex gap={2} alignItems='center'>
@@ -44,7 +46,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
           <Skeleton isLoaded={!isLoading}>{previousComponent}</Skeleton>
         </Box>
         <AnimatePresence exitBeforeEnter>
-          {newValue !== undefined ? (
+          {shouldShowNewValue ? (
             <SlideTransitionX key={`${label}-new-value`}>
               <Flex gap={2} alignItems='center'>
                 <ArrowForwardIcon color='text.subtle' />

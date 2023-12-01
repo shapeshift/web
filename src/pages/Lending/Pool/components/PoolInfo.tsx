@@ -36,8 +36,14 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     [asset?.symbol, poolData?.totalCollateralCryptoPrecision],
   )
   const totalDebtBalance = useMemo(
-    () => <Amount.Fiat fontSize='2xl' value={poolData?.totalDebtUSD ?? '0'} fontWeight='medium' />,
-    [poolData?.totalDebtUSD],
+    () => (
+      <Amount.Fiat
+        fontSize='2xl'
+        value={poolData?.totalDebtUserCurrency ?? 0}
+        fontWeight='medium'
+      />
+    ),
+    [poolData?.totalDebtUserCurrency],
   )
   const estCollateralizationRatioComponent = useMemo(
     () => (

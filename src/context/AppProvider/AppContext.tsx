@@ -155,6 +155,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch fox voting power
   useEffect(() => {
+    if (!requestedAccountIds.length) return
     if (portfolioLoadingStatus === 'loading') return
     dispatch(snapshotApi.endpoints.getVotingPower.initiate(requestedAccountIds))
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
@@ -174,6 +175,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     ;(async () => {
+      if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints

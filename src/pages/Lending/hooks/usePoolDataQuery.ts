@@ -4,6 +4,8 @@ import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
+import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
   const poolDataQueryKey: [string, { assetId: AssetId }] = useMemo(
@@ -44,6 +46,8 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
       const totalCollateralCryptoPrecision = fromThorBaseUnit(totalCollateral).toString()
       const totalDebtUSD = fromThorBaseUnit(totalDebt).toString()
+      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+      const totalDebtUserCurrency = bnOrZero(totalDebtUSD).times(userCurrencyToUsdRate).toString()
 
       const collateralizationRatioPercent = bnOrZero(poolInfo.loan_cr).div(100)
       const collateralizationRatioPercentDecimal = bnOrZero(collateralizationRatioPercent)
@@ -53,7 +57,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
       return {
         totalBorrowers,
         totalCollateralCryptoPrecision,
-        totalDebtUSD,
+        totalDebtUserCurrency,
         collateralizationRatioPercentDecimal,
       }
     },

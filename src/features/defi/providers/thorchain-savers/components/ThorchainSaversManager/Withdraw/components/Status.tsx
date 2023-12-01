@@ -2,6 +2,7 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -83,16 +84,18 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && contextDispatch) {
       ;(async () => {
-        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
-        // This way, we ensure "View Position" actually routes to the updated position
-        await waitForThorchainUpdate({ txHash: confirmedTransaction.txid, skipOutbound: true })
-          .promise
+        // Ensuring we wait for the outbound Tx to exist
+        // Note, the transaction we wait for here is a Thorchain transaction, *not* the inbound Tx
+        const thorchainTxStatus = await waitForThorchainUpdate({
+          txId: confirmedTransaction.txid,
+          skipOutbound: false,
+        }).promise
 
-        if (confirmedTransaction.status === 'Confirmed') {
+        if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {
           contextDispatch({
             type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
             payload: {
-              txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
+              txStatus: thorchainTxStatus === TxStatusType.Confirmed ? 'success' : 'failed',
             },
           })
         }

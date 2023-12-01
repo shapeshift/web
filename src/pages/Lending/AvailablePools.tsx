@@ -13,6 +13,7 @@ import { RawText, Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
 
 import { LendingHeader } from './components/LendingHeader'
+import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
@@ -29,6 +30,15 @@ type LendingPoolButtonProps = {
 const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+
+  const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
+    assetId: asset.assetId,
+  })
+
+  const isLoaded = useMemo(
+    () => !isPoolDataLoading && !isLendingPositionDataLoading,
+    [isLendingPositionDataLoading, isPoolDataLoading],
+  )
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)
@@ -48,7 +58,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       onClick={handlePoolClick}
     >
       <AssetCell assetId={asset.assetId} />
-      <Skeleton isLoaded={!isPoolDataLoading}>
+      <Skeleton isLoaded={isLoaded}>
         <Flex>
           <Tag colorScheme='green'>
             <TagLeftIcon as={CheckCircleIcon} />
@@ -56,19 +66,19 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
           </Tag>
         </Flex>
       </Skeleton>
-      <Skeleton isLoaded={!isPoolDataLoading}>
-        <Amount.Fiat value={poolData?.totalDebtUSD ?? '0'} />
+      <Skeleton isLoaded={isLoaded}>
+        <Amount.Fiat value={poolData?.totalDebtUserCurrency ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={!isPoolDataLoading}>
+      <Skeleton isLoaded={isLoaded}>
         <Amount.Crypto
           value={poolData?.totalCollateralCryptoPrecision ?? '0'}
           symbol={asset.symbol}
         />
       </Skeleton>
-      <Skeleton isLoaded={!isPoolDataLoading}>
+      <Skeleton isLoaded={isLoaded}>
         <Amount.Percent value={poolData?.collateralizationRatioPercentDecimal ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={!isPoolDataLoading}>
+      <Skeleton isLoaded={isLoaded}>
         <RawText>{poolData?.totalBorrowers ?? '0'}</RawText>
       </Skeleton>
     </Button>

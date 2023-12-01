@@ -1,7 +1,6 @@
 const baseStyle = {
   // select the indicator part
   indicator: {
-    // change the default border radius to 0
     '&[data-status=active]': {
       bg: 'background.surface.raised.base',
       borderColor: 'blue.500',
@@ -25,6 +24,26 @@ const baseStyle = {
   },
 }
 
+const variants = {
+  error: {
+    indicator: {
+      '&[data-status=active]': {
+        bg: 'background.surface.raised.base',
+        borderColor: 'red.500',
+      },
+      '&[data-status=incomplete]': {
+        bg: 'background.surface.raised.base',
+        borderColor: 'border.base',
+      },
+      '&[data-status=complete]': {
+        bg: 'background.error',
+      },
+    },
+  },
+  // other variants if needed
+}
+
 export const stepperTheme = {
   baseStyle,
+  variants,
 }

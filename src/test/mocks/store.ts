@@ -191,4 +191,8 @@ export const mockStore: ReduxState = {
       secondHop: { state: HopExecutionState.Pending },
     },
   },
+  snapshot: {
+    votingPower: undefined,
+    strategies: undefined,
+  },
 }

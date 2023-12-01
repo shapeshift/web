@@ -26,7 +26,7 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { setTimeoutAsync } from 'lib/utils'
 import { nftApi } from 'state/apis/nft/nftApi'
-import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -154,9 +154,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
-  useGetVotingPowerQuery(undefined, {
-    skip: !isFoxDiscountsEnabled || portfolioLoadingStatus === 'loading',
-  })
+  useEffect(() => {
+    if (!isFoxDiscountsEnabled) return
+    if (portfolioLoadingStatus === 'loading') return
+
+    dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+  }, [dispatch, portfolioLoadingStatus, isFoxDiscountsEnabled])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

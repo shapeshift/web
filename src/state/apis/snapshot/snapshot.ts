@@ -1,7 +1,9 @@
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
+import { PURGE } from 'redux-persist'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import type { ReduxState } from 'state/reducer'
@@ -15,13 +17,35 @@ type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 
+const initialState: {
+  votingPower: string | undefined
+  strategies: Strategy[] | undefined
+} = {
+  votingPower: undefined,
+  strategies: undefined,
+}
+
+export const snapshot = createSlice({
+  name: 'snapshot',
+  initialState,
+  reducers: {
+    setVotingPower: (state, { payload }: { payload: string }) => {
+      state.votingPower = payload
+    },
+    setStrategies: (state, { payload }: { payload: Strategy[] }) => {
+      state.strategies = payload
+    },
+  },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
+})
+
 export const snapshotApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'snapshotApi',
   endpoints: build => ({
     getStrategies: build.query<Strategy[], void>({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
-      queryFn: async () => {
+      queryFn: async (_, { dispatch }) => {
         const query = `
           query {
             space(id: "${SNAPSHOT_SPACE}") {
@@ -41,6 +65,7 @@ export const snapshotApi = createApi({
         )
         try {
           const { strategies } = SnapshotSchema.parse(resData).data.space
+          dispatch(snapshot.actions.setStrategies(strategies))
           return { data: strategies }
         } catch (e) {
           console.error('snapshotApi getStrategies', e)
@@ -52,8 +77,13 @@ export const snapshotApi = createApi({
       queryFn: async (_, { dispatch, getState }) => {
         const accountIds: AccountId[] =
           (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
-        const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
-        const strategies = strategiesResult?.data
+        const strategies = await (async () => {
+          const maybeSliceStragies = (getState() as ReduxState).snapshot.strategies
+          if (maybeSliceStragies) return maybeSliceStragies
+
+          const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
+          return strategiesResult?.data
+        })()
         if (!strategies) {
           console.log('snapshotApi getVotingPower could not get strategies')
           return { data: bn(0).toString() }
@@ -89,10 +119,9 @@ export const snapshotApi = createApi({
           return { error: { data, status: 400 } }
         }
 
+        dispatch(snapshot.actions.setVotingPower(foxHeld.toString()))
         return { data: foxHeld.toString() }
       },
     }),
   }),
 })
-
-export const { useGetVotingPowerQuery } = snapshotApi

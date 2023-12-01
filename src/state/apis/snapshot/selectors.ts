@@ -7,3 +7,5 @@ const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.querie
 export const selectIsSnapshotApiQueriesPending = createSelector(selectSnapshotApiQueries, queries =>
   Object.values(queries).some(query => query?.status === QueryStatus.pending),
 )
+
+export const selectVotingPower = (state: ReduxState) => state.snapshot.votingPower

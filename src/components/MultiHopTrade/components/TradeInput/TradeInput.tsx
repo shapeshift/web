@@ -456,7 +456,7 @@ export const TradeInput = memo(() => {
       slippageDecimal,
       totalNetworkFeeFiatPrecision,
       totalProtocolFees,
-      tradeQuoteStep,
+      tradeQuoteStep?.source,
     ],
   )
 

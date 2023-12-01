@@ -502,6 +502,9 @@ export const selectSecondHopSellAccountId = createSelector(
   },
 )
 
-export const selectHopExecutionMetadata = createSelector(selectTradeQuoteSlice, swappers => {
-  return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
-})
+export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  swappers => {
+    return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
+  },
+)

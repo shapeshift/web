@@ -55,8 +55,8 @@ export const HopTransactionStep = ({
   const {
     state: hopExecutionState,
     swapState: txState,
-    swapSellTxHash: buyTxHash,
-    swapBuyTxHash: sellTxHash,
+    swapSellTxHash: sellTxHash,
+    swapBuyTxHash: buyTxHash,
   } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
 
   const {
@@ -151,12 +151,21 @@ export const HopTransactionStep = ({
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap sellTxHash={sellTxHash} />
+            <StreamingSwap hopIndex={hopIndex} />
           </CardBody>
         </Card>
       )
     }
-  }, [handleSignTx, isActive, sellTxHash, signIcon, tradeQuoteStep, translate, txStatus])
+  }, [
+    handleSignTx,
+    hopIndex,
+    isActive,
+    sellTxHash,
+    signIcon,
+    tradeQuoteStep.source,
+    translate,
+    txStatus,
+  ])
 
   const errorTranslation = useMemo(
     (): [string, Polyglot.InterpolationOptions] => ['trade.swapFailed', { tradeType }],

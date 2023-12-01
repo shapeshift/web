@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TradeQuote } from 'lib/swapper/types'
 
-import type { HopExecutionMetadata } from './types'
+import type { HopExecutionMetadata, StreamingSwapMetadata } from './types'
 import { HopExecutionState, MultiHopExecutionState } from './types'
 import { getHopExecutionStates, getNextTradeExecutionState } from './utils'
 
@@ -125,6 +125,12 @@ export const tradeQuoteSlice = createSlice({
     },
     setSecondHopSwapBuyTxHash: (state, action: PayloadAction<string>) => {
       state.tradeExecution.secondHop.swapBuyTxHash = action.payload
+    },
+    setFirstHopStreamingSwapMeta: (state, action: PayloadAction<StreamingSwapMetadata>) => {
+      state.tradeExecution.firstHop.streamingSwap = action.payload
+    },
+    setSecondHopStreamingSwapMeta: (state, action: PayloadAction<StreamingSwapMetadata>) => {
+      state.tradeExecution.secondHop.streamingSwap = action.payload
     },
   },
 })

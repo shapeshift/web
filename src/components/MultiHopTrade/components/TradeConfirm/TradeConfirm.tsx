@@ -421,9 +421,9 @@ export const TradeConfirm = () => {
       shapeShiftFee,
       slippageDecimal,
       swapperName,
-      tradeQuoteStep?.source,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
+      tradeQuoteStep?.source,
       translate,
     ],
   )

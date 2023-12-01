@@ -11,6 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isSome } from 'lib/utils'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -155,6 +156,17 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     [],
   )
 
+  const maybeRefetchVotingPower = useCallback(
+    ({ status }: Transaction) => {
+      if (status !== TxStatus.Confirmed) return
+
+      // Always refetch voting power on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
+      // strategies e.g Hedgeys has updated
+      dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+    },
+    [dispatch],
+  )
+
   const maybeRefetchNfts = useCallback(
     ({ transfers, status }: Transaction) => {
       if (status !== TxStatus.Confirmed) return
@@ -221,6 +233,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
               )
 
+              maybeRefetchVotingPower(msg)
               maybeRefetchOpportunities(msg, accountId)
               maybeRefetchNfts(msg)
 
@@ -247,6 +260,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     wallet,
     maybeRefetchOpportunities,
     maybeRefetchNfts,
+    maybeRefetchVotingPower,
   ])
 
   return <>{children}</>

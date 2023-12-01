@@ -1,12 +1,12 @@
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect } from 'react'
 import { sleep } from 'lib/poll/poll'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type {
-  StreamingSwapFailedSwap,
-  StreamingSwapMetadata,
+import {
+  type StreamingSwapFailedSwap,
+  type StreamingSwapMetadata,
+  TransactionExecutionState,
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -31,8 +31,12 @@ export const useMockAllowanceApproval = (
 
   const executeAllowanceApproval = useCallback(() => {
     isFirstHop
-      ? dispatch(tradeQuoteSlice.actions.setFirstHopApprovalState(TxStatus.Pending))
-      : dispatch(tradeQuoteSlice.actions.setSecondHopApprovalState(TxStatus.Pending))
+      ? dispatch(
+          tradeQuoteSlice.actions.setFirstHopApprovalState(TransactionExecutionState.Pending),
+        )
+      : dispatch(
+          tradeQuoteSlice.actions.setSecondHopApprovalState(TransactionExecutionState.Pending),
+        )
 
     const promise = new Promise((resolve, _reject) => {
       setTimeout(() => {
@@ -45,7 +49,9 @@ export const useMockAllowanceApproval = (
             )
       }, 2000)
       setTimeout(() => {
-        const finalStatus = MOCK_FAIL_APPROVAL ? TxStatus.Failed : TxStatus.Confirmed
+        const finalStatus = MOCK_FAIL_APPROVAL
+          ? TransactionExecutionState.Failed
+          : TransactionExecutionState.Complete
 
         isFirstHop
           ? dispatch(tradeQuoteSlice.actions.setFirstHopApprovalState(finalStatus))
@@ -71,8 +77,8 @@ export const useMockTradeExecution = (isFirstHop: boolean) => {
   const executeTrade = useCallback(() => {
     const promise = new Promise((resolve, _reject) => {
       isFirstHop
-        ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(TxStatus.Pending))
-        : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(TxStatus.Pending))
+        ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(TransactionExecutionState.Pending))
+        : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(TransactionExecutionState.Pending))
 
       setTimeout(() => {
         isFirstHop
@@ -80,7 +86,9 @@ export const useMockTradeExecution = (isFirstHop: boolean) => {
           : dispatch(tradeQuoteSlice.actions.setSecondHopSwapSellTxHash('second_hop_sell_tx_hash'))
       }, 2000)
       setTimeout(() => {
-        const finalStatus = MOCK_FAIL_SWAP ? TxStatus.Failed : TxStatus.Confirmed
+        const finalStatus = MOCK_FAIL_SWAP
+          ? TransactionExecutionState.Failed
+          : TransactionExecutionState.Complete
         isFirstHop
           ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(finalStatus))
           : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(finalStatus))
@@ -106,9 +114,9 @@ export const useMockThorStreamingProgress = (
   failedSwaps: StreamingSwapFailedSwap[]
 } => {
   const dispatch = useAppDispatch()
-  const { swapSellTxHash: sellTxHash, streamingSwap: streamingSwapMeta } = useAppSelector(
-    selectHopExecutionMetadata,
-  )[hopIndex]
+  const {
+    swap: { sellTxHash, streamingSwap: streamingSwapMeta },
+  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
 
   const streamingSwapExecutionStarted = streamingSwapMeta !== undefined
 

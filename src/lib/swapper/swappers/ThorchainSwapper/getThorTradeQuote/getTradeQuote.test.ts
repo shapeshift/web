@@ -167,7 +167,8 @@ describe('getTradeQuote', () => {
           if ((url as string).includes('streaming_interval')) {
             mockThorQuote.data.expected_amount_out = '11232161'
             mockThorQuote.data.fees.slippage_bps = 420
-            mockThorQuote.data.memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
+            mockThorQuote.data.memo =
+              '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
           }
 
           return Promise.resolve(Ok(mockThorQuote))

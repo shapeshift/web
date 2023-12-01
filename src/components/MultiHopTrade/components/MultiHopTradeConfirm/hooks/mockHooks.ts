@@ -1,16 +1,25 @@
-import type { ProgressProps } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useState } from 'react'
-import type { FailedSwap } from 'components/MultiHopTrade/hooks/useThorStreamingProgress/useThorStreamingProgress'
+import { useCallback, useEffect } from 'react'
 import { sleep } from 'lib/poll/poll'
 import type { TradeQuoteStep } from 'lib/swapper/types'
+import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch } from 'state/store'
+import type {
+  StreamingSwapFailedSwap,
+  StreamingSwapMetadata,
+} from 'state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 // toggle this to force the mock hooks to always fail - useful for testing failure modes
 const MOCK_FAIL_APPROVAL = false
 const MOCK_FAIL_SWAP = false
-const MOCK_FAIL_STREAMING_SWAP = false
+const MOCK_FAIL_STREAMING_SWAP = true
+
+const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
+  attemptedSwapCount: 0,
+  totalSwapCount: 0,
+  failedSwaps: [],
+}
 
 // TODO: remove me
 export const useMockAllowanceApproval = (
@@ -89,55 +98,88 @@ export const useMockTradeExecution = (isFirstHop: boolean) => {
 
 // TODO: remove me
 export const useMockThorStreamingProgress = (
-  txHash: string | undefined,
-  _isThorStreamingSwap: boolean,
+  hopIndex: number,
 ): {
-  progressProps: ProgressProps
+  isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number
-  failedSwaps: FailedSwap[]
+  failedSwaps: StreamingSwapFailedSwap[]
 } => {
-  const [failedSwaps, setFailedSwaps] = useState<FailedSwap[]>([])
-  const [quantity, setQuantity] = useState<number>(0)
-  const [count, setCount] = useState<number>(0)
+  const dispatch = useAppDispatch()
+  const { swapSellTxHash: sellTxHash, streamingSwap: streamingSwapMeta } = useAppSelector(
+    selectHopExecutionMetadata,
+  )[hopIndex]
+
+  const streamingSwapExecutionStarted = streamingSwapMeta !== undefined
 
   useEffect(() => {
-    if (!txHash) return
+    if (!sellTxHash || streamingSwapExecutionStarted) return
     ;(async () => {
-      setQuantity(3)
-      await sleep(1500)
-      setCount(1)
+      const setStreamingSwapMeta =
+        hopIndex === 0
+          ? tradeQuoteSlice.actions.setFirstHopStreamingSwapMeta
+          : tradeQuoteSlice.actions.setSecondHopStreamingSwapMeta
 
-      // mock the middle swap failing
-      await sleep(1500)
-      setCount(2)
-      MOCK_FAIL_STREAMING_SWAP &&
-        // TODO: store this metadata in redux so we can display it in the summary after completion
-        setFailedSwaps([
-          {
-            reason: 'mock reason',
-            swapIndex: 1,
-          },
-        ])
+      dispatch(
+        setStreamingSwapMeta({
+          totalSwapCount: 3,
+          attemptedSwapCount: 0,
+          failedSwaps: [],
+        }),
+      )
 
       await sleep(1500)
-      setCount(3)
+
+      dispatch(
+        setStreamingSwapMeta({
+          totalSwapCount: 3,
+          attemptedSwapCount: 1,
+          failedSwaps: [],
+        }),
+      )
+
+      await sleep(1500)
+
+      dispatch(
+        setStreamingSwapMeta({
+          totalSwapCount: 3,
+          attemptedSwapCount: 2,
+          failedSwaps: MOCK_FAIL_STREAMING_SWAP
+            ? [
+                {
+                  reason: 'mock reason',
+                  swapIndex: 1,
+                },
+              ]
+            : [],
+        }),
+      )
+
+      await sleep(1500)
+
+      dispatch(
+        setStreamingSwapMeta({
+          totalSwapCount: 3,
+          attemptedSwapCount: 3,
+          failedSwaps: MOCK_FAIL_STREAMING_SWAP
+            ? [
+                {
+                  reason: 'mock reason',
+                  swapIndex: 1,
+                },
+              ]
+            : [],
+        }),
+      )
     })()
-  }, [txHash])
+  }, [dispatch, hopIndex, sellTxHash, streamingSwapExecutionStarted])
 
-  const isComplete = count === quantity
+  const isComplete =
+    streamingSwapMeta !== undefined &&
+    streamingSwapMeta.attemptedSwapCount === streamingSwapMeta.totalSwapCount
 
   return {
-    progressProps: {
-      min: 0,
-      max: quantity,
-      value: count,
-      hasStripe: true,
-      isAnimated: !isComplete,
-      colorScheme: isComplete ? 'green' : 'blue',
-    },
-    attemptedSwapCount: count ?? 0,
-    totalSwapCount: quantity ?? 0,
-    failedSwaps,
+    ...(streamingSwapMeta ?? DEFAULT_STREAMING_SWAP_METADATA),
+    isComplete,
   }
 }

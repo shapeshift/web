@@ -44,6 +44,7 @@ export const getL1quote = async (
     accountNumber,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
+    potentialAffiliateBps,
     slippageTolerancePercentage,
   } = input
 
@@ -64,7 +65,6 @@ export const getL1quote = async (
   })
 
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
-  // TODO: we'll probably turn this into an aggregate quote
   const swapQuote = maybeSwapQuote.unwrap()
 
   const maybeStreamingSwapQuote = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
@@ -215,6 +215,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               data,
@@ -308,6 +309,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [
@@ -384,6 +386,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [

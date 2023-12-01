@@ -1,47 +1,81 @@
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { TradeQuote } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 
-import { FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS } from './parameters'
+type CalculateShapeShiftAndAffiliateFeeArgs = {
+  quote: TradeQuote | undefined
+  isFoxDiscountsEnabled: boolean
+  potentialDonationAmountUserCurrency: string | undefined
+  donationAmountUserCurrency: string
+  affiliateBps: string | undefined
+  potentialAffiliateBps: string | undefined
+  applyThorSwapAffiliateFees: boolean
+  swapperName: SwapperName | undefined
+}
 
-dayjs.extend(duration)
-const ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS = 12.08
+type ShapeShiftFee = {
+  amountAfterDiscountUserCurrency: string
+  amountBeforeDiscountUserCurrency: string
+  feeDiscountUserCurrency: string
+  affiliateBps: string
+  potentialAffiliateBps: string
+  foxDiscountPercent: string
+}
 
-export const findClosestFoxDiscountDelayBlockNumber = async (): Promise<number> => {
-  const currentBlock = await getEthersProvider().getBlockNumber()
-  const dayjsDelay = dayjs.duration(FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS, 'hours')
-  const targetTimestamp = dayjs().subtract(dayjsDelay).unix()
-  // Define a tolerance window as half of the average block time.
-
-  let startBlock = currentBlock
-  let closestBlockNumber: number | null = null
-
-  // Interpolate to find a smarter starting point.
-  const currentBlockInfo = await getEthersProvider().getBlock(currentBlock)
-  const timeDifference = currentBlockInfo.timestamp - targetTimestamp
-  const blocksToMove = Math.floor(timeDifference / ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS)
-
-  startBlock -= blocksToMove
-
-  while (closestBlockNumber === null) {
-    const startBlockInfo = await getEthersProvider().getBlock(startBlock)
-
-    if (
-      Math.abs(targetTimestamp - startBlockInfo.timestamp) <= ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS
-    ) {
-      closestBlockNumber = startBlock
-    } else {
-      // Calculate how many blocks to jump based on time difference and average block time
-      const timeDifference = Math.abs(targetTimestamp - startBlockInfo.timestamp)
-      const blocksToJump = Math.floor(timeDifference / ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS)
-
-      if (startBlockInfo.timestamp > targetTimestamp) {
-        startBlock -= blocksToJump || 1 // In case blocksToJump calculates to 0, default to 1
-      } else {
-        startBlock += blocksToJump || 1 // In case blocksToJump calculates to 0, default to 1
+export const calculateShapeShiftAndAffiliateFee = ({
+  quote,
+  isFoxDiscountsEnabled,
+  potentialDonationAmountUserCurrency,
+  donationAmountUserCurrency,
+  affiliateBps,
+  potentialAffiliateBps,
+  applyThorSwapAffiliateFees,
+  swapperName,
+}: CalculateShapeShiftAndAffiliateFeeArgs): {
+  shapeShiftFee: ShapeShiftFee | undefined
+  donationAmountUserCurrency: string | undefined
+} => {
+  if (quote) {
+    if (isFoxDiscountsEnabled) {
+      const feeDiscountUserCurrency = bnOrZero(potentialDonationAmountUserCurrency)
+        .minus(donationAmountUserCurrency)
+        .toString()
+      return {
+        shapeShiftFee: {
+          amountAfterDiscountUserCurrency: donationAmountUserCurrency ?? '0',
+          amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+          feeDiscountUserCurrency,
+          affiliateBps: affiliateBps ?? '0',
+          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          foxDiscountPercent: bnOrZero(feeDiscountUserCurrency)
+            .div(potentialDonationAmountUserCurrency ?? 0)
+            .toString(),
+        },
+        donationAmountUserCurrency: undefined,
       }
+    } else {
+      // The donation/shapeshiftFee vernacular is weird but expected for THOR,
+      // see https://github.com/shapeshift/web/pull/5230
+      if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && quote) {
+        return {
+          shapeShiftFee: {
+            amountAfterDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+            amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
+            affiliateBps: quote.potentialAffiliateBps ?? '0',
+            foxDiscountPercent: '0',
+            potentialAffiliateBps: potentialAffiliateBps ?? '0',
+            feeDiscountUserCurrency: '0',
+          },
+          donationAmountUserCurrency: undefined,
+        }
+      }
+
+      return { shapeShiftFee: undefined, donationAmountUserCurrency }
     }
   }
 
-  return closestBlockNumber
+  return {
+    shapeShiftFee: undefined,
+    donationAmountUserCurrency: undefined,
+  }
 }

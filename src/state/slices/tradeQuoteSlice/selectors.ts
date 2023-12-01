@@ -387,21 +387,27 @@ export const selectSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectActiveQuoteDonationBps: Selector<ReduxState, string | undefined> =
+export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefined> =
   createSelector(selectActiveQuote, activeQuote => {
     if (!activeQuote) return
     return activeQuote.affiliateBps
   })
 
+export const selectActiveQuotePotentialDonationBps: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, activeQuote => {
+    if (!activeQuote) return
+    return activeQuote.potentialAffiliateBps
+  })
+
 export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(
-    selectActiveQuote,
     selectSellAmountUserCurrency,
-    (activeQuote, sellAmountUserCurrency) => {
-      if (activeQuote?.affiliateBps === undefined) return undefined
+    selectActiveQuotePotentialDonationBps,
+    (sellAmountUserCurrency, potentialAffiliateBps) => {
+      if (potentialAffiliateBps === undefined) return undefined
       else {
         const affiliatePercentage = convertBasisPointsToDecimalPercentage(
-          activeQuote.affiliateBps ?? '0',
+          potentialAffiliateBps ?? '0',
         )
         // The donation amount is a percentage of the sell amount
         return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
@@ -409,23 +415,35 @@ export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, str
     },
   )
 
+export const selectPotentialDonationAmountUsd: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectPotentialDonationAmountUserCurrency,
+    selectUserCurrencyToUsdRate,
+    (donationAmountUserCurrency, userCurrencyToUsdRate) => {
+      if (donationAmountUserCurrency === undefined) return undefined
+
+      return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
+    },
+  )
+
 export const selectQuoteDonationAmountUserCurrency = createSelector(
   selectActiveQuote,
   selectSellAmountUserCurrency,
-  (activeQuote, sellAmountUserCurrency) => {
-    if (!activeQuote) return
-    const affiliatePercentage = activeQuote.affiliateBps
-      ? convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
+  selectActiveQuoteAffiliateBps,
+  (activeQuote, sellAmountUserCurrency, affiliateBps) => {
+    if (!activeQuote) return '0'
+    const affiliatePercentage = affiliateBps
+      ? convertBasisPointsToDecimalPercentage(affiliateBps)
       : 0
-    // The donation amount is a percentage of the sell amount
+    // The fee amount is a percentage of the sell amount
     return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
   },
 )
-export const selectQuoteDonationAmountUsd = createSelector(
+export const selectQuoteFeeAmountUsd = createSelector(
   selectQuoteDonationAmountUserCurrency,
   selectUserCurrencyToUsdRate,
-  (donationAmountUserCurrency, userCurrencyToUsdRate) => {
-    return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
+  (feeAmountUserCurrency, userCurrencyToUsdRate) => {
+    return bnOrZero(feeAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )
 
@@ -484,6 +502,9 @@ export const selectSecondHopSellAccountId = createSelector(
   },
 )
 
-export const selectHopExecutionMetadata = createSelector(selectTradeQuoteSlice, swappers => {
-  return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
-})
+export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  swappers => {
+    return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
+  },
+)

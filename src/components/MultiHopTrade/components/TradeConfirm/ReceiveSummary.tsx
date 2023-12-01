@@ -1,21 +1,33 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Collapse,
   Divider,
+  Flex,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Skeleton,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, memo, useCallback, useMemo } from 'react'
+import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
@@ -28,6 +40,8 @@ import {
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { FeeBreakdown } from './FeeBreakdown'
+
 type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
@@ -37,14 +51,21 @@ type ReceiveSummaryProps = {
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
   shapeShiftFee?: {
-    amountFiatPrecision: string
-    amountBps: string
+    amountBeforeDiscountUserCurrency: string
+    amountAfterDiscountUserCurrency: string
+    feeDiscountUserCurrency?: string
+    potentialAffiliateBps: string
+    affiliateBps: string
+    foxDiscountPercent: string
   }
   slippageDecimalPercentage: string
   swapperName: string
-  donationAmount?: string
+  donationAmountUserCurrency?: string
+  defaultIsOpen?: boolean
   swapSource?: SwapSource
 } & RowProps
+
+const ShapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
 
 const tradeFeeSourceTranslation: TextPropTypes['translation'] = [
   'trade.tradeFeeSource',
@@ -63,16 +84,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     slippageDecimalPercentage,
     swapperName,
     isLoading,
-    donationAmount,
+    donationAmountUserCurrency,
+    defaultIsOpen = false,
     swapSource,
     ...rest
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure()
+    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+    const [showFeeModal, setShowFeeModal] = useState(false)
     const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
+    const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -117,6 +141,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
       return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
     }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+
+    const handleFeeModal = useCallback(() => {
+      if (!isFoxDiscountsEnabled) return
+      setShowFeeModal(!showFeeModal)
+    }, [isFoxDiscountsEnabled, showFeeModal])
 
     const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
       () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
@@ -212,34 +241,47 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row>
               <Row.Label display='flex'>
                 <Text translation={tradeFeeSourceTranslation} />
-                {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' && (
-                  <RawText>&nbsp;{` (${shapeShiftFee.amountBps} bps)`}</RawText>
+                {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' && (
+                  <RawText>&nbsp;{`(${shapeShiftFee.affiliateBps} bps)`}</RawText>
                 )}
               </Row.Label>
-              <Row.Value>
+              <Row.Value
+                onClick={handleFeeModal}
+                _hover={isFoxDiscountsEnabled ? ShapeShiftFeeModalRowHover : undefined}
+              >
                 <Skeleton isLoaded={!isLoading}>
-                  {shapeShiftFee && shapeShiftFee.amountFiatPrecision !== '0' ? (
-                    <Amount.Fiat value={shapeShiftFee.amountFiatPrecision} />
-                  ) : (
-                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  )}
+                  <Flex alignItems='center' gap={2}>
+                    {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' ? (
+                      <>
+                        <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUserCurrency} />
+                        {isFoxDiscountsEnabled && <QuestionIcon />}
+                      </>
+                    ) : (
+                      <>
+                        <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                        {isFoxDiscountsEnabled && <QuestionIcon color={greenColor} />}
+                      </>
+                    )}
+                  </Flex>
                 </Skeleton>
               </Row.Value>
             </Row>
-            {donationAmount && donationAmount !== '0' && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.donation')}>
-                  <Row.Label>
-                    <Text translation='trade.donation' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Fiat value={donationAmount} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
+            {!isFoxDiscountsEnabled &&
+              donationAmountUserCurrency &&
+              donationAmountUserCurrency !== '0' && (
+                <Row>
+                  <HelperTooltip label={translate('trade.tooltip.donation')}>
+                    <Row.Label>
+                      <Text translation='trade.donation' />
+                    </Row.Label>
+                  </HelperTooltip>
+                  <Row.Value>
+                    <Skeleton isLoaded={!isLoading}>
+                      <Amount.Fiat value={donationAmountUserCurrency} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
             {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE && (
               <>
                 <Divider borderColor='border.base' />
@@ -279,6 +321,35 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             )}
           </Stack>
         </Collapse>
+        <Modal isOpen={showFeeModal} onClose={handleFeeModal} size='lg'>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalCloseButton />
+            <Tabs variant='button'>
+              <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
+                <Tab>{translate('foxDiscounts.feeSummary')}</Tab>
+                <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel p={0}>
+                  <FeeBreakdown
+                    feeBps={shapeShiftFee?.affiliateBps ?? '0'}
+                    feeUserCurrency={shapeShiftFee?.amountAfterDiscountUserCurrency ?? '0'}
+                    foxDiscountPercent={shapeShiftFee?.foxDiscountPercent ?? '0'}
+                    feeBeforeDiscountUserCurrency={
+                      shapeShiftFee?.amountBeforeDiscountUserCurrency ?? '0'
+                    }
+                    feeDiscountUserCurrency={shapeShiftFee?.feeDiscountUserCurrency ?? '0'}
+                    feeBpsBeforeDiscount={shapeShiftFee?.potentialAffiliateBps ?? '0'}
+                  />
+                </TabPanel>
+                <TabPanel px={0} py={0}>
+                  <FeeExplainer borderRadius='none' bg='transparent' boxShadow='none' />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </ModalContent>
+        </Modal>
       </>
     )
   },

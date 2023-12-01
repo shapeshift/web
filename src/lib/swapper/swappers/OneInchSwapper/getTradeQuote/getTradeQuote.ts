@@ -27,6 +27,7 @@ export async function getTradeQuote(
     buyAsset,
     accountNumber,
     affiliateBps,
+    potentialAffiliateBps,
     supportsEIP1559,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -91,6 +92,7 @@ export async function getTradeQuote(
       id: uuid(),
       receiveAddress,
       affiliateBps,
+      potentialAffiliateBps,
       rate,
       steps: [
         {

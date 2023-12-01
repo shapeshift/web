@@ -182,8 +182,6 @@ export const TradeInput = memo(() => {
     [isSnapshotApiQueriesPending, votingPower],
   )
 
-  console.log({ isSnapshotApiQueriesPending, votingPower })
-
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
 

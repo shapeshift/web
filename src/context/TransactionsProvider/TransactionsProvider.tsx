@@ -1,6 +1,6 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -11,6 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isSome } from 'lib/utils'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -155,6 +156,20 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     [],
   )
 
+  const maybeRefetchVotingPower = useCallback(
+    ({ status }: Transaction, chainId: ChainId) => {
+      // Only refetch voting power for EVM ChainIds. Refetching at Tx history provider is so we can refetch voting power on a best-effort basis,
+      // and we should probably do some king of interval refetching instead of relying on Tx history
+      if (!isEvmChainId(chainId)) return
+      if (status !== TxStatus.Confirmed) return
+
+      // Always refetch voting power on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
+      // strategies e.g Hedgeys has updated
+      dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+    },
+    [dispatch],
+  )
+
   const maybeRefetchNfts = useCallback(
     ({ transfers, status }: Transaction) => {
       if (status !== TxStatus.Confirmed) return
@@ -221,6 +236,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
               )
 
+              maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)
               maybeRefetchNfts(msg)
 
@@ -247,6 +263,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     wallet,
     maybeRefetchOpportunities,
     maybeRefetchNfts,
+    maybeRefetchVotingPower,
   ])
 
   return <>{children}</>

@@ -16,7 +16,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/types'
 import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
-import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
@@ -140,12 +140,15 @@ export const useGetTradeQuotes = () => {
 
   const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
 
-  const { data: foxHeld, isLoading: isFoxHeldLoading } = useGetVotingPowerQuery(undefined, {
-    skip: !isFoxDiscountsEnabled,
-  })
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const votingPower = useAppSelector(selectVotingPower)
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
 
   useEffect(() => {
-    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isFoxHeldLoading) {
+    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
@@ -161,10 +164,10 @@ export const useGetTradeQuotes = () => {
           if (!isFoxDiscountsEnabled) return potentialAffiliateBps
 
           // free trades if there's an error getting foxHeld
-          if (foxHeld === undefined) return '0'
+          if (votingPower === undefined) return '0'
 
           const affiliateBps = mayDonate
-            ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(foxHeld) }).feeBps.toFixed(0)
+            ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(votingPower) }).feeBps.toFixed(0)
             : '0'
 
           return affiliateBps
@@ -217,8 +220,7 @@ export const useGetTradeQuotes = () => {
     sellAccountMetadata,
     sellAmountCryptoPrecision,
     sellAsset,
-    foxHeld,
-    isFoxHeldLoading,
+    votingPower,
     tradeQuoteInput,
     wallet,
     userMayDonate,
@@ -227,6 +229,7 @@ export const useGetTradeQuotes = () => {
     isFoxDiscountsEnabled,
     sellAssetUsdRate,
     sellAccountId,
+    isVotingPowerLoading,
   ])
 
   useEffect(() => {

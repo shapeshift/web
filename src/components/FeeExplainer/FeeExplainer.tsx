@@ -25,7 +25,8 @@ import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
-import { useGetVotingPowerQuery } from 'state/apis/snapshot/snapshot'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
 import { FeeSliders } from './FeeSliders'
@@ -303,9 +304,10 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 type FeeExplainerProps = CardProps
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
-  const { data: currentFoxHoldings } = useGetVotingPowerQuery()
+  const votingPower = useAppSelector(selectVotingPower)
+
   const [tradeSize, setTradeSize] = useState(FEE_CURVE_NO_FEE_THRESHOLD_USD) // default to max below free so we have a value
-  const [foxHolding, setFoxHolding] = useState(bnOrZero(currentFoxHoldings).toNumber())
+  const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
   const translate = useTranslate()
 
   return (
@@ -321,7 +323,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
             setTradeSize={setTradeSize}
             foxHolding={foxHolding}
             setFoxHolding={setFoxHolding}
-            currentFoxHoldings={currentFoxHoldings ?? '0'}
+            currentFoxHoldings={votingPower ?? '0'}
           />
         </CardBody>
       </Card>

@@ -127,10 +127,11 @@ export const RepayInput = ({
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
   useEffect(() => {
-    if (!lendingSupportedAssets) return
+    if (!(lendingSupportedAssets && collateralAsset)) return
+    if (repaymentAsset) return
 
-    setRepaymentAsset(lendingSupportedAssets[0])
-  }, [lendingSupportedAssets, setRepaymentAsset])
+    setRepaymentAsset(collateralAsset)
+  }, [collateralAsset, lendingSupportedAssets, repaymentAsset, setRepaymentAsset])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {

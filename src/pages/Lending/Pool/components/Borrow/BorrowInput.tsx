@@ -91,13 +91,15 @@ export const BorrowInput = ({
 
   const { data: borrowAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
-  useEffect(() => {
-    if (!borrowAssets) return
-
-    if (!borrowAsset) setBorrowAsset(borrowAssets[0])
-  }, [borrowAsset, borrowAssets, setBorrowAsset])
-
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+
+  useEffect(() => {
+    if (!(collateralAsset && borrowAssets)) return
+    if (borrowAsset) return
+
+    if (!borrowAsset) setBorrowAsset(collateralAsset)
+  }, [borrowAsset, borrowAssets, collateralAsset, setBorrowAsset])
+
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const percentOptions = useMemo(() => [0], [])

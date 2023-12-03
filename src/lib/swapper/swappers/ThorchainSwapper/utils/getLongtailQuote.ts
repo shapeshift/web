@@ -102,7 +102,7 @@ export const getLongtailToL1Quote = async (
 
   return thorchainQuotes
     .mapErr(e => {
-      console.error('Thorchain quote error:', e)
+      console.error(e)
       return makeSwapErrorRight({
         message: 'makeSwapperAxiosServiceMonadic',
         cause: e,

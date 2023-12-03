@@ -44,7 +44,7 @@ import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 export const getL1quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
-  tradeType?: TradeType,
+  tradeType: TradeType | undefined,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,

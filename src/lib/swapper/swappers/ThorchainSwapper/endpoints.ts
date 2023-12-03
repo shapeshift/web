@@ -1,5 +1,6 @@
 import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -10,7 +11,6 @@ import assert from 'assert'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -25,6 +25,8 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from 'lib/swapper/types'
+import { assertUnreachable } from 'lib/utils'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { viemClientByChainId } from 'lib/viem-client'
@@ -125,7 +127,7 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.LongTailToL1: {
-        const l1AssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+        const l1AssetId: AssetId = assertGetEvmChainAdapter(chainId).getFeeAssetId()
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
         const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, l1AssetId)
         assert(
@@ -180,8 +182,9 @@ export const thorchainApi: SwapperApi = {
       }
       case TradeType.L1ToLongTail:
       case TradeType.LongTailToLongTail:
-      default:
         throw Error(`Unsupported trade type: ${TradeType}`)
+      default:
+        assertUnreachable(tradeType)
     }
   },
 

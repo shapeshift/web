@@ -159,7 +159,6 @@ export const thorchainApi: SwapperApi = {
           args: params,
         })
 
-        // FIXME: why is this request failing?
         const [{ gasLimit }, { average: gasFees }] = await Promise.all([
           api.estimateGas({ data: swapInData, from, to, value }),
           api.getGasFees(),

@@ -12875,23 +12875,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/chains@npm:0.1.9":
-  version: 0.1.9
-  resolution: "@wagmi/chains@npm:0.1.9"
-  checksum: da2dcfccb105cebe0b6c58604adffaa99c6a9179782716d0be8ff0c4eeb6a88d23f4e09c22bdb85e0157fdbe7baea3c4244e582cc4512f98527c3432eadc5f36
+"@wagmi/chains@npm:0.1.14":
+  version: 0.1.14
+  resolution: "@wagmi/chains@npm:0.1.14"
+  checksum: 6f93d8c14e08f3b4ea4ce90b1d32454c3b2ac879c5dbe22b16f23b7d05b7b36677919f5690ced6c03ab92632bf47ed37d31b8ac67ed33ec76e69d9757c04a4b1
   languageName: node
   linkType: hard
 
-"@wagmi/connectors@npm:0.1.7":
-  version: 0.1.7
-  resolution: "@wagmi/connectors@npm:0.1.7"
+"@wagmi/connectors@npm:0.1.10":
+  version: 0.1.10
+  resolution: "@wagmi/connectors@npm:0.1.10"
   dependencies:
     "@coinbase/wallet-sdk": ^3.5.4
     "@ledgerhq/connect-kit-loader": ^1.0.1
     "@walletconnect/ethereum-provider": ^1.8.0
-    "@walletconnect/qrcode-modal": ^1.8.0
-    "@walletconnect/universal-provider": ^2.2.0
-    abitype: ^0.1.8
+    "@walletconnect/universal-provider": ^2.2.1
+    "@web3modal/standalone": ^2.0.0-rc.2
     eventemitter3: ^4.0.7
   peerDependencies:
     "@wagmi/core": 0.8.x
@@ -12899,7 +12898,7 @@ __metadata:
   peerDependenciesMeta:
     "@wagmi/core":
       optional: true
-  checksum: f5b4af6ec8c097a702f3448d04b6ec928ee0868f349b1b75418e2c00505fda56209c77d4772938fcd06ad564e7c48cbf0d02b4e5f524a43f24ae64f6cf2d0dac
+  checksum: a7591fc1ad7335de5d35beafc84919b1d8bf95dc2eb854da05624d8c00ba59de19c4d15379ee91977845f29041530bbf4a1d3a158effdf7a788a454afda57d34
   languageName: node
   linkType: hard
 
@@ -12927,12 +12926,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/core@npm:0.8.14":
-  version: 0.8.14
-  resolution: "@wagmi/core@npm:0.8.14"
+"@wagmi/core@npm:0.8.19":
+  version: 0.8.19
+  resolution: "@wagmi/core@npm:0.8.19"
   dependencies:
-    "@wagmi/chains": 0.1.9
-    "@wagmi/connectors": 0.1.7
+    "@wagmi/chains": 0.1.14
+    "@wagmi/connectors": 0.1.10
     abitype: ^0.2.5
     eventemitter3: ^4.0.7
     zustand: ^4.3.1
@@ -12945,7 +12944,7 @@ __metadata:
       optional: true
     "@walletconnect/ethereum-provider":
       optional: true
-  checksum: 793a10b6db62d0ff7fdb77347d6a5a44704fcfd885bc0e5ea27581bf7f2a0f1c292c171d944851c736e4f046f735c4710d2319e4058a53166e534cbb46cad51e
+  checksum: 6baf8cd1818a97bc67d0ba1a1ee0ed1686d23fa840d2d62ba1ee066fb387288713b26f17621c09d1021caf0ee4a52b334351e26b11179628a231b02b8e113728
   languageName: node
   linkType: hard
 
@@ -13660,7 +13659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/universal-provider@npm:^2.2.0":
+"@walletconnect/universal-provider@npm:^2.2.1":
   version: 2.10.6
   resolution: "@walletconnect/universal-provider@npm:2.10.6"
   dependencies:
@@ -13798,6 +13797,38 @@ __metadata:
     "@walletconnect/window-getters": ^1.0.1
     tslib: 1.14.1
   checksum: e82aea7195c6fe95c00e87bb38051c5549838c2e8302da94f1afa48206f79f0b620166c9820f847494505d282d1568e2086a1561b0493d2d0a1fa115f9106aef
+  languageName: node
+  linkType: hard
+
+"@web3modal/core@npm:2.4.3":
+  version: 2.4.3
+  resolution: "@web3modal/core@npm:2.4.3"
+  dependencies:
+    buffer: 6.0.3
+    valtio: 1.10.5
+  checksum: af18f7c44266ed767830091e542eac69726a6f6c535024ad1b050bf5f406169bbea4a7f5e5e10f3415b08b4937e5a10f48d7c7f9f3e98742b84493753dfbc5b9
+  languageName: node
+  linkType: hard
+
+"@web3modal/standalone@npm:^2.0.0-rc.2":
+  version: 2.4.3
+  resolution: "@web3modal/standalone@npm:2.4.3"
+  dependencies:
+    "@web3modal/core": 2.4.3
+    "@web3modal/ui": 2.4.3
+  checksum: 3a5c6b93522f9c888979141f785f760aa27511be7b1a2de30bf3be5a4ee934dd0273b9e161aca5c4e10d6fe47c43cb66ef391a370e5bce7530ef1014867e4bb8
+  languageName: node
+  linkType: hard
+
+"@web3modal/ui@npm:2.4.3":
+  version: 2.4.3
+  resolution: "@web3modal/ui@npm:2.4.3"
+  dependencies:
+    "@web3modal/core": 2.4.3
+    lit: 2.7.5
+    motion: 10.16.2
+    qrcode: 1.5.3
+  checksum: 2198229f88b4242b5346ce0b2d3806e74c8014e21416f50ef4d7dc17a9d91485fd2146610dba7f9ff507b7b590342b66eddc70915a4b49a646d7bcab0e9b7859
   languageName: node
   linkType: hard
 
@@ -14188,15 +14219,6 @@ __metadata:
     zod:
       optional: true
   checksum: d7d887f29d6821e3f7a400de9620511b80ead3f85c5c87308aaec97965d3493e6687ed816e88722b4f512249bd66dee9e69231b49af0e1db8f69400a62c87cf6
-  languageName: node
-  linkType: hard
-
-"abitype@npm:^0.1.8":
-  version: 0.1.8
-  resolution: "abitype@npm:0.1.8"
-  peerDependencies:
-    typescript: ">=4.7.4"
-  checksum: 75db603ca20adaafd66c1097ab190cde333868ce5d5328b670574bd7e99dea92d1857eb5ff24405e4828c7cdaa0fec88142a4cff7883523b8ea2b8c328e8be45
   languageName: node
   linkType: hard
 
@@ -25840,12 +25862,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lit-html@npm:^2.8.0":
+"lit-html@npm:^2.7.0, lit-html@npm:^2.8.0":
   version: 2.8.0
   resolution: "lit-html@npm:2.8.0"
   dependencies:
     "@types/trusted-types": ^2.0.2
   checksum: 2d70df07248bcb2f502a3afb1e91d260735024fa669669ffb1417575aa39c3092779725ac1b90f5f39e4ce78c63f431f51176bc67f532389f0285a6991573255
+  languageName: node
+  linkType: hard
+
+"lit@npm:2.7.5":
+  version: 2.7.5
+  resolution: "lit@npm:2.7.5"
+  dependencies:
+    "@lit/reactive-element": ^1.6.0
+    lit-element: ^3.3.0
+    lit-html: ^2.7.0
+  checksum: 61a3f87c57136618f47a30b36cdfb592fcba42dcfbdb104d2b5ca291148c2d9a32fcb713bb91090bd08d6897a00e73f8425da6e3626aa080eaf410a32397ae69
   languageName: node
   linkType: hard
 
@@ -35171,6 +35204,21 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"valtio@npm:1.10.5":
+  version: 1.10.5
+  resolution: "valtio@npm:1.10.5"
+  dependencies:
+    proxy-compare: 2.5.1
+    use-sync-external-store: 1.2.0
+  peerDependencies:
+    react: ">=16.8"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  checksum: a01d7cca44b3ff60213aa40470c42083f7522d8e2c2f2d9f696b0aa3eec4c3dba7393831d5ff47db1ad025904860d2788ce4d9654963ff3555481deb25376851
+  languageName: node
+  linkType: hard
+
 "valtio@npm:1.11.2":
   version: 1.11.2
   resolution: "valtio@npm:1.11.2"
@@ -35305,22 +35353,22 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"wagmi@npm:0.10.9":
-  version: 0.10.9
-  resolution: "wagmi@npm:0.10.9"
+"wagmi@npm:^0.10.9":
+  version: 0.10.15
+  resolution: "wagmi@npm:0.10.15"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.0
     "@tanstack/query-sync-storage-persister": ^4.14.5
     "@tanstack/react-query": ^4.14.5
     "@tanstack/react-query-persist-client": ^4.14.5
-    "@wagmi/core": 0.8.14
+    "@wagmi/core": 0.8.19
     "@walletconnect/ethereum-provider": ^1.8.0
     abitype: ^0.2.5
     use-sync-external-store: ^1.2.0
   peerDependencies:
     ethers: ">=5.5.1"
     react: ">=17.0.0"
-  checksum: 88367f1e1b2d59f630f67bb3f7f5dc464bc67f12498f2a05ccab6fcfd74e9ecbfeb174a9eda1a2c0790de110569f2f0bf320d05ee7d837dc652397111f82ef10
+  checksum: a0569a60153634f06cab58bbd098232fdf59c205150fcb10be2ae5e8f701b156ea286e6b17304838d7ddbf8d898d8e3372f5c53e969b3694fe6c8fe5c31dea0e
   languageName: node
   linkType: hard
 

@@ -305,7 +305,7 @@
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^6.5.3",
     "p-queue": "^6.6.2",
     "web3": "4.2.1-dev.a0d6730.0",
-    "@wherever/react-notification-feed/wagmi": "0.10.9"
+    "@wherever/react-notification-feed/wagmi": "^0.10.9"
   },
   "jest": {
     "preset": "ts-jest",

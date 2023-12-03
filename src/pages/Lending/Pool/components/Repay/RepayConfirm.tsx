@@ -9,8 +9,10 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate, thorchain } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import { utils } from 'ethers'
@@ -37,6 +39,7 @@ import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQu
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataById,
   selectSelectedCurrency,
@@ -144,7 +147,6 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      isLoanClosePending: loanTxStatus === 'pending',
     }),
     [
       collateralAssetId,
@@ -152,7 +154,6 @@ export const RepayConfirm = ({
       repaymentPercent,
       repaymentAccountId,
       collateralAccountId,
-      loanTxStatus,
     ],
   )
 
@@ -167,6 +168,13 @@ export const RepayConfirm = ({
   )
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
+  const repaymentAccountNumberFilter = useMemo(
+    () => ({ accountId: repaymentAccountId }),
+    [repaymentAccountId],
+  )
+  const repaymentAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, repaymentAccountNumberFilter),
+  )
   const handleConfirm = useCallback(async () => {
     if (loanTxStatus === 'pending' || loanTxStatus === 'success') {
       // Reset values when going back to input step
@@ -180,7 +188,8 @@ export const RepayConfirm = ({
         wallet &&
         chainAdapter &&
         lendingQuoteCloseData &&
-        repaymentAmountCryptoPrecision
+        repaymentAmountCryptoPrecision &&
+        repaymentAccountNumber !== undefined
       )
     )
       return
@@ -188,6 +197,7 @@ export const RepayConfirm = ({
     setIsLoanPending(true)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
+
     const estimatedFees = await estimateFees({
       cryptoAmount: repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,
@@ -201,6 +211,38 @@ export const RepayConfirm = ({
     })
 
     const maybeTxId = await (() => {
+      if (repaymentAsset.assetId === thorchainAssetId) {
+        return (async () => {
+          const { account } = fromAccountId(repaymentAccountId)
+
+          const adapter = chainAdapter as unknown as thorchain.ChainAdapter
+
+          // repayment using THOR is a MsgDeposit tx
+          const { txToSign } = await adapter.buildDepositTransaction({
+            from: account,
+            accountNumber: repaymentAccountNumber,
+            value: bnOrZero(repaymentAmountCryptoPrecision)
+              .times(bn(10).pow(repaymentAsset.precision))
+              .toFixed(0),
+            memo: lendingQuoteCloseData.quoteMemo,
+            chainSpecific: {
+              gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+                .chainSpecific.gasLimit,
+              fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+            },
+          })
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
+          return adapter.broadcastTransaction({
+            senderAddress: account,
+            receiverAddress: lendingQuoteCloseData.quoteInboundAddress,
+            hex: signedTx,
+          })
+        })()
+      }
+
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
         cryptoAmount: repaymentAmountCryptoPrecision,
@@ -239,6 +281,7 @@ export const RepayConfirm = ({
     lendingQuoteCloseData,
     loanTxStatus,
     repaymentAccountId,
+    repaymentAccountNumber,
     repaymentAmountCryptoPrecision,
     repaymentAsset,
     selectedCurrency,

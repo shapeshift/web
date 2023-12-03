@@ -226,17 +226,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const {
           expiry,
           dust_amount,
-          expected_amount_deposit,
+          expected_amount_out,
           fees: { slippage_bps },
         } = maybeQuote.unwrap()
 
         setExpiry(expiry)
 
+        // If there's nothing being withdrawn, then the protocol fee is the entire amount
+        const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+          ? amountCryptoThorBaseUnit
+          : amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
-          toBaseUnit(
-            fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
-            asset.precision,
-          ),
+          toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
         setDustAmountCryptoBaseUnit(
           bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
@@ -311,18 +312,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()
-      const { expiry, expected_amount_deposit, dust_amount } = quote
+      const { expiry, expected_amount_out, dust_amount } = quote
 
       const amountCryptoThorBaseUnit = toThorBaseUnit({
         valueCryptoBaseUnit: amountCryptoBaseUnit,
         asset,
       })
       setExpiry(expiry)
+
+      // If there's nothing being withdrawn, then the protocol fee is the entire amount
+      const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+        ? amountCryptoThorBaseUnit
+        : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
-        toBaseUnit(
-          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
-          asset.precision,
-        ),
+        toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
       )
 
       if (!maybeQuote) throw new Error('Cannot get THORCHain savers withdraw quote')
@@ -791,6 +794,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     )
   }, [disableSmartContractWithdraw])
 
+  const canWithdraw = useMemo(() => {
+    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+    return bnOrZero(amountCryptoBaseUnit).gt(protocolFeeCryptoBaseUnit)
+  }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit])
+
   if (!state || !contextDispatch) return null
 
   return (
@@ -798,7 +806,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onCancel={handleCancel}
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
-      isDisabled={!hasEnoughBalanceForGas || !userAddress || disableSmartContractWithdraw}
+      isDisabled={
+        !hasEnoughBalanceForGas || !userAddress || disableSmartContractWithdraw || !canWithdraw
+      }
       loading={quoteLoading || state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}

@@ -26,10 +26,10 @@ export const getTokenFromAsset = (asset: Asset): Token => {
 }
 
 export enum TradeType {
-  LongTailToLongTail,
-  LongTailToL1,
-  L1ToLongTail,
-  L1ToL1,
+  LongTailToLongTail = 'LongTailToLongTail',
+  LongTailToL1 = 'LongTailToL1',
+  L1ToLongTail = 'L1ToLongTail',
+  L1ToL1 = 'L1ToL1',
 }
 
 export function getTradeType(

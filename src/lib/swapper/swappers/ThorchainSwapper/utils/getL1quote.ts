@@ -25,17 +25,23 @@ import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type {
+  ThorEvmTradeQuote,
+  ThorTradeQuote,
+  ThorTradeUtxoOrCosmosQuote,
+} from '../getThorTradeQuote/getTradeQuote'
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from './addSlippageToMemo'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getQuote } from './getQuote/getQuote'
+import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
 export const getL1quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
+  tradeType: TradeType,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -185,7 +191,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorTradeQuote> => {
+          }): Promise<ThorEvmTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -220,6 +226,7 @@ export const getL1quote = async (
               rate,
               data,
               router,
+              tradeType: tradeType ?? TradeType.L1ToL1,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -270,7 +277,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorTradeQuote> => {
+          }): Promise<ThorTradeUtxoOrCosmosQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -362,7 +369,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): ThorTradeQuote => {
+          }): ThorTradeUtxoOrCosmosQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 

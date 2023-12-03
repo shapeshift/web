@@ -41,7 +41,7 @@ export const getLongtailToL1Quote = async (
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
   const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
-  const AGGREGATOR_CONTRACT = '0x1C0Ee4030f771a1BB8f72C86150730d063f6b3ff' // TSAggregatorUniswapV3 500
+  const AGGREGATOR_CONTRACT = '0x96ab925EFb957069507894CD941F40734f0288ad' // TSAggregatorUniswapV3 3000 - this needs to match the fee below
   const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
   const tokenA = getTokenFromAsset(input.sellAsset)
@@ -51,7 +51,7 @@ export const getLongtailToL1Quote = async (
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
     tokenA,
     tokenB,
-    fee: FeeAmount.MEDIUM, // FIXME: map to actual pool used
+    fee: FeeAmount.MEDIUM, // FIXME: how best should be pick this?
   })
 
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]

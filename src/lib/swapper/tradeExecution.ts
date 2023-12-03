@@ -126,9 +126,6 @@ export class TradeExecution {
 
         console.log('unsignedTxResult', unsignedTxResult)
 
-        // Early return for debugging
-        return
-
         return await swapper.executeEvmTransaction(unsignedTxResult, {
           signAndBroadcastTransaction,
         })

@@ -595,24 +595,34 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep } =
-        await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-          amountCryptoPrecision: value,
-          accountId,
-          asset,
-          type: 'deposit',
-          fromAddress,
-        })
+      const hasEnoughBalance = await (async () => {
+        // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+        // Since we already do basic balance checks earlier, we already know that the user has enough balance for the Tx,
+        // but potentially not for fees, which will be checked at confirm step
+        if (!isUtxoChainId(chainId)) return true
 
-      return hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
+        const { hasEnoughBalance: _hasEnoughBalance } =
+          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+            amountCryptoPrecision: value,
+            accountId,
+            asset,
+            type: 'deposit',
+            fromAddress,
+          })
+
+        return _hasEnoughBalance
+      })()
+
+      return hasEnoughBalance || 'common.insufficientFunds'
     },
     [
+      accountId,
       asset,
       balanceCryptoBaseUnit,
       assetId,
       outboundFeeCryptoBaseUnit,
       translate,
-      accountId,
+      chainId,
       fromAddress,
     ],
   )
@@ -645,24 +655,35 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isBelowOutboundFee)
         return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
-      const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep } =
-        await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-          amountCryptoPrecision: valueCryptoPrecision.toFixed(),
-          accountId,
-          asset,
-          type: 'deposit',
-          fromAddress,
-        })
-      return hasEnoughBalanceForTxPlusFeesPlusSweep || 'common.insufficientFunds'
+      const hasEnoughBalance = await (async () => {
+        // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+        // Since we already do basic balance checks earlier, we already know that the user has enough balance for the Tx,
+        // but potentially not for fees, which will be checked at confirm step
+        if (!isUtxoChainId(chainId)) return true
+
+        const { hasEnoughBalance: _hasEnoughBalance } =
+          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+            amountCryptoPrecision: valueCryptoPrecision.toFixed(),
+            accountId,
+            asset,
+            type: 'deposit',
+            fromAddress,
+          })
+
+        return _hasEnoughBalance
+      })()
+
+      return hasEnoughBalance || 'common.insufficientFunds'
     },
     [
+      accountId,
       marketData.price,
       balanceCryptoBaseUnit,
       asset,
       assetId,
       outboundFeeCryptoBaseUnit,
       translate,
-      accountId,
+      chainId,
       fromAddress,
     ],
   )

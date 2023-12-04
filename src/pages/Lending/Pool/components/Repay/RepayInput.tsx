@@ -19,7 +19,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { isAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -293,7 +292,6 @@ export const RepayInput = ({
   const disableSmartContractRepayment = useMemo(() => {
     // Repayment AccountId still loading - disable confirm
     if (!repaymentAccountId) return true
-    if (!isAddress(fromAccountId(repaymentAccountId).account)) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
@@ -334,7 +332,7 @@ export const RepayInput = ({
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
-    lendingQuoteCloseError.message,
+    lendingQuoteCloseError?.message,
   ])
 
   if (!seenNotice) {

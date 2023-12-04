@@ -15,7 +15,6 @@ import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { isAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -333,7 +332,6 @@ export const BorrowInput = ({
   const disableSmartContractDeposit = useMemo(() => {
     // Collateral AccountId still loading - disable confirm
     if (!collateralAccountId) return true
-    if (!isAddress(fromAccountId(collateralAccountId).account)) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true

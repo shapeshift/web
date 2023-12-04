@@ -1571,6 +1571,7 @@
           "sendReceive": "Send/receive crypto",
           "buyCrypto": "Buy crypto",
           "tradeAssets": "Trade assets",
+          "earnYield": "Earn yield on your idle assets",
           "cta": "Buy Crypto",
           "secondaryCta": "Go to my dashboard"
         }

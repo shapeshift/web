@@ -11,7 +11,7 @@ import { store } from 'state/store'
 
 import EasyToUseIcon from '../easy-to-use.svg'
 
-const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAssets']
+const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAssets', 'earnYield']
 
 export const EasyToUse = () => {
   const { close: closeModal } = useModal('nativeOnboard')

@@ -20,6 +20,7 @@ import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 
 const containerPadding = { base: 6, '2xl': 8 }
+const responsiveFlex = { base: 'auto', lg: 1 }
 
 export const LendingHeader = () => {
   const translate = useTranslate()
@@ -49,8 +50,8 @@ export const LendingHeader = () => {
           <Heading>{translate('lending.lending')}</Heading>
           <Text color='text.subtle' translation='lending.lendingBody' />
         </Stack>
-        <Flex gap={4} my={6} mx={-4}>
-          <Card flex={1}>
+        <Flex gap={4} my={6} mx={-4} flexWrap='wrap'>
+          <Card flex={responsiveFlex}>
             <CardBody>
               <Skeleton isLoaded={!isLoading}>
                 <Amount.Fiat value={collateralValueUserCurrency} fontSize='4xl' fontWeight='bold' />
@@ -62,7 +63,7 @@ export const LendingHeader = () => {
               />
             </CardBody>
           </Card>
-          <Card flex={1}>
+          <Card flex={responsiveFlex}>
             <CardBody>
               <Skeleton isLoaded={!isLoading}>
                 <Amount.Fiat value={debtValueUserCurrency} fontSize='4xl' fontWeight='bold' />
@@ -70,7 +71,12 @@ export const LendingHeader = () => {
               <Text color='purple.300' fontWeight='medium' translation='lending.debtValue' />
             </CardBody>
           </Card>
-          <Card flex={1} flexDir='row' justifyContent='space-between' alignItems='center'>
+          <Card
+            flex={responsiveFlex}
+            flexDir='row'
+            justifyContent='space-between'
+            alignItems='center'
+          >
             <CardBody>
               <Amount.Percent value={ltv} fontSize='4xl' fontWeight='bold' />
               <Text color='text.subtle' fontWeight='medium' translation='lending.loanToValue' />

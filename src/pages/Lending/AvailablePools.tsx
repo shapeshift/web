@@ -19,7 +19,20 @@ import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: '200px repeat(5, 1fr)',
+  lg: '200px repeat(5, 1fr)',
+}
+const mobileDisplay = {
+  base: 'none',
+  lg: 'flex',
+}
+
+const mobilePadding = {
+  base: 4,
+  lg: 0,
+}
+const listMargin = {
+  base: 0,
+  lg: -4,
 }
 
 type LendingPoolButtonProps = {
@@ -58,7 +71,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       onClick={handlePoolClick}
     >
       <AssetCell assetId={asset.assetId} />
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Flex>
           <Tag colorScheme='green'>
             <TagLeftIcon as={CheckCircleIcon} />
@@ -66,7 +79,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
           </Tag>
         </Flex>
       </Skeleton>
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Amount.Fiat value={poolData?.totalDebtUserCurrency ?? '0'} />
       </Skeleton>
       <Skeleton isLoaded={isLoaded}>
@@ -75,10 +88,10 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
           symbol={asset.symbol}
         />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Amount.Percent value={poolData?.collateralizationRatioPercentDecimal ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <RawText>{poolData?.totalBorrowers ?? '0'}</RawText>
       </Skeleton>
     </Button>
@@ -115,25 +128,36 @@ export const AvailablePools = () => {
           color='text.subtle'
           fontWeight='bold'
           fontSize='sm'
+          px={mobilePadding}
         >
           <Text translation='lending.pool' />
-          <HelperTooltip label={translate('lending.poolDepth')}>
-            <Text translation='lending.poolDepth' />
-          </HelperTooltip>
-          <HelperTooltip label={translate('lending.totalDebtBalance')}>
-            <Text translation='lending.totalDebtBalance' />
-          </HelperTooltip>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.poolDepth')}>
+              <Text translation='lending.poolDepth' />
+            </HelperTooltip>
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.totalDebtBalance')}>
+              <Text translation='lending.totalDebtBalance' />
+            </HelperTooltip>
+          </Flex>
+
           <HelperTooltip label={translate('lending.totalCollateral')}>
             <Text translation='lending.totalCollateral' />
           </HelperTooltip>
-          <HelperTooltip label={translate('lending.estCollateralizationRatio')}>
-            <Text translation='lending.estCollateralizationRatio' />
-          </HelperTooltip>
-          <HelperTooltip label={translate('lending.totalBorrowers')}>
-            <Text translation='lending.totalBorrowers' />
-          </HelperTooltip>
+
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.estCollateralizationRatio')}>
+              <Text translation='lending.estCollateralizationRatio' />
+            </HelperTooltip>
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.totalBorrowers')}>
+              <Text translation='lending.totalBorrowers' />
+            </HelperTooltip>
+          </Flex>
         </SimpleGrid>
-        <Stack mx={-4}>{lendingRows}</Stack>
+        <Stack mx={listMargin}>{lendingRows}</Stack>
       </Stack>
     </Main>
   )

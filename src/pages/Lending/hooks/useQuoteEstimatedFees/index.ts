@@ -6,99 +6,52 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { useLendingQuoteCloseQuery } from '../useLendingCloseQuery'
-import { useLendingQuoteOpenQuery } from '../useLendingQuoteQuery'
 
 type UseQuoteEstimatedFeesProps = {
   collateralAssetId: AssetId
 } & (
   | {
-      borrowAssetId: AssetId
-      borrowAccountId: AccountId
+      confirmedQuote: LendingQuoteOpen | null
       collateralAccountId: AccountId
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never
       repaymentAsset?: never
-      repaymentPercent?: never
     }
   | {
-      borrowAssetId?: never
-      borrowAccountId?: never
+      confirmedQuote: LendingQuoteClose | null
       collateralAccountId: AccountId
       depositAmountCryptoPrecision?: never
       repaymentAccountId: AccountId
       repaymentAsset: Asset | null
-      repaymentPercent: number
     }
 )
 
 export const useQuoteEstimatedFeesQuery = ({
   collateralAssetId,
   collateralAccountId,
-  borrowAccountId,
-  borrowAssetId,
   depositAmountCryptoPrecision,
   repaymentAccountId,
   repaymentAsset,
-  repaymentPercent,
+  confirmedQuote,
 }: UseQuoteEstimatedFeesProps) => {
-  const useLendingQuoteQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId: borrowAccountId ?? '',
-      borrowAssetId: borrowAssetId ?? '',
-      depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
-    }),
-    [
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmountCryptoPrecision,
-    ],
+  const repaymentAmountCryptoPrecision = useMemo(
+    () => (confirmedQuote as LendingQuoteClose)?.repaymentAmountCryptoPrecision,
+    [confirmedQuote],
   )
-  const { data: lendingQuoteData } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
-
-  const useLendingQuoteCloseQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent: Number(repaymentPercent),
-      repaymentAccountId: repaymentAccountId ?? '',
-      collateralAccountId: collateralAccountId ?? '',
-    }),
-    [
-      collateralAccountId,
-      collateralAssetId,
-      repaymentAccountId,
-      repaymentAsset?.assetId,
-      repaymentPercent,
-    ],
-  )
-
-  const { data: lendingQuoteCloseData } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
-
-  const asset = useAppSelector(state =>
-    selectAssetById(state, repaymentAsset?.assetId ?? collateralAssetId),
-  )
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAsset?.assetId ?? collateralAssetId),
-  )
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+  const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))
   const estimateFeesArgs = useMemo(() => {
     const supportedEvmChainIds = getSupportedEvmChainIds()
-    const cryptoAmount =
-      depositAmountCryptoPrecision ?? lendingQuoteCloseData?.repaymentAmountCryptoPrecision ?? '0'
+    const cryptoAmount = depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
     const assetId = repaymentAsset?.assetId ?? collateralAssetId
-    const quoteMemo = lendingQuoteCloseData?.quoteMemo ?? lendingQuoteData?.quoteMemo ?? ''
+    const quoteMemo = confirmedQuote?.quoteMemo ?? confirmedQuote?.quoteMemo ?? ''
     const memo = supportedEvmChainIds.includes(fromAssetId(assetId).chainId)
       ? utils.hexlify(utils.toUtf8Bytes(quoteMemo))
       : quoteMemo
-    const to =
-      lendingQuoteCloseData?.quoteInboundAddress ?? lendingQuoteData?.quoteInboundAddress ?? ''
+    const to = confirmedQuote?.quoteInboundAddress ?? confirmedQuote?.quoteInboundAddress ?? ''
     const accountId = repaymentAccountId ?? collateralAccountId
 
     return {
@@ -113,12 +66,10 @@ export const useQuoteEstimatedFeesQuery = ({
   }, [
     collateralAccountId,
     collateralAssetId,
+    confirmedQuote?.quoteInboundAddress,
+    confirmedQuote?.quoteMemo,
+    repaymentAmountCryptoPrecision,
     depositAmountCryptoPrecision,
-    lendingQuoteCloseData?.quoteInboundAddress,
-    lendingQuoteCloseData?.quoteMemo,
-    lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
-    lendingQuoteData?.quoteInboundAddress,
-    lendingQuoteData?.quoteMemo,
     repaymentAccountId,
     repaymentAsset?.assetId,
   ])
@@ -133,12 +84,12 @@ export const useQuoteEstimatedFeesQuery = ({
     queryFn: async () => {
       const estimatedFees = await estimateFees(estimateFeesArgs)
       const txFeeFiat = bnOrZero(estimatedFees.fast.txFee)
-        .div(bn(10).pow(asset!.precision)) // actually defined at runtime, see "enabled" below
-        .times(assetMarketData.price)
+        .div(bn(10).pow(feeAsset!.precision)) // actually defined at runtime, see "enabled" below
+        .times(feeAssetMarketData.price)
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: Boolean(asset && (lendingQuoteData || lendingQuoteCloseData)),
+    enabled: Boolean(feeAsset && confirmedQuote),
     retry: false,
   })
 

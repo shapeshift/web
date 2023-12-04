@@ -1,11 +1,13 @@
 import { Button, Flex, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
+import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -20,6 +22,8 @@ import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useLendingPositionData } from './hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { useRepaymentLockData } from './hooks/useRepaymentLockData'
+
+const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -205,13 +209,24 @@ export const YourLoans = () => {
     [history],
   )
 
+  const { isActive, isLoading: isAllLendingPositionsDataLoading } = useAllLendingPositionsData()
+
   const lendingRowGrids = useMemo(() => {
     if (!lendingSupportedAssets) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    if (isAllLendingPositionsDataLoading) return null
 
-    return lendingSupportedAssets.map(asset => (
-      <LendingRowAssetAccountsGrids asset={asset} onPoolClick={handlePoolClick} />
-    ))
-  }, [handlePoolClick, lendingSupportedAssets])
+    return isActive ? (
+      lendingSupportedAssets.map(asset => (
+        <LendingRowAssetAccountsGrids asset={asset} onPoolClick={handlePoolClick} />
+      ))
+    ) : (
+      <ResultsEmpty
+        title='lending.yourLoans.emptyTitle'
+        body='lending.yourLoans.emptyBody'
+        icon={emptyIcon}
+      />
+    )
+  }, [handlePoolClick, isActive, isAllLendingPositionsDataLoading, lendingSupportedAssets])
 
   return (
     <Main headerComponent={lendingHeader}>

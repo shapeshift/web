@@ -3,7 +3,7 @@ import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type Polyglot from 'node-polyglot'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -15,7 +15,7 @@ import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwap
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HOP_EXECUTION_STATE_ORDERED, HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
@@ -32,8 +32,6 @@ export type HopTransactionStepProps = {
   isActive: boolean
   hopIndex: number
   isLastStep?: boolean
-  onTxStatusChange: (txStatus?: TxStatus) => void
-  onError: () => void
 }
 
 export const HopTransactionStep = ({
@@ -42,43 +40,42 @@ export const HopTransactionStep = ({
   isActive,
   hopIndex,
   isLastStep,
-  onTxStatusChange,
-  onError,
 }: HopTransactionStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const [isError, setIsError] = useState<boolean>(false)
 
   const {
-    state: hopExecutionState,
-    swapState: txState,
-    swapSellTxHash: sellTxHash,
-    swapBuyTxHash: buyTxHash,
+    swap: { state: swapTxState, sellTxHash, buyTxHash },
   } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+
+  const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 
   const {
     // TODO: use the message to better ux
     // message,
     executeTrade,
-  } = useMockTradeExecution(hopIndex === 0) // TODO: use the real hook here
+  } = useMockTradeExecution(hopIndex) // TODO: use the real hook here
 
   const handleSignTx = useCallback(async () => {
-    // next state
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
+      console.error('attempted to execute in-progress swap')
+      return
+    }
+
+    dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
     const finalTxStatus = await executeTrade()
 
     // next state if trade was successful
     if (finalTxStatus === TxStatus.Confirmed) {
-      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+      dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
     } else if (finalTxStatus === TxStatus.Failed) {
-      setIsError(true)
-      onError()
+      dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
     }
-  }, [dispatch, executeTrade, onError])
+  }, [dispatch, executeTrade, hopIndex, swapTxState])
 
   const tradeType = useMemo(
     () =>
@@ -111,29 +108,17 @@ export const HopTransactionStep = ({
     return {}
   }, [buyTxHash, tradeQuoteStep.source, tradeQuoteStep.sellAsset.explorerTxLink, sellTxHash])
 
-  // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
-  const txStatus =
-    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingTradeExecution)
-      ? txState
-      : undefined
-
-  useEffect(() => onTxStatusChange(txStatus), [onTxStatusChange, txStatus])
-
-  const stepIndicator = useMemo(
-    () =>
-      txStatus !== undefined ? (
-        <StatusIcon txStatus={txStatus} />
-      ) : (
-        <SwapperIcon swapperName={swapperName} />
-      ),
-    [swapperName, txStatus],
-  )
+  const stepIndicator = useMemo(() => {
+    const defaultIcon = <SwapperIcon swapperName={swapperName} />
+    // eslint too stoopid to realize this is inside the context of useMemo already
+    // eslint-disable-next-line react-memo/require-usememo
+    return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
+  }, [swapTxState, swapperName])
 
   const signIcon = useMemo(() => <CheckCircleIcon />, [])
 
   const content = useMemo(() => {
-    if (isActive && txStatus === undefined) {
+    if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
@@ -162,9 +147,9 @@ export const HopTransactionStep = ({
     isActive,
     sellTxHash,
     signIcon,
+    swapTxState,
     tradeQuoteStep.source,
     translate,
-    txStatus,
   ])
 
   const errorTranslation = useMemo(
@@ -241,7 +226,7 @@ export const HopTransactionStep = ({
       stepIndicator={stepIndicator}
       content={content}
       isLastStep={isLastStep}
-      isError={txStatus === TxStatus.Failed}
+      isError={swapTxState === TransactionExecutionState.Failed}
     />
   )
 }

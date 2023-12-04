@@ -9,10 +9,9 @@ import {
   HStack,
   Stepper,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -27,7 +26,7 @@ import {
   selectHopTotalProtocolFeesFiatPrecision,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { TradeType } from '../types'
@@ -60,13 +59,21 @@ export const Hop = ({
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const [txStatus, setTxStatus] = useState<TxStatus | undefined>()
-  const [isError, setIsError] = useState<boolean>(false)
+
+  const {
+    state: hopExecutionState,
+    approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
+    swap: { state: swapTxState },
+  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+
+  const isError = useMemo(
+    () => [approvalTxState, swapTxState].includes(TransactionExecutionState.Failed),
+    [approvalTxState, swapTxState],
+  )
 
   const rightComponent = useMemo(() => {
-    switch (txStatus) {
-      case undefined:
-      case TxStatus.Unknown:
+    switch (swapTxState) {
+      case TransactionExecutionState.AwaitingConfirmation:
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
             <RawText fontWeight='bold'>
@@ -74,34 +81,28 @@ export const Hop = ({
             </RawText>
           )
         )
-      case TxStatus.Pending:
+      case TransactionExecutionState.Pending:
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
             <TimeRemaining initialTimeMs={tradeQuoteStep.estimatedExecutionTimeMs} />
           )
         )
-      case TxStatus.Confirmed:
+      case TransactionExecutionState.Complete:
         return onToggleIsOpen ? (
           <TwirlyToggle isOpen={isOpen} onToggle={onToggleIsOpen} p={4} />
         ) : null
       default:
         return null
     }
-  }, [tradeQuoteStep.estimatedExecutionTimeMs, isOpen, onToggleIsOpen, txStatus])
-
-  const { state: hopExecutionState, approvalRequired: isApprovalInitiallyNeeded } = useAppSelector(
-    selectHopExecutionMetadata,
-  )[hopIndex]
+  }, [swapTxState, tradeQuoteStep.estimatedExecutionTimeMs, onToggleIsOpen, isOpen])
 
   const activeStep = useMemo(() => {
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
-      case HopExecutionState.AwaitingApprovalConfirmation:
-      case HopExecutionState.AwaitingApprovalExecution:
+      case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 1 : 0
-      case HopExecutionState.AwaitingTradeConfirmation:
-      case HopExecutionState.AwaitingTradeExecution:
+      case HopExecutionState.AwaitingSwap:
         return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
         return Infinity
@@ -139,10 +140,8 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
-      case HopExecutionState.AwaitingApprovalConfirmation:
-      case HopExecutionState.AwaitingApprovalExecution:
-      case HopExecutionState.AwaitingTradeConfirmation:
-      case HopExecutionState.AwaitingTradeExecution:
+      case HopExecutionState.AwaitingApproval:
+      case HopExecutionState.AwaitingSwap:
         return (
           <Circle size={8} bg='background.surface.raised.base'>
             <CircularProgress size={4} />
@@ -156,8 +155,6 @@ export const Hop = ({
         )
     }
   }, [hopExecutionState, hopIndex, isError])
-
-  const handleError = useCallback(() => setIsError(true), [])
 
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
@@ -180,24 +177,15 @@ export const Hop = ({
             <ApprovalStep
               tradeQuoteStep={tradeQuoteStep}
               hopIndex={hopIndex}
-              isActive={[
-                HopExecutionState.AwaitingApprovalConfirmation,
-                HopExecutionState.AwaitingApprovalExecution,
-              ].includes(hopExecutionState)}
-              onError={handleError}
+              isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
             />
           </Collapse>
           <HopTransactionStep
             swapperName={swapperName}
             tradeQuoteStep={tradeQuoteStep}
-            isActive={[
-              HopExecutionState.AwaitingTradeConfirmation,
-              HopExecutionState.AwaitingTradeExecution,
-            ].includes(hopExecutionState)}
+            isActive={hopExecutionState === HopExecutionState.AwaitingSwap}
             hopIndex={hopIndex}
-            onTxStatusChange={setTxStatus}
             isLastStep={!shouldRenderFinalSteps}
-            onError={handleError}
           />
           {shouldRenderFinalSteps && <DonationStep />}
           {shouldRenderFinalSteps && (

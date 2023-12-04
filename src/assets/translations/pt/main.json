@@ -546,8 +546,6 @@
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo",
-    "foxMissions": "Missões FOX",
-    "foxMissionsShort": "Missões",
     "lending": "Empréstimo"
   },
   "transactionRow": {
@@ -1955,77 +1953,6 @@
     },
     "custom": "Customizar"
   },
-  "idle": {
-    "emptyTitle": "Ganhe %{apy}% no seu %{asset} com a Idle Finance",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Estratégia Senior Best Yield",
-          "body": "As pools Senior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
-        },
-        "page-2": {
-          "title": "Estratégias Senior Best Yield:",
-          "bullets": {
-            "one": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches",
-            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Estratégia Junior Best Yield",
-          "body": "As pools Junior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
-        },
-        "page-2": {
-          "title": "Estratégias Junior Best Yield:",
-          "bullets": {
-            "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários",
-            "two": "Ofereça retornos maximizados sem que o usuário verifique constantemente as taxas e gaste com taxas em cada transferência"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Estratégia Senior Tranche",
-          "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
-        },
-        "page-2": {
-          "title": "Estratégias de tranches Senior:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Estratégia de tranche Junior",
-          "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
-        },
-        "page-2": {
-          "title": "Estratégias de tranche junior:"
-        }
-      },
-      "monitorSystem": "Utilize o sistema de monitoramento do Idle Finance para encontrar alocações de melhor desempenho e ter um balanceamento eficiente. ",
-      "offerHighReturn": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência",
-      "leverageYield": "Alavancar o rendimento usando fundos de tranches seniores",
-      "higherRisk": "Maior exposição ao risco ao proteger tranches seniores",
-      "minRisk": "Exposição ao risco minimizada",
-      "builtInCoverage": "Cobertura integrada para recompensas de taxa variável",
-      "noLockingPeriod": "Sem período de bloqueio ou épocas",
-      "autoReinvest": "Tokens re-investidos",
-      "fundsCoveredJunior": "Fundos cobertos pelas Junior Tranches",
-      "automation": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches"
-    },
-    "bestYield": {
-      "title": "Quais as Melhores Recompensas?",
-      "body": "Maximize automaticamente o rendimento em vários protocolos DeFi testados. A estratégia Best-Yield otimiza o ganho de recompensas ao dividir os custos das taxas, automatizando a geração de incentivos ao transferir capital algoritmicamente à medida que surgem novas oportunidades."
-    },
-    "seniorTranche": {
-      "title": "O que é uma Senior Tranche?",
-      "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
-    },
-    "juniorTranche": {
-      "title": "O que é uma Junior Tranche?",
-      "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Compre Cripto SEM KYC",
@@ -2119,56 +2046,6 @@
     "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência.",
     "reportSpam": "Reportar spam",
     "refresh": "Atualizar"
-  },
-  "missions": {
-    "subtitle": "Missões FOX",
-    "missionEnded": "Missão Finalizada",
-    "viewMission": "Ver Missões",
-    "comingSoon": "Em Breve",
-    "activeMissions": "Missões Ativas",
-    "endedMissions": "Missões Finalizadas",
-    "title": {
-      "1": "Descubra o Universo Descentralizado e",
-      "2": "Ganha Recompensas"
-    },
-    "body": "Participe de Missões, Ganhe Recompensas, e expanda seu conhecimento sobre o Ecossistema Em Expansão da ShapeShift",
-    "ends": "Fim",
-    "ongoing": "Missão em Andamento",
-    "optimism": {
-      "title": "Ganhe 19.5 OP",
-      "subtitle": "Explore a Optimism",
-      "cta": "Começar Missão"
-    },
-    "foxatar": {
-      "title": "Ganhe um NFT Gratuito e Personalizado",
-      "subtitle": "Minte um FOXatar",
-      "cta": "Começar Missão"
-    },
-    "foxArmy": {
-      "subtitle": "Junte-se a Armada FOX",
-      "title": "Pool de 20.000 FOX",
-      "cta": "Começar Missão"
-    },
-    "yat": {
-      "subtitle": "Jogar Yat Fantasy",
-      "title": "Um Prêmio de 3.000 USDC",
-      "cta": "Começar Missão"
-    },
-    "getListed": {
-      "subtitle": "Seu Projeto Aqui",
-      "title": "Lançar Missão do Seu Projeto",
-      "cta": "Submeter Projeto"
-    },
-    "foxRewards": {
-      "subtitle": "Compre, venda, negocie, ganhe e muito mais",
-      "title": "Ganhe FOX",
-      "cta": "Iniciar missão"
-    },
-    "snapfoxatar": {
-      "title": "Desbloquear Bitcoin com MetaMask",
-      "subtitle": "Minte uma skin Metamask para o seu FOXatar",
-      "cta": "Iniciar missão"
-    }
   },
   "avatar": {
     "modal": {

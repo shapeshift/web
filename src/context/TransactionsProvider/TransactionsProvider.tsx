@@ -3,12 +3,10 @@ import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshi
 import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSome } from 'lib/utils'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
@@ -16,7 +14,6 @@ import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/idle/types'
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
@@ -58,18 +55,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
-      const idleCdoContractAddresses = Object.values(stakingOpportunitiesById)
-        .map(opportunity => (opportunity as IdleStakingSpecificMetadata | undefined)?.cdoAddress)
-        .filter(isSome)
-      const idleContractAddresses = [
-        ...idleCdoContractAddresses,
-        IDLE_PROXY_1_CONTRACT_ADDRESS,
-        IDLE_PROXY_2_CONTRACT_ADDRESS,
-      ]
-      const shouldRefetchIdleOpportunities = transfers.some(
-        ({ from, to }) =>
-          idleContractAddresses.includes(from) || idleContractAddresses.includes(to),
-      )
       const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
       const shouldRefetchSaversOpportunities =
         isSupportedThorchainSaversChainId(chainId) &&
@@ -86,9 +71,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             [foxAssetId, foxEthLpAssetId].includes(assetId) ||
             Object.values(stakingOpportunitiesById).some(opportunity =>
               // Detect Txs including a transfer either of either
-              // - an asset being wrapped into an Idle token
-              // - Idle reward assets being claimed
-              // - the Idle AssetId being withdrawn
+              // - an asset being wrapped into a token
+              // - reward assets being claimed
+              // - the underlying asset being withdrawn
               Boolean(
                 opportunity?.assetId === assetId ||
                   opportunity?.underlyingAssetId === assetId ||
@@ -101,20 +86,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         )
       )
 
-      if (shouldRefetchIdleOpportunities) {
-        dispatch(
-          getOpportunitiesUserData.initiate(
-            [
-              {
-                accountId,
-                defiProvider: DefiProvider.Idle,
-                defiType: DefiType.Staking,
-              },
-            ],
-            { forceRefetch: true },
-          ),
-        )
-      } else if (shouldRefetchCosmosSdkOpportunities) {
+      if (shouldRefetchCosmosSdkOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
             [

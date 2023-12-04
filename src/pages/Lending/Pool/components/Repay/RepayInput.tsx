@@ -274,31 +274,32 @@ export const RepayInput = ({
     repaymentAsset,
   ])
 
+  const userAddress = useMemo(() => {
+    if (!repaymentAccountId) return ''
+
+    return fromAccountId(repaymentAccountId).account.toLowerCase()
+  }, [repaymentAccountId])
+
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
     queryKey: [
       'isSmartContractAddress',
       {
-        userAddress: repaymentAccountId
-          ? fromAccountId(repaymentAccountId).account.toLowerCase()
-          : '',
+        userAddress,
       },
     ],
-    queryFn: () =>
-      isSmartContractAddress(
-        repaymentAccountId ? fromAccountId(repaymentAccountId).account.toLowerCase() : '',
-      ),
+    queryFn: () => isSmartContractAddress(userAddress),
   })
 
   const disableSmartContractRepayment = useMemo(() => {
-    // Repayment AccountId still loading - disable confirm
-    if (!repaymentAccountId) return true
+    // User address still loading - disable confirm
+    if (!userAddress) return true
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, repaymentAccountId])
+  }, [_isSmartContractAddress, userAddress])
 
   const quoteErrorTranslation = useMemo(() => {
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'

@@ -314,31 +314,32 @@ export const BorrowInput = ({
     setConfirmedQuote(lendingQuoteData ?? null)
   }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
 
+  const userAddress = useMemo(() => {
+    if (!collateralAccountId) return ''
+
+    return fromAccountId(collateralAccountId).account.toLowerCase()
+  }, [collateralAccountId])
+
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
     queryKey: [
       'isSmartContractAddress',
       {
-        userAddress: collateralAccountId
-          ? fromAccountId(collateralAccountId).account.toLowerCase()
-          : '',
+        userAddress,
       },
     ],
-    queryFn: () =>
-      isSmartContractAddress(
-        collateralAccountId ? fromAccountId(collateralAccountId).account.toLowerCase() : '',
-      ),
+    queryFn: () => isSmartContractAddress(userAddress),
   })
 
   const disableSmartContractDeposit = useMemo(() => {
-    // Collateral AccountId still loading - disable confirm
-    if (!collateralAccountId) return true
+    // User address still loading - disable confirm
+    if (!userAddress) return true
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, collateralAccountId])
+  }, [_isSmartContractAddress, userAddress])
 
   const onSubmit = useCallback(() => {
     if (!lendingQuoteData) return

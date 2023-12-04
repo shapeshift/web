@@ -548,8 +548,6 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Missions",
-    "foxMissionsShort": "Missions",
     "lending": "Lending"
   },
   "transactionRow": {
@@ -2126,56 +2124,6 @@
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence.",
     "reportSpam": "Report Spam",
     "refresh": "Refresh"
-  },
-  "missions": {
-    "subtitle": "FOX Missions",
-    "missionEnded": "Mission Ended",
-    "viewMission": "View Mission",
-    "comingSoon": "Coming Soon",
-    "activeMissions": "Active Missions",
-    "endedMissions": "Ended Missions",
-    "title": {
-      "1": "Unleash the Decentralized Universe and",
-      "2": "Reap Rewards"
-    },
-    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
-    "ends": "Ends",
-    "ongoing": "Ongoing Mission",
-    "optimism": {
-      "title": "Earn up to 19.5 OP",
-      "subtitle": "Explore Optimism",
-      "cta": "Start Mission"
-    },
-    "foxatar": {
-      "title": "Get a Free & Customizable NFT",
-      "subtitle": "Mint a FOXatar",
-      "cta": "Start Mission"
-    },
-    "foxArmy": {
-      "subtitle": "Join the FOX Army",
-      "title": "20,000 FOX Pool",
-      "cta": "Start Mission"
-    },
-    "yat": {
-      "subtitle": "Play Yat Fantasy",
-      "title": "3,000 USDC Prize Pool",
-      "cta": "Start Mission"
-    },
-    "getListed": {
-      "subtitle": "Your Project Here",
-      "title": "Launch a Mission for Your Project",
-      "cta": "Submit Project"
-    },
-    "foxRewards": {
-      "subtitle": "Buy, sell, trade, earn, and more",
-      "title": "Earn FOX",
-      "cta": "Start Mission"
-    },
-    "snapfoxatar": {
-      "title": "Unlock Bitcoin with MetaMask",
-      "subtitle": "Mint a Metamask FOXatar skin",
-      "cta": "Start Mission"
-    }
   },
   "avatar": {
     "modal": {

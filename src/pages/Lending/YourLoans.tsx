@@ -151,7 +151,9 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
         </Skeleton>
         <Skeleton isLoaded={isRepaymentLockSuccess} display={mobileDisplay}>
           <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
-            {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
+            {isRepaymentLocked
+              ? translate('lending.repaymentDays', { numDays: repaymentLockData })
+              : translate('lending.unlocked')}
           </RawText>
         </Skeleton>
       </Button>

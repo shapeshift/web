@@ -97,7 +97,9 @@ const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & Skel
   return (
     <Skeleton isLoaded={isLoaded}>
       <RawText color={isRepaymentLocked ? 'white' : 'green.500'} fontSize='2xl' fontWeight='medium'>
-        {isRepaymentLocked ? `${value} days` : translate('lending.unlocked')}
+        {isRepaymentLocked
+          ? translate('lending.repaymentDays', { numDays: value })
+          : translate('lending.unlocked')}
       </RawText>
     </Skeleton>
   )

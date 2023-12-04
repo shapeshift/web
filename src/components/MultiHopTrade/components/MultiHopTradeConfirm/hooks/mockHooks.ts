@@ -24,45 +24,36 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 // TODO: remove me
 export const useMockAllowanceApproval = (
   _tradeQuoteStep: TradeQuoteStep,
-  isFirstHop: boolean,
+  hopIndex: number,
   _isExactAllowance: boolean,
 ) => {
   const dispatch = useAppDispatch()
 
   const executeAllowanceApproval = useCallback(() => {
-    isFirstHop
-      ? dispatch(
-          tradeQuoteSlice.actions.setFirstHopApprovalState(TransactionExecutionState.Pending),
-        )
-      : dispatch(
-          tradeQuoteSlice.actions.setSecondHopApprovalState(TransactionExecutionState.Pending),
-        )
+    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
 
     const promise = new Promise((resolve, _reject) => {
       setTimeout(() => {
-        isFirstHop
-          ? dispatch(
-              tradeQuoteSlice.actions.setFirstHopApprovalTxHash('first_hop_approval_tx_hash'),
-            )
-          : dispatch(
-              tradeQuoteSlice.actions.setSecondHopApprovalTxHash('second_hop_approval_tx_hash'),
-            )
+        dispatch(
+          tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash: 'approval_tx_hash' }),
+        )
       }, 2000)
+
       setTimeout(() => {
         const finalStatus = MOCK_FAIL_APPROVAL
           ? TransactionExecutionState.Failed
           : TransactionExecutionState.Complete
 
-        isFirstHop
-          ? dispatch(tradeQuoteSlice.actions.setFirstHopApprovalState(finalStatus))
-          : dispatch(tradeQuoteSlice.actions.setSecondHopApprovalState(finalStatus))
+        MOCK_FAIL_APPROVAL
+          ? dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
+          : dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
 
         resolve(finalStatus)
       }, 5000)
     })
 
     return promise
-  }, [dispatch, isFirstHop])
+  }, [dispatch, hopIndex])
 
   return {
     executeAllowanceApproval,
@@ -71,33 +62,33 @@ export const useMockAllowanceApproval = (
 }
 
 // TODO: remove me
-export const useMockTradeExecution = (isFirstHop: boolean) => {
+export const useMockTradeExecution = (hopIndex: number) => {
   const dispatch = useAppDispatch()
 
   const executeTrade = useCallback(() => {
     const promise = new Promise((resolve, _reject) => {
-      isFirstHop
-        ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(TransactionExecutionState.Pending))
-        : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(TransactionExecutionState.Pending))
+      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
       setTimeout(() => {
-        isFirstHop
-          ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapSellTxHash('first_hop_sell_tx_hash'))
-          : dispatch(tradeQuoteSlice.actions.setSecondHopSwapSellTxHash('second_hop_sell_tx_hash'))
+        dispatch(
+          tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash: 'swap_sell_tx_hash' }),
+        )
       }, 2000)
+
       setTimeout(() => {
         const finalStatus = MOCK_FAIL_SWAP
           ? TransactionExecutionState.Failed
           : TransactionExecutionState.Complete
-        isFirstHop
-          ? dispatch(tradeQuoteSlice.actions.setFirstHopSwapState(finalStatus))
-          : dispatch(tradeQuoteSlice.actions.setSecondHopSwapState(finalStatus))
+
+        MOCK_FAIL_SWAP
+          ? dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
+          : dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve(finalStatus)
       }, 15000)
     })
 
     return promise
-  }, [dispatch, isFirstHop])
+  }, [dispatch, hopIndex])
 
   return {
     executeTrade,
@@ -123,60 +114,67 @@ export const useMockThorStreamingProgress = (
   useEffect(() => {
     if (!sellTxHash || streamingSwapExecutionStarted) return
     ;(async () => {
-      const setStreamingSwapMeta =
-        hopIndex === 0
-          ? tradeQuoteSlice.actions.setFirstHopStreamingSwapMeta
-          : tradeQuoteSlice.actions.setSecondHopStreamingSwapMeta
-
       dispatch(
-        setStreamingSwapMeta({
-          totalSwapCount: 3,
-          attemptedSwapCount: 0,
-          failedSwaps: [],
+        tradeQuoteSlice.actions.setStreamingSwapMeta({
+          hopIndex,
+          streamingSwapMetadata: {
+            totalSwapCount: 3,
+            attemptedSwapCount: 0,
+            failedSwaps: [],
+          },
         }),
       )
 
       await sleep(1500)
 
       dispatch(
-        setStreamingSwapMeta({
-          totalSwapCount: 3,
-          attemptedSwapCount: 1,
-          failedSwaps: [],
+        tradeQuoteSlice.actions.setStreamingSwapMeta({
+          hopIndex,
+          streamingSwapMetadata: {
+            totalSwapCount: 3,
+            attemptedSwapCount: 1,
+            failedSwaps: [],
+          },
         }),
       )
 
       await sleep(1500)
 
       dispatch(
-        setStreamingSwapMeta({
-          totalSwapCount: 3,
-          attemptedSwapCount: 2,
-          failedSwaps: MOCK_FAIL_STREAMING_SWAP
-            ? [
-                {
-                  reason: 'mock reason',
-                  swapIndex: 1,
-                },
-              ]
-            : [],
+        tradeQuoteSlice.actions.setStreamingSwapMeta({
+          hopIndex,
+          streamingSwapMetadata: {
+            totalSwapCount: 3,
+            attemptedSwapCount: 2,
+            failedSwaps: MOCK_FAIL_STREAMING_SWAP
+              ? [
+                  {
+                    reason: 'mock reason',
+                    swapIndex: 1,
+                  },
+                ]
+              : [],
+          },
         }),
       )
 
       await sleep(1500)
 
       dispatch(
-        setStreamingSwapMeta({
-          totalSwapCount: 3,
-          attemptedSwapCount: 3,
-          failedSwaps: MOCK_FAIL_STREAMING_SWAP
-            ? [
-                {
-                  reason: 'mock reason',
-                  swapIndex: 1,
-                },
-              ]
-            : [],
+        tradeQuoteSlice.actions.setStreamingSwapMeta({
+          hopIndex,
+          streamingSwapMetadata: {
+            totalSwapCount: 3,
+            attemptedSwapCount: 3,
+            failedSwaps: MOCK_FAIL_STREAMING_SWAP
+              ? [
+                  {
+                    reason: 'mock reason',
+                    swapIndex: 1,
+                  },
+                ]
+              : [],
+          },
         }),
       )
     })()

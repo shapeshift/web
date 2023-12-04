@@ -57,7 +57,7 @@ export const HopTransactionStep = ({
     // TODO: use the message to better ux
     // message,
     executeTrade,
-  } = useMockTradeExecution(hopIndex === 0) // TODO: use the real hook here
+  } = useMockTradeExecution(hopIndex) // TODO: use the real hook here
 
   const handleSignTx = useCallback(async () => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -110,7 +110,7 @@ export const HopTransactionStep = ({
 
   const stepIndicator = useMemo(() => {
     const defaultIcon = <SwapperIcon swapperName={swapperName} />
-    // eslint to stoopid to realize this is inside the context of useMemo already
+    // eslint too stoopid to realize this is inside the context of useMemo already
     // eslint-disable-next-line react-memo/require-usememo
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])

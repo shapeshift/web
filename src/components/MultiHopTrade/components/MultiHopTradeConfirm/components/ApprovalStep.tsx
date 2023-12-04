@@ -54,7 +54,7 @@ export const ApprovalStep = ({
 
   const { executeAllowanceApproval, approvalNetworkFeeCryptoBaseUnit } = useMockAllowanceApproval(
     tradeQuoteStep,
-    hopIndex === 0,
+    hopIndex,
     isExactAllowance,
   ) // TODO: use the real hook here
 
@@ -87,7 +87,7 @@ export const ApprovalStep = ({
 
   const stepIndicator = useMemo(() => {
     const defaultIcon = <FaThumbsUp />
-    // eslint to stoopid to realize this is inside the context of useMemo already
+    // eslint too stoopid to realize this is inside the context of useMemo already
     // eslint-disable-next-line react-memo/require-usememo
     return <StatusIcon txStatus={approvalTxState} defaultIcon={defaultIcon} />
   }, [approvalTxState])

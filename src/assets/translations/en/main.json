@@ -2194,7 +2194,6 @@
     "debtValue": "Debt Value",
     "loanToValue": "Loan to Value",
     "availablePools": "Available Pools",
-    "yourLoans": "Your Loans",
     "pool": "Pool",
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
@@ -2257,6 +2256,11 @@
       "repaymentLock": "Minimum period before you can repay your loan",
       "collateralizationRatio": "Ratio of your collateral value to the loan amount",
       "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
+    },
+    "yourLoans": {
+      "yourLoans": "Your Loans",
+      "emptyTitle": "The Land of Zero Loans!",
+      "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
   },
   "foxDiscounts": {

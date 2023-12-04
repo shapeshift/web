@@ -33,7 +33,7 @@ export const LendingHeader = () => {
         exact: true,
       },
       {
-        label: 'lending.yourLoans',
+        label: 'lending.yourLoans.yourLoans',
         path: '/lending/loans',
         color: 'blue',
       },

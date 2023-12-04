@@ -14,7 +14,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -24,6 +24,7 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -272,7 +273,25 @@ export const RepayInput = ({
     repaymentAsset,
   ])
 
+  const userAddress = useMemo(() => {
+    if (!repaymentAccountId) return ''
+
+    return fromAccountId(repaymentAccountId).account
+  }, [repaymentAccountId])
+
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
+
+  const disableSmartContractRepayment = useMemo(() => {
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress])
+
   const quoteErrorTranslation = useMemo(() => {
+    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
@@ -299,6 +318,7 @@ export const RepayInput = ({
     }
     return null
   }, [
+    _isSmartContractAddress,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
@@ -481,7 +501,8 @@ export const RepayInput = ({
             isLendingPositionDataLoading ||
             isLendingQuoteCloseLoading ||
             isLendingQuoteCloseRefetching ||
-            isEstimatedFeesDataLoading
+            isEstimatedFeesDataLoading ||
+            isAddressByteCodeLoading
           }
           isDisabled={Boolean(
             isLendingPositionDataLoading ||
@@ -491,6 +512,7 @@ export const RepayInput = ({
               isEstimatedFeesDataLoading ||
               isLendingQuoteCloseError ||
               isEstimatedFeesDataError ||
+              disableSmartContractRepayment ||
               quoteErrorTranslation,
           )}
         >

@@ -1,13 +1,11 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isAddress } from 'viem'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteValidation/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
-import { isSmartContractAddress } from 'lib/address/utils'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType, SwapperName } from 'lib/swapper/types'
 import {
@@ -44,38 +42,24 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
 
   const { sellAssetAccountId } = useAccountIds()
 
-  const { data: _isSmartContractAddress } = useQuery({
-    queryKey: [
-      'isSmartContractAddress',
-      {
-        userAddress: sellAssetAccountId
-          ? fromAccountId(sellAssetAccountId).account.toLowerCase()
-          : '',
-      },
-    ],
-    queryFn: () =>
-      isSmartContractAddress(
-        sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '',
-      ),
-    enabled: Boolean(sellAssetAccountId?.length),
-  })
+  const userAddress = useMemo(() => {
+    if (!sellAssetAccountId) return ''
+
+    return fromAccountId(sellAssetAccountId).account
+  }, [sellAssetAccountId])
+
+  const { data: _isSmartContractAddress } = useIsSmartContractAddress(userAddress)
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
-    if (!sellAssetAccountId) return false
-    // Not an EVM address - we can assume this isn't a smart contract
-    if (
-      !isAddress(sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '')
-    )
-      return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, activeSwapperName, sellAssetAccountId])
+  }, [_isSmartContractAddress, activeSwapperName])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),

@@ -411,7 +411,6 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 
           if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)) {
             return {
-              // The guts of getting contractAddress for Idle
               contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
             }
           }
@@ -503,7 +502,6 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
               if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference))
                 return {
-                  // TODO: The guts of getting contractAddress for Idle
                   contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
                 }
 

@@ -546,8 +546,6 @@
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo",
-    "foxMissions": "Missions FOX",
-    "foxMissionsShort": "Missions",
     "lending": "Prêts"
   },
   "transactionRow": {
@@ -1955,77 +1953,6 @@
     },
     "custom": "Personnalisé"
   },
-  "idle": {
-    "emptyTitle": "Gagnez %{apy}% sur vos %{asset} avec Idle Finance",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Stratégie \"Senior Best Yield\"",
-          "body": "Les coffres-forts \"Senior Best Yield\" sont des stratégies que vous pouvez définir puis auxquelles vous n'avez plus à penser, elles acheminent automatiquement les fonds vers plusieurs sources de rendement à risque conservateur pour toujours fournir l'APY le plus élevé."
-        },
-        "page-2": {
-          "title": "Stratégies \"Senior Best Yield\" :",
-          "bullets": {
-            "one": "Automatisation et optimisation de la génération de rendement sur Aave, Compound et de multiples \"Senior Tranches\"",
-            "two": "Offrir des rendements maximisés sans que l'utilisateur ne vérifie constamment les tarifs et ne brûle du carburant pour chaque transfert"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Stratégie \"Junior Best Yield\"",
-          "body": "Les coffres-forts \"Junior Best Yield\" sont des stratégies que vous pouvez définir puis auxquelles vous n'avez plus à penser, elles acheminent automatiquement les fonds sur plusieurs \"Junior Tranches\" pour toujours fournir des APY boostés et maximisés."
-        },
-        "page-2": {
-          "title": "Stratégies \"Junior Best Yield\" :",
-          "bullets": {
-            "one": "Automatisation et optimisation de la génération de rendement sur plusieurs \"Junior Tranches\", offrant des rendements accrus de par leur conception",
-            "two": "Offrir des rendements maximisés sans que l'utilisateur ne vérifie constamment les tarifs et ne brûle du carburant pour chaque transfert"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Stratégie \"Senior Tranche\"",
-          "body": "Profitez de rendements DeFi avec une protection intégrée sur les dépôts. Les \"Senior Tranches\" offrent une couverture à spectre complet, fournie par leur contrepartie Junior."
-        },
-        "page-2": {
-          "title": "Stratégies \"Senior Tranche\" :"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Stratégie \"Junior Tranche\"",
-          "body": "Profitez de rendements DeFi boostés. Les \"Junior Tranches\" offrent des rendements à effet de levier car elles sont compensées par leur contrepartie Senior pour avoir pris plus de risques."
-        },
-        "page-2": {
-          "title": "Stratégies \"Junior Tranche\" :"
-        }
-      },
-      "monitorSystem": "Utiliser le système de surveillance d'Idle Finance pour trouver des allocations plus performantes et déclencher un rééquilibrage",
-      "offerHighReturn": "Offrir des rendements maximisés sans que l'utilisateur ne vérifie constamment les tarifs et ne brûle du carburant pour chaque transfert",
-      "leverageYield": "Obtenir des rendements en utilisant des fonds \"Senior Tranche\"",
-      "higherRisk": "Exposition aux risques plus élevée en protégeant les \"Senior Tranches\"",
-      "minRisk": "Exposition aux risques minimisée",
-      "builtInCoverage": "Couverture intégrée pour des récompenses à taux variable",
-      "noLockingPeriod": "Pas de période/epoch de verrouillage",
-      "autoReinvest": "Réinvestissement automatique des jetons accumulés",
-      "fundsCoveredJunior": "Fonds couverts par les \"Junior Tranches\"",
-      "automation": "Automatisation et optimisation de la génération de rendement sur Aave, Compound et de multiples \"Senior Tranches\""
-    },
-    "bestYield": {
-      "title": "Qu'est-ce que la stratégie \"Best Yield\" ?",
-      "body": "Maximisez automatiquement le rendement sur plusieurs protocoles DeFi éprouvés. La stratégie \"Best Yield\" optimise la génération de rendement en socialisant les coûts de carburant, en automatisant la génération de rendement par le déplacement de capitaux de manière algorithmique à mesure que de nouvelles opportunités de rendement se présentent."
-    },
-    "seniorTranche": {
-      "title": "Qu'est-ce qu'une \"Senior Tranche\" ?",
-      "body": "Profitez de rendements DeFi avec une protection intégrée sur les dépôts. Les \"Senior Tranches\" offrent une couverture à spectre complet, fournie par leur contrepartie Junior."
-    },
-    "juniorTranche": {
-      "title": "Qu'est-ce qu'une \"Junior Tranche\" ?",
-      "body": "Profitez de rendements DeFi boostés. Les \"Junior Tranches\" offrent des rendements à effet de levier car elles sont compensées par leur contrepartie Senior pour avoir pris plus de risques."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Achetez des cryptos sans KYC",
@@ -2119,56 +2046,6 @@
     "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence.",
     "reportSpam": "Signaler comme spam",
     "refresh": "Rafraîchir"
-  },
-  "missions": {
-    "subtitle": "Missions FOX",
-    "missionEnded": "Mission terminée",
-    "viewMission": "Voir la mission",
-    "comingSoon": "Prochainement",
-    "activeMissions": "Missions actives",
-    "endedMissions": "Missions terminées",
-    "title": {
-      "1": "Découvrez l'univers décentralisé et",
-      "2": "récoltez des récompenses"
-    },
-    "body": "Lancez-vous dans des missions, gagnez des récompenses et approfondissez vos connaissances sur l'écosystème en constante expansion de ShapeShift",
-    "ends": "Finit",
-    "ongoing": "Mission en cours",
-    "optimism": {
-      "title": "Gagnez jusqu'à 19,5 OP",
-      "subtitle": "Explorez Optimism",
-      "cta": "Commencez la mission"
-    },
-    "foxatar": {
-      "title": "Obtenez un NFT gratuit et personnalisable",
-      "subtitle": "Mintez un FOXatar",
-      "cta": "Commencez la mission"
-    },
-    "foxArmy": {
-      "subtitle": "Rejoignez l'armée FOX",
-      "title": "Cagnotte de 20 000 FOX",
-      "cta": "Commencez la mission"
-    },
-    "yat": {
-      "subtitle": "Jouez à Yat Fantasy",
-      "title": "Cagnotte de 3 000 USDC",
-      "cta": "Commencez la mission"
-    },
-    "getListed": {
-      "subtitle": "Votre projet ici",
-      "title": "Lancez une Mission pour votre projet",
-      "cta": "Soumettez un projet"
-    },
-    "foxRewards": {
-      "subtitle": "Achat, vente, échange, gains et plus encore",
-      "title": "Gagnez des FOX",
-      "cta": "Commencez la mission"
-    },
-    "snapfoxatar": {
-      "title": "Accéder à Bitcoin avec MetaMask",
-      "subtitle": "Mintez un skin Metamask pour votre FOXatar",
-      "cta": "Commencez la mission"
-    }
   },
   "avatar": {
     "modal": {

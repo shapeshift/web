@@ -19,7 +19,6 @@ export type FeatureFlags = {
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   ThorSwapAffiliateFees: boolean
-  IdleFinance: boolean
   Yat: boolean
   WalletConnectToDappsV2: boolean
   Wherever: boolean
@@ -87,7 +86,6 @@ const initialState: Preferences = {
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
-    IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,

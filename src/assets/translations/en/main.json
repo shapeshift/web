@@ -548,8 +548,6 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Missions",
-    "foxMissionsShort": "Missions",
     "lending": "Lending"
   },
   "transactionRow": {
@@ -728,6 +726,7 @@
     "free": "Free",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
+    "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
     "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
@@ -1962,77 +1961,6 @@
     },
     "custom": "Custom"
   },
-  "idle": {
-    "emptyTitle": "Earn %{apy}% on your %{asset} with Idle Finance",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield Strategy",
-          "body": "Senior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple, conservative-risk yield sources to always provide the highest APY"
-        },
-        "page-2": {
-          "title": "Senior Best Yield strategies:",
-          "bullets": {
-            "one": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches",
-            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Junior Best Yield Strategy",
-          "body": "Junior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple Junior Tranches to always provide boosted, maximized APYs"
-        },
-        "page-2": {
-          "title": "Junior Best Yield strategies:",
-          "bullets": {
-            "one": "Automation and optimization of the yield generation across multiple Junior Tranches, providing boosted yields by design",
-            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Senior Tranche Strategy",
-          "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
-        },
-        "page-2": {
-          "title": "Senior Tranche strategies:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranche Strategy",
-          "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
-        },
-        "page-2": {
-          "title": "Junior Tranche strategies:"
-        }
-      },
-      "monitorSystem": "Utilize Idle finance's monitoring system to find better-performing allocations and trigger a rebalance",
-      "offerHighReturn": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer",
-      "leverageYield": "Leverage yield using Senior tranches funds",
-      "higherRisk": "Higher risk exposure by protecting senior tranches",
-      "minRisk": "Minimized risk exposure",
-      "builtInCoverage": "Built-in coverage for variable rate rewards",
-      "noLockingPeriod": "No locking period or epochs",
-      "autoReinvest": "Auto-Reinvest accrued tokens",
-      "fundsCoveredJunior": "Funds covered by Junior Tranches",
-      "automation": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches"
-    },
-    "bestYield": {
-      "title": "What is Best Yield?",
-      "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
-    },
-    "seniorTranche": {
-      "title": "What is a Senior Tranche?",
-      "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
-    },
-    "juniorTranche": {
-      "title": "What is a Junior Tranche?",
-      "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Buy Crypto with NO KYC",
@@ -2127,56 +2055,6 @@
     "reportSpam": "Report Spam",
     "refresh": "Refresh"
   },
-  "missions": {
-    "subtitle": "FOX Missions",
-    "missionEnded": "Mission Ended",
-    "viewMission": "View Mission",
-    "comingSoon": "Coming Soon",
-    "activeMissions": "Active Missions",
-    "endedMissions": "Ended Missions",
-    "title": {
-      "1": "Unleash the Decentralized Universe and",
-      "2": "Reap Rewards"
-    },
-    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
-    "ends": "Ends",
-    "ongoing": "Ongoing Mission",
-    "optimism": {
-      "title": "Earn up to 19.5 OP",
-      "subtitle": "Explore Optimism",
-      "cta": "Start Mission"
-    },
-    "foxatar": {
-      "title": "Get a Free & Customizable NFT",
-      "subtitle": "Mint a FOXatar",
-      "cta": "Start Mission"
-    },
-    "foxArmy": {
-      "subtitle": "Join the FOX Army",
-      "title": "20,000 FOX Pool",
-      "cta": "Start Mission"
-    },
-    "yat": {
-      "subtitle": "Play Yat Fantasy",
-      "title": "3,000 USDC Prize Pool",
-      "cta": "Start Mission"
-    },
-    "getListed": {
-      "subtitle": "Your Project Here",
-      "title": "Launch a Mission for Your Project",
-      "cta": "Submit Project"
-    },
-    "foxRewards": {
-      "subtitle": "Buy, sell, trade, earn, and more",
-      "title": "Earn FOX",
-      "cta": "Start Mission"
-    },
-    "snapfoxatar": {
-      "title": "Unlock Bitcoin with MetaMask",
-      "subtitle": "Mint a Metamask FOXatar skin",
-      "cta": "Start Mission"
-    }
-  },
   "avatar": {
     "modal": {
       "title": "Set a New Avatar",
@@ -2194,7 +2072,6 @@
     "debtValue": "Debt Value",
     "loanToValue": "Loan to Value",
     "availablePools": "Available Pools",
-    "yourLoans": "Your Loans",
     "pool": "Pool",
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
@@ -2257,6 +2134,11 @@
       "repaymentLock": "Minimum period before you can repay your loan",
       "collateralizationRatio": "Ratio of your collateral value to the loan amount",
       "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
+    },
+    "yourLoans": {
+      "yourLoans": "Your Loans",
+      "emptyTitle": "The Land of Zero Loans!",
+      "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
   },
   "foxDiscounts": {

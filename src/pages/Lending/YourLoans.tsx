@@ -131,7 +131,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
               fontSize='xs'
             >
               {isRepaymentLocked
-                ? `${repaymentLockData} days ${translate('lending.untilRepayment')}`
+                ? translate('lending.daysUntilRepayment', { numDays: repaymentLockData })
                 : translate('lending.repaymentAvailable')}
             </RawText>
           </Stack>

@@ -2186,7 +2186,7 @@
   "lending": {
     "lending": "Lending",
     "repaymentAvailable": "Repayment available",
-    "untilRepayment": "until repayment",
+    "daysUntilRepayment": "%{numDays} days until repayment",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
     "collateralValue": "Collateral Value",
     "collateralValueDescription": "Current value of your asset used as collateral",

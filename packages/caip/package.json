@@ -21,9 +21,6 @@
     "generate:coincap": "yarn build && yarn node dist/adapters/coincap/generate.js",
     "generate:yearn": "yarn build && yarn node dist/adapters/yearn/generate.js"
   },
-  "dependencies": {
-    "@shapeshiftoss/types": "workspace:^"
-  },
   "devDependencies": {
     "@yfi/sdk": "^1.2.0"
   }

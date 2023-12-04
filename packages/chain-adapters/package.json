@@ -21,7 +21,6 @@
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "bech32": "^2.0.0",
-    "bitcoinjs-lib": "^5.2.0",
     "coinselect": "^3.1.13",
     "multicoin-address-validator": "^0.5.12",
     "web3-utils": "1.7.4"

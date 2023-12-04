@@ -678,7 +678,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [_isSmartContractAddress, userAddress])
 
   const preFooter = useMemo(() => {
-    if (!disableSmartContractDeposit) return null
+    if (!_isSmartContractAddress) return null
 
     return (
       <Flex direction='column' gap={2}>
@@ -693,7 +693,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         </Alert>
       </Flex>
     )
-  }, [disableSmartContractDeposit, translate])
+  }, [_isSmartContractAddress, translate])
 
   if (!state || !contextDispatch) return null
 

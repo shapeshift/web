@@ -616,21 +616,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
         const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
-        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
-          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
-            accountId,
-            asset,
-            type: 'withdraw',
-            fromAddress,
-          })
+        const hasValidBalance = await (async () => {
+          // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+          if (!isUtxoChainId(chainId)) {
+            return (
+              balanceCryptoPrecision.gt(0) &&
+              withdrawAmountCryptoPrecision.gt(0) &&
+              balanceCryptoPrecision.gte(withdrawAmountCryptoPrecision)
+            )
+          }
 
-        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+            await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+              amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
+              accountId,
+              asset,
+              type: 'withdraw',
+              fromAddress,
+            })
 
-        const hasValidBalance =
-          balanceCryptoPrecision.gt(0) &&
-          withdrawAmountCryptoPrecision.gt(0) &&
-          hasEnoughBalanceForTxPlusFeesPlusSweep
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+
+          return (
+            balanceCryptoPrecision.gt(0) &&
+            withdrawAmountCryptoPrecision.gt(0) &&
+            hasEnoughBalanceForTxPlusFeesPlusSweep
+          )
+        })()
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
           .minus(outboundFeeCryptoBaseUnit)
           .lt(0)
@@ -663,6 +675,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       getOutboundFeeCryptoBaseUnit,
       getWithdrawGasEstimateCryptoBaseUnit,
       amountAvailableCryptoPrecision,
+      chainId,
       fromAddress,
       translate,
     ],
@@ -695,22 +708,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(assetMarketData.price)
         const valueCryptoPrecision = bnOrZero(value)
 
-        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
-          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
-            accountId,
-            asset,
-            type: 'withdraw',
-            fromAddress,
-          })
+        const hasValidBalance = await (async () => {
+          // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+          if (!isUtxoChainId(chainId)) {
+            return (
+              amountAvailableFiat.gt(0) &&
+              valueCryptoPrecision.gt(0) &&
+              amountAvailableFiat.gte(value)
+            )
+          }
+          const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+            await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+              amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
+              accountId,
+              asset,
+              type: 'withdraw',
+              fromAddress,
+            })
 
-        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
 
-        const hasValidBalance =
-          amountAvailableFiat.gt(0) &&
-          valueCryptoPrecision.gt(0) &&
-          amountAvailableFiat.gte(value) &&
-          hasEnoughBalanceForTxPlusFeesPlusSweep
+          return (
+            amountAvailableFiat.gt(0) &&
+            valueCryptoPrecision.gt(0) &&
+            amountAvailableFiat.gte(value) &&
+            hasEnoughBalanceForTxPlusFeesPlusSweep
+          )
+        })()
 
         if (valueCryptoPrecision.isEqualTo(0)) return ''
         return hasValidBalance || 'common.insufficientFunds'
@@ -726,6 +750,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       amountAvailableCryptoPrecision,
       asset,
       assetMarketData.price,
+      chainId,
       dispatch,
       fromAddress,
       opportunityData,

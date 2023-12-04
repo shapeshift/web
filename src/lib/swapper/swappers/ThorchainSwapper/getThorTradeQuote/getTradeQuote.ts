@@ -17,15 +17,16 @@ import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
     router: string
     data: string
+    tradeType: TradeType
   }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
-type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
-export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
+export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
@@ -98,7 +99,7 @@ export const getThorTradeQuote = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1quote(input, streamingInterval)
+      return getL1quote(input, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
     case TradeType.LongTailToLongTail:

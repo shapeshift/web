@@ -1,4 +1,4 @@
-import { Button, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
+import { Button, Flex, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,7 +23,30 @@ import { useRepaymentLockData } from './hooks/useRepaymentLockData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: 'repeat(5, 1fr)',
+  lg: 'repeat(5, 1fr)',
+}
+const reverseMobileDisplay = {
+  base: 'block',
+  lg: 'none',
+}
+const mobileDisplay = {
+  base: 'none',
+  lg: 'flex',
+}
+
+const mobilePadding = {
+  base: 4,
+  lg: 0,
+}
+
+const listMargin = {
+  base: 0,
+  lg: -4,
+}
+
+const alignItems = {
+  base: 'flex-end',
+  lg: 'flex-start',
 }
 
 type LendingRowGridProps = {
@@ -79,7 +102,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     return null
 
   return (
-    <Stack mx={-4}>
+    <Stack mx={listMargin}>
       <Button
         variant='ghost'
         display='grid'
@@ -94,17 +117,26 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
         onClick={handlePoolClick}
       >
         <AssetCell assetId={asset.assetId} />
-        <Skeleton isLoaded={!isLendingPositionDataLoading}>
+        <Skeleton isLoaded={!isLendingPositionDataLoading} display={mobileDisplay}>
           <Stack spacing={0}>
             <Text translation={accountNumberTranslation} />
           </Stack>
         </Skeleton>
         <Skeleton isLoaded={!isLendingPositionDataLoading}>
-          <Stack spacing={0}>
+          <Stack spacing={0} alignItems={alignItems}>
             <Amount.Fiat value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'} />
+            <RawText
+              color={isRepaymentLocked ? 'text.subtle' : 'green.500'}
+              display={reverseMobileDisplay}
+              fontSize='xs'
+            >
+              {isRepaymentLocked
+                ? translate('lending.daysUntilRepayment', { numDays: repaymentLockData })
+                : translate('lending.repaymentAvailable')}
+            </RawText>
           </Stack>
         </Skeleton>
-        <Skeleton isLoaded={!isLendingPositionDataLoading}>
+        <Skeleton isLoaded={!isLendingPositionDataLoading} display={mobileDisplay}>
           <Stack spacing={0}>
             <Amount.Crypto
               value={lendingPositionData?.collateralBalanceCryptoPrecision ?? '0'}
@@ -117,9 +149,11 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
             />
           </Stack>
         </Skeleton>
-        <Skeleton isLoaded={isRepaymentLockSuccess}>
+        <Skeleton isLoaded={isRepaymentLockSuccess} display={mobileDisplay}>
           <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
-            {isRepaymentLocked ? `${repaymentLockData} days` : translate('lending.unlocked')}
+            {isRepaymentLocked
+              ? translate('lending.repaymentDays', { numDays: repaymentLockData })
+              : translate('lending.unlocked')}
           </RawText>
         </Skeleton>
       </Button>
@@ -188,20 +222,29 @@ export const YourLoans = () => {
           color='text.subtle'
           fontWeight='bold'
           fontSize='sm'
+          px={mobilePadding}
         >
           <Text translation='lending.pool' />
-          <HelperTooltip label={translate('assets.assetDetails.assetAccounts.account')}>
-            <Text translation='assets.assetDetails.assetAccounts.account' textAlign='right' />
-          </HelperTooltip>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('assets.assetDetails.assetAccounts.account')}>
+              <Text translation='assets.assetDetails.assetAccounts.account' textAlign='right' />
+            </HelperTooltip>
+          </Flex>
+
           <HelperTooltip label={translate('lending.outstandingDebt')}>
             <Text translation='lending.outstandingDebt' textAlign='right' />
           </HelperTooltip>
-          <HelperTooltip label={translate('lending.collateralValue')}>
-            <Text translation='lending.collateralValue' textAlign='right' />
-          </HelperTooltip>
-          <HelperTooltip label={translate('lending.repaymentLock')}>
-            <Text translation='lending.repaymentLock' textAlign='right' />
-          </HelperTooltip>
+
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.collateralValue')}>
+              <Text translation='lending.collateralValue' textAlign='right' />
+            </HelperTooltip>
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('lending.repaymentLock')}>
+              <Text translation='lending.repaymentLock' textAlign='right' />
+            </HelperTooltip>
+          </Flex>
         </SimpleGrid>
         {lendingRowGrids}
       </Stack>

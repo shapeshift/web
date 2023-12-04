@@ -13,6 +13,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import { utils } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -27,12 +28,15 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useInterval } from 'hooks/useInterval/useInterval'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
+import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
@@ -49,11 +53,14 @@ import { BorrowRoutePaths } from './types'
 type BorrowConfirmProps = {
   collateralAssetId: AssetId
   depositAmount: string | null
+  setDepositAmount: (amount: string | null) => void
   collateralAccountId: AccountId
   borrowAccountId: AccountId
   borrowAsset: Asset | null
   txId: string | null
   setTxid: (txId: string | null) => void
+  confirmedQuote: LendingQuoteOpen | null
+  setConfirmedQuote: (quote: LendingQuoteOpen | null) => void
 }
 
 export const BorrowConfirm = ({
@@ -64,6 +71,9 @@ export const BorrowConfirm = ({
   borrowAsset,
   txId,
   setTxid,
+  confirmedQuote,
+  setConfirmedQuote,
+  setDepositAmount,
 }: BorrowConfirmProps) => {
   const {
     state: { wallet },
@@ -79,19 +89,28 @@ export const BorrowConfirm = ({
   )
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
-    mutationFn: (_txId: string) =>
+    mutationFn: async (_txId: string) => {
       // Ensuring we wait for the outbound Tx to exist
       // Else, the position will update before the borrowed asset is received and users will be confused
-      waitForThorchainUpdate({ txId: _txId, skipOutbound: false }).promise,
+      await waitForThorchainUpdate({ txId: _txId, skipOutbound: false }).promise
+      queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
+    },
   })
 
   const [isLoanPending, setIsLoanPending] = useState(false)
+  const [isQuoteExpired, setIsQuoteExpired] = useState(false)
   const lendingMutationStatus = useMutationState({
     filters: { mutationKey: [txId] },
     select: mutation => mutation.state.status,
   })
 
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
+
+  const swapStatus = useMemo(() => {
+    if (loanTxStatus === 'success') return TxStatus.Confirmed
+    if (loanTxStatus === 'pending') return TxStatus.Pending
+    return TxStatus.Unknown
+  }, [loanTxStatus])
 
   useEffect(() => {
     // don't start polling until we have a tx
@@ -107,23 +126,6 @@ export const BorrowConfirm = ({
   }, [history])
   const divider = useMemo(() => <Divider />, [])
 
-  const useLendingQuoteQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmountCryptoPrecision: depositAmount ?? '0',
-    }),
-    [collateralAssetId, collateralAccountId, borrowAccountId, borrowAssetId, depositAmount],
-  )
-  const {
-    data: lendingQuoteData,
-    isSuccess: isLendingQuoteSuccess,
-    isLoading: isLendingQuoteLoading,
-    isError: isLendingQuoteError,
-  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
-
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -136,10 +138,27 @@ export const BorrowConfirm = ({
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId,
     collateralAccountId,
-    borrowAccountId,
-    borrowAssetId: borrowAsset?.assetId ?? '',
     depositAmountCryptoPrecision: depositAmount ?? '0',
+    confirmedQuote,
   })
+
+  const useLendingQuoteQueryArgs = useMemo(
+    () => ({
+      // Refetching at confirm step should only be done programmatically with refetch if a quote expires and a user clicks "Refetch Quote"
+      enabled: false,
+      collateralAssetId,
+      collateralAccountId,
+      borrowAccountId,
+      borrowAssetId: borrowAsset?.assetId ?? '',
+      depositAmountCryptoPrecision: depositAmount ?? '0',
+    }),
+    [borrowAccountId, borrowAsset?.assetId, collateralAccountId, collateralAssetId, depositAmount],
+  )
+
+  const { refetch: refetchLendingQuote, isRefetching: isLendingQuoteRefetching } =
+    useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
+
+  const isLendingQuoteSuccess = Boolean(confirmedQuote)
 
   const collateralAccountFilter = useMemo(
     () => ({ accountId: collateralAccountId }),
@@ -149,9 +168,21 @@ export const BorrowConfirm = ({
     selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
   )
   const handleConfirm = useCallback(async () => {
-    if (loanTxStatus === 'pending' || loanTxStatus === 'success') {
+    if (!confirmedQuote) return
+
+    if (isQuoteExpired) {
+      const { data: refetchedQuote } = await refetchLendingQuote()
+      setConfirmedQuote(refetchedQuote ?? null)
+      return
+    }
+
+    if (loanTxStatus === 'pending') return // no-op
+
+    if (loanTxStatus === 'success') {
       // Reset values when going back to input step
       setTxid(null)
+      setConfirmedQuote(null)
+      setDepositAmount(null)
       return history.push(BorrowRoutePaths.Input)
     }
 
@@ -185,20 +216,20 @@ export const BorrowConfirm = ({
       const sendInput: SendInput = {
         cryptoAmount: depositAmount ?? '0',
         assetId: collateralAssetId,
-        to: lendingQuoteData.quoteInboundAddress,
+        to: confirmedQuote.quoteInboundAddress,
         from,
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
-          ? utils.hexlify(utils.toUtf8Bytes(lendingQuoteData.quoteMemo))
-          : lendingQuoteData.quoteMemo,
+          ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
+          : confirmedQuote.quoteMemo,
         amountFieldError: '',
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',
         fiatSymbol: selectedCurrency,
         vanityAddress: '',
-        input: lendingQuoteData.quoteInboundAddress,
+        input: confirmedQuote.quoteInboundAddress,
       }
 
       if (!sendInput) throw new Error('Error building send input')
@@ -214,6 +245,8 @@ export const BorrowConfirm = ({
 
     return maybeTxId
   }, [
+    confirmedQuote,
+    isQuoteExpired,
     loanTxStatus,
     collateralAssetId,
     depositAmount,
@@ -225,11 +258,30 @@ export const BorrowConfirm = ({
     collateralAccountId,
     estimatedFeesData,
     setTxid,
+    refetchLendingQuote,
+    setConfirmedQuote,
+    setDepositAmount,
     history,
-    lendingQuoteData?.quoteInboundAddress,
-    lendingQuoteData?.quoteMemo,
     selectedCurrency,
   ])
+
+  useInterval(() => {
+    // This should never happen but it may
+    if (!confirmedQuote) return
+
+    // Since we run this interval check every second, subtract a few seconds to avoid
+    // off-by-one on the last second as well as the main thread being overloaded and running slow
+    const quoteExpiryUnix = dayjs.unix(confirmedQuote.quoteExpiry).subtract(5, 'second').unix()
+
+    const isExpired = dayjs.unix(quoteExpiryUnix).isBefore(dayjs())
+    setIsQuoteExpired(isExpired)
+  }, 1000)
+
+  const confirmTranslation = useMemo(() => {
+    if (isQuoteExpired) return 'lending.refetchQuote'
+
+    return loanTxStatus === 'success' ? 'lending.borrowAgain' : 'lending.confirmAndBorrow'
+  }, [isQuoteExpired, loanTxStatus])
 
   if (!depositAmount) return null
 
@@ -249,14 +301,14 @@ export const BorrowConfirm = ({
             sellIcon={collateralAsset?.icon ?? ''}
             buyColor={debtAsset?.color ?? ''}
             sellColor={collateralAsset?.color ?? ''}
-            status={TxStatus.Unknown}
+            status={swapStatus}
             px={6}
             mb={4}
           />
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
             <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>
             <Row>
-              <Row.Label>Send</Row.Label>
+              <Row.Label>{translate('common.send')}</Row.Label>
               <Row.Value textAlign='right'>
                 <Skeleton isLoaded={isLendingQuoteSuccess}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
@@ -272,26 +324,26 @@ export const BorrowConfirm = ({
                 </Skeleton>
               </Row.Value>
             </Row>
-            <Skeleton isLoaded={isLendingQuoteSuccess}>
-              <Row>
-                <Row.Label>{translate('common.receive')}</Row.Label>
-                <Row.Value textAlign='right'>
+            <Row>
+              <Row.Label>{translate('common.receive')}</Row.Label>
+              <Row.Value textAlign='right'>
+                <Skeleton isLoaded={isLendingQuoteSuccess}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
                       // Actually defined at display time, see isLoaded above
-                      value={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
+                      value={confirmedQuote?.quoteBorrowedAmountCryptoPrecision ?? '0'}
                       symbol={debtAsset?.symbol ?? ''}
                     />
                     <Amount.Fiat
                       color='text.subtle'
                       // Actually defined at display time, see isLoaded above
-                      value={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
+                      value={confirmedQuote?.quoteBorrowedAmountUserCurrency ?? '0'}
                       prefix='≈'
                     />
                   </Stack>
-                </Row.Value>
-              </Row>
-            </Skeleton>
+                </Skeleton>
+              </Row.Value>
+            </Row>
             <Row fontSize='sm' fontWeight='medium'>
               <HelperTooltip label={translate('lending.quote.feesPlusSlippage')}>
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
@@ -299,7 +351,7 @@ export const BorrowConfirm = ({
               <Row.Value>
                 <Skeleton isLoaded={isLendingQuoteSuccess}>
                   {/* Actually defined at display time, see isLoaded above */}
-                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                  <Amount.Fiat value={confirmedQuote?.quoteTotalFeesFiatUserCurrency ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -314,11 +366,12 @@ export const BorrowConfirm = ({
             </Row>
           </Stack>
           <LoanSummary
+            confirmedQuote={confirmedQuote}
             borderTopWidth={0}
             mt={0}
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
-            debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
+            debtOccuredAmountUserCurrency={confirmedQuote?.quoteDebtAmountUserCurrency ?? '0'}
             borrowAssetId={borrowAssetId}
             borrowAccountId={borrowAccountId}
             depositAmountCryptoPrecision={depositAmount ?? '0'}
@@ -330,20 +383,21 @@ export const BorrowConfirm = ({
               width='full'
               onClick={handleConfirm}
               isLoading={
-                loanTxStatus === 'pending' || isEstimatedFeesDataLoading || isLendingQuoteLoading
+                isLoanPending ||
+                isLendingQuoteRefetching ||
+                loanTxStatus === 'pending' ||
+                isEstimatedFeesDataLoading ||
+                !confirmedQuote
               }
               disabled={
                 loanTxStatus === 'pending' ||
                 isLoanPending ||
                 isEstimatedFeesDataLoading ||
                 isEstimatedFeesDataError ||
-                isLendingQuoteLoading ||
-                isLendingQuoteError
+                !confirmedQuote
               }
             >
-              {translate(
-                loanTxStatus === 'success' ? 'lending.borrowAgain' : 'lending.confirmAndBorrow',
-              )}
+              {translate(confirmTranslation)}
             </Button>
           </CardFooter>
         </Stack>

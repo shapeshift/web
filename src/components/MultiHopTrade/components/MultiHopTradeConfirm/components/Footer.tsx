@@ -24,7 +24,7 @@ import {
   selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const Footer = () => {
@@ -38,7 +38,7 @@ export const Footer = () => {
   const { isModeratePriceImpact } = usePriceImpact()
 
   const handleConfirm = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    dispatch(tradeQuoteSlice.actions.confirmTrade())
   }, [dispatch])
 
   const networkFeeToTradeRatioPercentage = useMemo(
@@ -105,7 +105,7 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return tradeExecutionState === MultiHopExecutionState.Previewing ? (
+  return tradeExecutionState === TradeExecutionState.Previewing ? (
     <CardFooter
       flexDir='column'
       gap={2}

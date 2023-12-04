@@ -317,7 +317,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     /**
      * we want to be able to search on...
      * - provider "thorch" for THORChain, "unis" for Uniswap
-     * - asset name (vault/underlying/rewards) e.g. idle 'senior tr' for Idle Senior TR, 'usdc' will match too
+     * - asset name (vault/underlying/rewards) e.g. fox for FOXy
      * - chain "opt" for Optimism
      *
      * https://github.com/kentcdodds/match-sorter#advanced-options
@@ -396,7 +396,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     })
 
     const initial = {
-      [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),

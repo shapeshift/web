@@ -323,15 +323,12 @@ export const BorrowInput = ({
     useIsSmartContractAddress(userAddress)
 
   const disableSmartContractDeposit = useMemo(() => {
-    // User address still loading - disable confirm
-    if (!userAddress) return true
-
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, userAddress])
+  }, [_isSmartContractAddress])
 
   const onSubmit = useCallback(() => {
     if (!lendingQuoteData) return

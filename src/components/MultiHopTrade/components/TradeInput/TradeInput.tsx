@@ -21,7 +21,6 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { isAddress } from 'viem'
 import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -196,19 +195,13 @@ export const TradeInput = memo(() => {
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
-    if (!sellAssetAccountId) return false
-    // Not an EVM address - we can assume this isn't a smart contrac
-    if (
-      !isAddress(sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '')
-    )
-      return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, activeSwapperName, sellAssetAccountId])
+  }, [_isSmartContractAddress, activeSwapperName])
 
   const isLoading = useMemo(
     () =>

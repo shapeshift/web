@@ -1,7 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isAddress } from 'viem'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteValidation/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
@@ -54,17 +53,13 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
-    // User address still loading - disable
-    if (!userAddress) return true
-    // Not an EVM address - we can assume this isn't a smart contract
-    if (!isAddress(userAddress)) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, activeSwapperName, userAddress])
+  }, [_isSmartContractAddress, activeSwapperName])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),

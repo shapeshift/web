@@ -64,6 +64,8 @@ type RepayInputProps = {
   setConfirmedQuote: (quote: LendingQuoteClose | null) => void
 }
 
+const percentOptions = [0]
+
 export const RepayInput = ({
   collateralAssetId,
   repaymentPercent,
@@ -121,8 +123,6 @@ export const RepayInput = ({
   }, [history, lendingQuoteCloseData, setConfirmedQuote])
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
-
-  const percentOptions = useMemo(() => [0], [])
 
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
 

@@ -66,6 +66,8 @@ type BorrowInputProps = {
   setConfirmedQuote: (quote: LendingQuoteOpen | null) => void
 }
 
+const percentOptions = [0]
+
 export const BorrowInput = ({
   isAccountSelectionDisabled,
   collateralAssetId,
@@ -101,8 +103,6 @@ export const BorrowInput = ({
   }, [borrowAsset, borrowAssets, collateralAsset, setBorrowAsset])
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
-
-  const percentOptions = useMemo(() => [0], [])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleBorrowAssetClick = useCallback(() => {

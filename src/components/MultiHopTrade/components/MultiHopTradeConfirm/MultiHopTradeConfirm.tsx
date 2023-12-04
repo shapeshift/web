@@ -8,7 +8,7 @@ import { Text } from 'components/Text'
 import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
 import { selectTradeExecutionState } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
@@ -50,7 +50,7 @@ export const MultiHopTradeConfirm = memo(() => {
   useEffect(() => {
     if (
       previousTradeExecutionState !== tradeExecutionState &&
-      previousTradeExecutionState === MultiHopExecutionState.FirstHopAwaitingTradeExecution
+      previousTradeExecutionState === TradeExecutionState.FirstHop
     ) {
       if (isFirstHopOpen) onToggleFirstHop()
       if (!isSecondHopOpen) onToggleSecondHop()
@@ -65,7 +65,7 @@ export const MultiHopTradeConfirm = memo(() => {
   ])
 
   const isTradeComplete = useMemo(
-    () => tradeExecutionState === MultiHopExecutionState.TradeComplete,
+    () => tradeExecutionState === TradeExecutionState.TradeComplete,
     [tradeExecutionState],
   )
 
@@ -77,7 +77,7 @@ export const MultiHopTradeConfirm = memo(() => {
             <Heading textAlign='center' fontSize='md'>
               <Text
                 translation={
-                  tradeExecutionState === MultiHopExecutionState.Previewing
+                  tradeExecutionState === TradeExecutionState.Previewing
                     ? 'trade.confirmDetails'
                     : 'trade.trade'
                 }

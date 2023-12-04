@@ -1,7 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, Center, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -15,7 +15,7 @@ import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HOP_EXECUTION_STATE_ORDERED, HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMockAllowanceApproval } from '../hooks/mockHooks'
@@ -28,7 +28,6 @@ export type ApprovalStepProps = {
   isActive: boolean
   isLastStep?: boolean
   isLoading?: boolean
-  onError: () => void
 }
 
 export const ApprovalStep = ({
@@ -37,42 +36,45 @@ export const ApprovalStep = ({
   isActive,
   isLastStep,
   isLoading,
-  onError: handleError,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
-  const [isError, setIsError] = useState<boolean>(false)
 
   const {
-    state: hopExecutionState,
-    approvalTxHash: txHash,
-    approvalState,
+    approval: { txHash, state: approvalTxState },
   } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+
+  const isError = useMemo(
+    () => approvalTxState === TransactionExecutionState.Failed,
+    [approvalTxState],
+  )
 
   const { executeAllowanceApproval, approvalNetworkFeeCryptoBaseUnit } = useMockAllowanceApproval(
     tradeQuoteStep,
-    hopIndex === 0,
+    hopIndex,
     isExactAllowance,
   ) // TODO: use the real hook here
 
   const handleSignAllowanceApproval = useCallback(async () => {
-    // next state
-    dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+    if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation) {
+      console.error('attempted to execute in-progress allowance approval')
+      return
+    }
+
+    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
 
     // execute the allowance approval
     const finalTxStatus = await executeAllowanceApproval()
 
-    // next state if trade was successful
     if (finalTxStatus === TxStatus.Confirmed) {
-      dispatch(tradeQuoteSlice.actions.incrementTradeExecutionState())
+      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
     } else if (finalTxStatus === TxStatus.Failed) {
-      setIsError(true)
-      handleError()
+      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
     }
-  }, [dispatch, executeAllowanceApproval, handleError])
+  }, [approvalTxState, dispatch, executeAllowanceApproval, hopIndex])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =
@@ -83,24 +85,12 @@ export const ApprovalStep = ({
         )
       : ''
 
-  // the txStatus needs to be undefined before the tx is executed to handle "ready" but not "executing" status
-  const txStatus =
-    HOP_EXECUTION_STATE_ORDERED.indexOf(hopExecutionState) >=
-    HOP_EXECUTION_STATE_ORDERED.indexOf(HopExecutionState.AwaitingApprovalExecution)
-      ? approvalState
-      : undefined
-
-  const stepIndicator = useMemo(
-    () =>
-      txStatus !== undefined ? (
-        <StatusIcon txStatus={txStatus} />
-      ) : (
-        <Center fontSize='sm'>
-          <FaThumbsUp />
-        </Center>
-      ),
-    [txStatus],
-  )
+  const stepIndicator = useMemo(() => {
+    const defaultIcon = <FaThumbsUp />
+    // eslint too stoopid to realize this is inside the context of useMemo already
+    // eslint-disable-next-line react-memo/require-usememo
+    return <StatusIcon txStatus={approvalTxState} defaultIcon={defaultIcon} />
+  }, [approvalTxState])
 
   const translate = useTranslate()
 
@@ -183,7 +173,7 @@ export const ApprovalStep = ({
             size='sm'
             leftIcon={leftIcon}
             colorScheme='blue'
-            isLoading={hopExecutionState === HopExecutionState.AwaitingApprovalExecution}
+            isLoading={approvalTxState === TransactionExecutionState.Pending}
             onClick={handleSignAllowanceApproval}
           >
             {translate('common.approve')}
@@ -192,8 +182,8 @@ export const ApprovalStep = ({
       </Card>
     )
   }, [
+    approvalTxState,
     handleSignAllowanceApproval,
-    hopExecutionState,
     isActive,
     isExactAllowance,
     leftIcon,
@@ -210,7 +200,7 @@ export const ApprovalStep = ({
       content={content}
       isLastStep={isLastStep}
       isLoading={isLoading}
-      isError={txStatus === TxStatus.Failed}
+      isError={approvalTxState === TransactionExecutionState.Failed}
     />
   )
 }

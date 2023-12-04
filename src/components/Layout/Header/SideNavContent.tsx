@@ -4,6 +4,8 @@ import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
+import { ArkeoIcon } from 'components/Icons/Arkeo'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -20,6 +22,7 @@ type HeaderContentProps = {
 
 export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
+  const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
@@ -35,9 +38,14 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
     onClose && onClose()
   }, [onClose, feedbackSupport])
 
+  const handleClickArkeo = useCallback(() => {
+    history.push('/arkeo')
+  }, [history])
+
   const closeIcon = useMemo(() => <CloseIcon boxSize={3} />, [])
   const settingsIcon = useMemo(() => <SettingsIcon />, [])
   const chatIcon = useMemo(() => <ChatIcon />, [])
+  const arkeoIcon = useMemo(() => <ArkeoIcon />, [])
 
   return (
     <Flex
@@ -77,6 +85,13 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
 
       <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
       <Stack width='full' mt={6} spacing={0}>
+        <MainNavLink
+          isCompact={isCompact}
+          size='sm'
+          onClick={handleClickArkeo}
+          label={translate('navBar.arkeo')}
+          leftIcon={arkeoIcon}
+        />
         <MainNavLink
           isCompact={isCompact}
           size='sm'

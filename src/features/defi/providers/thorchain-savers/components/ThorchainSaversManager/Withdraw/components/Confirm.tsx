@@ -15,7 +15,6 @@ import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -29,7 +28,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { encodeFunctionData, getAddress, isAddress } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -42,8 +41,8 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSmartContractAddress } from 'lib/address/utils'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -153,7 +152,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const userAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -759,40 +761,34 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [missingBalanceForGasCryptoPrecision, feeAsset.symbol],
   )
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: ['isSmartContractAddress', { userAddress: userAddress?.toLowerCase() }],
-    queryFn: () => isSmartContractAddress(userAddress ?? ''),
-    enabled: Boolean(userAddress?.length),
-  })
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractWithdraw = useMemo(() => {
-    // Not an EVM address - we can assume this isn't a smart contract
-    if (!isAddress(userAddress ?? '')) return false
-
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, userAddress])
+  }, [_isSmartContractAddress])
 
   const preFooter = useMemo(() => {
-    if (!disableSmartContractWithdraw) return null
+    if (!_isSmartContractAddress) return null
 
     return (
       <Flex direction='column' gap={2}>
         <Alert status='error' width='auto' fontSize='sm'>
           <AlertIcon />
           <Stack spacing={0}>
-            <AlertTitle>Smart contract wallets not supported</AlertTitle>
+            <AlertTitle>{translate('trade.errors.smartContractWalletNotSupported')}</AlertTitle>
             <AlertDescription lineHeight='short'>
-              The THORChain network currently does not support smart contract wallets.
+              {translate('trade.thorSmartContractWalletUnsupported')}
             </AlertDescription>
           </Stack>
         </Alert>
       </Flex>
     )
-  }, [disableSmartContractWithdraw])
+  }, [_isSmartContractAddress, translate])
 
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)

@@ -4,7 +4,7 @@ import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
+import { type Route, RouteCategory } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -52,7 +52,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
       const [name, values] = group
       return (
         <Stack key={id}>
-          {name && (
+          {name && name !== RouteCategory.Featured && (
             <Text
               px={4}
               color={groupColor}

@@ -38,6 +38,7 @@ export async function getTradeQuote(
     slippageTolerancePercentage,
     supportsEIP1559,
     affiliateBps,
+    potentialAffiliateBps,
   } = input
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -73,8 +74,6 @@ export async function getTradeQuote(
     fromAddress: sendAddress,
     toAddress: receiveAddress,
     fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    // as recommended by lifi, dodo is denied until they fix their gas estimates
-    // TODO: convert this config to .env variable
     options: {
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
@@ -82,7 +81,7 @@ export async function getTradeQuote(
         slippageTolerancePercentage ??
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
-      exchanges: { deny: ['dodo'] },
+      bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
       allowSwitchChain: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
       fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
@@ -225,6 +224,7 @@ export async function getTradeQuote(
         id: selectedLifiRoute.id,
         receiveAddress,
         affiliateBps,
+        potentialAffiliateBps,
         steps,
         rate: netRate,
         selectedLifiRoute,

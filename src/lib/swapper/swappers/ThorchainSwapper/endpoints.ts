@@ -1,11 +1,16 @@
 import type { AminoMsg, StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
+import { type Result } from '@sniptt/monads/build'
+import assert from 'assert'
 import { getConfig } from 'config'
+import type { Address } from 'viem'
+import { encodeFunctionData, parseAbiItem } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type {
@@ -20,8 +25,11 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from 'lib/swapper/types'
+import { assertUnreachable } from 'lib/utils'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { viemClientByChainId } from 'lib/viem-client'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -30,6 +38,7 @@ import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
+import { TradeType } from './utils/longTailHelpers'
 
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
@@ -65,7 +74,7 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
-    const { router: to, data, steps } = tradeQuote as ThorEvmTradeQuote
+    const { router: to, data, steps, memo: tcMemo, tradeType } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
@@ -97,23 +106,85 @@ export const thorchainApi: SwapperApi = {
       }
     })()
 
-    const [{ gasLimit }, { average: gasFees }] = await Promise.all([
-      api.estimateGas({ data, from, to, value }),
-      api.getGasFees(),
-    ])
+    switch (tradeType) {
+      case TradeType.L1ToL1: {
+        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
+          api.estimateGas({ data, from, to, value }),
+          api.getGasFees(),
+        ])
 
-    const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+        return {
+          chainId: Number(fromChainId(chainId).chainReference),
+          data,
+          from,
+          gasLimit,
+          to,
+          value,
+          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+            ? { maxFeePerGas, maxPriorityFeePerGas }
+            : { gasPrice }),
+        }
+      }
+      case TradeType.LongTailToL1: {
+        const l1AssetId: AssetId = assertGetEvmChainAdapter(chainId).getFeeAssetId()
+        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+        const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, l1AssetId)
+        assert(
+          maybeInboundAddress.isOk() !== false,
+          `no inbound address data found for assetId '${l1AssetId}'`,
+        )
+        const inboundAddress = maybeInboundAddress.unwrap()
+        const tcVault = inboundAddress.address as Address
+        const tcRouter = inboundAddress.router as Address | undefined
 
-    return {
-      chainId: Number(fromChainId(chainId).chainReference),
-      data,
-      from,
-      gasLimit,
-      to,
-      value,
-      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
-        ? { maxFeePerGas, maxPriorityFeePerGas }
-        : { gasPrice }),
+        assert(tcRouter !== undefined, `no tcRouter found for assetId '${l1AssetId}'`)
+
+        const swapInAbiItem = parseAbiItem(
+          'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
+        )
+
+        const publicClient = viemClientByChainId[chainId as EvmChainId]
+        assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+
+        const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
+        const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+        const amountOutMin: bigint = BigInt(0) // todo: the buy amount
+        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
+        const tenMinutes = BigInt(600)
+        const deadline = currentTimestamp + tenMinutes
+        const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
+
+        const swapInData = encodeFunctionData({
+          abi: [swapInAbiItem],
+          functionName: 'swapIn',
+          args: params,
+        })
+
+        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
+          api.estimateGas({ data: swapInData, from, to, value }),
+          api.getGasFees(),
+        ])
+
+        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+
+        return {
+          chainId: Number(fromChainId(chainId).chainReference),
+          data: swapInData,
+          from,
+          gasLimit,
+          to,
+          value,
+          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
+            ? { maxFeePerGas, maxPriorityFeePerGas }
+            : { gasPrice }),
+        }
+      }
+      case TradeType.L1ToLongTail:
+      case TradeType.LongTailToLongTail:
+        throw Error(`Unsupported trade type: ${TradeType}`)
+      default:
+        assertUnreachable(tradeType)
     }
   },
 

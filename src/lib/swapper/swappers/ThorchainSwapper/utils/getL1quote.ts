@@ -28,17 +28,23 @@ import {
 } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type {
+  ThorEvmTradeQuote,
+  ThorTradeQuote,
+  ThorTradeUtxoOrCosmosQuote,
+} from '../getThorTradeQuote/getTradeQuote'
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from './addSlippageToMemo'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getQuote } from './getQuote/getQuote'
+import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
 export const getL1quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
+  tradeType: TradeType,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -47,6 +53,7 @@ export const getL1quote = async (
     accountNumber,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
+    potentialAffiliateBps,
     slippageTolerancePercentage,
   } = input
 
@@ -67,7 +74,6 @@ export const getL1quote = async (
   })
 
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
-  // TODO: we'll probably turn this into an aggregate quote
   const swapQuote = maybeSwapQuote.unwrap()
 
   const maybeStreamingSwapQuote = getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS
@@ -118,6 +124,7 @@ export const getL1quote = async (
     ),
     isStreaming,
     affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
+    potentialAffiliateBps,
     estimatedExecutionTimeMs: quote.total_swap_seconds
       ? 1000 * quote.total_swap_seconds
       : undefined,
@@ -187,7 +194,8 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-          }): Promise<ThorTradeQuote> => {
+            potentialAffiliateBps,
+          }): Promise<ThorEvmTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -219,10 +227,12 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               data,
               router,
+              tradeType: tradeType ?? TradeType.L1ToL1,
               steps: [
                 {
                   estimatedExecutionTimeMs,
@@ -272,7 +282,8 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-          }): Promise<ThorTradeQuote> => {
+            potentialAffiliateBps,
+          }): Promise<ThorTradeUtxoOrCosmosQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -313,6 +324,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [
@@ -364,7 +376,8 @@ export const getL1quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-          }): ThorTradeQuote => {
+            potentialAffiliateBps,
+          }): ThorTradeUtxoOrCosmosQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
 
@@ -390,6 +403,7 @@ export const getL1quote = async (
               memo: updatedMemo,
               receiveAddress,
               affiliateBps,
+              potentialAffiliateBps,
               isStreaming,
               rate,
               steps: [

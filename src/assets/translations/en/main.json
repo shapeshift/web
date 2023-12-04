@@ -2186,6 +2186,9 @@
   },
   "lending": {
     "lending": "Lending",
+    "repaymentAvailable": "Repayment available",
+    "daysUntilRepayment": "%{numDays} days until repayment",
+    "repaymentDays": "%{numDays} days",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
     "collateralValue": "Collateral Value",
     "collateralValueDescription": "Current value of your asset used as collateral",
@@ -2233,6 +2236,7 @@
     "repayNoticeCta": "I understand",
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
+    "refetchQuote": "Refetch Quote",
     "faq": {
       "title": "FAQ",
       "lending": {
@@ -2257,14 +2261,21 @@
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Current FOX Power",
+    "currentFoxPower": "Your FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Simulate your FOX Savings",
     "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your trade. Simply adjust the sliders below to indicate your FOX holder amount and the trade size in fiat, and watch your potential savings unfold!",
     "tradeSize": "Trade Size",
     "totalFee": "Total Fee",
     "foxPowerDiscount": "FOX Power Discount",
-    "basedOnFee": "Based on a fee of: %{fee}"
+    "basedOnFee": "Based on a fee of: %{fee}",
+    "feeSummary": "Fee Summary",
+    "simulateFee": "Simulate Fee",
+    "freeUnderThreshold": "Trades under %{threshold} are always FREE",
+    "breakdownHeader": "Your FOX Power Discount",
+    "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
+    "tradeFee": "Trade Fee",
+    "totalTradeFee": "Total Trade Fee"
   }
 }
 

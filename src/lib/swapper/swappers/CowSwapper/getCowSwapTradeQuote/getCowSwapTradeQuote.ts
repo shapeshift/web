@@ -102,6 +102,7 @@ export async function getCowSwapTradeQuote(
     id: data.id.toString(),
     receiveAddress,
     affiliateBps: undefined,
+    potentialAffiliateBps: undefined,
     rate,
     steps: [
       {

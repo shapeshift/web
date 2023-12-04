@@ -80,3 +80,39 @@ export type BorrowersResponseError = {
 }
 
 export type BorrowersResponse = BorrowersResponseSuccess | BorrowersResponseError
+
+export type LendingQuoteOpen = {
+  quoteCollateralAmountCryptoPrecision: string
+  quoteCollateralAmountFiatUserCurrency: string
+  quoteDebtAmountUserCurrency: string
+  quoteBorrowedAmountCryptoPrecision: string
+  quoteBorrowedAmountUserCurrency: string
+  quoteCollateralizationRatioPercentDecimal: string
+  quoteSlippageBorrowedAssetCryptoPrecision: string
+  quoteTotalFeesFiatUserCurrency: string
+  quoteInboundAddress: string
+  quoteMemo: string
+  quoteExpiry: number
+}
+
+export type LendingQuoteClose = {
+  quoteLoanCollateralDecreaseCryptoPrecision: string
+  quoteLoanCollateralDecreaseFiatUserCurrency: string
+  quoteDebtRepaidAmountUserCurrency: string
+  quoteWithdrawnAmountAfterFeesCryptoPrecision: string
+  quoteWithdrawnAmountAfterFeesUserCurrency: string
+  quoteSlippageWithdrawndAssetCryptoPrecision: string
+  quoteTotalFeesFiatUserCurrency: string
+  quoteInboundAddress: string
+  quoteMemo: string
+  repaymentAmountCryptoPrecision: string | null
+  quoteExpiry: number
+}
+
+export const isLendingQuoteOpen = (
+  quote: LendingQuoteOpen | LendingQuoteClose | null,
+): quote is LendingQuoteOpen => Boolean(quote && 'quoteBorrowedAmountCryptoPrecision' in quote)
+
+export const isLendingQuoteClose = (
+  quote: LendingQuoteOpen | LendingQuoteClose | null,
+): quote is LendingQuoteClose => Boolean(quote && 'quoteDebtRepaidAmountUserCurrency' in quote)

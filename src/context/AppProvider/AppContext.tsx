@@ -79,6 +79,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const isSnapInstalled = useIsSnapInstalled()
 
   // track anonymous portfolio
@@ -153,11 +154,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
-  // once portfolio is done loading, fetch fox voting power
   useEffect(() => {
+    if (!isFoxDiscountsEnabled) return
     if (portfolioLoadingStatus === 'loading') return
-    dispatch(snapshotApi.endpoints.getVotingPower.initiate(requestedAccountIds))
-  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
+
+    dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+  }, [dispatch, portfolioLoadingStatus, isFoxDiscountsEnabled])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
@@ -174,6 +176,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     ;(async () => {
+      if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints

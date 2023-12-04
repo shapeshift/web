@@ -4,6 +4,7 @@ import { lazy, memo, Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Asset } from 'lib/asset-service'
+import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 
 import { RepayRoutePaths } from './types'
 
@@ -21,6 +22,8 @@ type RepayProps = {
   setRepaymentPercent: (value: number) => void
   txId: string | null
   setTxid: (txId: string | null) => void
+  confirmedQuote: LendingQuoteClose | null
+  setConfirmedQuote: (quote: LendingQuoteClose | null) => void
 }
 
 export const Repay = ({
@@ -35,6 +38,8 @@ export const Repay = ({
   setRepaymentPercent,
   txId,
   setTxid,
+  confirmedQuote,
+  setConfirmedQuote,
 }: RepayProps) => {
   const collateralAssetId = useRouteAssetId()
 
@@ -53,6 +58,8 @@ export const Repay = ({
         onRepaymentAccountIdChange={handleRepaymentAccountIdChange}
         txId={txId}
         setTxid={setTxid}
+        confirmedQuote={confirmedQuote}
+        setConfirmedQuote={setConfirmedQuote}
       />
     </MemoryRouter>
   )
@@ -71,6 +78,8 @@ type RepayRoutesProps = {
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   txId: string | null
   setTxid: (txId: string | null) => void
+  confirmedQuote: LendingQuoteClose | null
+  setConfirmedQuote: (quote: LendingQuoteClose | null) => void
 }
 
 const RepayInput = lazy(() =>
@@ -100,6 +109,8 @@ const RepayRoutes = memo(
     onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
     txId,
     setTxid,
+    confirmedQuote,
+    setConfirmedQuote,
   }: RepayRoutesProps) => {
     const location = useLocation()
 
@@ -116,6 +127,8 @@ const RepayRoutes = memo(
           onRepaymentPercentChange={onRepaymentPercentChange}
           repaymentAsset={repaymentAsset}
           setRepaymentAsset={setRepaymentAsset}
+          confirmedQuote={confirmedQuote}
+          setConfirmedQuote={setConfirmedQuote}
         />
       ),
       [
@@ -129,6 +142,8 @@ const RepayRoutes = memo(
         onRepaymentPercentChange,
         repaymentAsset,
         setRepaymentAsset,
+        confirmedQuote,
+        setConfirmedQuote,
       ],
     )
 
@@ -137,21 +152,27 @@ const RepayRoutes = memo(
         <RepayConfirm
           collateralAssetId={collateralAssetId}
           repaymentPercent={repaymentPercent}
+          setRepaymentPercent={onRepaymentPercentChange}
           collateralAccountId={collateralAccountId}
           repaymentAccountId={repaymentAccountId}
           repaymentAsset={repaymentAsset}
           txId={txId}
           setTxid={setTxid}
+          confirmedQuote={confirmedQuote}
+          setConfirmedQuote={setConfirmedQuote}
         />
       ),
       [
         collateralAssetId,
         repaymentPercent,
+        onRepaymentPercentChange,
         collateralAccountId,
         repaymentAccountId,
         repaymentAsset,
         txId,
         setTxid,
+        confirmedQuote,
+        setConfirmedQuote,
       ],
     )
 

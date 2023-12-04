@@ -12,6 +12,7 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../types'
+import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
@@ -47,11 +48,13 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: false,
     rate: '137845.94361267605633802817',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9360638:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,
@@ -80,11 +83,13 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: true,
     rate: '151555.07377464788732394366',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:10291578/10/0:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,

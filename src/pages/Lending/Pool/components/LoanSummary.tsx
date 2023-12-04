@@ -12,9 +12,13 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
-import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
+import {
+  isLendingQuoteClose,
+  isLendingQuoteOpen,
+  type LendingQuoteClose,
+  type LendingQuoteOpen,
+} from 'lib/utils/thorchain/lending/types'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,6 +40,7 @@ const FromToStack: React.FC<StackProps> = props => {
 type LoanSummaryProps = {
   isLoading?: boolean
   collateralAssetId: AssetId
+  confirmedQuote: LendingQuoteOpen | LendingQuoteClose | null
 } & StackProps &
   (
     | {
@@ -79,9 +84,9 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   repaymentAccountId,
   collateralAccountId,
   borrowAccountId,
+  confirmedQuote,
   ...rest
 }) => {
-  const isRepay = useMemo(() => Boolean(repayAmountCryptoPrecision), [repayAmountCryptoPrecision])
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -92,48 +97,6 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       accountId,
       assetId: collateralAssetId,
     })
-
-  const useLendingQuoteQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId: borrowAccountId ?? '',
-      borrowAssetId: borrowAssetId ?? '',
-      depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
-    }),
-    [
-      collateralAssetId,
-      collateralAccountId,
-      borrowAccountId,
-      borrowAssetId,
-      depositAmountCryptoPrecision,
-    ],
-  )
-  const {
-    data: lendingQuoteData,
-    isLoading: isLendingQuoteLoading,
-    isError: isLendingQuoteError,
-  } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
-
-  const useLendingQuoteCloseQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent: Number(repaymentPercent),
-      repaymentAccountId: repaymentAccountId ?? '',
-      collateralAccountId: collateralAccountId ?? '',
-    }),
-    [
-      collateralAccountId,
-      collateralAssetId,
-      repaymentAccountId,
-      repaymentAsset?.assetId,
-      repaymentPercent,
-    ],
-  )
-
-  const { data: lendingQuoteCloseData, isLoading: isLendingQuoteCloseLoading } =
-    useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
   const useRepaymentLockDataArgs = useMemo(
     () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
@@ -146,7 +109,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   const { data: networkRepaymentLock, isLoading: isNetworkRepaymentLockLoading } =
     useRepaymentLockData(useRepaymentLockNetworkDataArgs)
 
-  if (!collateralAsset || isLendingQuoteError) return null
+  if (!collateralAsset || !confirmedQuote) return null
 
   return (
     <Stack
@@ -161,8 +124,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
       {...rest}
     >
       <RawText fontWeight='bold'>{translate('lending.loanInformation')}</RawText>
-      {(bnOrZero(lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision).gt(0) ||
-        bnOrZero(lendingQuoteData?.quoteCollateralAmountCryptoPrecision).gt(0)) && (
+      {(bnOrZero(
+        (confirmedQuote as LendingQuoteClose)?.quoteLoanCollateralDecreaseCryptoPrecision,
+      ).gt(0) ||
+        bnOrZero((confirmedQuote as LendingQuoteOpen)?.quoteCollateralAmountCryptoPrecision).gt(
+          0,
+        )) && (
         <Row>
           <HelperTooltip label={translate('lending.quote.collateral')}>
             <Row.Label>{translate('lending.collateral')}</Row.Label>
@@ -172,8 +139,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
               isLoaded={Boolean(
                 !isLoading &&
                   !isLendingPositionDataLoading &&
-                  !isLendingQuoteLoading &&
-                  !isLendingQuoteCloseLoading &&
+                  confirmedQuote &&
                   lendingPositionData &&
                   lendingPositionData?.collateralBalanceCryptoPrecision,
               )}
@@ -185,12 +151,12 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                   symbol={collateralAsset.symbol}
                 />
                 <Amount.Crypto
-                  value={(isRepay
+                  value={(isLendingQuoteClose(confirmedQuote)
                     ? bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).minus(
-                        lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
+                        confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision ?? '0',
                       )
                     : bnOrZero(lendingPositionData?.collateralBalanceCryptoPrecision).plus(
-                        lendingQuoteData?.quoteCollateralAmountCryptoPrecision ?? '0',
+                        confirmedQuote.quoteCollateralAmountCryptoPrecision ?? '0',
                       )
                   ).toString()}
                   symbol={collateralAsset.symbol}
@@ -206,12 +172,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </HelperTooltip>
         <Row.Value>
           <Skeleton
-            isLoaded={
-              !isLoading &&
-              !isLendingPositionDataLoading &&
-              !isLendingQuoteLoading &&
-              !isLendingQuoteCloseLoading
-            }
+            isLoaded={Boolean(!isLoading && !isLendingPositionDataLoading && confirmedQuote)}
           >
             <FromToStack>
               <Amount.Fiat
@@ -219,7 +180,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
                 value={lendingPositionData?.debtBalanceFiatUserCurrency ?? '0'}
               />
               <Amount.Fiat
-                value={(isRepay
+                value={(isLendingQuoteClose(confirmedQuote)
                   ? BigNumber.max(
                       bnOrZero(lendingPositionData?.debtBalanceFiatUserCurrency).minus(
                         debtRepaidAmountUserCurrency ?? 0,
@@ -235,7 +196,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </Skeleton>
         </Row.Value>
       </Row>
-      {!isRepay && (
+      {isLendingQuoteOpen(confirmedQuote) && (
         // This doesn't make sense for repayments - repayment lock shouldn't change when repaying, and will be zero'd out when fully repaying
         <Row>
           <HelperTooltip label={translate('lending.quote.repaymentLock')}>
@@ -251,7 +212,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </Row.Value>
         </Row>
       )}
-      {!isRepay && (
+      {isLendingQuoteOpen(confirmedQuote) && (
         // This doesn't make sense for repayments - the collateralization ratio won't change here
         <Row>
           <HelperTooltip label={translate('lending.quote.collateralizationRatio')}>
@@ -259,15 +220,10 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           </HelperTooltip>
           <Row.Value>
             <Skeleton
-              isLoaded={
-                !isLoading &&
-                !isLendingPositionDataLoading &&
-                !isLendingQuoteLoading &&
-                !isLendingQuoteCloseLoading
-              }
+              isLoaded={Boolean(!isLoading && !isLendingPositionDataLoading && confirmedQuote)}
             >
               <Amount.Percent
-                value={lendingQuoteData?.quoteCollateralizationRatioPercentDecimal ?? '0'}
+                value={confirmedQuote?.quoteCollateralizationRatioPercentDecimal ?? '0'}
                 color='text.success'
               />
             </Skeleton>
@@ -280,12 +236,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
         </HelperTooltip>
         <Row.Value>
           <Skeleton
-            isLoaded={
-              !isLoading &&
-              !isLendingPositionDataLoading &&
-              !isLendingQuoteLoading &&
-              !isLendingQuoteCloseLoading
-            }
+            isLoaded={Boolean(!isLoading && !isLendingPositionDataLoading && confirmedQuote)}
           >
             <RawText color='text.success'>{translate('lending.healthy')}</RawText>
           </Skeleton>

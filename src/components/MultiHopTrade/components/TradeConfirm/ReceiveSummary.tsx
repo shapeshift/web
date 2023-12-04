@@ -30,7 +30,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/types'
+import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import type { AmountDisplayMeta, ProtocolFee, SwapSource } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
@@ -61,6 +62,7 @@ type ReceiveSummaryProps = {
   swapperName: string
   donationAmountUserCurrency?: string
   defaultIsOpen?: boolean
+  swapSource?: SwapSource
 } & RowProps
 
 const ShapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
@@ -84,6 +86,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     isLoading,
     donationAmountUserCurrency,
     defaultIsOpen = false,
+    swapSource,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -279,41 +282,43 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   </Row.Value>
                 </Row>
               )}
-            <>
-              <Divider borderColor='border.base' />
-              <Row>
-                <Row.Label>
-                  <Text translation={minAmountAfterSlippageTranslation} />
-                </Row.Label>
-                <Row.Value whiteSpace='nowrap'>
-                  <Stack spacing={0} alignItems='flex-end'>
-                    <Skeleton isLoaded={!isLoading}>
-                      <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
-                    </Skeleton>
-                    {isAmountPositive &&
-                      hasIntermediaryTransactionOutputs &&
-                      intermediaryTransactionOutputsParsed?.map(
-                        ({ amountCryptoPrecision, symbol, chainName }) => (
-                          <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                            <Amount.Crypto
-                              value={amountCryptoPrecision}
-                              symbol={symbol}
-                              prefix={translate('trade.or')}
-                              suffix={
-                                chainName
-                                  ? translate('trade.onChainName', {
-                                      chainName,
-                                    })
-                                  : undefined
-                              }
-                            />
-                          </Skeleton>
-                        ),
-                      )}
-                  </Stack>
-                </Row.Value>
-              </Row>
-            </>
+            {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE && (
+              <>
+                <Divider borderColor='border.base' />
+                <Row>
+                  <Row.Label>
+                    <Text translation={minAmountAfterSlippageTranslation} />
+                  </Row.Label>
+                  <Row.Value whiteSpace='nowrap'>
+                    <Stack spacing={0} alignItems='flex-end'>
+                      <Skeleton isLoaded={!isLoading}>
+                        <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
+                      </Skeleton>
+                      {isAmountPositive &&
+                        hasIntermediaryTransactionOutputs &&
+                        intermediaryTransactionOutputsParsed?.map(
+                          ({ amountCryptoPrecision, symbol, chainName }) => (
+                            <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                              <Amount.Crypto
+                                value={amountCryptoPrecision}
+                                symbol={symbol}
+                                prefix={translate('trade.or')}
+                                suffix={
+                                  chainName
+                                    ? translate('trade.onChainName', {
+                                        chainName,
+                                      })
+                                    : undefined
+                                }
+                              />
+                            </Skeleton>
+                          ),
+                        )}
+                    </Stack>
+                  </Row.Value>
+                </Row>
+              </>
+            )}
           </Stack>
         </Collapse>
         <Modal isOpen={showFeeModal} onClose={handleFeeModal} size='lg'>

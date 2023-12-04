@@ -405,24 +405,26 @@ export const TradeConfirm = () => {
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
+          swapSource={tradeQuoteStep?.source}
         />
       </>
     ),
     [
-      translate,
-      sellAmountBeforeFeesCryptoPrecision,
-      sellAsset?.symbol,
-      sellAmountBeforeFeesUserCurrency,
-      buyAsset?.symbol,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
+      buyAsset?.symbol,
+      donationAmountUserCurrency,
+      netBuyAmountUserCurrency,
+      sellAmountBeforeFeesCryptoPrecision,
+      sellAmountBeforeFeesUserCurrency,
+      sellAsset?.symbol,
+      shapeShiftFee,
+      slippageDecimal,
+      swapperName,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
-      shapeShiftFee,
-      donationAmountUserCurrency,
-      slippageDecimal,
-      netBuyAmountUserCurrency,
-      swapperName,
+      tradeQuoteStep?.source,
+      translate,
     ],
   )
 

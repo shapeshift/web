@@ -6,10 +6,8 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
-import { YatBanner } from 'components/Banners/YatBanner'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { breakpoints } from 'theme/theme'
 
 import { MainNavLink } from './MainNavLink'
@@ -23,7 +21,6 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { routes: pluginRoutes } = usePlugins()
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
   const groupColor = useColorModeValue('gray.400', 'gray.600')
   const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
   const { pathname } = useLocation()
@@ -100,7 +97,6 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   return (
     <Stack width='full' flex='1 1 0%' spacing={6} divider={divider} {...rest}>
       {renderNavGroups}
-      {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
     </Stack>
   )
 }

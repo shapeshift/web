@@ -2219,21 +2219,17 @@
     "faq": {
       "title": "よくある質問",
       "lending": {
-        "title": "THORChainレンディングとは何ですか?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "THORChainレンディングとは何ですか?"
       },
       "borrowing": {
-        "title": "借入はどのように機能しますか?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "借入はどのように機能しますか?"
       },
       "repayments": {
-        "title": "返済はどのように行われますか?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "返済はどのように行われますか?"
       }
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "現在のFOXパワー",
     "foxPower": "FOXパワー",
     "simulateTitle": "FOX貯蓄額をシミュレーションする",
     "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",

@@ -2219,21 +2219,17 @@
     "faq": {
       "title": "ЧАСТЫЕ ВОПРОСЫ",
       "lending": {
-        "title": "Что такое THORChain кредитование?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Что такое THORChain кредитование?"
       },
       "borrowing": {
-        "title": "Как происходит заимствование?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Как происходит заимствование?"
       },
       "repayments": {
-        "title": "Как происходит погашение кредита?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Как происходит погашение кредита?"
       }
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Текущая FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Моделирование сбережений FOX",
     "simulateBody": "Используйте этот удобный калькулятор для определения общей суммы комиссионных и скидки, которую вы получите при совершении сделки. Просто установите ползунки ниже, чтобы указать сумму держателя FOX и размер сделки в фиате, и наблюдайте за потенциальной экономией!",

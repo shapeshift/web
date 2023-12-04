@@ -2219,21 +2219,17 @@
     "faq": {
       "title": "Поширенні запитання",
       "lending": {
-        "title": "Що таке THORCHCHain кредитування?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Що таке THORCHCHain кредитування?"
       },
       "borrowing": {
-        "title": "Як працює позика?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Як працює позика?"
       },
       "repayments": {
-        "title": "Як відбувається погашення?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Як відбувається погашення?"
       }
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Поточна FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Змоделюйте свої заощадження FOX",
     "simulateBody": "Скористайтеся цим зручним калькулятором, щоб визначити загальну суму комісійних та знижку, яку ви отримаєте за угодою. Просто відрегулюйте повзунки нижче, щоб вказати кількість власників FOX і суму угоди у фіаті, і спостерігайте за потенційною економією!",

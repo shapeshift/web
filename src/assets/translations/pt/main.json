@@ -2219,21 +2219,17 @@
     "faq": {
       "title": "FAQ",
       "lending": {
-        "title": "O que é empréstimo THORChain?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "O que é empréstimo THORChain?"
       },
       "borrowing": {
-        "title": "Como funciona o empréstimo?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Como funciona o empréstimo?"
       },
       "repayments": {
-        "title": "Como funciona o pagamento?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "Como funciona o pagamento?"
       }
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Poder atual em FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simule suas poupança FOX",
     "simulateBody": "Use esta calculadora para determinar o total de taxas e o desconto que você receberá em sua negociação. Basta ajustar os controles abaixo para indicar quando você tem de FOX e a quantidade do trade em moeda fiduciárias. Depois, é só o potencial do ganho da sua poupança!",

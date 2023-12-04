@@ -2219,21 +2219,17 @@
     "faq": {
       "title": "常见问题",
       "lending": {
-        "title": "什么是 THORChain 借贷？",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "什么是 THORChain 借贷？"
       },
       "borrowing": {
-        "title": "借贷如何运作？",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "借贷如何运作？"
       },
       "repayments": {
-        "title": "还款如何运作？",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "还款如何运作？"
       }
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "当前 FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "模拟你i的 FOX 储蓄",
     "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",

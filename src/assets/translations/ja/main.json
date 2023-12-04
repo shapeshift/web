@@ -546,8 +546,6 @@
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
     "arkeo": "Arkeoエアドロップ",
-    "foxMissions": "FOXミッション",
-    "foxMissionsShort": "ミッション",
     "lending": "貸し出し"
   },
   "transactionRow": {
@@ -2119,56 +2117,6 @@
     "emptyBody": "心配しないでください、私たちはより素晴らしいNFTを取り戻すために捜索隊を派遣しました。その間、何もない空間を見つめて、存在の意味をじっくり考えてみてください。",
     "reportSpam": "スパム報告",
     "refresh": "リフレッシュ"
-  },
-  "missions": {
-    "subtitle": "FOXミッション",
-    "missionEnded": "ミッション終了",
-    "viewMission": "ミッションを見る",
-    "comingSoon": "近日公開",
-    "activeMissions": "利用可能なミッション",
-    "endedMissions": "終了したミッション",
-    "title": {
-      "1": "分散化されたスペースで",
-      "2": "報酬を獲得しよう"
-    },
-    "body": "ミッションに取り組み、報酬を獲得し、拡大し続けるShapeShiftエコシステムについての知識を深めましょう",
-    "ends": "終わり",
-    "ongoing": "進行中のミッション",
-    "optimism": {
-      "title": "最大19.5 OPを獲得",
-      "subtitle": "Optimismを探る",
-      "cta": "ミッションを開始する"
-    },
-    "foxatar": {
-      "title": "無料でカスタマイズ可能なNFTを入手",
-      "subtitle": "FOXatarをミントする",
-      "cta": "ミッションを開始する"
-    },
-    "foxArmy": {
-      "subtitle": "FOX Armyに参加する",
-      "title": "20,000 FOXプール",
-      "cta": "ミッションを開始する"
-    },
-    "yat": {
-      "subtitle": "Yat Fantasyをプレイする",
-      "title": "3,000USDC賞金総額",
-      "cta": "ミッションを開始する"
-    },
-    "getListed": {
-      "subtitle": "プロジェクトはこちら",
-      "title": "プロジェクトのミッションを立ち上げる",
-      "cta": "プロジェクトを送信する"
-    },
-    "foxRewards": {
-      "subtitle": "購入、販売、取引、収益など",
-      "title": "FOXを獲得",
-      "cta": "ミッションを開始する"
-    },
-    "snapfoxatar": {
-      "title": "MetaMaskでビットコインのロックを解除",
-      "subtitle": "Metamask FOXatarスキンをミント",
-      "cta": "ミッションを開始する"
-    }
   },
   "avatar": {
     "modal": {

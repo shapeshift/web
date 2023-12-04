@@ -546,8 +546,6 @@
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Görevleri",
-    "foxMissionsShort": "Görevler",
     "lending": "Borç Verme"
   },
   "transactionRow": {
@@ -2119,56 +2117,6 @@
     "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin.",
     "reportSpam": "Spam Bildir",
     "refresh": "Yenile"
-  },
-  "missions": {
-    "subtitle": "FOX Görevleri",
-    "missionEnded": "Görev Sona Erdi",
-    "viewMission": "Görevleri Görüntüle",
-    "comingSoon": "Yakında",
-    "activeMissions": "Aktif Görevler",
-    "endedMissions": "Biten Görevler",
-    "title": {
-      "1": "Merkezi Olmayan Evreni Serbest Bırakın ve",
-      "2": "Ödülleri Dağıt"
-    },
-    "body": "Görevlere Katılın, Ödüller Kazanın ve Sürekli Genişleyen ShapeShift Ekosistemi hakkındaki bilginizi artırın",
-    "ends": "Son",
-    "ongoing": "Devam Eden Görev",
-    "optimism": {
-      "title": "19,5 OP'ye kadar kazanın",
-      "subtitle": "Optimism'i Keşfedin",
-      "cta": "Göreve Başla"
-    },
-    "foxatar": {
-      "title": "Ücretsiz ve Özelleştirilebilir bir NFT edinin",
-      "subtitle": "FOXatar'ı Basın",
-      "cta": "Göreve Başla"
-    },
-    "foxArmy": {
-      "subtitle": "FOX Ordusuna Katılın",
-      "title": "20.000 FOX Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "yat": {
-      "subtitle": "Yat Fantasy Oyna",
-      "title": "3.000 USDC Ödül Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "getListed": {
-      "subtitle": "Projeniz Burada",
-      "title": "Görevler İçin Bir Proje Başlatın",
-      "cta": "Projeyi Gönder"
-    },
-    "foxRewards": {
-      "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
-      "title": "FOX Kazanın",
-      "cta": "Göreve Başla"
-    },
-    "snapfoxatar": {
-      "title": "MetaMask ile Bitcoin'in Kilidini Açın",
-      "subtitle": "Bir Metamask FOXatar Skin oluşturun",
-      "cta": "Göreve Başla"
-    }
   },
   "avatar": {
     "modal": {

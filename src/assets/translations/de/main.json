@@ -546,8 +546,6 @@
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Mission",
-    "foxMissionsShort": "Missionen",
     "lending": "Verleihen"
   },
   "transactionRow": {
@@ -2119,56 +2117,6 @@
     "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)",
     "reportSpam": "Spam melden",
     "refresh": "Aktualisierung"
-  },
-  "missions": {
-    "subtitle": "FOX Missionen",
-    "missionEnded": "Mission beendet",
-    "viewMission": "Zeige Mission",
-    "comingSoon": "Demnächst",
-    "activeMissions": "Aktive Missionen",
-    "endedMissions": "Beendete Missionen",
-    "title": {
-      "1": "Entfessle das dezentrale Universum und",
-      "2": "erhalte Belohnungen"
-    },
-    "body": "Begeben Sie sich auf Missionen, verdienen Sie Belohnungen und erweitern Sie Ihr Wissen über das ständig wachsende ShapeShift-Ökosystem",
-    "ends": "Endet",
-    "ongoing": "laufende Mission",
-    "optimism": {
-      "title": "Verdiene bis zu 19,5 OP",
-      "subtitle": "Entdecke Optimism",
-      "cta": "Beginne Mission"
-    },
-    "foxatar": {
-      "title": "Holen Sie sich ein kostenloses und anpassbares NFT",
-      "subtitle": "Minte einen FOXatar",
-      "cta": "Beginne Mission"
-    },
-    "foxArmy": {
-      "subtitle": "Treten Sie der FOX-Armee bei",
-      "title": "20,000 FOX Pool",
-      "cta": "Beginne Mission"
-    },
-    "yat": {
-      "subtitle": "Spiele Yat Fantasy",
-      "title": "3,000 USDC Preis Pool",
-      "cta": "Beginne Mission"
-    },
-    "getListed": {
-      "subtitle": "Ihr Projekt hier",
-      "title": "Starten Sie eine Mission für Ihr Projekt",
-      "cta": "Projekt einreichen"
-    },
-    "foxRewards": {
-      "subtitle": "Kaufen, verkaufen, handeln, verdienen und mehr",
-      "title": "Verdiene FOX",
-      "cta": "Starte Mission"
-    },
-    "snapfoxatar": {
-      "title": "Schalte Bitcoin mit MetaMask frei",
-      "subtitle": "Mint eine Metamask FOXatar Skin",
-      "cta": "Starte Mission"
-    }
   },
   "avatar": {
     "modal": {

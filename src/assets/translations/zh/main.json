@@ -546,8 +546,6 @@
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "买/卖",
     "arkeo": "Arkeo 空投",
-    "foxMissions": "FOX 任务",
-    "foxMissionsShort": "任务",
     "lending": "贷款"
   },
   "transactionRow": {
@@ -2119,56 +2117,6 @@
     "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
     "reportSpam": "举报垃圾信息",
     "refresh": "刷新"
-  },
-  "missions": {
-    "subtitle": "FOX 任务",
-    "missionEnded": "任务结束",
-    "viewMission": "查看任务",
-    "comingSoon": "即将推出",
-    "activeMissions": "进行中任务",
-    "endedMissions": "已结束的任务",
-    "title": {
-      "1": "释放去中心化的宇宙 和",
-      "2": "收获奖励"
-    },
-    "body": "执行任务、赚取奖励并扩展你对不断扩展的 ShapeShift 生态系统的了解",
-    "ends": "结束",
-    "ongoing": "进行中的任务",
-    "optimism": {
-      "title": "赚取高达 19.5 OP",
-      "subtitle": "探索 Optimism",
-      "cta": "开始任务"
-    },
-    "foxatar": {
-      "title": "获取免费且可定制的 NFT",
-      "subtitle": "铸造一个 FOXatar",
-      "cta": "开始任务"
-    },
-    "foxArmy": {
-      "subtitle": "加入FOX 军团",
-      "title": "20,000 FOX 池",
-      "cta": "开始任务"
-    },
-    "yat": {
-      "subtitle": "玩 Yat Fantasy",
-      "title": "3,000 USDC 奖池",
-      "cta": "开始任务"
-    },
-    "getListed": {
-      "subtitle": "你的项目在这里",
-      "title": "为你的项目启动任务",
-      "cta": "提交项目"
-    },
-    "foxRewards": {
-      "subtitle": "购买、出售、交易、赚取等等",
-      "title": "赚取FOX",
-      "cta": "开始任务"
-    },
-    "snapfoxatar": {
-      "title": "使用 MetaMask 解锁比特币",
-      "subtitle": "打造 Metamask FOXatar 皮肤",
-      "cta": "开始任务"
-    }
   },
   "avatar": {
     "modal": {

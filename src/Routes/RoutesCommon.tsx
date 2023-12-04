@@ -4,7 +4,6 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -16,7 +15,6 @@ import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { LendingPage } from 'pages/Lending/LendingPage'
-import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -133,15 +131,6 @@ export const routes: NestedRoute[] = [
         },
       ],
     })),
-  },
-  {
-    path: '/missions',
-    label: 'navBar.foxMissions',
-    shortLabel: 'navBar.foxMissionsShort',
-    icon: <FoxIcon />,
-    main: Missions,
-    category: RouteCategory.Explore,
-    isNew: true,
   },
   {
     path: '/flags',

@@ -10,7 +10,6 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,9 +20,9 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -317,18 +316,11 @@ export const BorrowInput = ({
   const userAddress = useMemo(() => {
     if (!collateralAccountId) return ''
 
-    return fromAccountId(collateralAccountId).account.toLowerCase()
+    return fromAccountId(collateralAccountId).account
   }, [collateralAccountId])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: [
-      'isSmartContractAddress',
-      {
-        userAddress,
-      },
-    ],
-    queryFn: () => isSmartContractAddress(userAddress),
-  })
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractDeposit = useMemo(() => {
     // User address still loading - disable confirm

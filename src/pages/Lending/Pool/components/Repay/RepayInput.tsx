@@ -15,7 +15,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -25,8 +24,8 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
-import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
@@ -277,18 +276,11 @@ export const RepayInput = ({
   const userAddress = useMemo(() => {
     if (!repaymentAccountId) return ''
 
-    return fromAccountId(repaymentAccountId).account.toLowerCase()
+    return fromAccountId(repaymentAccountId).account
   }, [repaymentAccountId])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: [
-      'isSmartContractAddress',
-      {
-        userAddress,
-      },
-    ],
-    queryFn: () => isSmartContractAddress(userAddress),
-  })
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractRepayment = useMemo(() => {
     // User address still loading - disable confirm

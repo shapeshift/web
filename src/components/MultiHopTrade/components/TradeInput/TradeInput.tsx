@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
@@ -42,9 +41,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
@@ -185,21 +184,14 @@ export const TradeInput = memo(() => {
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: [
-      'isSmartContractAddress',
-      {
-        userAddress: sellAssetAccountId
-          ? fromAccountId(sellAssetAccountId).account.toLowerCase()
-          : '',
-      },
-    ],
-    queryFn: () =>
-      isSmartContractAddress(
-        sellAssetAccountId ? fromAccountId(sellAssetAccountId).account.toLowerCase() : '',
-      ),
-    enabled: Boolean(sellAssetAccountId?.length),
-  })
+  const userAddress = useMemo(() => {
+    if (!sellAssetAccountId) return ''
+
+    return fromAccountId(sellAssetAccountId).account
+  }, [sellAssetAccountId])
+
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation

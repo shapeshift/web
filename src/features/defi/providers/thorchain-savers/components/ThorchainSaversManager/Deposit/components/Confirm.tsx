@@ -13,7 +13,6 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -41,8 +40,8 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -135,7 +134,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
-  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const userAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
@@ -661,11 +663,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAsset.symbol],
   )
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: ['isSmartContractAddress', { userAddress: userAddress?.toLowerCase() }],
-    queryFn: () => isSmartContractAddress(userAddress ?? ''),
-    enabled: Boolean(userAddress?.length),
-  })
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractDeposit = useMemo(() => {
     // Not an EVM address - we can assume this isn't a smart contract

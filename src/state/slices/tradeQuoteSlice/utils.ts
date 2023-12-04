@@ -4,9 +4,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/types'
-import { assertUnreachable, type PartialRecord } from 'lib/utils'
-
-import { HopExecutionState, MultiHopExecutionState } from './types'
+import { type PartialRecord } from 'lib/utils'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)
@@ -98,114 +96,4 @@ export const sumProtocolFeesToDenom = ({
       return acc.plus(convertedPrecisionAmountCryptoBaseUnit.times(rate))
     }, bn(0))
     .toString()
-}
-
-// determines the next trade execution state
-// please don't abstract or enhance this -
-// it's intended to be as simple as possible to prevent bugs at the cost of being very verbose
-export const getNextTradeExecutionState = (
-  tradeExecutionState: MultiHopExecutionState,
-  isMultiHopTrade: boolean,
-  firstHopRequiresApproval: boolean,
-  secondHopRequiresApproval: boolean,
-) => {
-  switch (tradeExecutionState) {
-    case MultiHopExecutionState.Previewing:
-      if (!firstHopRequiresApproval) {
-        return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
-      }
-      return MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation
-    case MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation:
-      if (!firstHopRequiresApproval) {
-        return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
-      }
-      return MultiHopExecutionState.FirstHopAwaitingApprovalExecution
-    case MultiHopExecutionState.FirstHopAwaitingApprovalExecution:
-      return MultiHopExecutionState.FirstHopAwaitingTradeConfirmation
-    case MultiHopExecutionState.FirstHopAwaitingTradeConfirmation:
-      return MultiHopExecutionState.FirstHopAwaitingTradeExecution
-    case MultiHopExecutionState.FirstHopAwaitingTradeExecution:
-      if (!isMultiHopTrade) {
-        return MultiHopExecutionState.TradeComplete
-      }
-      if (!secondHopRequiresApproval) {
-        return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
-      }
-      return MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation
-    case MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation:
-      if (!isMultiHopTrade) {
-        return MultiHopExecutionState.TradeComplete
-      }
-      if (!secondHopRequiresApproval) {
-        return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
-      }
-      return MultiHopExecutionState.SecondHopAwaitingApprovalExecution
-    case MultiHopExecutionState.SecondHopAwaitingApprovalExecution:
-      if (!isMultiHopTrade) {
-        return MultiHopExecutionState.TradeComplete
-      }
-      return MultiHopExecutionState.SecondHopAwaitingTradeConfirmation
-    case MultiHopExecutionState.SecondHopAwaitingTradeConfirmation:
-      if (!isMultiHopTrade) {
-        return MultiHopExecutionState.TradeComplete
-      }
-      return MultiHopExecutionState.SeondHopAwaitingTradeExecution
-    case MultiHopExecutionState.SeondHopAwaitingTradeExecution:
-      return MultiHopExecutionState.TradeComplete
-    case MultiHopExecutionState.TradeComplete:
-      return MultiHopExecutionState.TradeComplete
-    default:
-      assertUnreachable(tradeExecutionState)
-  }
-}
-
-export const getHopExecutionStates = (tradeExecutionState: MultiHopExecutionState) => {
-  switch (tradeExecutionState) {
-    case MultiHopExecutionState.Previewing:
-      return { firstHop: HopExecutionState.Pending, secondHop: HopExecutionState.Pending }
-    case MultiHopExecutionState.FirstHopAwaitingApprovalConfirmation:
-      return {
-        firstHop: HopExecutionState.AwaitingApprovalConfirmation,
-        secondHop: HopExecutionState.Pending,
-      }
-    case MultiHopExecutionState.FirstHopAwaitingApprovalExecution:
-      return {
-        firstHop: HopExecutionState.AwaitingApprovalExecution,
-        secondHop: HopExecutionState.Pending,
-      }
-    case MultiHopExecutionState.FirstHopAwaitingTradeConfirmation:
-      return {
-        firstHop: HopExecutionState.AwaitingTradeConfirmation,
-        secondHop: HopExecutionState.Pending,
-      }
-    case MultiHopExecutionState.FirstHopAwaitingTradeExecution:
-      return {
-        firstHop: HopExecutionState.AwaitingTradeExecution,
-        secondHop: HopExecutionState.Pending,
-      }
-    case MultiHopExecutionState.SecondHopAwaitingApprovalConfirmation:
-      return {
-        firstHop: HopExecutionState.Complete,
-        secondHop: HopExecutionState.AwaitingApprovalConfirmation,
-      }
-    case MultiHopExecutionState.SecondHopAwaitingApprovalExecution:
-      return {
-        firstHop: HopExecutionState.Complete,
-        secondHop: HopExecutionState.AwaitingApprovalExecution,
-      }
-    case MultiHopExecutionState.SecondHopAwaitingTradeConfirmation:
-      return {
-        firstHop: HopExecutionState.Complete,
-        secondHop: HopExecutionState.AwaitingTradeConfirmation,
-      }
-    case MultiHopExecutionState.SeondHopAwaitingTradeExecution:
-      return {
-        firstHop: HopExecutionState.Complete,
-        secondHop: HopExecutionState.AwaitingTradeExecution,
-      }
-    case MultiHopExecutionState.TradeComplete:
-      return { firstHop: HopExecutionState.Complete, secondHop: HopExecutionState.Complete }
-    default:
-      assertUnreachable(tradeExecutionState)
-  }
 }

@@ -1,34 +1,21 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TradeQuote } from 'lib/swapper/types'
 
-import type { HopExecutionMetadata, StreamingSwapMetadata } from './types'
-import { HopExecutionState, MultiHopExecutionState } from './types'
-import { getHopExecutionStates, getNextTradeExecutionState } from './utils'
+import { initialState, initialTradeExecutionState } from './constants'
+import {
+  HopExecutionState,
+  type StreamingSwapMetadata,
+  type TradeExecutionMetadata,
+  TradeExecutionState,
+  TransactionExecutionState,
+} from './types'
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
   confirmedQuote: TradeQuote | undefined // the quote being executed
-  tradeExecution: {
-    state: MultiHopExecutionState
-    firstHop: HopExecutionMetadata
-    secondHop: HopExecutionMetadata
-  }
-}
-
-const initialTradeExecutionState = {
-  state: MultiHopExecutionState.Previewing,
-  firstHop: { state: HopExecutionState.Pending },
-  secondHop: { state: HopExecutionState.Pending },
-}
-
-const initialState: TradeQuoteSliceState = {
-  activeQuoteIndex: undefined,
-  confirmedQuote: undefined,
-  activeStep: undefined,
-  tradeExecution: initialTradeExecutionState,
+  tradeExecution: TradeExecutionMetadata
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -60,77 +47,103 @@ export const tradeQuoteSlice = createSlice({
       state.confirmedQuote = undefined
       state.tradeExecution = initialTradeExecutionState
     },
-    incrementTradeExecutionState: state => {
-      // this should never happen but if it does, exit to prevent corrupting the current state
-      if (
-        state.tradeExecution.firstHop.approvalRequired === undefined ||
-        state.tradeExecution.secondHop.approvalRequired === undefined
-      ) {
-        console.error('initial approval requirements not set')
+    confirmTrade: state => {
+      if (state.tradeExecution.state !== TradeExecutionState.Previewing) {
+        console.error('attempted to confirm an in-progress trade')
         return
       }
-
+      state.tradeExecution.state = TradeExecutionState.FirstHop
+      const approvalRequired = state.tradeExecution.firstHop.approval.isRequired
+      state.tradeExecution.firstHop.state = approvalRequired
+        ? HopExecutionState.AwaitingApproval
+        : HopExecutionState.AwaitingSwap
+    },
+    setApprovalTxPending: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].approval.state = TransactionExecutionState.Pending
+    },
+    setApprovalTxFailed: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].approval.state = TransactionExecutionState.Failed
+    },
+    setApprovalTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].approval.state = TransactionExecutionState.Complete
+      state.tradeExecution[key].state = HopExecutionState.AwaitingSwap
+    },
+    setSwapTxPending: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.state = TransactionExecutionState.Pending
+    },
+    setSwapTxFailed: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.state = TransactionExecutionState.Failed
+    },
+    setSwapTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
+      const { hopIndex } = action.payload
       const isMultiHopTrade =
         state.confirmedQuote !== undefined && state.confirmedQuote.steps.length > 1
+      const isFirstHop = hopIndex === 0
 
-      const firstHopRequiresApproval = state.tradeExecution.firstHop.approvalRequired
-      const secondHopRequiresApproval = state.tradeExecution.secondHop.approvalRequired
+      if (isFirstHop) {
+        // complete the first hop
+        state.tradeExecution.firstHop.swap.state = TransactionExecutionState.Complete
+        state.tradeExecution.firstHop.state = HopExecutionState.Complete
 
-      state.tradeExecution.state = getNextTradeExecutionState(
-        state.tradeExecution.state,
-        isMultiHopTrade,
-        firstHopRequiresApproval,
-        secondHopRequiresApproval,
-      )
+        if (isMultiHopTrade) {
+          // first hop of multi hop trade - begin second hop
+          state.tradeExecution.state = TradeExecutionState.SecondHop
+          const approvalRequired = state.tradeExecution.secondHop.approval.isRequired
+          state.tradeExecution.secondHop.state = approvalRequired
+            ? HopExecutionState.AwaitingApproval
+            : HopExecutionState.AwaitingSwap
+        } else {
+          // first hop of single hop trade - trade complete
+          state.tradeExecution.state = TradeExecutionState.TradeComplete
+        }
+      } else {
+        // complete the second hop
+        state.tradeExecution.secondHop.swap.state = TransactionExecutionState.Complete
+        state.tradeExecution.secondHop.state = HopExecutionState.Complete
 
-      const { firstHop: firstHopState, secondHop: secondHopState } = getHopExecutionStates(
-        state.tradeExecution.state,
-      )
-      state.tradeExecution.firstHop.state = firstHopState
-      state.tradeExecution.secondHop.state = secondHopState
+        // second hop of multi-hop trade - trade complete
+        state.tradeExecution.state = TradeExecutionState.TradeComplete
+      }
     },
     setInitialApprovalRequirements: (
       state,
       action: PayloadAction<{ firstHop: boolean; secondHop: boolean } | undefined>,
     ) => {
-      state.tradeExecution.firstHop.approvalRequired = action.payload?.firstHop
-      state.tradeExecution.secondHop.approvalRequired = action.payload?.secondHop
+      state.tradeExecution.firstHop.approval.isRequired = action.payload?.firstHop
+      state.tradeExecution.secondHop.approval.isRequired = action.payload?.secondHop
     },
-    setFirstHopApprovalTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.firstHop.approvalTxHash = action.payload
+    setApprovalTxHash: (state, action: PayloadAction<{ hopIndex: number; txHash: string }>) => {
+      const { hopIndex, txHash } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].approval.txHash = txHash
     },
-    setSecondHopApprovalTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.secondHop.approvalTxHash = action.payload
+    setSwapSellTxHash: (state, action: PayloadAction<{ hopIndex: number; sellTxHash: string }>) => {
+      const { hopIndex, sellTxHash } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.sellTxHash = sellTxHash
     },
-    setFirstHopApprovalState: (state, action: PayloadAction<TxStatus | undefined>) => {
-      state.tradeExecution.firstHop.approvalState = action.payload
+    setSwapBuyTxHash: (state, action: PayloadAction<{ hopIndex: number; buyTxHash: string }>) => {
+      const { hopIndex, buyTxHash } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.buyTxHash = buyTxHash
     },
-    setSecondHopApprovalState: (state, action: PayloadAction<TxStatus | undefined>) => {
-      state.tradeExecution.secondHop.approvalState = action.payload
-    },
-    setFirstHopSwapState: (state, action: PayloadAction<TxStatus | undefined>) => {
-      state.tradeExecution.firstHop.swapState = action.payload
-    },
-    setSecondHopSwapState: (state, action: PayloadAction<TxStatus | undefined>) => {
-      state.tradeExecution.secondHop.swapState = action.payload
-    },
-    setFirstHopSwapSellTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.firstHop.swapSellTxHash = action.payload
-    },
-    setSecondHopSwapSellTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.secondHop.swapSellTxHash = action.payload
-    },
-    setFirstHopSwapBuyTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.firstHop.swapBuyTxHash = action.payload
-    },
-    setSecondHopSwapBuyTxHash: (state, action: PayloadAction<string>) => {
-      state.tradeExecution.secondHop.swapBuyTxHash = action.payload
-    },
-    setFirstHopStreamingSwapMeta: (state, action: PayloadAction<StreamingSwapMetadata>) => {
-      state.tradeExecution.firstHop.streamingSwap = action.payload
-    },
-    setSecondHopStreamingSwapMeta: (state, action: PayloadAction<StreamingSwapMetadata>) => {
-      state.tradeExecution.secondHop.streamingSwap = action.payload
+    setStreamingSwapMeta: (
+      state,
+      action: PayloadAction<{ hopIndex: number; streamingSwapMetadata: StreamingSwapMetadata }>,
+    ) => {
+      const { hopIndex, streamingSwapMetadata } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.streamingSwap = streamingSwapMetadata
     },
   },
 })

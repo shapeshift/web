@@ -12,7 +12,6 @@ import { store, useAppSelector } from 'state/store'
 type UseLendingPositionDataProps = {
   accountId: AccountId
   assetId: AssetId
-  skip?: boolean
 }
 
 export const thorchainLendingPositionQueryFn = async ({
@@ -25,11 +24,7 @@ export const thorchainLendingPositionQueryFn = async ({
   return position
 }
 
-export const useLendingPositionData = ({
-  accountId,
-  assetId,
-  skip,
-}: UseLendingPositionDataProps) => {
+export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
   const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
     () => ['thorchainLendingPosition', { accountId, assetId }],
     [accountId, assetId],
@@ -37,8 +32,10 @@ export const useLendingPositionData = ({
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const lendingPositionData = useQuery({
-    // The time before the data is considered stale, meaning firing this query after it elapses will trigger queryFn
-    staleTime: 300_000,
+    // This is on purpose. We want lending position data to be cached forever
+    // The only time we need new data is when doing a lending borrow/repayment
+    // in which case we programatically invalidate queries
+    staleTime: Infinity,
     queryKey: lendingPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
@@ -65,10 +62,7 @@ export const useLendingPositionData = ({
         address: data?.owner,
       }
     },
-    enabled: Boolean(!skip && accountId && assetId && poolAssetMarketData.price !== '0'),
-    refetchOnMount: true,
-    refetchInterval: 300_000,
-    refetchIntervalInBackground: true,
+    enabled: Boolean(accountId && assetId && poolAssetMarketData.price !== '0'),
   })
 
   return lendingPositionData

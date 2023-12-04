@@ -14,12 +14,10 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { isAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -27,9 +25,9 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { isSmartContractAddress } from 'lib/address/utils'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
@@ -62,7 +60,11 @@ type RepayInputProps = {
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset) => void
+  confirmedQuote: LendingQuoteClose | null
+  setConfirmedQuote: (quote: LendingQuoteClose | null) => void
 }
+
+const percentOptions = [0]
 
 export const RepayInput = ({
   collateralAssetId,
@@ -75,28 +77,14 @@ export const RepayInput = ({
   onRepaymentAccountIdChange: handleRepaymentAccountIdChange,
   repaymentAsset,
   setRepaymentAsset,
+  confirmedQuote,
+  setConfirmedQuote,
 }: RepayInputProps) => {
   const [seenNotice, setSeenNotice] = useState(false)
   const translate = useTranslate()
   const history = useHistory()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, repaymentAsset?.assetId ?? ''))
-
-  const onSubmit = useCallback(() => {
-    history.push(RepayRoutePaths.Confirm)
-  }, [history])
-
-  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
-
-  const percentOptions = useMemo(() => [0], [])
-
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
-
-  useEffect(() => {
-    if (!lendingSupportedAssets) return
-
-    setRepaymentAsset(lendingSupportedAssets[0])
-  }, [lendingSupportedAssets, setRepaymentAsset])
 
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
@@ -118,10 +106,32 @@ export const RepayInput = ({
   const {
     data: lendingQuoteCloseData,
     isLoading: isLendingQuoteCloseLoading,
+    isRefetching: isLendingQuoteCloseRefetching,
     isSuccess: isLendingQuoteCloseSuccess,
     isError: isLendingQuoteCloseError,
     error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  useEffect(() => {
+    setConfirmedQuote(lendingQuoteCloseData ?? null)
+  }, [lendingQuoteCloseData, setConfirmedQuote])
+
+  const onSubmit = useCallback(() => {
+    if (!lendingQuoteCloseData) return
+    setConfirmedQuote(lendingQuoteCloseData)
+    history.push(RepayRoutePaths.Confirm)
+  }, [history, lendingQuoteCloseData, setConfirmedQuote])
+
+  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
+
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
+
+  useEffect(() => {
+    if (!(lendingSupportedAssets && collateralAsset)) return
+    if (repaymentAsset) return
+
+    setRepaymentAsset(collateralAsset)
+  }, [collateralAsset, lendingSupportedAssets, repaymentAsset, setRepaymentAsset])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleRepaymentAssetClick = useCallback(() => {
@@ -203,8 +213,8 @@ export const RepayInput = ({
     collateralAssetId,
     collateralAccountId,
     repaymentAccountId,
-    repaymentPercent,
     repaymentAsset,
+    confirmedQuote,
   })
 
   const balanceFilter = useMemo(
@@ -262,35 +272,7 @@ export const RepayInput = ({
     repaymentAsset,
   ])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } = useQuery({
-    queryKey: [
-      'isSmartContractAddress',
-      {
-        userAddress: repaymentAccountId
-          ? fromAccountId(repaymentAccountId).account.toLowerCase()
-          : '',
-      },
-    ],
-    queryFn: () =>
-      isSmartContractAddress(
-        repaymentAccountId ? fromAccountId(repaymentAccountId).account.toLowerCase() : '',
-      ),
-  })
-
-  const disableSmartContractRepayment = useMemo(() => {
-    // Repayment AccountId still loading - disable confirm
-    if (!repaymentAccountId) return true
-    if (!isAddress(fromAccountId(repaymentAccountId).account)) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [_isSmartContractAddress, repaymentAccountId])
-
   const quoteErrorTranslation = useMemo(() => {
-    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
       if (
@@ -317,7 +299,6 @@ export const RepayInput = ({
     }
     return null
   }, [
-    _isSmartContractAddress,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
@@ -397,11 +378,11 @@ export const RepayInput = ({
         assetIcon={collateralAsset?.icon ?? ''}
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
         cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd}
+        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUserCurrency}
         isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
-        showInputSkeleton={isLendingQuoteCloseLoading}
+        showInputSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
         showFiatSkeleton={false}
         label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
@@ -412,11 +393,15 @@ export const RepayInput = ({
         layout='inline'
         labelPostFix={collateralAssetSelectComponent}
       />
-      <Collapse in={true}>
+      <Collapse in={isLendingQuoteCloseSuccess}>
         <LoanSummary
+          confirmedQuote={confirmedQuote}
+          isLoading={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
           collateralAssetId={collateralAssetId}
           repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
-          debtRepaidAmountUserCurrency={lendingQuoteCloseData?.quoteDebtRepaidAmountUsd ?? '0'}
+          debtRepaidAmountUserCurrency={
+            lendingQuoteCloseData?.quoteDebtRepaidAmountUserCurrency ?? '0'
+          }
           repaymentAsset={repaymentAsset}
           repaymentPercent={repaymentPercent}
           collateralDecreaseAmountCryptoPrecision={
@@ -437,7 +422,7 @@ export const RepayInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.slippage')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
                 <Amount.Crypto
                   // Actually defined at display time, see isLoaded above
                   value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
@@ -449,7 +434,13 @@ export const RepayInput = ({
           <Row fontSize='sm' fontWeight='medium'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteCloseSuccess}>
+              <Skeleton
+                isLoaded={
+                  isEstimatedFeesDataSuccess &&
+                  isLendingQuoteCloseSuccess &&
+                  !isLendingQuoteCloseRefetching
+                }
+              >
                 {/* Actually defined at display time, see isLoaded above */}
                 <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
               </Skeleton>
@@ -460,7 +451,7 @@ export const RepayInput = ({
               <Row.Label>{translate('common.fees')}</Row.Label>
             </HelperTooltip>
             <Row.Value>
-              <Skeleton isLoaded={isLendingQuoteCloseSuccess}>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
                 <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
               </Skeleton>
             </Row.Value>
@@ -489,17 +480,17 @@ export const RepayInput = ({
           isLoading={
             isLendingPositionDataLoading ||
             isLendingQuoteCloseLoading ||
-            isEstimatedFeesDataLoading ||
-            isAddressByteCodeLoading
+            isLendingQuoteCloseRefetching ||
+            isEstimatedFeesDataLoading
           }
           isDisabled={Boolean(
             isLendingPositionDataLoading ||
               isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
+              isLendingQuoteCloseRefetching ||
               isEstimatedFeesDataLoading ||
               isLendingQuoteCloseError ||
               isEstimatedFeesDataError ||
-              disableSmartContractRepayment ||
               quoteErrorTranslation,
           )}
         >

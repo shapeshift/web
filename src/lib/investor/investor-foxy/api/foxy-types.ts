@@ -136,17 +136,6 @@ export type Recipient = {
   amount: string
 }
 
-export type RebaseEvent = {
-  epoch: string
-  blockNumber: number
-}
-
-export type RebaseHistory = {
-  assetId: AssetId
-  balanceDiff: string
-  blockTime: number
-}
-
 export type StakingContract = {
   stakingContract: Contract
 }

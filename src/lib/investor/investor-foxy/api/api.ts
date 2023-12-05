@@ -36,8 +36,6 @@ import type {
   FoxyAddressesType,
   FoxyOpportunityInputData,
   GetTokeRewardAmount,
-  RebaseEvent,
-  RebaseHistory,
   SignAndBroadcastTx,
   StakingContract,
   TokeClaimIpfs,

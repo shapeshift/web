@@ -33307,6 +33307,12 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"swapper@workspace:packages/swapper":
+  version: 0.0.0-use.local
+  resolution: "swapper@workspace:packages/swapper"
+  languageName: unknown
+  linkType: soft
+
 "symbol-observable@npm:^2.0.3":
   version: 2.0.3
   resolution: "symbol-observable@npm:2.0.3"

@@ -128,20 +128,13 @@ export const makeBuckets: MakeBuckets = args => {
   return { buckets, meta }
 }
 
-export const bucketEvents = (
-  txs: Tx[],
-  rebases: RebaseHistory[],
-  bucketsAndMeta: MakeBucketsReturn,
-): Bucket[] => {
+export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
   const end = last(buckets)!.end
 
-  // both txs and rebase events have the same blockTime property which is all we need
-  const txAndRebaseEvents = [...txs, ...rebases]
-
   // events are potentially a lot longer than buckets, iterate the long list once
-  return txAndRebaseEvents.reduce((acc, event) => {
+  return txs.reduce((acc, event) => {
     const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
     const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
     if (eventOutsideDomain) return acc
@@ -418,7 +411,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       timeframe,
     })
     // put each tx into a bucket for the chart
-    const buckets = bucketEvents(txs, rebases, emptyBuckets)
+    const buckets = bucketEvents(txs, emptyBuckets)
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({

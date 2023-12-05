@@ -236,39 +236,45 @@ export const YourLoans = () => {
     )
   }, [handlePoolClick, isActive, isAllLendingPositionsDataLoading, lendingSupportedAssets])
 
+  const renderHeader = useMemo(() => {
+    return isActive ? (
+      <SimpleGrid
+        gridTemplateColumns={lendingRowGrid}
+        columnGap={4}
+        color='text.subtle'
+        fontWeight='bold'
+        fontSize='sm'
+        px={mobilePadding}
+      >
+        <Text translation='lending.pool' />
+        <Flex display={mobileDisplay}>
+          <HelperTooltip label={translate('assets.assetDetails.assetAccounts.account')}>
+            <Text translation='assets.assetDetails.assetAccounts.account' textAlign='right' />
+          </HelperTooltip>
+        </Flex>
+
+        <HelperTooltip label={translate('lending.outstandingDebt')}>
+          <Text translation='lending.outstandingDebt' textAlign='right' />
+        </HelperTooltip>
+
+        <Flex display={mobileDisplay}>
+          <HelperTooltip label={translate('lending.collateralValue')}>
+            <Text translation='lending.collateralValue' textAlign='right' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={largeDisplay}>
+          <HelperTooltip label={translate('lending.repaymentLock')}>
+            <Text translation='lending.repaymentLock' textAlign='right' />
+          </HelperTooltip>
+        </Flex>
+      </SimpleGrid>
+    ) : null
+  }, [isActive, translate])
+
   return (
     <Main headerComponent={lendingHeader}>
       <Stack>
-        <SimpleGrid
-          gridTemplateColumns={lendingRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='lending.pool' />
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('assets.assetDetails.assetAccounts.account')}>
-              <Text translation='assets.assetDetails.assetAccounts.account' textAlign='right' />
-            </HelperTooltip>
-          </Flex>
-
-          <HelperTooltip label={translate('lending.outstandingDebt')}>
-            <Text translation='lending.outstandingDebt' textAlign='right' />
-          </HelperTooltip>
-
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.collateralValue')}>
-              <Text translation='lending.collateralValue' textAlign='right' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={largeDisplay}>
-            <HelperTooltip label={translate('lending.repaymentLock')}>
-              <Text translation='lending.repaymentLock' textAlign='right' />
-            </HelperTooltip>
-          </Flex>
-        </SimpleGrid>
+        {renderHeader}
         {lendingRowGrids}
       </Stack>
     </Main>

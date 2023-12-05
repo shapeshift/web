@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -65,4 +66,10 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient> = {
   // cast required due to typescript shenanigans
   // https://github.com/wagmi-dev/viem/issues/1018
   [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient,
+}
+
+export const assertGetViemClient = (chainId: ChainId): PublicClient => {
+  const publicClient = viemClientByChainId[chainId as EvmChainId]
+  assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
+  return publicClient
 }

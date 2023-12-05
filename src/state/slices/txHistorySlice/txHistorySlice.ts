@@ -9,7 +9,7 @@ import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import type { PartialRecord } from 'lib/utils'
-import { deepUpsertArray, isSome } from 'lib/utils'
+import { deepUpsertArray } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import {
   BLACKLISTED_COLLECTION_IDS,
@@ -19,7 +19,7 @@ import {
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
-import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
+import { getRelatedAssetIds, serializeTxIndex } from './utils'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -144,48 +144,6 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   )
 }
 
-type UpdateOrInsertRebase = (txState: TxHistory, data: RebaseHistoryPayload['payload']) => void
-
-const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
-  const { accountId, assetId } = payload
-  const { rebases } = txState
-  payload.data.forEach(rebase => {
-    const rebaseId = makeRebaseId({ accountId, assetId, rebase })
-    const isNew = !txState.rebases.byId[rebaseId]
-
-    rebases.byId[rebaseId] = rebase
-
-    if (isNew) {
-      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc']).filter(isSome)
-      const index = orderedRebases.findIndex(
-        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
-      )
-      rebases.ids.splice(index, 0, rebaseId)
-    }
-
-    deepUpsertArray(rebases.byAccountIdAssetId, accountId, assetId, rebaseId)
-  })
-}
-
-type MakeRebaseIdArgs = {
-  accountId: AccountId
-  assetId: AssetId
-  rebase: RebaseHistory
-}
-
-type MakeRebaseId = (args: MakeRebaseIdArgs) => string
-
-const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
-  [accountId, assetId, rebase.blockTime].join(UNIQUE_TX_ID_DELIMITER)
-
-type RebaseHistoryPayload = {
-  payload: {
-    accountId: AccountId
-    assetId: AssetId
-    data: RebaseHistory[]
-  }
-}
-
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
@@ -202,8 +160,6 @@ export const txHistory = createSlice({
         }
       }
     },
-    upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
-      updateOrInsertRebase(txState, payload),
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })

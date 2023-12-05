@@ -476,16 +476,16 @@ export const RepayInput = ({
                 <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
               </Skeleton>
             </Row.Value>
-            <Row fontSize='sm' fontWeight='medium'>
-              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-              <Row.Value>
-                <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
-                  <RawText fontWeight='bold'>
-                    {prettyMilliseconds(lendingQuoteCloseData?.quoteTotalTimeMs ?? 0)}
-                  </RawText>
-                </Skeleton>
-              </Row.Value>
-            </Row>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
+                <RawText fontWeight='bold'>
+                  {prettyMilliseconds(lendingQuoteCloseData?.quoteTotalTimeMs ?? 0)}
+                </RawText>
+              </Skeleton>
+            </Row.Value>
           </Row>
         </Stack>
       </Collapse>

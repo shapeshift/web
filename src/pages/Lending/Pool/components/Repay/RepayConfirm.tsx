@@ -386,27 +386,29 @@ export const RepayConfirm = ({
           </WithBackButton>
         </CardHeader>
         <Stack spacing={0} divider={divider}>
-          <AssetToAsset
-            buyIcon={collateralAsset?.icon ?? ''}
-            sellIcon={repaymentAsset?.icon ?? ''}
-            buyColor={collateralAsset?.color ?? ''}
-            sellColor={repaymentAsset?.color ?? ''}
-            status={swapStatus}
-            px={6}
-            mb={4}
-          />
-          <Stack px={4}>
-            <Progress
-              width='full'
-              borderRadius='full'
-              size='sm'
-              min={0}
-              max={confirmedQuote?.quoteTotalTimeMs ?? 0}
-              value={elapsedTime}
-              hasStripe
-              isAnimated={loanTxStatus === 'pending'}
-              colorScheme={loanTxStatus === 'success' ? 'green' : 'blue'}
+          <Stack spacing={0} pb={4}>
+            <AssetToAsset
+              buyIcon={collateralAsset?.icon ?? ''}
+              sellIcon={repaymentAsset?.icon ?? ''}
+              buyColor={collateralAsset?.color ?? ''}
+              sellColor={repaymentAsset?.color ?? ''}
+              status={swapStatus}
+              px={6}
+              mb={4}
             />
+            <Flex px={6}>
+              <Progress
+                width='full'
+                borderRadius='full'
+                size='sm'
+                min={0}
+                max={confirmedQuote?.quoteTotalTimeMs ?? 0}
+                value={elapsedTime}
+                hasStripe
+                isAnimated={loanTxStatus === 'pending'}
+                colorScheme={loanTxStatus === 'success' ? 'green' : 'blue'}
+              />
+            </Flex>
           </Stack>
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
             <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>

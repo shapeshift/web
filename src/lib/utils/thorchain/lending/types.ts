@@ -92,6 +92,9 @@ export type LendingQuoteOpen = {
   quoteTotalFeesFiatUserCurrency: string
   quoteInboundAddress: string
   quoteMemo: string
+  quoteOutboundDelayMs: number
+  quoteInboundConfirmationMs: number
+  quoteTotalTimeMs: number
   quoteExpiry: number
 }
 

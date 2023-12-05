@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -91,6 +92,9 @@ const selectLendingQuoteQuery = memoize(
     const quoteInboundAddress = quote.inbound_address
     const quoteMemo = quote.memo
     const quoteExpiry = quote.expiry
+    const quoteOutboundDelayMs = bn(quote.outbound_delay_seconds).times(1000).toNumber()
+    const quoteInboundConfirmationMs = bn(quote.inbound_confirmation_seconds).times(1000).toNumber()
+    const quoteTotalTimeMs = bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs).toNumber()
 
     return {
       quoteCollateralAmountCryptoPrecision,
@@ -103,6 +107,9 @@ const selectLendingQuoteQuery = memoize(
       quoteTotalFeesFiatUserCurrency,
       quoteInboundAddress,
       quoteMemo,
+      quoteOutboundDelayMs,
+      quoteInboundConfirmationMs,
+      quoteTotalTimeMs,
       quoteExpiry,
     }
   },

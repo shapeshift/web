@@ -5,6 +5,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Progress,
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
@@ -15,6 +16,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { utils } from 'ethers'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -99,9 +101,16 @@ export const BorrowConfirm = ({
 
   const [isLoanPending, setIsLoanPending] = useState(false)
   const [isQuoteExpired, setIsQuoteExpired] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
+
   const lendingMutationStatus = useMutationState({
     filters: { mutationKey: [txId] },
     select: mutation => mutation.state.status,
+  })
+
+  const lendingMutationSubmittedAt = useMutationState({
+    filters: { mutationKey: [txId] },
+    select: mutation => mutation.state.submittedAt,
   })
 
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
@@ -265,6 +274,7 @@ export const BorrowConfirm = ({
     selectedCurrency,
   ])
 
+  // Quote expiration interval
   useInterval(() => {
     // This should never happen but it may
     if (!confirmedQuote) return
@@ -277,6 +287,19 @@ export const BorrowConfirm = ({
     setIsQuoteExpired(isExpired)
   }, 1000)
 
+  useInterval(() => {
+    if (!loanTxStatus) return
+    if (!lendingMutationSubmittedAt[0]) return
+    if (!confirmedQuote) return
+    const submittedAt = lendingMutationSubmittedAt[0]
+    const newElapsedTime = dayjs().diff(dayjs(submittedAt))
+
+    if (newElapsedTime >= confirmedQuote.quoteTotalTimeMs) {
+      setElapsedTime(confirmedQuote.quoteTotalTimeMs)
+    } else {
+      setElapsedTime(newElapsedTime)
+    }
+  }, 1000)
   const confirmTranslation = useMemo(() => {
     if (isQuoteExpired) return 'lending.refetchQuote'
 
@@ -305,12 +328,25 @@ export const BorrowConfirm = ({
             px={6}
             mb={4}
           />
+          <Stack px={4}>
+            <Progress
+              width='full'
+              borderRadius='full'
+              size='sm'
+              min={0}
+              max={confirmedQuote?.quoteTotalTimeMs ?? 0}
+              value={elapsedTime}
+              hasStripe
+              isAnimated={loanTxStatus === 'pending'}
+              colorScheme={loanTxStatus === 'success' ? 'green' : 'blue'}
+            />
+          </Stack>
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
             <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>
             <Row>
               <Row.Label>{translate('common.send')}</Row.Label>
               <Row.Value textAlign='right'>
-                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto value={depositAmount} symbol={collateralAsset?.symbol ?? ''} />
                     <Amount.Fiat
@@ -327,7 +363,7 @@ export const BorrowConfirm = ({
             <Row>
               <Row.Label>{translate('common.receive')}</Row.Label>
               <Row.Value textAlign='right'>
-                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
                       // Actually defined at display time, see isLoaded above
@@ -349,7 +385,7 @@ export const BorrowConfirm = ({
                 <Row.Label>{translate('common.feesPlusSlippage')}</Row.Label>
               </HelperTooltip>
               <Row.Value>
-                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={confirmedQuote?.quoteTotalFeesFiatUserCurrency ?? '0'} />
                 </Skeleton>
@@ -358,9 +394,23 @@ export const BorrowConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
+                <Skeleton
+                  isLoaded={
+                    isEstimatedFeesDataSuccess && isLendingQuoteSuccess && !isLendingQuoteRefetching
+                  }
+                >
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(confirmedQuote?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
                 </Skeleton>
               </Row.Value>
             </Row>

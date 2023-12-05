@@ -93,8 +93,10 @@ const selectLendingQuoteQuery = memoize(
     const quoteInboundAddress = quote.inbound_address
     const quoteMemo = quote.memo
     const quoteExpiry = quote.expiry
-    const quoteOutboundDelayMs = bn(quote.outbound_delay_seconds).times(1000).toNumber()
-    const quoteInboundConfirmationMs = bn(quote.inbound_confirmation_seconds).times(1000).toNumber()
+    const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
+    const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)
+      .times(1000)
+      .toNumber()
     // Sane number for total time, in case the outbound is 0 seconds and the inbound is also fast,
     // so that users don't end up waiting 30s before the seeminngly "complete" Tx as far as progress bar goes, and actual confirmed state
     const quoteTotalTimeMs = BigNumber.max(

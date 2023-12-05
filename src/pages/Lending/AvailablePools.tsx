@@ -19,20 +19,28 @@ import { usePoolDataQuery } from './hooks/usePoolDataQuery'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  lg: '200px repeat(5, 1fr)',
+  lg: '200px repeat(3, 1fr)',
+  xl: '200px repeat(5, 1fr)',
 }
 const mobileDisplay = {
   base: 'none',
   lg: 'flex',
 }
 
+const largeDisplay = {
+  base: 'none',
+  xl: 'flex',
+}
+
 const mobilePadding = {
   base: 4,
-  lg: 0,
+  lg: 4,
+  xl: 0,
 }
 const listMargin = {
   base: 0,
-  lg: -4,
+  lg: 0,
+  xl: -4,
 }
 
 type LendingPoolButtonProps = {
@@ -79,10 +87,10 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
           </Tag>
         </Flex>
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
+      <Skeleton isLoaded={isLoaded}>
         <Amount.Fiat value={poolData?.totalDebtUserCurrency ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={isLoaded} display={largeDisplay}>
         <Amount.Crypto
           value={poolData?.totalCollateralCryptoPrecision ?? '0'}
           symbol={asset.symbol}
@@ -91,7 +99,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Amount.Percent value={poolData?.collateralizationRatioPercentDecimal ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
+      <Skeleton isLoaded={isLoaded} display={largeDisplay}>
         <RawText>{poolData?.totalBorrowers ?? '0'}</RawText>
       </Skeleton>
     </Button>
@@ -141,17 +149,16 @@ export const AvailablePools = () => {
               <Text translation='lending.totalDebtBalance' />
             </HelperTooltip>
           </Flex>
-
           <HelperTooltip label={translate('lending.totalCollateral')}>
             <Text translation='lending.totalCollateral' />
           </HelperTooltip>
 
-          <Flex display={mobileDisplay}>
+          <Flex display={largeDisplay}>
             <HelperTooltip label={translate('lending.estCollateralizationRatio')}>
               <Text translation='lending.estCollateralizationRatio' />
             </HelperTooltip>
           </Flex>
-          <Flex display={mobileDisplay}>
+          <Flex display={largeDisplay}>
             <HelperTooltip label={translate('lending.totalBorrowers')}>
               <Text translation='lending.totalBorrowers' />
             </HelperTooltip>

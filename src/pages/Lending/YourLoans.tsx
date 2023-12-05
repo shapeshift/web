@@ -27,7 +27,8 @@ const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  lg: 'repeat(5, 1fr)',
+  lg: '200px repeat(3, 1fr)',
+  xl: '200px repeat(4, 1fr)',
 }
 const reverseMobileDisplay = {
   base: 'block',
@@ -38,14 +39,21 @@ const mobileDisplay = {
   lg: 'flex',
 }
 
+const largeDisplay = {
+  base: 'none',
+  xl: 'flex',
+}
+
 const mobilePadding = {
   base: 4,
-  lg: 0,
+  lg: 4,
+  xl: 0,
 }
 
 const listMargin = {
   base: 0,
-  lg: -4,
+  lg: 0,
+  xl: -4,
 }
 
 const alignItems = {
@@ -153,7 +161,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
             />
           </Stack>
         </Skeleton>
-        <Skeleton isLoaded={isRepaymentLockSuccess} display={mobileDisplay}>
+        <Skeleton isLoaded={isRepaymentLockSuccess} display={largeDisplay}>
           <RawText color={isRepaymentLocked ? 'white' : 'green.500'}>
             {isRepaymentLocked
               ? translate('lending.repaymentDays', { numDays: repaymentLockData })
@@ -255,7 +263,7 @@ export const YourLoans = () => {
               <Text translation='lending.collateralValue' textAlign='right' />
             </HelperTooltip>
           </Flex>
-          <Flex display={mobileDisplay}>
+          <Flex display={largeDisplay}>
             <HelperTooltip label={translate('lending.repaymentLock')}>
               <Text translation='lending.repaymentLock' textAlign='right' />
             </HelperTooltip>

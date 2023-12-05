@@ -1,26 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import {
-  ASSET_NAMESPACE,
-  ethChainId,
-  fromAccountId,
-  gnosisChainId,
-  isNft,
-  polygonChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { RebaseHistory } from 'lib/investor/investor-foxy'
-import { foxyAddresses } from 'lib/investor/investor-foxy'
 import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   BLACKLISTED_COLLECTION_IDS,
   isSpammyNftText,
@@ -218,44 +208,10 @@ export const txHistory = createSlice({
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
-type RebaseTxHistoryArgs = {
-  accountId: AccountId
-  portfolioAssetIds: AssetId[]
-}
-
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
-    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: ({ accountId, portfolioAssetIds }, { dispatch }) => {
-        const { chainId, account: userAddress } = fromAccountId(accountId)
-        // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
-        if (chainId !== ethChainId) return { data: [] }
-        // foxy contract address, note not assetIds
-        const foxyTokenContractAddress = (() => {
-          const contractAddress = foxyAddresses[0].foxy.toLowerCase()
-          if (portfolioAssetIds.some(id => id.includes(contractAddress))) return contractAddress
-        })()
-
-        // don't do anything below if we don't have FOXy as a portfolio AssetId
-        if (!foxyTokenContractAddress) return { data: [] }
-
-        // setup foxy api
-        const foxyApi = getFoxyApi()
-
-        ;(async () => {
-          const rebaseHistoryArgs = { userAddress, tokenContractAddress: foxyTokenContractAddress }
-          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-          const assetReference = foxyTokenContractAddress
-          const assetNamespace = ASSET_NAMESPACE.erc20
-          const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-          const upsertPayload = { accountId, assetId, data }
-          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-        })()
-        return { data: [] }
-      },
-    }),
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
         const results: TransactionsByAccountId = {}

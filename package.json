@@ -99,7 +99,6 @@
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.52.13",
     "@shapeshiftoss/hdwallet-keplr": "1.52.13",
     "@shapeshiftoss/hdwallet-ledger": "1.52.13",
-    "@shapeshiftoss/hdwallet-ledger-webhid": "1.52.13",
     "@shapeshiftoss/hdwallet-ledger-webusb": "1.52.13",
     "@shapeshiftoss/hdwallet-metamask": "1.52.13",
     "@shapeshiftoss/hdwallet-native": "1.52.13",

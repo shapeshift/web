@@ -7333,18 +7333,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport-webhid@npm:^6.7.0":
-  version: 6.27.19
-  resolution: "@ledgerhq/hw-transport-webhid@npm:6.27.19"
-  dependencies:
-    "@ledgerhq/devices": ^8.0.7
-    "@ledgerhq/errors": ^6.14.0
-    "@ledgerhq/hw-transport": ^6.28.8
-    "@ledgerhq/logs": ^6.10.1
-  checksum: 8c5fa97dba90a104506d22228e1a58dbfc13097bd73b3d75d27ef53553f73f1e8ba8c62309679a135e77a976e81a86ed713d23409ac947b22dba4b71a58f3cd0
-  languageName: node
-  linkType: hard
-
 "@ledgerhq/hw-transport-webusb@npm:^6.7.0":
   version: 6.27.19
   resolution: "@ledgerhq/hw-transport-webusb@npm:6.27.19"
@@ -9422,22 +9410,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.13":
-  version: 1.52.13
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.52.13"
-  dependencies:
-    "@ledgerhq/hw-app-btc": ^10.0.8
-    "@ledgerhq/hw-app-eth": ^6.9.0
-    "@ledgerhq/hw-transport": ^6.7.0
-    "@ledgerhq/hw-transport-webhid": ^6.7.0
-    "@ledgerhq/live-common": ^21.8.2
-    "@shapeshiftoss/hdwallet-core": 1.52.13
-    "@shapeshiftoss/hdwallet-ledger": 1.52.13
-    "@types/w3c-web-hid": ^1.0.2
-  checksum: e168529954670e28403aa94c73a5f4f14346eee457e6530c442ab75fabd945c6cd42e64e3e805871b9dc5640c437ecfaeb82d91cec7bd3546c8ca8dcd4a396d9
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.13":
   version: 1.52.13
   resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.52.13"
@@ -9774,7 +9746,6 @@ __metadata:
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.52.13
     "@shapeshiftoss/hdwallet-keplr": 1.52.13
     "@shapeshiftoss/hdwallet-ledger": 1.52.13
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.52.13
     "@shapeshiftoss/hdwallet-ledger-webusb": 1.52.13
     "@shapeshiftoss/hdwallet-metamask": 1.52.13
     "@shapeshiftoss/hdwallet-native": 1.52.13
@@ -11933,13 +11904,6 @@ __metadata:
   version: 9.0.5
   resolution: "@types/uuid@npm:9.0.5"
   checksum: 7577940949619768303c0bf0a7cc235fac3cfae1c0bb4a2e85bfb87b2eb1024955ab446f775394d259442cd769b663b6ce43c39bdfc955d946bf833804ddb421
-  languageName: node
-  linkType: hard
-
-"@types/w3c-web-hid@npm:^1.0.2":
-  version: 1.0.4
-  resolution: "@types/w3c-web-hid@npm:1.0.4"
-  checksum: f4a69a3d0bd27bcd0777fb5f0e219e7cca9bab8fa52a7a0dd4501d8d15ec49ecc7c57809396378b1fb0851504bd1aecf94ee2efbb70ab3ebf621fcb30d518afd
   languageName: node
   linkType: hard
 

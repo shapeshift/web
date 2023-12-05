@@ -7,7 +7,6 @@ import type { UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -55,27 +54,14 @@ type TransactionsByAccountId = Record<AccountId, Transaction[]>
 export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
 export type TxIdsByAccountIdAssetId = PartialRecord<AccountId, TxIdsByAssetId>
 
-export type RebaseId = Nominal<string, 'RebaseId'>
-type RebaseById = PartialRecord<RebaseId, RebaseHistory>
-
-type RebaseIdsByAssetId = PartialRecord<AssetId, RebaseId[]>
-export type RebaseIdsByAccountIdAssetId = PartialRecord<AccountId, RebaseIdsByAssetId>
-
 export type TxsState = {
   byId: TxHistoryById
   byAccountIdAssetId: TxIdsByAccountIdAssetId
   ids: TxId[]
 }
 
-export type RebasesState = {
-  byAccountIdAssetId: RebaseIdsByAccountIdAssetId
-  ids: RebaseId[]
-  byId: RebaseById
-}
-
 export type TxHistory = {
   txs: TxsState
-  rebases: RebasesState
 }
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
@@ -88,11 +74,6 @@ export const initialState: TxHistory = {
     byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-  },
-  rebases: {
-    byAccountIdAssetId: {},
-    ids: [],
-    byId: {},
   },
 }
 

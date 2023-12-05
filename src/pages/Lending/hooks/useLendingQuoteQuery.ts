@@ -5,6 +5,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
@@ -94,7 +95,12 @@ const selectLendingQuoteQuery = memoize(
     const quoteExpiry = quote.expiry
     const quoteOutboundDelayMs = bn(quote.outbound_delay_seconds).times(1000).toNumber()
     const quoteInboundConfirmationMs = bn(quote.inbound_confirmation_seconds).times(1000).toNumber()
-    const quoteTotalTimeMs = bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs).toNumber()
+    // Sane number for total time, in case the outbound is 0 seconds and the inbound is also fast,
+    // so that users don't end up waiting 30s before the seeminngly "complete" Tx as far as progress bar goes, and actual confirmed state
+    const quoteTotalTimeMs = BigNumber.max(
+      120_000,
+      bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
+    ).toNumber()
 
     return {
       quoteCollateralAmountCryptoPrecision,

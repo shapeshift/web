@@ -92,7 +92,7 @@ export const RepayConfirm = ({
     accountId: collateralAccountId,
   })
 
-  const { mutate, mutateAsync } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: async (_txId: string) => {
       // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
@@ -362,12 +362,6 @@ export const RepayConfirm = ({
 
     if (newElapsedTime >= confirmedQuote.quoteTotalTimeMs) {
       setElapsedTime(confirmedQuote.quoteTotalTimeMs)
-
-      if (loanTxStatus === 'pending') {
-        // THOR Tx may be completed, but we may still be waiting on the next poll - try and refetch status here
-        // This will ensure faster outbounds (e.g RUNE) for 100% repayments are in sync with the progress bar
-        mutate(txId)
-      }
     } else {
       setElapsedTime(newElapsedTime)
     }

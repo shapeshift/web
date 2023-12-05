@@ -89,7 +89,7 @@ export const BorrowConfirm = ({
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
-  const { mutate, mutateAsync } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: async (_txId: string) => {
       // Ensuring we wait for the outbound Tx to exist
@@ -297,12 +297,6 @@ export const BorrowConfirm = ({
 
     if (newElapsedTime >= confirmedQuote.quoteTotalTimeMs) {
       setElapsedTime(confirmedQuote.quoteTotalTimeMs)
-
-      if (loanTxStatus === 'pending') {
-        // THOR Tx may be completed, but we may still be waiting on the next poll - try and refetch status here
-        // This will ensure faster outbounds (e.g RUNE) are in sync with the progress bar
-        mutate(txId)
-      }
     } else {
       setElapsedTime(newElapsedTime)
     }

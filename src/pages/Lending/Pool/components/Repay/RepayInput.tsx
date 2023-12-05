@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -23,7 +24,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import type { Asset } from 'lib/asset-service'
@@ -475,6 +476,16 @@ export const RepayInput = ({
                 <Amount.Fiat value={lendingQuoteCloseData?.quoteTotalFeesFiatUserCurrency ?? 0} />
               </Skeleton>
             </Row.Value>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(lendingQuoteCloseData?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
+                </Skeleton>
+              </Row.Value>
+            </Row>
           </Row>
         </Stack>
       </Collapse>

@@ -1,5 +1,5 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type {
   EvmBaseAdapter,
   EvmChainId,
@@ -36,8 +36,6 @@ import type {
   FoxyAddressesType,
   FoxyOpportunityInputData,
   GetTokeRewardAmount,
-  RebaseEvent,
-  RebaseHistory,
   SignAndBroadcastTx,
   StakingContract,
   TokeClaimIpfs,
@@ -1087,130 +1085,5 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get information from Tokemak ipfs ${e}`)
     }
-  }
-
-  async getRebaseHistory(input: BalanceInput) {
-    const { tokenContractAddress, userAddress } = input
-    this.verifyAddresses([tokenContractAddress])
-
-    const foxyContract = new ethers.Contract(tokenContractAddress, foxyAbi, this.provider)
-    const fromBlock = 14381454 // genesis rebase
-
-    const rebaseEvents = await (async () => {
-      try {
-        const filter = foxyContract.filters.LogRebase()
-        const events = await foxyContract.queryFilter(filter, fromBlock, 'latest')
-        const filteredEvents = events.filter(
-          rebase => rebase.args?.rebase && !rebase.args.rebase.isZero(),
-        )
-        return filteredEvents
-      } catch (e) {
-        console.error(e, 'failed to get rebase events')
-        return undefined
-      }
-    })()
-
-    if (!rebaseEvents) return []
-
-    const transferEvents = await (async () => {
-      try {
-        const filter = foxyContract.filters.Transfer()
-        const events = await foxyContract.queryFilter(filter, fromBlock, 'latest')
-        return events
-      } catch (e) {
-        console.error(e, 'failed to get transfer events')
-        return undefined
-      }
-    })()
-
-    const events: RebaseEvent[] = rebaseEvents.map(rebaseEvent => {
-      const { blockNumber, args: { epoch } = { epoch: '' } } = rebaseEvent
-      return {
-        blockNumber,
-        epoch,
-      }
-    })
-
-    const chainNamespace = CHAIN_NAMESPACE.Evm
-    const chainReference = CHAIN_REFERENCE.EthereumMainnet
-    const assetNamespace = 'erc20'
-    const assetReference = tokenContractAddress
-    // foxy assetId
-    const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-
-    const results = await Promise.allSettled(
-      events.map(async event => {
-        const { preRebaseBalance, postRebaseBalance } = await (async () => {
-          try {
-            // check transfer events to see if a user triggered a rebase through unstake or stake
-            const unstakedTransferInfo = transferEvents?.filter(
-              e =>
-                e.blockNumber === event.blockNumber && e.args?.from.toLowerCase() === userAddress,
-            )
-            const unstakedTransferAmount = unstakedTransferInfo?.[0]?.args?.value ?? 0
-            const stakedTransferInfo = transferEvents?.filter(
-              e => e.blockNumber === event.blockNumber && e.args?.to.toLowerCase() === userAddress,
-            )
-            const stakedTransferAmount = stakedTransferInfo?.[0]?.args?.value ?? 0
-
-            const postRebaseBalanceResult = await foxyContract.balanceOf(userAddress, {
-              blockTag: event.blockNumber,
-            })
-            const unadjustedPreRebaseBalance = await foxyContract.balanceOf(userAddress, {
-              blockTag: event.blockNumber - 1,
-            })
-
-            // unstake events can trigger rebases, if they do, adjust the amount to not include that unstake's transfer amount
-            const preRebaseBalanceResult = bnOrZero(unadjustedPreRebaseBalance.toString())
-              .minus(unstakedTransferAmount.toString())
-              .plus(stakedTransferAmount.toString())
-              .toString()
-
-            return {
-              preRebaseBalance: preRebaseBalanceResult,
-              postRebaseBalance: postRebaseBalanceResult.toString() as string,
-            }
-          } catch (e) {
-            console.error(e, 'failed to get balance of address')
-            return {
-              preRebaseBalance: bn(0).toString(),
-              postRebaseBalance: bn(0).toString(),
-            }
-          }
-        })()
-
-        const blockTime = await (async () => {
-          try {
-            const block = await this.provider.getBlock(event.blockNumber)
-            return bnOrZero(block.timestamp).toNumber()
-          } catch (e) {
-            console.error(e, 'failed to get timestamp of block')
-            return 0
-          }
-        })()
-
-        return { assetId, preRebaseBalance, postRebaseBalance, blockTime }
-      }),
-    )
-
-    const actualResults = results.reduce<RebaseHistory[]>((acc, cur) => {
-      if (cur.status === 'rejected') {
-        console.error('getFoxyRebaseHistory: balanceOf call failed - charts will be wrong')
-        return acc
-      }
-      if (cur.value.preRebaseBalance === '0') return acc // don't return rebase history with 0 balance diff
-
-      const balanceDiff = bnOrZero(cur.value.postRebaseBalance)
-        .minus(cur.value.preRebaseBalance)
-        .toString()
-
-      acc.push({
-        balanceDiff,
-        ...cur.value,
-      })
-      return acc
-    }, [])
-
-    return actualResults
   }
 }

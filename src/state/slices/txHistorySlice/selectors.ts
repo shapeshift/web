@@ -9,7 +9,6 @@ import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
-import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -25,13 +24,7 @@ import { selectAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
-import type {
-  RebaseId,
-  RebaseIdsByAccountIdAssetId,
-  Tx,
-  TxId,
-  TxIdsByAccountIdAssetId,
-} from './txHistorySlice'
+import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,
@@ -39,12 +32,6 @@ export const selectTxs = createDeepEqualOutputSelector(
 )
 export const selectTxIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.ids,
-  ids => ids,
-)
-
-const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
-export const selectRebaseIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.rebases.ids,
   ids => ids,
 )
 
@@ -99,13 +86,6 @@ const selectWalletTxsByAccountIdAssetId = createSelector(
   (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
-)
-
-const selectWalletRebasesByAccountIdAssetId = createSelector(
-  selectWalletAccountIds,
-  (state: ReduxState) => state.txHistory.rebases.byAccountIdAssetId,
-  (accountIds, rebasesByAccountIdAssetId): RebaseIdsByAccountIdAssetId =>
-    pickBy(rebasesByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
@@ -189,32 +169,6 @@ export const selectTxStatusById = createCachedSelector(
   selectTxById,
   (tx): Tx['status'] | undefined => tx?.status,
 )((_state: ReduxState, txId: TxId) => txId ?? 'undefined')
-
-export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
-  selectRebaseIds,
-  selectWalletRebasesByAccountIdAssetId,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (rebaseIds, data, accountIdFilter, assetIdFilter): RebaseId[] => {
-    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
-    const filtered = pickBy(data, (_, accountId) =>
-      accountIdFilter ? accountId === accountIdFilter : true,
-    )
-    const flattened = values(filtered)
-      .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
-      .filter(isSome)
-    const uniqueIds = uniq(flattened)
-    const sortedIds = uniqueIds.sort((a, b) => rebaseIds.indexOf(a) - rebaseIds.indexOf(b))
-    return sortedIds
-  },
-)
-
-export const selectRebasesByFilter = createSelector(
-  selectRebasesById,
-  selectRebaseIdsByFilter,
-  (rebasesById, rebaseIds): RebaseHistory[] =>
-    rebaseIds.map(rebaseId => rebasesById[rebaseId]).filter(isSome),
-)
 
 /**
  * to be able to add an account for a chain, we want to ensure there is some tx history

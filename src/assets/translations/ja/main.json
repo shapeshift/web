@@ -103,6 +103,7 @@
     "feesPlusSlippage": "手数料+スリッページ",
     "best": "ベスト",
     "gasFee": "ガス料金",
+    "consolidationFee": "統合手数料",
     "fees": "手数料",
     "alternative": "代替",
     "validator": "%{name} バリデーター",
@@ -121,6 +122,7 @@
     "showAll": "すべて表示",
     "showLess": "表示を減らす",
     "yourBalance": "バランス",
+    "signMessage": "署名メッセージ",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -800,7 +802,8 @@
       "generalError": "取引エラーが発生しました",
       "quoteError": "見積もりの​​取得中にエラーが発生しました",
       "tradeFailed": "取引は失敗しました。ガス代を差し引いた額が返還されました",
-      "noQuotesAvailable": "この取引には利用可能な見積もりがありません"
+      "noQuotesAvailable": "この取引には利用可能な見積もりがありません",
+      "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -813,7 +816,10 @@
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
-    "enableMetaMaskSnap": "マルチチェーンスナップを使用する"
+    "enableMetaMaskSnap": "マルチチェーンスナップを使用する",
+    "approvalGasFee": "承認ガス手数料 %{fee}",
+    "approvalFailed": "手当の承認中に問題が発生しました",
+    "swapFailed": "%{tradeType} の実行中に問題が発生しました"
   },
   "modals": {
     "popup": {
@@ -937,6 +943,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift は、トランザクションごとに新しいアドレスを使用することにより、%{asset} のセキュリティ設計を尊重します。単一のアドレスで動作するTHORChainのプロトコルに合わせるために、私たちはあなたの資金を単一のアドレスに統合します。",
+        "tooltip": "THORChainとの互換性を確保するために、単一のアドレスに資金を送信します。",
         "consolidateFunds": "統合する"
       },
       "getBalanceError": "ウォレット残高取得エラー",
@@ -2178,14 +2185,19 @@
   },
   "lending": {
     "lending": "貸し出し",
+    "repaymentAvailable": "返済可能",
+    "daysUntilRepayment": "返済まであと %{numDays} 日",
+    "repaymentDays": "%{numDays} 日",
     "lendingBody": "ゼロ金利およびゼロ清算で借りられるすべてのプールのリスト。",
     "collateralValue": "担保価値",
+    "collateralValueDescription": "担保として使用される資産の現在価値",
     "debtValue": "負債額",
     "loanToValue": "価値へのローン",
     "availablePools": "利用可能なプール",
     "yourLoans": "ローン",
     "pool": "プール",
     "poolDepth": "プールの深さ",
+    "poolDepthDescription": "プールの状態",
     "totalDebtBalance": "総負債残高",
     "totalCollateral": "担保総額",
     "estCollateralizationRatio": "EST 担保比率",
@@ -2195,11 +2207,15 @@
     "loanInformation": "ローン概要",
     "poolInformation": "プール情報",
     "collateralBalance": "担保価値",
+    "collateralBalanceDescription": "現在担保として保有している資産の総額",
     "debtBalance": "負債残高",
+    "debtBalanceDescription": "このローンに対して負っている負債の総額",
     "repaymentLock": "返済ロック",
+    "repaymentLockDescription": "ローンを返済できるまでの最低期間",
     "borrow": "借りる",
     "repay": "返済",
     "repayAmount": "返済額",
+    "unlocked": "ロック解除済み",
     "unlockedCollateral": "ロック解除された担保",
     "depositAsset": "入金 %{asset}",
     "switchAssets": "アセットの切り替え",
@@ -2212,30 +2228,52 @@
     "risky": "リスキーな",
     "confirmAndBorrow": "確認して借りる",
     "confirmAndRepay": "確認して返済する",
+    "borrowAgain": "もう一度借りる",
+    "repayAgain": "もう一度返済する",
     "transactionInfo": "取引概要",
     "repayNoticeTitle": "待つ",
     "repayNoticeCta": "理解しました",
     "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
+    "feesNotice": "担保に対して発生した手数料は、借金を100%返済した後に返還されます。",
+    "refetchQuote": "見積もりを再取得する",
     "faq": {
       "title": "よくある質問",
       "lending": {
-        "title": "THORChainレンディングとは何ですか?"
+        "title": "THORChainレンディングとは何ですか?",
+        "body": "融資により、ユーザーはネイティブ担保を預け、担保比率 (CR) で借金を作成できます。ユーザーが受け取るL1資産に関係なく、負債は常にUSD(別名 TOR) 建てです。"
       },
       "borrowing": {
-        "title": "借入はどのように機能しますか?"
+        "title": "借入はどのように機能しますか?",
+        "body": "THORChainでの借入には、預けた資産を担保として使用してローンを組むことが含まれます。融資は米ドル (TOR) 建てで、さまざまな L1 資産で受け取ることができます。動的な担保比率により、利息や清算の心配なく柔軟に借入できます。"
       },
       "repayments": {
-        "title": "返済はどのように行われますか?"
+        "title": "返済はどのように行われますか?",
+        "body": "THORChainでの返済は柔軟であり、いつでもどの資産でも返済でき、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
       }
+    },
+    "quote": {
+      "collateral": "ローンに対して担保される資産総額",
+      "debt": "新たなローン金額に基づいて支払うべき負債の合計",
+      "repaymentLock": "ローンを返済できるまでの最低期間",
+      "collateralizationRatio": "融資金額に対する担保価値の比率",
+      "feesPlusSlippage": "L1手数料、スリッページ、THORChain流動性手数料を含む、発生した手数料の合計"
     }
   },
   "foxDiscounts": {
+    "currentFoxPower": "あなたのFOX",
     "foxPower": "FOXパワー",
     "simulateTitle": "FOX貯蓄額をシミュレーションする",
     "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
     "tradeSize": "取引規模",
     "totalFee": "合計料金",
     "foxPowerDiscount": "FOXパワー割引",
-    "basedOnFee": "料金に基づく: %{fee}"
+    "basedOnFee": "料金に基づく: %{fee}",
+    "feeSummary": "料金概要",
+    "simulateFee": "料金シミュレーション",
+    "freeUnderThreshold": "%{threshold} 未満の取引は常に無料です",
+    "breakdownHeader": "FOX割引",
+    "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",
+    "tradeFee": "取引手数料",
+    "totalTradeFee": "合計取引手数料"
   }
 }

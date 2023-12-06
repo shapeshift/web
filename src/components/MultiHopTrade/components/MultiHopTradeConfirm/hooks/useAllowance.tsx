@@ -1,10 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useBlockNumber } from 'wagmi'
 import type { GetAllowanceArgs } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import {
   getAllowance,
@@ -12,6 +10,8 @@ import {
 } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuoteStep } from 'lib/swapper/types'
+
+import { useBlockNumber } from './useBlockNumber'
 
 type QueryKeyArgs = Partial<Omit<GetAllowanceArgs, 'wallet'>>
 
@@ -105,11 +105,7 @@ export function useAllowance({
     enabled: Boolean(enabled && wallet),
   })
 
-  const chainReference = useMemo(
-    () => (chainId ? Number(fromChainId(chainId).chainReference) : undefined),
-    [chainId],
-  )
-  const { data: blockNumber } = useBlockNumber({ chainId: chainReference, watch })
+  const blockNumber = useBlockNumber(chainId, watch)
 
   useEffect(() => {
     if (!enabled) return

@@ -7,7 +7,8 @@ import {
   selectSecondHop,
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useIsApprovalNeeded } from './useIsApprovalNeeded'
 
@@ -16,7 +17,7 @@ const useIsApprovalInitiallyNeededForHop = (
   sellAssetAccountId: AccountId | undefined,
 ) => {
   const [watchIsApprovalNeeded, setWatchIsApprovalNeeded] = useState<boolean>(true)
-  const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean>(false)
+  const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
   const { isLoading, isApprovalNeeded } = useIsApprovalNeeded({
     tradeQuoteStep,
@@ -32,10 +33,14 @@ const useIsApprovalInitiallyNeededForHop = (
     }
   }, [isApprovalNeeded, isLoading])
 
-  return { isLoading, isApprovalInitiallyNeeded }
+  return {
+    isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
+    isApprovalInitiallyNeeded,
+  }
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
+  const dispatch = useAppDispatch()
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
   const FirstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
@@ -51,11 +56,20 @@ export const useIsApprovalInitiallyNeeded = () => {
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
   } = useIsApprovalInitiallyNeededForHop(secondHop, SecondHopSellAssetAccountId)
 
-  return {
-    isLoading: isFirstHopLoading || isSecondHopLoading,
-    isApprovalInitiallyNeeded: {
-      firstHop: isApprovalInitiallyNeededForFirstHop,
-      secondHop: isApprovalInitiallyNeededForSecondHop,
-    },
-  }
+  useEffect(() => {
+    if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
+    dispatch(
+      tradeQuoteSlice.actions.setInitialApprovalRequirements({
+        firstHop: isApprovalInitiallyNeededForFirstHop ?? false,
+        secondHop: isApprovalInitiallyNeededForSecondHop ?? false,
+      }),
+    )
+  }, [
+    dispatch,
+    isApprovalInitiallyNeededForFirstHop,
+    isApprovalInitiallyNeededForSecondHop,
+    isFirstHopLoading,
+    isSecondHopLoading,
+    secondHop,
+  ])
 }

@@ -26,9 +26,9 @@ export const useIsApprovalNeeded = ({
   })
 
   const isApprovalNeeded = useMemo(() => {
-    if (tradeQuoteStep === undefined) return false
+    if (tradeQuoteStep === undefined) return undefined
 
-    if (data?.isErr) {
+    if (data?.isErr()) {
       const error = data.unwrapErr()
       // the error type is a GetAllowanceErr enum so we can handle all cases with exhaustiveness
       // checking to prevent returning the wrong value if we add more error cases
@@ -53,5 +53,8 @@ export const useIsApprovalNeeded = ({
       : undefined
   }, [data, tradeQuoteStep])
 
-  return { isLoading, isApprovalNeeded }
+  return {
+    isLoading: isApprovalNeeded === undefined || tradeQuoteStep === undefined || isLoading,
+    isApprovalNeeded,
+  }
 }

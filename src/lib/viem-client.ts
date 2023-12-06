@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import assert from 'assert'
 import { getConfig } from 'config'
 import type { PublicClient } from 'viem'
 import { createPublicClient, http } from 'viem'

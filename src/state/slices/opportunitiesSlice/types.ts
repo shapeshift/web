@@ -4,7 +4,6 @@ import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
-import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -20,7 +19,6 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  Idle = 'Idle',
   ShapeShift = 'ShapeShift',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
@@ -60,12 +58,11 @@ export type OpportunityMetadataBase = {
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   // Which might or might not be the same as the AssetId, e.g
   // - with LP staking, you stake an LP token
-  // - with Idle, you stake a yield-bearing token, so the underlyingAssetId *is* the AssetId
   // - with Cosmos SDK, you stake the underlying asset directly, so the underlyingAssetId *is* the AssetId
   underlyingAssetId: AssetId
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
-  // For opportunities a la Idle, that's the asset the opportunity wraps
+  // For opportunities a la FOXy, that's the asset the opportunity wraps
   underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly string[]
@@ -82,10 +79,7 @@ export type OpportunityMetadataBase = {
   tags?: string[]
 }
 
-export type OpportunityMetadata =
-  | OpportunityMetadataBase
-  | ThorchainSaversStakingSpecificMetadata
-  | IdleStakingSpecificMetadata
+export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {

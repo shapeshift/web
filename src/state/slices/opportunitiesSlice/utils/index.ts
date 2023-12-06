@@ -211,8 +211,6 @@ export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
   switch (provider) {
     case DefiProvider.CosmosSdk:
       return assetName
-    case DefiProvider.Idle:
-      return 'Idle Finance'
     default:
       return provider
   }

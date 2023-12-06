@@ -179,8 +179,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
 
-      const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-
       dispatch(nftApi.endpoints.getNftUserTokens.initiate({ accountIds: requestedAccountIds }))
 
       dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
@@ -213,19 +211,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               await fetchAllOpportunitiesMetadataByChainId(chainId)
               await fetchAllOpportunitiesUserDataByAccountId(accountId)
             })()
-
-            /**
-             * fetch all rebase history for foxy
-             *
-             * foxy rebase history is most closely linked to transactions.
-             * unfortunately, we have to call this for a specific asset here
-             * because we need it for the dashboard balance chart
-             *
-             * if you're reading this and are about to add another rebase token here,
-             * stop, and make a getRebaseHistoryByAccountId that takes
-             * an accountId and assetId[] in the txHistoryApi
-             */
-            dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }))
             break
           default:
         }

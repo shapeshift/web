@@ -9,7 +9,6 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
 } from 'contracts/constants'
-import IdleFinanceLogo from 'assets/idle-finance.png'
 import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
@@ -87,12 +86,6 @@ export const STAKING_ID_TO_VERSION = {
 export const STAKING_ID_DELIMITER = '*'
 
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
-  [DefiProvider.Idle]: {
-    provider: DefiProvider.Idle,
-    icon: IdleFinanceLogo,
-    color: '#1B14DC',
-    url: 'https://idle.finance',
-  },
   [DefiProvider.ShapeShift]: {
     provider: DefiProvider.ShapeShift,
     icon: 'https://assets.coincap.io/assets/icons/256/fox.png',

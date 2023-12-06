@@ -548,8 +548,6 @@
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Görevleri",
-    "foxMissionsShort": "Görevler",
     "lending": "Borç Verme"
   },
   "transactionRow": {
@@ -1962,77 +1960,6 @@
     },
     "custom": "Özel"
   },
-  "idle": {
-    "emptyTitle": "Idle Finance ile %{asset} varlığınızdan %{apy}% kazanın",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield Stratejisi",
-          "body": "Senior Best Yield kasaları, her zaman en yüksek APY'yi sağlamak için fonları birden fazla, ihtiyatlı riskli getiri kaynağı arasında otomatik olarak yönlendiren ayarla ve unut stratejileridir."
-        },
-        "page-2": {
-          "title": "Senior Best Yield stratejileri:",
-          "bullets": {
-            "one": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu",
-            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Junior Best Yield Stratejisi",
-          "body": "Junior Best Yield kasaları, her zaman artırılmış, maksimize edilmiş APY'ler sağlamak için fonları otomatik olarak birden fazla Junior Tranches arasında yönlendiren ayarla ve unut stratejileridir."
-        },
-        "page-2": {
-          "title": "Junior Best Yield stratejileri:",
-          "bullets": {
-            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
-            "two": "Kullanıcının sürekli olarak oranları kontrol etmesine ve her transferde gaz yakmasına gerek kalmadan maksimum getiri sunun"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Senior Tranche Stratejisi",
-          "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
-        },
-        "page-2": {
-          "title": "Senior Tranche stratejileri:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranche Stratejisi",
-          "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
-        },
-        "page-2": {
-          "title": "Junior Tranche Stratejileri:"
-        }
-      },
-      "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
-      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur",
-      "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
-      "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
-      "minRisk": "En aza indirilmiş risk ",
-      "builtInCoverage": "Değişken oranlı ödüller için yerleşik kapsam",
-      "noLockingPeriod": "Kilitleme dönemi veya dönemleri yok",
-      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar",
-      "fundsCoveredJunior": "Junior Tranch'ların kapsadığı fonlar",
-      "automation": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu"
-    },
-    "bestYield": {
-      "title": "En İyi Getiri Nedir?",
-      "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
-    },
-    "seniorTranche": {
-      "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
-    },
-    "juniorTranche": {
-      "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Kripto Satın Alın(KYC OLMADAN )",
@@ -2126,56 +2053,6 @@
     "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin.",
     "reportSpam": "Spam Bildir",
     "refresh": "Yenile"
-  },
-  "missions": {
-    "subtitle": "FOX Görevleri",
-    "missionEnded": "Görev Sona Erdi",
-    "viewMission": "Görevleri Görüntüle",
-    "comingSoon": "Yakında",
-    "activeMissions": "Aktif Görevler",
-    "endedMissions": "Biten Görevler",
-    "title": {
-      "1": "Merkezi Olmayan Evreni Serbest Bırakın ve",
-      "2": "Ödülleri Dağıt"
-    },
-    "body": "Görevlere Katılın, Ödüller Kazanın ve Sürekli Genişleyen ShapeShift Ekosistemi hakkındaki bilginizi artırın",
-    "ends": "Son",
-    "ongoing": "Devam Eden Görev",
-    "optimism": {
-      "title": "19,5 OP'ye kadar kazanın",
-      "subtitle": "Optimism'i Keşfedin",
-      "cta": "Göreve Başla"
-    },
-    "foxatar": {
-      "title": "Ücretsiz ve Özelleştirilebilir bir NFT edinin",
-      "subtitle": "FOXatar'ı Basın",
-      "cta": "Göreve Başla"
-    },
-    "foxArmy": {
-      "subtitle": "FOX Ordusuna Katılın",
-      "title": "20.000 FOX Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "yat": {
-      "subtitle": "Yat Fantasy Oyna",
-      "title": "3.000 USDC Ödül Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "getListed": {
-      "subtitle": "Projeniz Burada",
-      "title": "Görevler İçin Bir Proje Başlatın",
-      "cta": "Projeyi Gönder"
-    },
-    "foxRewards": {
-      "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
-      "title": "FOX Kazanın",
-      "cta": "Göreve Başla"
-    },
-    "snapfoxatar": {
-      "title": "MetaMask ile Bitcoin'in Kilidini Açın",
-      "subtitle": "Bir Metamask FOXatar Skin oluşturun",
-      "cta": "Göreve Başla"
-    }
   },
   "avatar": {
     "modal": {

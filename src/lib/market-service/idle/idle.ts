@@ -1,69 +1,99 @@
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketCapResult, MarketData, MarketDataArgs } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
-import { bn } from 'lib/bignumber/bignumber'
-import { IdleInvestor } from 'lib/investor/investor-idle'
+import type { AxiosInstance } from 'axios'
+import axios from 'axios'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'
 import type { ProviderUrls } from '../market-service-manager'
 
+interface IdleVault {
+  tvl: number
+  address: string
+  pricePerShare: number
+  underlyingAddress: string
+  externalIntegration: boolean
+}
+
+type Opportunity = {
+  marketCap: string
+  pricePerShare: string
+  underlyingAssetId: AssetId
+}
+
+type OpportunityByAssetId = Record<AssetId, Opportunity>
+
 export class IdleMarketService extends CoinGeckoMarketService implements MarketService {
   baseUrl = ''
   providerUrls: ProviderUrls
-  idleInvestor: IdleInvestor
+
+  private idle: AxiosInstance
+  private opportunities?: OpportunityByAssetId
 
   constructor({ providerUrls }: { providerUrls: ProviderUrls }) {
     super()
 
+    this.baseUrl = 'https://api.idle.finance'
     this.providerUrls = providerUrls
-    this.idleInvestor = new IdleInvestor({
-      chainAdapter: new ethereum.ChainAdapter({
-        providers: {
-          ws: new unchained.ws.Client<unchained.ethereum.Tx>(
-            this.providerUrls.unchainedEthereumWsUrl,
-          ),
-          http: new unchained.ethereum.V1Api(
-            new unchained.ethereum.Configuration({
-              basePath: this.providerUrls.unchainedEthereumHttpUrl,
-            }),
-          ),
-        },
-        rpcUrl: this.providerUrls.jsonRpcProviderUrl,
-      }),
+    this.idle = axios.create({
+      timeout: 10000,
+      baseURL: this.baseUrl,
+      headers: {
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcDIiLCJpYXQiOjE2NzAyMzc1Mjd9.pf4YYdBf_Lf6P2_oKZ5r63UMd6R44p9h5ybPprtJmT4',
+      },
+      // 5 seconds
+      cache: { maxAge: 5 * 1000, clearOnStale: true, readOnError: false, readHeaders: false },
     })
   }
 
-  async findAll() {
-    const idleOpportunities = await (async () => {
-      const maybeOpportunities = await this.idleInvestor.findAll()
-      if (maybeOpportunities.length) return maybeOpportunities
+  async getOpportunities(): Promise<OpportunityByAssetId> {
+    if (this.opportunities) return this.opportunities
 
-      await this.idleInvestor.initialize()
-      return this.idleInvestor.findAll()
-    })()
+    const { data: vaults } = await this.idle.get<IdleVault[] | undefined>('pools')
 
-    const marketDataById: MarketCapResult = {}
+    if (!vaults) return {}
 
-    for (const idleOpportunity of idleOpportunities) {
+    this.opportunities = vaults.reduce<OpportunityByAssetId>((prev, vault: IdleVault) => {
+      if (!vault.externalIntegration) return prev
+
       const assetId = toAssetId({
         assetNamespace: 'erc20',
-        assetReference: idleOpportunity.id,
-        chainId: fromAssetId(idleOpportunity.feeAsset.assetId).chainId,
+        assetReference: vault.address,
+        chainId: ethChainId,
       })
 
-      const coinGeckoData = await super.findByAssetId({
-        assetId: idleOpportunity.underlyingAsset.assetId,
-      })
+      prev[assetId] = {
+        underlyingAssetId: toAssetId({
+          assetNamespace: 'erc20',
+          assetReference: vault.underlyingAddress,
+          chainId: ethChainId,
+        }),
+        pricePerShare: bnOrZero(vault.pricePerShare).toFixed(),
+        // For Idle, TVL and marketCap are effectively the same
+        marketCap: bnOrZero(vault.tvl).toFixed(),
+      }
+
+      return prev
+    }, {})
+
+    return this.opportunities
+  }
+
+  async findAll() {
+    const marketDataById: MarketCapResult = {}
+    const opportunities = await this.getOpportunities()
+
+    for (const [assetId, opportunity] of Object.entries(opportunities)) {
+      const coinGeckoData = await super.findByAssetId({ assetId: opportunity.underlyingAssetId })
 
       if (!coinGeckoData) continue
 
       marketDataById[assetId] = {
-        price: bn(coinGeckoData.price)
-          .times(idleOpportunity.positionAsset.underlyingPerPosition)
-          .toFixed(),
-        marketCap: idleOpportunity.tvl.balanceUsdc.toFixed(), // For Idle, TVL and marketCap are effectively the same
+        price: bn(coinGeckoData.price).times(opportunity.pricePerShare).toFixed(),
+        marketCap: opportunity.marketCap,
         volume: '0',
         changePercent24Hr: 0,
       }
@@ -73,27 +103,19 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
   }
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
-    const opportunity = await (async () => {
-      const maybeOpportunities = await this.idleInvestor.findAll()
-      if (maybeOpportunities.length) return this.idleInvestor.findByOpportunityId(assetId)
-
-      await this.idleInvestor.initialize()
-      return this.idleInvestor.findByOpportunityId(assetId)
-    })()
+    console.log('findByAssetId', assetId)
+    const opportunities = await this.getOpportunities()
+    const opportunity = opportunities[assetId]
 
     if (!opportunity) return null
 
-    const coinGeckoData = await super.findByAssetId({
-      assetId: opportunity.underlyingAsset.assetId,
-    })
+    const coinGeckoData = await super.findByAssetId({ assetId: opportunity.underlyingAssetId })
 
     if (!coinGeckoData) return null
 
     return {
-      price: bn(coinGeckoData.price)
-        .times(opportunity.positionAsset.underlyingPerPosition)
-        .toFixed(),
-      marketCap: opportunity.tvl.balanceUsdc.toFixed(), // For Idle, TVL and marketCap are effectively the same
+      price: bn(coinGeckoData.price).times(opportunity.pricePerShare).toFixed(),
+      marketCap: opportunity.marketCap,
       volume: '0',
       changePercent24Hr: 0,
     }

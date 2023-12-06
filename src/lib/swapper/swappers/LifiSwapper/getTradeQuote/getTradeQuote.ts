@@ -171,13 +171,15 @@ export async function getTradeQuote(
           )
 
           const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
-            selectedLifiRoute.toAmount,
+            lifiStep.estimate.toAmount,
           ).toPrecision()
 
           const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
             .plus(sellSideProtocolFeeBuyAssetBaseUnit)
             .plus(buySideProtocolFeeCryptoBaseUnit)
             .toString()
+
+          const sellAmountIncludingProtocolFeesCryptoBaseUnit = lifiStep.action.fromAmount
 
           const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 

@@ -2,7 +2,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
-import { HopExecutionState, MultiHopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { initialTradeExecutionState } from 'state/slices/tradeQuoteSlice/constants'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -71,7 +71,6 @@ export const mockStore: ReduxState = {
       ThorSwapAffiliateFees: false,
       Cowswap: false,
       CowswapGnosis: false,
-      IdleFinance: false,
       Yat: false,
       WalletConnectToDappsV2: false,
       Wherever: false,
@@ -137,11 +136,6 @@ export const mockStore: ReduxState = {
       byAccountIdAssetId: {},
       ids: [],
     },
-    rebases: {
-      byAccountIdAssetId: {},
-      ids: [],
-      byId: {},
-    },
   },
   opportunities: {
     lp: {
@@ -185,11 +179,7 @@ export const mockStore: ReduxState = {
     activeQuoteIndex: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
-    tradeExecution: {
-      state: MultiHopExecutionState.Previewing,
-      firstHop: { state: HopExecutionState.Pending },
-      secondHop: { state: HopExecutionState.Pending },
-    },
+    tradeExecution: initialTradeExecutionState,
   },
   snapshot: {
     votingPower: undefined,

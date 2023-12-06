@@ -4,11 +4,15 @@ import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import assert from 'assert'
 import axios from 'axios'
 import type { Asset } from 'lib/asset-service'
-import type { IdleVault } from 'lib/investor/investor-idle'
 
-import { IdleSdk } from '../../../src/lib/investor/investor-idle/IdleSdk'
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
+
+interface IdleVault {
+  address: string
+  tokenName: string
+  poolName: string
+}
 
 const getAssetSymbol = async (address: string): Promise<string | undefined> => {
   const alchemyApiKey = process.env.REACT_APP_ALCHEMY_API_KEY
@@ -26,8 +30,6 @@ const getAssetSymbol = async (address: string): Promise<string | undefined> => {
   return symbol
 }
 
-const idleSdk = new IdleSdk()
-
 const explorerData = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
@@ -35,13 +37,21 @@ const explorerData = {
 }
 
 export const getIdleTokens = async (): Promise<Asset[]> => {
-  const vaults: IdleVault[] = await idleSdk.getVaults()
+  const { data: vaults } = await axios.get<IdleVault[] | undefined>('pools', {
+    timeout: 10000,
+    baseURL: 'https://api.idle.finance',
+    headers: {
+      Authorization:
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcDIiLCJpYXQiOjE2NzAyMzc1Mjd9.pf4YYdBf_Lf6P2_oKZ5r63UMd6R44p9h5ybPprtJmT4',
+    },
+  })
+
+  if (!vaults) return []
 
   const assets: Asset[] = []
-
   for (const vault of vaults) {
     const assetId = toAssetId({ chainId, assetNamespace: 'erc20', assetReference: vault.address })
-    const displayIcon = `https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/${vault.tokenName}.svg`
+    const displayIcon = `https://raw.githubusercontent.com/Idle-Labs/idle-dashboard-new/master/public/images/tokens/${vault.tokenName}.svg`
     const symbol = (await getAssetSymbol(vault.address)) ?? vault.tokenName // Alchemy XHRs might fail, you never know
 
     assets.push({

@@ -4,7 +4,6 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -16,7 +15,6 @@ import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { LendingPage } from 'pages/Lending/LendingPage'
-import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -32,6 +30,56 @@ import { RouteCategory } from './helpers'
  */
 
 export const routes: NestedRoute[] = [
+  {
+    path: '/trade',
+    label: 'navBar.trade',
+    shortLabel: 'navBar.tradeShort',
+    icon: <SwapIcon />,
+    mobileNav: true,
+    priority: 2,
+    main: Trade,
+    category: RouteCategory.Featured,
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Trade Asset',
+      path: assetIdPath,
+      main: Trade,
+      hide: true,
+    })),
+  },
+  {
+    path: '/lending',
+    label: 'navBar.lending',
+    icon: <RiExchangeFundsLine />,
+    main: LendingPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+  },
+  {
+    path: '/earn',
+    label: 'defi.earn',
+    icon: <DefiIcon />,
+    main: StakingVaults,
+    category: RouteCategory.Featured,
+    mobileNav: true,
+    priority: 3,
+  },
+  {
+    path: '/buy-crypto',
+    label: 'navBar.buyCrypto',
+    shortLabel: 'navBar.buyCryptoShort',
+    icon: <FaCreditCard />,
+    main: Buy,
+    category: RouteCategory.Featured,
+    mobileNav: true,
+    priority: 4,
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Buy Asset',
+      path: assetIdPath,
+      main: Buy,
+    })),
+  },
   {
     path: '/dashboard',
     label: 'navBar.myWallet',
@@ -83,65 +131,6 @@ export const routes: NestedRoute[] = [
         },
       ],
     })),
-  },
-  {
-    path: '/trade',
-    label: 'navBar.trade',
-    shortLabel: 'navBar.tradeShort',
-    icon: <SwapIcon />,
-    mobileNav: true,
-    priority: 2,
-    main: Trade,
-    category: RouteCategory.Wallet,
-    routes: assetIdPaths.map(assetIdPath => ({
-      label: 'Trade Asset',
-      path: assetIdPath,
-      main: Trade,
-      hide: true,
-    })),
-  },
-  {
-    path: '/lending',
-    label: 'navBar.lending',
-    icon: <RiExchangeFundsLine />,
-    main: LendingPage,
-    category: RouteCategory.Wallet,
-    priority: 4,
-    mobileNav: false,
-    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
-  },
-  {
-    path: '/earn',
-    label: 'defi.earn',
-    icon: <DefiIcon />,
-    main: StakingVaults,
-    category: RouteCategory.Wallet,
-    mobileNav: true,
-    priority: 3,
-  },
-  {
-    path: '/buy-crypto',
-    label: 'navBar.buyCrypto',
-    shortLabel: 'navBar.buyCryptoShort',
-    icon: <FaCreditCard />,
-    main: Buy,
-    category: RouteCategory.Wallet,
-    mobileNav: true,
-    priority: 4,
-    routes: assetIdPaths.map(assetIdPath => ({
-      label: 'Buy Asset',
-      path: assetIdPath,
-      main: Buy,
-    })),
-  },
-  {
-    path: '/missions',
-    label: 'navBar.foxMissions',
-    shortLabel: 'navBar.foxMissionsShort',
-    icon: <FoxIcon />,
-    main: Missions,
-    category: RouteCategory.Explore,
-    isNew: true,
   },
   {
     path: '/flags',

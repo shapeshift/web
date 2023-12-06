@@ -548,8 +548,6 @@
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "买/卖",
     "arkeo": "Arkeo 空投",
-    "foxMissions": "FOX 任务",
-    "foxMissionsShort": "任务",
     "lending": "贷款"
   },
   "transactionRow": {
@@ -1962,77 +1960,6 @@
     },
     "custom": "定制"
   },
-  "idle": {
-    "emptyTitle": "通过 Idle Finance 使用你的 %{asset} 赚取 %{apy}%",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield 策略",
-          "body": "Senior Best Yield 金库是一劳永逸的策略，可自动在多个保守风险收益来源之间分配资金，以始终提供最高的年化收益"
-        },
-        "page-2": {
-          "title": "Senior Best Yield 策略：",
-          "bullets": {
-            "one": "Aave、Compound 和多个高级部分的收益生成的自动化和优化",
-            "two": "提供最大化的回报，而无需用户在每次转账时不断检查费率和消耗手续费"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "初级最佳收益策略",
-          "body": "Junior Best Yield 金库是一劳永逸的策略，可自动在多个 Junior Tranches 之间分配资金，以始终提供提升的、最大化的 APY"
-        },
-        "page-2": {
-          "title": "初级最佳收益策略：",
-          "bullets": {
-            "one": "跨多个Junior Tranches的收益生成的自动化和优化，通过设计提供更高的收益",
-            "two": "提供最大化的回报，而无需用户在每次转账时不断检查费率和燃烧gas费用"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "高级策略",
-          "body": "通过内置的存款保护享受 DeFi 收益。高级部分提供由初级交易对手提供的全方位覆盖。"
-        },
-        "page-2": {
-          "title": "Senior Tranche 策略："
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranche 策略",
-          "body": "享受提升的 DeFi 收益率。Junior Tranches 提供杠杆回报，因为它们因承担更多风险而得到高级交易对手的补偿。"
-        },
-        "page-2": {
-          "title": "Junior Tranche 策略："
-        }
-      },
-      "monitorSystem": "利用 Idle Finance 的监控系统寻找表现更好的分配并触发再平衡",
-      "offerHighReturn": "提供最大化的回报，而无需用户在每次转账时不断检查费率和消耗手续费",
-      "leverageYield": "使用Senior Tranches 资金杠杆收益",
-      "higherRisk": "通过保护优先级来承受更高的风险",
-      "minRisk": "最小化风险暴露",
-      "builtInCoverage": "内置可变利率奖励覆盖范围",
-      "noLockingPeriod": "无锁定期或纪元",
-      "autoReinvest": "自动再投资累积的代币",
-      "fundsCoveredJunior": "Junior Tranches 涵盖的资金",
-      "automation": "Aave、Compound 和多个高级部分的收益生成的自动化和优化"
-    },
-    "bestYield": {
-      "title": "什么是Best Yield？",
-      "body": "自动最大化多个经过考验的 DeFi 协议的收益。Best Yield 策略通过社会化手续费成本来优化收益生成，并在新收益机会出现时通过算法转移资本来自动化收益生成。"
-    },
-    "seniorTranche": {
-      "title": "什么是 Senior Tranche ？",
-      "body": "通过内置的存款保护享受 DeFi 收益。Senior Tranche 由初级交易对手提供的全方位覆盖。"
-    },
-    "juniorTranche": {
-      "title": "什么是 Senior Tranche ？",
-      "body": "享受提升的 DeFi 收益率。Junior Tranches 提供杠杆回报，因为它们因承担更多风险而得到高级交易对手的补偿。"
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "无需 KYC 即可购买加密货币",
@@ -2126,56 +2053,6 @@
     "emptyBody": "别担心，我们已经派出搜寻小组来带回更多令人惊叹的 NFT。与此同时，请随意凝视这片空白，思考存在的意义。",
     "reportSpam": "举报垃圾信息",
     "refresh": "刷新"
-  },
-  "missions": {
-    "subtitle": "FOX 任务",
-    "missionEnded": "任务结束",
-    "viewMission": "查看任务",
-    "comingSoon": "即将推出",
-    "activeMissions": "进行中任务",
-    "endedMissions": "已结束的任务",
-    "title": {
-      "1": "释放去中心化的宇宙 和",
-      "2": "收获奖励"
-    },
-    "body": "执行任务、赚取奖励并扩展你对不断扩展的 ShapeShift 生态系统的了解",
-    "ends": "结束",
-    "ongoing": "进行中的任务",
-    "optimism": {
-      "title": "赚取高达 19.5 OP",
-      "subtitle": "探索 Optimism",
-      "cta": "开始任务"
-    },
-    "foxatar": {
-      "title": "获取免费且可定制的 NFT",
-      "subtitle": "铸造一个 FOXatar",
-      "cta": "开始任务"
-    },
-    "foxArmy": {
-      "subtitle": "加入FOX 军团",
-      "title": "20,000 FOX 池",
-      "cta": "开始任务"
-    },
-    "yat": {
-      "subtitle": "玩 Yat Fantasy",
-      "title": "3,000 USDC 奖池",
-      "cta": "开始任务"
-    },
-    "getListed": {
-      "subtitle": "你的项目在这里",
-      "title": "为你的项目启动任务",
-      "cta": "提交项目"
-    },
-    "foxRewards": {
-      "subtitle": "购买、出售、交易、赚取等等",
-      "title": "赚取FOX",
-      "cta": "开始任务"
-    },
-    "snapfoxatar": {
-      "title": "使用 MetaMask 解锁比特币",
-      "subtitle": "打造 Metamask FOXatar 皮肤",
-      "cta": "开始任务"
-    }
   },
   "avatar": {
     "modal": {

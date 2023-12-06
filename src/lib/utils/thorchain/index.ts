@@ -81,13 +81,20 @@ export const waitForThorchainUpdate = ({
 }: {
   txId: string
   skipOutbound?: boolean
-}) =>
-  poll({
+}) => {
+  // When skipping outbound, Txs completion state (i.e internal swap complete) is pretty fast to be reflected
+  // When outbounds are enforced, Txs can take a long, very long time to have their outbound signed (1+, and sometimes many hours)
+  const interval = skipOutbound ? 60_000 : 300_000
+  // 60 attempts over an hour when skipping outbound checks,
+  // 48 attempts over 4 hours when enforcing it
+  const maxAttempts = skipOutbound ? 60 : 48
+  return poll({
     fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => [TxStatus.Confirmed, TxStatus.Failed].includes(status),
-    interval: 60000,
-    maxAttempts: 60,
+    interval,
+    maxAttempts,
   })
+}
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit

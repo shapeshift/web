@@ -43,13 +43,14 @@ import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -149,6 +150,21 @@ export const RepayConfirm = ({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
+
+  const dispatch = useAppDispatch()
+
+  useInterval(() => {
+    if (!repaymentAsset) return
+    // Ensures we always have fresh market data for the repayment asset - since the debt is denominated in TOR (USD)
+    // and we need to ensure the market data for the collateral asset is fresh when doing a prorate
+    // failure to do that may result in a failed rate, with users repaying a different amount than they'd expect
+    // and possibly missing full repayments
+    dispatch(
+      marketApi.endpoints.findByAssetIds.initiate([repaymentAsset.assetId], {
+        forceRefetch: true,
+      }),
+    )
+  }, 5000)
 
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null

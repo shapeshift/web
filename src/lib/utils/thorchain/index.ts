@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
+import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
@@ -24,7 +25,20 @@ import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/util
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
 
-const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: boolean) => {
+const getThorchainTransactionStatus = async ({
+  txHash,
+  skipOutbound,
+  expectedCompletionTime,
+}: {
+  txHash: string
+  skipOutbound?: boolean
+  expectedCompletionTime?: number
+}) => {
+  const now = dayjs().unix()
+  if (expectedCompletionTime && now < expectedCompletionTime) {
+    return TxStatus.Pending
+  }
+
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
@@ -81,9 +95,11 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
 export const waitForThorchainUpdate = ({
   txId,
   skipOutbound,
+  expectedCompletionTime,
 }: {
   txId: string
   skipOutbound?: boolean
+  expectedCompletionTime?: number
 }) => {
   // When skipping outbound, Txs completion state (i.e internal swap complete) is pretty fast to be reflected
   // When outbounds are enforced, Txs can take a long, very long time to have their outbound signed (1+, and sometimes many hours)
@@ -93,7 +109,7 @@ export const waitForThorchainUpdate = ({
   // 120 attempts over 4 hours when enforcing it
   const maxAttempts = skipOutbound ? 60 : 120
   return poll({
-    fn: () => getThorchainTransactionStatus(txId, skipOutbound),
+    fn: () => getThorchainTransactionStatus({ txHash: txId, skipOutbound, expectedCompletionTime }),
     validate: status => [TxStatus.Confirmed, TxStatus.Failed].includes(status),
     interval,
     maxAttempts,

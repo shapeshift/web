@@ -91,10 +91,17 @@ export const BorrowConfirm = ({
   )
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
-    mutationFn: async (_txId: string) => {
+    mutationFn: async ({
+      txId: _txId,
+      expectedCompletionTime,
+    }: {
+      txId: string
+      expectedCompletionTime?: number
+    }) => {
       // Ensuring we wait for the outbound Tx to exist
       // Else, the position will update before the borrowed asset is received and users will be confused
-      await waitForThorchainUpdate({ txId: _txId, skipOutbound: false }).promise
+      await waitForThorchainUpdate({ txId: _txId, skipOutbound: false, expectedCompletionTime })
+        .promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
     },
   })
@@ -124,11 +131,15 @@ export const BorrowConfirm = ({
   useEffect(() => {
     // don't start polling until we have a tx
     if (!txId) return
+    if (!confirmedQuote) return
     ;(async () => {
-      await mutateAsync(txId)
+      const expectedCompletionTime = dayjs()
+        .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
+        .unix()
+      await mutateAsync({ txId, expectedCompletionTime })
       setIsLoanPending(false)
     })()
-  }, [mutateAsync, txId])
+  }, [confirmedQuote, mutateAsync, txId])
 
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)

@@ -100,22 +100,21 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           ),
         )
       } else if (shouldRefetchSaversOpportunities) {
-        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
-        // This way, we ensure "View Position" actually routes to the updated position
-        waitForThorchainUpdate({ txId: txid }).promise.then(() => {
-          dispatch(
-            getOpportunitiesUserData.initiate(
-              [
-                {
-                  accountId,
-                  defiProvider: DefiProvider.ThorchainSavers,
-                  defiType: DefiType.Staking,
-                },
-              ],
-              { forceRefetch: true },
-            ),
-          )
-        })
+        // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
+        waitForThorchainUpdate({ txId: txid, skipOutbound: true })
+
+        dispatch(
+          getOpportunitiesUserData.initiate(
+            [
+              {
+                accountId,
+                defiProvider: DefiProvider.ThorchainSavers,
+                defiType: DefiType.Staking,
+              },
+            ],
+            { forceRefetch: true },
+          ),
+        )
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities

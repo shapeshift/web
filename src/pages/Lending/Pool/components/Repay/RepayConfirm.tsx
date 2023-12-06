@@ -94,11 +94,20 @@ export const RepayConfirm = ({
 
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
-    mutationFn: async (_txId: string) => {
+    mutationFn: async ({
+      txId: _txId,
+      expectedCompletionTime,
+    }: {
+      txId: string
+      expectedCompletionTime?: number
+    }) => {
       // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
       // which we *want* to wait for before considering the repay as complete
-      await waitForThorchainUpdate({ txId: _txId, skipOutbound: bn(repaymentPercent).lt(100) })
-        .promise
+      await waitForThorchainUpdate({
+        txId: _txId,
+        skipOutbound: bn(repaymentPercent).lt(100),
+        expectedCompletionTime,
+      }).promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
     },
   })
@@ -116,12 +125,15 @@ export const RepayConfirm = ({
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
   useEffect(() => {
     // don't start polling until we have a tx
-    if (!txId) return
+    if (!(txId && confirmedQuote)) return
     ;(async () => {
-      await mutateAsync(txId)
+      const expectedCompletionTime = dayjs()
+        .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
+        .unix()
+      await mutateAsync({ txId, expectedCompletionTime })
       setIsLoanPending(false)
     })()
-  }, [mutateAsync, refetchLendingPositionData, txId])
+  }, [confirmedQuote, mutateAsync, refetchLendingPositionData, txId])
 
   const history = useHistory()
   const translate = useTranslate()

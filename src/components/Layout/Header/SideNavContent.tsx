@@ -15,6 +15,8 @@ import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
+const spacing = { base: 6, md: 0 }
+
 type HeaderContentProps = {
   isCompact?: boolean
   onClose?: () => void
@@ -46,6 +48,8 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
   const settingsIcon = useMemo(() => <SettingsIcon />, [])
   const chatIcon = useMemo(() => <ChatIcon />, [])
   const arkeoIcon = useMemo(() => <ArkeoIcon />, [])
+
+  const secondaryNavSize = useMemo(() => (isLargerThanMd ? 'sm' : 'lg'), [isLargerThanMd])
 
   return (
     <Flex
@@ -84,17 +88,17 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
       )}
 
       <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
-      <Stack width='full' mt={6} spacing={0}>
+      <Stack width='full' mt={6} spacing={spacing}>
         <MainNavLink
           isCompact={isCompact}
-          size='sm'
+          size={secondaryNavSize}
           onClick={handleClickArkeo}
           label={translate('navBar.arkeo')}
           leftIcon={arkeoIcon}
         />
         <MainNavLink
           isCompact={isCompact}
-          size='sm'
+          size={secondaryNavSize}
           onClick={handleClickSettings}
           label={translate('common.settings')}
           leftIcon={settingsIcon}
@@ -102,7 +106,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
         />
         <MainNavLink
           isCompact={isCompact}
-          size='sm'
+          size={secondaryNavSize}
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
           leftIcon={chatIcon}

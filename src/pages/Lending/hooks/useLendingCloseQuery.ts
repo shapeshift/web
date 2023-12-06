@@ -17,12 +17,13 @@ import type {
   LendingWithdrawQuoteResponseSuccess,
 } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectMarketDataById,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from './useLendingPositionData'
 
@@ -121,6 +122,7 @@ export const useLendingQuoteCloseQuery = ({
   collateralAccountId: _collateralAccountId,
   enabled = true,
 }: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
+  const dispatch = useAppDispatch()
   const repaymentPercentOrDefault = useMemo(() => {
     const repaymentPercentBn = bnOrZero(_repaymentPercent)
     // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
@@ -202,6 +204,16 @@ export const useLendingQuoteCloseQuery = ({
     queryKey: lendingQuoteCloseQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
+      // Ensures we always have fresh market data for the repayment asset - since the debt is denominated in TOR (USD)
+      // and we need to ensure the market data for the collateral asset is fresh when doing a prorate
+      // failure to do that may result in a failed rate, with users repaying a different amount than they'd expect
+      // and possibly missing full repayments
+      await dispatch(
+        marketApi.endpoints.findByAssetIds.initiate([repaymentAssetId], {
+          forceRefetch: true,
+        }),
+      )
+
       const quote = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
         collateralAssetId,

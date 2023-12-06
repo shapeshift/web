@@ -432,7 +432,7 @@ export const RepayConfirm = ({
               </Row.Value>
             </Row>
             <Row>
-              <HelperTooltip label={translate('lending.repayNoticeTitle')}>
+              <HelperTooltip label={translate('lending.receiveCollateral')}>
                 <Row.Label>{translate('common.receive')}</Row.Label>
               </HelperTooltip>
               <Row.Value textAlign='right'>

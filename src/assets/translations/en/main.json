@@ -2089,6 +2089,7 @@
     "debtBalanceDescription": "Total amount of debt you owe for this loan",
     "repaymentLock": "Repayment Lock",
     "repaymentLockDescription": "Minimum period before you can repay your loan",
+    "receiveCollateral": "The amount of collateral you will receive back",
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",

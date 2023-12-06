@@ -36,6 +36,7 @@ import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -363,7 +364,11 @@ export const BorrowInput = ({
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
-      (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+      (isLendingQuoteSuccess &&
+        isEstimatedFeesDataSuccess &&
+        collateralAsset &&
+        ((isUtxoChainId(collateralAsset.chainId) && !hasEnoughBalanceForTxPlusSweep) ||
+          !hasEnoughBalanceForTxPlusFees))
     )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
@@ -378,7 +383,9 @@ export const BorrowInput = ({
     return null
   }, [
     _isSmartContractAddress,
+    collateralAsset,
     hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,

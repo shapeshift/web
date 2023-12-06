@@ -13,7 +13,10 @@
   ],
   "references": [
     {
-      "path": "../types"
+      "path": "../types",
     },
+    {
+      "path": "../caip",
+    }
   ]
 }

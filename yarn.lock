@@ -9672,6 +9672,8 @@ __metadata:
 "@shapeshiftoss/swapper@workspace:^, @shapeshiftoss/swapper@workspace:packages/swapper":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
   languageName: unknown
   linkType: soft
 

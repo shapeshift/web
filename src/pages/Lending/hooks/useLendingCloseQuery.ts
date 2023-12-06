@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -82,6 +83,16 @@ const selectLendingCloseQueryData = memoize(
     const quoteInboundAddress = quote.inbound_address
     const quoteMemo = quote.memo
     const quoteExpiry = quote.expiry
+    const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
+    const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)
+      .times(1000)
+      .toNumber()
+    // Sane number for total time, in case the outbound is 0 seconds and the inbound is also fast,
+    // so that users don't end up waiting 30s before the seeminngly "complete" Tx as far as progress bar goes, and actual confirmed state
+    const quoteTotalTimeMs = BigNumber.max(
+      120_000,
+      bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
+    ).toNumber()
 
     return {
       quoteLoanCollateralDecreaseCryptoPrecision,
@@ -93,6 +104,9 @@ const selectLendingCloseQueryData = memoize(
       quoteTotalFeesFiatUserCurrency,
       quoteInboundAddress,
       quoteMemo,
+      quoteOutboundDelayMs,
+      quoteInboundConfirmationMs,
+      quoteTotalTimeMs,
       quoteExpiry,
       repaymentAmountCryptoPrecision,
     }

@@ -103,6 +103,7 @@
     "feesPlusSlippage": "费用+滑点",
     "best": "最好的",
     "gasFee": "手续费",
+    "consolidationFee": "整合费用",
     "fees": "费用",
     "alternative": "可供选择",
     "validator": "%{name} 验证器",
@@ -121,6 +122,7 @@
     "showAll": "显示全部",
     "showLess": "显示较少",
     "yourBalance": "你的余额",
+    "signMessage": "签名",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -800,7 +802,8 @@
       "generalError": "发生交易错误",
       "quoteError": "获取报价时出错",
       "tradeFailed": "交易失败。扣除手续费后退还资产",
-      "noQuotesAvailable": "此交易没有可用的报价"
+      "noQuotesAvailable": "此交易没有可用的报价",
+      "smartContractWalletNotSupported": "不支持智能合约钱包"
     },
     "swappingComingSoonForWallet": "%{walletName} 的兑换即将推出",
     "recentTrades": "最近的交易",
@@ -813,7 +816,10 @@
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
-    "enableMetaMaskSnap": "使用多链 snap"
+    "enableMetaMaskSnap": "使用多链 snap",
+    "approvalGasFee": "授权手续费 %{fee}",
+    "approvalFailed": "额度审批过程中出现问题",
+    "swapFailed": "执行 %{tradeType} 时出现问题"
   },
   "modals": {
     "popup": {
@@ -937,6 +943,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift 通过为每笔交易使用新地址来尊重 %{asset} 的安全设计。为了与使用单一地址运行的 THORChain 协议保持一致，我们会将您的资金整合到一个地址中。",
+        "tooltip": "将资金发送到单个地址以实现 THORChain 兼容性。",
         "consolidateFunds": "合并"
       },
       "getBalanceError": "获取钱包余额时出错",
@@ -2178,14 +2185,19 @@
   },
   "lending": {
     "lending": "贷款",
+    "repaymentAvailable": "可还款",
+    "daysUntilRepayment": "距离还款还有 %{numDays} 天",
+    "repaymentDays": "%{numDays} 天",
     "lendingBody": "所有可以零利息和零清算借款的资金池的列表。",
     "collateralValue": "抵押品价值",
+    "collateralValueDescription": "用作抵押品的资产的当前价值",
     "debtValue": "债务价值",
     "loanToValue": "贷款价值",
     "availablePools": "可用池",
     "yourLoans": "你的借贷",
     "pool": "池",
     "poolDepth": "池深度",
+    "poolDepthDescription": "池的健康状况",
     "totalDebtBalance": "总债务余额",
     "totalCollateral": "抵押品总额",
     "estCollateralizationRatio": "预估抵押比例",
@@ -2195,11 +2207,15 @@
     "loanInformation": "借贷概要",
     "poolInformation": "池信息",
     "collateralBalance": "抵押品余额",
+    "collateralBalanceDescription": "你当前作为抵押品持有的资产总额",
     "debtBalance": "债务余额",
+    "debtBalanceDescription": "你为此贷款所欠的债务总额",
     "repaymentLock": "还款锁定",
+    "repaymentLockDescription": "你可以偿还贷款的最短期限",
     "borrow": "借",
     "repay": "还款",
     "repayAmount": "还款金额",
+    "unlocked": "解锁",
     "unlockedCollateral": "解锁抵押品",
     "depositAsset": "充值 %{asset}",
     "switchAssets": "转换资产",
@@ -2212,30 +2228,52 @@
     "risky": "风险",
     "confirmAndBorrow": "确认并借用",
     "confirmAndRepay": "确认并偿还",
+    "borrowAgain": "再次借用",
+    "repayAgain": "再次偿还",
     "transactionInfo": "交易概要",
     "repayNoticeTitle": "耽误！",
     "repayNoticeCta": "我理解",
     "repayNotice": "要拿回抵押品，你需要偿还 100% 的债务。",
+    "feesNotice": "偿还 100% 债务后你将收到的抵押品费用",
+    "refetchQuote": "重新获取报价",
     "faq": {
       "title": "常见问题",
       "lending": {
-        "title": "什么是 THORChain 借贷？"
+        "title": "什么是 THORChain 借贷？",
+        "body": "借贷允许用户存入原生抵押品，然后以抵押率（CR）创建债务。无论用户收到什么 L1 资产，债务始终以美元（又名 TOR）计价"
       },
       "borrowing": {
-        "title": "借贷如何运作？"
+        "title": "借贷如何运作？",
+        "body": "在 THORChain 中借款涉及使用你存入的资产作为抵押品来获取贷款。贷款以美元（TOR）计价，可以多种 L1 资产形式收取。动态抵押比例，灵活借贷，无利息、爆仓之忧"
       },
       "repayments": {
-        "title": "还款如何运作？"
+        "title": "还款如何运作？",
+        "body": "THORChain 的还款方式灵活，你可以随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
       }
+    },
+    "quote": {
+      "collateral": "将作为你的贷款担保的总资产金额",
+      "debt": "根据你的新贷款金额，你所欠的债务总额",
+      "repaymentLock": "你可以偿还贷款的最短期限",
+      "collateralizationRatio": "你的抵押品价值与贷款金额的比率",
+      "feesPlusSlippage": "发生的总费用，包括 L1 费用、滑点费用和 THORChain 流动性费用"
     }
   },
   "foxDiscounts": {
+    "currentFoxPower": "你的 FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "模拟你i的 FOX 储蓄",
     "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",
     "tradeSize": "交易规模",
     "totalFee": "总费用",
     "foxPowerDiscount": "FOX Power 折扣",
-    "basedOnFee": "基于费用：%{fee}"
+    "basedOnFee": "基于费用：%{fee}",
+    "feeSummary": "费用概要",
+    "simulateFee": "模拟费用",
+    "freeUnderThreshold": "%{threshold} 以下的交易始终免费",
+    "breakdownHeader": "你的 FOX Power 折扣",
+    "breakdownBody": "以下是你的交易费用和相应的 FOX Power 折扣的明细。了解在“模拟”选项卡上您还可以节省多少费用。",
+    "tradeFee": "交易费",
+    "totalTradeFee": "总交易费用"
   }
 }

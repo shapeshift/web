@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react'
 import { sleep } from 'lib/poll/poll'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import {
@@ -11,7 +10,6 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 // toggle this to force the mock hooks to always fail - useful for testing failure modes
-const MOCK_FAIL_APPROVAL = false
 const MOCK_FAIL_SWAP = false
 const MOCK_FAIL_STREAMING_SWAP = true
 
@@ -19,46 +17,6 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
   totalSwapCount: 0,
   failedSwaps: [],
-}
-
-// TODO: remove me
-export const useMockAllowanceApproval = (
-  _tradeQuoteStep: TradeQuoteStep,
-  hopIndex: number,
-  _isExactAllowance: boolean,
-) => {
-  const dispatch = useAppDispatch()
-
-  const executeAllowanceApproval = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
-
-    const promise = new Promise((resolve, _reject) => {
-      setTimeout(() => {
-        dispatch(
-          tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash: 'approval_tx_hash' }),
-        )
-      }, 2000)
-
-      setTimeout(() => {
-        const finalStatus = MOCK_FAIL_APPROVAL
-          ? TransactionExecutionState.Failed
-          : TransactionExecutionState.Complete
-
-        MOCK_FAIL_APPROVAL
-          ? dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
-          : dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
-
-        resolve(finalStatus)
-      }, 5000)
-    })
-
-    return promise
-  }, [dispatch, hopIndex])
-
-  return {
-    executeAllowanceApproval,
-    approvalNetworkFeeCryptoBaseUnit: '12345678901234',
-  }
 }
 
 // TODO: remove me

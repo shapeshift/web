@@ -5,6 +5,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Progress,
   Skeleton,
   Stack,
   useInterval,
@@ -18,6 +19,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { utils } from 'ethers'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -83,6 +85,7 @@ export const RepayConfirm = ({
 
   const [isLoanPending, setIsLoanPending] = useState(false)
   const [isQuoteExpired, setIsQuoteExpired] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
 
   const { refetch: refetchLendingPositionData } = useLendingPositionData({
     assetId: collateralAssetId,
@@ -103,6 +106,11 @@ export const RepayConfirm = ({
   const lendingMutationStatus = useMutationState({
     filters: { mutationKey: [txId] },
     select: mutation => mutation.state.status,
+  })
+
+  const lendingMutationSubmittedAt = useMutationState({
+    filters: { mutationKey: [txId] },
+    select: mutation => mutation.state.submittedAt,
   })
 
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
@@ -331,6 +339,7 @@ export const RepayConfirm = ({
     return TxStatus.Unknown
   }, [loanTxStatus])
 
+  // Quote expiration interval
   useInterval(() => {
     // This should never happen but it may
     if (!confirmedQuote) return
@@ -341,6 +350,21 @@ export const RepayConfirm = ({
 
     const isExpired = dayjs.unix(quoteExpiryUnix).isBefore(dayjs())
     setIsQuoteExpired(isExpired)
+  }, 1000)
+
+  // Elapsed time interval
+  useInterval(() => {
+    if (!loanTxStatus || !txId || !confirmedQuote) return
+    if (!lendingMutationSubmittedAt[0]) return
+
+    const submittedAt = lendingMutationSubmittedAt[0]
+    const newElapsedTime = dayjs().diff(dayjs(submittedAt))
+
+    if (newElapsedTime >= confirmedQuote.quoteTotalTimeMs) {
+      setElapsedTime(confirmedQuote.quoteTotalTimeMs)
+    } else {
+      setElapsedTime(newElapsedTime)
+    }
   }, 1000)
 
   const confirmTranslation = useMemo(() => {
@@ -362,15 +386,30 @@ export const RepayConfirm = ({
           </WithBackButton>
         </CardHeader>
         <Stack spacing={0} divider={divider}>
-          <AssetToAsset
-            buyIcon={collateralAsset?.icon ?? ''}
-            sellIcon={repaymentAsset?.icon ?? ''}
-            buyColor={collateralAsset?.color ?? ''}
-            sellColor={repaymentAsset?.color ?? ''}
-            status={swapStatus}
-            px={6}
-            mb={4}
-          />
+          <Stack spacing={0} pb={4}>
+            <AssetToAsset
+              buyIcon={collateralAsset?.icon ?? ''}
+              sellIcon={repaymentAsset?.icon ?? ''}
+              buyColor={collateralAsset?.color ?? ''}
+              sellColor={repaymentAsset?.color ?? ''}
+              status={swapStatus}
+              px={6}
+              mb={4}
+            />
+            <Flex px={6}>
+              <Progress
+                width='full'
+                borderRadius='full'
+                size='sm'
+                min={0}
+                max={confirmedQuote?.quoteTotalTimeMs ?? 0}
+                value={elapsedTime}
+                hasStripe
+                isAnimated={loanTxStatus === 'pending'}
+                colorScheme={loanTxStatus === 'success' ? 'green' : 'blue'}
+              />
+            </Flex>
+          </Stack>
           <Stack py={4} spacing={4} px={6} fontSize='sm' fontWeight='medium'>
             <RawText fontWeight='bold'>{translate('lending.transactionInfo')}</RawText>
             <Row>
@@ -393,7 +432,7 @@ export const RepayConfirm = ({
               </Row.Value>
             </Row>
             <Row>
-              <HelperTooltip label={translate('lending.repayNoticeTitle')}>
+              <HelperTooltip label={translate('lending.receiveCollateral')}>
                 <Row.Label>{translate('common.receive')}</Row.Label>
               </HelperTooltip>
               <Row.Value textAlign='right'>
@@ -433,6 +472,16 @@ export const RepayConfirm = ({
                 <Skeleton isLoaded={isEstimatedFeesDataSuccess}>
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={Boolean(confirmedQuote)}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(confirmedQuote?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
                 </Skeleton>
               </Row.Value>
             </Row>

@@ -70,7 +70,10 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
   return result.actions.some(
     action =>
       action.type === 'withdraw' && action.status === 'success' && action.out.some(tx => tx.txID),
-  )
+  ) ||
+    // in the case of RUNE as outbound, there is no "withdraw" action, both are "swap" actions
+    // note since these are internal to the THOR network, there is no Txid. The Txid *is* the Txid of e.g the loan Tx itself
+    result.actions.every(action => action.type === 'swap' && action.status === 'success')
     ? TxStatus.Confirmed
     : TxStatus.Pending
 }
@@ -84,10 +87,11 @@ export const waitForThorchainUpdate = ({
 }) => {
   // When skipping outbound, Txs completion state (i.e internal swap complete) is pretty fast to be reflected
   // When outbounds are enforced, Txs can take a long, very long time to have their outbound signed (1+, and sometimes many hours)
-  const interval = skipOutbound ? 60_000 : 300_000
+  // so we poll with half the frequency and double the total attempts
+  const interval = skipOutbound ? 60_000 : 120_000
   // 60 attempts over an hour when skipping outbound checks,
-  // 48 attempts over 4 hours when enforcing it
-  const maxAttempts = skipOutbound ? 60 : 48
+  // 120 attempts over 4 hours when enforcing it
+  const maxAttempts = skipOutbound ? 60 : 120
   return poll({
     fn: () => getThorchainTransactionStatus(txId, skipOutbound),
     validate: status => [TxStatus.Confirmed, TxStatus.Failed].includes(status),

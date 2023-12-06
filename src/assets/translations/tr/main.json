@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Ücretler + Kayma",
     "best": "En iyi",
     "gasFee": "Gaz Ücreti",
+    "consolidationFee": "Konsolidasyon Ücreti",
     "fees": "Ücretler",
     "alternative": "Alternatif",
     "validator": "%{name} Doğrulayıcı",
@@ -121,6 +122,7 @@
     "showAll": "Hepsini Göster",
     "showLess": "Daha Az",
     "yourBalance": "Bakiyeniz",
+    "signMessage": "Mesajı imzala",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -800,7 +802,8 @@
       "generalError": "Bir işlem hatası oluştu",
       "quoteError": "Fiyat teklifi alınırken bir hata oluştu",
       "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
-      "noQuotesAvailable": "Bu işlem için teklif yok"
+      "noQuotesAvailable": "Bu işlem için teklif yok",
+      "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -813,7 +816,10 @@
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
-    "enableMetaMaskSnap": "Multichain snap'i kullan"
+    "enableMetaMaskSnap": "Multichain snap'i kullan",
+    "approvalGasFee": "Gaz ücreti onayı %{fee}",
+    "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
+    "swapFailed": "%{tradeType} yürütülürken bir sorun oluştu"
   },
   "modals": {
     "popup": {
@@ -937,6 +943,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift, her işlem için yeni bir adres kullanarak %{asset}'in güvenlik tasarımını onurlandırıyor. THORChain'in tek adresle çalışan protokolüne uyum sağlamak için fonlarınızı tek bir adreste birleştireceğiz.",
+        "tooltip": "THORChain uyumluluğu için fonları tek bir adrese gönderin.",
         "consolidateFunds": "Birleştir"
       },
       "getBalanceError": "Cüzdan bakiyeleri alınırken hata oluştu",
@@ -2178,14 +2185,19 @@
   },
   "lending": {
     "lending": "Borç Verme",
+    "repaymentAvailable": "Geri ödeme mevcut",
+    "daysUntilRepayment": "Geri ödemeye %{numDays} gün kaldı",
+    "repaymentDays": "%{numDays} gün",
     "lendingBody": "Sıfır faiz ve sıfır tasfiyeyle ödünç alınabilecek tüm havuzların listesi.",
     "collateralValue": "Teminat Değeri",
+    "collateralValueDescription": "Teminat olarak kullanılan varlığınızın güncel değeri",
     "debtValue": "Borç Değeri",
     "loanToValue": "Kredi Değeri",
     "availablePools": "Mevcut Havuzlar",
     "yourLoans": "Kredileriniz",
     "pool": "Havuz",
     "poolDepth": "Havuz Derinliği",
+    "poolDepthDescription": "Havuzun sağlığı",
     "totalDebtBalance": "Toplam Borç Bakiyesi",
     "totalCollateral": "Toplam Teminat",
     "estCollateralizationRatio": "Tahmini Teminat Oranı",
@@ -2195,11 +2207,15 @@
     "loanInformation": "Kredi Özeti",
     "poolInformation": "Havuz Bilgileri",
     "collateralBalance": "Teminat Bakiyesi",
+    "collateralBalanceDescription": "Halihazırda teminat olarak tutulan varlığınızın toplam tutarı",
     "debtBalance": "Borç Bakiyesi",
+    "debtBalanceDescription": "Bu kredi için borçlu olduğunuz toplam borç tutarı",
     "repaymentLock": "Geri Ödeme Kilidi",
+    "repaymentLockDescription": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
     "borrow": "Borç Al",
     "repay": "Geri Öde",
     "repayAmount": "Geri Ödeme Tutarı",
+    "unlocked": "Kilitli değil",
     "unlockedCollateral": "Kilidi Açılmış Teminat",
     "depositAsset": "Depozit %{asset}",
     "switchAssets": "Varlıkları Değiştir",
@@ -2212,30 +2228,52 @@
     "risky": "Riskli",
     "confirmAndBorrow": "Onayla ve Borç Al",
     "confirmAndRepay": "Onayla ve Geri Öde",
+    "borrowAgain": "Tekrar Ödünç Al",
+    "repayAgain": "Tekrar Öde",
     "transactionInfo": "İşlem Özeti",
     "repayNoticeTitle": "Gecikti!",
     "repayNoticeCta": "Anladım",
     "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
+    "feesNotice": "Borcunuzun %100'ünü ödedikten sonra geri alacağınız teminat üzerinden oluşan ücretler",
+    "refetchQuote": "Teklifi Yeniden Al",
     "faq": {
       "title": "FAQ",
       "lending": {
-        "title": "THORChain Lending Nedir?"
+        "title": "THORChain Lending Nedir?",
+        "body": "Borç verme, kullanıcıların yerel teminat yatırmasına ve ardından teminatlandırma oranında (CR) borç oluşturmasına olanak tanır. Kullanıcının hangi L1 varlığını aldığına bakılmaksızın borç her zaman USD (diğer adıyla TOR) cinsinden ifade edilir."
       },
       "borrowing": {
-        "title": "Borçlanma nasıl çalışır?"
+        "title": "Borçlanma nasıl çalışır?",
+        "body": "THORChain'de borç almak, yatırılan varlıklarınızı kredi almak için teminat olarak kullanmayı içerir. Kredi USD (TOR) cinsindendir ve çeşitli L1 varlıklarında alınabilir. Dinamik teminat oranıyla faiz veya tasfiye endişesi olmadan esnek bir şekilde borçlanabilirsiniz"
       },
       "repayments": {
-        "title": "Geri ödeme nasıl çalışır?"
+        "title": "Geri ödeme nasıl çalışır?",
+        "body": "THORChain'de geri ödeme esnektir; istediğiniz zaman herhangi bir varlıkta geri ödeme yapmanıza olanak tanır ve bu daha sonra TOR'a dönüştürülür. Geri ödeme tutarı borç bakiyenizden düşülerek, tamamı geri ödendiğinde orantılı teminat tarafınıza iade edilir."
       }
+    },
+    "quote": {
+      "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
+      "debt": "Yeni kredi tutarınıza göre borçlu olacağınız toplam borç tutarı",
+      "repaymentLock": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
+      "collateralizationRatio": "Teminat değerinizin kredi tutarına oranı",
+      "feesPlusSlippage": "L1 ücretleri, kayma ve THORChain likidite ücretleri dahil olmak üzere oluşan toplam ücretler"
     }
   },
   "foxDiscounts": {
+    "currentFoxPower": "FOX Power'ın",
     "foxPower": "FOX Power",
     "simulateTitle": "FOX Savings Simüle Edin",
     "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
     "tradeSize": "Takas Boyutu",
     "totalFee": "Toplam Ücret",
     "foxPowerDiscount": "FOX Power İndirimi",
-    "basedOnFee": "Şu ücrete dayalıdır: %{fee}"
+    "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
+    "feeSummary": "Ücret Özeti",
+    "simulateFee": "Ücreti simüle et",
+    "freeUnderThreshold": "%{threshold} altındaki işlemler her zaman ÜCRETSİZDİR",
+    "breakdownHeader": "FOX Power İndiriminiz",
+    "breakdownBody": "Aşağıda işlem ücretlerinizin ve uygulanan FOX Power İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
+    "tradeFee": "Takas Ücreti",
+    "totalTradeFee": "Toplam Takas Ücreti"
   }
 }

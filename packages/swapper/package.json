@@ -1,5 +1,5 @@
 {
-  "name": "swapper",
+  "name": "@shapeshiftoss/swapper",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",

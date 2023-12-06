@@ -36,10 +36,9 @@ const getThorchainTransactionStatus = async ({
 }) => {
   const now = dayjs().unix()
   if (expectedCompletionTime && now < expectedCompletionTime) {
-    console.log('Poll out game strong')
     return TxStatus.Pending
   }
-  console.log('poll in')
+
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,

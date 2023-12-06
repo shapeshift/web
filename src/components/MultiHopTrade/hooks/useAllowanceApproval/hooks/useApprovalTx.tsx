@@ -21,7 +21,7 @@ export const useApprovalTx = (
   const [approvalNetworkFeeCryptoBaseUnit, setApprovalNetworkFeeCryptoBaseUnit] = useState<
     string | undefined
   >()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [buildCustomTxInput, setBuildCustomTxInput] = useState<evm.BuildCustomTxInput | undefined>()
   const wallet = useWallet().state.wallet
   const { poll, cancelPolling: stopPolling } = usePoll()

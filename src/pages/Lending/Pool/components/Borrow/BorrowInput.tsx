@@ -367,8 +367,8 @@ export const BorrowInput = ({
       (isLendingQuoteSuccess &&
         isEstimatedFeesDataSuccess &&
         collateralAsset &&
-        isUtxoChainId(collateralAsset.chainId) &&
-        !hasEnoughBalanceForTxPlusSweep)
+        ((isUtxoChainId(collateralAsset.chainId) && !hasEnoughBalanceForTxPlusSweep) ||
+          !hasEnoughBalanceForTxPlusFees))
     )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
@@ -385,6 +385,7 @@ export const BorrowInput = ({
     _isSmartContractAddress,
     collateralAsset,
     hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,

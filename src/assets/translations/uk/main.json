@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Комісії + прослизання",
     "best": "Найкраща",
     "gasFee": "Плата за газ",
+    "consolidationFee": "Комісія за консолідацію",
     "fees": "Комісії",
     "alternative": "Альтернатива",
     "validator": " %{name} Валідатор",
@@ -121,6 +122,7 @@
     "showAll": "Показати більше",
     "showLess": "Показати менше",
     "yourBalance": "Ваш баланс",
+    "signMessage": "Підписати повідомлення",
     "carousel": {
       "next": "Далі",
       "prev": "Попередній",
@@ -798,7 +800,8 @@
       "generalError": "Виникла помилка при здійсненні торгової операції",
       "quoteError": "Виникла помилка при отриманні пропозиції",
       "tradeFailed": "Обмін не вдався. Активи повернуто за вирахуванням плати за газ",
-      "noQuotesAvailable": "Для цієї угоди немає котирувань"
+      "noQuotesAvailable": "Для цієї угоди немає котирувань",
+      "smartContractWalletNotSupported": "Гаманець смарт-контракту не підтримується"
     },
     "swappingComingSoonForWallet": "Зміна на %{walletName} незабаром",
     "recentTrades": "Нещодавні угоди",
@@ -811,7 +814,10 @@
     "toContinue": "щоб продовжити",
     "addressPlaceholder": "%{chainName} адреса",
     "priceImpactWarning": "Враховуючи розмір цієї угоди відносно наявної ліквідності, очікуваний вплив на ціну цієї угоди становить %{priceImpactPercentage}%. Ви впевнені, що хочете обміняти?",
-    "enableMetaMaskSnap": "використайте багатоланцюгову прив'язку"
+    "enableMetaMaskSnap": "використайте багатоланцюгову прив'язку",
+    "approvalGasFee": "Плата за затвердження газу %{fee}",
+    "approvalFailed": "Під час затвердження дозволу виникла проблема",
+    "swapFailed": "Виникла проблема при виконанні команди %{tradeType}"
   },
   "modals": {
     "popup": {
@@ -935,6 +941,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift поважає дизайн безпеки %{asset}використовуючи нову адресу для кожної транзакції. Щоб відповідати протоколу THORChain, який працює з однією адресою, ми консолідуємо ваші кошти на одній адресі.",
+        "tooltip": "Надсилайте кошти на єдину адресу для сумісності з THORChain.",
         "consolidateFunds": "Консолідація"
       },
       "getBalanceError": "Помилка при отриманні залишків на гаманці",
@@ -2055,14 +2062,19 @@
   },
   "lending": {
     "lending": "Кредитування",
+    "repaymentAvailable": "Доступне погашення",
+    "daysUntilRepayment": "%{numDays} днів до погашення",
+    "repaymentDays": "%{numDays} днів",
     "lendingBody": "Перелік усіх пулів, які можна позичити під нульову відсоткову ставку та з нульовою ліквідацією.",
     "collateralValue": "Вартість застави",
+    "collateralValueDescription": "Поточна вартість вашого активу, що використовується як застава",
     "debtValue": "Сума боргу",
     "loanToValue": "Кредит до капіталу",
     "availablePools": "Доступні пули",
     "yourLoans": "Ваші позики",
     "pool": "Пул",
     "poolDepth": "Обсяг пулу",
+    "poolDepthDescription": "Здоров'я пулу",
     "totalDebtBalance": "Загальний залишок боргу",
     "totalCollateral": "Загальна сума застави",
     "estCollateralizationRatio": "Приблизний коефіцієнт забезпечення",
@@ -2072,11 +2084,15 @@
     "loanInformation": "Короткий огляд кредиту",
     "poolInformation": "Інформація про пул",
     "collateralBalance": "Баланс застави",
+    "collateralBalanceDescription": "Загальна сума вашого активу, що наразі перебуває у заставі",
     "debtBalance": "Залишок боргу",
+    "debtBalanceDescription": "Загальна сума заборгованості за цим кредитом",
     "repaymentLock": "Блокування виплат",
+    "repaymentLockDescription": "Мінімальний термін, протягом якого ви можете погасити кредит",
     "borrow": "Позичити",
     "repay": "Погасити",
     "repayAmount": "Сума до погашення",
+    "unlocked": "Розблоковано",
     "unlockedCollateral": "Розблокована застава",
     "depositAsset": "Внести %{asset}",
     "switchAssets": "Переключити активи",
@@ -2089,34 +2105,52 @@
     "risky": "Ризиковано.",
     "confirmAndBorrow": "Підтвердити та позичити",
     "confirmAndRepay": "Підтвердити та погасити",
+    "borrowAgain": "Позичте ще раз",
+    "repayAgain": "Погасити ще раз",
     "transactionInfo": "Підсумки транзакції",
     "repayNoticeTitle": "Зачекайте!",
     "repayNoticeCta": "Я розумію",
     "repayNotice": "Щоб отримати заставу, вам потрібно буде погасити 100% боргу.",
+    "feesNotice": "Комісії, що виникли у зв'язку із заставою, ви отримаєте назад після погашення 100% вашого боргу",
+    "refetchQuote": "Refetch Quote",
     "faq": {
       "title": "Поширенні запитання",
       "lending": {
         "title": "Що таке THORCHCHain кредитування?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Кредитування дозволяє користувачам вносити власну заставу, а потім створювати борг за коефіцієнтом забезпечення (CR). Борг завжди деномінований у доларах США (так званий TOR), незалежно від того, який актив L1 отримує користувач"
       },
       "borrowing": {
         "title": "Як працює позика?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Позики в THORChain передбачають використання ваших депонованих активів в якості застави для отримання кредиту. Кредит деномінований в доларах США (TOR) і може бути отриманий в різних активах L1. Завдяки динамічному коефіцієнту забезпечення ви можете гнучко позичати, не турбуючись про відсотки або ліквідацію"
       },
       "repayments": {
         "title": "Як відбувається погашення?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Погашення в THORchain є гнучким, що дозволяє вам погашати борг у будь-який час будь-яким активом, який потім конвертується в TOR. Сума погашення вираховується з балансу вашого боргу, а пропорційне забезпечення повертається вам після повного погашення."
       }
+    },
+    "quote": {
+      "collateral": "Загальна сума активів, які будуть забезпечені під заставу вашого кредиту",
+      "debt": "Загальний борг, який ви будете винні, виходячи з нової суми кредиту",
+      "repaymentLock": "Мінімальний термін, протягом якого ви можете погасити кредит",
+      "collateralizationRatio": "Співвідношення вартості застави до суми кредиту",
+      "feesPlusSlippage": "Загальна сума комісій, включаючи комісію L1, прослизання та комісію за ліквідність THORChain"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Поточна FOX Power",
+    "currentFoxPower": "Ваша сила FOX",
     "foxPower": "FOX Power",
     "simulateTitle": "Змоделюйте свої заощадження FOX",
     "simulateBody": "Скористайтеся цим зручним калькулятором, щоб визначити загальну суму комісійних та знижку, яку ви отримаєте за угодою. Просто відрегулюйте повзунки нижче, щоб вказати кількість власників FOX і суму угоди у фіаті, і спостерігайте за потенційною економією!",
     "tradeSize": "Розмір торгівлі",
     "totalFee": "Загальна комісія",
     "foxPowerDiscount": "Знижка FOX Power",
-    "basedOnFee": "На основі комісії: %{fee}"
+    "basedOnFee": "На основі комісії: %{fee}",
+    "feeSummary": "Підсумок вартості газу",
+    "simulateFee": "Плата за моделювання",
+    "freeUnderThreshold": "Торгівля до %{threshold} завжди БЕЗКОШТОВНА",
+    "breakdownHeader": "Ваша знижка сили FOX",
+    "breakdownBody": "Нижче наведено розбивку ваших торгових зборів і відповідну знижку FOX Power, що застосовується. Дізнайтеся, скільки ще ви можете заощадити на вкладці \"Моделювання\".",
+    "tradeFee": "Торгова комісія",
+    "totalTradeFee": "Загальна сума торгової комісії"
   }
 }

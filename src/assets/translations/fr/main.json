@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Frais + Glissement/Slippage",
     "best": "Meilleur",
     "gasFee": "Frais de carburant",
+    "consolidationFee": "Frais de consolidation",
     "fees": "Frais",
     "alternative": "Alternatif",
     "validator": "le validateur %{name}",
@@ -121,6 +122,7 @@
     "showAll": "Montrer tout",
     "showLess": "Montrer moins",
     "yourBalance": "Votre solde",
+    "signMessage": "Signer le message",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -798,7 +800,8 @@
       "generalError": "Une erreur d'échange s'est produite",
       "quoteError": "Une erreur s'est produite lors de l'obtention d'un devis",
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
-      "noQuotesAvailable": "Aucun devis disponible pour cet échange"
+      "noQuotesAvailable": "Aucun devis disponible pour cet échange",
+      "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -811,7 +814,10 @@
     "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
-    "enableMetaMaskSnap": "utilisez le Snap MultiChain"
+    "enableMetaMaskSnap": "utilisez le Snap MultiChain",
+    "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
+    "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
+    "swapFailed": "Un problème est survenu lors de l'exécution du %{tradeType}"
   },
   "modals": {
     "popup": {
@@ -935,6 +941,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift honore le concept de sécurité pour %{asset} en utilisant une nouvelle adresse pour chaque transaction. Pour nous aligner sur le protocole de THORChain, qui fonctionne avec une seule adresse, nous consoliderons vos fonds dans une seule adresse.",
+        "tooltip": "Envoyer les fonds à une seule adresse pour la compatibilité THORChain.",
         "consolidateFunds": "Consolider"
       },
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
@@ -2055,14 +2062,19 @@
   },
   "lending": {
     "lending": "Prêts",
+    "repaymentAvailable": "Remboursement possible",
+    "daysUntilRepayment": "%{numDays} jours jusqu'au remboursement",
+    "repaymentDays": "%{numDays} jours",
     "lendingBody": "Une liste de tous les pools pouvant être empruntés à taux zéro et sans liquidation.",
     "collateralValue": "Valeur du collatéral",
+    "collateralValueDescription": "Valeur actuelle de votre actif utilisé comme garantie",
     "debtValue": "Valeur de la dette",
     "loanToValue": "Rapport prêt-valeur",
     "availablePools": "Pools disponibles",
     "yourLoans": "Vos prêts",
     "pool": "Pool",
     "poolDepth": "Profondeur du pool",
+    "poolDepthDescription": "Le niveau de santé du pool",
     "totalDebtBalance": "Solde total des dettes",
     "totalCollateral": "Totale des collatéraux",
     "estCollateralizationRatio": "Est. du ratio de collatéralisation",
@@ -2072,11 +2084,15 @@
     "loanInformation": "Résumé du prêt",
     "poolInformation": "Informations sur le pool",
     "collateralBalance": "Solde du collatéral",
+    "collateralBalanceDescription": "Montant total de votre actif actuellement retenu comme collatéral",
     "debtBalance": "Solde de la dette",
+    "debtBalanceDescription": "Montant total de la dette que vous devez pour ce prêt",
     "repaymentLock": "Verrou du remboursement",
+    "repaymentLockDescription": "Délai minimum avant de pouvoir rembourser votre prêt",
     "borrow": "Emprunter",
     "repay": "Rembourser",
     "repayAmount": "Rembourser le montant",
+    "unlocked": "Déverrouillé",
     "unlockedCollateral": "Collatéral débloqué",
     "depositAsset": "Déposer des %{asset}",
     "switchAssets": "Inverser les actifs",
@@ -2089,34 +2105,52 @@
     "risky": "Risqué",
     "confirmAndBorrow": "Confirmer et emprunter",
     "confirmAndRepay": "Confirmer et rembourser",
+    "borrowAgain": "Emprunter à nouveau",
+    "repayAgain": "Rembourser à nouveau",
     "transactionInfo": "Résumé de transaction",
     "repayNoticeTitle": "Attendez !",
     "repayNoticeCta": "Je comprends",
     "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
+    "feesNotice": "Les frais liés au collatéral que vous récupérerez après avoir remboursé 100 % de votre dette",
+    "refetchQuote": "Actualiser le devis",
     "faq": {
       "title": "FAQ",
       "lending": {
         "title": "Qu'est-ce que les prêts THORChain ?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Les prêts permettent aux utilisateurs de déposer un collatéral natif, puis de créer une dette selon un ratio de garantie (CR). La dette est toujours libellée en USD (alias TOR), quel que soit l'actif L1 reçu par l'utilisateur"
       },
       "borrowing": {
         "title": "Comment fonctionne l'emprunt ?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Emprunter avec THORChain implique d’utiliser vos actifs déposés comme collatéraux pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
       },
       "repayments": {
         "title": "Comment fonctionne le remboursement ?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Le remboursement avec THORChain est flexible, vous permettant de rembourser à tout moment n'importe quel actif, qui est ensuite converti en TOR. Le montant du remboursement est déduit du solde de votre dette et le collatéral proportionnel vous est restitué lors du remboursement intégral"
       }
+    },
+    "quote": {
+      "collateral": "Montant total des actifs qui seront utilisés comme garantie afin de couvrir votre prêt",
+      "debt": "Dette totale que vous devrez en fonction du montant de votre nouveau prêt",
+      "repaymentLock": "Délai minimum avant de pouvoir rembourser votre prêt",
+      "collateralizationRatio": "Rapport entre la valeur de votre collatéral et le montant du prêt",
+      "feesPlusSlippage": "Total des frais perçus, y compris les frais L1, le glissement/slippage et les frais de liquidité de THORChain"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Puissance FOX actuelle",
+    "currentFoxPower": "Votre Puissance FOX",
     "foxPower": "Puissance FOX",
     "simulateTitle": "Simulez vos économies FOX",
     "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
     "tradeSize": "Montant de l'échange",
     "totalFee": "Total des frais",
     "foxPowerDiscount": "Remise Puissance FOX",
-    "basedOnFee": "Basé sur des frais de : %{fee}"
+    "basedOnFee": "Basé sur des frais de : %{fee}",
+    "feeSummary": "Résumé des frais",
+    "simulateFee": "Simuler les frais",
+    "freeUnderThreshold": "Les échanges inférieurs à %{threshold} sont toujours GRATUITS",
+    "breakdownHeader": "Votre remise Puissance FOX",
+    "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais d'échange et la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet de simulation.",
+    "tradeFee": "Frais d'échange",
+    "totalTradeFee": "Frais d'échange totaux"
   }
 }

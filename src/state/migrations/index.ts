@@ -22,4 +22,5 @@ export const migrations = {
   14: clearTxHistory,
   15: clearAssets,
   16: clearOpportunities,
+  17: clearTxHistory,
 }

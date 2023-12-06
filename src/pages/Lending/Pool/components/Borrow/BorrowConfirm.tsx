@@ -115,8 +115,6 @@ export const BorrowConfirm = ({
     select: mutation => mutation.state.status,
   })
 
-  console.log({ lendingMutationStatus })
-
   const lendingMutationSubmittedAt = useMutationState({
     filters: { mutationKey: [txId] },
     select: mutation => mutation.state.submittedAt,

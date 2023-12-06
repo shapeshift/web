@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Tarifas + Deslizamiento",
     "best": "Mejor",
     "gasFee": "Tarifa de gas",
+    "consolidationFee": "Tarifa de consolidación",
     "fees": "Tarifas",
     "alternative": "Alternativa",
     "validator": "el validador %{name}",
@@ -121,6 +122,7 @@
     "showAll": "Mostrar todo",
     "showLess": "Muestra menos",
     "yourBalance": "Tu balance",
+    "signMessage": "Mensaje de firma",
     "carousel": {
       "next": "Siguiente",
       "prev": "Anterior",
@@ -800,7 +802,8 @@
       "generalError": "Ha ocurrido un error comercial",
       "quoteError": "Ocurrió un error al obtener cotización",
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas",
-      "noQuotesAvailable": "No hay cotizaciones disponibles para operar"
+      "noQuotesAvailable": "No hay cotizaciones disponibles para operar",
+      "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
@@ -813,7 +816,10 @@
     "toContinue": "para continuar.",
     "addressPlaceholder": "Dirección %{chainName}",
     "priceImpactWarning": "Debido al tamaño de la operación en relación a la liquidez disponible, el impacto de precio esperado es %{priceImpactPercentage}%. ¿Estás seguro quieres operar?",
-    "enableMetaMaskSnap": "usa el snap multicadena"
+    "enableMetaMaskSnap": "usa el snap multicadena",
+    "approvalGasFee": "Tarifa aprobación de gas %{fee}",
+    "approvalFailed": "Hubo un problema durante la aprobación de la asignación.",
+    "swapFailed": "Ocurrió un problema al ejecutar %{tradeType}"
   },
   "modals": {
     "popup": {
@@ -937,6 +943,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift respeta el diseño de seguridad de %{asset} al utilizar una nueva dirección para cada transacción. Para alinearnos con el protocolo THORChain, que opera con una sola dirección, consolidaremos sus fondos en una sola dirección.",
+        "tooltip": "Envíe fondos a dirección única por compatibilidad THORChain.",
         "consolidateFunds": "Consolidar"
       },
       "getBalanceError": "Error al obtener saldos de billetera",
@@ -2178,14 +2185,19 @@
   },
   "lending": {
     "lending": "Préstamo",
+    "repaymentAvailable": "Pago disponible",
+    "daysUntilRepayment": "%{numDays} días hasta el pago",
+    "repaymentDays": "%{numDays} días",
     "lendingBody": "Una lista de todas las piscinas donde puedes pedir préstamos sin intereses ni liquidaciones.",
     "collateralValue": "Valor colateral",
+    "collateralValueDescription": "Valor actual de su activo utilizado como garantía",
     "debtValue": "Valor de la deuda",
     "loanToValue": "Préstamo a valor",
     "availablePools": "Piscinas disponibles",
     "yourLoans": "Tus préstamos",
     "pool": "Piscina",
     "poolDepth": "Profundidad de la piscina",
+    "poolDepthDescription": "La salud de su pool",
     "totalDebtBalance": "Saldo total de la deuda",
     "totalCollateral": "Total de garantía colateral",
     "estCollateralizationRatio": "Est. Ratio de colateral",
@@ -2195,11 +2207,15 @@
     "loanInformation": "Resumen del préstamo",
     "poolInformation": "Información de la piscina",
     "collateralBalance": "Saldo de garantía colateral",
+    "collateralBalanceDescription": "Monto total del activo mantenido como garantía",
     "debtBalance": "Saldo de la deuda",
+    "debtBalanceDescription": "Monto total de la deuda que debe por el préstamo",
     "repaymentLock": "Bloqueo de repago",
+    "repaymentLockDescription": "Período mínimo antes de poder pagar su préstamo",
     "borrow": "Pedir prestado",
     "repay": "Repago",
     "repayAmount": "Monto a Pagar",
+    "unlocked": "Desbloqueado",
     "unlockedCollateral": "Colateral Desbloqueado",
     "depositAsset": "Depositar %{asset}",
     "switchAssets": "Cambiar Activos",
@@ -2212,30 +2228,52 @@
     "risky": "Arriesgado",
     "confirmAndBorrow": "Confirmar y pedir prestado",
     "confirmAndRepay": "Confirmar y repagar",
+    "borrowAgain": "Pedir Prestado de nuevo",
+    "repayAgain": "Pagar de nuevo",
     "transactionInfo": "Resumen de Transacciones",
     "repayNoticeTitle": "¡Espera!",
     "repayNoticeCta": "Entiendo",
     "repayNotice": "Para recuperar su garantía colateral deberá pagar el 100% de su deuda.",
+    "feesNotice": "Se produjeron tarifas sobre la garantía que recibirá después de pagar 100% de su deuda.",
+    "refetchQuote": "Recuperar Cotización",
     "faq": {
       "title": "Preguntas más frecuentes",
       "lending": {
-        "title": "¿Qué son los préstamos THORChain?"
+        "title": "¿Qué son los préstamos THORChain?",
+        "body": "Los préstamos permiten depositar garantías nativas y luego crear una deuda con un índice de garantía (CR). La deuda está denominada en USD (TOR), independiente del activo L1 que reciba."
       },
       "borrowing": {
-        "title": "¿Cómo funciona la toma de préstamos?"
+        "title": "¿Cómo funciona la toma de préstamos?",
+        "body": "Prestar en THORChain implica utilizar sus activos depositados como garantía. El préstamo está denominado en USD (TOR) y puede recibirse en varios activos L1. Con un índice de garantía dinámico, puede prestar de manera flexible sin preocuparse por intereses o liquidación."
       },
       "repayments": {
-        "title": "¿Cómo funciona el reembolso o repago?"
+        "title": "¿Cómo funciona el reembolso o repago?",
+        "body": "El pago en THORChain es flexible, permite pagar en cualquier momento con cualquier activo, que luego se convierte a TOR. El monto del reembolso se deduce del saldo de su deuda y se le devuelve la garantía proporcional al realizar el pago total."
       }
+    },
+    "quote": {
+      "collateral": "Monto total del activo garantizado contra su préstamo",
+      "debt": "Deuda total que deberás según el monto de tu nuevo préstamo",
+      "repaymentLock": "Período mínimo antes de poder pagar su préstamo",
+      "collateralizationRatio": "Relación entre valor de su garantía y monto del préstamo",
+      "feesPlusSlippage": "Tarifas totales, incluidas tarifas L1, deslizamiento y tarifas de liquidez THORChain"
     }
   },
   "foxDiscounts": {
+    "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simule sus Ahorros FOX",
     "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
     "tradeSize": "Tamaño de intercambio",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
-    "basedOnFee": "Basado en tarifa de: %{fee}"
+    "basedOnFee": "Basado en tarifa de: %{fee}",
+    "feeSummary": "Resumen Tarifas",
+    "simulateFee": "Simular Tarifa",
+    "freeUnderThreshold": "Operaciones debajo de %{threshold} son siempre GRATIS",
+    "breakdownHeader": "Su descuento de Poder FOX",
+    "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",
+    "tradeFee": "Tarifa de intercambio",
+    "totalTradeFee": "Tarifa total de intercambio"
   }
 }

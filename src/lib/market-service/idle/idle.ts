@@ -103,7 +103,6 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
   }
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
-    console.log('findByAssetId', assetId)
     const opportunities = await this.getOpportunities()
     const opportunity = opportunities[assetId]
 

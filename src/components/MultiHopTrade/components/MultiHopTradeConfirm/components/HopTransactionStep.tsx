@@ -180,9 +180,12 @@ export const HopTransactionStep = ({
 
     return (
       <VStack alignItems='flex-start'>
-        <RawText>
-          {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
-        </RawText>
+        <div>
+          {/* wrap in div to prevent `<p> cannot appear as a descendant of <p>.` */}
+          <RawText>
+            {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
+          </RawText>
+        </div>
         {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
         {txLink && (
           <Link isExternal color='text.link' href={txLink}>

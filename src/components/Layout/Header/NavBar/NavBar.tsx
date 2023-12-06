@@ -17,6 +17,8 @@ type NavBarProps = {
   onClick?: () => void
 } & StackProps
 
+const flex = { base: 'none', md: '1 1 0%' }
+
 export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -52,7 +54,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
       const [name, values] = group
       return (
         <Stack key={id}>
-          {name && name !== RouteCategory.Featured && (
+          {name && name !== RouteCategory.Featured && isLargerThanMd && (
             <Text
               px={4}
               color={groupColor}
@@ -95,7 +97,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const divider = useMemo(() => <Divider borderColor={dividerColor} />, [dividerColor])
 
   return (
-    <Stack width='full' flex='1 1 0%' spacing={6} divider={divider} {...rest}>
+    <Stack width='full' flex={flex} spacing={6} divider={divider} {...rest}>
       {renderNavGroups}
     </Stack>
   )

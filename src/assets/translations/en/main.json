@@ -2089,6 +2089,7 @@
     "debtBalanceDescription": "Total amount of debt you owe for this loan",
     "repaymentLock": "Repayment Lock",
     "repaymentLockDescription": "Minimum period before you can repay your loan",
+    "receiveCollateral": "The amount of collateral you will receive back",
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",
@@ -2125,7 +2126,7 @@
       },
       "repayments": {
         "title": "How does repayment work?",
-        "body": "Repayment in THORChain is flexible, allowing you to repay at any time in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
+        "body": "Repayment in THORChain is flexible, allowing you to repay at any time after your repayment lock has elapsed, and in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
       }
     },
     "quote": {

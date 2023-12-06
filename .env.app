@@ -36,7 +36,6 @@ REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
 
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com
-REACT_APP_ETHEREUM_INFURA_URL=https://mainnet.infura.io/v3/6e2f28ff4f5340fdb0db5da3baec0af2
 REACT_APP_AVALANCHE_NODE_URL=https://daemon.avalanche.shapeshift.com/ext/bc/C/rpc
 REACT_APP_OPTIMISM_NODE_URL=https://daemon.optimism.shapeshift.com
 REACT_APP_BNBSMARTCHAIN_NODE_URL=https://daemon.bnbsmartchain.shapeshift.com

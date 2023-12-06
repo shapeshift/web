@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -20,6 +21,7 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,6 +36,7 @@ import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -361,7 +364,11 @@ export const BorrowInput = ({
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
-      (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+      (isLendingQuoteSuccess &&
+        isEstimatedFeesDataSuccess &&
+        collateralAsset &&
+        ((isUtxoChainId(collateralAsset.chainId) && !hasEnoughBalanceForTxPlusSweep) ||
+          !hasEnoughBalanceForTxPlusFees))
     )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
@@ -376,7 +383,9 @@ export const BorrowInput = ({
     return null
   }, [
     _isSmartContractAddress,
+    collateralAsset,
     hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,
@@ -501,6 +510,16 @@ export const BorrowInput = ({
               <Row.Value>
                 <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(lendingQuoteData?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
                 </Skeleton>
               </Row.Value>
             </Row>

@@ -1,26 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import {
-  ASSET_NAMESPACE,
-  ethChainId,
-  fromAccountId,
-  gnosisChainId,
-  isNft,
-  polygonChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { RebaseHistory } from 'lib/investor/investor-foxy'
-import { foxyAddresses } from 'lib/investor/investor-foxy'
 import type { PartialRecord } from 'lib/utils'
-import { deepUpsertArray, isSome } from 'lib/utils'
+import { deepUpsertArray } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   BLACKLISTED_COLLECTION_IDS,
   isSpammyNftText,
@@ -29,7 +18,7 @@ import {
 import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
-import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
+import { getRelatedAssetIds, serializeTxIndex } from './utils'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -65,27 +54,14 @@ type TransactionsByAccountId = Record<AccountId, Transaction[]>
 export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
 export type TxIdsByAccountIdAssetId = PartialRecord<AccountId, TxIdsByAssetId>
 
-export type RebaseId = Nominal<string, 'RebaseId'>
-type RebaseById = PartialRecord<RebaseId, RebaseHistory>
-
-type RebaseIdsByAssetId = PartialRecord<AssetId, RebaseId[]>
-export type RebaseIdsByAccountIdAssetId = PartialRecord<AccountId, RebaseIdsByAssetId>
-
 export type TxsState = {
   byId: TxHistoryById
   byAccountIdAssetId: TxIdsByAccountIdAssetId
   ids: TxId[]
 }
 
-export type RebasesState = {
-  byAccountIdAssetId: RebaseIdsByAccountIdAssetId
-  ids: RebaseId[]
-  byId: RebaseById
-}
-
 export type TxHistory = {
   txs: TxsState
-  rebases: RebasesState
 }
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
@@ -98,11 +74,6 @@ export const initialState: TxHistory = {
     byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-  },
-  rebases: {
-    byAccountIdAssetId: {},
-    ids: [],
-    byId: {},
   },
 }
 
@@ -154,48 +125,6 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   )
 }
 
-type UpdateOrInsertRebase = (txState: TxHistory, data: RebaseHistoryPayload['payload']) => void
-
-const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
-  const { accountId, assetId } = payload
-  const { rebases } = txState
-  payload.data.forEach(rebase => {
-    const rebaseId = makeRebaseId({ accountId, assetId, rebase })
-    const isNew = !txState.rebases.byId[rebaseId]
-
-    rebases.byId[rebaseId] = rebase
-
-    if (isNew) {
-      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc']).filter(isSome)
-      const index = orderedRebases.findIndex(
-        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
-      )
-      rebases.ids.splice(index, 0, rebaseId)
-    }
-
-    deepUpsertArray(rebases.byAccountIdAssetId, accountId, assetId, rebaseId)
-  })
-}
-
-type MakeRebaseIdArgs = {
-  accountId: AccountId
-  assetId: AssetId
-  rebase: RebaseHistory
-}
-
-type MakeRebaseId = (args: MakeRebaseIdArgs) => string
-
-const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
-  [accountId, assetId, rebase.blockTime].join(UNIQUE_TX_ID_DELIMITER)
-
-type RebaseHistoryPayload = {
-  payload: {
-    accountId: AccountId
-    assetId: AssetId
-    data: RebaseHistory[]
-  }
-}
-
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
@@ -212,50 +141,14 @@ export const txHistory = createSlice({
         }
       }
     },
-    upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
-      updateOrInsertRebase(txState, payload),
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
-
-type RebaseTxHistoryArgs = {
-  accountId: AccountId
-  portfolioAssetIds: AssetId[]
-}
 
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
-    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: ({ accountId, portfolioAssetIds }, { dispatch }) => {
-        const { chainId, account: userAddress } = fromAccountId(accountId)
-        // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
-        if (chainId !== ethChainId) return { data: [] }
-        // foxy contract address, note not assetIds
-        const foxyTokenContractAddress = (() => {
-          const contractAddress = foxyAddresses[0].foxy.toLowerCase()
-          if (portfolioAssetIds.some(id => id.includes(contractAddress))) return contractAddress
-        })()
-
-        // don't do anything below if we don't have FOXy as a portfolio AssetId
-        if (!foxyTokenContractAddress) return { data: [] }
-
-        // setup foxy api
-        const foxyApi = getFoxyApi()
-
-        ;(async () => {
-          const rebaseHistoryArgs = { userAddress, tokenContractAddress: foxyTokenContractAddress }
-          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-          const assetReference = foxyTokenContractAddress
-          const assetNamespace = ASSET_NAMESPACE.erc20
-          const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-          const upsertPayload = { accountId, assetId, data }
-          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-        })()
-        return { data: [] }
-      },
-    }),
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
         const results: TransactionsByAccountId = {}

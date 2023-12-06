@@ -15,7 +15,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
-import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
@@ -25,7 +24,6 @@ import {
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
-  selectRebasesByFilter,
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
@@ -48,7 +46,6 @@ export type Bucket = {
   end: dayjs.Dayjs
   balance: BucketBalance
   txs: Tx[]
-  rebases: RebaseHistory[]
 }
 
 type BucketMeta = {
@@ -116,32 +113,24 @@ export const makeBuckets: MakeBuckets = args => {
       const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
-      const rebases: RebaseHistory[] = []
       const balance = {
         crypto: assetBalances,
         fiat: zeroAssetBalances,
       }
-      return { start, end, txs, rebases, balance }
+      return { start, end, txs, balance }
     })
     .reverse()
 
   return { buckets, meta }
 }
 
-export const bucketEvents = (
-  txs: Tx[],
-  rebases: RebaseHistory[],
-  bucketsAndMeta: MakeBucketsReturn,
-): Bucket[] => {
+export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
   const end = last(buckets)!.end
 
-  // both txs and rebase events have the same blockTime property which is all we need
-  const txAndRebaseEvents = [...txs, ...rebases]
-
   // events are potentially a lot longer than buckets, iterate the long list once
-  return txAndRebaseEvents.reduce((acc, event) => {
+  return txs.reduce((acc, event) => {
     const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
     const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
     if (eventOutsideDomain) return acc
@@ -155,9 +144,8 @@ export const bucketEvents = (
       return acc
     }
 
-    const isTx = (event: Tx | RebaseHistory): event is Tx => !!(event as Tx)?.txid
     // add to the correct bucket
-    isTx(event) ? acc[bucketIndex].txs.push(event) : acc[bucketIndex].rebases.push(event)
+    acc[bucketIndex].txs.push(event)
 
     return acc
   }, buckets)
@@ -229,7 +217,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
-    const { rebases, txs } = bucket
+    const { txs } = bucket
 
     // copy the balance back from the most recent bucket
     const currentBalance = buckets[i + 1]?.balance ?? startingBucket.balance
@@ -273,14 +261,6 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             break
         }
       })
-    })
-
-    rebases.forEach(rebase => {
-      const { assetId, balanceDiff } = rebase
-      if (!assetIds.includes(assetId)) return
-      // UP ONLY - rebase events can only go up, we don't have to consider the case adjusting balances down
-      // we're going backwards, so a rebase means we had less before
-      bucket.balance.crypto[assetId] = bnOrZero(bucket.balance.crypto[assetId]).minus(balanceDiff)
     })
 
     bucket.balance.fiat = fiatBalanceAtBucket({
@@ -386,10 +366,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
 
-  // rebasing token balances can be adjusted by rebase events rather than txs
-  // and we need to account for this in charts
-  const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
-
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   // kick off requests for all the price histories we need
@@ -418,7 +394,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       timeframe,
     })
     // put each tx into a bucket for the chart
-    const buckets = bucketEvents(txs, rebases, emptyBuckets)
+    const buckets = bucketEvents(txs, emptyBuckets)
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
@@ -445,7 +421,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     balances,
     setBalanceChartData,
     walletId,
-    rebases,
     selectedCurrency,
   ])
 

@@ -92,7 +92,16 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
         </Stack>
       )
     })
-  }, [displayProp, groupColor, isCompact, navItemGroups, onClick, pathname, translate])
+  }, [
+    displayProp,
+    groupColor,
+    isCompact,
+    isLargerThanMd,
+    navItemGroups,
+    onClick,
+    pathname,
+    translate,
+  ])
 
   const divider = useMemo(() => <Divider borderColor={dividerColor} />, [dividerColor])
 

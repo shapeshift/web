@@ -157,7 +157,6 @@ const validators = {
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
   REACT_APP_FEATURE_FOX_DISCOUNTS: bool({ default: false }),
-  REACT_APP_TRM_LABS_API_URL: url(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),

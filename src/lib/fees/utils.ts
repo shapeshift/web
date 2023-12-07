@@ -2,6 +2,13 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 
+type CalculateShapeShiftFeeArgs = {
+  amountBeforeDiscountUserCurrency: string | undefined
+  amountAfterDiscountUserCurrency: string | undefined
+  affiliateBps: string | undefined
+  potentialAffiliateBps: string | undefined
+}
+
 type CalculateShapeShiftAndAffiliateFeeArgs = {
   quote: TradeQuote | undefined
   isFoxDiscountsEnabled: boolean
@@ -22,6 +29,35 @@ type ShapeShiftFee = {
   foxDiscountPercent: string
 }
 
+export const calculateShapeShiftFee = ({
+  amountBeforeDiscountUserCurrency: _amountBeforeDiscountUserCurrency,
+  amountAfterDiscountUserCurrency: _amountAfterDiscountUserCurrency,
+  affiliateBps,
+  potentialAffiliateBps,
+}: CalculateShapeShiftFeeArgs): ShapeShiftFee => {
+  const amountBeforeDiscountUserCurrency = _amountBeforeDiscountUserCurrency ?? '0'
+  const amountAfterDiscountUserCurrency = _amountAfterDiscountUserCurrency ?? '0'
+
+  const feeDiscountUserCurrency = bnOrZero(_amountBeforeDiscountUserCurrency)
+    .minus(amountAfterDiscountUserCurrency)
+    .toString()
+
+  return {
+    amountAfterDiscountUserCurrency,
+    amountBeforeDiscountUserCurrency,
+    feeDiscountUserCurrency,
+    affiliateBps: affiliateBps ?? '0',
+    potentialAffiliateBps: potentialAffiliateBps ?? '0',
+    foxDiscountPercent:
+      // zero denominator will evaluate to 100% discount
+      amountBeforeDiscountUserCurrency !== '0'
+        ? bnOrZero(feeDiscountUserCurrency)
+            .div(amountBeforeDiscountUserCurrency ?? 0)
+            .toString()
+        : '1',
+  }
+}
+
 export const calculateShapeShiftAndAffiliateFee = ({
   quote,
   isFoxDiscountsEnabled,
@@ -37,20 +73,13 @@ export const calculateShapeShiftAndAffiliateFee = ({
 } => {
   if (quote) {
     if (isFoxDiscountsEnabled) {
-      const feeDiscountUserCurrency = bnOrZero(potentialDonationAmountUserCurrency)
-        .minus(donationAmountUserCurrency)
-        .toString()
       return {
-        shapeShiftFee: {
-          amountAfterDiscountUserCurrency: donationAmountUserCurrency ?? '0',
-          amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
-          feeDiscountUserCurrency,
-          affiliateBps: affiliateBps ?? '0',
-          potentialAffiliateBps: potentialAffiliateBps ?? '0',
-          foxDiscountPercent: bnOrZero(feeDiscountUserCurrency)
-            .div(potentialDonationAmountUserCurrency ?? 0)
-            .toString(),
-        },
+        shapeShiftFee: calculateShapeShiftFee({
+          amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency,
+          amountAfterDiscountUserCurrency: donationAmountUserCurrency,
+          affiliateBps,
+          potentialAffiliateBps,
+        }),
         donationAmountUserCurrency: undefined,
       }
     } else {

@@ -1,5 +1,5 @@
+import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import type { Asset } from 'lib/asset-service'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 type GetThorTxInfoArgs = {

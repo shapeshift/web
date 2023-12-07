@@ -1,3 +1,5 @@
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+
 export type BIP44Params = {
   purpose: number
   coinType: number
@@ -33,3 +35,25 @@ export enum UtxoAccountType {
   SegwitP2sh = 'SegwitP2sh',
   P2pkh = 'P2pkh',
 }
+
+export type Asset = {
+  assetId: AssetId
+  chainId: ChainId
+  description?: string
+  isTrustedDescription?: boolean
+  symbol: string
+  name: string
+  id?: string
+  networkName?: string
+  precision: number
+  color: string
+  networkColor?: string
+  icon: string
+  icons?: string[]
+  networkIcon?: string
+  explorer: string
+  explorerTxLink: string
+  explorerAddressLink: string
+}
+
+export type AssetsById = Record<AssetId, Asset>

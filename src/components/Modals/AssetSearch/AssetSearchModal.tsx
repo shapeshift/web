@@ -14,7 +14,7 @@ import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { breakpoints } from 'theme/theme'
 
 export type AssetSearchModalProps = AssetSearchProps & {

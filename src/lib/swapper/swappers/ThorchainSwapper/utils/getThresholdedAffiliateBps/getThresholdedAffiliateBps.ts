@@ -1,5 +1,5 @@
+import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import type { Asset } from 'lib/asset-service'
 import { bn, convertPrecision } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 

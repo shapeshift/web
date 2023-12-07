@@ -11,7 +11,7 @@ import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionT
 import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 dayjs.extend(relativeTime)
 

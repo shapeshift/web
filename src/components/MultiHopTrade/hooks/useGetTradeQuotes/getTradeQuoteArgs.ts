@@ -1,7 +1,7 @@
 import type { EvmChainAdapter, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoAccountType } from '@shapeshiftoss/types'
+import type { Asset, UtxoAccountType } from '@shapeshiftoss/types'
 import {
   isCosmosSdkSwap,
   isEvmSwap,
@@ -9,7 +9,6 @@ import {
 } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { Asset } from 'lib/asset-service'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput } from 'lib/swapper/types'
 

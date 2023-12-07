@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from 'lib/utils'
 
 export const ApprovePreFooter = ({

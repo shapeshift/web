@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { optimismChainId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import type { BuyAssetBySellIdInput, Swapper } from 'lib/swapper/types'
 import { executeEvmTransaction } from 'lib/utils/evm'
 

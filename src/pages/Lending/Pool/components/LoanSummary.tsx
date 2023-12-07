@@ -4,6 +4,7 @@ import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +12,6 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
 import {
   isLendingQuoteClose,
   isLendingQuoteOpen,

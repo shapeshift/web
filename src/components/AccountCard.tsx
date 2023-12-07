@@ -3,7 +3,7 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'

@@ -1,5 +1,5 @@
 import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 export const WETH: Asset = {
   chainId: ethChainId,

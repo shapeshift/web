@@ -26,7 +26,7 @@ import { Slippage } from 'components/Slippage/Slippage'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type InputDefaultValue = {

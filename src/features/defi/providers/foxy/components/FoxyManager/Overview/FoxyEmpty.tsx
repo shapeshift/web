@@ -4,7 +4,7 @@ import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverv
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 type FoxyEmptyProps = {
   assets: Asset[]

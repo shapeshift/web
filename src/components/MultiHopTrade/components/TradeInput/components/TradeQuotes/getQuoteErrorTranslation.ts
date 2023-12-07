@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Asset } from 'lib/asset-service'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import type { PartialRecord } from 'lib/utils'
 

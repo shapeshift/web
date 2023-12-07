@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 type SelectAssetsProps = {
   onClick(assetId: AssetId): void

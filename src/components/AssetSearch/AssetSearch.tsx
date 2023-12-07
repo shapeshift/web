@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectChainIdsByMarketCap,

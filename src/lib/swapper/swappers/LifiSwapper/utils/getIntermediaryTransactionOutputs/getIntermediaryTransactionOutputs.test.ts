@@ -1,4 +1,4 @@
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { localAssetData } from 'lib/asset-service'
 import type { AmountDisplayMeta } from 'lib/swapper/types'
 

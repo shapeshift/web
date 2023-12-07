@@ -17,7 +17,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
 

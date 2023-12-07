@@ -1,5 +1,5 @@
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'

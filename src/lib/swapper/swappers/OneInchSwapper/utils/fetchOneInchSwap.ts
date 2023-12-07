@@ -1,6 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 

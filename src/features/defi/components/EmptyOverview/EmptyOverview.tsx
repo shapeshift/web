@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react'
 import { Fragment } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 

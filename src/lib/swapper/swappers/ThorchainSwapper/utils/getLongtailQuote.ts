@@ -1,3 +1,4 @@
+import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
@@ -23,7 +24,20 @@ export const getLongtailToL1Quote = async (
   streamingInterval: number,
   assetsById: AssetsById,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
-  // todo: early exit if Avalanche - UniV3 is only on Ethereum & BSC
+  /*
+    We only support ETH -> L1 for now.
+    We can later add BSC via UniV3, or Avalanche (e.g. via PancakeSwap)
+  */
+  if (input.sellAsset.chainId !== ethChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported chainId ${input.sellAsset.chainId}.`,
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { sellAssetChainId: input.sellAsset.chainId },
+      }),
+    )
+  }
+
   const chainAdapterManager = getChainAdapterManager()
   const sellChainId = input.sellAsset.chainId
   const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()

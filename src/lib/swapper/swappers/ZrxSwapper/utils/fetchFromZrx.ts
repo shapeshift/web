@@ -1,8 +1,8 @@
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import type { Asset } from 'lib/asset-service'
 import { SwapperName } from 'lib/swapper/types'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 

@@ -18,6 +18,7 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
@@ -29,7 +30,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
-import type { Asset } from 'lib/asset-service'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   isLendingQuoteClose,

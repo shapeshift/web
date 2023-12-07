@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'

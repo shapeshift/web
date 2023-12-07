@@ -1,9 +1,9 @@
 import 'dotenv/config'
 
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import assert from 'assert'
 import axios from 'axios'
-import type { Asset } from 'lib/asset-service'
 
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'

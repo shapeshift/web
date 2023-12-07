@@ -1,5 +1,5 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Asset, BIP44Params } from '@shapeshiftoss/types'
 import {
   isStakingChainAdapter,
   StakingAction,
@@ -7,7 +7,6 @@ import {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
 const shapeshiftValidators = [SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS]

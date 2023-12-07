@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 

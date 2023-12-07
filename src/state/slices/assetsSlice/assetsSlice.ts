@@ -11,8 +11,8 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import type { Asset } from 'lib/asset-service'
 import { AssetService } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'

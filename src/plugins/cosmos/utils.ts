@@ -6,8 +6,8 @@ import type {
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type FeePriceValueHuman = {

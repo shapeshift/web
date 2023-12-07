@@ -1,5 +1,5 @@
+import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Asset } from 'lib/asset-service'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'

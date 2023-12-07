@@ -1,5 +1,6 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType, TransactionDescription } from '@ethersproject/abi'
+import type { Asset } from '@shapeshiftoss/types'
 import startCase from 'lodash/startCase'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
@@ -12,7 +13,6 @@ import { FaCode } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ContractInteractionBreakdownProps = {

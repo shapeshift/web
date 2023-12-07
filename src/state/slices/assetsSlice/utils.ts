@@ -15,7 +15,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import type { AssetsById, AssetsState } from './assetsSlice'
 import { makeAsset } from './assetsSlice'

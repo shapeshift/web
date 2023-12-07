@@ -1,7 +1,7 @@
 import { type AccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Asset } from 'lib/asset-service'
 import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getThorchainSaversWithdrawQuote,

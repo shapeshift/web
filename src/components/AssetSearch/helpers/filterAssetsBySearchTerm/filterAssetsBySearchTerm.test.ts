@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 

@@ -1,11 +1,16 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
-import { type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import {
+  createTradeAmountTooSmallErr,
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapErrorType,
+} from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import qs from 'qs'
-import type { Asset } from 'lib/asset-service'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
@@ -17,7 +22,6 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 
 import { getThresholdedAffiliateBps } from '../getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { thorService } from '../thorService'

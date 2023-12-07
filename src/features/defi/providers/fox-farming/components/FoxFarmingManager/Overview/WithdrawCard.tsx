@@ -1,5 +1,6 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import type {
   DefiParams,
@@ -14,7 +15,6 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawCardProps = {

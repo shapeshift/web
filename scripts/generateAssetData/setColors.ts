@@ -1,4 +1,4 @@
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 const colorThief = require('colorthief') as any
 

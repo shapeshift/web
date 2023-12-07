@@ -23,6 +23,7 @@ import {
   fromAssetId,
   fromChainId,
 } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
@@ -30,7 +31,6 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils'

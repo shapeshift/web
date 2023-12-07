@@ -1,5 +1,5 @@
 import { avalancheChainId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { avax } from '../baseAssets'
 import * as coingecko from '../coingecko'

@@ -10,6 +10,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import isUndefined from 'lodash/isUndefined'
 import { useCallback, useMemo } from 'react'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
@@ -21,7 +22,6 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 
 import { PairIcons } from './PairIcons'
 

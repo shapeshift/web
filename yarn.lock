@@ -9680,6 +9680,8 @@ __metadata:
 "@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
   languageName: unknown
   linkType: soft
 

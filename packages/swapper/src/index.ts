@@ -1,1 +1,1 @@
-export * from './types'
+export type { SwapErrorRight, SwapErrorType } from './types'

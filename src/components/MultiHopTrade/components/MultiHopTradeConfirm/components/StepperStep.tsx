@@ -1,4 +1,4 @@
-import type { StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
+import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
   SkeletonCircle,
@@ -23,6 +23,7 @@ export type StepperStepProps = {
   isLoading?: boolean
   isError?: boolean
   titleProps?: StepTitleProps
+  descriptionProps?: BoxProps
 }
 
 export const StepperStep = ({
@@ -34,6 +35,7 @@ export const StepperStep = ({
   isLoading,
   isError,
   titleProps,
+  descriptionProps,
 }: StepperStepProps) => {
   const { indicator: styles } = useStyleConfig('Stepper', {
     variant: isError ? 'error' : 'default',
@@ -50,7 +52,7 @@ export const StepperStep = ({
           </SkeletonText>
         </StepTitle>
         {description && (
-          <StepDescription as={Box}>
+          <StepDescription as={Box} {...descriptionProps}>
             {isLoading ? (
               <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
             ) : (

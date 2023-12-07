@@ -1,6 +1,8 @@
-import { useMemo } from 'react'
+import { QuestionIcon } from '@chakra-ui/icons'
+import { type BoxProps, Circle, Flex } from '@chakra-ui/layout'
+import { useCallback, useMemo, useState } from 'react'
+import { RiMoneyDollarCircleFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { calculateShapeShiftFee } from 'lib/fees/utils'
@@ -12,21 +14,28 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+import { FeeModal } from '../../FeeModal/FeeModal'
 import { StepperStep } from './StepperStep'
 
 export type FeeStepProps = {
   isLastStep?: boolean
 }
 
+const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+
 export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   const {
     number: { toFiat },
   } = useLocaleFormatter()
   const translate = useTranslate()
+  const [showFeeModal, setShowFeeModal] = useState(false)
   const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
   const amountBeforeDiscountUserCurrency = useAppSelector(selectPotentialDonationAmountUserCurrency)
   const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
+
+  const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])
+  const handleCloseFeeModal = useCallback(() => setShowFeeModal(false), [])
 
   const shapeShiftFee = useMemo(
     () =>
@@ -46,9 +55,9 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
 
   const stepIndicator = useMemo(() => {
     return (
-      <RawText color='text.success'>
-        <FoxIcon />
-      </RawText>
+      <Circle color='text.success'>
+        <RiMoneyDollarCircleFill size={24} />
+      </Circle>
     )
   }, [])
 
@@ -59,18 +68,34 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   }, [shapeShiftFee, toFiat, translate])
 
   const description = useMemo(() => {
-    return `${translate('trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' })} (${
-      shapeShiftFee.affiliateBps
-    } bps)`
+    return (
+      <Flex alignItems='center' gap={2}>
+        <RawText>
+          {`${translate('trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' })} (${
+            shapeShiftFee.affiliateBps
+          } bps)`}
+        </RawText>
+        <QuestionIcon />
+      </Flex>
+    )
   }, [shapeShiftFee.affiliateBps, translate])
 
+  const descriptionProps: BoxProps = useMemo(
+    () => ({ onClick: handleOpenFeeModal, _hover: shapeShiftFeeModalRowHover }),
+    [handleOpenFeeModal],
+  )
+
   return (
-    <StepperStep
-      title={title}
-      description={description}
-      stepIndicator={stepIndicator}
-      isLastStep={isLastStep}
-      titleProps={titleProps}
-    />
+    <>
+      <StepperStep
+        title={title}
+        description={description}
+        stepIndicator={stepIndicator}
+        isLastStep={isLastStep}
+        titleProps={titleProps}
+        descriptionProps={descriptionProps}
+      />
+      <FeeModal isOpen={showFeeModal} onClose={handleCloseFeeModal} shapeShiftFee={shapeShiftFee} />
+    </>
   )
 }

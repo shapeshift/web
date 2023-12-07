@@ -20,7 +20,7 @@ type CalculateShapeShiftAndAffiliateFeeArgs = {
   swapperName: SwapperName | undefined
 }
 
-type ShapeShiftFee = {
+export type ShapeShiftFee = {
   amountAfterDiscountUserCurrency: string
   amountBeforeDiscountUserCurrency: string
   feeDiscountUserCurrency: string

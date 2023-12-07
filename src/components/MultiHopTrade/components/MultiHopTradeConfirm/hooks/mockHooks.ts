@@ -1,56 +1,20 @@
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { sleep } from 'lib/poll/poll'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import {
   type StreamingSwapFailedSwap,
   type StreamingSwapMetadata,
-  TransactionExecutionState,
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 // toggle this to force the mock hooks to always fail - useful for testing failure modes
-const MOCK_FAIL_SWAP = false
 const MOCK_FAIL_STREAMING_SWAP = true
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
   totalSwapCount: 0,
   failedSwaps: [],
-}
-
-// TODO: remove me
-export const useMockTradeExecution = (hopIndex: number) => {
-  const dispatch = useAppDispatch()
-
-  const executeTrade = useCallback(() => {
-    const promise = new Promise((resolve, _reject) => {
-      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
-
-      setTimeout(() => {
-        dispatch(
-          tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash: 'swap_sell_tx_hash' }),
-        )
-      }, 2000)
-
-      setTimeout(() => {
-        const finalStatus = MOCK_FAIL_SWAP
-          ? TransactionExecutionState.Failed
-          : TransactionExecutionState.Complete
-
-        MOCK_FAIL_SWAP
-          ? dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
-          : dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
-        resolve(finalStatus)
-      }, 15000)
-    })
-
-    return promise
-  }, [dispatch, hopIndex])
-
-  return {
-    executeTrade,
-  }
 }
 
 // TODO: remove me

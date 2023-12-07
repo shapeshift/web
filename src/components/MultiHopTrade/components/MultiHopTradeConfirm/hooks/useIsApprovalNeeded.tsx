@@ -22,7 +22,6 @@ export const useIsApprovalNeeded = ({
     sellAssetAccountId,
     tradeQuoteStep,
     watch,
-    enabled: true,
   })
 
   const isApprovalNeeded = useMemo(() => {

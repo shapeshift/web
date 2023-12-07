@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { GetAllowanceArgs } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import {
   getAllowance,
@@ -13,11 +13,12 @@ import type { TradeQuoteStep } from 'lib/swapper/types'
 
 import { useBlockNumber } from './useBlockNumber'
 
-type QueryKeyArgs = Partial<Omit<GetAllowanceArgs, 'wallet'>>
+type QueryKeyArgs = Partial<Omit<GetAllowanceArgs, 'wallet'>> & { blockNumber: bigint | undefined }
 
 const queryKey = ({
   accountNumber,
   allowanceContract,
+  blockNumber,
   chainId,
   assetId,
   accountId,
@@ -27,6 +28,7 @@ const queryKey = ({
     {
       accountNumber,
       allowanceContract,
+      blockNumber,
       chainId,
       assetId,
       accountId,
@@ -37,16 +39,10 @@ export type UseAllowanceProps = {
   sellAssetAccountId: AccountId | undefined
   tradeQuoteStep: TradeQuoteStep | undefined
   watch: boolean
-  enabled: boolean
 }
 
 // TODO: use this pattern for all allowance and trade execution hooks
-export function useAllowance({
-  sellAssetAccountId,
-  tradeQuoteStep,
-  watch,
-  enabled,
-}: UseAllowanceProps) {
+export function useAllowance({ sellAssetAccountId, tradeQuoteStep, watch }: UseAllowanceProps) {
   const {
     state: { wallet },
   } = useWallet()
@@ -93,27 +89,20 @@ export function useAllowance({
     [wallet],
   )
 
+  const blockNumber = useBlockNumber(chainId, watch)
+
   const allowanceQuery = useQuery({
     queryKey: queryKey({
       accountNumber,
       allowanceContract,
+      blockNumber,
       chainId,
       assetId,
       accountId: sellAssetAccountId,
     }),
     queryFn,
-    enabled: Boolean(enabled && wallet),
+    enabled: Boolean(watch && wallet && blockNumber),
   })
-
-  const blockNumber = useBlockNumber(chainId, watch)
-
-  useEffect(() => {
-    if (!enabled) return
-    if (!watch) return
-    if (!blockNumber) return
-
-    allowanceQuery.refetch()
-  }, [allowanceQuery, blockNumber, enabled, watch])
 
   return allowanceQuery
 }

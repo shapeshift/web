@@ -55,7 +55,6 @@ import { RepayRoutePaths } from './types'
 type RepayConfirmProps = {
   collateralAssetId: AssetId
   repaymentAsset: Asset | null
-  repaymentPercent: number
   setRepaymentPercent: (percent: number) => void
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
@@ -68,7 +67,6 @@ type RepayConfirmProps = {
 export const RepayConfirm = ({
   collateralAssetId,
   repaymentAsset,
-  repaymentPercent,
   setRepaymentPercent,
   collateralAccountId,
   repaymentAccountId,
@@ -165,15 +163,17 @@ export const RepayConfirm = ({
       collateralAssetId,
       collateralAccountId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent,
       repaymentAccountId,
+      // Use the previously locked quote's repayment perecent to refetch a quote after expiry
+      // This is locked in the confirmed quote and should never be programmatic, or we risk being off-by-one and missing a bit of dust for 100% repayments
+      repaymentPercent: confirmedQuote?.repaymentPercentOrDefault ?? 0,
     }),
     [
       collateralAccountId,
       collateralAssetId,
       repaymentAccountId,
       repaymentAsset?.assetId,
-      repaymentPercent,
+      confirmedQuote?.repaymentPercentOrDefault,
     ],
   )
 
@@ -206,6 +206,14 @@ export const RepayConfirm = ({
       )
     )
       return
+
+    // This should never happen, but if it does, we don't want to rug our testing accounts and have to wait 30.5 more days before testing again
+    if (
+      bn(confirmedQuote.repaymentPercentOrDefault).gte(100) &&
+      bn(confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision).isZero()
+    ) {
+      throw new Error('100% repayments should trigger a collateral refund transfer')
+    }
 
     setIsLoanPending(true)
 

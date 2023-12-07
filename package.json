@@ -222,6 +222,7 @@
     "@types/mixpanel-browser": "^2.38.1",
     "@types/node": "^16.11.12",
     "@types/node-polyglot": "^2.4.2",
+    "@types/pify": "^5.0.4",
     "@types/qr-image": "^3.2.5",
     "@types/react": "^18.0.14",
     "@types/react-datepicker": "^4.4.2",

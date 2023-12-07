@@ -45,7 +45,6 @@ import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimate
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectMarketDataById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -151,31 +150,6 @@ export const RepayConfirm = ({
 
   const divider = useMemo(() => <Divider />, [])
 
-  const { data: lendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
-
-  const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
-
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
-      .times(lendingPositionData.debtBalanceFiatUserCurrency)
-      .div(100)
-
-    return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercentOrDefault])
-
-  const repaymentAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
-  )
-
-  const repaymentAmountCryptoPrecision = useMemo(() => {
-    if (!repaymentAmountFiatUserCurrency) return null
-
-    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
-  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
-
   const chainAdapter = getChainAdapterManager().get(
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
   )
@@ -232,8 +206,7 @@ export const RepayConfirm = ({
         repaymentAsset &&
         wallet &&
         chainAdapter &&
-        confirmedQuote &&
-        repaymentAmountCryptoPrecision &&
+        confirmedQuote?.repaymentAmountCryptoPrecision &&
         repaymentAccountNumber !== undefined
       )
     )
@@ -244,7 +217,7 @@ export const RepayConfirm = ({
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
     const estimatedFees = await estimateFees({
-      cryptoAmount: repaymentAmountCryptoPrecision,
+      cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,
       memo: supportedEvmChainIds.includes(fromAssetId(repaymentAsset.assetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
@@ -266,7 +239,7 @@ export const RepayConfirm = ({
           const { txToSign } = await adapter.buildDepositTransaction({
             from: account,
             accountNumber: repaymentAccountNumber,
-            value: bnOrZero(repaymentAmountCryptoPrecision)
+            value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
               .times(bn(10).pow(repaymentAsset.precision))
               .toFixed(0),
             memo: confirmedQuote.quoteMemo,
@@ -290,7 +263,7 @@ export const RepayConfirm = ({
 
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
-        cryptoAmount: repaymentAmountCryptoPrecision,
+        cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
         assetId: repaymentAsset.assetId,
         from: '',
         to: confirmedQuote.quoteInboundAddress,
@@ -329,7 +302,6 @@ export const RepayConfirm = ({
     refetchQuote,
     repaymentAccountId,
     repaymentAccountNumber,
-    repaymentAmountCryptoPrecision,
     repaymentAsset,
     selectedCurrency,
     setConfirmedQuote,
@@ -436,7 +408,8 @@ export const RepayConfirm = ({
                 <Skeleton isLoaded={Boolean(confirmedQuote)}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
-                      value={repaymentAmountCryptoPrecision ?? '0'}
+                      // Actually defined at display time, see isLoaded above
+                      value={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
                       symbol={repaymentAsset?.symbol ?? ''}
                     />
                     <Amount.Fiat
@@ -509,7 +482,7 @@ export const RepayConfirm = ({
             repaymentAsset={repaymentAsset}
             collateralAssetId={collateralAssetId}
             repaymentPercent={repaymentPercentOrDefault ?? 0}
-            repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
+            repayAmountCryptoPrecision={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
             }

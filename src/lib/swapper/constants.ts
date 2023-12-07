@@ -1,3 +1,4 @@
+import { makeSwapErrorRight } from '@shapeshiftoss/swapper'
 import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
@@ -11,7 +12,6 @@ import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
 import type { Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
-import { makeSwapErrorRight } from './utils'
 
 export const QUOTE_TIMEOUT_MS = 10_000
 

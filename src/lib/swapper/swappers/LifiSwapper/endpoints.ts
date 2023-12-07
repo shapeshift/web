@@ -2,7 +2,7 @@ import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
@@ -14,7 +14,6 @@ import type {
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 

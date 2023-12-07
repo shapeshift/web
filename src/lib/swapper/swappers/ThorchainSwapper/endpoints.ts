@@ -4,6 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { type Result } from '@sniptt/monads/build'
@@ -20,7 +21,6 @@ import type {
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
   SwapperApi,
   TradeQuote,
   UtxoFeeData,

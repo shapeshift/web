@@ -8,6 +8,7 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { SwapErrorType } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -18,7 +19,6 @@ import { quoteStatusTranslation } from 'components/MultiHopTrade/components/Trad
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectAssets,

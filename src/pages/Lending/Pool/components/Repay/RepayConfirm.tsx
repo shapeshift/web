@@ -84,6 +84,13 @@ export const RepayConfirm = ({
     state: { wallet },
   } = useWallet()
 
+  const repaymentPercentOrDefault = useMemo(() => {
+    const repaymentPercentBn = bnOrZero(repaymentPercent)
+    // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
+    if (!repaymentPercentBn.eq(100)) return repaymentPercent
+    return repaymentPercentBn.plus('1').toNumber()
+  }, [repaymentPercent])
+
   const [isLoanPending, setIsLoanPending] = useState(false)
   const [isQuoteExpired, setIsQuoteExpired] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -106,7 +113,7 @@ export const RepayConfirm = ({
       // which we *want* to wait for before considering the repay as complete
       await waitForThorchainUpdate({
         txId: _txId,
-        skipOutbound: bn(repaymentPercent).lt(100),
+        skipOutbound: bn(repaymentPercentOrDefault).lt(101),
         expectedCompletionTime,
       }).promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
@@ -169,12 +176,12 @@ export const RepayConfirm = ({
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
 
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
       .times(lendingPositionData.debtBalanceFiatUserCurrency)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercent])
+  }, [lendingPositionData, repaymentPercentOrDefault])
 
   const repaymentAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
@@ -518,7 +525,7 @@ export const RepayConfirm = ({
             confirmedQuote={confirmedQuote}
             repaymentAsset={repaymentAsset}
             collateralAssetId={collateralAssetId}
-            repaymentPercent={repaymentPercent ?? 0}
+            repaymentPercent={repaymentPercentOrDefault ?? 0}
             repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'

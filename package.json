@@ -106,6 +106,7 @@
     "@shapeshiftoss/hdwallet-shapeshift-multichain": "1.52.13",
     "@shapeshiftoss/hdwallet-walletconnectv2": "1.52.13",
     "@shapeshiftoss/hdwallet-xdefi": "1.52.13",
+    "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@sniptt/monads": "^0.5.10",

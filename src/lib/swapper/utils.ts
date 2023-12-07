@@ -1,4 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import { SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -8,8 +10,7 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
-import type { SwapErrorRight } from './types'
-import { SwapErrorType, SwapperName } from './types'
+import { SwapperName } from './types'
 
 export const makeSwapErrorRight = ({
   details,

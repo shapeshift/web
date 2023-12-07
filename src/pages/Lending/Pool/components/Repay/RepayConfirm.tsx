@@ -81,13 +81,6 @@ export const RepayConfirm = ({
     state: { wallet },
   } = useWallet()
 
-  const repaymentPercentOrDefault = useMemo(() => {
-    const repaymentPercentBn = bnOrZero(repaymentPercent)
-    // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
-    if (!repaymentPercentBn.eq(100)) return repaymentPercent
-    return repaymentPercentBn.plus('1').toNumber()
-  }, [repaymentPercent])
-
   const [isLoanPending, setIsLoanPending] = useState(false)
   const [isQuoteExpired, setIsQuoteExpired] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -106,11 +99,13 @@ export const RepayConfirm = ({
       txId: string
       expectedCompletionTime?: number
     }) => {
+      if (!confirmedQuote) throw new Error('Cannot fetch THOR Tx status withut a confirmed quote')
+
       // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
       // which we *want* to wait for before considering the repay as complete
       await waitForThorchainUpdate({
         txId: _txId,
-        skipOutbound: bn(repaymentPercentOrDefault).lt(101),
+        skipOutbound: bn(confirmedQuote.repaymentPercentOrDefault).lt(101),
         expectedCompletionTime,
       }).promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
@@ -481,7 +476,7 @@ export const RepayConfirm = ({
             confirmedQuote={confirmedQuote}
             repaymentAsset={repaymentAsset}
             collateralAssetId={collateralAssetId}
-            repaymentPercent={repaymentPercentOrDefault ?? 0}
+            repaymentPercent={confirmedQuote?.repaymentPercentOrDefault ?? 0}
             repayAmountCryptoPrecision={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'

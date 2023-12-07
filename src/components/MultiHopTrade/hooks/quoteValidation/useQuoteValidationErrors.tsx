@@ -9,16 +9,15 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isTruthy } from 'lib/utils'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
-  selectActiveQuote,
   selectBuyAmountBeforeFeesCryptoBaseUnit,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
   selectFirstHopTradeDeductionCryptoPrecision,
+  selectIsUnsafeActiveQuote,
   selectLastHopBuyAsset,
   selectLastHopNetworkFeeCryptoPrecision,
   selectSellAmountCryptoBaseUnit,
@@ -54,15 +53,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const quotes = useAppSelector(selectSwappersApiTradeQuotes)
 
-  // TODO(gomes): do we want to make the below logic a selector too?
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const isUnsafeQuote = useMemo(() => {
-    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
-      ?.recommendedMinimumCryptoBaseUnit
-    if (!recommendedMinimumCryptoBaseUnit) return false
-
-    return bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
-  }, [activeQuote, sellAmountCryptoBaseUnit])
+  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
   const isSnapInstalled = useIsSnapInstalled()
 

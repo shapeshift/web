@@ -39,7 +39,7 @@ import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValida
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { ActiveQuoteStatus, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -77,6 +77,7 @@ import {
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
+  selectIsUnsafeActiveQuote,
   selectPotentialDonationAmountUserCurrency,
   selectQuoteDonationAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
@@ -366,12 +367,9 @@ export const TradeInput = memo(() => {
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
-  const isUnsafeQuote = useMemo(
-    () =>
-      quoteHasError &&
-      activeQuoteStatus.quoteErrors.some(error => error === ActiveQuoteStatus.UnsafeQuote),
-    [activeQuoteStatus.quoteErrors, quoteHasError],
-  )
+
+  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
+
   useEffect(() => {
     if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
   }, [isUnsafeQuote])

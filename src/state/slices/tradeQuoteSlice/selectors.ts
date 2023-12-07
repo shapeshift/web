@@ -6,6 +6,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { ProtocolFee, TradeQuote } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -179,6 +180,18 @@ export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undef
   createSelector(selectFirstHop, firstHop =>
     firstHop ? firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit : undefined,
   )
+
+export const selectIsUnsafeActiveQuote: Selector<ReduxState, boolean> = createSelector(
+  selectActiveQuote,
+  selectSellAmountCryptoBaseUnit,
+  (activeQuote, sellAmountCryptoBaseUnit) => {
+    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
+      ?.recommendedMinimumCryptoBaseUnit
+    if (!recommendedMinimumCryptoBaseUnit) return false
+
+    return bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
+  },
+)
 
 export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
   createSelector(

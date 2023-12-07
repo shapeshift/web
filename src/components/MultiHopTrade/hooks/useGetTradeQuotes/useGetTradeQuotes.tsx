@@ -1,6 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
@@ -15,7 +14,7 @@ import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/types'
-import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
+import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
@@ -153,20 +152,16 @@ export const useGetTradeQuotes = () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
-        const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
-        const isFromEvm = isEvmChainId(sellAsset.chainId)
-        // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-        const mayDonate = walletIsKeepKey ? userMayDonate && !isFromEvm : userMayDonate
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
-        const potentialAffiliateBps = mayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
+        const potentialAffiliateBps = userMayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
         const affiliateBps = (() => {
           if (!isFoxDiscountsEnabled) return potentialAffiliateBps
 
           // free trades if there's an error getting foxHeld
           if (votingPower === undefined) return '0'
 
-          const affiliateBps = mayDonate
+          const affiliateBps = userMayDonate
             ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(votingPower) }).feeBps.toFixed(0)
             : '0'
 

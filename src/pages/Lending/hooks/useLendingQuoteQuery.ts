@@ -8,10 +8,13 @@ import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -20,9 +23,11 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataById,
+  selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -131,6 +136,7 @@ export const useLendingQuoteOpenQuery = ({
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
   enabled = true,
 }: UseLendingQuoteQueryProps & QueryObserverOptions) => {
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
@@ -205,6 +211,23 @@ export const useLendingQuoteOpenQuery = ({
     })()
   }, [getBorrowAssetReceiveAddress])
 
+  const votingPower = useAppSelector(selectVotingPower)
+  const collateralUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, collateralAssetId))
+  const affiliateBps = useMemo(() => {
+    if (!isFoxDiscountsEnabled) return DEFAULT_SWAPPER_DONATION_BPS
+
+    // free trades if there's an error getting foxHeld
+    if (votingPower === undefined) return '0'
+
+    const tradeAmountUsd = bnOrZero(depositAmountCryptoPrecision).times(collateralUsdRate ?? 0)
+    const affiliateBps = calculateFees({
+      tradeAmountUsd,
+      foxHeld: bnOrZero(votingPower),
+    }).feeBps.toFixed(0)
+
+    return affiliateBps
+  }, [votingPower, collateralUsdRate, depositAmountCryptoPrecision, isFoxDiscountsEnabled])
+
   const query = useQuery({
     staleTime: 5_000,
     queryKey: lendingQuoteQueryKey,
@@ -226,6 +249,7 @@ export const useLendingQuoteOpenQuery = ({
           collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
         ),
         receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
+        affiliateBps,
       })
 
       if (position.isErr()) throw new Error(position.unwrapErr())

@@ -1,12 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
-import {
-  createTradeAmountTooSmallErr,
-  makeSwapErrorRight,
-  type SwapErrorRight,
-  SwapErrorType,
-} from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -89,25 +84,13 @@ export const getL1quote = async (
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
 
   // recommended_min_amount_in should be the same value for both types of swaps
-  const recommendedMinAmountInCryptoBaseUnit = swapQuote.recommended_min_amount_in
+  const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
         value: swapQuote.recommended_min_amount_in,
         inputExponent: THORCHAIN_FIXED_PRECISION,
         outputExponent: sellAsset.precision,
-      })
-    : undefined
-
-  if (
-    recommendedMinAmountInCryptoBaseUnit &&
-    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
-  ) {
-    return Err(
-      createTradeAmountTooSmallErr({
-        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
-        assetId: sellAsset.assetId,
-      }),
-    )
-  }
+      }).toFixed()
+    : '0'
 
   const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
     source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,
@@ -223,6 +206,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               data,
               router,
@@ -318,6 +302,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               steps: [
                 {
@@ -395,6 +380,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               steps: [
                 {

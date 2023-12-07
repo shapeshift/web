@@ -1,5 +1,8 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   CardFooter,
   CardHeader,
@@ -36,7 +39,7 @@ import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValida
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { ActiveQuoteStatus, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -46,8 +49,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
+import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { SwapperName } from 'lib/swapper/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -358,6 +363,47 @@ export const TradeInput = memo(() => {
     ],
   )
 
+  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
+    null,
+  )
+  const isUnsafeQuote = useMemo(
+    () =>
+      quoteHasError &&
+      activeQuoteStatus.quoteErrors.some(error => error === ActiveQuoteStatus.UnsafeQuote),
+    [activeQuoteStatus.quoteErrors, quoteHasError],
+  )
+  useEffect(() => {
+    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
+  }, [isUnsafeQuote])
+
+  const maybeUnsafeTradeWarning = useMemo(() => {
+    if (!isUnsafeQuote) return null
+
+    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
+      ?.recommendedMinimumCryptoBaseUnit
+    if (!recommendedMinimumCryptoBaseUnit) return null
+    const recommendedMiniimumCryptoPrecision = fromBaseUnit(
+      recommendedMinimumCryptoBaseUnit,
+      sellAsset.precision,
+    )
+
+    return (
+      <Flex direction='column' gap={2}>
+        <Alert status='error' width='auto' fontSize='sm' variant='solid'>
+          <AlertIcon color='red' />
+          <Stack spacing={0}>
+            <AlertDescription lineHeight='short'>
+              {translate('trade.errors.unsafeQuote', {
+                symbol: sellAsset.symbol,
+                recommendedMin: recommendedMiniimumCryptoPrecision,
+              })}
+            </AlertDescription>
+          </Stack>
+        </Alert>
+      </Flex>
+    )
+  }, [activeQuote, isUnsafeQuote, sellAsset.precision, sellAsset.symbol, translate])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <CardFooter
@@ -406,18 +452,31 @@ export const TradeInput = memo(() => {
         )}
 
         <ManualAddressEntry />
+        {maybeUnsafeTradeWarning}
         <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-          <Button
-            type='submit'
-            colorScheme={quoteHasError ? 'red' : 'blue'}
-            size='lg-multiline'
-            data-test='trade-form-preview-button'
-            isDisabled={shouldDisablePreviewButton}
-            isLoading={isLoading}
-            mx={-2}
-          >
-            <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-          </Button>
+          {isUnsafeQuoteNoticeDismissed === false ? (
+            <Button
+              colorScheme='red'
+              size='lg-multiline'
+              mx={-2}
+              // eslint-disable-next-line react-memo/require-usememo
+              onClick={() => setIsUnsafeQuoteNoticeDismissed(true)}
+            >
+              <Text translation={'defi.modals.saversVaults.understand'} />
+            </Button>
+          ) : (
+            <Button
+              type='submit'
+              colorScheme={quoteHasError ? 'red' : 'blue'}
+              size='lg-multiline'
+              data-test='trade-form-preview-button'
+              isDisabled={shouldDisablePreviewButton}
+              isLoading={isLoading}
+              mx={-2}
+            >
+              <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+            </Button>
+          )}
         </Tooltip>
         {hasUserEnteredAmount &&
           activeSwapperName !== SwapperName.CowSwap &&
@@ -441,6 +500,8 @@ export const TradeInput = memo(() => {
       isFoxDiscountsEnabled,
       isLoading,
       isModeratePriceImpact,
+      isUnsafeQuoteNoticeDismissed,
+      maybeUnsafeTradeWarning,
       priceImpactPercentage,
       quoteHasError,
       rate,

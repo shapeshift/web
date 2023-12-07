@@ -13,6 +13,7 @@ export enum HopExecutionState {
 }
 
 export enum TradeExecutionState {
+  Initializing = 'Initializing',
   Previewing = 'Previewing',
   FirstHop = 'FirstHop',
   SecondHop = 'SecondHop',

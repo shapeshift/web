@@ -270,6 +270,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())
 
+      // We *have* to return a value other than undefined from react-query queries, see
+      // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
       return null
     },
     // once the portfolio is loaded, fetch market data for all portfolio assets

@@ -41,7 +41,8 @@ export const getLongtailToL1Quote = async (
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
   const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
-  const AGGREGATOR_CONTRACT = '0x96ab925EFb957069507894CD941F40734f0288ad' // TSAggregatorUniswapV3 3000 - this needs to match the fee below
+  // TODO: we need to fetch this dynamically, as it can change
+  const AGGREGATOR_CONTRACT = '0x11733abf0cdb43298f7e949c930188451a9a9ef2' // TSAggregatorUniswapV3 3000 - this needs to match the fee below
   const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
   const tokenA = getTokenFromAsset(input.sellAsset)

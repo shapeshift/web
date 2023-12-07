@@ -1,7 +1,6 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type Polyglot from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,12 +13,11 @@ import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { useMockTradeExecution } from '../hooks/mockHooks'
+import { useTradeExecution } from '../hooks/useTradeExecution'
 import { TradeType } from '../types'
 import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
@@ -44,7 +42,6 @@ export const HopTransactionStep = ({
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
-  const dispatch = useAppDispatch()
   const translate = useTranslate()
 
   const {
@@ -53,11 +50,7 @@ export const HopTransactionStep = ({
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 
-  const {
-    // TODO: use the message to better ux
-    // message,
-    executeTrade,
-  } = useMockTradeExecution(hopIndex) // TODO: use the real hook here
+  const executeTrade = useTradeExecution(hopIndex)
 
   const handleSignTx = useCallback(async () => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -65,17 +58,8 @@ export const HopTransactionStep = ({
       return
     }
 
-    dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
-
-    const finalTxStatus = await executeTrade()
-
-    // next state if trade was successful
-    if (finalTxStatus === TxStatus.Confirmed) {
-      dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
-    } else if (finalTxStatus === TxStatus.Failed) {
-      dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
-    }
-  }, [dispatch, executeTrade, hopIndex, swapTxState])
+    await executeTrade()
+  }, [executeTrade, swapTxState])
 
   const tradeType = useMemo(
     () =>

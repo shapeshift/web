@@ -18,6 +18,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import {
@@ -33,6 +34,7 @@ import { TradeType } from '../types'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { DonationStep } from './DonationStep'
+import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
 import { TwirlyToggle } from './TwirlyToggle'
@@ -59,6 +61,7 @@ export const Hop = ({
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const {
     state: hopExecutionState,
@@ -174,11 +177,13 @@ export const Hop = ({
             />
           )}
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
-            <ApprovalStep
-              tradeQuoteStep={tradeQuoteStep}
-              hopIndex={hopIndex}
-              isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
-            />
+            {isApprovalInitiallyNeeded === true && (
+              <ApprovalStep
+                tradeQuoteStep={tradeQuoteStep}
+                hopIndex={hopIndex}
+                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+              />
+            )}
           </Collapse>
           <HopTransactionStep
             swapperName={swapperName}
@@ -187,7 +192,7 @@ export const Hop = ({
             hopIndex={hopIndex}
             isLastStep={!shouldRenderFinalSteps}
           />
-          {shouldRenderFinalSteps && <DonationStep />}
+          {shouldRenderFinalSteps && isFoxDiscountsEnabled ? <FeeStep /> : <DonationStep />}
           {shouldRenderFinalSteps && (
             <AssetSummaryStep
               asset={tradeQuoteStep.buyAsset}

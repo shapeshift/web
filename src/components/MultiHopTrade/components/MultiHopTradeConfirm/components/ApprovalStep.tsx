@@ -1,6 +1,5 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle, FaThumbsUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -14,11 +13,10 @@ import { fromBaseUnit } from 'lib/math'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
-import { useMockAllowanceApproval } from '../hooks/mockHooks'
+import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
 
@@ -40,7 +38,7 @@ export const ApprovalStep = ({
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
-  const dispatch = useAppDispatch()
+
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
 
   const {
@@ -52,11 +50,11 @@ export const ApprovalStep = ({
     [approvalTxState],
   )
 
-  const { executeAllowanceApproval, approvalNetworkFeeCryptoBaseUnit } = useMockAllowanceApproval(
-    tradeQuoteStep,
-    hopIndex,
-    isExactAllowance,
-  ) // TODO: use the real hook here
+  const {
+    executeAllowanceApproval,
+    approvalNetworkFeeCryptoBaseUnit,
+    isLoading: isAllowanceApprovalLoading,
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, isExactAllowance)
 
   const handleSignAllowanceApproval = useCallback(async () => {
     if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -64,17 +62,8 @@ export const ApprovalStep = ({
       return
     }
 
-    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
-
-    // execute the allowance approval
-    const finalTxStatus = await executeAllowanceApproval()
-
-    if (finalTxStatus === TxStatus.Confirmed) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
-    } else if (finalTxStatus === TxStatus.Failed) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
-    }
-  }, [approvalTxState, dispatch, executeAllowanceApproval, hopIndex])
+    await executeAllowanceApproval()
+  }, [approvalTxState, executeAllowanceApproval])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =
@@ -159,6 +148,7 @@ export const ApprovalStep = ({
                 size='sm'
                 mx={2}
                 isChecked={isExactAllowance}
+                disabled={approvalTxState !== TransactionExecutionState.AwaitingConfirmation}
                 onChange={toggleIsExactAllowance}
               />
               <Text
@@ -173,7 +163,13 @@ export const ApprovalStep = ({
             size='sm'
             leftIcon={leftIcon}
             colorScheme='blue'
-            isLoading={approvalTxState === TransactionExecutionState.Pending}
+            disabled={
+              isAllowanceApprovalLoading ||
+              approvalTxState !== TransactionExecutionState.AwaitingConfirmation
+            }
+            isLoading={
+              isAllowanceApprovalLoading || approvalTxState === TransactionExecutionState.Pending
+            }
             onClick={handleSignAllowanceApproval}
           >
             {translate('common.approve')}
@@ -185,6 +181,7 @@ export const ApprovalStep = ({
     approvalTxState,
     handleSignAllowanceApproval,
     isActive,
+    isAllowanceApprovalLoading,
     isExactAllowance,
     leftIcon,
     toggleIsExactAllowance,

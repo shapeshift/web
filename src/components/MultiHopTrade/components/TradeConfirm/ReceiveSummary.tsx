@@ -3,17 +3,8 @@ import {
   Collapse,
   Divider,
   Flex,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
   Skeleton,
   Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -21,7 +12,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -29,6 +19,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ShapeShiftFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { AmountDisplayMeta, ProtocolFee, SwapSource } from 'lib/swapper/types'
@@ -40,7 +31,7 @@ import {
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
 
-import { FeeBreakdown } from './FeeBreakdown'
+import { FeeModal } from '../FeeModal/FeeModal'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -50,14 +41,7 @@ type ReceiveSummaryProps = {
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
-  shapeShiftFee?: {
-    amountBeforeDiscountUserCurrency: string
-    amountAfterDiscountUserCurrency: string
-    feeDiscountUserCurrency?: string
-    potentialAffiliateBps: string
-    affiliateBps: string
-    foxDiscountPercent: string
-  }
+  shapeShiftFee?: ShapeShiftFee
   slippageDecimalPercentage: string
   swapperName: string
   donationAmountUserCurrency?: string
@@ -65,7 +49,7 @@ type ReceiveSummaryProps = {
   swapSource?: SwapSource
 } & RowProps
 
-const ShapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
 
 const tradeFeeSourceTranslation: TextPropTypes['translation'] = [
   'trade.tradeFeeSource',
@@ -247,7 +231,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row.Label>
               <Row.Value
                 onClick={handleFeeModal}
-                _hover={isFoxDiscountsEnabled ? ShapeShiftFeeModalRowHover : undefined}
+                _hover={isFoxDiscountsEnabled ? shapeShiftFeeModalRowHover : undefined}
               >
                 <Skeleton isLoaded={!isLoading}>
                   <Flex alignItems='center' gap={2}>
@@ -321,35 +305,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             )}
           </Stack>
         </Collapse>
-        <Modal isOpen={showFeeModal} onClose={handleFeeModal} size='lg'>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalCloseButton />
-            <Tabs variant='button'>
-              <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
-                <Tab>{translate('foxDiscounts.feeSummary')}</Tab>
-                <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel p={0}>
-                  <FeeBreakdown
-                    feeBps={shapeShiftFee?.affiliateBps ?? '0'}
-                    feeUserCurrency={shapeShiftFee?.amountAfterDiscountUserCurrency ?? '0'}
-                    foxDiscountPercent={shapeShiftFee?.foxDiscountPercent ?? '0'}
-                    feeBeforeDiscountUserCurrency={
-                      shapeShiftFee?.amountBeforeDiscountUserCurrency ?? '0'
-                    }
-                    feeDiscountUserCurrency={shapeShiftFee?.feeDiscountUserCurrency ?? '0'}
-                    feeBpsBeforeDiscount={shapeShiftFee?.potentialAffiliateBps ?? '0'}
-                  />
-                </TabPanel>
-                <TabPanel px={0} py={0}>
-                  <FeeExplainer borderRadius='none' bg='transparent' boxShadow='none' />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </ModalContent>
-        </Modal>
+        <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} shapeShiftFee={shapeShiftFee} />
       </>
     )
   },

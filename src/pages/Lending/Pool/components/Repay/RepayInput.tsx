@@ -394,6 +394,7 @@ export const RepayInput = ({
         <Divider />
       </Flex>
       <TradeAssetInput
+        accountId={collateralAccountId}
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}

@@ -3,7 +3,7 @@ import { Progress, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 
-import { useMockThorStreamingProgress } from '../hooks/mockHooks'
+import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
 
 export type StreamingSwapProps = {
   hopIndex: number
@@ -15,7 +15,7 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
   const translate = useTranslate()
 
   const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } =
-    useMockThorStreamingProgress(hopIndex)
+    useThorStreamingProgress(hopIndex)
 
   return (
     <Stack px={4}>

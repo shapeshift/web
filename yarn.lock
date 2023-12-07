@@ -9781,6 +9781,7 @@ __metadata:
     "@types/mixpanel-browser": ^2.38.1
     "@types/node": ^16.11.12
     "@types/node-polyglot": ^2.4.2
+    "@types/pify": ^5.0.4
     "@types/qr-image": ^3.2.5
     "@types/react": ^18.0.14
     "@types/react-datepicker": ^4.4.2
@@ -11577,6 +11578,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: d15024b1957c21cf3b8887329d9bd8dfde754cf13a09d76ae25f1391cfc62bb8b8d7b760773c5dbaa748172fba8b3e0c3dbe962af6ccbd69b76df12a48dfba40
+  languageName: node
+  linkType: hard
+
+"@types/pify@npm:^5.0.4":
+  version: 5.0.4
+  resolution: "@types/pify@npm:5.0.4"
+  checksum: 765a4f130fac9eb4ca2fb14d95a218d605f671ddd1ed4ebeb6ee0e0fa937ec59cf91fd55a9bb702c0472ca1296cb00ab081bdf9e908ee4abb8105068994f309f
   languageName: node
   linkType: hard
 

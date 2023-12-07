@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
@@ -7,7 +8,6 @@ import { Amount } from 'components/Amount/Amount'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
-import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawTypeProps = {

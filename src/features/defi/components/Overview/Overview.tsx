@@ -10,6 +10,7 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -18,7 +19,6 @@ import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTea
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import type { Asset } from '@shapeshiftoss/types'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'

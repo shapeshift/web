@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { PropsWithChildren, ReactNode } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'
@@ -26,7 +26,6 @@ import { Slippage } from 'components/Slippage/Slippage'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type InputDefaultValue = {

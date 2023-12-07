@@ -48,7 +48,7 @@ export const StepperStep = ({
           </SkeletonText>
         </StepTitle>
         {description && (
-          <StepDescription>
+          <StepDescription as={Box}>
             {isLoading ? (
               <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
             ) : (

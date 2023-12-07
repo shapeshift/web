@@ -1,54 +1,92 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { type evm, type EvmChainAdapter, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import type { TradeQuote } from 'lib/swapper/types'
 import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
 
-export const checkApprovalNeeded = async (
-  tradeQuoteStep: TradeQuote['steps'][number],
-  wallet: HDWallet,
-  sellAssetAccountId: AccountId,
-) => {
-  const { sellAsset, accountNumber, allowanceContract } = tradeQuoteStep
-  const adapterManager = getChainAdapterManager()
-  const adapter = adapterManager.get(sellAsset.chainId)
+export type GetAllowanceArgs = {
+  accountNumber: number
+  allowanceContract: string
+  chainId: ChainId
+  assetId: AssetId
+  wallet: HDWallet
+  accountId: AccountId
+}
 
-  if (!adapter) throw Error(`no chain adapter found for chain Id: ${sellAsset.chainId}`)
+export enum GetAllowanceErr {
+  NotEVMChain = 'NotEVMChain',
+  IsFeeAsset = 'IsFeeAsset',
+  MissingArgs = 'MissingArgs',
+}
+
+export const getAllowance = async ({
+  accountNumber,
+  allowanceContract,
+  chainId,
+  assetId,
+  wallet,
+  accountId,
+}: GetAllowanceArgs): Promise<Result<string, GetAllowanceErr>> => {
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(chainId)
+
+  if (!adapter) throw Error(`no chain adapter found for chain Id: ${chainId}`)
   if (!wallet) throw new Error('no wallet available')
 
   // No approval needed for selling a non-EVM asset
-  if (!evmChainIds.includes(sellAsset.chainId as EvmChainId)) {
-    return false
+  if (!evmChainIds.includes(chainId as EvmChainId)) {
+    return Err(GetAllowanceErr.NotEVMChain)
   }
 
   // No approval needed for selling a fee asset
-  if (sellAsset.assetId === adapter.getFeeAssetId()) {
-    return false
+  if (assetId === adapter.getFeeAssetId()) {
+    return Err(GetAllowanceErr.IsFeeAsset)
   }
 
   const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
   const from = await adapter.getAddress({
     wallet,
     accountNumber,
-    pubKey: fetchUnchainedAddress ? fromAccountId(sellAssetAccountId).account : undefined,
+    pubKey: fetchUnchainedAddress ? fromAccountId(accountId).account : undefined,
   })
 
-  const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
+  const { assetReference: sellAssetContractAddress } = fromAssetId(assetId)
 
   const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
     address: sellAssetContractAddress,
     spender: allowanceContract,
     from,
-    chainId: sellAsset.chainId,
+    chainId,
   })
 
-  return bn(allowanceOnChainCryptoBaseUnit).lt(
+  return Ok(allowanceOnChainCryptoBaseUnit)
+}
+
+export const checkApprovalNeeded = async (
+  tradeQuoteStep: TradeQuote['steps'][number],
+  wallet: HDWallet,
+  sellAssetAccountId: AccountId,
+) => {
+  const allowanceOnChainCryptoBaseUnit = await getAllowance({
+    accountNumber: tradeQuoteStep.accountNumber,
+    allowanceContract: tradeQuoteStep.allowanceContract,
+    chainId: tradeQuoteStep.sellAsset.chainId,
+    assetId: tradeQuoteStep.sellAsset.assetId,
+    wallet,
+    accountId: sellAssetAccountId,
+  })
+
+  if (allowanceOnChainCryptoBaseUnit.isErr()) return false
+
+  return bn(allowanceOnChainCryptoBaseUnit.unwrap()).lt(
     tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
 }

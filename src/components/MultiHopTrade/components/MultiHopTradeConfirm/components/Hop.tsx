@@ -174,11 +174,13 @@ export const Hop = ({
             />
           )}
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
-            <ApprovalStep
-              tradeQuoteStep={tradeQuoteStep}
-              hopIndex={hopIndex}
-              isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
-            />
+            {isApprovalInitiallyNeeded === true && (
+              <ApprovalStep
+                tradeQuoteStep={tradeQuoteStep}
+                hopIndex={hopIndex}
+                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+              />
+            )}
           </Collapse>
           <HopTransactionStep
             swapperName={swapperName}

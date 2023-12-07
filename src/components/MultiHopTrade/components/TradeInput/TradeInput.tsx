@@ -123,6 +123,7 @@ export const TradeInput = memo(() => {
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
+  const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -266,20 +267,22 @@ export const TradeInput = memo(() => {
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 
-      const isApprovalNeeded = await checkApprovalNeeded(
-        tradeQuoteStep,
-        wallet,
-        sellAssetAccountId ?? '',
-      )
-
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
         return
       }
 
-      if (isApprovalNeeded) {
-        history.push({ pathname: TradeRoutePaths.Approval })
-        return
+      if (!enableMultiHopTrades) {
+        const isApprovalNeeded = await checkApprovalNeeded(
+          tradeQuoteStep,
+          wallet,
+          sellAssetAccountId ?? '',
+        )
+
+        if (isApprovalNeeded) {
+          history.push({ pathname: TradeRoutePaths.Approval })
+          return
+        }
       }
 
       history.push({ pathname: TradeRoutePaths.Confirm })
@@ -291,6 +294,7 @@ export const TradeInput = memo(() => {
   }, [
     activeQuote,
     dispatch,
+    enableMultiHopTrades,
     history,
     mixpanel,
     sellAssetAccountId,

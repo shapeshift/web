@@ -24,13 +24,7 @@ export const MultiHopTradeConfirm = memo(() => {
   const previousTradeExecutionState = usePrevious(tradeExecutionState)
   const history = useHistory()
 
-  const { isApprovalInitiallyNeeded, isLoading } = useIsApprovalInitiallyNeeded()
-
-  // set initial approval requirements
-  useEffect(() => {
-    if (isLoading) return
-    dispatch(tradeQuoteSlice.actions.setInitialApprovalRequirements(isApprovalInitiallyNeeded))
-  }, [dispatch, isApprovalInitiallyNeeded, isLoading])
+  useIsApprovalInitiallyNeeded()
 
   const handleBack = useCallback(() => {
     dispatch(swappersSlice.actions.clear())

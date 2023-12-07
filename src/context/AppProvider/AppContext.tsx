@@ -270,7 +270,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())
 
-      return
+      return null
     },
     // once the portfolio is loaded, fetch market data for all portfolio assets
     // and start refetch timer to keep market data up to date

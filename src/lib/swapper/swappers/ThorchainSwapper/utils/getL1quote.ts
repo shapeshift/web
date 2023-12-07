@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -10,12 +11,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import type { GetEvmTradeQuoteInput, GetUtxoTradeQuoteInput, ProtocolFee } from 'lib/swapper/types'
-import {
-  type GetTradeQuoteInput,
-  type SwapErrorRight,
-  SwapErrorType,
-  SwapperName,
-} from 'lib/swapper/types'
+import { type GetTradeQuoteInput, SwapperName } from 'lib/swapper/types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'

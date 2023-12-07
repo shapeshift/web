@@ -1,5 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
@@ -10,7 +11,6 @@ import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedEvmMessageArgs,
-  SwapErrorRight,
   SwapperApi,
   TradeQuote,
 } from 'lib/swapper/types'

@@ -9669,6 +9669,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/swapper@workspace:^, @shapeshiftoss/swapper@workspace:packages/swapper":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
@@ -9753,6 +9761,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-shapeshift-multichain": 1.52.13
     "@shapeshiftoss/hdwallet-walletconnectv2": 1.52.13
     "@shapeshiftoss/hdwallet-xdefi": 1.52.13
+    "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10

@@ -1,16 +1,11 @@
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
-import type {
-  GetTradeQuoteInput,
-  QuoteResult,
-  SwapErrorRight,
-  SwapperName,
-  TradeQuote,
-} from './types'
+import type { GetTradeQuoteInput, QuoteResult, SwapperName, TradeQuote } from './types'
 
 export const getTradeQuotes = async (
   getTradeQuoteInput: GetTradeQuoteInput,

@@ -1,4 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { SwapErrorType } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
@@ -7,7 +8,7 @@ import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapErrorType, SwapperName } from 'lib/swapper/types'
+import { SwapperName } from 'lib/swapper/types'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,

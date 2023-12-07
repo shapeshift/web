@@ -11,4 +11,12 @@
   "exclude": [
     "dist"
   ],
+  "references": [
+    {
+      "path": "../types",
+    },
+    {
+      "path": "../caip",
+    }
+  ]
 }

@@ -2,6 +2,7 @@ import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
@@ -10,14 +11,6 @@ import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-
-export type SwapErrorRight = {
-  name: 'SwapError'
-  message: string
-  cause?: unknown
-  details?: unknown
-  code?: SwapErrorType
-}
 
 export type UtxoFeeData = {
   byteCount: string
@@ -119,37 +112,6 @@ export enum SwapperName {
   Test = 'Test',
   LIFI = 'LI.FI',
   OneInch = '1INCH',
-}
-
-// Swap Errors
-export enum SwapErrorType {
-  BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
-  EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
-  MANAGER_ERROR = 'MANAGER_ERROR',
-  MIN_MAX_FAILED = 'MIN_MAX_FAILED',
-  RESPONSE_ERROR = 'RESPONSE_ERROR',
-  SIGN_AND_BROADCAST_FAILED = 'SIGN_AND_BROADCAST_FAILED',
-  TRADE_QUOTE_FAILED = 'TRADE_QUOTE_FAILED',
-  TRADE_QUOTE_AMOUNT_TOO_SMALL = 'TRADE_QUOTE_AMOUNT_TOO_SMALL',
-  TRADE_QUOTE_INPUT_LOWER_THAN_FEES = 'TRADE_QUOTE_INPUT_LOWER_THAN_FEES',
-  UNSUPPORTED_PAIR = 'UNSUPPORTED_PAIR',
-  USD_RATE_FAILED = 'USD_RATE_FAILED',
-  UNSUPPORTED_CHAIN = 'UNSUPPORTED_CHAIN',
-  UNSUPPORTED_NAMESPACE = 'UNSUPPORTED_NAMESPACE',
-  VALIDATION_FAILED = 'VALIDATION_FAILED',
-  MAKE_MEMO_FAILED = 'MAKE_MEMO_FAILED',
-  PRICE_RATIO_FAILED = 'PRICE_RATIO_FAILED',
-  POOL_NOT_FOUND = 'POOL_NOT_FOUND',
-  GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
-  TRADE_FAILED = 'TRADE_FAILED',
-  RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
-  // Catch-all for XHRs that can fail
-  QUERY_FAILED = 'QUERY_FAILED',
-  // Catch-all for missing input e.g AssetId missing when making a request
-  MISSING_INPUT = 'MISSING_INPUT',
-  // Catch-all for happy responses, but entity not found according to our criteria
-  NOT_FOUND = 'NOT_FOUND',
-  TRADING_HALTED = 'TRADING_HALTED',
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }

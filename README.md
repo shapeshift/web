@@ -114,20 +114,6 @@ yarn test
 
 <br/>
 
-To start Cypress E2E testing with GUI:
-
-```sh
-yarn test:cypress
-```
-
-or, to start it in headless mode:
-
-```sh
-yarn test:cypress:headless
-```
-
-<br/>
-
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh

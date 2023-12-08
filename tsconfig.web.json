@@ -6,6 +6,6 @@
     "allowJs": true,
     "jsx": "react-jsx",
   },
-  "include": ["src/**/*", "src/**/*.json", "cypress"],
+  "include": ["src/**/*", "src/**/*.json"],
   "exclude": []
 }

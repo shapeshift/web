@@ -8,6 +8,6 @@ if [ "$(uname)" != "Darwin" ]; then
   sed -i "$SED_COMMAND_1" $1
   sed -i "$SED_COMMAND_2" $1
 else
-  /usr/bin/sed -i '' "$SED_COMMAND_1" $1
-  /usr/bin/sed -i '' "$SED_COMMAND_2" $1
+  sed -i '' "$SED_COMMAND_1" $1
+  sed -i '' "$SED_COMMAND_2" $1
 fi

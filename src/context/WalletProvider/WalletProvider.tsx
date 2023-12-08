@@ -12,7 +12,7 @@ import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -350,8 +350,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
   const isDarkMode = useColorModeValue(false, true)
-  // Internal state, for memoization purposes only
-  const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
@@ -730,66 +728,75 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
-  const handleAccountsOrChainChanged = useCallback(async () => {
-    if (!walletType || !state.adapters) return
+  const handleAccountsOrChainChanged = useCallback(
+    async (localWalletType: KeyManagerWithProvider | null) => {
+      if (!localWalletType || !state.adapters) return
 
-    const adapter = await getAdapter(walletType)
-    const localWallet = await adapter?.pairDevice()
+      const adapter = await getAdapter(localWalletType)
+      const localWallet = await adapter?.pairDevice()
 
-    if (!localWallet) return
+      if (!localWallet) return
 
-    await localWallet.initialize()
-    const deviceId = await localWallet?.getDeviceID()
+      await localWallet.initialize()
+      const deviceId = await localWallet?.getDeviceID()
 
-    if (!deviceId) return
+      if (!deviceId) return
 
-    const { icon, name } = SUPPORTED_WALLETS[walletType]
+      const { icon, name } = SUPPORTED_WALLETS[localWalletType]
 
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        wallet: localWallet,
-        name,
-        icon,
-        deviceId,
-        connectedType: walletType,
-      },
-    })
-  }, [getAdapter, state.adapters, walletType])
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet: localWallet,
+          name,
+          icon,
+          deviceId,
+          connectedType: localWalletType,
+        },
+      })
+    },
+    [getAdapter, state.adapters],
+  )
 
   const setProviderEvents = useCallback(
-    async (maybeProvider: InitialState['provider']) => {
-      if (!(maybeProvider && walletType)) return
+    async (
+      maybeProvider: InitialState['provider'],
+      localWalletType: KeyManagerWithProvider | null,
+    ) => {
+      if (!(maybeProvider && localWalletType)) return
 
-      maybeProvider?.on?.('accountsChanged', handleAccountsOrChainChanged)
-      maybeProvider?.on?.('chainChanged', handleAccountsOrChainChanged)
-
-      const adapter = await getAdapter(walletType)
+      maybeProvider?.on?.('accountsChanged', () => handleAccountsOrChainChanged(localWalletType))
+      maybeProvider?.on?.('chainChanged', () => handleAccountsOrChainChanged(localWalletType))
+      const adapter = await getAdapter(localWalletType)
       const wallet = await adapter?.pairDevice()
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          maybeProvider?.removeListener?.('accountsChanged', handleAccountsOrChainChanged)
-          maybeProvider?.removeListener?.('chainChanged', handleAccountsOrChainChanged)
+          maybeProvider?.removeListener?.('accountsChanged', () =>
+            handleAccountsOrChainChanged(localWalletType),
+          )
+          maybeProvider?.removeListener?.('chainChanged', () =>
+            handleAccountsOrChainChanged(localWalletType),
+          )
           return oldDisconnect()
         }
       }
     },
-    [walletType, handleAccountsOrChainChanged, getAdapter],
+    [handleAccountsOrChainChanged, getAdapter],
   )
 
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
   const onProviderChange = useCallback(
-    async (localWalletType: KeyManagerWithProvider | null) => {
+    async (
+      localWalletType: KeyManagerWithProvider | null,
+    ): Promise<InitialState['provider'] | undefined> => {
       if (!localWalletType) return
-      setWalletType(localWalletType)
-      if (!walletType) return
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
-          if (walletType === KeyManager.MetaMask) {
+          if (localWalletType === KeyManager.MetaMask) {
             return (await detectEthereumProvider()) as MetaMaskLikeProvider
           }
-          if (walletType === KeyManager.XDefi) {
+          if (localWalletType === KeyManager.XDefi) {
             try {
               return globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
             } catch (error) {
@@ -797,7 +804,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
           }
 
-          if (walletType === KeyManager.WalletConnectV2) {
+          if (localWalletType === KeyManager.WalletConnectV2) {
             // provider is created when getting the wallet in WalletConnectV2Connect pairDevice
             return null
           }
@@ -806,17 +813,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         })()
 
         if (maybeProvider) {
-          await setProviderEvents(maybeProvider)
+          await setProviderEvents(maybeProvider, localWalletType)
           dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
+          return maybeProvider
         }
       } catch (e) {
         if (!isMobile) console.error(e)
       }
     },
-    // Only a change of wallet type should invalidate the reference
-    // Else, this will add many duplicate event listeners
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [walletType],
+    [],
   )
 
   useEffect(() => {

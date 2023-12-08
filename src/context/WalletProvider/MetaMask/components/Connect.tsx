@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -36,17 +36,15 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }, [])
 
-  useEffect(() => {
-    void onProviderChange(KeyManager.MetaMask)
-  }, [onProviderChange])
-
   const isSnapsEnabled = useFeatureFlag('Snaps')
 
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
-    if (!state.provider) {
+    const provider = await onProviderChange(KeyManager.MetaMask)
+
+    if (!provider) {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
@@ -97,13 +95,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     }
     setLoading(false)
   }, [
-    dispatch,
+    onProviderChange,
     getAdapter,
-    history,
-    isSnapsEnabled,
     setErrorLoading,
+    dispatch,
+    isSnapsEnabled,
     showSnapModal,
-    state.provider,
+    history,
   ])
 
   const handleRedirect = useCallback((): void => {

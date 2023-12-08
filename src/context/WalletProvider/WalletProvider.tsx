@@ -834,6 +834,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         return handleAccountsOrChainChanged(localWalletType, e)
       })
       const adapter = await getAdapter(localWalletType)
+      // TODO(gomes): this should be state.wallet, and should fine a way to make it work despite the stale clojure reference
       const wallet = await adapter?.pairDevice()
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)

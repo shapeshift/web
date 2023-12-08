@@ -353,8 +353,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setLocalNativeWalletName,
   } = useLocalWallet()
 
-  const previousWalletType = usePrevious(walletType)
-
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
       let currentStateAdapters = state.adapters
@@ -844,16 +842,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     },
     [handleAccountsOrChainChanged, getAdapter],
   )
-
-  useEffect(() => {
-    ;(async () => {
-      // Being too reacty here means we'll set up tons of event listeners
-      if (walletType === previousWalletType) return
-      if (!isKeyManagerWithProvider(walletType)) return
-
-      await onProviderChange(walletType)
-    })()
-  }, [onProviderChange, previousWalletType, walletType])
 
   const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

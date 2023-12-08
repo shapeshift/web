@@ -29,18 +29,13 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     setLoading(false)
   }
 
-  useEffect(() => {
-    ;(async () => {
-      await onProviderChange(KeyManager.Coinbase)
-    })()
-  }, [onProviderChange])
-
   const localWallet = useLocalWallet()
 
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
+    await onProviderChange(KeyManager.Coinbase)
     const adapter = await getAdapter(KeyManager.Coinbase)
     if (adapter) {
       try {

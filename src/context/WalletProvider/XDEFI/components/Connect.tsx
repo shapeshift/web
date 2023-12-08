@@ -29,16 +29,11 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  useEffect(() => {
-    ;(async () => {
-      await onProviderChange(KeyManager.XDefi)
-    })()
-  }, [onProviderChange])
-
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
+    await onProviderChange(KeyManager.XDefi)
     const adapter = await getAdapter(KeyManager.XDefi)
     if (adapter) {
       try {
@@ -81,7 +76,14 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }, [getAdapter, state.provider, dispatch, setLocalWalletTypeAndDeviceId, history])
+  }, [
+    onProviderChange,
+    getAdapter,
+    state.provider,
+    dispatch,
+    setLocalWalletTypeAndDeviceId,
+    history,
+  ])
 
   return (
     <ConnectModal

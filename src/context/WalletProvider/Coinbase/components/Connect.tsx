@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -35,7 +35,6 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     setError(null)
     setLoading(true)
 
-    await onProviderChange(KeyManager.Coinbase)
     const adapter = await getAdapter(KeyManager.Coinbase)
     if (adapter) {
       try {
@@ -44,6 +43,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-coinbase::pairDevice returned null or undefined')
         }
+        await onProviderChange(KeyManager.Coinbase, wallet)
         const { name, icon } = CoinbaseConfig
         const deviceId = await wallet.getDeviceID()
         const isLocked = await wallet.isLocked()
@@ -63,7 +63,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet])
+  }, [dispatch, getAdapter, history, localWallet, onProviderChange])
 
   return (
     <ConnectModal

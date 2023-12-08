@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { useColorModeValue, usePrevious } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
@@ -398,10 +398,85 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     store.dispatch(localWalletSlice.actions.clearLocalWallet())
   }, [state.wallet])
 
+  const handleAccountsOrChainChanged = useCallback(
+    async (localWalletType: KeyManagerWithProvider | null, accountsOrChains: string[] | string) => {
+      if (!localWalletType || !state.adapters) return
+      // An event has been fired from a previously connected wallet. This should not happen but it may, and if it does, we do *not* want to handle it
+      // or this will produce a bug when e.g connecting MM/imposter, then any other wallet, then switching chains/accounts in MM/imposter will set it as a connected wallet again
+      if (walletType && localWalletType !== walletType) return
+
+      const _isLocked = Array.isArray(accountsOrChains) && accountsOrChains.length === 0
+
+      if (_isLocked) {
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+        // Don't continue execution in case the wallet got locked, set it to locked and abort instead
+        return
+      }
+
+      // Either a change change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
+      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+
+      const adapter = await getAdapter(localWalletType)
+      const localWallet = await adapter?.pairDevice()
+
+      if (!localWallet) return
+
+      await localWallet.initialize()
+      const deviceId = await localWallet?.getDeviceID()
+
+      if (!deviceId) return
+
+      const { icon, name } = SUPPORTED_WALLETS[localWalletType]
+
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet: localWallet,
+          name,
+          icon,
+          deviceId,
+          connectedType: localWalletType,
+        },
+      })
+    },
+    [getAdapter, state.adapters, walletType],
+  )
+
+  const setProviderEvents = useCallback(
+    (
+      maybeProvider: InitialState['provider'],
+      localWalletType: KeyManagerWithProvider | null,
+      wallet: HDWallet | null,
+    ) => {
+      if (!(maybeProvider && localWalletType)) return
+
+      maybeProvider?.on?.('accountsChanged', (e: string[]) => {
+        return handleAccountsOrChainChanged(localWalletType, e)
+      })
+      maybeProvider?.on?.('chainChanged', (e: string) => {
+        return handleAccountsOrChainChanged(localWalletType, e)
+      })
+      if (wallet) {
+        const oldDisconnect = wallet.disconnect.bind(state.wallet)
+        wallet.disconnect = () => {
+          maybeProvider?.removeListener?.('accountsChanged', (e: string[]) =>
+            handleAccountsOrChainChanged(localWalletType, e),
+          )
+          maybeProvider?.removeListener?.('chainChanged', (e: string) =>
+            handleAccountsOrChainChanged(localWalletType, e),
+          )
+          return oldDisconnect()
+        }
+      }
+    },
+    [state.wallet, handleAccountsOrChainChanged],
+  )
+
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
   const onProviderChange = useCallback(
     async (
       localWalletType: KeyManagerWithProvider | null,
+      wallet: HDWallet | null,
     ): Promise<InitialState['provider'] | undefined> => {
       if (!localWalletType) return
       try {
@@ -426,7 +501,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         })()
 
         if (maybeProvider) {
-          await setProviderEvents(maybeProvider, localWalletType)
+          setProviderEvents(maybeProvider, localWalletType, wallet)
           dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
           return maybeProvider
         }
@@ -434,9 +509,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (!isMobile) console.error(e)
       }
     },
-    // avoid being too reactive here and setting too many event listeners with setProviderEvents()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [setProviderEvents],
   )
 
   const load = useCallback(() => {
@@ -729,8 +802,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
             }
 
+            debugger
             // Re-trigger the modal on refresh
-            await onProviderChange(KeyManager.WalletConnectV2)
+            await onProviderChange(KeyManager.WalletConnectV2, null)
             const localWalletConnectWallet = await walletConnectV2Adapter?.pairDevice()
             if (localWalletConnectWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
@@ -770,78 +844,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
-
-  const handleAccountsOrChainChanged = useCallback(
-    async (localWalletType: KeyManagerWithProvider | null, accountsOrChains: string[] | string) => {
-      if (!localWalletType || !state.adapters) return
-
-      const _isLocked = Array.isArray(accountsOrChains) && accountsOrChains.length === 0
-
-      if (_isLocked) {
-        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
-        // Don't continue execution in case the wallet got locked, set it to locked and abort instead
-        return
-      }
-
-      // Either a change change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
-      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-
-      const adapter = await getAdapter(localWalletType)
-      const localWallet = await adapter?.pairDevice()
-
-      if (!localWallet) return
-
-      await localWallet.initialize()
-      const deviceId = await localWallet?.getDeviceID()
-
-      if (!deviceId) return
-
-      const { icon, name } = SUPPORTED_WALLETS[localWalletType]
-
-      dispatch({
-        type: WalletActions.SET_WALLET,
-        payload: {
-          wallet: localWallet,
-          name,
-          icon,
-          deviceId,
-          connectedType: localWalletType,
-        },
-      })
-    },
-    [getAdapter, state.adapters],
-  )
-
-  const setProviderEvents = useCallback(
-    async (
-      maybeProvider: InitialState['provider'],
-      localWalletType: KeyManagerWithProvider | null,
-    ) => {
-      if (!(maybeProvider && localWalletType)) return
-
-      maybeProvider?.on?.('accountsChanged', (e: string[]) => {
-        return handleAccountsOrChainChanged(localWalletType, e)
-      })
-      maybeProvider?.on?.('chainChanged', (e: string) => {
-        return handleAccountsOrChainChanged(localWalletType, e)
-      })
-      const adapter = await getAdapter(localWalletType)
-      const wallet = await adapter?.pairDevice()
-      if (wallet) {
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          maybeProvider?.removeListener?.('accountsChanged', (e: string[]) =>
-            handleAccountsOrChainChanged(localWalletType, e),
-          )
-          maybeProvider?.removeListener?.('chainChanged', (e: string) =>
-            handleAccountsOrChainChanged(localWalletType, e),
-          )
-          return oldDisconnect()
-        }
-      }
-    },
-    [handleAccountsOrChainChanged, getAdapter],
-  )
 
   const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

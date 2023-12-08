@@ -12,7 +12,7 @@ import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -350,6 +350,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
   const isDarkMode = useColorModeValue(false, true)
+  // Internal state, for memoization purposes only
+  const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
@@ -821,17 +823,24 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (!isMobile) console.error(e)
       }
     },
-    [setProviderEvents],
+    // avoid being too reactive here and setting too many event listeners with setProviderEvents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
 
   useEffect(() => {
     ;(async () => {
-      const localWalletType = getLocalWalletType()
-      if (!isKeyManagerWithProvider(localWalletType)) return
+      const _localWalletType = getLocalWalletType()
+      // no-op
+      if (_localWalletType === walletType) return
+      if (!_localWalletType) return
 
-      await onProviderChange(localWalletType)
+      if (!isKeyManagerWithProvider(_localWalletType)) return
+      setWalletType(_localWalletType)
+
+      await onProviderChange(_localWalletType)
     })()
-  }, [state.wallet, onProviderChange])
+  }, [state.wallet, onProviderChange, walletType])
 
   const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

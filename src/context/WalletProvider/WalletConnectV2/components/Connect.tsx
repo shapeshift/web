@@ -32,6 +32,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
     const adapter = await getAdapter(KeyManager.WalletConnectV2)
+    await onProviderChange(KeyManager.WalletConnectV2)
 
     try {
       if (adapter) {
@@ -40,7 +41,6 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
 
           // trigger the web3 modal
           const wallet = await adapter.pairDevice()
-          await onProviderChange(KeyManager.WalletConnectV2, wallet)
 
           if (!wallet) throw new WalletNotFoundError()
 

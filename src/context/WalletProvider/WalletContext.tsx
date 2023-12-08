@@ -1,4 +1,3 @@
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type React from 'react'
 import { createContext } from 'react'
 
@@ -19,7 +18,6 @@ export interface IWalletContext {
   connectDemo: () => Promise<void>
   onProviderChange: (
     localWalletType: KeyManagerWithProvider,
-    wallet: HDWallet | null,
   ) => Promise<InitialState['provider'] | undefined>
 }
 

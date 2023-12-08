@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { useColorModeValue, usePrevious } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
@@ -774,6 +774,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const handleAccountsOrChainChanged = useCallback(
     async (localWalletType: KeyManagerWithProvider | null, accountsOrChains: string[] | string) => {
       if (!localWalletType || !state.adapters) return
+
+      // Note, we NEED to use store.getState instead of the walletType variable above
+      // The reason is handleAccountsOrChainChanged exists in the context of a closure, hence will keep a stale reference forever
+      const _walletType = store.getState().localWalletSlice.walletType
+
+      // This shouldn't happen if event listeners are properly removed, but they may not be
+      // This fixes the case of switching from e.g MM, to another wallet, then switching accounts/chains in MM and MM becoming connected again
+      if (_walletType && localWalletType !== _walletType) return
 
       const _isLocked = Array.isArray(accountsOrChains) && accountsOrChains.length === 0
 

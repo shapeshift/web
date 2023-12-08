@@ -311,24 +311,6 @@ export const TradeInput = memo(() => {
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
-  const shouldDisablePreviewButton = useMemo(() => {
-    return (
-      quoteHasError ||
-      manualReceiveAddressIsValidating ||
-      isLoading ||
-      !isSellAmountEntered ||
-      !activeQuote ||
-      disableSmartContractSwap
-    )
-  }, [
-    activeQuote,
-    disableSmartContractSwap,
-    isLoading,
-    isSellAmountEntered,
-    manualReceiveAddressIsValidating,
-    quoteHasError,
-  ])
-
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
@@ -377,6 +359,38 @@ export const TradeInput = memo(() => {
   useEffect(() => {
     if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
   }, [isUnsafeQuote])
+
+  const quoteHasErrorExcludeUnsafe = useMemo(() => {
+    // If the only error is an UnsafeQuote error and the user has dismissed the notice, don't consider it an error
+    // that should disable the preview button - the user understands the risks and wishes to proceed
+    if (isUnsafeQuote && activeQuoteStatus.quoteErrors.length === 1 && isUnsafeQuoteNoticeDismissed)
+      return false
+
+    return quoteHasError
+  }, [
+    activeQuoteStatus.quoteErrors.length,
+    isUnsafeQuote,
+    isUnsafeQuoteNoticeDismissed,
+    quoteHasError,
+  ])
+
+  const shouldDisablePreviewButton = useMemo(() => {
+    return (
+      quoteHasErrorExcludeUnsafe ||
+      manualReceiveAddressIsValidating ||
+      isLoading ||
+      !isSellAmountEntered ||
+      !activeQuote ||
+      disableSmartContractSwap
+    )
+  }, [
+    activeQuote,
+    disableSmartContractSwap,
+    isLoading,
+    isSellAmountEntered,
+    manualReceiveAddressIsValidating,
+    quoteHasErrorExcludeUnsafe,
+  ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
     if (!isUnsafeQuote) return null
@@ -456,20 +470,26 @@ export const TradeInput = memo(() => {
         <ManualAddressEntry />
         {maybeUnsafeTradeWarning}
         <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-          {isUnsafeQuoteNoticeDismissed === false ? (
+          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
             <Button
               colorScheme='red'
               size='lg-multiline'
               mx={-2}
               // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => setIsUnsafeQuoteNoticeDismissed(true)}
+              onClick={() => {
+                // We don't want to *immediately* set this or there will be a "click-through"
+                // i.e the regular continue button will render immediately, and click will bubble to it
+                setTimeout(() => {
+                  setIsUnsafeQuoteNoticeDismissed(true)
+                }, 100)
+              }}
             >
               <Text translation={'defi.modals.saversVaults.understand'} />
             </Button>
           ) : (
             <Button
               type='submit'
-              colorScheme={quoteHasError ? 'red' : 'blue'}
+              colorScheme={quoteHasErrorExcludeUnsafe ? 'red' : 'blue'}
               size='lg-multiline'
               data-test='trade-form-preview-button'
               isDisabled={shouldDisablePreviewButton}
@@ -502,10 +522,11 @@ export const TradeInput = memo(() => {
       isFoxDiscountsEnabled,
       isLoading,
       isModeratePriceImpact,
+      isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
       maybeUnsafeTradeWarning,
       priceImpactPercentage,
-      quoteHasError,
+      quoteHasErrorExcludeUnsafe,
       rate,
       sellAsset.symbol,
       shapeShiftFee,

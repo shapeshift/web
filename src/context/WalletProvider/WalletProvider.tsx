@@ -821,8 +821,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (!isMobile) console.error(e)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [setProviderEvents],
   )
 
   useEffect(() => {

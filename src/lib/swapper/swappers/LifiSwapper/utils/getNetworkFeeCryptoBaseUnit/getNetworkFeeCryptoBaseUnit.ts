@@ -4,9 +4,8 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { calcNetworkFeeCryptoBaseUnit, isEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
@@ -23,13 +22,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   supportsEIP1559,
 }: GetNetworkFeeArgs) => {
   const lifi = getLifi()
-  const adapter = getChainAdapterManager().get(chainId)
-
-  if (!isEvmChainAdapter(adapter)) {
-    throw new Error('unsupported chain adapter', {
-      cause: { chainId },
-    })
-  }
+  const adapter = assertGetEvmChainAdapter(chainId)
 
   const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
   const { value, to, data, gasLimit } = transactionRequest ?? {}

@@ -4,6 +4,7 @@ import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
+  selectIsActiveQuoteMultiHop,
   selectSecondHop,
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -43,6 +44,7 @@ export const useIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const firstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
   const secondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
 
@@ -73,5 +75,5 @@ export const useIsApprovalInitiallyNeeded = () => {
     secondHop,
   ])
 
-  return { isLoading: isFirstHopLoading || isSecondHopLoading }
+  return { isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }
 }

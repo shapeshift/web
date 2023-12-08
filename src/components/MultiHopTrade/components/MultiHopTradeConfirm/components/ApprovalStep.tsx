@@ -56,14 +56,22 @@ export const ApprovalStep = ({
     isLoading: isAllowanceApprovalLoading,
   } = useAllowanceApproval(tradeQuoteStep, hopIndex, isExactAllowance)
 
+  const canAttemptApproval = useMemo(
+    () =>
+      [TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(
+        approvalTxState,
+      ),
+    [approvalTxState],
+  )
+
   const handleSignAllowanceApproval = useCallback(async () => {
-    if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation) {
+    if (!canAttemptApproval) {
       console.error('attempted to execute in-progress allowance approval')
       return
     }
 
     await executeAllowanceApproval()
-  }, [approvalTxState, executeAllowanceApproval])
+  }, [canAttemptApproval, executeAllowanceApproval])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =
@@ -148,7 +156,7 @@ export const ApprovalStep = ({
                 size='sm'
                 mx={2}
                 isChecked={isExactAllowance}
-                disabled={approvalTxState !== TransactionExecutionState.AwaitingConfirmation}
+                disabled={!canAttemptApproval}
                 onChange={toggleIsExactAllowance}
               />
               <Text
@@ -163,10 +171,7 @@ export const ApprovalStep = ({
             size='sm'
             leftIcon={leftIcon}
             colorScheme='blue'
-            disabled={
-              isAllowanceApprovalLoading ||
-              approvalTxState !== TransactionExecutionState.AwaitingConfirmation
-            }
+            disabled={isAllowanceApprovalLoading || !canAttemptApproval}
             isLoading={
               isAllowanceApprovalLoading || approvalTxState === TransactionExecutionState.Pending
             }
@@ -179,6 +184,7 @@ export const ApprovalStep = ({
     )
   }, [
     approvalTxState,
+    canAttemptApproval,
     handleSignAllowanceApproval,
     isActive,
     isAllowanceApprovalLoading,

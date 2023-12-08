@@ -62,12 +62,17 @@ export const useTradeExecution = (hopIndex: number) => {
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, _reject) => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
+
+      const onFail = (e: unknown) => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
+        showErrorToast(e)
+        resolve()
+      }
 
       const execution = new TradeExecution()
 
-      execution.on(TradeExecutionEvent.Error, reject)
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
@@ -78,11 +83,8 @@ export const useTradeExecution = (hopIndex: number) => {
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()
       })
-      execution.on(TradeExecutionEvent.Fail, e => {
-        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
-        showErrorToast(e)
-        resolve()
-      })
+      execution.on(TradeExecutionEvent.Fail, onFail)
+      execution.on(TradeExecutionEvent.Error, onFail)
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber

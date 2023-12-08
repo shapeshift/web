@@ -810,6 +810,7 @@
     "or": "or",
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
+    "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
     "toContinue": "to continue.",

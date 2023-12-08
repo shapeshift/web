@@ -121,7 +121,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
           return 'common.insufficientFunds'
         case ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance:
           return ['common.insufficientAmountForGas', { assetSymbol: firstHopSellFeeAsset?.symbol }]
-        case ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance:
+        case ActiveQuoteStatus.InsufficientSecondHopFeeAssetBalance:
           return ['common.insufficientAmountForGas', { assetSymbol: lastHopSellFeeAsset?.symbol }]
         case ActiveQuoteStatus.NoQuotesAvailableForTradePair:
           return 'trade.errors.invalidTradePairBtnText'

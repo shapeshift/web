@@ -14,11 +14,13 @@ import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectBuyAmountBeforeFeesCryptoBaseUnit,
+  selectFirstHopBuyAsset,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
   selectFirstHopTradeDeductionCryptoPrecision,
+  selectIsActiveQuoteMultiHop,
   selectLastHopBuyAsset,
-  selectLastHopNetworkFeeCryptoPrecision,
+  selectSecondHopNetworkFeeCryptoPrecision,
   selectSellAmountCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,20 +29,24 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
-    lastHopFeeAssetBalancePrecision,
+    secondHopFeeAssetBalancePrecision,
   } = useHopHelper()
   const wallet = useWallet().state.wallet
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
   const insufficientBalanceProtocolFeeMeta = useInsufficientBalanceProtocolFeeMeta()
 
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const sellAmountCryptoBaseUnit = useAppSelector(selectSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountBeforeFeesCryptoBaseUnit)
   const firstHopNetworkFeeCryptoPrecision = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
-  const lastHopNetworkFeeCryptoPrecision = useAppSelector(selectLastHopNetworkFeeCryptoPrecision)
+  const secondHopNetworkFeeCryptoPrecision = useAppSelector(
+    selectSecondHopNetworkFeeCryptoPrecision,
+  )
   const firstHopTradeDeductionCryptoPrecision = useAppSelector(
     selectFirstHopTradeDeductionCryptoPrecision,
   )
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
+  const intermediaryAsset = useAppSelector(selectFirstHopBuyAsset)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const useReceiveAddressArgs = useMemo(
     () => ({
@@ -61,6 +67,15 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
       wallet,
       isSnapInstalled,
     })
+  // multi-hop trades require the wallet supports the intermediary buy asset
+  // this will be the same as walletSupportsBuyAssetChain for single hop trades
+  const walletSupportsIntermediaryAssetChain =
+    intermediaryAsset &&
+    walletSupportsChain({
+      chainId: intermediaryAsset.chainId,
+      wallet,
+      isSnapInstalled,
+    })
   const walletSupportsBuyAssetChain =
     lastHopBuyAsset &&
     walletSupportsChain({
@@ -77,8 +92,8 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
-  const lastHopHasSufficientBalanceForGas = bnOrZero(lastHopFeeAssetBalancePrecision)
-    .minus(lastHopNetworkFeeCryptoPrecision)
+  const secondHopHasSufficientBalanceForGas = bnOrZero(secondHopFeeAssetBalancePrecision)
+    .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
     .gte(0)
 
   const feesExceedsSellAmount =
@@ -90,13 +105,17 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
       [
         !wallet && ActiveQuoteStatus.NoConnectedWallet,
         !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
+        !walletSupportsIntermediaryAssetChain &&
+          isMultiHopTrade &&
+          ActiveQuoteStatus.IntermediaryAssetNotNotSupportedByWallet,
         !walletSupportsBuyAssetChain &&
           !manualReceiveAddress &&
           ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
         !hasSufficientSellAssetBalance && ActiveQuoteStatus.InsufficientSellAssetBalance,
         !firstHopHasSufficientBalanceForGas &&
           ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
-        !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
+        !secondHopHasSufficientBalanceForGas &&
+          ActiveQuoteStatus.InsufficientSecondHopFeeAssetBalance,
         !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
         !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
         !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
@@ -107,20 +126,22 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
           ActiveQuoteStatus.NoQuotesAvailable,
       ].filter(isTruthy),
     [
-      feesExceedsSellAmount,
-      firstHopHasSufficientBalanceForGas,
-      hasSufficientSellAssetBalance,
-      insufficientBalanceProtocolFeeMeta,
-      isTradingActiveOnBuyPool,
-      isTradingActiveOnSellPool,
-      lastHopHasSufficientBalanceForGas,
-      manualReceiveAddress,
-      quotes.length,
-      receiveAddress,
-      sellAmountCryptoBaseUnit,
       wallet,
-      walletSupportsBuyAssetChain,
       walletSupportsSellAssetChain,
+      walletSupportsIntermediaryAssetChain,
+      isMultiHopTrade,
+      walletSupportsBuyAssetChain,
+      manualReceiveAddress,
+      hasSufficientSellAssetBalance,
+      firstHopHasSufficientBalanceForGas,
+      secondHopHasSufficientBalanceForGas,
+      receiveAddress,
+      isTradingActiveOnSellPool,
+      isTradingActiveOnBuyPool,
+      feesExceedsSellAmount,
+      insufficientBalanceProtocolFeeMeta,
+      quotes.length,
+      sellAmountCryptoBaseUnit,
     ],
   )
 

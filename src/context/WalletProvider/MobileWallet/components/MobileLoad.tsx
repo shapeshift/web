@@ -21,10 +21,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { MobileConfig } from '../config'
@@ -117,6 +114,7 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const translate = useTranslate()
@@ -169,8 +167,8 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-          setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
-          setLocalNativeWalletName(item?.label ?? 'label')
+          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)
           setError('walletProvider.shapeShift.load.error.pair')
@@ -179,7 +177,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         setError('walletProvider.shapeShift.load.error.pair')
       }
     },
-    [dispatch, getAdapter],
+    [dispatch, getAdapter, localWallet],
   )
 
   const handleDelete = useCallback(

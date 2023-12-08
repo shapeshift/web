@@ -14,6 +14,7 @@ import { swappersApi } from './apis/swappers/swappersApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
+import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
@@ -33,6 +34,7 @@ export const slices = {
   swappers,
   tradeQuoteSlice,
   snapshot,
+  localWalletSlice,
 }
 
 const preferencesPersistConfig = {
@@ -53,6 +55,7 @@ export const sliceReducers = {
   nft: nft.reducer,
   tradeQuoteSlice: tradeQuoteSlice.reducer,
   snapshot: snapshot.reducer,
+  localWalletSlice: localWalletSlice.reducer,
 }
 
 export const apiSlices = {

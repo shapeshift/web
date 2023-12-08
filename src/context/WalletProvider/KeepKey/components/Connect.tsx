@@ -13,7 +13,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { KeepKeyConfig } from '../config'
@@ -39,6 +39,7 @@ const translateError = (event: Event) => {
 
 export const KeepKeyConnect = () => {
   const { dispatch, getAdapter, state } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -109,7 +110,10 @@ export const KeepKeyConnect = () => {
         },
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-      setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+      localWallet.setLocalWalletTypeAndDeviceId(
+        KeyManager.KeepKey,
+        state.keyring.getAlias(deviceId),
+      )
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       console.error(e)
@@ -117,7 +121,7 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
+  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
   return (
     <>
       <ModalHeader>

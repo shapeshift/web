@@ -20,10 +20,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { NativeConfig } from '../config'
@@ -44,6 +41,7 @@ const walletButtonLeftIcon = (
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
@@ -105,8 +103,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
 
-        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
-        setLocalNativeWalletName(item.name)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')
       }

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -27,6 +27,7 @@ export interface MetaMaskSetupProps
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state, getAdapter, onProviderChange } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
@@ -70,7 +71,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
 
         await (async () => {
           const isMetaMask = await checkIsMetaMask(wallet)
@@ -99,6 +100,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     getAdapter,
     setErrorLoading,
     dispatch,
+    localWallet,
     isSnapsEnabled,
     showSnapModal,
     history,

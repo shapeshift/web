@@ -1,48 +1,31 @@
-import isEmpty from 'lodash/isEmpty'
+import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { KeyManager } from './KeyManager'
+import type { KeyManager } from './KeyManager'
 
-/**
- * Defining storage up here,
- * so it can be changed to other storage types easily
- */
-const storage = {
-  set: (key: string, value: string) => localStorage.setItem(key, value),
-  get: (key: string) => localStorage.getItem(key),
-  remove: (key: string) => localStorage.removeItem(key),
-}
+export const useLocalWallet = () => {
+  const dispatch = useAppDispatch()
 
-const LOCAL_WALLET_TYPE = 'localWalletType'
-const LOCAL_WALLET_DEVICE_ID = 'localWalletDeviceId'
-const LOCAL_NATIVE_WALLET_NAME = 'localNativeWalletName'
-const WALLETCONNECT_SESSION = 'walletconnect'
-
-export const setLocalWalletTypeAndDeviceId = (type: KeyManager, deviceId: string) => {
-  // If passed invalid data, clear local wallet data
-  if (isEmpty(type) || isEmpty(deviceId)) {
-    return clearLocalWallet()
+  const setLocalWalletTypeAndDeviceId = (type: KeyManager, deviceId: string) => {
+    dispatch(localWalletSlice.actions.setWalletTypeAndDeviceId({ type, deviceId }))
   }
-  storage.set(LOCAL_WALLET_TYPE, type)
-  storage.set(LOCAL_WALLET_DEVICE_ID, deviceId)
+
+  const clearLocalWallet = () => {
+    dispatch(localWalletSlice.actions.clearLocalWallet())
+  }
+  const setLocalNativeWalletName = (name: string) => {
+    dispatch(localWalletSlice.actions.setNativeWalletName(name))
+  }
+  const nativeLocalWalletName = useAppSelector(state => state.localWalletSlice.nativeWalletName)
+  const localWalletType = useAppSelector(state => state.localWalletSlice.walletType)
+  const localWalletDeviceId = useAppSelector(state => state.localWalletSlice.walletDeviceId)
+
+  return {
+    setLocalWalletTypeAndDeviceId,
+    clearLocalWallet,
+    setLocalNativeWalletName,
+    nativeLocalWalletName,
+    localWalletType,
+    localWalletDeviceId,
+  }
 }
-
-export const clearLocalWallet = () => {
-  storage.remove(LOCAL_WALLET_TYPE)
-  storage.remove(LOCAL_WALLET_DEVICE_ID)
-  storage.remove(LOCAL_NATIVE_WALLET_NAME)
-  storage.remove(WALLETCONNECT_SESSION)
-}
-
-export const getLocalWalletType = () => {
-  const type = storage.get(LOCAL_WALLET_TYPE) as KeyManager | null
-  if (type && Object.values(KeyManager).includes(type)) return type
-  return null
-}
-
-export const getLocalWalletDeviceId = () => storage.get(LOCAL_WALLET_DEVICE_ID)
-
-export const setLocalNativeWalletName = (name: string) => {
-  storage.set(LOCAL_NATIVE_WALLET_NAME, name)
-}
-
-export const getNativeLocalWalletName = () => storage.get(LOCAL_NATIVE_WALLET_NAME)

@@ -3,10 +3,7 @@ import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -21,6 +18,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
 
   useEffect(() => {
     ;(async () => {
@@ -50,8 +48,8 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
-        setLocalNativeWalletName(walletLabel)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        localWallet.setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
         //Set to show the native onboarding
         appDispatch(setWelcomeModal({ show: true }))

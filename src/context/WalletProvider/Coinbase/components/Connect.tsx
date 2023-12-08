@@ -3,7 +3,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -35,6 +35,8 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     })()
   }, [onProviderChange])
 
+  const localWallet = useLocalWallet()
+
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
@@ -57,7 +59,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        setLocalWalletTypeAndDeviceId(KeyManager.Coinbase, deviceId)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Coinbase, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e, 'Coinbase Connect: There was an error initializing the wallet')
@@ -66,7 +68,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history])
+  }, [dispatch, getAdapter, history, localWallet])
 
   return (
     <ConnectModal

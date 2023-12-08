@@ -4,7 +4,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -21,6 +21,7 @@ export interface XDEFISetupProps
 }
 
 export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
+  const { setLocalWalletTypeAndDeviceId } = useLocalWallet()
   const { dispatch, state, getAdapter, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -80,7 +81,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }, [getAdapter, state.provider, dispatch, history])
+  }, [getAdapter, state.provider, dispatch, setLocalWalletTypeAndDeviceId, history])
 
   return (
     <ConnectModal

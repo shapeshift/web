@@ -587,6 +587,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
 
             const localMetaMaskWallet = await metamaskAdapter?.pairDevice()
+            // Set the provider again on refresh to ensure event handlers are properly set
+            await onProviderChange(KeyManager.MetaMask, localMetaMaskWallet ?? null)
             if (localMetaMaskWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
               try {
@@ -624,6 +626,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
 
             const localCoinbaseWallet = await coinbaseAdapter?.pairDevice()
+            // Set the provider again on refresh to ensure event handlers are properly set
+            await onProviderChange(KeyManager.Coinbase, localCoinbaseWallet ?? null)
             if (localCoinbaseWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
               try {
@@ -661,6 +665,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
 
             const localXDEFIWallet = await xdefiAdapter?.pairDevice()
+            // Set the provider again on refresh to ensure event handlers are properly set
+            await onProviderChange(KeyManager.XDefi, localXDEFIWallet ?? null)
             if (localXDEFIWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
               try {
@@ -842,13 +848,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
+        const removeEventListeners = () => {
           maybeProvider?.removeListener?.('accountsChanged', (e: string[]) =>
             handleAccountsOrChainChanged(localWalletType, e),
           )
           maybeProvider?.removeListener?.('chainChanged', (e: string) =>
             handleAccountsOrChainChanged(localWalletType, e),
           )
+        }
+
+        wallet.disconnect = () => {
+          removeEventListeners()
           return oldDisconnect()
         }
       }

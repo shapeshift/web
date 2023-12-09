@@ -402,6 +402,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const onProviderChange = useCallback(
     async (
       localWalletType: KeyManagerWithProvider | null,
+      // consuming state.wallet in setProviderEvents below won't cut it because of stale closure references
+      // so we need to explicitly pass the wallet for which we're setting the provider events
+      wallet: HDWallet | null,
     ): Promise<InitialState['provider'] | undefined> => {
       if (!localWalletType) return
       try {
@@ -426,7 +429,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         })()
 
         if (maybeProvider) {
-          await setProviderEvents(maybeProvider, localWalletType)
+          setProviderEvents(maybeProvider, localWalletType, wallet)
           dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
           return maybeProvider
         }
@@ -729,9 +732,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
             }
 
-            // Re-trigger the modal on refresh
-            await onProviderChange(KeyManager.WalletConnectV2)
             const localWalletConnectWallet = await walletConnectV2Adapter?.pairDevice()
+            // Re-trigger the modal on refresh
+            await onProviderChange(KeyManager.WalletConnectV2, localWalletConnectWallet ?? null)
             if (localWalletConnectWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
               try {
@@ -821,9 +824,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   )
 
   const setProviderEvents = useCallback(
-    async (
+    (
       maybeProvider: InitialState['provider'],
       localWalletType: KeyManagerWithProvider | null,
+      // consuming state.wallet in setProviderEvents below won't cut it because of stale closure references
+      // so we need to explicitly pass the wallet for which we're setting the provider events
+      wallet: HDWallet | null,
     ) => {
       if (!(maybeProvider && localWalletType)) return
 
@@ -833,9 +839,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       maybeProvider?.on?.('chainChanged', (e: string) => {
         return handleAccountsOrChainChanged(localWalletType, e)
       })
-      const adapter = await getAdapter(localWalletType)
-      // TODO(gomes): this should be state.wallet, and should fine a way to make it work despite the stale clojure reference
-      const wallet = await adapter?.pairDevice()
+
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
@@ -849,7 +853,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         }
       }
     },
-    [handleAccountsOrChainChanged, getAdapter],
+    [handleAccountsOrChainChanged],
   )
 
   const connect = useCallback((type: KeyManager) => {

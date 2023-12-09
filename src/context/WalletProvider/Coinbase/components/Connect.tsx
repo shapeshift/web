@@ -35,7 +35,6 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     setError(null)
     setLoading(true)
 
-    await onProviderChange(KeyManager.Coinbase)
     const adapter = await getAdapter(KeyManager.Coinbase)
     if (adapter) {
       try {
@@ -44,6 +43,9 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-coinbase::pairDevice returned null or undefined')
         }
+
+        await onProviderChange(KeyManager.Coinbase, wallet)
+
         const { name, icon } = CoinbaseConfig
         const deviceId = await wallet.getDeviceID()
         const isLocked = await wallet.isLocked()

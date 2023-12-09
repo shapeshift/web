@@ -32,7 +32,6 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
     const adapter = await getAdapter(KeyManager.WalletConnectV2)
-    await onProviderChange(KeyManager.WalletConnectV2)
 
     try {
       if (adapter) {
@@ -43,6 +42,8 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
           const wallet = await adapter.pairDevice()
 
           if (!wallet) throw new WalletNotFoundError()
+
+          await onProviderChange(KeyManager.WalletConnectV2, wallet)
 
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
           dispatch({

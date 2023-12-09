@@ -43,12 +43,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setError(null)
     setLoading(true)
 
-    const provider = await onProviderChange(KeyManager.MetaMask)
-
-    if (!provider) {
-      throw new Error('walletProvider.metaMask.errors.connectFailure')
-    }
-
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
       const wallet = await adapter.pairDevice()
@@ -72,6 +66,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
+
+        const provider = await onProviderChange(KeyManager.MetaMask, wallet)
+
+        if (!provider) {
+          throw new Error('walletProvider.metaMask.errors.connectFailure')
+        }
 
         await (async () => {
           const isMetaMask = await checkIsMetaMask(wallet)

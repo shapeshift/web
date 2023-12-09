@@ -9,6 +9,7 @@ import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -45,6 +46,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
+      // Remove all provider event listeners from previously connected wallets
+      const ethersProvider = getEthersProvider()
+      ethersProvider.removeAllListeners('accountsChanged')
+
       const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')

@@ -137,6 +137,31 @@ export const isKeyManagerWithProvider = (
       ].includes(keyManager),
   )
 
+export const getMaybeProvider = async (
+  localWalletType: KeyManager | null,
+): Promise<InitialState['provider']> => {
+  if (!localWalletType) return null
+  if (!isKeyManagerWithProvider(localWalletType)) return null
+
+  if (localWalletType === KeyManager.MetaMask) {
+    return (await detectEthereumProvider()) as MetaMaskLikeProvider
+  }
+  if (localWalletType === KeyManager.XDefi) {
+    try {
+      return globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
+    } catch (error) {
+      throw new Error('walletProvider.xdefi.errors.connectFailure')
+    }
+  }
+
+  if (localWalletType === KeyManager.WalletConnectV2) {
+    // provider is created when getting the wallet in WalletConnectV2Connect pairDevice
+    return null
+  }
+
+  return null
+}
+
 const reducer = (state: InitialState, action: ActionTypes): InitialState => {
   switch (action.type) {
     case WalletActions.SET_ADAPTERS:
@@ -408,25 +433,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ): Promise<InitialState['provider'] | undefined> => {
       if (!localWalletType) return
       try {
-        const maybeProvider = await (async (): Promise<InitialState['provider']> => {
-          if (localWalletType === KeyManager.MetaMask) {
-            return (await detectEthereumProvider()) as MetaMaskLikeProvider
-          }
-          if (localWalletType === KeyManager.XDefi) {
-            try {
-              return globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
-            } catch (error) {
-              throw new Error('walletProvider.xdefi.errors.connectFailure')
-            }
-          }
-
-          if (localWalletType === KeyManager.WalletConnectV2) {
-            // provider is created when getting the wallet in WalletConnectV2Connect pairDevice
-            return null
-          }
-
-          return null
-        })()
+        const maybeProvider = await getMaybeProvider(localWalletType)
 
         if (maybeProvider) {
           setProviderEvents(maybeProvider, localWalletType, wallet)

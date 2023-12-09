@@ -40,6 +40,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
         // Remove all provider event listeners from previously connected wallets
         const ethersProvider = getEthersProvider()
         ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
 
         const wallet = (await adapter.pairDevice()) as XDEFIHDWallet | undefined
         if (!wallet) {

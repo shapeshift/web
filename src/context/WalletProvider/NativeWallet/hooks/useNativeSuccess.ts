@@ -27,8 +27,9 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
       if (!adapter) throw new Error('Native adapter not found')
       try {
         // remove all provider event listeners from previously connected wallets
-        const ethersprovider = getEthersProvider()
-        ethersprovider.removeAllListeners('accountschanged')
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
 
         await new Promise(resolve => setTimeout(resolve, 250))
         await Promise.all([navigator.storage?.persist?.(), vault.save()])

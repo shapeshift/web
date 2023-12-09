@@ -29,8 +29,9 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       if (!adapter) throw new Error('Native adapter not found')
       try {
         // remove all provider event listeners from previously connected wallets
-        const ethersprovider = getEthersProvider()
-        ethersprovider.removeAllListeners('accountschanged')
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
 
         const deviceId = vault.id ?? ''
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet

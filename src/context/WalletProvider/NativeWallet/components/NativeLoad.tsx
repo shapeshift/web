@@ -82,8 +82,9 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
       const { name, icon } = NativeConfig
       try {
         // remove all provider event listeners from previously connected wallets
-        const ethersprovider = getEthersProvider()
-        ethersprovider.removeAllListeners('accountschanged')
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
 
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {

@@ -62,6 +62,7 @@ export const KeepKeyConnect = () => {
         // Remove all provider event listeners from previously connected wallets
         const ethersProvider = getEthersProvider()
         ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
 
         const sdk = await setupKeepKeySDK()
 

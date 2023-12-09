@@ -150,8 +150,9 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
 
           // remove all provider event listeners from previously connected wallets
-          const ethersprovider = getEthersProvider()
-          ethersprovider.removeAllListeners('accountschanged')
+          const ethersProvider = getEthersProvider()
+          ethersProvider.removeAllListeners('accountsChanged')
+          ethersProvider.removeAllListeners('chainChanged')
 
           const wallet = await adapter.pairDevice(revoker.id)
           await wallet?.loadDevice({ mnemonic: revoker.mnemonic })

@@ -46,9 +46,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
-      // Remove all provider event listeners from previously connected wallets
       const ethersProvider = getEthersProvider()
       ethersProvider.removeAllListeners('accountsChanged')
+      ethersProvider.removeAllListeners('chainChanged')
 
       const wallet = await adapter.pairDevice()
       if (!wallet) {

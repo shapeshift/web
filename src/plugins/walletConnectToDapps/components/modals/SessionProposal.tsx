@@ -2,8 +2,10 @@ import { Alert, AlertIcon, AlertTitle, Button, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
+import { mergeWith } from 'lodash'
 import { DAppInfo } from 'plugins/walletConnectToDapps/components/DAppInfo'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { Permissions } from 'plugins/walletConnectToDapps/components/Permissions'
@@ -47,24 +49,45 @@ const checkAllNamespacesHaveAccounts = (
   )
 }
 
-const createApprovalNamespaces = (
-  requiredNamespaces: ProposalTypes.RequiredNamespaces,
+const _createApprovalNamespaces = (
+  proposalNamespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
   selectedAccounts: string[],
 ): SessionTypes.Namespaces => {
-  return Object.entries(requiredNamespaces).reduce(
-    (namespaces: SessionTypes.Namespaces, [key, requiredNamespace]) => {
+  return Object.entries(proposalNamespaces).reduce(
+    (namespaces: SessionTypes.Namespaces, [key, proposalNamespace]) => {
       const selectedAccountsForKey = selectedAccounts.filter(accountId => {
         const { chainNamespace } = fromAccountId(accountId)
         return chainNamespace === key
       })
       namespaces[key] = {
         accounts: selectedAccountsForKey,
-        methods: requiredNamespace.methods,
-        events: requiredNamespace.events,
+        methods: proposalNamespace.methods,
+        events: proposalNamespace.events,
       }
       return namespaces
     },
     {},
+  )
+}
+
+const createApprovalNamespaces = (
+  requiredNamespaces: ProposalTypes.RequiredNamespaces,
+  optionalNamespaces: ProposalTypes.OptionalNamespaces,
+  selectedAccounts: string[],
+): SessionTypes.Namespaces => {
+  // tell lodash to concat array but merge everything else
+  const concatArrays = (objValue: unknown, srcValue: unknown) => {
+    if (Array.isArray(objValue)) {
+      return objValue.concat(srcValue)
+    }
+  }
+
+  // do a deep merge of the optional and required namespace approval objects
+  // but with a concat for the arrays so values stored on the same index aren't overwritten
+  return mergeWith(
+    _createApprovalNamespaces(requiredNamespaces, selectedAccounts),
+    _createApprovalNamespaces(optionalNamespaces, selectedAccounts),
+    concatArrays,
   )
 }
 
@@ -124,8 +147,10 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         Object.entries(optionalNamespaces)
           .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
             namespace.chains = namespace.chains?.filter(chainId => {
-              const isRequired = requiredNamespaces[key].chains?.includes(chainId)
-              const isSupported = walletSupportsChain({ chainId, wallet, isSnapInstalled: false })
+              const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
+              const isSupported =
+                Object.values(KnownChainIds).includes(chainId as KnownChainIds) &&
+                walletSupportsChain({ chainId, wallet, isSnapInstalled: false })
               return !isRequired && isSupported
             })
 
@@ -137,9 +162,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       )
     }, [optionalNamespaces, requiredNamespaces, wallet])
 
-    const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
-      requiredNamespaces,
-      selectedAccountIds,
+    const approvalNamespaces: SessionTypes.Namespaces = useMemo(
+      () => createApprovalNamespaces(requiredNamespaces, optionalNamespaces, selectedAccountIds),
+      [optionalNamespaces, requiredNamespaces, selectedAccountIds],
     )
 
     const handleApprove = useCallback(async () => {
@@ -152,6 +177,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       }
 
       setIsLoading(true)
+
+      console.log(approvalNamespaces)
 
       const session = await web3wallet.approveSession({
         id: proposal.id,

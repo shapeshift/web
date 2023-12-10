@@ -47,9 +47,16 @@ export const tradeQuoteSlice = createSlice({
       state.confirmedQuote = undefined
       state.tradeExecution = initialTradeExecutionState
     },
+    setTradeInitialized: state => {
+      state.tradeExecution.state = TradeExecutionState.Previewing
+    },
     confirmTrade: state => {
       if (state.tradeExecution.state !== TradeExecutionState.Previewing) {
-        console.error('attempted to confirm an in-progress trade')
+        if (state.tradeExecution.state === TradeExecutionState.Initializing) {
+          console.error('attempted to confirm an uninitialized trade')
+        } else {
+          console.error('attempted to confirm an in-progress trade')
+        }
         return
       }
       state.tradeExecution.state = TradeExecutionState.FirstHop

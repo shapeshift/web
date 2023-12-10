@@ -28,7 +28,7 @@ const queryKey = ({
     {
       accountNumber,
       allowanceContract,
-      blockNumber,
+      blockNumber: blockNumber?.toString(), // manual stringify of bigint since it's not JSON serializable by default
       chainId,
       assetId,
       accountId,

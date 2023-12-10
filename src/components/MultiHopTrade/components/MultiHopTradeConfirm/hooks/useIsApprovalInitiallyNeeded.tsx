@@ -43,18 +43,18 @@ export const useIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
-  const FirstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const SecondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
+  const firstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const secondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
 
   const {
     isLoading: isFirstHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
-  } = useIsApprovalInitiallyNeededForHop(firstHop, FirstHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(firstHop, firstHopSellAssetAccountId)
 
   const {
     isLoading: isSecondHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
-  } = useIsApprovalInitiallyNeededForHop(secondHop, SecondHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(secondHop, secondHopSellAssetAccountId)
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
@@ -72,4 +72,6 @@ export const useIsApprovalInitiallyNeeded = () => {
     isSecondHopLoading,
     secondHop,
   ])
+
+  return { isLoading: isFirstHopLoading || isSecondHopLoading }
 }

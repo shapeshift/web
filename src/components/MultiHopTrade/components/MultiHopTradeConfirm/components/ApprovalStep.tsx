@@ -43,7 +43,7 @@ export const ApprovalStep = ({
 
   const {
     approval: { txHash, state: approvalTxState },
-  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
     () => approvalTxState === TransactionExecutionState.Failed,

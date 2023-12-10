@@ -7,22 +7,12 @@ import { assertUnreachable } from 'lib/utils'
 
 import { GetAllowanceErr } from '../../../hooks/useAllowanceApproval/helpers'
 
-export type UseIsApprovalNeededProps = {
-  watch: boolean
-  tradeQuoteStep: TradeQuoteStep | undefined
-  sellAssetAccountId: AccountId | undefined
-}
-
-export const useIsApprovalNeeded = ({
-  watch,
-  tradeQuoteStep,
-  sellAssetAccountId,
-}: UseIsApprovalNeededProps) => {
-  const { isLoading, data } = useAllowance({
-    sellAssetAccountId,
-    tradeQuoteStep,
-    watch,
-  })
+export const useIsApprovalNeeded = (
+  tradeQuoteStep: TradeQuoteStep | undefined,
+  sellAssetAccountId: AccountId | undefined,
+  watch: boolean,
+) => {
+  const { isLoading, data } = useAllowance(tradeQuoteStep, sellAssetAccountId, watch)
 
   const isApprovalNeeded = useMemo(() => {
     if (tradeQuoteStep === undefined) return undefined

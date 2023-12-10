@@ -35,14 +35,11 @@ const queryKey = ({
     },
   ] as const
 
-export type UseAllowanceProps = {
-  sellAssetAccountId: AccountId | undefined
-  tradeQuoteStep: TradeQuoteStep | undefined
-  watch: boolean
-}
-
-// TODO: use this pattern for all allowance and trade execution hooks
-export function useAllowance({ sellAssetAccountId, tradeQuoteStep, watch }: UseAllowanceProps) {
+export function useAllowance(
+  tradeQuoteStep: TradeQuoteStep | undefined,
+  sellAssetAccountId: AccountId | undefined,
+  watch: boolean,
+) {
   const {
     state: { wallet },
   } = useWallet()

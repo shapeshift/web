@@ -116,14 +116,7 @@ export const getLongtailToL1Quote = async (
   )
 
   return thorchainQuotes
-    .mapErr(e => {
-      console.error(e)
-      return makeSwapErrorRight({
-        message: 'makeSwapperAxiosServiceMonadic',
-        cause: e,
-        code: SwapErrorType.QUERY_FAILED,
-      })
-    })
+    .mapErr(e => e) // getL1quote already returns a useful error, return that if it exists
     .andThen(quotes => {
       const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
         ...q,

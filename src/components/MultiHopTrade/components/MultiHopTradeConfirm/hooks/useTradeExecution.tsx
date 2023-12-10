@@ -62,7 +62,7 @@ export const useTradeExecution = (hopIndex: number) => {
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    return new Promise<void>(async (resolve, _reject) => {
+    return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
       const onFail = (e: unknown) => {

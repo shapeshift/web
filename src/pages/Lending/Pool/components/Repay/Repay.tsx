@@ -151,7 +151,6 @@ const RepayRoutes = memo(
       () => (
         <RepayConfirm
           collateralAssetId={collateralAssetId}
-          repaymentPercent={repaymentPercent}
           setRepaymentPercent={onRepaymentPercentChange}
           collateralAccountId={collateralAccountId}
           repaymentAccountId={repaymentAccountId}
@@ -164,7 +163,6 @@ const RepayRoutes = memo(
       ),
       [
         collateralAssetId,
-        repaymentPercent,
         onRepaymentPercentChange,
         collateralAccountId,
         repaymentAccountId,

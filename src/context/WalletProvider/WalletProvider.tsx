@@ -7,7 +7,6 @@ import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
-import type WalletConnectProvider from '@walletconnect/web3-provider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
@@ -97,7 +96,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
-  provider: MetaMaskLikeProvider | WalletConnectProvider | EthereumProviderType | null
+  provider: MetaMaskLikeProvider | EthereumProviderType | null
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean

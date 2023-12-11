@@ -45,7 +45,6 @@ import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimate
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectMarketDataById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -56,7 +55,6 @@ import { RepayRoutePaths } from './types'
 type RepayConfirmProps = {
   collateralAssetId: AssetId
   repaymentAsset: Asset | null
-  repaymentPercent: number
   setRepaymentPercent: (percent: number) => void
   collateralAccountId: AccountId
   repaymentAccountId: AccountId
@@ -69,7 +67,6 @@ type RepayConfirmProps = {
 export const RepayConfirm = ({
   collateralAssetId,
   repaymentAsset,
-  repaymentPercent,
   setRepaymentPercent,
   collateralAccountId,
   repaymentAccountId,
@@ -81,13 +78,6 @@ export const RepayConfirm = ({
   const {
     state: { wallet },
   } = useWallet()
-
-  const repaymentPercentOrDefault = useMemo(() => {
-    const repaymentPercentBn = bnOrZero(repaymentPercent)
-    // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
-    if (!repaymentPercentBn.eq(100)) return repaymentPercent
-    return repaymentPercentBn.plus('1').toNumber()
-  }, [repaymentPercent])
 
   const [isLoanPending, setIsLoanPending] = useState(false)
   const [isQuoteExpired, setIsQuoteExpired] = useState(false)
@@ -107,11 +97,13 @@ export const RepayConfirm = ({
       txId: string
       expectedCompletionTime?: number
     }) => {
+      if (!confirmedQuote) throw new Error('Cannot fetch THOR Tx status withut a confirmed quote')
+
       // Enforcing outbound checks when repaying 100% since that will trigger a collateral refund transfer
       // which we *want* to wait for before considering the repay as complete
       await waitForThorchainUpdate({
         txId: _txId,
-        skipOutbound: bn(repaymentPercentOrDefault).lt(101),
+        skipOutbound: bn(confirmedQuote.repaymentPercentOrDefault).lt(101),
         expectedCompletionTime,
       }).promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
@@ -151,31 +143,6 @@ export const RepayConfirm = ({
 
   const divider = useMemo(() => <Divider />, [])
 
-  const { data: lendingPositionData } = useLendingPositionData({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-  })
-
-  const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
-
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
-      .times(lendingPositionData.debtBalanceFiatUserCurrency)
-      .div(100)
-
-    return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercentOrDefault])
-
-  const repaymentAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
-  )
-
-  const repaymentAmountCryptoPrecision = useMemo(() => {
-    if (!repaymentAmountFiatUserCurrency) return null
-
-    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
-  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
-
   const chainAdapter = getChainAdapterManager().get(
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
   )
@@ -196,15 +163,17 @@ export const RepayConfirm = ({
       collateralAssetId,
       collateralAccountId,
       repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent,
       repaymentAccountId,
+      // Use the previously locked quote's repayment perecent to refetch a quote after expiry
+      // This is locked in the confirmed quote and should never be programmatic, or we risk being off-by-one and missing a bit of dust for 100% repayments
+      repaymentPercent: confirmedQuote?.repaymentPercentOrDefault ?? 0,
     }),
     [
       collateralAccountId,
       collateralAssetId,
       repaymentAccountId,
       repaymentAsset?.assetId,
-      repaymentPercent,
+      confirmedQuote?.repaymentPercentOrDefault,
     ],
   )
 
@@ -232,19 +201,26 @@ export const RepayConfirm = ({
         repaymentAsset &&
         wallet &&
         chainAdapter &&
-        confirmedQuote &&
-        repaymentAmountCryptoPrecision &&
+        confirmedQuote?.repaymentAmountCryptoPrecision &&
         repaymentAccountNumber !== undefined
       )
     )
       return
+
+    // This should never happen, but if it does, we don't want to rug our testing accounts and have to wait 30.5 more days before testing again
+    if (
+      bn(confirmedQuote.repaymentPercentOrDefault).gte(100) &&
+      bn(confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision).isZero()
+    ) {
+      throw new Error('100% repayments should trigger a collateral refund transfer')
+    }
 
     setIsLoanPending(true)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
     const estimatedFees = await estimateFees({
-      cryptoAmount: repaymentAmountCryptoPrecision,
+      cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,
       memo: supportedEvmChainIds.includes(fromAssetId(repaymentAsset.assetId).chainId)
         ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
@@ -266,7 +242,7 @@ export const RepayConfirm = ({
           const { txToSign } = await adapter.buildDepositTransaction({
             from: account,
             accountNumber: repaymentAccountNumber,
-            value: bnOrZero(repaymentAmountCryptoPrecision)
+            value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
               .times(bn(10).pow(repaymentAsset.precision))
               .toFixed(0),
             memo: confirmedQuote.quoteMemo,
@@ -290,7 +266,7 @@ export const RepayConfirm = ({
 
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
-        cryptoAmount: repaymentAmountCryptoPrecision,
+        cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
         assetId: repaymentAsset.assetId,
         from: '',
         to: confirmedQuote.quoteInboundAddress,
@@ -329,7 +305,6 @@ export const RepayConfirm = ({
     refetchQuote,
     repaymentAccountId,
     repaymentAccountNumber,
-    repaymentAmountCryptoPrecision,
     repaymentAsset,
     selectedCurrency,
     setConfirmedQuote,
@@ -436,7 +411,8 @@ export const RepayConfirm = ({
                 <Skeleton isLoaded={Boolean(confirmedQuote)}>
                   <Stack spacing={1} flexDir='row' flexWrap='wrap'>
                     <Amount.Crypto
-                      value={repaymentAmountCryptoPrecision ?? '0'}
+                      // Actually defined at display time, see isLoaded above
+                      value={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
                       symbol={repaymentAsset?.symbol ?? ''}
                     />
                     <Amount.Fiat
@@ -508,8 +484,8 @@ export const RepayConfirm = ({
             confirmedQuote={confirmedQuote}
             repaymentAsset={repaymentAsset}
             collateralAssetId={collateralAssetId}
-            repaymentPercent={repaymentPercentOrDefault ?? 0}
-            repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
+            repaymentPercent={confirmedQuote?.repaymentPercentOrDefault ?? 0}
+            repayAmountCryptoPrecision={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
             }

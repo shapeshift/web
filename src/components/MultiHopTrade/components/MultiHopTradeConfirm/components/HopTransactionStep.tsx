@@ -46,7 +46,7 @@ export const HopTransactionStep = ({
 
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash },
-  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 

@@ -12,7 +12,7 @@ const initialHopState = {
 }
 
 export const initialTradeExecutionState = {
-  state: TradeExecutionState.Previewing,
+  state: TradeExecutionState.Initializing,
   firstHop: initialHopState,
   secondHop: initialHopState,
 }

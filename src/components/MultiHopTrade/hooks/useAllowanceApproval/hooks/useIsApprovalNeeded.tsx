@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuoteStep } from 'lib/swapper/types'
-import { selectFirstHopSellAccountId } from 'state/slices/selectors'
-import { selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
@@ -13,8 +12,9 @@ export const useIsApprovalNeeded = (tradeQuoteStep: TradeQuoteStep, isFirstHop: 
   const [isApprovalNeeded, setIsApprovalNeeded] = useState<boolean | undefined>(undefined)
   const { poll } = usePoll()
   const wallet = useWallet().state.wallet
-  const sellAssetAccountId = useAppSelector(
-    isFirstHop ? selectFirstHopSellAccountId : selectLastHopSellAccountId,
+
+  const sellAssetAccountId = useAppSelector(state =>
+    selectHopSellAccountId(state, isFirstHop ? 0 : 1),
   )
 
   useEffect(() => {

@@ -105,7 +105,14 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return tradeExecutionState === TradeExecutionState.Previewing ? (
+  const isLoading = useMemo(
+    () => tradeExecutionState === TradeExecutionState.Initializing,
+    [tradeExecutionState],
+  )
+
+  return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+    tradeExecutionState,
+  ) ? (
     <CardFooter
       flexDir='column'
       gap={2}
@@ -135,6 +142,7 @@ export const Footer = () => {
         size='lg'
         width='full'
         onClick={handleConfirm}
+        isLoading={isLoading}
       >
         <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
       </Button>

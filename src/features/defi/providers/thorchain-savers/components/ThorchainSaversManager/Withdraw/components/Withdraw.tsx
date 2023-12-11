@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
@@ -24,7 +24,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,6 +42,7 @@ import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
   useGetThorchainSaversWithdrawQuoteQuery,
 } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -245,8 +245,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
-        const chainAdapters = getChainAdapterManager()
-
         if (isTokenWithdraw) {
           if (!saversRouterContractAddress)
             return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
@@ -310,7 +308,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const quote = maybeQuote.unwrap()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
-        const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+        const adapter = assertGetUtxoChainAdapter(chainId)
         const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
           to: quote.inbound_address,
           value: dustAmountCryptoBaseUnit,

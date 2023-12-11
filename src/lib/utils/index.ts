@@ -1,12 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { AssetReference } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
+import type { AssetReference, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { NestedArray } from '@shapeshiftoss/types'
+import type { KnownChainIds, NestedArray } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -15,6 +16,7 @@ import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 export const isKeepKeyHDWallet = (wallet: HDWallet): wallet is KeepKeyHDWallet => {
   return wallet.getVendor() === 'KeepKey'
@@ -216,4 +218,29 @@ export const timeout = <Left, Right>(
       }, timeoutMs),
     ),
   ])
+}
+
+export const getSupportedChainIdsByChainNamespace = () => {
+  return Array.from(getChainAdapterManager().keys()).reduce<Record<ChainNamespace, ChainId[]>>(
+    (acc, chainId) => {
+      const { chainNamespace } = fromChainId(chainId)
+      if (!acc[chainNamespace]) acc[chainNamespace] = []
+      acc[chainNamespace].push(chainId)
+      return acc
+    },
+    {} as Record<ChainNamespace, ChainId[]>,
+  )
+}
+
+export const assertGetChainAdapter = (
+  chainId: ChainId | KnownChainIds,
+): ChainAdapter<KnownChainIds> => {
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(chainId)
+
+  if (adapter === undefined) {
+    throw Error(`chain adapter not found for chain id ${chainId}`)
+  }
+
+  return adapter as unknown as ChainAdapter<KnownChainIds>
 }

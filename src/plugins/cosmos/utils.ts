@@ -1,14 +1,13 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type {
   cosmossdk,
-  CosmosSdkBaseAdapter,
   CosmosSdkChainId,
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 export type FeePriceValueHuman = {
   fiatFee: string
@@ -45,10 +44,7 @@ export const getFormFees = async (asset: Asset, userCurrencyRate: string) => {
     },
   }
 
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(
-    fromAssetId(asset.assetId).chainId,
-  ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+  const adapter = assertGetCosmosSdkChainAdapter(fromAssetId(asset.assetId).chainId)
 
   const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
   const feeData = await adapter.getFeeData(getFeeDataInput)

@@ -38,7 +38,7 @@ const canvasStyle: CSSProperties = {
 }
 
 export const AuroraBackground: React.FC = props => {
-  const canvasRefB = useRef(null)
+  const canvasRefB = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     let center = [0, 0]
@@ -47,9 +47,12 @@ export const AuroraBackground: React.FC = props => {
     let rayProps: Float32Array
     let animationFrameId: number
     const canvasA = document.createElement('canvas')
-    const canvasB: HTMLCanvasElement = canvasRefB.current as unknown as HTMLCanvasElement
-    const ctxA = canvasA.getContext('2d') as unknown as CanvasRenderingContext2D
-    const ctxB = canvasB.getContext('2d') as unknown as CanvasRenderingContext2D
+    const canvasB: HTMLCanvasElement | null = canvasRefB.current
+    const ctxA: CanvasRenderingContext2D | null = canvasA.getContext('2d')
+    const ctxB: CanvasRenderingContext2D | null =
+      canvasB !== null ? canvasB.getContext('2d') : canvasB
+
+    if (canvasB === null || ctxA === null || ctxB === null) return
 
     const setup = () => {
       resize()

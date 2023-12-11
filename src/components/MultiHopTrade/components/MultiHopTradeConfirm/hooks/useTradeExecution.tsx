@@ -15,14 +15,11 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  selectFirstHopSellAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectSecondHopSellAccountId,
+  selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -34,9 +31,7 @@ export const useTradeExecution = (hopIndex: number) => {
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
 
-  const sellAssetAccountId = useAppSelector(
-    hopIndex === 0 ? selectFirstHopSellAccountId : selectSecondHopSellAccountId,
-  )
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),

@@ -77,8 +77,8 @@ const createApprovalNamespaces = (
 ): SessionTypes.Namespaces => {
   // tell lodash to concat array but merge everything else
   const concatArrays = (objValue: unknown, srcValue: unknown) => {
-    if (Array.isArray(objValue)) {
-      return objValue.concat(srcValue)
+    if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+      return Array.from(new Set([...objValue, ...srcValue]))
     }
   }
 

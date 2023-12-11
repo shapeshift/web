@@ -1,7 +1,7 @@
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 

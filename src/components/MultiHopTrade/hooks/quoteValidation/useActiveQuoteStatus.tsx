@@ -1,5 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapErrorType } from '@shapeshiftoss/swapper'
+import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
@@ -9,7 +9,6 @@ import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapperName } from 'lib/swapper/types'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,

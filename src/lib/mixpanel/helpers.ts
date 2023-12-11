@@ -1,14 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
-export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string | null => {
+export const mapMixpanelPathname = (pathname: string, assets: AssetsByIdPartial): string | null => {
   switch (true) {
     case pathname.startsWith('/dashboard/accounts/'): {
       return null
@@ -35,7 +34,10 @@ export const assetToCompositeSymbol = (asset: Asset): string => {
   return `${networkName}.${asset?.symbol}`
 }
 
-export const getMaybeCompositeAssetSymbol = (assetId: AssetId, assetsById: AssetsById): string => {
+export const getMaybeCompositeAssetSymbol = (
+  assetId: AssetId,
+  assetsById: AssetsByIdPartial,
+): string => {
   const asset = assetsById[assetId]
   if (!asset) return assetId // better than 'unknown asset'
   return assetToCompositeSymbol(asset)
@@ -44,7 +46,7 @@ export const getMaybeCompositeAssetSymbol = (assetId: AssetId, assetsById: Asset
 export const trackOpportunityEvent = (
   event: MixPanelEvents,
   properties: TrackOpportunityProps,
-  assetsById: AssetsById,
+  assetsById: AssetsByIdPartial,
 ) => {
   const mixpanel = getMixPanel()
   const { opportunity, cryptoAmounts, fiatAmounts, element } = properties

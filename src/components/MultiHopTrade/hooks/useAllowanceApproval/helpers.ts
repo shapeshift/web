@@ -4,12 +4,12 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { type evm, type EvmChainAdapter, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
-import type { TradeQuote } from 'lib/swapper/types'
 import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
 
 export type GetAllowanceArgs = {

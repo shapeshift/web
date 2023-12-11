@@ -2,8 +2,8 @@ import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

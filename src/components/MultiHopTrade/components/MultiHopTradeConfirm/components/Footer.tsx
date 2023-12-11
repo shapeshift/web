@@ -8,6 +8,7 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -15,7 +16,6 @@ import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapperName } from 'lib/swapper/types'
 import {
   selectActiveSwapperName,
   selectLastHopBuyAsset,

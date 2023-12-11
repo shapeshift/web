@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params, PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
+import type { AccountMetadataById, PartialRecord } from '@shapeshiftoss/types'
 import type { Nominal } from 'types/common'
 
 export type PortfolioAccount = {
@@ -27,15 +27,6 @@ export type PortfolioAccountBalancesById = {
 export type PortfolioAccountBalances = {
   byId: PortfolioAccountBalancesById
   ids: AccountId[]
-}
-
-export type AccountMetadata = {
-  bip44Params: BIP44Params
-  accountType?: UtxoAccountType
-}
-
-export type AccountMetadataById = {
-  [k: AccountId]: AccountMetadata
 }
 
 export type PortfolioAccountMetadata = {

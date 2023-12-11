@@ -33,7 +33,8 @@ const getAssetService = () => {
   return service
 }
 
-export type AssetsById = PartialRecord<AssetId, Asset>
+export type AssetsById = Record<AssetId, Asset>
+export type PartialAssetsById = PartialRecord<AssetId, Asset>
 
 export type AssetsState = {
   byId: AssetsById

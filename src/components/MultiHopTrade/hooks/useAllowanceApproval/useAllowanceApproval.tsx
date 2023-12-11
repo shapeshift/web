@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { TradeQuoteStep } from 'lib/swapper/types'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 
 import { useApprovalTx } from './hooks/useApprovalTx'
 import { useExecuteAllowanceApproval } from './hooks/useExecuteAllowanceApproval'

@@ -1,16 +1,16 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads/build'
-import { v4 as uuid } from 'uuid'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedEvmTransactionArgs,
+  SwapErrorRight,
   SwapperApi,
   TradeQuote,
-} from 'lib/swapper/types'
+} from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads/build'
+import { v4 as uuid } from 'uuid'
 import { checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'

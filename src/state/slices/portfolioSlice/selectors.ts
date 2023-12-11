@@ -1,7 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params, PartialRecord } from '@shapeshiftoss/types'
+import type {
+  AccountMetadata,
+  AccountMetadataById,
+  BIP44Params,
+  PartialRecord,
+} from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -63,8 +68,6 @@ import {
   getUnderlyingAssetIdsBalances,
 } from '../opportunitiesSlice/utils'
 import type {
-  AccountMetadata,
-  AccountMetadataById,
   AssetBalancesById,
   AssetEquityBalance,
   AssetEquityItem,

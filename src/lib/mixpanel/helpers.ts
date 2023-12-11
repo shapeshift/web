@@ -1,8 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'

@@ -1,9 +1,9 @@
 import type { LifiStep } from '@lifi/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ProtocolFee } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/types'
 
 import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'

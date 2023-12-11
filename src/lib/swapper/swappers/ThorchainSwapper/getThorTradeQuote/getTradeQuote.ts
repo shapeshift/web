@@ -1,12 +1,11 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 

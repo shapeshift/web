@@ -1,4 +1,5 @@
-import { makeSwapErrorRight } from '@shapeshiftoss/swapper'
+import type { Swapper, SwapperApi } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapperName } from '@shapeshiftoss/swapper'
 import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
@@ -9,9 +10,6 @@ import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
-
-import type { Swapper, SwapperApi } from './types'
-import { SwapperName } from './types'
 
 export const QUOTE_TIMEOUT_MS = 10_000
 

@@ -1,4 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+
+import type { PartialRecord } from './utility'
 
 export type BIP44Params = {
   purpose: number
@@ -57,3 +59,13 @@ export type Asset = {
 }
 
 export type AssetsById = Record<AssetId, Asset>
+export type AssetsByIdPartial = PartialRecord<AssetId, Asset>
+
+export type AccountMetadata = {
+  bip44Params: BIP44Params
+  accountType?: UtxoAccountType
+}
+
+export type AccountMetadataById = {
+  [k: AccountId]: AccountMetadata
+}

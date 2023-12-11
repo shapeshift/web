@@ -9,7 +9,7 @@ import {
   GetAllowanceErr,
 } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuoteStep } from 'lib/swapper/types'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 
 import { useBlockNumber } from './useBlockNumber'
 

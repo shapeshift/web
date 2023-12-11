@@ -1,14 +1,14 @@
 import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
-import { ethers } from 'ethers'
-import { isHexString } from 'ethers/lib/utils.js'
 import type {
   BuyAssetBySellIdInput,
   EvmMessageExecutionProps,
   EvmMessageToSign,
   Swapper,
-} from 'lib/swapper/types'
+} from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
+import { ethers } from 'ethers'
+import { isHexString } from 'ethers/lib/utils.js'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'

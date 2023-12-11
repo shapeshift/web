@@ -1,9 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { FromOrXpub } from '@shapeshiftoss/swapper'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { FromOrXpub } from 'lib/swapper/types'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 export type WithFromOrXpubParams = {

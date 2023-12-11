@@ -1,7 +1,7 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { Err, Ok } from '@sniptt/monads'
 import { isTradingActive } from 'components/MultiHopTrade/utils'
-import { SwapperName } from 'lib/swapper/types'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 jest.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', () => ({

@@ -1,11 +1,15 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import {
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapErrorType,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
-import type { GetEvmTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import {
   addBasisPointAmount,

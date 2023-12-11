@@ -11,8 +11,8 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

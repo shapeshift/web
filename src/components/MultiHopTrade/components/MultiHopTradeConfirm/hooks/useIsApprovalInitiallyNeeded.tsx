@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,

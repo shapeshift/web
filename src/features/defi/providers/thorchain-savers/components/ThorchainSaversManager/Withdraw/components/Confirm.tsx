@@ -15,6 +15,7 @@ import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -48,7 +49,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,

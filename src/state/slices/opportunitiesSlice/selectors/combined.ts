@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
@@ -15,7 +15,6 @@ import {
   selectIncludeRewardsBalancesParamFromFilter,
   selectSearchQueryFromFilter,
 } from 'state/selectors'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {
@@ -337,7 +336,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     const searchOpportunities = <T extends LpEarnOpportunityType | StakingEarnOpportunityType>(
       searchQuery: string | undefined,
       combined: T[],
-      assets: AssetsById,
+      assets: AssetsByIdPartial,
     ): T[] => {
       if (!searchQuery) return combined
 

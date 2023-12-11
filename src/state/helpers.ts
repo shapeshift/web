@@ -1,4 +1,5 @@
-import { SwapperName } from '../lib/swapper/types'
+import { SwapperName } from '@shapeshiftoss/swapper'
+
 import { assertUnreachable } from '../lib/utils'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {

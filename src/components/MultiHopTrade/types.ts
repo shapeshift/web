@@ -1,9 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { GetTradeQuoteInput, SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { GetTradeQuoteInput } from 'lib/swapper/types'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export type StepperStep = {
   title: string
@@ -31,6 +29,7 @@ export enum ActiveQuoteStatus {
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   NoQuotesAvailable = 'NoQuotesAvailable',
+  UnsafeQuote = 'UnsafeQuote',
   UnknownError = 'UnknownError',
 }
 

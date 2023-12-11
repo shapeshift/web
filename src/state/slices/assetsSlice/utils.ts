@@ -15,9 +15,9 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
-import type { AssetsById, AssetsState } from './assetsSlice'
+import type { AssetsState } from './assetsSlice'
 import { makeAsset } from './assetsSlice'
 
 export const chainIdFeeAssetReferenceMap = (
@@ -76,12 +76,12 @@ export const chainIdFeeAssetReferenceMap = (
 }
 
 type GetFeeAssetByChainId = (
-  assetsById: AssetsById,
+  assetsById: AssetsByIdPartial,
   chainId: ChainId | undefined,
 ) => Asset | undefined
 
 type GetFeeAssetByAssetId = (
-  assetsById: AssetsById,
+  assetsById: AssetsByIdPartial,
   assetId: AssetId | undefined,
 ) => Asset | undefined
 

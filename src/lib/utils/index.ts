@@ -6,6 +6,7 @@ import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
+import type { NestedArray } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -102,8 +103,6 @@ export const isValidAccountNumber = (
   return Number.isInteger(accountNumber) && accountNumber >= 0
 }
 
-export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>
-
 export const walletCanEditMemo = (wallet: HDWallet): boolean => {
   switch (true) {
     case isKeepKeyHDWallet(wallet):
@@ -114,8 +113,6 @@ export const walletCanEditMemo = (wallet: HDWallet): boolean => {
       return true
   }
 }
-
-export type NestedArray<T> = PartialRecord<keyof any, PartialRecord<keyof any, T[]>>
 
 /**
  * @param data - Partial, two level nested object with array of strings at leaf

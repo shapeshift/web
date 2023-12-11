@@ -1,4 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import type { BreadcrumbsRoute, Options } from 'react-router-breadcrumbs-hoc'
@@ -8,7 +9,6 @@ import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import type { PartialRecord } from '@shapeshiftoss/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

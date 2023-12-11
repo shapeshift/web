@@ -29,13 +29,13 @@ const stackDivider = (
     <FaArrowRight />
   </Box>
 )
+const dateFormat = 'L LT'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
   const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
   const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
   let columns = '1fr'
-  let dateFormat = 'L LT'
 
   if (isLargerThanSm) {
     columns = '1fr 2fr'

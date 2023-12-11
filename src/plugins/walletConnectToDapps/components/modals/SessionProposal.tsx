@@ -178,8 +178,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
       setIsLoading(true)
 
-      console.log(approvalNamespaces)
-
       const session = await web3wallet.approveSession({
         id: proposal.id,
         namespaces: approvalNamespaces,

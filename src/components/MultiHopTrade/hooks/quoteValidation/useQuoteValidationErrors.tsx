@@ -19,6 +19,7 @@ import {
   selectFirstHopSellAsset,
   selectFirstHopTradeDeductionCryptoPrecision,
   selectIsActiveQuoteMultiHop,
+  selectIsUnsafeActiveQuote,
   selectLastHopBuyAsset,
   selectSecondHopNetworkFeeCryptoPrecision,
   selectSellAmountCryptoBaseUnit,
@@ -57,6 +58,8 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const quotes = useAppSelector(selectSwappersApiTradeQuotes)
+
+  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
   const isSnapInstalled = useIsSnapInstalled()
 
@@ -121,6 +124,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
         !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
         feesExceedsSellAmount && ActiveQuoteStatus.SellAmountBelowTradeFee,
         insufficientBalanceProtocolFeeMeta && ActiveQuoteStatus.InsufficientFundsForProtocolFee,
+        isUnsafeQuote && ActiveQuoteStatus.UnsafeQuote,
         quotes.length === 0 &&
           bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
           ActiveQuoteStatus.NoQuotesAvailable,
@@ -140,6 +144,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
       isTradingActiveOnBuyPool,
       feesExceedsSellAmount,
       insufficientBalanceProtocolFeeMeta,
+      isUnsafeQuote,
       quotes.length,
       sellAmountCryptoBaseUnit,
     ],

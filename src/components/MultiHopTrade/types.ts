@@ -29,6 +29,7 @@ export enum ActiveQuoteStatus {
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   NoQuotesAvailable = 'NoQuotesAvailable',
+  UnsafeQuote = 'UnsafeQuote',
   UnknownError = 'UnknownError',
 }
 

@@ -16,7 +16,11 @@ import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
+type ThorTradeQuoteSpecificMetadata = {
+  isStreaming: boolean
+  memo: string
+  recommendedMinimumCryptoBaseUnit: string
+}
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
     router: string

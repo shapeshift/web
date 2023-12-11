@@ -103,7 +103,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     return errors
   }, [isLoading, hasUserEnteredAmount, activeQuoteError, activeQuote, validationErrors])
 
-  // Map validation errors to translation stings
+  // Map validation errors to translation strings
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
     const firstError = quoteErrors[0]

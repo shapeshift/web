@@ -7,6 +7,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
@@ -43,16 +44,16 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteIndex: Selector<ReduxState, number> = createSelector(
+export const selectActiveQuoteIndex: Selector<ReduxState, number | undefined> = createSelector(
   selectTradeQuoteSlice,
-  tradeQuote => tradeQuote.activeQuoteIndex ?? 0,
+  tradeQuote => tradeQuote.activeQuoteIndex,
 )
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(
     selectActiveQuoteIndex,
     selectSwappersApiTradeQuotes,
-    (activeQuoteIndex, apiQuotes) => apiQuotes[activeQuoteIndex]?.swapperName,
+    (activeQuoteIndex, apiQuotes) => apiQuotes[activeQuoteIndex ?? 0]?.swapperName,
   )
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
@@ -60,6 +61,9 @@ export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | und
     selectSwappersApiTradeQuotes,
     selectActiveQuoteIndex,
     (quotes, activeQuoteIndex) => {
+      // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
+      if (activeQuoteIndex === undefined) return undefined
+
       const selectedQuote = quotes[activeQuoteIndex]
       if (selectedQuote?.quote !== undefined) {
         return selectedQuote
@@ -189,6 +193,18 @@ export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undef
   createSelector(selectFirstHop, firstHop =>
     firstHop ? firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit : undefined,
   )
+
+export const selectIsUnsafeActiveQuote: Selector<ReduxState, boolean> = createSelector(
+  selectActiveQuote,
+  selectSellAmountCryptoBaseUnit,
+  (activeQuote, sellAmountCryptoBaseUnit) => {
+    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
+      ?.recommendedMinimumCryptoBaseUnit
+    if (!recommendedMinimumCryptoBaseUnit) return false
+
+    return bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
+  },
+)
 
 export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
   createSelector(

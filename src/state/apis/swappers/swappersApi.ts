@@ -19,6 +19,7 @@ import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
@@ -110,6 +111,8 @@ export const swappersApi = createApi({
           ['desc', 'asc'],
         ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
+        // Ensures we autoselect the first quote on quotes received
+        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
         return { data: orderedQuotes }
       },
     }),

@@ -12,7 +12,6 @@ import {
   Heading,
   IconButton,
   Stack,
-  Tooltip,
   useToken,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -469,37 +468,35 @@ export const TradeInput = memo(() => {
 
         <ManualAddressEntry />
         {maybeUnsafeTradeWarning}
-        <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
-            <Button
-              colorScheme='red'
-              size='lg-multiline'
-              mx={-2}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => {
-                // We don't want to *immediately* set this or there will be a "click-through"
-                // i.e the regular continue button will render immediately, and click will bubble to it
-                setTimeout(() => {
-                  setIsUnsafeQuoteNoticeDismissed(true)
-                }, 100)
-              }}
-            >
-              <Text translation={'defi.modals.saversVaults.understand'} />
-            </Button>
-          ) : (
-            <Button
-              type='submit'
-              colorScheme={quoteHasErrorExcludeUnsafe ? 'red' : 'blue'}
-              size='lg-multiline'
-              data-test='trade-form-preview-button'
-              isDisabled={shouldDisablePreviewButton}
-              isLoading={isLoading}
-              mx={-2}
-            >
-              <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-            </Button>
-          )}
-        </Tooltip>
+        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+          <Button
+            colorScheme='red'
+            size='lg-multiline'
+            mx={-2}
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => {
+              // We don't want to *immediately* set this or there will be a "click-through"
+              // i.e the regular continue button will render immediately, and click will bubble to it
+              setTimeout(() => {
+                setIsUnsafeQuoteNoticeDismissed(true)
+              }, 100)
+            }}
+          >
+            <Text translation={'defi.modals.saversVaults.understand'} />
+          </Button>
+        ) : (
+          <Button
+            type='submit'
+            colorScheme={quoteHasErrorExcludeUnsafe ? 'red' : 'blue'}
+            size='lg-multiline'
+            data-test='trade-form-preview-button'
+            isDisabled={shouldDisablePreviewButton}
+            isLoading={isLoading}
+            mx={-2}
+          >
+            <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+          </Button>
+        )}
         {hasUserEnteredAmount &&
           activeSwapperName !== SwapperName.CowSwap &&
           (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) &&
@@ -509,8 +506,6 @@ export const TradeInput = memo(() => {
     [
       activeQuote,
       activeQuoteError,
-      activeQuoteStatus.error?.message,
-      activeQuoteStatus.quoteErrors,
       activeQuoteStatus.quoteStatusTranslation,
       activeSwapperName,
       applyThorSwapAffiliateFees,

@@ -115,22 +115,20 @@ export const getLongtailToL1Quote = async (
     TradeType.LongTailToL1,
   )
 
-  return thorchainQuotes
-    .mapErr(e => e) // getL1quote already returns a useful error, return that if it exists
-    .andThen(quotes => {
-      const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
-        ...q,
-        router: AGGREGATOR_CONTRACT,
-        steps: q.steps.map(s => ({
-          ...s,
-          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-          sellAmountIncludingProtocolFeesCryptoBaseUnit:
-            input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset: input.sellAsset,
-          allowanceContract: ALLOWANCE_CONTRACT,
-        })),
-      }))
+  return thorchainQuotes.andThen(quotes => {
+    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
+      ...q,
+      router: AGGREGATOR_CONTRACT,
+      steps: q.steps.map(s => ({
+        ...s,
+        // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+        sellAmountIncludingProtocolFeesCryptoBaseUnit:
+          input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAsset: input.sellAsset,
+        allowanceContract: ALLOWANCE_CONTRACT,
+      })),
+    }))
 
-      return Ok(updatedQuotes)
-    })
+    return Ok(updatedQuotes)
+  })
 }

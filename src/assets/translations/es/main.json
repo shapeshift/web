@@ -27,7 +27,6 @@
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
-    "insufficientAmountForGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
     "invalidAddressOrYat": "Dirección no válida o Yat",
     "deposit": "Depositar",
@@ -789,7 +788,6 @@
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
       "unsupportedChain": "Esta cadena no es compatible actualmente.",
       "rateError": "No podemos obtener una cotización para este par.",
-      "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
       "tradingNotActiveNoAssetSymbol": "Intercambios detenidos temporalmente en esta ruta",
@@ -2124,8 +2122,7 @@
         "body": "Prestar en THORChain implica utilizar sus activos depositados como garantía. El préstamo está denominado en USD (TOR) y puede recibirse en varios activos L1. Con un índice de garantía dinámico, puede prestar de manera flexible sin preocuparse por intereses o liquidación."
       },
       "repayments": {
-        "title": "¿Cómo funciona el reembolso o repago?",
-        "body": "El pago en THORChain es flexible, permite pagar en cualquier momento con cualquier activo, que luego se convierte a TOR. El monto del reembolso se deduce del saldo de su deuda y se le devuelve la garantía proporcional al realizar el pago total."
+        "title": "¿Cómo funciona el reembolso o repago?"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
-    "simulateTitle": "Simule sus Ahorros FOX",
     "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
     "tradeSize": "Tamaño de intercambio",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
-    "simulateFee": "Simular Tarifa",
     "freeUnderThreshold": "Operaciones debajo de %{threshold} son siempre GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
     "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",

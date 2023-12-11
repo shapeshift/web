@@ -27,7 +27,6 @@
     "insufficientFunds": "残高不足",
     "estimatedGas": "ガス代の目安",
     "relayerGasFee": "リレイヤーのガス代",
-    "insufficientAmountForGas": "ガス代を支払うための十分な %{assetSymbol} がありません",
     "invalidAddress": "無効なアドレス",
     "invalidAddressOrYat": "無効なアドレスまたはYat",
     "deposit": "入金する",
@@ -789,7 +788,6 @@
       "unsupportedPair": "この取引ペアは現在サポートされていません。",
       "unsupportedChain": "このチェーンは現在サポートされていません。",
       "rateError": "このペアの見積もりを取得できません",
-      "assetNotSupportedByWallet": "%{assetSymbol} はウォレットでサポートされていません",
       "noReceiveAddress": "%{assetSymbol} の受信アドレスがありません",
       "tradingNotActive": "%{assetSymbol} の取引は一時的に停止されました",
       "tradingNotActiveNoAssetSymbol": "このルートの取引は一時的に停止されています",
@@ -2124,8 +2122,7 @@
         "body": "THORChainでの借入には、預けた資産を担保として使用してローンを組むことが含まれます。融資は米ドル (TOR) 建てで、さまざまな L1 資産で受け取ることができます。動的な担保比率により、利息や清算の心配なく柔軟に借入できます。"
       },
       "repayments": {
-        "title": "返済はどのように行われますか?",
-        "body": "THORChainでの返済は柔軟であり、いつでもどの資産でも返済でき、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
+        "title": "返済はどのように行われますか?"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "あなたのFOX",
     "foxPower": "FOXパワー",
-    "simulateTitle": "FOX貯蓄額をシミュレーションする",
     "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
     "tradeSize": "取引規模",
     "totalFee": "合計料金",
     "foxPowerDiscount": "FOXパワー割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
-    "simulateFee": "料金シミュレーション",
     "freeUnderThreshold": "%{threshold} 未満の取引は常に無料です",
     "breakdownHeader": "FOX割引",
     "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",

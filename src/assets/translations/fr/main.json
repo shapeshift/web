@@ -27,7 +27,6 @@
     "insufficientFunds": "Fonds insuffisants",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
-    "insufficientAmountForGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
     "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
@@ -789,7 +788,6 @@
       "unsupportedPair": "Paire d'échange non supportée actuellement.",
       "unsupportedChain": "Chaîne non supportée actuellement.",
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
-      "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
       "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
       "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
       "tradingNotActiveNoAssetSymbol": "Échanges temporairement interrompus pour cette route",
@@ -2124,8 +2122,7 @@
         "body": "Emprunter avec THORChain implique d’utiliser vos actifs déposés comme collatéraux pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
       },
       "repayments": {
-        "title": "Comment fonctionne le remboursement ?",
-        "body": "Le remboursement avec THORChain est flexible, vous permettant de rembourser à tout moment n'importe quel actif, qui est ensuite converti en TOR. Le montant du remboursement est déduit du solde de votre dette et le collatéral proportionnel vous est restitué lors du remboursement intégral"
+        "title": "Comment fonctionne le remboursement ?"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "Votre Puissance FOX",
     "foxPower": "Puissance FOX",
-    "simulateTitle": "Simulez vos économies FOX",
     "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
     "tradeSize": "Montant de l'échange",
     "totalFee": "Total des frais",
     "foxPowerDiscount": "Remise Puissance FOX",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
-    "simulateFee": "Simuler les frais",
     "freeUnderThreshold": "Les échanges inférieurs à %{threshold} sont toujours GRATUITS",
     "breakdownHeader": "Votre remise Puissance FOX",
     "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais d'échange et la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet de simulation.",

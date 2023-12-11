@@ -27,7 +27,6 @@
     "insufficientFunds": "Unzureichende Mittel",
     "estimatedGas": "Geschätzte Gasgebühr",
     "relayerGasFee": "Relayer-Gasgebühr",
-    "insufficientAmountForGas": "Nicht genug ETH, um Gas zu decken",
     "invalidAddress": "Ungültige Adresse",
     "invalidAddressOrYat": "Ungültige Adresse oder Yat",
     "deposit": "Einzahlen",
@@ -789,7 +788,6 @@
       "unsupportedPair": "Dieses Handelspaar wird derzeit nicht unterstützt.",
       "unsupportedChain": "Diese Blockchain wird derzeit nicht unterstützt.",
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
-      "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
       "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
       "tradingNotActiveNoAssetSymbol": "Der Handel auf dieser Route wurde vorübergehend eingestellt",
@@ -2124,8 +2122,7 @@
         "body": "Bei der Kreditaufnahme in THORChain nutzen Sie Ihr hinterlegtes Vermögen als Sicherheit für die Aufnahme eines Kredits. Das Darlehen lautet auf USD (TOR) und kann in verschiedenen L1 Vermögenswerten aufgenommen werden. Mit einer dynamischen Besicherungsquote können Sie flexibel Kredite aufnehmen, ohne sich um Zinsen oder Liquidation sorgen zu müssen"
       },
       "repayments": {
-        "title": "Wie funktioniert die Rückzahlung?",
-        "body": "Die Rückzahlung in THORChain ist flexibel, sodass Sie jederzeit in jedem Vermögenswert zurückzahlen können, der dann in TOR umgewandelt wird. Der Rückzahlungsbetrag wird von Ihrem Schuldensaldo abgezogen und die anteilige Sicherheit wird Ihnen bei vollständiger Rückzahlung wieder freigegeben"
+        "title": "Wie funktioniert die Rückzahlung?"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "Deine FOX Power",
     "foxPower": "FOX Power",
-    "simulateTitle": "Simuliere FOX-Ersparnisse",
     "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihren Handel erhalten. Passen Sie einfach die Schieberegler unten an, um die Anzahl Ihrer FOX und die Handelsgröße in Fiat anzugeben, und sehen Sie, wie sich Ihre potenziellen Einsparungen vermehren!",
     "tradeSize": "Handelsgröße",
     "totalFee": "Gesamtgebühr",
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
-    "simulateFee": "Gebühr simulieren",
     "freeUnderThreshold": "Trades unter %{threshold} sind immer KOSTENLOS",
     "breakdownHeader": "Ihr FOX Power Rabatt",
     "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer Handelsgebühren und des entsprechenden angewendeten FOX Power Rabatten. Erfahren Sie auf derRegisterkarte „Simulieren“, wie viel mehr Sie  sparen können.",

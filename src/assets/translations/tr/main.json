@@ -27,7 +27,6 @@
     "insufficientFunds": "Yetersiz bakiye",
     "estimatedGas": "Tahmini Gaz Ücreti",
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
-    "insufficientAmountForGas": "Gazı karşılamak için yeterli %{assetSymbol} yok",
     "invalidAddress": "Geçersiz adres",
     "invalidAddressOrYat": "Geçersiz Adres veya Yat",
     "deposit": "Para Yatırma",
@@ -789,7 +788,6 @@
       "unsupportedPair": "Bu işlem çifti şu anda desteklenmiyor.",
       "unsupportedChain": "Bu ağ şu anda desteklenmiyor.",
       "rateError": "Bu çift için fiyat teklifi alamıyoruz",
-      "assetNotSupportedByWallet": "%{assetSymbol}, cüzdan tarafından desteklenmiyor",
       "noReceiveAddress": "%{assetSymbol} için alım adresi yok",
       "tradingNotActive": "İşlemler %{assetSymbol} için geçici olarak durduruldu",
       "tradingNotActiveNoAssetSymbol": "Bu rota için takas geçici olarak durduruldu",
@@ -2124,8 +2122,7 @@
         "body": "THORChain'de borç almak, yatırılan varlıklarınızı kredi almak için teminat olarak kullanmayı içerir. Kredi USD (TOR) cinsindendir ve çeşitli L1 varlıklarında alınabilir. Dinamik teminat oranıyla faiz veya tasfiye endişesi olmadan esnek bir şekilde borçlanabilirsiniz"
       },
       "repayments": {
-        "title": "Geri ödeme nasıl çalışır?",
-        "body": "THORChain'de geri ödeme esnektir; istediğiniz zaman herhangi bir varlıkta geri ödeme yapmanıza olanak tanır ve bu daha sonra TOR'a dönüştürülür. Geri ödeme tutarı borç bakiyenizden düşülerek, tamamı geri ödendiğinde orantılı teminat tarafınıza iade edilir."
+        "title": "Geri ödeme nasıl çalışır?"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "FOX Power'ın",
     "foxPower": "FOX Power",
-    "simulateTitle": "FOX Savings Simüle Edin",
     "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
     "tradeSize": "Takas Boyutu",
     "totalFee": "Toplam Ücret",
     "foxPowerDiscount": "FOX Power İndirimi",
     "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
     "feeSummary": "Ücret Özeti",
-    "simulateFee": "Ücreti simüle et",
     "freeUnderThreshold": "%{threshold} altındaki işlemler her zaman ÜCRETSİZDİR",
     "breakdownHeader": "FOX Power İndiriminiz",
     "breakdownBody": "Aşağıda işlem ücretlerinizin ve uygulanan FOX Power İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",

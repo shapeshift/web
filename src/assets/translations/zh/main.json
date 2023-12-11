@@ -27,7 +27,6 @@
     "insufficientFunds": "不充足的资金",
     "estimatedGas": "预估手续费",
     "relayerGasFee": "中继器手续费",
-    "insufficientAmountForGas": "没有足够的 %{assetSymbol} 来支付手续费",
     "invalidAddress": "无效地址",
     "invalidAddressOrYat": "无效地址或者无效Yat",
     "deposit": "充值",
@@ -789,7 +788,6 @@
       "unsupportedPair": "目前不支持该交易对。",
       "unsupportedChain": "目前不支持该链。",
       "rateError": "我们无法获得这个交易对的报价",
-      "assetNotSupportedByWallet": "钱包不支持 %{assetSymbol}",
       "noReceiveAddress": "%{assetSymbol} 没有接收地址",
       "tradingNotActive": "%{assetSymbol} 的交易暂时停止",
       "tradingNotActiveNoAssetSymbol": "该交易路径暂时停止",
@@ -2124,8 +2122,7 @@
         "body": "在 THORChain 中借款涉及使用你存入的资产作为抵押品来获取贷款。贷款以美元（TOR）计价，可以多种 L1 资产形式收取。动态抵押比例，灵活借贷，无利息、爆仓之忧"
       },
       "repayments": {
-        "title": "还款如何运作？",
-        "body": "THORChain 的还款方式灵活，你可以随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
+        "title": "还款如何运作？"
       }
     },
     "quote": {
@@ -2139,14 +2136,12 @@
   "foxDiscounts": {
     "currentFoxPower": "你的 FOX Power",
     "foxPower": "FOX Power",
-    "simulateTitle": "模拟你i的 FOX 储蓄",
     "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",
     "tradeSize": "交易规模",
     "totalFee": "总费用",
     "foxPowerDiscount": "FOX Power 折扣",
     "basedOnFee": "基于费用：%{fee}",
     "feeSummary": "费用概要",
-    "simulateFee": "模拟费用",
     "freeUnderThreshold": "%{threshold} 以下的交易始终免费",
     "breakdownHeader": "你的 FOX Power 折扣",
     "breakdownBody": "以下是你的交易费用和相应的 FOX Power 折扣的明细。了解在“模拟”选项卡上您还可以节省多少费用。",

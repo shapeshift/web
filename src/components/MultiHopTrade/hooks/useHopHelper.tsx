@@ -7,8 +7,8 @@ import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
-  selectLastHopSellAccountId,
-  selectLastHopSellFeeAsset,
+  selectSecondHopSellAccountId,
+  selectSecondHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -18,29 +18,29 @@ export const useHopHelper = () => {
   // the network fee asset for the first hop in the trade
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
 
-  // the network fee asset for the last hop in the trade
-  const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
+  // the network fee asset for the second hop in the trade
+  const secondHopSellFeeAsset = useAppSelector(selectSecondHopSellFeeAsset)
 
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const lastHopSellAccountId = useAppSelector(selectLastHopSellAccountId)
+  const secondHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(
     () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: firstHopSellAccountId ?? '' }),
     [firstHopSellAccountId, firstHopSellFeeAsset?.assetId],
   )
 
-  const lastHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: lastHopSellAccountId ?? '' }),
-    [lastHopSellAccountId, lastHopSellFeeAsset?.assetId],
+  const secondHopFeeAssetBalanceFilter = useMemo(
+    () => ({ assetId: secondHopSellFeeAsset?.assetId, accountId: secondHopSellAccountId ?? '' }),
+    [secondHopSellAccountId, secondHopSellFeeAsset?.assetId],
   )
 
   const firstHopFeeAssetBalancePrecision = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, firstHopFeeAssetBalanceFilter),
   )
 
-  const lastHopFeeAssetBalancePrecision = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, lastHopFeeAssetBalanceFilter),
+  const secondHopFeeAssetBalancePrecision = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, secondHopFeeAssetBalanceFilter),
   )
 
   const sellAssetBalanceFilter = useMemo(
@@ -55,6 +55,6 @@ export const useHopHelper = () => {
   return {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
-    lastHopFeeAssetBalancePrecision,
+    secondHopFeeAssetBalancePrecision,
   }
 }

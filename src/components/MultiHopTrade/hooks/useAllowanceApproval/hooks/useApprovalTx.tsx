@@ -6,8 +6,7 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuoteStep } from 'lib/swapper/types'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectFirstHopSellAccountId } from 'state/slices/selectors'
-import { selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
@@ -15,7 +14,7 @@ import { getApprovalTxData } from '../helpers'
 
 export const useApprovalTx = (
   tradeQuoteStep: TradeQuoteStep,
-  isFirstHop: boolean,
+  hopIndex: number,
   isExactAllowance: boolean,
 ) => {
   const [approvalNetworkFeeCryptoBaseUnit, setApprovalNetworkFeeCryptoBaseUnit] = useState<
@@ -26,9 +25,8 @@ export const useApprovalTx = (
   const wallet = useWallet().state.wallet
   const { poll, cancelPolling: stopPolling } = usePoll()
 
-  const sellAssetAccountId = useAppSelector(
-    isFirstHop ? selectFirstHopSellAccountId : selectLastHopSellAccountId,
-  )
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+
   // This accidentally works since all EVM chains share the same address, so there's no need
   // to call adapter.getAddress() later down the call stack
   const from = sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined

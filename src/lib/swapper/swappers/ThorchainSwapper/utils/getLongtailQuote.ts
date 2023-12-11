@@ -115,29 +115,20 @@ export const getLongtailToL1Quote = async (
     TradeType.LongTailToL1,
   )
 
-  return thorchainQuotes
-    .mapErr(e => {
-      console.error(e)
-      return makeSwapErrorRight({
-        message: 'makeSwapperAxiosServiceMonadic',
-        cause: e,
-        code: SwapErrorType.QUERY_FAILED,
-      })
-    })
-    .andThen(quotes => {
-      const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
-        ...q,
-        router: AGGREGATOR_CONTRACT,
-        steps: q.steps.map(s => ({
-          ...s,
-          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-          sellAmountIncludingProtocolFeesCryptoBaseUnit:
-            input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset: input.sellAsset,
-          allowanceContract: ALLOWANCE_CONTRACT,
-        })),
-      }))
+  return thorchainQuotes.andThen(quotes => {
+    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
+      ...q,
+      router: AGGREGATOR_CONTRACT,
+      steps: q.steps.map(s => ({
+        ...s,
+        // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+        sellAmountIncludingProtocolFeesCryptoBaseUnit:
+          input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAsset: input.sellAsset,
+        allowanceContract: ALLOWANCE_CONTRACT,
+      })),
+    }))
 
-      return Ok(updatedQuotes)
-    })
+    return Ok(updatedQuotes)
+  })
 }

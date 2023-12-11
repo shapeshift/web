@@ -111,8 +111,9 @@ export type LendingQuoteClose = {
   quoteOutboundDelayMs: number
   quoteInboundConfirmationMs: number
   quoteTotalTimeMs: number
-  repaymentAmountCryptoPrecision: string | null
   quoteExpiry: number
+  repaymentAmountCryptoPrecision: string | null
+  repaymentPercentOrDefault: number
 }
 
 export const isLendingQuoteOpen = (

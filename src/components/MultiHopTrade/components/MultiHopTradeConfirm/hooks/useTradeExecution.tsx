@@ -15,14 +15,11 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  selectFirstHopSellAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectSecondHopSellAccountId,
+  selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -34,9 +31,7 @@ export const useTradeExecution = (hopIndex: number) => {
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
 
-  const sellAssetAccountId = useAppSelector(
-    hopIndex === 0 ? selectFirstHopSellAccountId : selectSecondHopSellAccountId,
-  )
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
@@ -62,12 +57,17 @@ export const useTradeExecution = (hopIndex: number) => {
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
+
+      const onFail = (e: unknown) => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
+        showErrorToast(e)
+        resolve()
+      }
 
       const execution = new TradeExecution()
 
-      execution.on(TradeExecutionEvent.Error, reject)
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
@@ -78,11 +78,8 @@ export const useTradeExecution = (hopIndex: number) => {
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()
       })
-      execution.on(TradeExecutionEvent.Fail, e => {
-        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
-        showErrorToast(e)
-        resolve()
-      })
+      execution.on(TradeExecutionEvent.Fail, onFail)
+      execution.on(TradeExecutionEvent.Error, onFail)
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber

@@ -67,7 +67,7 @@ export const Hop = ({
     state: hopExecutionState,
     approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
     swap: { state: swapTxState },
-  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
     () => [approvalTxState, swapTxState].includes(TransactionExecutionState.Failed),

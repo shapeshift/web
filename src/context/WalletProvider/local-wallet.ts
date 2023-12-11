@@ -1,4 +1,9 @@
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
+import {
+  selectNativeWalletName,
+  selectWalletDeviceId,
+  selectWalletType,
+} from 'state/slices/localWalletSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import type { KeyManager } from './KeyManager'
@@ -16,9 +21,9 @@ export const useLocalWallet = () => {
   const setLocalNativeWalletName = (name: string) => {
     dispatch(localWalletSlice.actions.setNativeWalletName(name))
   }
-  const nativeLocalWalletName = useAppSelector(state => state.localWalletSlice.nativeWalletName)
-  const localWalletType = useAppSelector(state => state.localWalletSlice.walletType)
-  const localWalletDeviceId = useAppSelector(state => state.localWalletSlice.walletDeviceId)
+  const nativeLocalWalletName = useAppSelector(selectNativeWalletName)
+  const localWalletType = useAppSelector(selectWalletType)
+  const localWalletDeviceId = useAppSelector(selectWalletDeviceId)
 
   return {
     setLocalWalletTypeAndDeviceId,

@@ -21,6 +21,7 @@ import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHand
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
+import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -351,8 +352,8 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
 }
 
 const getInitialState = () => {
-  const localWalletType = store.getState().localWalletSlice.walletType
-  const localWalletDeviceId = store.getState().localWalletSlice.walletDeviceId
+  const localWalletType = selectWalletType(store.getState())
+  const localWalletDeviceId = selectWalletDeviceId(store.getState())
   if (localWalletType && localWalletDeviceId) {
     /**
      * set isLoadingLocalWallet->true to bypass splash screen
@@ -792,7 +793,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       // Note, we NEED to use store.getState instead of the walletType variable above
       // The reason is handleAccountsOrChainChanged exists in the context of a closure, hence will keep a stale reference forever
-      const _walletType = store.getState().localWalletSlice.walletType
+      const _walletType = selectWalletType(store.getState())
 
       // This shouldn't happen if event listeners are properly removed, but they may not be
       // This fixes the case of switching from e.g MM, to another wallet, then switching accounts/chains in MM and MM becoming connected again

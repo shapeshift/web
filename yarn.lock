@@ -9860,11 +9860,12 @@ __metadata:
     "@visx/responsive": ^2.10.0
     "@visx/scale": ^3.3.0
     "@visx/xychart": ^2.12.2
+    "@walletconnect/core": ^2.10.6
     "@walletconnect/ethereum-provider": ^2.10.1
-    "@walletconnect/types": ^2.10.1
-    "@walletconnect/utils": ^2.10.1
+    "@walletconnect/types": ^2.10.6
+    "@walletconnect/utils": ^2.10.6
     "@walletconnect/web3-provider": ^1.8.0
-    "@walletconnect/web3wallet": ^1.9.1
+    "@walletconnect/web3wallet": ^1.9.5
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.4.4
     alchemy-sdk: ^2.8.3
@@ -12828,7 +12829,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.10.1, @walletconnect/core@npm:^2.10.1":
+"@walletconnect/core@npm:2.10.1":
   version: 2.10.1
   resolution: "@walletconnect/core@npm:2.10.1"
   dependencies:
@@ -12852,7 +12853,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.10.6":
+"@walletconnect/core@npm:2.10.6, @walletconnect/core@npm:^2.10.1, @walletconnect/core@npm:^2.10.6":
   version: 2.10.6
   resolution: "@walletconnect/core@npm:2.10.6"
   dependencies:
@@ -13341,7 +13342,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/types@npm:2.10.1, @walletconnect/types@npm:^2.10.1":
+"@walletconnect/types@npm:2.10.1":
   version: 2.10.1
   resolution: "@walletconnect/types@npm:2.10.1"
   dependencies:
@@ -13355,7 +13356,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/types@npm:2.10.6":
+"@walletconnect/types@npm:2.10.6, @walletconnect/types@npm:^2.10.6":
   version: 2.10.6
   resolution: "@walletconnect/types@npm:2.10.6"
   dependencies:
@@ -13410,7 +13411,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/utils@npm:2.10.1, @walletconnect/utils@npm:^2.10.1":
+"@walletconnect/utils@npm:2.10.1":
   version: 2.10.1
   resolution: "@walletconnect/utils@npm:2.10.1"
   dependencies:
@@ -13432,7 +13433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/utils@npm:2.10.6":
+"@walletconnect/utils@npm:2.10.6, @walletconnect/utils@npm:^2.10.1, @walletconnect/utils@npm:^2.10.6":
   version: 2.10.6
   resolution: "@walletconnect/utils@npm:2.10.6"
   dependencies:
@@ -13483,19 +13484,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/web3wallet@npm:^1.9.1":
-  version: 1.9.1
-  resolution: "@walletconnect/web3wallet@npm:1.9.1"
+"@walletconnect/web3wallet@npm:^1.9.5":
+  version: 1.9.5
+  resolution: "@walletconnect/web3wallet@npm:1.9.5"
   dependencies:
     "@walletconnect/auth-client": 2.1.2
-    "@walletconnect/core": 2.10.1
+    "@walletconnect/core": 2.10.6
     "@walletconnect/jsonrpc-provider": 1.0.13
     "@walletconnect/jsonrpc-utils": 1.0.8
     "@walletconnect/logger": 2.0.1
-    "@walletconnect/sign-client": 2.10.1
-    "@walletconnect/types": 2.10.1
-    "@walletconnect/utils": 2.10.1
-  checksum: 2a22503e5120648c2e5f2634160eb4581e48884756c25abaf60ba6661c0a351d6d0ddcea354ba699d34d3806b5f1f7e3e7fe9456420ff06607fb2e55c282ef26
+    "@walletconnect/sign-client": 2.10.6
+    "@walletconnect/types": 2.10.6
+    "@walletconnect/utils": 2.10.6
+  checksum: d9a588aae82995171a4c1b29deed7ba6b8802c43aef2f7e6205d63c7d76ead1ffd8910d172e40c0faf1900d56384c0585a6a4fbf67e5315178c133c19be673e7
   languageName: node
   linkType: hard
 
@@ -26855,7 +26856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2, node-fetch@npm:2.6.7, node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
+"node-fetch@npm:2, node-fetch@npm:2.6.7, node-fetch@npm:^2.6.1":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
   dependencies:
@@ -26876,7 +26877,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.6.12":
+"node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.12, node-fetch@npm:^2.6.7":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
   dependencies:

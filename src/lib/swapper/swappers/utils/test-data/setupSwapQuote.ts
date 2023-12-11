@@ -1,8 +1,8 @@
+import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 import { DEFAULT_SLIPPAGE } from '../constants'
 

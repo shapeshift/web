@@ -1,6 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -22,7 +23,6 @@ import {
 
 import { selectAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
-import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 

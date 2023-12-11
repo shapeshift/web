@@ -1,5 +1,5 @@
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { SwapperName } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById, selectWillDonate } from 'state/slices/selectors'
 import {

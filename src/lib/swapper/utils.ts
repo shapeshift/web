@@ -1,5 +1,5 @@
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -9,7 +9,6 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
-import { SwapperName } from './types'
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))

@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { createTradeAmountTooSmallErr } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import { createTradeAmountTooSmallErr, SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -25,8 +25,6 @@ import {
   isNativeEvmAsset,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,

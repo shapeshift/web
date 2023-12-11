@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
-import type { PartialRecord } from 'lib/utils'
 
 export const quoteStatusTranslation = (
   swapError: SwapErrorRight | undefined,

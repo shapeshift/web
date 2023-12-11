@@ -11,10 +11,9 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
-import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
@@ -34,10 +33,8 @@ const getAssetService = () => {
   return service
 }
 
-export type AssetsById = PartialRecord<AssetId, Asset>
-
 export type AssetsState = {
-  byId: AssetsById
+  byId: AssetsByIdPartial
   ids: AssetId[]
 }
 
@@ -126,7 +123,7 @@ export const assetApi = createApi({
       queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
-        const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsById>(
+        const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsByIdPartial>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev

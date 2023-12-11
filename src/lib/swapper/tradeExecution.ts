@@ -1,9 +1,3 @@
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import EventEmitter from 'events'
-import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
-import { poll } from 'lib/poll/poll'
-
-import { swappers } from './constants'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -16,8 +10,14 @@ import type {
   SwapperApi,
   TradeExecutionEventMap,
   UtxoTransactionExecutionInput,
-} from './types'
-import { TradeExecutionEvent } from './types'
+} from '@shapeshiftoss/swapper'
+import { TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import EventEmitter from 'events'
+import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
+import { poll } from 'lib/poll/poll'
+
+import { swappers } from './constants'
 
 export class TradeExecution {
   private emitter = new EventEmitter()

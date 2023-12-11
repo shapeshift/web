@@ -26,3 +26,7 @@ export type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMappin
 export type ChainSpecific<T, M> = UnionMerge<
   T extends unknown ? (T extends keyof M ? { chainSpecific: M[T] } : undefined) : never
 >
+
+export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>
+
+export type NestedArray<T> = PartialRecord<keyof any, PartialRecord<keyof any, T[]>>

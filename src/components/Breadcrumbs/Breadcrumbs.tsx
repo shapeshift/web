@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import type { PartialRecord } from 'lib/utils'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

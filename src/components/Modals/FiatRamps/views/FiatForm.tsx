@@ -8,7 +8,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import type { PartialRecord } from 'lib/utils'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,

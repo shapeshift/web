@@ -1,10 +1,9 @@
 // Helper function to convert basis points to percentage
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { MarketData, PartialRecord } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/types'
-import { type PartialRecord } from 'lib/utils'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)

@@ -24,7 +24,7 @@ import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { AmountDisplayMeta, ProtocolFee, SwapSource } from 'lib/swapper/types'
 import { SwapperName } from 'lib/swapper/types'
-import type { PartialRecord } from 'lib/utils'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import { isSome } from 'lib/utils'
 import {
   convertDecimalPercentageToBasisPoints,

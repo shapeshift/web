@@ -11,10 +11,9 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
-import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'

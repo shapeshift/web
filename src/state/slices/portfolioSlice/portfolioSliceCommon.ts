@@ -1,6 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
-import type { PartialRecord } from 'lib/utils'
+import type { BIP44Params, PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import type { Nominal } from 'types/common'
 
 export type PortfolioAccount = {

@@ -242,5 +242,5 @@ export const assertGetChainAdapter = (
     throw Error(`chain adapter not found for chain id ${chainId}`)
   }
 
-  return adapter as unknown as ChainAdapter<KnownChainIds>
+  return adapter
 }

@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetsById } from '@shapeshiftoss/types'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Location } from 'history'
 import qs from 'qs'
@@ -19,7 +19,7 @@ type MakeOpportunityRouteDetailsProps = {
   opportunityType: DefiType
   action: DefiAction
   location: Location
-  assets: AssetsById
+  assets: AssetsByIdPartial
 }
 export const makeOpportunityRouteDetails = ({
   stakingOpportunities,

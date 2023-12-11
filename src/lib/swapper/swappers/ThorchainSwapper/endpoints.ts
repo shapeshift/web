@@ -16,6 +16,7 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { type Result } from '@sniptt/monads/build'
@@ -30,7 +31,6 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { viemClientByChainId } from 'lib/viem-client'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
@@ -50,7 +50,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    assetsById: AssetsById,
+    assetsById: AssetsByIdPartial,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
 

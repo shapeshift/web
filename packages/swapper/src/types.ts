@@ -5,7 +5,7 @@ import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
-  AssetsById,
+  AssetsByIdPartial,
   PartialRecord,
   UtxoAccountType,
 } from '@shapeshiftoss/types'
@@ -289,7 +289,10 @@ export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (input: GetTradeQuoteInput, assetsById: AssetsById) => Promise<TradeQuoteResult>
+  getTradeQuote: (
+    input: GetTradeQuoteInput,
+    assetsById: AssetsByIdPartial,
+  ) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (

@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { AssetsByIdPartial, HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { BigNumber } from 'bignumber.js'
@@ -16,7 +16,6 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -153,7 +152,7 @@ export const bucketEvents = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Buck
 
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
-  assets: AssetsById
+  assets: AssetsByIdPartial
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
   selectedCurrency: SupportedFiatCurrencies
@@ -193,7 +192,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 type CalculateBucketPricesArgs = {
   assetIds: AssetId[]
   buckets: Bucket[]
-  assets: AssetsById
+  assets: AssetsByIdPartial
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
   selectedCurrency: SupportedFiatCurrencies

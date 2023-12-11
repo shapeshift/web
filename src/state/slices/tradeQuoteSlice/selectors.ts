@@ -509,20 +509,6 @@ export const selectFirstHopBuyAccountId = createSelector(
   },
 )
 
-// selects the account ID we're selling from for the last hop
-export const selectLastHopSellAccountId = createSelector(
-  selectIsActiveQuoteMultiHop,
-  selectFirstHopSellAccountId,
-  selectFirstHopBuyAccountId,
-  (isMultiHopTrade, firstHopSellAccountId, firstHopBuyAccountId) => {
-    // single hop trade - same as first hop sell account id
-    if (!isMultiHopTrade) return firstHopSellAccountId
-
-    // multi hop trade - the second hop sell account id is the same as the first hop buy account id
-    return firstHopBuyAccountId
-  },
-)
-
 // selects the account ID we're selling from for the second hop if it exists. This is different to "last hop"
 export const selectSecondHopSellAccountId = createSelector(
   selectIsActiveQuoteMultiHop,
@@ -536,9 +522,30 @@ export const selectSecondHopSellAccountId = createSelector(
   },
 )
 
+// selects the account ID we're selling from for the last hop
+export const selectLastHopSellAccountId = createSelector(
+  selectIsActiveQuoteMultiHop,
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+  (isMultiHopTrade, firstHopSellAccountId, secondHopSellAccountId) => {
+    return isMultiHopTrade ? firstHopSellAccountId : secondHopSellAccountId
+  },
+)
+
+// selects the account ID we're selling from for the given hop
+export const selectHopSellAccountId = createSelector(
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+  (_state: ReduxState, hopIndex: number) => hopIndex,
+  (firstHopSellAccountId, secondHopSellAccountId, hopIndex) => {
+    return hopIndex === 0 ? firstHopSellAccountId : secondHopSellAccountId
+  },
+)
+
 export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
-  swappers => {
-    return [swappers.tradeExecution.firstHop, swappers.tradeExecution.secondHop]
+  (_state: ReduxState, hopIndex: number) => hopIndex,
+  (swappers, hopIndex) => {
+    return hopIndex === 0 ? swappers.tradeExecution.firstHop : swappers.tradeExecution.secondHop
   },
 )

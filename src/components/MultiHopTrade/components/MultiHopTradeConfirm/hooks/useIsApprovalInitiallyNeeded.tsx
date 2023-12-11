@@ -20,11 +20,11 @@ const useIsApprovalInitiallyNeededForHop = (
   const [watchIsApprovalNeeded, setWatchIsApprovalNeeded] = useState<boolean>(true)
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
-  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded({
+  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(
     tradeQuoteStep,
     sellAssetAccountId,
-    watch: watchIsApprovalNeeded,
-  })
+    watchIsApprovalNeeded,
+  )
 
   useEffect(() => {
     // stop polling on first result

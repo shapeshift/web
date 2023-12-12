@@ -61,6 +61,8 @@ export const useTradeExecution = (hopIndex: number) => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
       const onFail = (e: unknown) => {
+        const { message } = (e ?? { message: undefined }) as { message?: string }
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
         showErrorToast(e)
         resolve()
@@ -71,10 +73,12 @@ export const useTradeExecution = (hopIndex: number) => {
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
-      execution.on(TradeExecutionEvent.Status, ({ buyTxHash }) => {
+      execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         buyTxHash && tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
       })
       execution.on(TradeExecutionEvent.Success, () => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message: undefined }))
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()
       })

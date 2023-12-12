@@ -7,13 +7,9 @@ import type {
   SignTx,
 } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type {
-  EvmTransactionExecutionProps,
-  EvmTransactionRequest,
-  ExecuteTradeArgs,
-} from '@shapeshiftoss/swapper'
+import type { EvmTransactionExecutionProps, EvmTransactionRequest } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
@@ -270,23 +266,6 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
   }
 
   return adapter
-}
-
-export const executeEvmTrade = ({
-  txToSign,
-  wallet,
-  chainId,
-  senderAddress,
-  receiverAddress,
-}: ExecuteTradeArgs) => {
-  const adapter = assertGetEvmChainAdapter(chainId)
-  return signAndBroadcast({
-    adapter,
-    wallet,
-    txToSign: txToSign as ETHSignTx,
-    senderAddress,
-    receiverAddress,
-  })
 }
 
 export const executeEvmTransaction = (

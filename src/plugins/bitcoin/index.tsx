@@ -1,5 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -31,7 +29,7 @@ export default function register(): Plugins {
                 return new bitcoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Bitcoin',
-                }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
+                })
               },
             ],
           ],

@@ -27,10 +27,12 @@ import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBe
 // these are the swappers with special logic regarding minimum donations
 const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
 
+export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
+  tagTypes: ['TradeQuote'],
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
@@ -115,6 +117,7 @@ export const swappersApi = createApi({
         dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
         return { data: orderedQuotes }
       },
+      providesTags: ['TradeQuote'],
     }),
     getSupportedAssets: build.query<
       {
@@ -162,6 +165,7 @@ export const swappersApi = createApi({
           },
         }
       },
+      providesTags: [],
     }),
   }),
 })

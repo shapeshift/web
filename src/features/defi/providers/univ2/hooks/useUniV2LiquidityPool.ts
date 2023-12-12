@@ -1,7 +1,6 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
@@ -13,11 +12,15 @@ import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import { type Address, encodeFunctionData, getAddress } from 'viem'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { buildAndBroadcast, createBuildCustomTxInput, getFees } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getFees,
+} from 'lib/utils/evm'
 import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
@@ -68,10 +71,7 @@ export const useUniV2LiquidityPool = ({
   const wallet = useWallet().state.wallet
   const asset0Price = useAppSelector(state => selectMarketDataById(state, assetId0OrWeth)).price
 
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethChainId) as unknown as
-    | ethereum.ChainAdapter
-    | undefined
+  const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 
   const uniswapRouterContract = useMemo(
     () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
@@ -196,8 +196,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
-
         const maybeEthAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
           if (assetId1OrWeth === wethAssetId) return token1Amount
@@ -227,7 +225,6 @@ export const useUniV2LiquidityPool = ({
     [
       accountNumber,
       adapter,
-      asset0,
       assetId0OrWeth,
       assetId1OrWeth,
       makeAddLiquidityData,
@@ -321,8 +318,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
-
         const data = makeRemoveLiquidityData({
           asset0ContractAddress,
           asset1ContractAddress,
@@ -357,7 +352,6 @@ export const useUniV2LiquidityPool = ({
       accountNumber,
       uniswapRouterContract,
       wallet,
-      asset0.chainId,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
@@ -444,7 +438,7 @@ export const useUniV2LiquidityPool = ({
 
   const getApproveFees = useCallback(
     (contractAddress: Address) => {
-      if (skip || !adapter || !isNumber(accountNumber) || !wallet) return
+      if (skip || !isNumber(accountNumber) || !wallet) return
 
       const contract = getOrCreateContractByType({
         address: contractAddress,
@@ -477,14 +471,7 @@ export const useUniV2LiquidityPool = ({
 
   const getDepositFees = useCallback(
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
-      if (
-        skip ||
-        !adapter ||
-        !accountId ||
-        !isNumber(accountNumber) ||
-        !uniswapRouterContract ||
-        !wallet
-      )
+      if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
         return
 
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
@@ -571,7 +558,7 @@ export const useUniV2LiquidityPool = ({
 
   const getWithdrawFees = useCallback(
     (lpAmount: string, asset0Amount: string, asset1Amount: string) => {
-      if (skip || !adapter || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
+      if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
       const data = makeRemoveLiquidityData({
         lpAmount,
@@ -605,8 +592,6 @@ export const useUniV2LiquidityPool = ({
   const approveAsset = useCallback(
     async (contractAddress: Address) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
-
-      if (!adapter) throw new Error(`no adapter available for ${ethChainId}`)
 
       const contract = getOrCreateContractByType({
         address: contractAddress,

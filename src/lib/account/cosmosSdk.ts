@@ -1,9 +1,7 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
-import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
@@ -12,10 +10,8 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
   const result = await (async () => {
     let acc: AccountMetadataById = {}
     for (const chainId of chainIds) {
-      if (!cosmosSdkChainIds.includes(chainId as CosmosSdkChainId))
-        throw new Error(`${chainId} does not exist in ${cosmosSdkChainIds}`)
       const { chainReference } = fromChainId(chainId)
-      const adapter = getChainAdapterManager().get(chainId)!
+      const adapter = assertGetCosmosSdkChainAdapter(chainId)
       if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
         if (!supportsCosmos(wallet)) continue
       }

@@ -52,6 +52,7 @@ export async function getTradeQuote(
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: getOneInchTokenAddress(sellAsset),
     toTokenAddress: getOneInchTokenAddress(buyAsset),
+    receiver: receiveAddress,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     ...(maybeTreasuryAddress && {
       fee: buyTokenPercentageFee,

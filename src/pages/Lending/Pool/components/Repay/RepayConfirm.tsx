@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate, thorchain } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -37,6 +37,7 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
@@ -236,7 +237,7 @@ export const RepayConfirm = ({
         return (async () => {
           const { account } = fromAccountId(repaymentAccountId)
 
-          const adapter = chainAdapter as unknown as thorchain.ChainAdapter
+          const adapter = assertGetThorchainChainAdapter()
 
           // repayment using THOR is a MsgDeposit tx
           const { txToSign } = await adapter.buildDepositTransaction({

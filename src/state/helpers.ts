@@ -6,8 +6,8 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.LIFI:
-      return true
     case SwapperName.OneInch:
+      return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.Test:

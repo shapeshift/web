@@ -1,5 +1,5 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
+import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
 import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type Polyglot from 'node-polyglot'
@@ -45,7 +45,7 @@ export const HopTransactionStep = ({
   const translate = useTranslate()
 
   const {
-    swap: { state: swapTxState, sellTxHash, buyTxHash },
+    swap: { state: swapTxState, sellTxHash, buyTxHash, message },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
@@ -168,6 +168,11 @@ export const HopTransactionStep = ({
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>
         {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
+        {Boolean(message) && (
+          <Tooltip label={message}>
+            <RawText color='text.subtle'>{message}</RawText>
+          </Tooltip>
+        )}
         {txLink && (
           <Link isExternal color='text.link' href={txLink}>
             <MiddleEllipsis value={txHash} />
@@ -178,6 +183,7 @@ export const HopTransactionStep = ({
   }, [
     errorTranslation,
     isError,
+    message,
     toCrypto,
     tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
     tradeQuoteStep.buyAsset.chainId,

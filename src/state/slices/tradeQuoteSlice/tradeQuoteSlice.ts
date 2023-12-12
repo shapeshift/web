@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {
@@ -96,6 +96,14 @@ export const tradeQuoteSlice = createSlice({
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
       state.tradeExecution[key].swap.state = TransactionExecutionState.Failed
+    },
+    setSwapTxMessage: (
+      state,
+      action: PayloadAction<{ hopIndex: number; message: string | undefined }>,
+    ) => {
+      const { hopIndex, message } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.message = message
     },
     setSwapTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload

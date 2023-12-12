@@ -1,4 +1,5 @@
-import { makeSwapErrorRight } from '@shapeshiftoss/swapper'
+import type { Swapper, SwapperApi } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapperName } from '@shapeshiftoss/swapper'
 import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
@@ -10,10 +11,7 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
-import type { Swapper, SwapperApi } from './types'
-import { SwapperName } from './types'
-
-export const QUOTE_TIMEOUT_MS = 10_000
+export const QUOTE_TIMEOUT_MS = 60_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,

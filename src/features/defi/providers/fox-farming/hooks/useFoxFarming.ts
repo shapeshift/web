@@ -1,17 +1,20 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils'
-import { buildAndBroadcast, createBuildCustomTxInput, getFees } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getFees,
+} from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
@@ -45,10 +48,7 @@ export const useFoxFarming = (
 
   const wallet = useWallet().state.wallet
 
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as
-    | ethereum.ChainAdapter
-    | undefined
+  const adapter = useMemo(() => assertGetEvmChainAdapter(fromAssetId(ethAssetId).chainId), [])
 
   const foxFarmingContract = useMemo(
     () => getOrCreateContractByAddress(contractAddress),
@@ -59,8 +59,6 @@ export const useFoxFarming = (
     async (lpAmount: string) => {
       try {
         if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
-
-        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
         const data = encodeFunctionData({
           abi: foxFarmingContract.abi,
@@ -93,7 +91,6 @@ export const useFoxFarming = (
       accountNumber,
       wallet,
       adapter,
-      ethAsset.chainId,
       foxFarmingContract.abi,
       lpAsset.precision,
       contractAddress,
@@ -104,8 +101,6 @@ export const useFoxFarming = (
     async (lpAmount: string, isExiting: boolean) => {
       try {
         if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
-
-        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
         const data = encodeFunctionData({
           abi: foxFarmingContract.abi,
@@ -133,16 +128,7 @@ export const useFoxFarming = (
         console.error(err)
       }
     },
-    [
-      adapter,
-      accountNumber,
-      contractAddress,
-      ethAsset.chainId,
-      foxFarmingContract,
-      lpAsset.precision,
-      wallet,
-      skip,
-    ],
+    [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, wallet, skip],
   )
 
   const allowance = useCallback(async () => {
@@ -155,7 +141,7 @@ export const useFoxFarming = (
   }, [farmingAccountId, contractAddress, skip])
 
   const getApproveFees = useCallback(() => {
-    if (!adapter || !isValidAccountNumber(accountNumber) || !wallet) return
+    if (!isValidAccountNumber(accountNumber) || !wallet) return
 
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
@@ -175,7 +161,7 @@ export const useFoxFarming = (
 
   const getStakeFees = useCallback(
     (lpAmount: string) => {
-      if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
+      if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
 
       const data = encodeFunctionData({
         abi: foxFarmingContract.abi,
@@ -197,7 +183,7 @@ export const useFoxFarming = (
 
   const getUnstakeFees = useCallback(
     (lpAmount: string, isExiting: boolean) => {
-      if (skip || !adapter || !isValidAccountNumber(accountNumber) || !wallet) return
+      if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
 
       const data = encodeFunctionData({
         abi: foxFarmingContract.abi,
@@ -219,7 +205,7 @@ export const useFoxFarming = (
 
   const getClaimFees = useCallback(
     async (userAddress: string) => {
-      if (!adapter || !userAddress || !wallet) return
+      if (!userAddress || !wallet) return
 
       const data = encodeFunctionData({
         abi: foxFarmingContract.abi,
@@ -240,8 +226,6 @@ export const useFoxFarming = (
 
   const approve = useCallback(async () => {
     if (!wallet || !isValidAccountNumber(accountNumber)) return
-
-    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
@@ -266,12 +250,10 @@ export const useFoxFarming = (
     })
 
     return txid
-  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, getApproveFees, wallet])
+  }, [accountNumber, adapter, contractAddress, getApproveFees, wallet])
 
   const claimRewards = useCallback(async () => {
     if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
-
-    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
     const data = encodeFunctionData({
       abi: foxFarmingContract.abi,
@@ -294,7 +276,7 @@ export const useFoxFarming = (
     })
 
     return txid
-  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, foxFarmingContract, skip, wallet])
+  }, [accountNumber, adapter, contractAddress, foxFarmingContract, skip, wallet])
 
   return {
     allowance,

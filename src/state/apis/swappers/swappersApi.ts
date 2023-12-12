@@ -1,14 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import orderBy from 'lodash/orderBy'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
 } from 'lib/swapper/swapper'
-import type { GetTradeQuoteInput } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
@@ -19,6 +19,7 @@ import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
@@ -110,6 +111,8 @@ export const swappersApi = createApi({
           ['desc', 'asc'],
         ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
+        // Ensures we autoselect the first quote on quotes received
+        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
         return { data: orderedQuotes }
       },
     }),

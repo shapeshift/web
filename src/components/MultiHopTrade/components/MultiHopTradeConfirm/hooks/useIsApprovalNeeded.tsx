@@ -1,8 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useAllowance } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useAllowance'
 import { bn } from 'lib/bignumber/bignumber'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 
 import { GetAllowanceErr } from '../../../hooks/useAllowanceApproval/helpers'

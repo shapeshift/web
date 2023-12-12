@@ -1,4 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
@@ -9,7 +10,6 @@ import {
   GetAllowanceErr,
 } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 
 import { useBlockNumber } from './useBlockNumber'
 

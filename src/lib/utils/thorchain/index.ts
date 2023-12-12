@@ -1,8 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -19,9 +18,9 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+import { assertGetUtxoChainAdapter } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
 
@@ -186,9 +185,7 @@ const getAccountAddressesWithBalances = async (
 ): Promise<{ address: string; balance: string }[]> => {
   if (isUtxoAccountId(accountId)) {
     const { chainId, account: pubkey } = fromAccountId(accountId)
-    const chainAdapters = getChainAdapterManager()
-    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+    const adapter = assertGetUtxoChainAdapter(chainId)
 
     const {
       chainSpecific: { addresses },

@@ -5,12 +5,12 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useRef } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
-import type { EvmTransactionRequest } from 'lib/swapper/types'
-import { SwapperName, TradeExecutionEvent } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
@@ -61,6 +61,8 @@ export const useTradeExecution = (hopIndex: number) => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
       const onFail = (e: unknown) => {
+        const { message } = (e ?? { message: undefined }) as { message?: string }
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
         showErrorToast(e)
         resolve()
@@ -71,10 +73,12 @@ export const useTradeExecution = (hopIndex: number) => {
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
-      execution.on(TradeExecutionEvent.Status, ({ buyTxHash }) => {
+      execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         buyTxHash && tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
       })
       execution.on(TradeExecutionEvent.Success, () => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message: undefined }))
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()
       })

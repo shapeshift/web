@@ -1,9 +1,9 @@
+import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
-import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,

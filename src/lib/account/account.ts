@@ -1,9 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { isFulfilled, isRejected } from 'lib/utils'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'

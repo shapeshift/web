@@ -163,21 +163,9 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        wallet &&
-          sellAccountId &&
-          sellAccountMetadata &&
-          isBuyAssetChainSupported &&
-          receiveAddress &&
-          !isVotingPowerLoading,
+        wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading,
       ),
-    [
-      wallet,
-      sellAccountId,
-      sellAccountMetadata,
-      isBuyAssetChainSupported,
-      receiveAddress,
-      isVotingPowerLoading,
-    ],
+    [wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
   )
 
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
@@ -191,12 +179,6 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swappersApi.util.invalidateTags(['TradeQuote']))
 
-    if (!isBuyAssetChainSupported && !receiveAddress) {
-      setTradeQuoteInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
-      dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
-      return
-    }
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
@@ -259,6 +241,7 @@ export const useGetTradeQuotes = () => {
       // if the quote input args changed, reset the selected swapper and update the trade quote args
       if (tradeQuoteInput !== skipToken) {
         setTradeQuoteInput(skipToken)
+        dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
         dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
       }
     }

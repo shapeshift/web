@@ -16,6 +16,7 @@ export type FetchOneInchSwapInput = {
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
   maximumSlippageDecimalPercentage: string
+  sendAddress: string
 }
 
 export const fetchOneInchSwap = async ({
@@ -25,6 +26,7 @@ export const fetchOneInchSwap = async ({
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
   sellAsset,
   maximumSlippageDecimalPercentage,
+  sendAddress,
 }: FetchOneInchSwapInput) => {
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
@@ -46,10 +48,8 @@ export const fetchOneInchSwap = async ({
   const params: OneInchSwapApiInput = {
     fromTokenAddress: getOneInchTokenAddress(sellAsset),
     toTokenAddress: getOneInchTokenAddress(buyAsset),
-    // HACK: use the receive address as the send address
-    // 1inch uses this to check allowance on their side
-    // this swapper is not cross-account so this works
-    fromAddress: receiveAddress,
+    receiver: receiveAddress,
+    fromAddress: sendAddress,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippage: maximumSlippagePercentage,
     allowPartialFill: false,

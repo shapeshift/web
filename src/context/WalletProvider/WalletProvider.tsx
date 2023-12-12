@@ -150,6 +150,7 @@ export const getMaybeProvider = async (
     try {
       return globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
     } catch (error) {
+      console.error(error)
       throw new Error('walletProvider.xdefi.errors.connectFailure')
     }
   }

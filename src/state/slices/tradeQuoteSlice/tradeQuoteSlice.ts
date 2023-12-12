@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {

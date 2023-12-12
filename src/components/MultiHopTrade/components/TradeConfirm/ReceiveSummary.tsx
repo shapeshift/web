@@ -9,6 +9,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { AmountDisplayMeta, ProtocolFee, SwapSource } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -22,9 +25,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ShapeShiftFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { AmountDisplayMeta, ProtocolFee, SwapSource } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
-import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
 import {
   convertDecimalPercentageToBasisPoints,

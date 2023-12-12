@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { BuyAssetBySellIdInput, Swapper } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { BuyAssetBySellIdInput, Swapper } from 'lib/swapper/types'
 import { executeEvmTransaction } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'

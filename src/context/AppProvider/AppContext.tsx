@@ -11,6 +11,7 @@ import {
   fromAccountId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
@@ -43,7 +44,6 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,

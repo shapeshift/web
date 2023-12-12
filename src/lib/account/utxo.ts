@@ -8,9 +8,9 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 

@@ -1,21 +1,21 @@
 import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedEvmTransactionArgs,
+  SwapErrorRight,
   SwapperApi,
   TradeQuote,
-} from 'lib/swapper/types'
+} from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { Result } from '@sniptt/monads/build'
+import { Err } from '@sniptt/monads/build'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -32,7 +32,7 @@ export const lifiApi: SwapperApi = {
   // but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    assetsById: AssetsById,
+    assetsById: AssetsByIdPartial,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(

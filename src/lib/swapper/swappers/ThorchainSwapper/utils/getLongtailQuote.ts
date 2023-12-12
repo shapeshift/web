@@ -1,6 +1,8 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
@@ -8,9 +10,7 @@ import assert from 'assert'
 import type { Address } from 'viem'
 import { getContract } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { type GetTradeQuoteInput } from 'lib/swapper/types'
 import { viemClientByChainId } from 'lib/viem-client'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
 import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
@@ -22,7 +22,7 @@ import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers
 export const getLongtailToL1Quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
-  assetsById: AssetsById,
+  assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   /*
     We only support ETH -> L1 for now.
@@ -115,29 +115,20 @@ export const getLongtailToL1Quote = async (
     TradeType.LongTailToL1,
   )
 
-  return thorchainQuotes
-    .mapErr(e => {
-      console.error(e)
-      return makeSwapErrorRight({
-        message: 'makeSwapperAxiosServiceMonadic',
-        cause: e,
-        code: SwapErrorType.QUERY_FAILED,
-      })
-    })
-    .andThen(quotes => {
-      const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
-        ...q,
-        router: AGGREGATOR_CONTRACT,
-        steps: q.steps.map(s => ({
-          ...s,
-          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-          sellAmountIncludingProtocolFeesCryptoBaseUnit:
-            input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset: input.sellAsset,
-          allowanceContract: ALLOWANCE_CONTRACT,
-        })),
-      }))
+  return thorchainQuotes.andThen(quotes => {
+    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
+      ...q,
+      router: AGGREGATOR_CONTRACT,
+      steps: q.steps.map(s => ({
+        ...s,
+        // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+        sellAmountIncludingProtocolFeesCryptoBaseUnit:
+          input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAsset: input.sellAsset,
+        allowanceContract: ALLOWANCE_CONTRACT,
+      })),
+    }))
 
-      return Ok(updatedQuotes)
-    })
+    return Ok(updatedQuotes)
+  })
 }

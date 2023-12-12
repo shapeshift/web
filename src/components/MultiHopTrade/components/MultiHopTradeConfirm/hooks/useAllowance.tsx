@@ -1,4 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
@@ -9,7 +10,6 @@ import {
   GetAllowanceErr,
 } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 
 import { useBlockNumber } from './useBlockNumber'
 
@@ -28,21 +28,18 @@ const queryKey = ({
     {
       accountNumber,
       allowanceContract,
-      blockNumber,
+      blockNumber: blockNumber?.toString(), // manual stringify of bigint since it's not JSON serializable by default
       chainId,
       assetId,
       accountId,
     },
   ] as const
 
-export type UseAllowanceProps = {
-  sellAssetAccountId: AccountId | undefined
-  tradeQuoteStep: TradeQuoteStep | undefined
-  watch: boolean
-}
-
-// TODO: use this pattern for all allowance and trade execution hooks
-export function useAllowance({ sellAssetAccountId, tradeQuoteStep, watch }: UseAllowanceProps) {
+export function useAllowance(
+  tradeQuoteStep: TradeQuoteStep | undefined,
+  sellAssetAccountId: AccountId | undefined,
+  watch: boolean,
+) {
   const {
     state: { wallet },
   } = useWallet()

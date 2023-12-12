@@ -1,5 +1,5 @@
+import type { CowSwapOrder } from '@shapeshiftoss/swapper'
 import type { AxiosStatic } from 'axios'
-import type { CowSwapOrder } from 'lib/swapper/types'
 
 import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 

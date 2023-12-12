@@ -1,9 +1,9 @@
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import { omit } from 'lodash'
 
-import type { GetTradeQuoteInput } from '../../../types'
-import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'
@@ -50,6 +50,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     affiliateBps: '0',
     potentialAffiliateBps: '0',
     isStreaming: false,
+    recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '144114.94366197183098591549',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -85,6 +86,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     affiliateBps: '0',
     potentialAffiliateBps: '0',
     isStreaming: true,
+    recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '158199.45070422535211267606',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',

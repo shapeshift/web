@@ -13,6 +13,7 @@ export enum HopExecutionState {
 }
 
 export enum TradeExecutionState {
+  Initializing = 'Initializing',
   Previewing = 'Previewing',
   FirstHop = 'FirstHop',
   SecondHop = 'SecondHop',
@@ -48,6 +49,7 @@ export type SwapExecutionMetadata = {
   sellTxHash?: string
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
+  message?: string
 }
 
 export type HopExecutionMetadata = {

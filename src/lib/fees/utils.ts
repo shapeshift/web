@@ -1,6 +1,6 @@
+import type { TradeQuote } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { TradeQuote } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 type CalculateShapeShiftFeeArgs = {
   amountBeforeDiscountUserCurrency: string | undefined

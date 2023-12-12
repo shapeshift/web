@@ -11,6 +11,8 @@ import {
   fromAccountId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
@@ -42,7 +44,6 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
@@ -232,38 +233,56 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }),
   )
 
-  // once the portfolio is loaded, fetch market data for all portfolio assets
-  // start refetch timer to keep market data up to date
-  useEffect(() => {
-    if (portfolioLoadingStatus === 'loading') return
+  const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
+  useQuery({
+    queryKey: ['marketData', {}],
+    queryFn: async () => {
+      // Exclude assets for which we are unable to get market data
+      // We would fire query thunks / XHRs that would slow down the app
+      // We insert price data for these as resolver-level, and are unable to get market data
+      const excluded: AssetId[] = uniV2LpIdsData.data ?? []
+      const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
-    // Exclude assets for which we are unable to get market data
-    // We would fire query thunks / XHRs that would slow down the app
-    // We insert price data for these as resolver-level, and are unable to get market data
-    const excluded: AssetId[] = uniV2LpIdsData.data ?? []
-    const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
+      // Only commented out to make it clear we do NOT want to use RTK options here
+      // We use react-query as a wrapper because it allows us to disable refetch for background tabs
+      // const opts = { subscriptionOptions: { pollingInterval: marketDataPollingInterval } }
+      const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-    // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
-    // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
-    // const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
-    // const opts = { subscriptionOptions: { pollingInterval } }
-    const timeframe = DEFAULT_HISTORY_TIMEFRAME
-
-    void (async () => {
       await Promise.all([
         dispatch(
-          marketApi.endpoints.findPriceHistoryByAssetIds.initiate({
-            timeframe,
-            assetIds: portfolioAssetIdsExcludeNoMarketData,
+          marketApi.endpoints.findPriceHistoryByAssetIds.initiate(
+            {
+              timeframe,
+              assetIds: portfolioAssetIdsExcludeNoMarketData,
+            },
+            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+            { forceRefetch: true },
+          ),
+        ),
+        dispatch(
+          marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData, {
+            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+            forceRefetch: true,
           }),
         ),
-        dispatch(marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData)),
       ])
 
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())
-    })()
-  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
+
+      // We *have* to return a value other than undefined from react-query queries, see
+      // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
+      return null
+    },
+    // once the portfolio is loaded, fetch market data for all portfolio assets
+    // and start refetch timer to keep market data up to date
+    enabled: portfolioLoadingStatus !== 'loading',
+    refetchInterval: marketDataPollingInterval,
+    // Do NOT refetch market data in background to avoid spamming coingecko
+    refetchIntervalInBackground: false,
+    // Do NOT refetch market data on window focus to avoid spamming coingecko
+    refetchOnWindowFocus: false,
+  })
 
   /**
    * fetch forex spot and history for user's selected currency

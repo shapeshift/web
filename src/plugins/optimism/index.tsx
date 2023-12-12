@@ -1,5 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -34,7 +32,7 @@ export default function register(): Plugins {
                 return new optimism.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().REACT_APP_OPTIMISM_NODE_URL,
-                }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
+                })
               },
             ],
           ],

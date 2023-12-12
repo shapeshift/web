@@ -1,6 +1,6 @@
+import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { localAssetData } from 'lib/asset-service'
-import type { AmountDisplayMeta } from 'lib/swapper/types'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'
 import { multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'

@@ -6,12 +6,14 @@ import {
   Flex,
   Skeleton,
   Tag,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { SwapErrorType } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
+import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -289,6 +291,18 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
                     )
                   }
                 </Flex>
+              </Skeleton>
+              <Skeleton isLoaded={!isLoading}>
+                {quote?.steps.length > 1 && (
+                  <Tooltip label={translate('trade.numHops', { numHops: quote?.steps.length })}>
+                    <Flex gap={2} alignItems='center'>
+                      <RawText color='text.subtle'>
+                        <BsLayers />
+                      </RawText>
+                      {quote?.steps.length ?? ''}
+                    </Flex>
+                  </Tooltip>
+                )}
               </Skeleton>
             </Flex>
           </CardFooter>

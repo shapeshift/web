@@ -39,10 +39,12 @@ const selectLendingCloseQueryData = memoize(
     data,
     collateralAssetMarketData,
     repaymentAmountCryptoPrecision,
+    repaymentPercentOrDefault,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     repaymentAmountCryptoPrecision: string | null
+    repaymentPercentOrDefault: number
   }): LendingQuoteClose => {
     const quote = data
 
@@ -109,6 +111,7 @@ const selectLendingCloseQueryData = memoize(
       quoteTotalTimeMs,
       quoteExpiry,
       repaymentAmountCryptoPrecision,
+      repaymentPercentOrDefault,
     }
   },
 )
@@ -224,6 +227,7 @@ export const useLendingQuoteCloseQuery = ({
         data,
         collateralAssetMarketData,
         repaymentAmountCryptoPrecision,
+        repaymentPercentOrDefault,
       }),
     // Do not refetch if consumers explicitly set enabled to false
     // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function

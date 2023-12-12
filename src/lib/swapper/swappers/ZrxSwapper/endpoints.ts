@@ -1,14 +1,14 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads/build'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedEvmTransactionArgs,
+  SwapErrorRight,
   SwapperApi,
   TradeQuote,
-} from 'lib/swapper/types'
+} from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads/build'
 import { checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'

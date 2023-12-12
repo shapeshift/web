@@ -1,5 +1,5 @@
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useState } from 'react'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 
 import { useApprovalTx } from './hooks/useApprovalTx'
 import { useExecuteAllowanceApproval } from './hooks/useExecuteAllowanceApproval'
@@ -17,13 +17,13 @@ export const useAllowanceApproval = (
     approvalNetworkFeeCryptoBaseUnit,
     buildCustomTxInput,
     stopPolling: stopPollingBuildApprovalTx,
-  } = useApprovalTx(tradeQuoteStep, isFirstHop, isExactAllowance)
+  } = useApprovalTx(tradeQuoteStep, isFirstHop ? 0 : 1, isExactAllowance)
 
   const {
     executeAllowanceApproval: _executeAllowanceApproval,
     txId: approvalTxId,
     txStatus: approvalTxStatus,
-  } = useExecuteAllowanceApproval(tradeQuoteStep, isFirstHop, buildCustomTxInput)
+  } = useExecuteAllowanceApproval(tradeQuoteStep, isFirstHop ? 0 : 1, buildCustomTxInput)
 
   const executeAllowanceApproval = useCallback(() => {
     stopPollingBuildApprovalTx()

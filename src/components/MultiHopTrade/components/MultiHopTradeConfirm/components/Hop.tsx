@@ -9,6 +9,7 @@ import {
   HStack,
   Stepper,
 } from '@chakra-ui/react'
+import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
@@ -19,7 +20,6 @@ import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import type { SwapperName, TradeQuoteStep } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
@@ -67,7 +67,7 @@ export const Hop = ({
     state: hopExecutionState,
     approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
     swap: { state: swapTxState },
-  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
     () => [approvalTxState, swapTxState].includes(TransactionExecutionState.Failed),

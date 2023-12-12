@@ -1,14 +1,14 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapErrorType } from '@shapeshiftoss/swapper'
+import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteValidation/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapperName } from 'lib/swapper/types'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,
@@ -19,7 +19,8 @@ import {
   selectActiveSwapperName,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
-  selectLastHopSellFeeAsset,
+  selectSecondHopSellAsset,
+  selectSecondHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,11 +28,11 @@ import { useAccountIds } from '../useAccountIds'
 
 export const useActiveQuoteStatus = (): QuoteStatus => {
   const validationErrors = useQuoteValidationErrors()
-  const translate = useTranslate()
 
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
+  const secondHopSellAsset = useAppSelector(selectSecondHopSellAsset)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
+  const secondHopSellFeeAsset = useAppSelector(selectSecondHopSellFeeAsset)
   const tradeBuyAsset = useAppSelector(selectBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
@@ -102,7 +103,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     return errors
   }, [isLoading, hasUserEnteredAmount, activeQuoteError, activeQuote, validationErrors])
 
-  // Map validation errors to translation stings
+  // Map validation errors to translation strings
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
     const firstError = quoteErrors[0]
@@ -120,9 +121,25 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
         case ActiveQuoteStatus.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
         case ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance:
-          return ['common.insufficientAmountForGas', { assetSymbol: firstHopSellFeeAsset?.symbol }]
-        case ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance:
-          return ['common.insufficientAmountForGas', { assetSymbol: lastHopSellFeeAsset?.symbol }]
+          return [
+            'common.insufficientAmountForGas',
+            {
+              assetSymbol: firstHopSellFeeAsset?.symbol,
+              chainSymbol: firstHopSellFeeAsset
+                ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+                : '',
+            },
+          ]
+        case ActiveQuoteStatus.InsufficientSecondHopFeeAssetBalance:
+          return [
+            'common.insufficientAmountForGas',
+            {
+              assetSymbol: secondHopSellFeeAsset?.symbol,
+              chainSymbol: secondHopSellFeeAsset
+                ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
+                : '',
+            },
+          ]
         case ActiveQuoteStatus.NoQuotesAvailableForTradePair:
           return 'trade.errors.invalidTradePairBtnText'
         case ActiveQuoteStatus.UnknownError:
@@ -130,21 +147,26 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
         case ActiveQuoteStatus.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
         case ActiveQuoteStatus.SellAssetNotNotSupportedByWallet:
-          return [
-            'trade.errors.assetNotSupportedByWallet',
-            {
-              assetSymbol:
-                firstHopSellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
-            },
-          ]
+          return firstHopSellAsset
+            ? [
+                'trade.errors.assetNotSupportedByWallet',
+                {
+                  assetSymbol: firstHopSellAsset.symbol,
+                  chainSymbol: getChainShortName(firstHopSellAsset.chainId as KnownChainIds),
+                },
+              ]
+            : 'sellAssetNotSupportedByWallet'
+        case ActiveQuoteStatus.IntermediaryAssetNotNotSupportedByWallet:
+          return secondHopSellAsset
+            ? [
+                'trade.errors.assetNotSupportedByWallet',
+                {
+                  assetSymbol: secondHopSellAsset.symbol,
+                  chainSymbol: getChainShortName(secondHopSellAsset.chainId as KnownChainIds),
+                },
+              ]
+            : 'intermediaryAssetNotSupportedByWallet'
         case ActiveQuoteStatus.NoReceiveAddress:
-          return [
-            'trade.errors.noReceiveAddress',
-            {
-              assetSymbol:
-                tradeBuyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
-            },
-          ]
         case ActiveQuoteStatus.SellAmountBelowTradeFee:
           return 'trade.errors.sellAmountDoesNotCoverFee'
         case ActiveQuoteStatus.InsufficientFundsForProtocolFee:
@@ -160,10 +182,10 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     quoteErrors,
     disableSmartContractSwap,
     tradeBuyAsset?.symbol,
-    firstHopSellFeeAsset?.symbol,
-    lastHopSellFeeAsset?.symbol,
-    firstHopSellAsset?.symbol,
-    translate,
+    firstHopSellFeeAsset,
+    secondHopSellFeeAsset,
+    firstHopSellAsset,
+    secondHopSellAsset,
     insufficientBalanceProtocolFeeMeta,
   ])
 

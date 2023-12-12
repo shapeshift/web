@@ -5,24 +5,21 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useRef } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
-import type { EvmTransactionRequest } from 'lib/swapper/types'
-import { SwapperName, TradeExecutionEvent } from 'lib/swapper/types'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import {
-  selectFirstHopSellAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectSecondHopSellAccountId,
+  selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -34,9 +31,7 @@ export const useTradeExecution = (hopIndex: number) => {
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
 
-  const sellAssetAccountId = useAppSelector(
-    hopIndex === 0 ? selectFirstHopSellAccountId : selectSecondHopSellAccountId,
-  )
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
@@ -62,27 +57,33 @@ export const useTradeExecution = (hopIndex: number) => {
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
-      const execution = new TradeExecution()
-
-      execution.on(TradeExecutionEvent.Error, reject)
-      execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
-        dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
-      })
-      execution.on(TradeExecutionEvent.Status, ({ buyTxHash }) => {
-        buyTxHash && tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
-      })
-      execution.on(TradeExecutionEvent.Success, () => {
-        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
-        resolve()
-      })
-      execution.on(TradeExecutionEvent.Fail, e => {
+      const onFail = (e: unknown) => {
+        const { message } = (e ?? { message: undefined }) as { message?: string }
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
         showErrorToast(e)
         resolve()
+      }
+
+      const execution = new TradeExecution()
+
+      execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
+        dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
+      execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
+        buyTxHash && tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
+      })
+      execution.on(TradeExecutionEvent.Success, () => {
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message: undefined }))
+        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
+        resolve()
+      })
+      execution.on(TradeExecutionEvent.Fail, onFail)
+      execution.on(TradeExecutionEvent.Error, onFail)
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber

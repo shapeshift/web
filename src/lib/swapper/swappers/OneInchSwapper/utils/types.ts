@@ -15,6 +15,7 @@ export type OneInchQuoteApiInput = {
   fromTokenAddress: string
   toTokenAddress: string
   amount: string
+  receiver: string
   fee?: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
 }
 

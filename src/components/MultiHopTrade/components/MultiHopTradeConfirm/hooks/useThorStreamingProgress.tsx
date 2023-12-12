@@ -68,7 +68,7 @@ export const useThorStreamingProgress = (
   const dispatch = useAppDispatch()
   const {
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
-  } = useAppSelector(selectHopExecutionMetadata)[hopIndex]
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   useEffect(() => {
     // don't start polling until we have a tx

@@ -1,5 +1,5 @@
+import { SwapperName } from '@shapeshiftoss/swapper'
 import axios from 'axios'
-import { SwapperName } from 'lib/swapper/types'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 // Important: maxAge should be small because inbound address info must be recent

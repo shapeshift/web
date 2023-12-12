@@ -63,7 +63,7 @@ export const StepperStep = ({
         {content !== undefined && <Box mt={2}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}
       </Box>
-      <StepSeparator />
+      {!isLastStep && <StepSeparator />}
     </Step>
   )
 }

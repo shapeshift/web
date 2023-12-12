@@ -1,9 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
-import type { TradeQuoteStep } from 'lib/swapper/types'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
+  selectIsActiveQuoteMultiHop,
   selectSecondHop,
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -19,11 +20,11 @@ const useIsApprovalInitiallyNeededForHop = (
   const [watchIsApprovalNeeded, setWatchIsApprovalNeeded] = useState<boolean>(true)
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
-  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded({
+  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(
     tradeQuoteStep,
     sellAssetAccountId,
-    watch: watchIsApprovalNeeded,
-  })
+    watchIsApprovalNeeded,
+  )
 
   useEffect(() => {
     // stop polling on first result
@@ -43,18 +44,19 @@ export const useIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
-  const FirstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const SecondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const firstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const secondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
 
   const {
     isLoading: isFirstHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
-  } = useIsApprovalInitiallyNeededForHop(firstHop, FirstHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(firstHop, firstHopSellAssetAccountId)
 
   const {
     isLoading: isSecondHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
-  } = useIsApprovalInitiallyNeededForHop(secondHop, SecondHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(secondHop, secondHopSellAssetAccountId)
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
@@ -72,4 +74,6 @@ export const useIsApprovalInitiallyNeeded = () => {
     isSecondHopLoading,
     secondHop,
   ])
+
+  return { isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }
 }

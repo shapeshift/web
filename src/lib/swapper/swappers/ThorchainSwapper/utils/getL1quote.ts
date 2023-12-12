@@ -1,11 +1,17 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type {
+  GetEvmTradeQuoteInput,
+  GetTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
+  ProtocolFee,
+} from '@shapeshiftoss/swapper'
 import {
-  createTradeAmountTooSmallErr,
   makeSwapErrorRight,
   type SwapErrorRight,
   SwapErrorType,
+  SwapperName,
 } from '@shapeshiftoss/swapper'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -15,8 +21,6 @@ import { baseUnitToPrecision, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import type { GetEvmTradeQuoteInput, GetUtxoTradeQuoteInput, ProtocolFee } from 'lib/swapper/types'
-import { type GetTradeQuoteInput, SwapperName } from 'lib/swapper/types'
 import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -89,25 +93,13 @@ export const getL1quote = async (
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
 
   // recommended_min_amount_in should be the same value for both types of swaps
-  const recommendedMinAmountInCryptoBaseUnit = swapQuote.recommended_min_amount_in
+  const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
         value: swapQuote.recommended_min_amount_in,
         inputExponent: THORCHAIN_FIXED_PRECISION,
         outputExponent: sellAsset.precision,
-      })
-    : undefined
-
-  if (
-    recommendedMinAmountInCryptoBaseUnit &&
-    bn(sellAmountCryptoBaseUnit).lt(recommendedMinAmountInCryptoBaseUnit)
-  ) {
-    return Err(
-      createTradeAmountTooSmallErr({
-        minAmountCryptoBaseUnit: recommendedMinAmountInCryptoBaseUnit.toFixed(),
-        assetId: sellAsset.assetId,
-      }),
-    )
-  }
+      }).toFixed()
+    : '0'
 
   const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
     source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,
@@ -223,6 +215,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               data,
               router,
@@ -318,6 +311,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               steps: [
                 {
@@ -395,6 +389,7 @@ export const getL1quote = async (
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
+              recommendedMinimumCryptoBaseUnit,
               rate,
               steps: [
                 {

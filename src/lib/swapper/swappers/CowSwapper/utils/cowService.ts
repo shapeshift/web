@@ -1,6 +1,6 @@
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import { SwapperName } from 'lib/swapper/types'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds

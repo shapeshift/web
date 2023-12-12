@@ -24,7 +24,13 @@ export const MultiHopTradeConfirm = memo(() => {
   const previousTradeExecutionState = usePrevious(tradeExecutionState)
   const history = useHistory()
 
-  useIsApprovalInitiallyNeeded()
+  const { isLoading } = useIsApprovalInitiallyNeeded()
+
+  useEffect(() => {
+    if (isLoading) return
+
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized())
+  }, [dispatch, isLoading])
 
   const handleBack = useCallback(() => {
     dispatch(swappersSlice.actions.clear())
@@ -71,7 +77,9 @@ export const MultiHopTradeConfirm = memo(() => {
             <Heading textAlign='center' fontSize='md'>
               <Text
                 translation={
-                  tradeExecutionState === TradeExecutionState.Previewing
+                  [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+                    tradeExecutionState,
+                  )
                     ? 'trade.confirmDetails'
                     : 'trade.trade'
                 }

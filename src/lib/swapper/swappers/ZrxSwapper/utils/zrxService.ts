@@ -1,9 +1,9 @@
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
-import { SwapperName } from 'lib/swapper/types'
 import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 

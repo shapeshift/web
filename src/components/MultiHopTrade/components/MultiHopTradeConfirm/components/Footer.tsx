@@ -8,6 +8,7 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -15,7 +16,6 @@ import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapperName } from 'lib/swapper/types'
 import {
   selectActiveSwapperName,
   selectLastHopBuyAsset,
@@ -105,7 +105,14 @@ export const Footer = () => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  return tradeExecutionState === TradeExecutionState.Previewing ? (
+  const isLoading = useMemo(
+    () => tradeExecutionState === TradeExecutionState.Initializing,
+    [tradeExecutionState],
+  )
+
+  return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+    tradeExecutionState,
+  ) ? (
     <CardFooter
       flexDir='column'
       gap={2}
@@ -135,6 +142,7 @@ export const Footer = () => {
         size='lg'
         width='full'
         onClick={handleConfirm}
+        isLoading={isLoading}
       >
         <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
       </Button>

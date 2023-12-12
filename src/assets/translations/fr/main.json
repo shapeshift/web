@@ -27,6 +27,7 @@
     "insufficientFunds": "Fonds insuffisants",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
+    "insufficientAmountForGas": "Solde %{assetSymbol}.%{chainSymbol} insuffisant pour couvrir le carbuarant",
     "invalidAddress": "Adresse invalide",
     "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
@@ -725,6 +726,7 @@
     "free": "Gratuit",
     "slowSwapTitle": "Échange %{protocol}",
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
+    "thorSmartContractWalletUnsupported": "Le réseau THORChain ne prend actuellement pas en charge les porte-monnaie pour contrats intelligents.",
     "updatingQuote": "Mise à jour du devis...",
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
     "manualReceiveAddress": "Adresse de réception",
@@ -747,8 +749,6 @@
     },
     "errors": {
       "title": "Il y a eu un problème",
-      "sellAssetStartSentence": "Actif à vendre",
-      "buyAssetStartSentence": "Actif à acheter",
       "sellAssetMiddleSentence": "actif à vendre",
       "buyAssetMiddleSentence": "actif à acheter",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
@@ -788,6 +788,9 @@
       "unsupportedPair": "Paire d'échange non supportée actuellement.",
       "unsupportedChain": "Chaîne non supportée actuellement.",
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
+      "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} non pris en charge par le porte-monnaie",
+      "sellAssetNotSupportedByWallet": "Actif à vendre non pris en charge par le porte-monnaie",
+      "intermediaryAssetNotSupportedByWallet": "Intermédiaire non pris en charge par le porte-monnaie",
       "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
       "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
       "tradingNotActiveNoAssetSymbol": "Échanges temporairement interrompus pour cette route",
@@ -799,7 +802,8 @@
       "quoteError": "Une erreur s'est produite lors de l'obtention d'un devis",
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
-      "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge"
+      "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
+      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds."
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -807,6 +811,7 @@
     "or": "ou",
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
+    "numHops": "Cet échange comprend %{numHops} sauts",
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse ou",
     "toContinue": "pour continuer.",
@@ -2069,7 +2074,6 @@
     "debtValue": "Valeur de la dette",
     "loanToValue": "Rapport prêt-valeur",
     "availablePools": "Pools disponibles",
-    "yourLoans": "Vos prêts",
     "pool": "Pool",
     "poolDepth": "Profondeur du pool",
     "poolDepthDescription": "Le niveau de santé du pool",
@@ -2087,6 +2091,7 @@
     "debtBalanceDescription": "Montant total de la dette que vous devez pour ce prêt",
     "repaymentLock": "Verrou du remboursement",
     "repaymentLockDescription": "Délai minimum avant de pouvoir rembourser votre prêt",
+    "receiveCollateral": "Le montant du collatéral que vous recevrez en retour",
     "borrow": "Emprunter",
     "repay": "Rembourser",
     "repayAmount": "Rembourser le montant",
@@ -2122,7 +2127,8 @@
         "body": "Emprunter avec THORChain implique d’utiliser vos actifs déposés comme collatéraux pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
       },
       "repayments": {
-        "title": "Comment fonctionne le remboursement ?"
+        "title": "Comment fonctionne le remboursement ?",
+        "body": "Le remboursement sur THORChain est flexible, vous permettant de rembourser à tout moment après expiration de votre verrou de remboursement, et dans n'importe quel actif qui sera ensuite converti en TOR. Le montant du remboursement est déduit du solde de votre dette et une part proportionnelle du collatéral vous est restitué lors du remboursement intégral."
       }
     },
     "quote": {
@@ -2131,17 +2137,24 @@
       "repaymentLock": "Délai minimum avant de pouvoir rembourser votre prêt",
       "collateralizationRatio": "Rapport entre la valeur de votre collatéral et le montant du prêt",
       "feesPlusSlippage": "Total des frais perçus, y compris les frais L1, le glissement/slippage et les frais de liquidité de THORChain"
+    },
+    "yourLoans": {
+      "yourLoans": "Vos prêts",
+      "emptyTitle": "Le pays d'Aucun Prêt !",
+      "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu’il en soit, profitez du calme !"
     }
   },
   "foxDiscounts": {
     "currentFoxPower": "Votre Puissance FOX",
     "foxPower": "Puissance FOX",
+    "simulateTitle": "Simulez vos remises Puissance FOX",
     "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
     "tradeSize": "Montant de l'échange",
     "totalFee": "Total des frais",
     "foxPowerDiscount": "Remise Puissance FOX",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
+    "simulateFee": "Simuler les remises",
     "freeUnderThreshold": "Les échanges inférieurs à %{threshold} sont toujours GRATUITS",
     "breakdownHeader": "Votre remise Puissance FOX",
     "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais d'échange et la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet de simulation.",

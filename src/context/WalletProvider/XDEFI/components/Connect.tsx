@@ -1,11 +1,12 @@
 import type { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import type { LocationState } from '../../NativeWallet/types'
@@ -21,18 +22,13 @@ export interface XDEFISetupProps
 }
 
 export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
+  const { setLocalWalletTypeAndDeviceId } = useLocalWallet()
   const { dispatch, state, getAdapter, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
-
-  useEffect(() => {
-    ;(async () => {
-      await onProviderChange(KeyManager.XDefi)
-    })()
-  }, [onProviderChange])
 
   const pairDevice = useCallback(async () => {
     setError(null)
@@ -41,11 +37,18 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
     const adapter = await getAdapter(KeyManager.XDefi)
     if (adapter) {
       try {
+        // Remove all provider event listeners from previously connected wallets
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
+
         const wallet = (await adapter.pairDevice()) as XDEFIHDWallet | undefined
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')
         }
+
+        await onProviderChange(KeyManager.XDefi, wallet)
 
         const { name, icon } = XDEFIConfig
 
@@ -80,7 +83,14 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }, [getAdapter, state.provider, dispatch, history])
+  }, [
+    onProviderChange,
+    getAdapter,
+    state.provider,
+    dispatch,
+    setLocalWalletTypeAndDeviceId,
+    history,
+  ])
 
   return (
     <ConnectModal

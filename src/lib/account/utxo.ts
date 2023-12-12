@@ -1,5 +1,5 @@
 import { toAccountId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -10,7 +10,7 @@ import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
@@ -22,9 +22,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
     for (const chainId of chainIds) {
       if (!utxoChainIds.includes(chainId as UtxoChainId))
         throw new Error(`${chainId} does not exist in ${utxoChainIds}`)
-      const adapter = getChainAdapterManager().get(
-        chainId,
-      ) as unknown as UtxoBaseAdapter<UtxoChainId>
+      const adapter = assertGetUtxoChainAdapter(chainId)
 
       let supportedAccountTypes = adapter.getSupportedAccountTypes()
       if (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) {

@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { utils } from 'ethers'
@@ -26,6 +25,7 @@ import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -92,13 +92,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
           throw new Error(`Unsupported EVM network: ${requestedEthNetwork}`)
         }
 
-        const requestedChainChainAdapter = chainAdapterManager.get(requestedChainId) as unknown as
-          | EvmBaseAdapter<EvmChainId>
-          | undefined
-
-        if (!requestedChainChainAdapter) {
-          throw new Error(`No chain adapter found for: ${requestedChainId}`)
-        }
+        const requestedChainChainAdapter = assertGetEvmChainAdapter(requestedChainId)
 
         const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
         const requestedChainFeeAsset = assets[requestedChainFeeAssetId]
@@ -128,7 +122,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
         console.error(e)
       }
     },
-    [assets, chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
+    [assets, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
   )
 
   const currentChainNativeAssetId = useMemo(

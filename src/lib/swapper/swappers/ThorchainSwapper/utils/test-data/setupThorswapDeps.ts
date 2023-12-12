@@ -38,6 +38,6 @@ export const mockChainAdapterManager: ChainAdapterManager = new Map([
           },
         }),
       ),
-    } as unknown as ChainAdapter<'eip155'>,
+    } as unknown as ChainAdapter<KnownChainIds.EthereumMainnet>,
   ],
 ])

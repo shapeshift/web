@@ -97,6 +97,14 @@ export const tradeQuoteSlice = createSlice({
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
       state.tradeExecution[key].swap.state = TransactionExecutionState.Failed
     },
+    setSwapTxMessage: (
+      state,
+      action: PayloadAction<{ hopIndex: number; message: string | undefined }>,
+    ) => {
+      const { hopIndex, message } = action.payload
+      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      state.tradeExecution[key].swap.message = message
+    },
     setSwapTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
       const isMultiHopTrade =

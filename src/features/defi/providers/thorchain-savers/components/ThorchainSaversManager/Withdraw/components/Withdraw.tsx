@@ -31,10 +31,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import {
-  fetchRouterContractAddress,
-  useRouterContractAddress,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -223,14 +220,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   )
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
-
-  // Note, we only use it to get a loading state, but actually fire the query in a non-reactive way in callbacks
-  const { isLoading: isSaversRouterContractAddressLoading } = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
-    // We do NOT want to exclude halted chains, as we're stil able to withdraw from them
-    excludeHalted: false,
-    skip: !isTokenWithdraw || !feeAsset?.assetId,
-  })
 
   // TODO(gomes): use useGetEstimatedFeesQuery instead of this.
   // The logic of useGetEstimatedFeesQuery and its consumption will need some touching up to work with custom Txs
@@ -802,7 +791,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           isEstimatedFeesDataLoading ||
           isSweepNeededLoading ||
           isThorchainSaversWithdrawQuoteLoading ||
-          isSaversRouterContractAddressLoading ||
           state.loading
         }
         percentOptions={percentOptions}

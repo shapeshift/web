@@ -383,37 +383,24 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       throw new Error('UtxoBaseAdapter: failed to get fee data')
     }
 
-    // TODO: when does this happen and why?
-    if (!data.fast?.satsPerKiloByte || data.fast.satsPerKiloByte < 0) {
-      data.fast = data.average
-    }
+    // ensure higher confirmation speeds never have lower fees than lower confirmation speeds
+    if (data.slow.satsPerKiloByte > data.average.satsPerKiloByte)
+      data.average.satsPerKiloByte = data.slow.satsPerKiloByte
+    if (data.average.satsPerKiloByte > data.fast.satsPerKiloByte)
+      data.fast.satsPerKiloByte = data.average.satsPerKiloByte
 
     const utxos = await this.providers.http.getUtxos({ pubkey })
 
     const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
 
     // We have to round because coinselect library uses sats per byte which cant be decimals
-    const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1024))
-    const averagePerByte = String(Math.round(data.average.satsPerKiloByte / 1024))
-    const slowPerByte = String(Math.round(data.slow.satsPerKiloByte / 1024))
+    const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))
+    const averagePerByte = String(Math.round(data.average.satsPerKiloByte / 1000))
+    const slowPerByte = String(Math.round(data.slow.satsPerKiloByte / 1000))
 
     const { fee: fastFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: fastPerByte })
     const { fee: averageFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: averagePerByte })
     const { fee: slowFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: slowPerByte })
-
-    // Special, temporary case for DOGE to provide a workable fee value when the node is struggling
-    const isDoge = pubkey.startsWith('dgub')
-    const allFeesDefined =
-      fastFee !== undefined && averageFee !== undefined && slowFee !== undefined
-    if (isDoge && !allFeesDefined) {
-      const satoshiPerByte = '20000'
-      const fee = utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee
-      return {
-        fast: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
-        average: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
-        slow: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
-      } as FeeDataEstimate<T>
-    }
 
     return {
       fast: { txFee: String(fastFee), chainSpecific: { satoshiPerByte: fastPerByte } },

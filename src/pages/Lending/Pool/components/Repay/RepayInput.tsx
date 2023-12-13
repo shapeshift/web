@@ -126,8 +126,7 @@ export const RepayInput = ({
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
-  const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
-    useLendingSupportedAssets({ type: 'borrow' })
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'borrow' })
 
   useEffect(() => {
     if (!(lendingSupportedAssets && collateralAsset)) return
@@ -160,15 +159,9 @@ export const RepayInput = ({
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
-        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    handleAssetChange,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-    repaymentAsset?.assetId,
-  ])
+  }, [handleAssetChange, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -177,15 +170,9 @@ export const RepayInput = ({
         onAssetClick={handleRepaymentAssetClick}
         onAssetChange={handleAssetChange}
         isReadOnly
-        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    collateralAssetId,
-    handleAssetChange,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-  ])
+  }, [collateralAssetId, handleAssetChange, handleRepaymentAssetClick])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 

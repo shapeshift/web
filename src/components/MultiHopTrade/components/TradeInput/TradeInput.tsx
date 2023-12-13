@@ -557,10 +557,9 @@ export const TradeInput = memo(() => {
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
-        isLoading={isSupportedAssetsLoading}
       />
     ),
-    [handleSellAssetClick, isSupportedAssetsLoading, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
@@ -569,10 +568,9 @@ export const TradeInput = memo(() => {
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
-        isLoading={isSupportedAssetsLoading}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   return (

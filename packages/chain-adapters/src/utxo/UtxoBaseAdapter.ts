@@ -401,17 +401,32 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const { fee: averageFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: averagePerByte })
     const { fee: slowFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: slowPerByte })
 
-    // Special, temporary case for DOGE to provide a workable fee value when the node is struggling
+    // Special, temporary case for DOGE to provide a workable fee value while the node is returning negative fees for some speeds
+    // This is not an issue with *our* node - all DOGE nodes are borked https://github.com/dogecoin/dogecoin/issues/3385
     const isDoge = pubkey.startsWith('dgub')
-    const allFeesDefined =
-      fastFee !== undefined && averageFee !== undefined && slowFee !== undefined
-    if (isDoge && !allFeesDefined) {
-      const satoshiPerByte = '20000'
-      const fee = utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee
+
+    if (isDoge) {
+      // 1 DOGE per byte
+      const satoshiPerByte = '100000000'
+
+      // Use hardcoded 1 DOGE per kilobyte if the current sats per byte is negative or missing
+      const _fastFee =
+        !fastFee || !data.fast?.satsPerKiloByte || data.fast.satsPerKiloByte < 0
+          ? satoshiPerByte
+          : fastFee
+      const _averageFee =
+        !averageFee || !data.average?.satsPerKiloByte || data.average.satsPerKiloByte < 0
+          ? satoshiPerByte
+          : averageFee
+      const _slowFee =
+        !slowFee || !data.slow?.satsPerKiloByte || data.slow.satsPerKiloByte < 0
+          ? satoshiPerByte
+          : slowFee
+
       return {
-        fast: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
-        average: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
-        slow: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
+        fast: { txFee: String(_fastFee), chainSpecific: { satoshiPerByte } },
+        average: { txFee: String(_averageFee), chainSpecific: { satoshiPerByte } },
+        slow: { txFee: String(_slowFee), chainSpecific: { satoshiPerByte } },
       } as FeeDataEstimate<T>
     }
 

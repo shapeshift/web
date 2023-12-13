@@ -394,9 +394,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
 
     // We have to round because coinselect library uses sats per byte which cant be decimals
-    const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1024))
-    const averagePerByte = String(Math.round(data.average.satsPerKiloByte / 1024))
-    const slowPerByte = String(Math.round(data.slow.satsPerKiloByte / 1024))
+    const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))
+    const averagePerByte = String(Math.round(data.average.satsPerKiloByte / 1000))
+    const slowPerByte = String(Math.round(data.slow.satsPerKiloByte / 1000))
 
     const { fee: fastFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: fastPerByte })
     const { fee: averageFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: averagePerByte })

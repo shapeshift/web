@@ -221,7 +221,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const saversRouterContractAddress = useRouterContractAddress({
+  const {
+    routerContractAddress: saversRouterContractAddress,
+    isLoading: isSaversRouterContractAddressLoading,
+  } = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     // We do NOT want to exclude halted chains, as we're stil able to withdraw from them
     excludeHalted: false,
@@ -791,6 +794,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           isEstimatedFeesDataLoading ||
           isSweepNeededLoading ||
           isThorchainSaversWithdrawQuoteLoading ||
+          isSaversRouterContractAddressLoading ||
           state.loading
         }
         percentOptions={percentOptions}

@@ -18,8 +18,10 @@ export const useRouterContractAddress = ({
   excludeHalted?: boolean
 }) => {
   const [routerContractAddress, setRouterContractAddress] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const fetchRouterContractAddress = useCallback(async () => {
+    setIsLoading(true)
     try {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const maybeInboundAddressData = await getInboundAddressDataForChain(
@@ -43,6 +45,8 @@ export const useRouterContractAddress = ({
     } catch (error) {
       console.error(error)
       setRouterContractAddress(null)
+    } finally {
+      setIsLoading(false)
     }
   }, [assetId, excludeHalted])
 
@@ -55,5 +59,5 @@ export const useRouterContractAddress = ({
     fetchRouterContractAddress()
   }, [skip, fetchRouterContractAddress, assetId])
 
-  return routerContractAddress
+  return { routerContractAddress, isLoading }
 }

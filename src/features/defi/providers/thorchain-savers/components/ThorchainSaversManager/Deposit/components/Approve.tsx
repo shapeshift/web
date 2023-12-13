@@ -109,6 +109,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { routerContractAddress: saversRouterContractAddress } = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
+    excludeHalted: true,
   })
 
   const handleApprove = useCallback(async () => {

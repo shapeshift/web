@@ -9,7 +9,7 @@ import {
 } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
@@ -64,7 +64,7 @@ export const getTradeQuoteArgs = async ({
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-    const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
+    const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,

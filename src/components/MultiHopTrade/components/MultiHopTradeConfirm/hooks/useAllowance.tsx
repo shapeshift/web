@@ -1,4 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
@@ -11,7 +13,7 @@ import {
 } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { useBlockNumber } from './useBlockNumber'
+import { useEvmBlockNumber } from './useBlockNumber'
 
 type QueryKeyArgs = Partial<Omit<GetAllowanceArgs, 'wallet'>> & { blockNumber: bigint | undefined }
 
@@ -86,7 +88,13 @@ export function useAllowance(
     [wallet],
   )
 
-  const blockNumber = useBlockNumber(chainId, watch)
+  const maybeEvmChainId = useMemo(() => {
+    const isEvmChainId = chainId && evmChainIds.includes(chainId as EvmChainId)
+    if (!isEvmChainId) return
+    return chainId as EvmChainId
+  }, [chainId])
+
+  const blockNumber = useEvmBlockNumber(maybeEvmChainId, watch)
 
   const allowanceQuery = useQuery({
     queryKey: queryKey({

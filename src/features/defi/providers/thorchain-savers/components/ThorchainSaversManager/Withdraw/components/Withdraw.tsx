@@ -3,7 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -325,7 +326,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       } catch (error) {
         console.error(error)
         // Assume insufficient amount for gas if we've thrown on the try block above
-        return Err(translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol }))
+        return Err(
+          translate('common.insufficientAmountForGas', {
+            assetSymbol: feeAsset.symbol,
+            chainSymbol: getChainShortName(feeAsset.chainId as KnownChainIds),
+          }),
+        )
       }
     },
     [
@@ -341,8 +347,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       chainId,
       supportedEvmChainIds,
       saversRouterContractAddress,
-      feeAsset.assetId,
-      feeAsset.symbol,
+      feeAsset,
       translate,
     ],
   )

@@ -41,7 +41,7 @@ export function getTradeType(
   switch (true) {
     case !!sellAssetPool && !!buyAssetPool:
     case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
-    case !!sellAssetPool && !buyAssetPool && buyPoolId !== 'THOR.RUNE':
+    case !!sellAssetPool && !buyAssetPool && buyPoolId === 'THOR.RUNE':
       return TradeType.L1ToL1
     case !sellAssetPool && !buyAssetPool:
       return TradeType.LongTailToLongTail

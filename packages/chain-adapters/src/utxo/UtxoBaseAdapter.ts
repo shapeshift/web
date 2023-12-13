@@ -402,16 +402,16 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const { fee: slowFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: slowPerByte })
 
     // Special, temporary case for DOGE to provide a workable fee value when the node is struggling
-    const isDoge = pubkey.startsWith('dpub')
+    const isDoge = pubkey.startsWith('dgub')
     const allFeesDefined =
       fastFee !== undefined && averageFee !== undefined && slowFee !== undefined
     if (isDoge && !allFeesDefined) {
-      const oneDogeInSatoshis = '100000000' // 1 DOGE in Satoshis
-      const fee = utxoSelect({ ...utxoSelectInput, satoshiPerByte: oneDogeInSatoshis }).fee
+      const satoshiPerByte = '20000'
+      const fee = utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee
       return {
-        fast: { txFee: String(fee), chainSpecific: { satoshiPerByte: oneDogeInSatoshis } },
-        average: { txFee: String(fee), chainSpecific: { satoshiPerByte: oneDogeInSatoshis } },
-        slow: { txFee: String(fee), chainSpecific: { satoshiPerByte: oneDogeInSatoshis } },
+        fast: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
+        average: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
+        slow: { txFee: String(fee), chainSpecific: { satoshiPerByte } },
       } as FeeDataEstimate<T>
     }
 

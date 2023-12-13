@@ -94,7 +94,8 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         borderRadius='full'
         color='text.base'
         isDisabled
-        variant='ghost'
+        isLoading={isLoading}
+        variant={!isLoading ? 'ghost' : undefined}
         _disabled={disabled}
         _hover={hover}
         {...buttonProps}

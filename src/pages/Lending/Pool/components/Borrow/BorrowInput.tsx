@@ -95,7 +95,8 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: borrowAssets } = useLendingSupportedAssets({ type: 'borrow' })
+  const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
+    useLendingSupportedAssets({ type: 'borrow' })
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
@@ -346,9 +347,10 @@ export const BorrowInput = ({
         onAssetClick={noop}
         onAssetChange={handleAssetChange}
         isReadOnly
+        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [collateralAssetId, handleAssetChange])
+  }, [collateralAssetId, handleAssetChange, isLendingSupportedAssetsLoading])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -356,9 +358,15 @@ export const BorrowInput = ({
         assetId={borrowAsset?.assetId ?? ''}
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={handleAssetChange}
+        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
+  }, [
+    borrowAsset?.assetId,
+    handleAssetChange,
+    handleBorrowAssetClick,
+    isLendingSupportedAssetsLoading,
+  ])
 
   const quoteErrorTranslation = useMemo(() => {
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'

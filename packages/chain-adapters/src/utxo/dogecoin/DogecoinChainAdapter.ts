@@ -77,8 +77,8 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
 
     // sane default for invalid fee data from the node
     // see: https://github.com/dogecoin/dogecoin/issues/3385
-    if (slow.satsPerKiloByte <= 0) fast.satsPerKiloByte = 50000000 // .5 DOGE per kB
-    if (average.satsPerKiloByte <= 0) fast.satsPerKiloByte = 100000000 // 1 DOGE per kB
+    if (slow.satsPerKiloByte <= 0) slow.satsPerKiloByte = 50000000 // .5 DOGE per kB
+    if (average.satsPerKiloByte <= 0) average.satsPerKiloByte = 100000000 // 1 DOGE per kB
     if (fast.satsPerKiloByte <= 0) fast.satsPerKiloByte = 500000000 // 5 DOGE per kB
 
     // ensure higher confirmation speeds never have lower fees than lower confirmation speeds

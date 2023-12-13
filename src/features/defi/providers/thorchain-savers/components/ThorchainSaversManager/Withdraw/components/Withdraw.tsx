@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { type GetFeeDataInput, type UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
@@ -31,7 +31,10 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import {
+  fetchRouterContractAddress,
+  useRouterContractAddress,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -221,10 +224,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const {
-    routerContractAddress: saversRouterContractAddress,
-    isLoading: isSaversRouterContractAddressLoading,
-  } = useRouterContractAddress({
+  // Note, we only use it to get a loading state, but actually fire the query in a non-reactive way in callbacks
+  const { isLoading: isSaversRouterContractAddressLoading } = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     // We do NOT want to exclude halted chains, as we're stil able to withdraw from them
     excludeHalted: false,
@@ -251,6 +252,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
         if (isTokenWithdraw) {
+          const saversRouterContractAddress = await queryClient.fetchQuery({
+            queryKey: ['routerContractAddress', feeAsset.assetId, false],
+            queryFn: () => fetchRouterContractAddress(assetId, false),
+            staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
+          })
+
           if (!saversRouterContractAddress)
             return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
@@ -345,10 +352,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
-      saversRouterContractAddress,
+      queryClient,
       feeAsset.assetId,
       feeAsset.symbol,
       translate,
+      assetId,
     ],
   )
 

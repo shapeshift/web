@@ -212,6 +212,7 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
+    excludeHalted: true,
   })
 
   useEffect(() => {

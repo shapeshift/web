@@ -1,5 +1,6 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, type ChainId } from '@shapeshiftoss/caip'
 import type {
+  ContractInteraction,
   evm,
   EvmChainAdapter,
   EvmChainId,
@@ -20,6 +21,8 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
+import { getSupportedChainIdsByChainNamespace } from '.'
+
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
   to: string
@@ -33,7 +36,7 @@ type BuildArgs = {
 
 type BroadcastArgs = {
   senderAddress: string
-  receiverAddress: string | undefined
+  receiverAddress: string | ContractInteraction
   adapter: EvmChainAdapter
   txToSign: SignTx<EvmChainId>
   wallet: HDWallet
@@ -306,4 +309,8 @@ export const checkEvmSwapStatus = async ({
     console.error(e)
     return createDefaultStatusResponse(txHash)
   }
+}
+
+export const getSupportedEvmChainIds = () => {
+  return getSupportedChainIdsByChainNamespace()[CHAIN_NAMESPACE.Evm]
 }

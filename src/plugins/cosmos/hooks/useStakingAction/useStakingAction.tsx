@@ -1,4 +1,5 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { Asset, BIP44Params } from '@shapeshiftoss/types'
 import {
   isStakingChainAdapter,
@@ -60,34 +61,50 @@ export const useStakingAction = () => {
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
       const { accountNumber } = bip44Params
-      const { txToSign } = await (() => {
+      const { txToSign, receiverAddress } = await (async () => {
+        const address = await adapter.getAddress({ accountNumber, wallet })
         switch (action) {
           case StakingAction.Claim:
-            return adapter.buildClaimRewardsTransaction({
-              accountNumber,
-              wallet,
-              validator,
-              chainSpecific,
-              memo,
-            })
+            return {
+              txToSign: (
+                await adapter.buildClaimRewardsTransaction({
+                  accountNumber,
+                  wallet,
+                  validator,
+                  chainSpecific,
+                  memo,
+                })
+              ).txToSign,
+              receiverAddress: address,
+            }
           case StakingAction.Stake:
-            return adapter.buildDelegateTransaction({
-              accountNumber,
-              wallet,
-              validator,
-              value,
-              chainSpecific,
-              memo,
-            })
+            return {
+              txToSign: (
+                await adapter.buildDelegateTransaction({
+                  accountNumber,
+                  wallet,
+                  validator,
+                  value,
+                  chainSpecific,
+                  memo,
+                })
+              ).txToSign,
+              receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+            }
           case StakingAction.Unstake:
-            return adapter.buildUndelegateTransaction({
-              accountNumber,
-              wallet,
-              validator,
-              value,
-              chainSpecific,
-              memo,
-            })
+            return {
+              txToSign: (
+                await adapter.buildUndelegateTransaction({
+                  accountNumber,
+                  wallet,
+                  validator,
+                  value,
+                  chainSpecific,
+                  memo,
+                })
+              ).txToSign,
+              receiverAddress: address,
+            }
           default:
             throw new Error(`unsupported staking action: ${action}`)
         }
@@ -95,7 +112,7 @@ export const useStakingAction = () => {
       const senderAddress = await adapter.getAddress({ accountNumber, wallet })
       return adapter.signAndBroadcastTransaction({
         senderAddress,
-        receiverAddress: undefined, // no receiver for this contract call
+        receiverAddress,
         signTxInput: { txToSign, wallet },
       })
     } catch (error) {

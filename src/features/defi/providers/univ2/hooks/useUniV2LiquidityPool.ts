@@ -1,6 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
@@ -214,7 +215,7 @@ export const useUniV2LiquidityPool = ({
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: undefined, // no receiver
+          receiverAddress: CONTRACT_INTERACTION, // no receiver
         })
 
         return txid
@@ -338,7 +339,7 @@ export const useUniV2LiquidityPool = ({
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: undefined, // no receiver
+          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
         })
 
         return txid
@@ -613,7 +614,7 @@ export const useUniV2LiquidityPool = ({
 
       const txid = await buildAndBroadcast({
         adapter,
-        receiverAddress: undefined, // no receiver
+        receiverAddress: CONTRACT_INTERACTION, // no receiver
         buildCustomTxInput: {
           accountNumber,
           to: contractAddress,

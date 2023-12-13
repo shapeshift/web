@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -168,7 +169,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await buildAndBroadcast({
         adapter,
         buildCustomTxInput,
-        receiverAddress: undefined, // no receiver for this contract call
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
       await poll({
         fn: () =>

@@ -34,10 +34,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
@@ -223,7 +223,9 @@ export const RepayConfirm = ({
     const estimatedFees = await estimateFees({
       cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,
-      memo: supportedEvmChainIds.includes(fromAssetId(repaymentAsset.assetId).chainId)
+      memo: supportedEvmChainIds.includes(
+        fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
+      )
         ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
         : confirmedQuote.quoteMemo,
       to: confirmedQuote.quoteInboundAddress,
@@ -273,7 +275,9 @@ export const RepayConfirm = ({
         to: confirmedQuote.quoteInboundAddress,
         sendMax: false,
         accountId: repaymentAccountId,
-        memo: supportedEvmChainIds.includes(fromAssetId(repaymentAsset?.assetId).chainId)
+        memo: supportedEvmChainIds.includes(
+          fromAssetId(repaymentAsset?.assetId).chainId as KnownChainIds,
+        )
           ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
           : confirmedQuote.quoteMemo,
         amountFieldError: '',

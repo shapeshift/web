@@ -575,7 +575,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: undefined, // no receiver for this contract call
+      receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
     })
     return txid
   }, [wallet, accountNumber, getCustomTxInput, chainId])

@@ -1,4 +1,4 @@
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
@@ -111,6 +111,7 @@ export type SignAndBroadcastTx = {
   payload: SignAndBroadcastPayload
   wallet: ETHWallet
   dryRun: boolean
+  receiverAddress: string | ContractInteraction
 }
 
 export type Signature = {

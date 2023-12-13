@@ -1,3 +1,4 @@
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect } from 'react'
 import type { Hash } from 'viem'
@@ -62,7 +63,7 @@ export const useAllowanceApproval = (
       const txHash = await buildAndBroadcast({
         adapter,
         buildCustomTxInput,
-        receiverAddress: undefined, // no receiver for this contract call
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 
       dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash }))

@@ -10,17 +10,23 @@ import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAdd
 export const useRouterContractAddress = ({
   skip = false,
   feeAssetId: assetId,
+  excludeHalted,
 }: {
   skip?: boolean
   // A native EVM AssetId i.e ethAssetId and avalancheAssetId, the two supported EVM chains at the time of writing
   feeAssetId: AssetId
+  excludeHalted?: boolean
 }) => {
   const [routerContractAddress, setRouterContractAddress] = useState<string | null>(null)
 
   const fetchRouterContractAddress = useCallback(async () => {
     try {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+      const maybeInboundAddressData = await getInboundAddressDataForChain(
+        daemonUrl,
+        assetId,
+        excludeHalted,
+      )
 
       if (maybeInboundAddressData.isErr()) {
         throw new Error(maybeInboundAddressData.unwrapErr().message)
@@ -38,7 +44,7 @@ export const useRouterContractAddress = ({
       console.error(error)
       setRouterContractAddress(null)
     }
-  }, [assetId])
+  }, [assetId, excludeHalted])
 
   useEffect(() => {
     if (skip) return

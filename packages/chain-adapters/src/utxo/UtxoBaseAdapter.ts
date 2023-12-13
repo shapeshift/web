@@ -406,27 +406,35 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const isDoge = pubkey.startsWith('dgub')
 
     if (isDoge) {
-      // 1 DOGE per byte
-      const satoshiPerByte = '100000000'
+      const satoshiPerByte = '500000'
 
-      // Use hardcoded 1 DOGE per kilobyte if the current sats per byte is negative or missing
-      const _fastFee =
+      // Use hardcoded sats per byte if the current sats per byte is negative or missing
+      const fast =
         !fastFee || !data.fast?.satsPerKiloByte || data.fast.satsPerKiloByte < 0
-          ? satoshiPerByte
-          : fastFee
-      const _averageFee =
+          ? {
+              txFee: utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee,
+              chainSpecific: { satoshiPerByte },
+            }
+          : { txFee: String(fastFee), chainSpecific: { satoshiPerByte: fastPerByte } }
+      const average =
         !averageFee || !data.average?.satsPerKiloByte || data.average.satsPerKiloByte < 0
-          ? satoshiPerByte
-          : averageFee
-      const _slowFee =
+          ? {
+              txFee: utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee,
+              chainSpecific: { satoshiPerByte },
+            }
+          : { txFee: String(averageFee), chainSpecific: { satoshiPerByte: averagePerByte } }
+      const slow =
         !slowFee || !data.slow?.satsPerKiloByte || data.slow.satsPerKiloByte < 0
-          ? satoshiPerByte
-          : slowFee
+          ? {
+              txFee: utxoSelect({ ...utxoSelectInput, satoshiPerByte }).fee,
+              chainSpecific: { satoshiPerByte },
+            }
+          : { txFee: String(slowFee), chainSpecific: { satoshiPerByte: slowPerByte } }
 
       return {
-        fast: { txFee: String(_fastFee), chainSpecific: { satoshiPerByte } },
-        average: { txFee: String(_averageFee), chainSpecific: { satoshiPerByte } },
-        slow: { txFee: String(_slowFee), chainSpecific: { satoshiPerByte } },
+        fast,
+        average,
+        slow,
       } as FeeDataEstimate<T>
     }
 

@@ -33,7 +33,7 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Yarn Install
-        run: yarn install --immutable
+        run: yarn cache clean && yarn install --immutable
 
       # needs to run after install
       - name: Commitlint PR Title

@@ -28,7 +28,6 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
-  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
 
   const handleClickSettings = useCallback(() => {
@@ -80,7 +79,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
             </Flex>
             <ChainMenu />
           </Flex>
-          {isWalletConnectToDappsEnabled && isWalletConnectToDappsV2Enabled && (
+          {isWalletConnectToDappsV2Enabled && (
             <Box width='full'>
               <WalletConnectToDappsHeaderButton />
             </Box>

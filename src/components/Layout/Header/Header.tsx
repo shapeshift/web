@@ -82,7 +82,6 @@ export const Header = memo(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
 
-  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
 
   /**
@@ -231,13 +230,11 @@ export const Header = memo(() => {
             >
               <GlobalSeachButton />
               {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
-              {isLargerThanMd &&
-                isWalletConnectToDappsEnabled &&
-                isWalletConnectToDappsV2Enabled && (
-                  <Box display={displayProp2}>
-                    <WalletConnectToDappsHeaderButton />
-                  </Box>
-                )}
+              {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
+                <Box display={displayProp2}>
+                  <WalletConnectToDappsHeaderButton />
+                </Box>
+              )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               <TxWindow />
               <Notifications />

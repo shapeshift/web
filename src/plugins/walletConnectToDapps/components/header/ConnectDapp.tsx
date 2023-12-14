@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, useDisclosure } from '@chakra-ui/react'
+import { Button, Tooltip, useDisclosure } from '@chakra-ui/react'
 import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useMemo } from 'react'
@@ -24,17 +24,19 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
 
   return (
     <>
-      <Button
-        leftIcon={walletConnectIcon}
-        rightIcon={chevronRightIcon}
-        onClick={handleOpen}
-        width={widthProp}
-        {...buttonProps}
-      >
-        {hasSessions
-          ? translate('plugins.walletConnectToDapps.header.connectAnotherDapp')
-          : translate('plugins.walletConnectToDapps.header.connectDapp')}
-      </Button>
+      <Tooltip isDisabled={!buttonProps?.isDisabled} label={translate('common.featureDisabled')}>
+        <Button
+          leftIcon={walletConnectIcon}
+          rightIcon={chevronRightIcon}
+          onClick={handleOpen}
+          width={widthProp}
+          {...buttonProps}
+        >
+          {hasSessions
+            ? translate('plugins.walletConnectToDapps.header.connectAnotherDapp')
+            : translate('plugins.walletConnectToDapps.header.connectDapp')}
+        </Button>
+      </Tooltip>
       <ConnectModal isOpen={isOpen} onClose={handleClose} />
     </>
   )

@@ -135,7 +135,8 @@
       "sortedAsc": "Sorted ascending",
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
-    }
+    },
+    "featureDisabled": "As a precautionary measure, this feature is temporarily disabled."
   },
   "consentBanner": {
     "body": {

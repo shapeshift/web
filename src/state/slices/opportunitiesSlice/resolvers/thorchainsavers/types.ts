@@ -59,9 +59,7 @@ export type ThorchainSaverPositionResponse = {
 export type ThorchainSaversCommonQuoteResponseSuccess = {
   expiry: string // TODO(gomes): guard against expired quote
   dust_threshold: string
-  /** @deprecated use expected_amount_deposit instead */
   expected_amount_out: string
-  expected_amount_deposit: string
   fees: QuoteFees
   inbound_address: string
   memo: string
@@ -78,6 +76,9 @@ export type ThorchainSaversCommonQuoteResponseError = {
 export type ThorchainSaversDepositQuoteResponseSuccess =
   ThorchainSaversCommonQuoteResponseSuccess & {
     inbound_confirmation_blocks: number
+    expected_amount_deposit: string
+    /** @deprecated use expected_amount_deposit instead */
+    expected_amount_out: string
   }
 
 export type ThorchainSaversWithdrawQuoteResponseSuccess =

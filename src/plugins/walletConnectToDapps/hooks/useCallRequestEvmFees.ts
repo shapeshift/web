@@ -1,47 +1,44 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/types'
 import { getFeesForTx } from 'plugins/walletConnectToDapps/utils'
 import { useEffect, useMemo, useState } from 'react'
 import type { FeePrice } from 'components/Modals/Send/views/Confirm'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {
   const [fees, setFees] = useState<FeePrice | undefined>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { chainAdapter, chainId, accountId, transaction } = useWalletConnectState(state)
+  const { chainId, accountId, transaction } = useWalletConnectState(state)
 
   const assets = useAppSelector(selectAssets)
 
   const feeAsset = useMemo(() => {
+    const chainAdapter = chainId ? assertGetChainAdapter(chainId) : undefined
     const feeAssetId = chainAdapter?.getFeeAssetId()
     if (!feeAssetId) return null
     // TODO(Q): this shouldn't be feeAsset, get the real asset from request
     const feeAsset = assets[feeAssetId]
     if (!feeAsset) return null
     return feeAsset
-  }, [assets, chainAdapter])
+  }, [assets, chainId])
   const feeAssetPrice =
     useAppSelector(state => selectMarketDataById(state, feeAsset?.assetId ?? ''))?.price ?? '0'
 
   useEffect(() => {
     if (!transaction || !accountId || !chainId) return
     const { account: address } = fromAccountId(accountId)
-    const adapter = getChainAdapterManager().get(chainId)
-    if (!(address && chainId && feeAsset && feeAssetPrice && adapter)) return
+    if (!(address && chainId && feeAsset && feeAssetPrice)) return
     ;(async () => {
+      const adapter = assertGetEvmChainAdapter(chainId)
       setIsLoading(true)
 
-      const estimatedFees = await getFeesForTx(
-        transaction,
-        adapter as unknown as EvmBaseAdapter<EvmChainId>,
-        accountId,
-      )
+      const estimatedFees = await getFeesForTx(transaction, adapter, accountId)
 
       const initialFees: FeePrice = {
         slow: {

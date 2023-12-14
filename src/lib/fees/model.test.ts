@@ -8,14 +8,24 @@ import {
 } from './parameters'
 
 describe('calculateFees', () => {
-  it('should return 0 bps for <= no fee threshold', () => {
-    const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
+  it('should return 0 bps for < no fee threshold', () => {
+    const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD).minus(1)
     const foxHeld = bn(0)
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
     })
     expect(feeBps.toNumber()).toEqual(0)
+  })
+
+  it('should return ~28bps for === no fee threshold', () => {
+    const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
+    const foxHeld = bn(0)
+    const { feeBps } = calculateFees({
+      tradeAmountUsd,
+      foxHeld,
+    })
+    expect(feeBps.toNumber()).toEqual(28.552638367853532)
   })
 
   it('should return close to max bps for slightly above no fee threshold', () => {

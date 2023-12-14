@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
+import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/swappersSlice/selectors'
-import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useIsTradingActive = () => {
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const tradeType = (activeQuote as ThorEvmTradeQuote)?.tradeType
+
   const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
   const [isTradingActiveOnBuyPool, setIsTradingActiveOnBuyPool] = useState(false)
 
@@ -53,8 +58,14 @@ export const useIsTradingActive = () => {
   }, [buyAssetId, dispatch, getIsTradingActive, swapperName])
 
   return {
-    isTradingActiveOnSellPool,
-    isTradingActiveOnBuyPool,
+    isTradingActiveOnSellPool:
+      tradeType === TradeType.L1ToL1 || tradeType === TradeType.L1ToLongTail
+        ? isTradingActiveOnSellPool
+        : true,
+    isTradingActiveOnBuyPool:
+      tradeType === TradeType.L1ToL1 || tradeType === TradeType.LongTailToL1
+        ? isTradingActiveOnBuyPool
+        : true,
     isTradingActive: isTradingActiveOnSellPool && isTradingActiveOnBuyPool,
   }
 }

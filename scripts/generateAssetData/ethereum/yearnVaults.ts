@@ -1,9 +1,9 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 import toLower from 'lodash/toLower'
-import type { Asset } from 'lib/asset-service'
 
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'

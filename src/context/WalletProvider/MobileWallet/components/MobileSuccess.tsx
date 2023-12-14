@@ -4,12 +4,10 @@ import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from 'state/store'
 
@@ -21,6 +19,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
   const { vault } = location.state
 
   useEffect(() => {
@@ -29,6 +28,11 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       const adapter = await getAdapter(KeyManager.Mobile)
       if (!adapter) throw new Error('Native adapter not found')
       try {
+        // remove all provider event listeners from previously connected wallets
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
+
         const deviceId = vault.id ?? ''
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
@@ -49,8 +53,8 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
             },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
-          setLocalNativeWalletName(walletLabel)
+          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          localWallet.setLocalNativeWalletName(walletLabel)
           appDispatch(setWelcomeModal({ show: true }))
           return setIsSuccessful(true)
         }
@@ -65,7 +69,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       // Make sure the component is completely unmounted before we revoke the mnemonic
       setTimeout(() => vault?.revoke(), 500)
     }
-  }, [appDispatch, dispatch, getAdapter, setIsSuccessful, setWelcomeModal, vault])
+  }, [appDispatch, dispatch, getAdapter, localWallet, setIsSuccessful, setWelcomeModal, vault])
 
   return (
     <>

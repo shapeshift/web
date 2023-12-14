@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Ücretler + Kayma",
     "best": "En iyi",
     "gasFee": "Gaz Ücreti",
+    "consolidationFee": "Konsolidasyon Ücreti",
     "fees": "Ücretler",
     "alternative": "Alternatif",
     "validator": "%{name} Doğrulayıcı",
@@ -121,6 +122,7 @@
     "showAll": "Hepsini Göster",
     "showLess": "Daha Az",
     "yourBalance": "Bakiyeniz",
+    "signMessage": "Mesajı imzala",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -546,8 +548,6 @@
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Görevleri",
-    "foxMissionsShort": "Görevler",
     "lending": "Borç Verme"
   },
   "transactionRow": {
@@ -800,7 +800,8 @@
       "generalError": "Bir işlem hatası oluştu",
       "quoteError": "Fiyat teklifi alınırken bir hata oluştu",
       "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
-      "noQuotesAvailable": "Bu işlem için teklif yok"
+      "noQuotesAvailable": "Bu işlem için teklif yok",
+      "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -813,7 +814,10 @@
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
-    "enableMetaMaskSnap": "Multichain snap'i kullan"
+    "enableMetaMaskSnap": "Multichain snap'i kullan",
+    "approvalGasFee": "Gaz ücreti onayı %{fee}",
+    "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
+    "swapFailed": "%{tradeType} yürütülürken bir sorun oluştu"
   },
   "modals": {
     "popup": {
@@ -937,6 +941,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift, her işlem için yeni bir adres kullanarak %{asset}'in güvenlik tasarımını onurlandırıyor. THORChain'in tek adresle çalışan protokolüne uyum sağlamak için fonlarınızı tek bir adreste birleştireceğiz.",
+        "tooltip": "THORChain uyumluluğu için fonları tek bir adrese gönderin.",
         "consolidateFunds": "Birleştir"
       },
       "getBalanceError": "Cüzdan bakiyeleri alınırken hata oluştu",
@@ -1955,77 +1960,6 @@
     },
     "custom": "Özel"
   },
-  "idle": {
-    "emptyTitle": "Idle Finance ile %{asset} varlığınızdan %{apy}% kazanın",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield Stratejisi",
-          "body": "Senior Best Yield kasaları, her zaman en yüksek APY'yi sağlamak için fonları birden fazla, ihtiyatlı riskli getiri kaynağı arasında otomatik olarak yönlendiren ayarla ve unut stratejileridir."
-        },
-        "page-2": {
-          "title": "Senior Best Yield stratejileri:",
-          "bullets": {
-            "one": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu",
-            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Junior Best Yield Stratejisi",
-          "body": "Junior Best Yield kasaları, her zaman artırılmış, maksimize edilmiş APY'ler sağlamak için fonları otomatik olarak birden fazla Junior Tranches arasında yönlendiren ayarla ve unut stratejileridir."
-        },
-        "page-2": {
-          "title": "Junior Best Yield stratejileri:",
-          "bullets": {
-            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
-            "two": "Kullanıcının sürekli olarak oranları kontrol etmesine ve her transferde gaz yakmasına gerek kalmadan maksimum getiri sunun"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Senior Tranche Stratejisi",
-          "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
-        },
-        "page-2": {
-          "title": "Senior Tranche stratejileri:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranche Stratejisi",
-          "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
-        },
-        "page-2": {
-          "title": "Junior Tranche Stratejileri:"
-        }
-      },
-      "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
-      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur",
-      "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
-      "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
-      "minRisk": "En aza indirilmiş risk ",
-      "builtInCoverage": "Değişken oranlı ödüller için yerleşik kapsam",
-      "noLockingPeriod": "Kilitleme dönemi veya dönemleri yok",
-      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar",
-      "fundsCoveredJunior": "Junior Tranch'ların kapsadığı fonlar",
-      "automation": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu"
-    },
-    "bestYield": {
-      "title": "En İyi Getiri Nedir?",
-      "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
-    },
-    "seniorTranche": {
-      "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
-    },
-    "juniorTranche": {
-      "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Kripto Satın Alın(KYC OLMADAN )",
@@ -2120,56 +2054,6 @@
     "reportSpam": "Spam Bildir",
     "refresh": "Yenile"
   },
-  "missions": {
-    "subtitle": "FOX Görevleri",
-    "missionEnded": "Görev Sona Erdi",
-    "viewMission": "Görevleri Görüntüle",
-    "comingSoon": "Yakında",
-    "activeMissions": "Aktif Görevler",
-    "endedMissions": "Biten Görevler",
-    "title": {
-      "1": "Merkezi Olmayan Evreni Serbest Bırakın ve",
-      "2": "Ödülleri Dağıt"
-    },
-    "body": "Görevlere Katılın, Ödüller Kazanın ve Sürekli Genişleyen ShapeShift Ekosistemi hakkındaki bilginizi artırın",
-    "ends": "Son",
-    "ongoing": "Devam Eden Görev",
-    "optimism": {
-      "title": "19,5 OP'ye kadar kazanın",
-      "subtitle": "Optimism'i Keşfedin",
-      "cta": "Göreve Başla"
-    },
-    "foxatar": {
-      "title": "Ücretsiz ve Özelleştirilebilir bir NFT edinin",
-      "subtitle": "FOXatar'ı Basın",
-      "cta": "Göreve Başla"
-    },
-    "foxArmy": {
-      "subtitle": "FOX Ordusuna Katılın",
-      "title": "20.000 FOX Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "yat": {
-      "subtitle": "Yat Fantasy Oyna",
-      "title": "3.000 USDC Ödül Havuzu",
-      "cta": "Göreve Başla"
-    },
-    "getListed": {
-      "subtitle": "Projeniz Burada",
-      "title": "Görevler İçin Bir Proje Başlatın",
-      "cta": "Projeyi Gönder"
-    },
-    "foxRewards": {
-      "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
-      "title": "FOX Kazanın",
-      "cta": "Göreve Başla"
-    },
-    "snapfoxatar": {
-      "title": "MetaMask ile Bitcoin'in Kilidini Açın",
-      "subtitle": "Bir Metamask FOXatar Skin oluşturun",
-      "cta": "Göreve Başla"
-    }
-  },
   "avatar": {
     "modal": {
       "title": "Yeni Avatar Ayarla",
@@ -2178,14 +2062,19 @@
   },
   "lending": {
     "lending": "Borç Verme",
+    "repaymentAvailable": "Geri ödeme mevcut",
+    "daysUntilRepayment": "Geri ödemeye %{numDays} gün kaldı",
+    "repaymentDays": "%{numDays} gün",
     "lendingBody": "Sıfır faiz ve sıfır tasfiyeyle ödünç alınabilecek tüm havuzların listesi.",
     "collateralValue": "Teminat Değeri",
+    "collateralValueDescription": "Teminat olarak kullanılan varlığınızın güncel değeri",
     "debtValue": "Borç Değeri",
     "loanToValue": "Kredi Değeri",
     "availablePools": "Mevcut Havuzlar",
     "yourLoans": "Kredileriniz",
     "pool": "Havuz",
     "poolDepth": "Havuz Derinliği",
+    "poolDepthDescription": "Havuzun sağlığı",
     "totalDebtBalance": "Toplam Borç Bakiyesi",
     "totalCollateral": "Toplam Teminat",
     "estCollateralizationRatio": "Tahmini Teminat Oranı",
@@ -2195,11 +2084,15 @@
     "loanInformation": "Kredi Özeti",
     "poolInformation": "Havuz Bilgileri",
     "collateralBalance": "Teminat Bakiyesi",
+    "collateralBalanceDescription": "Halihazırda teminat olarak tutulan varlığınızın toplam tutarı",
     "debtBalance": "Borç Bakiyesi",
+    "debtBalanceDescription": "Bu kredi için borçlu olduğunuz toplam borç tutarı",
     "repaymentLock": "Geri Ödeme Kilidi",
+    "repaymentLockDescription": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
     "borrow": "Borç Al",
     "repay": "Geri Öde",
     "repayAmount": "Geri Ödeme Tutarı",
+    "unlocked": "Kilitli değil",
     "unlockedCollateral": "Kilidi Açılmış Teminat",
     "depositAsset": "Depozit %{asset}",
     "switchAssets": "Varlıkları Değiştir",
@@ -2212,34 +2105,52 @@
     "risky": "Riskli",
     "confirmAndBorrow": "Onayla ve Borç Al",
     "confirmAndRepay": "Onayla ve Geri Öde",
+    "borrowAgain": "Tekrar Ödünç Al",
+    "repayAgain": "Tekrar Öde",
     "transactionInfo": "İşlem Özeti",
     "repayNoticeTitle": "Gecikti!",
     "repayNoticeCta": "Anladım",
     "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
+    "feesNotice": "Borcunuzun %100'ünü ödedikten sonra geri alacağınız teminat üzerinden oluşan ücretler",
+    "refetchQuote": "Teklifi Yeniden Al",
     "faq": {
       "title": "FAQ",
       "lending": {
         "title": "THORChain Lending Nedir?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Borç verme, kullanıcıların yerel teminat yatırmasına ve ardından teminatlandırma oranında (CR) borç oluşturmasına olanak tanır. Kullanıcının hangi L1 varlığını aldığına bakılmaksızın borç her zaman USD (diğer adıyla TOR) cinsinden ifade edilir."
       },
       "borrowing": {
         "title": "Borçlanma nasıl çalışır?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "THORChain'de borç almak, yatırılan varlıklarınızı kredi almak için teminat olarak kullanmayı içerir. Kredi USD (TOR) cinsindendir ve çeşitli L1 varlıklarında alınabilir. Dinamik teminat oranıyla faiz veya tasfiye endişesi olmadan esnek bir şekilde borçlanabilirsiniz"
       },
       "repayments": {
         "title": "Geri ödeme nasıl çalışır?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "THORChain'de geri ödeme esnektir; istediğiniz zaman herhangi bir varlıkta geri ödeme yapmanıza olanak tanır ve bu daha sonra TOR'a dönüştürülür. Geri ödeme tutarı borç bakiyenizden düşülerek, tamamı geri ödendiğinde orantılı teminat tarafınıza iade edilir."
       }
+    },
+    "quote": {
+      "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
+      "debt": "Yeni kredi tutarınıza göre borçlu olacağınız toplam borç tutarı",
+      "repaymentLock": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
+      "collateralizationRatio": "Teminat değerinizin kredi tutarına oranı",
+      "feesPlusSlippage": "L1 ücretleri, kayma ve THORChain likidite ücretleri dahil olmak üzere oluşan toplam ücretler"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Güncel FOX Power",
+    "currentFoxPower": "FOX Power'ın",
     "foxPower": "FOX Power",
     "simulateTitle": "FOX Savings Simüle Edin",
     "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
     "tradeSize": "Takas Boyutu",
     "totalFee": "Toplam Ücret",
     "foxPowerDiscount": "FOX Power İndirimi",
-    "basedOnFee": "Şu ücrete dayalıdır: %{fee}"
+    "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
+    "feeSummary": "Ücret Özeti",
+    "simulateFee": "Ücreti simüle et",
+    "freeUnderThreshold": "%{threshold} altındaki işlemler her zaman ÜCRETSİZDİR",
+    "breakdownHeader": "FOX Power İndiriminiz",
+    "breakdownBody": "Aşağıda işlem ücretlerinizin ve uygulanan FOX Power İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
+    "tradeFee": "Takas Ücreti",
+    "totalTradeFee": "Toplam Takas Ücreti"
   }
 }

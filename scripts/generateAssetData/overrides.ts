@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 const fox: Partial<Asset> = {
   color: '#3761F9',

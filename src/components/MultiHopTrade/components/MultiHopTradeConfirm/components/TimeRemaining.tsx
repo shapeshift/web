@@ -6,5 +6,7 @@ import { useCountdown } from '../hooks/useCountdown'
 export const TimeRemaining = ({ initialTimeMs }: { initialTimeMs: number }) => {
   const { timeRemainingMs } = useCountdown({ initialTimeMs, autoStart: true })
 
-  return <RawText fontWeight='bold'>{formatTime(timeRemainingMs, 'mm:ss')}</RawText>
+  return timeRemainingMs > 0 ? (
+    <RawText fontWeight='bold'>{formatTime(timeRemainingMs, 'mm:ss')}</RawText>
+  ) : null
 }

@@ -231,9 +231,7 @@ export const Header = memo(() => {
               <GlobalSeachButton />
               {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
               {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
-                <Box display={displayProp2}>
-                  <WalletConnectToDappsHeaderButton />
-                </Box>
+                <WalletConnectToDappsHeaderButton />
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               <TxWindow />

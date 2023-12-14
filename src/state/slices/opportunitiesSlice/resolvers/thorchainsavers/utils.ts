@@ -11,12 +11,12 @@ import {
   fromAssetId,
   ltcAssetId,
 } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import type { Asset } from 'lib/asset-service'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'

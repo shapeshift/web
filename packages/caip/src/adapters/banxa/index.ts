@@ -4,19 +4,23 @@ import toLower from 'lodash/toLower'
 import type { AssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
-  arbitrumAssetId,
   avalancheAssetId,
   avalancheChainId,
+  bscChainId,
   btcAssetId,
   btcChainId,
   cosmosAssetId,
   cosmosChainId,
+  dogeAssetId,
+  dogeChainId,
   ethAssetId,
   ethChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  thorchainAssetId,
+  thorchainChainId,
 } from '../../constants'
 
 /**
@@ -25,17 +29,19 @@ import {
  */
 const AssetIdToBanxaTickerMap = {
   [btcAssetId]: 'btc',
+  [dogeAssetId]: 'doge',
   [cosmosAssetId]: 'atom',
   [ethAssetId]: 'eth',
   [avalancheAssetId]: 'avax',
   [optimismAssetId]: 'eth',
   [polygonAssetId]: 'matic',
-  [arbitrumAssetId]: 'eth',
+  [thorchainAssetId]: 'rune',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
   'eip155:1/erc20:0x0d8775f648430679a709e98d2b0cb6250d2887ef': 'bat',
   'eip155:1/erc20:0x4fabb145d64652a948d72533023f6e7a623c7c53': 'busd',
+  'eip155:56/bep20:0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82': 'cake',
   'eip155:1/erc20:0x3506424f91fd33084466f402d5d97f05f8e3b4af': 'chz',
   'eip155:1/erc20:0x41e5560054824ea6b0732e656e3ad64e20e94e45': 'cvc',
   'eip155:1/erc20:0xc00e94cb662c3520282e6f5717214004a7f26888': 'comp',
@@ -56,9 +62,7 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0x8e870d67f660d95d5be530380d0ec0bd388289e1': 'usdp',
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
-  'eip155:10/erc20:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58': 'usdt',
-  'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831': 'usdc',
-  'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 'usdt',
+  'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yfi',
 } as Record<AssetId, string>
 
 export const getSupportedBanxaAssets = () =>
@@ -79,12 +83,15 @@ export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
  * source of truth per banxa
  */
 const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
+  [bscChainId]: 'BSC',
   [ethChainId]: 'ETH',
   [btcChainId]: 'BTC',
   [cosmosChainId]: 'COSMOS',
+  [dogeChainId]: 'DOGE',
   [avalancheChainId]: 'AVAX-C', // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
   [optimismChainId]: 'OPTIMISM',
   [polygonChainId]: 'MATIC',
+  [thorchainChainId]: 'THORCHAIN',
 } as const
 
 /**

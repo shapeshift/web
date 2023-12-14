@@ -9,12 +9,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
-import type {
-  ChainAdapter,
-  CosmosSdkChainId,
-  EvmBaseAdapter,
-  EvmChainId,
-} from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { CosmosSignMessageConfirmationModal } from 'plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
@@ -44,6 +38,8 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 
@@ -79,7 +75,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 }) => {
   const { wallet, isConnected } = useWallet().state
   const sessionProposalRef = useRef<SessionProposalRef>(null)
-  const { chainAdapter, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
+  const { chainId, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
 
   const { activeModal, web3wallet } = state
 
@@ -92,13 +88,16 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmEIP155Request = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic)
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
         return
+      }
+
+      const chainAdapter = assertGetEvmChainAdapter(chainId)
 
       const response = await approveEIP155Request({
         wallet,
         requestEvent,
-        chainAdapter: chainAdapter as unknown as EvmBaseAdapter<EvmChainId>,
+        chainAdapter,
         accountMetadata,
         customTransactionData,
         accountId,
@@ -109,27 +108,21 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
       handleClose()
     },
-    [
-      accountId,
-      accountMetadata,
-      chainAdapter,
-      handleClose,
-      requestEvent,
-      topic,
-      wallet,
-      web3wallet,
-    ],
+    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
   const handleConfirmCosmosRequest = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet || !topic)
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
         return
+      }
+
+      const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
 
       const response = await approveCosmosRequest({
         wallet,
         requestEvent,
-        chainAdapter: chainAdapter as ChainAdapter<CosmosSdkChainId>,
+        chainAdapter,
         accountMetadata,
         customTransactionData,
         accountId,
@@ -140,16 +133,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
       handleClose()
     },
-    [
-      accountId,
-      accountMetadata,
-      chainAdapter,
-      handleClose,
-      requestEvent,
-      topic,
-      wallet,
-      web3wallet,
-    ],
+    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
   const handleRejectRequest = useCallback(async () => {

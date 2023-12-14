@@ -1,9 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { FromOrXpub } from 'lib/swapper/types'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { FromOrXpub } from '@shapeshiftoss/swapper'
+import type { AccountMetadata } from '@shapeshiftoss/types'
+import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 export type WithFromOrXpubParams = {
@@ -19,23 +19,17 @@ export const withFromOrXpub =
     { chainId, accountMetadata, wallet }: WithFromOrXpubParams,
     fnParams: Omit<P, 'from' | 'xpub'>,
   ): Promise<T> => {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(chainId)
-    if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
-
     const accountNumber = accountMetadata.bip44Params.accountNumber
 
     if (isUtxoChainId(chainId)) {
       const accountType = accountMetadata.accountType
       if (!accountType) throw new Error('Account number required')
-      const { xpub } = await (adapter as unknown as UtxoChainAdapter).getPublicKey(
-        wallet,
-        accountNumber,
-        accountType,
-      )
+      const adapter = assertGetUtxoChainAdapter(chainId)
+      const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
 
       return wrappedFunction({ ...fnParams, xpub } as P)
     } else {
+      const adapter = assertGetChainAdapter(chainId)
       const from = await adapter.getAddress({ wallet, accountNumber })
       return wrappedFunction({ ...fnParams, from } as P)
     }

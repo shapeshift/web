@@ -20,11 +20,9 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { NativeConfig } from '../config'
 
@@ -44,6 +42,7 @@ const walletButtonLeftIcon = (
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
@@ -82,6 +81,11 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
+        // remove all provider event listeners from previously connected wallets
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
+
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
@@ -105,8 +109,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
 
-        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
-        setLocalNativeWalletName(item.name)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')
       }

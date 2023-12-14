@@ -2,6 +2,7 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -85,14 +86,16 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && contextDispatch) {
       ;(async () => {
         // Skipping outbound detection since there's no outbound tx involved here - as long as the inner swap is confirmed, we're gucci
-        await waitForThorchainUpdate({ txId: confirmedTransaction.txid, skipOutbound: true })
-          .promise
+        const thorchainTxStatus = await waitForThorchainUpdate({
+          txId: confirmedTransaction.txid,
+          skipOutbound: true,
+        }).promise
 
-        if (confirmedTransaction.status === 'Confirmed') {
+        if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_DEPOSIT,
             payload: {
-              txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
+              txStatus: thorchainTxStatus === TxStatusType.Confirmed ? 'success' : 'failed',
             },
           })
         }

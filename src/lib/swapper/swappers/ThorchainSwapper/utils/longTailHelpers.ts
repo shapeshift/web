@@ -1,6 +1,6 @@
 import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
-import type { Asset } from 'lib/asset-service'
 
 import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
@@ -26,10 +26,10 @@ export const getTokenFromAsset = (asset: Asset): Token => {
 }
 
 export enum TradeType {
-  LongTailToLongTail,
-  LongTailToL1,
-  L1ToLongTail,
-  L1ToL1,
+  LongTailToLongTail = 'LongTailToLongTail',
+  LongTailToL1 = 'LongTailToL1',
+  L1ToLongTail = 'L1ToLongTail',
+  L1ToL1 = 'L1ToL1',
 }
 
 export function getTradeType(
@@ -39,16 +39,16 @@ export function getTradeType(
   buyPoolId: string | undefined,
 ): TradeType | undefined {
   switch (true) {
+    case !!sellAssetPool && !!buyAssetPool:
+    case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
+    case !!sellAssetPool && !buyAssetPool && buyPoolId === 'THOR.RUNE':
+      return TradeType.L1ToL1
     case !sellAssetPool && !buyAssetPool:
       return TradeType.LongTailToLongTail
     case !sellAssetPool && !!buyAssetPool:
       return TradeType.LongTailToL1
     case !!sellAssetPool && !buyAssetPool:
       return TradeType.L1ToLongTail
-    case !!sellAssetPool && !!buyAssetPool:
-    case !!buyAssetPool && !sellAssetPool && sellPoolId === 'THOR.RUNE':
-    case !!sellAssetPool && !buyAssetPool && buyPoolId !== 'THOR.RUNE':
-      return TradeType.L1ToL1
     default:
       return undefined
   }

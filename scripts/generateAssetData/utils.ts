@@ -1,5 +1,5 @@
+import type { Asset } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
-import type { Asset } from 'lib/asset-service'
 
 import blacklist from './blacklist.json'
 

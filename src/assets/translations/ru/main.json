@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Комиссии + проскальзывание",
     "best": "Лучшая",
     "gasFee": "Плата за газ",
+    "consolidationFee": "Комиссия за консолидацию",
     "fees": "Комиссия",
     "alternative": "Альтернатива",
     "validator": "%{name} Validator",
@@ -121,6 +122,7 @@
     "showAll": "Показать больше",
     "showLess": "Показать меньше",
     "yourBalance": "Ваш баланс",
+    "signMessage": "Подписать сообщение",
     "carousel": {
       "next": "Далее",
       "prev": "Предыдущий",
@@ -546,8 +548,6 @@
     "buyCrypto": "Купить криптовалюту",
     "buyCryptoShort": "Купить/Продать",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "Миссии FOX",
-    "foxMissionsShort": "Миссии",
     "lending": "Кредитование"
   },
   "transactionRow": {
@@ -800,7 +800,8 @@
       "generalError": "Произошла ошибка при торговле",
       "quoteError": "Произошла ошибка при получении котировки",
       "tradeFailed": "Торговля не удалась. Активы возвращены за вычетом платы за газ",
-      "noQuotesAvailable": "Нет доступных котировок для данной сделки"
+      "noQuotesAvailable": "Нет доступных котировок для данной сделки",
+      "smartContractWalletNotSupported": "Кошелек смарт-контрактов не поддерживается"
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
@@ -813,7 +814,10 @@
     "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
-    "enableMetaMaskSnap": "используйте multichain snap"
+    "enableMetaMaskSnap": "используйте multichain snap",
+    "approvalGasFee": "Размер платы за газ %{fee}",
+    "approvalFailed": "Возникла проблема при утверждении разрешения",
+    "swapFailed": "Возникла проблема при выполнении %{tradeType}"
   },
   "modals": {
     "popup": {
@@ -937,6 +941,7 @@
     "send": {
       "consolidate": {
         "body": "В ShapeShift соблюдена конструкция безопасности %{asset} для каждой транзакции используется новый адрес. Чтобы соответствовать протоколу THORChain, который работает с одним адресом, мы объединяем ваши средства в один адрес.",
+        "tooltip": "Отправляйте средства на один адрес для совместимости с THORChain.",
         "consolidateFunds": "Консолидировать"
       },
       "getBalanceError": "Ошибка при получении данных о балансе кошелька",
@@ -1955,77 +1960,6 @@
     },
     "custom": "Пользовательский"
   },
-  "idle": {
-    "emptyTitle": "Зарабатывайте %{apy}% на ваших %{asset} с Idle Finance",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Стратегия Senior Best Yield ",
-          "body": "Хранилища Senior Best Yield - это стратегии \"установи и забудь\", которые автоматически направляют средства через несколько источников доходности с консервативным риском, чтобы всегда обеспечивать самую высокую APY."
-        },
-        "page-2": {
-          "title": " Стратегии Senior Best Yield:",
-          "bullets": {
-            "one": "Автоматизация и оптимизация формирования доходности по Aave, Compound и нескольким Senior Tranches",
-            "two": "Обеспечение максимального дохода без постоянного контроля тарифов и сжигания газа при каждом переводе."
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Стратегия Junior Best Yield",
-          "body": "Хранилища Junior Best Yield - это стратегии \"установи и забудь\", которые автоматически распределяют средства между несколькими Junior Tranches, чтобы всегда обеспечивать повышенные, максимальные APY"
-        },
-        "page-2": {
-          "title": "Стратегии Junior Best Yield:",
-          "bullets": {
-            "one": "Автоматизация и оптимизация формирования доходности по нескольким Junior Tranches, обеспечивая повышение доходности благодаря дизайну",
-            "two": "Обеспечить максимальную доходность без необходимости постоянно проверять курс и расходовать деньги на каждый перевод"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Стратегия старшего транша",
-          "body": "Наслаждайтесь доходностью DeFi со встроенной защитой по депозитам. Senior Tranches предлагают полный спектр покрытия, предоставляемого их младшим контрагентом Junior."
-        },
-        "page-2": {
-          "title": "Стратегии старшего транша:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Стратегия младшего транша",
-          "body": "Наслаждайтесь повышенной доходностью DeFi. Junior Tranches обеспечивают левериджную доходность, поскольку они получают компенсацию от своего старшего контрагента Senior за принятие на себя большего риска."
-        },
-        "page-2": {
-          "title": "Стратегии младшего транша:"
-        }
-      },
-      "monitorSystem": "Используйте систему мониторинга Idle finance для поиска более эффективных распределений и запуска ребалансировки",
-      "offerHighReturn": "Обеспечение максимального дохода без постоянного контроля ставок и сжигания газа при каждом переводе.",
-      "leverageYield": "Доходность за счет использования средств старших траншей",
-      "higherRisk": "Повышенная подверженность риску за счет защиты старших траншей",
-      "minRisk": "Минимизация риска",
-      "builtInCoverage": "Встроенное покрытие для вознаграждений по переменным ставкам",
-      "noLockingPeriod": "Отсутствие периода блокировки или эпох",
-      "autoReinvest": "Автореинвестирование накопленных токенов",
-      "fundsCoveredJunior": "Средства, покрываемые Junior Tranches",
-      "automation": "Автоматизация и оптимизация формирования доходности по Aave, Compound и нескольким Senior Tranches"
-    },
-    "bestYield": {
-      "title": "Что такое Best Yield?",
-      "body": "Автоматически максимизируйте доходность по нескольким проверенным в боях протоколам DeFi. Стратегия Best-Yield оптимизирует получение дохода за счет социализации затрат на газ, автоматизируя получение дохода путем алгоритмического перемещения капитала при появлении новых возможностей получения дохода."
-    },
-    "seniorTranche": {
-      "title": "Что такое Senior Tranche?",
-      "body": "Наслаждайтесь доходностью DeFi со встроенной защитой по депозитам. Senior Tranches предлагают полный спектр покрытия, предоставляемого их младшим контрагентом Junior. "
-    },
-    "juniorTranche": {
-      "title": "Что такое Junior Tranche?",
-      "body": "Наслаждайтесь повышенной доходностью DeFi. Junior Tranches обеспечивают левериджную доходность, поскольку они получают компенсацию от своего старшего контрагента Senior за принятие на себя большего риска."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Покупайте криптовалюту без KYC",
@@ -2120,56 +2054,6 @@
     "reportSpam": "Сообщить о спаме",
     "refresh": "Обновить"
   },
-  "missions": {
-    "subtitle": "Миссии FOX",
-    "missionEnded": "Миссия завершена",
-    "viewMission": "Просмотреть миссию",
-    "comingSoon": "Скоро будет",
-    "activeMissions": "Активные миссии",
-    "endedMissions": "Законченные миссии",
-    "title": {
-      "1": "Раскройте Децентрализованную Вселенную и",
-      "2": "Получайте вознаграждение"
-    },
-    "body": "Выполняйте задания, получайте награды и расширяйте свои знания о постоянно расширяющейся экосистеме ShapeShift.",
-    "ends": "Конец",
-    "ongoing": "Текущая миссия",
-    "optimism": {
-      "title": "Зарабатывайте до 19,5 OP",
-      "subtitle": "Исследуйте оптимизм",
-      "cta": "Начать миссию"
-    },
-    "foxatar": {
-      "title": "Получите бесплатный и индивидуальный NFT",
-      "subtitle": "Сминтить FOXatar",
-      "cta": "Начать миссию"
-    },
-    "foxArmy": {
-      "subtitle": "Вступайте в армию FOX",
-      "title": "20,000 FOX Pool",
-      "cta": "Начать миссию"
-    },
-    "yat": {
-      "subtitle": "Играйте в  Yat Fantasy",
-      "title": "Призовой фонд 3,000 USDC ",
-      "cta": "Начать миссию"
-    },
-    "getListed": {
-      "subtitle": "Ваш проект здесь",
-      "title": "Создайте миссию для вашего проекта",
-      "cta": "Создать проект"
-    },
-    "foxRewards": {
-      "subtitle": "Покупайте, продавайте, торгуйте, зарабатывайте и многое другое",
-      "title": "Заработать FOX",
-      "cta": "Начать миссию"
-    },
-    "snapfoxatar": {
-      "title": "Разблокировать биткоин с помощью MetaMask",
-      "subtitle": "Сминтить скин FOXatar на Metamask ",
-      "cta": "Начать миссию"
-    }
-  },
   "avatar": {
     "modal": {
       "title": "Установить новый аватар",
@@ -2178,14 +2062,19 @@
   },
   "lending": {
     "lending": "Кредитование",
+    "repaymentAvailable": "Возможность погашения",
+    "daysUntilRepayment": "%{numDays} дней до погашения",
+    "repaymentDays": "%{numDays} дней",
     "lendingBody": "Перечень всех пулов, которые могут быть заимствованы под нулевые проценты и с нулевой ликвидацией.",
     "collateralValue": "Размер обеспечения",
+    "collateralValueDescription": "Текущая стоимость вашего актива, используемого в качестве залога",
     "debtValue": "Размер долга",
     "loanToValue": "Отношение кредита к стоимости",
     "availablePools": "Доступные пулы",
     "yourLoans": "Ваши кредиты",
     "pool": "Пул",
     "poolDepth": "Размер пула",
+    "poolDepthDescription": "Состояние пула",
     "totalDebtBalance": "Общий остаток задолженности",
     "totalCollateral": "Общее обеспечение",
     "estCollateralizationRatio": "Расчет. Коэффициент обеспеченности",
@@ -2195,11 +2084,15 @@
     "loanInformation": "Краткая информация о кредите",
     "poolInformation": "Информация о пуле",
     "collateralBalance": "Баланс обеспечения",
+    "collateralBalanceDescription": "Общая сумма ваших активов, которые в настоящее время находятся в залоге",
     "debtBalance": "Баланс задолженности",
+    "debtBalanceDescription": "Общая сумма долга по этому кредиту",
     "repaymentLock": "Блокировка погашения",
+    "repaymentLockDescription": "Минимальный срок, в течение которого вы сможете погасить кредит",
     "borrow": "Занять",
     "repay": "Погасить",
     "repayAmount": "Сумма погашения",
+    "unlocked": "Разблокировано",
     "unlockedCollateral": "Разблокированный залог",
     "depositAsset": "Deposit %{asset}",
     "switchAssets": "Переключить активы",
@@ -2212,34 +2105,52 @@
     "risky": "Рискованный",
     "confirmAndBorrow": "Подтверждать и заимствовать",
     "confirmAndRepay": "Подтвердить и погасить",
+    "borrowAgain": "Одолжить снова",
+    "repayAgain": "Вернуть долг",
     "transactionInfo": "Сводка по сделке",
     "repayNoticeTitle": "Подождите!",
     "repayNoticeCta": "Я понимаю",
     "repayNotice": "Для возврата залога необходимо погасить 100% долга.",
+    "feesNotice": "Комиссионные, начисленные на залог, который вы получите обратно после погашения 100% долга",
+    "refetchQuote": "Refetch Quote",
     "faq": {
       "title": "ЧАСТЫЕ ВОПРОСЫ",
       "lending": {
         "title": "Что такое THORChain кредитование?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Кредитование позволяет пользователям вносить собственный залог, а затем создавать долг с коэффициентом обеспечения (КО). Долг всегда деноминирован в USD (aka TOR), независимо от того, какой актив L1 получает пользователь."
       },
       "borrowing": {
         "title": "Как происходит заимствование?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Заимствование в THORChain подразумевает использование размещенных вами активов в качестве залога для получения кредита. Кредит деноминирован в долларах США (TOR) и может быть получен в различных активах L1. Благодаря динамическому коэффициенту залога вы можете брать займы на гибких условиях, не беспокоясь о процентах или ликвидации."
       },
       "repayments": {
         "title": "Как происходит погашение кредита?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Погашение долга в THORChain является гибким, позволяя вам в любое время погасить долг любым активом, который затем конвертируется в TOR. Сумма погашения вычитается из баланса вашего долга, а пропорциональный залог возвращается к вам после полного погашения."
       }
+    },
+    "quote": {
+      "collateral": "Общая сумма активов, которые будут обеспечены вашим кредитом",
+      "debt": "Общая сумма долга, которую вы должны будете выплатить, исходя из новой суммы кредита",
+      "repaymentLock": "Минимальный срок, в течение которого вы сможете погасить кредит",
+      "collateralizationRatio": "Отношение стоимости вашего залога к сумме кредита",
+      "feesPlusSlippage": "Общая сумма возникших комиссий, включая комиссию за L1, проскальзывание и комиссию за ликвидность THORChain"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Текущая FOX Power",
+    "currentFoxPower": "Ваша сила FOX",
     "foxPower": "FOX Power",
     "simulateTitle": "Моделирование сбережений FOX",
     "simulateBody": "Используйте этот удобный калькулятор для определения общей суммы комиссионных и скидки, которую вы получите при совершении сделки. Просто установите ползунки ниже, чтобы указать сумму держателя FOX и размер сделки в фиате, и наблюдайте за потенциальной экономией!",
     "tradeSize": "Торговый размер",
     "totalFee": "Общая комиссия",
     "foxPowerDiscount": "Скидка FOX Power",
-    "basedOnFee": "На основе вознаграждения в размере: %{fee}"
+    "basedOnFee": "На основе вознаграждения в размере: %{fee}",
+    "feeSummary": "Сводка расходов за газ",
+    "simulateFee": "Моделировать плату",
+    "freeUnderThreshold": "Сделки ниже %{threshold} всегда БЕСПЛАТНЫЕ",
+    "breakdownHeader": "Ваша скидка силы FOX ",
+    "breakdownBody": "Ниже приведена разбивка ваших торговых сборов и соответствующей скидки FOX Power Discount. Узнайте, сколько еще вы можете сэкономить на вкладке \"Моделирование\".",
+    "tradeFee": "Торговая комиссия",
+    "totalTradeFee": "Общий размер комиссии"
   }
 }

@@ -1,6 +1,6 @@
+import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import type { Asset } from './AssetService'
 import { AssetService } from './AssetService'
 import { descriptions } from './descriptions'
 

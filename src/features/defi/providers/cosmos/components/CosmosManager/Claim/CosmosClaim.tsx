@@ -1,7 +1,6 @@
 import { Center, CircularProgress } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -15,9 +14,9 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -69,10 +68,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
     try {
       if (!earnOpportunityData) return
 
-      const chainAdapterManager = getChainAdapterManager()
-      const chainAdapter = chainAdapterManager.get(
-        chainId,
-      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+      const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
       if (!(walletState.wallet && validatorAddress && chainAdapter)) return
       dispatch({
         type: CosmosClaimActionType.SET_OPPORTUNITY,

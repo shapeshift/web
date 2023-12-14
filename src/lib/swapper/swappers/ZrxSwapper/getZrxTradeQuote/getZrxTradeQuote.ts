@@ -1,12 +1,16 @@
+import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import {
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapErrorType,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { OPTIMISM_L1_SWAP_GAS_LIMIT } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import { isSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
-import { SwapErrorType, SwapperName } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
 import { fetchFromZrx } from '../utils/fetchFromZrx'
@@ -20,6 +24,7 @@ export async function getZrxTradeQuote(
     accountNumber,
     receiveAddress,
     affiliateBps,
+    potentialAffiliateBps,
     chainId,
     supportsEIP1559,
     slippageTolerancePercentage,
@@ -100,6 +105,7 @@ export async function getZrxTradeQuote(
     return Ok({
       id: uuid(),
       receiveAddress,
+      potentialAffiliateBps,
       affiliateBps,
       slippageTolerancePercentage,
       rate,

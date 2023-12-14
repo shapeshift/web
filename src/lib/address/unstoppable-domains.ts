@@ -10,7 +10,7 @@ import type {
 let _resolution: Resolution | undefined
 
 const getResolution = (): Resolution => {
-  const infuraProviderUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
+  const ethereumProviderUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
 
   const polygonProviderUrl = getConfig().REACT_APP_ALCHEMY_POLYGON_URL
   if (!polygonProviderUrl)
@@ -21,7 +21,7 @@ const getResolution = (): Resolution => {
       sourceConfig: {
         uns: {
           locations: {
-            Layer1: { url: infuraProviderUrl, network: 'mainnet' },
+            Layer1: { url: ethereumProviderUrl, network: 'mainnet' },
             Layer2: {
               url: polygonProviderUrl,
               network: 'polygon-mainnet',

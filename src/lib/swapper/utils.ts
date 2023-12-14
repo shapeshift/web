@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -8,26 +9,6 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
-import type { SwapErrorRight } from './types'
-import { SwapErrorType, SwapperName } from './types'
-
-export const makeSwapErrorRight = ({
-  details,
-  cause,
-  code,
-  message,
-}: {
-  message: string
-  details?: unknown
-  cause?: unknown
-  code?: SwapErrorType
-}): SwapErrorRight => ({
-  name: 'SwapError',
-  message,
-  details,
-  cause,
-  code,
-})
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))
@@ -123,13 +104,3 @@ export const getEnabledSwappers = (
       return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
     })
 }
-
-export const createTradeAmountTooSmallErr = (details?: {
-  minAmountCryptoBaseUnit: string
-  assetId: AssetId
-}) =>
-  makeSwapErrorRight({
-    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
-    message: 'Sell amount is too small',
-    details,
-  })

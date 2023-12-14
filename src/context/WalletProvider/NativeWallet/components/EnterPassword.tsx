@@ -23,7 +23,7 @@ import { IconCircle } from 'components/IconCircle'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -42,6 +42,7 @@ const leftIcon = (
 export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
+  const localWallet = useLocalWallet()
   const { deviceId, keyring } = state
 
   const [showPw, setShowPw] = useState<boolean>(false)
@@ -137,7 +138,7 @@ export const EnterPassword = () => {
                 noOfLines={1}
                 data-test='native-saved-wallet-name'
               >
-                {getNativeLocalWalletName()}
+                {localWallet.nativeLocalWalletName}
               </RawText>
             </Box>
           </Button>

@@ -56,7 +56,9 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
       number: { toFiat },
     } = useLocaleFormatter()
 
-    const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountUserCurrency)
+    const potentialDonationAmountUserCurrency = useAppSelector(
+      selectPotentialDonationAmountUserCurrency,
+    )
 
     const handleDonationToggle = useCallback(() => {
       dispatch(swappers.actions.toggleWillDonate())
@@ -77,11 +79,18 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
                 </Checkbox>
               </Row.Label>
             </HelperTooltip>
-            <Row.Value>{toFiat(potentialDonationAmountFiat ?? '0')}</Row.Value>
+            <Row.Value>{toFiat(potentialDonationAmountUserCurrency ?? '0')}</Row.Value>
           </Row>
         </Stack>
       ),
-      [translate, willDonate, handleDonationToggle, isLoading, toFiat, potentialDonationAmountFiat],
+      [
+        translate,
+        willDonate,
+        handleDonationToggle,
+        isLoading,
+        toFiat,
+        potentialDonationAmountUserCurrency,
+      ],
     )
 
     return showDonationOption ? donationOption : null

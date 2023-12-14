@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import type {
   DefiParams,
@@ -11,7 +12,6 @@ import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   serializeUserStakingId,

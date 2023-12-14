@@ -3,7 +3,7 @@ import { FaGift } from 'react-icons/fa'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectQuoteDonationAmountUsd } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectQuoteFeeAmountUsd } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'
@@ -16,7 +16,7 @@ export const DonationStep = ({ isLastStep }: DonationStepProps) => {
   const {
     number: { toFiat },
   } = useLocaleFormatter()
-  const donationAmountUsd = useAppSelector(selectQuoteDonationAmountUsd)
+  const donationAmountUsd = useAppSelector(selectQuoteFeeAmountUsd)
 
   const stepIndicator = useMemo(() => {
     return (

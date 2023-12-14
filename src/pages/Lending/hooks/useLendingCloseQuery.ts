@@ -2,19 +2,27 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
+import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingCloseQuote } from 'lib/utils/thorchain/lending'
-import type { LendingWithdrawQuoteResponseSuccess } from 'lib/utils/thorchain/lending/types'
+import type {
+  LendingQuoteClose,
+  LendingWithdrawQuoteResponseSuccess,
+} from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import {
+  selectMarketDataById,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from './useLendingPositionData'
 
@@ -24,21 +32,20 @@ type UseLendingQuoteCloseQueryProps = {
   collateralAccountId: AccountId
   collateralAssetId: AssetId
   repaymentPercent: number
-  isLoanClosePending?: boolean
 }
 
 const selectLendingCloseQueryData = memoize(
   ({
     data,
     collateralAssetMarketData,
-    repaymentAssetMarketData,
     repaymentAmountCryptoPrecision,
+    repaymentPercentOrDefault,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
-    repaymentAssetMarketData: MarketData
     repaymentAmountCryptoPrecision: string | null
-  }) => {
+    repaymentPercentOrDefault: number
+  }): LendingQuoteClose => {
     const quote = data
 
     const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
@@ -47,9 +54,12 @@ const selectLendingCloseQueryData = memoize(
     const quoteLoanCollateralDecreaseFiatUserCurrency = fromThorBaseUnit(
       quote.expected_collateral_withdrawn,
     )
-      .times(repaymentAssetMarketData.price)
+      .times(collateralAssetMarketData.price)
       .toString()
-    const quoteDebtRepaidAmountUsd = fromThorBaseUnit(quote.expected_debt_repaid).toString()
+    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+    const quoteDebtRepaidAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_repaid)
+      .times(userCurrencyToUsdRate)
+      .toString()
     const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
@@ -74,18 +84,34 @@ const selectLendingCloseQueryData = memoize(
 
     const quoteInboundAddress = quote.inbound_address
     const quoteMemo = quote.memo
+    const quoteExpiry = quote.expiry
+    const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
+    const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)
+      .times(1000)
+      .toNumber()
+    // Sane number for total time, in case the outbound is 0 seconds and the inbound is also fast,
+    // so that users don't end up waiting 30s before the seeminngly "complete" Tx as far as progress bar goes, and actual confirmed state
+    const quoteTotalTimeMs = BigNumber.max(
+      120_000,
+      bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
+    ).toNumber()
 
     return {
       quoteLoanCollateralDecreaseCryptoPrecision,
       quoteLoanCollateralDecreaseFiatUserCurrency,
-      quoteDebtRepaidAmountUsd,
+      quoteDebtRepaidAmountUserCurrency,
       quoteWithdrawnAmountAfterFeesCryptoPrecision,
       quoteWithdrawnAmountAfterFeesUserCurrency,
       quoteSlippageWithdrawndAssetCryptoPrecision,
       quoteTotalFeesFiatUserCurrency,
       quoteInboundAddress,
       quoteMemo,
+      quoteOutboundDelayMs,
+      quoteInboundConfirmationMs,
+      quoteTotalTimeMs,
+      quoteExpiry,
       repaymentAmountCryptoPrecision,
+      repaymentPercentOrDefault,
     }
   },
 )
@@ -96,8 +122,8 @@ export const useLendingQuoteCloseQuery = ({
   repaymentPercent: _repaymentPercent,
   repaymentAccountId: _repaymentAccountId,
   collateralAccountId: _collateralAccountId,
-  isLoanClosePending: _isLoanClosePending,
-}: UseLendingQuoteCloseQueryProps) => {
+  enabled = true,
+}: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
   const repaymentPercentOrDefault = useMemo(() => {
     const repaymentPercentBn = bnOrZero(_repaymentPercent)
     // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
@@ -120,7 +146,6 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetId: _collateralAssetId,
         collateralAccountId: _collateralAccountId,
         repaymentPercent: repaymentPercentOrDefault,
-        isLoanClosePending: _isLoanClosePending,
       },
     ],
     500,
@@ -132,7 +157,6 @@ export const useLendingQuoteCloseQuery = ({
     collateralAssetId,
     collateralAccountId,
     repaymentPercent,
-    isLoanClosePending,
   } = useMemo(
     () => ({
       repaymentAssetId: lendingQuoteCloseQueryKey[1].repaymentAssetId,
@@ -140,7 +164,6 @@ export const useLendingQuoteCloseQuery = ({
       collateralAssetId: lendingQuoteCloseQueryKey[1].collateralAssetId,
       collateralAccountId: lendingQuoteCloseQueryKey[1].collateralAccountId,
       repaymentPercent: lendingQuoteCloseQueryKey[1].repaymentPercent,
-      isLoanClosePending: lendingQuoteCloseQueryKey[1].isLoanClosePending,
     }),
     [lendingQuoteCloseQueryKey],
   )
@@ -203,18 +226,21 @@ export const useLendingQuoteCloseQuery = ({
       selectLendingCloseQueryData({
         data,
         collateralAssetMarketData,
-        repaymentAssetMarketData,
         repaymentAmountCryptoPrecision,
+        repaymentPercentOrDefault,
       }),
+    // Do not refetch if consumers explicitly set enabled to false
+    // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function
+    refetchIntervalInBackground: enabled,
+    refetchInterval: enabled ? 20_000 : undefined,
     enabled: Boolean(
-      !isLoanClosePending &&
+      enabled &&
         lendingPositionData?.address &&
         bnOrZero(repaymentPercentOrDefault).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
-        repaymentAssetMarketData.price !== '0' &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAmountCryptoPrecision,
     ),

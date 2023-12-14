@@ -1,14 +1,13 @@
 import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -90,7 +89,7 @@ export const Sweep = ({
     }
   }, [accountId, assetId, estimatedFeesData, fromAddress, wallet])
 
-  const adapter = getChainAdapterManager().get(fromAssetId(assetId).chainId)
+  const adapter = assertGetUtxoChainAdapter(fromAssetId(assetId).chainId)
 
   useEffect(() => {
     if (!adapter || !fromAddress) return
@@ -99,7 +98,7 @@ export const Sweep = ({
     if (!txId) return
     ;(async () => {
       await sleep(15_000)
-      const utxos = await (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getUtxos({
+      const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
       })
       if (utxos.some(utxo => utxo.txid === txId)) handleSwepSeen()

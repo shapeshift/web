@@ -1,9 +1,9 @@
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import { omit } from 'lodash'
 
-import type { GetTradeQuoteInput } from '../../../types'
-import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'
@@ -12,6 +12,7 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../types'
+import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
@@ -47,18 +48,21 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: false,
-    rate: '137845.94361267605633802817',
+    recommendedMinimumCryptoBaseUnit: '10000000000',
+    rate: '144114.94366197183098591549',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9360638:ss:0',
+    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
-        buyAmountAfterFeesCryptoBaseUnit: '97870619965000000',
+        buyAmountAfterFeesCryptoBaseUnit: '102321610000000000',
         feeData: {
           protocolFees: {
             [ETH.assetId]: {
@@ -69,7 +73,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
           },
           networkFeeCryptoBaseUnit: '400000',
         },
-        rate: '137845.94361267605633802817',
+        rate: '144114.94366197183098591549',
         source: SwapperName.Thorchain,
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
@@ -80,18 +84,21 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     isStreaming: true,
-    rate: '151555.07377464788732394366',
+    recommendedMinimumCryptoBaseUnit: '10000000000',
+    rate: '158199.45070422535211267606',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:10291578/10/0:ss:0',
+    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0',
+    tradeType: TradeType.L1ToL1,
     steps: [
       {
         estimatedExecutionTimeMs: 1600000,
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '124321610000000000',
-        buyAmountAfterFeesCryptoBaseUnit: '107604102380000000',
+        buyAmountAfterFeesCryptoBaseUnit: '112321610000000000',
         feeData: {
           protocolFees: {
             [ETH.assetId]: {
@@ -102,7 +109,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
           },
           networkFeeCryptoBaseUnit: '400000',
         },
-        rate: '151555.07377464788732394366',
+        rate: '158199.45070422535211267606',
         source: `${SwapperName.Thorchain} • Streaming`,
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
@@ -165,6 +172,8 @@ describe('getTradeQuote', () => {
           if ((url as string).includes('streaming_interval')) {
             mockThorQuote.data.expected_amount_out = '11232161'
             mockThorQuote.data.fees.slippage_bps = 420
+            mockThorQuote.data.memo =
+              '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
           }
 
           return Promise.resolve(Ok(mockThorQuote))

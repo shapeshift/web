@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type {
   Account,
@@ -23,7 +23,7 @@ import type {
 /**
  * Type alias for a Map that can be used to manage instances of ChainAdapters
  */
-export type ChainAdapterManager = Map<ChainId, ChainAdapter<ChainId>>
+export type ChainAdapterManager = Map<ChainId, ChainAdapter<KnownChainIds>>
 
 export type ChainAdapter<T extends ChainId> = {
   /**

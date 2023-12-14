@@ -1,5 +1,10 @@
+import type {
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  SwapperName,
+  TradeQuote,
+} from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
 
 export type QuoteHelperType = (

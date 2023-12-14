@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
-import type { AmountDisplayMeta } from 'lib/swapper/types'
+import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from 'lib/utils'
 import { makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 

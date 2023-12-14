@@ -26,11 +26,6 @@ import {
   foxyStakingOpportunityIdsResolver,
 } from './resolvers/foxy'
 import {
-  idleStakingOpportunitiesMetadataResolver,
-  idleStakingOpportunitiesUserDataResolver,
-  idleStakingOpportunityIdsResolver,
-} from './resolvers/idle'
-import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
   thorchainSaversStakingOpportunitiesUserDataResolver,
@@ -60,9 +55,6 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProvider
     [`${DefiProvider.UniV2}`]: {
       [`${DefiType.LiquidityPool}`]: uniV2LpOpportunitiesMetadataResolver,
     },
-    [`${DefiProvider.Idle}`]: {
-      [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
-    },
     [`${DefiProvider.CosmosSdk}`]: {
       [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
     },
@@ -76,9 +68,6 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProvider
 
 export const DefiProviderToOpportunitiesUserDataResolverByDeFiType: DefiProviderToOpportunitiesUserDataResolver =
   {
-    [`${DefiProvider.Idle}`]: {
-      [`${DefiType.Staking}`]: idleStakingOpportunitiesUserDataResolver,
-    },
     [`${DefiProvider.ShapeShift}`]: {
       [`${DefiType.Staking}`]: foxyStakingOpportunitiesUserDataResolver,
     },
@@ -97,9 +86,6 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOppor
     },
     [`${DefiProvider.EthFoxStaking}`]: {
       [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
-    },
-    [`${DefiProvider.Idle}`]: {
-      [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
     },
     [`${DefiProvider.ThorchainSavers}`]: {
       [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
@@ -159,10 +145,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
     },
     {
       defiProvider: DefiProvider.EthFoxStaking,
-      defiType: DefiType.Staking,
-    },
-    {
-      defiProvider: DefiProvider.Idle,
       defiType: DefiType.Staking,
     },
     {

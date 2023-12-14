@@ -4,6 +4,8 @@ import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
+import { ArkeoIcon } from 'components/Icons/Arkeo'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -13,6 +15,8 @@ import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
+const spacing = { base: 6, md: 0 }
+
 type HeaderContentProps = {
   isCompact?: boolean
   onClose?: () => void
@@ -20,6 +24,7 @@ type HeaderContentProps = {
 
 export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
+  const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
@@ -35,9 +40,16 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
     onClose && onClose()
   }, [onClose, feedbackSupport])
 
+  const handleClickArkeo = useCallback(() => {
+    history.push('/arkeo')
+  }, [history])
+
   const closeIcon = useMemo(() => <CloseIcon boxSize={3} />, [])
   const settingsIcon = useMemo(() => <SettingsIcon />, [])
   const chatIcon = useMemo(() => <ChatIcon />, [])
+  const arkeoIcon = useMemo(() => <ArkeoIcon />, [])
+
+  const secondaryNavSize = useMemo(() => (isLargerThanMd ? 'sm' : 'lg'), [isLargerThanMd])
 
   return (
     <Flex
@@ -76,10 +88,17 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
       )}
 
       <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
-      <Stack width='full' mt={6} spacing={0}>
+      <Stack width='full' mt={6} spacing={spacing}>
         <MainNavLink
           isCompact={isCompact}
-          size='sm'
+          size={secondaryNavSize}
+          onClick={handleClickArkeo}
+          label={translate('navBar.arkeo')}
+          leftIcon={arkeoIcon}
+        />
+        <MainNavLink
+          isCompact={isCompact}
+          size={secondaryNavSize}
           onClick={handleClickSettings}
           label={translate('common.settings')}
           leftIcon={settingsIcon}
@@ -87,7 +106,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
         />
         <MainNavLink
           isCompact={isCompact}
-          size='sm'
+          size={secondaryNavSize}
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
           leftIcon={chatIcon}

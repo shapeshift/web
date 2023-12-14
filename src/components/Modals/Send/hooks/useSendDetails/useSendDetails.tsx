@@ -2,11 +2,9 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainId,
-  EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
   GetFeeDataInput,
-  UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { debounce } from 'lodash'
@@ -19,6 +17,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -225,19 +226,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       try {
         const { chainId, chainNamespace, account } = fromAccountId(accountId)
-        const adapter = chainAdapterManager.get(chainId)
-        if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
             case CHAIN_NAMESPACE.CosmosSdk: {
+              const adapter = assertGetCosmosSdkChainAdapter(chainId)
               const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
               const adapterFees = await adapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Evm: {
-              const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
+              const evmAdapter = assertGetEvmChainAdapter(chainId)
               const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
                 to,
                 value: assetBalance,
@@ -249,7 +249,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Utxo: {
-              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+              const utxoAdapter = assertGetUtxoChainAdapter(chainId)
               const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
                 to,
                 value: assetBalance,

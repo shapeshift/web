@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from 'lib/asset-service'
-import type { BuyAssetBySellIdInput } from 'lib/swapper/types'
+import type { BuyAssetBySellIdInput } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 
 type ChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId) => boolean
 

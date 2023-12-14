@@ -1,5 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
@@ -7,28 +8,6 @@ import { descriptions } from './descriptions'
 import { localAssetData } from './localAssetData'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
-
-export type Asset = {
-  assetId: AssetId
-  chainId: ChainId
-  description?: string
-  isTrustedDescription?: boolean
-  symbol: string
-  name: string
-  id?: string
-  networkName?: string
-  precision: number
-  color: string
-  networkColor?: string
-  icon: string
-  icons?: string[]
-  networkIcon?: string
-  explorer: string
-  explorerTxLink: string
-  explorerAddressLink: string
-}
-
-export type AssetsById = Record<AssetId, Asset>
 
 export class AssetService {
   readonly assetsById: AssetsById

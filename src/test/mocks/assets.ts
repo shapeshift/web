@@ -1,6 +1,6 @@
 import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
-import type { Asset } from 'lib/asset-service'
 
 export const rune: Asset = {
   chainId: ethChainId,

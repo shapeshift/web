@@ -1,11 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { ProtocolFee } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/types'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import {
   selectAccountNumberByAccountId,

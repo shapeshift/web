@@ -7,6 +7,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 import type {
   CustomTransactionData,
@@ -20,7 +21,6 @@ import {
   getSignParamsMessage,
 } from 'plugins/walletConnectToDapps/utils'
 import { assertIsDefined } from 'lib/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveEIP155RequestArgs = {
   requestEvent: SupportedSessionRequest

@@ -1,5 +1,5 @@
 import type { Route } from '@lifi/sdk'
-import type { TradeQuote } from 'lib/swapper/types'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 
 export interface LifiTradeQuote extends TradeQuote {
   selectedLifiRoute?: Route

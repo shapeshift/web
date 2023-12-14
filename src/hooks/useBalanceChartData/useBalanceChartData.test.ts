@@ -1,12 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { Asset, HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
-import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
-import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 import type { Bucket } from './useBalanceChartData'
@@ -59,9 +57,8 @@ describe('bucketTxs', () => {
     const buckets = makeBuckets({ assetIds, balances, timeframe })
 
     const txs = [FOXSend]
-    const rebases: RebaseHistory[] = []
 
-    const bucketedTxs = bucketEvents(txs, rebases, buckets)
+    const bucketedTxs = bucketEvents(txs, buckets)
 
     const totalTxs = bucketedTxs.reduce<number>((acc, bucket: Bucket) => acc + bucket.txs.length, 0)
 
@@ -104,8 +101,7 @@ describe('calculateBucketPrices', () => {
       [foxAssetId]: fox,
     }
 
-    const rebases: RebaseHistory[] = []
-    const buckets = bucketEvents(txs, rebases, emptyBuckets)
+    const buckets = bucketEvents(txs, emptyBuckets)
 
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
@@ -137,8 +133,7 @@ describe('calculateBucketPrices', () => {
       [ethAssetId]: ethereum,
     }
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
-    const rebases: RebaseHistory[] = []
-    const buckets = bucketEvents(txs, rebases, emptyBuckets)
+    const buckets = bucketEvents(txs, emptyBuckets)
 
     const calculatedBuckets = calculateBucketPrices({
       assetIds,

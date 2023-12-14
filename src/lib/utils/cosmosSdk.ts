@@ -1,7 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainAdapter,
+  CosmosSdkChainId,
+  thorchain,
+} from '@shapeshiftoss/chain-adapters'
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 export const isCosmosSdkChainAdapter = (
@@ -23,4 +27,8 @@ export const assertGetCosmosSdkChainAdapter = (
   }
 
   return adapter
+}
+
+export const assertGetThorchainChainAdapter = (): thorchain.ChainAdapter => {
+  return assertGetCosmosSdkChainAdapter(KnownChainIds.ThorchainMainnet) as thorchain.ChainAdapter
 }

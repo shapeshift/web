@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -27,6 +28,7 @@ export interface MetaMaskSetupProps
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state, getAdapter, onProviderChange } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
@@ -36,22 +38,18 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }, [])
 
-  useEffect(() => {
-    void onProviderChange(KeyManager.MetaMask)
-  }, [onProviderChange])
-
   const isSnapsEnabled = useFeatureFlag('Snaps')
 
   const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
 
-    if (!state.provider) {
-      throw new Error('walletProvider.metaMask.errors.connectFailure')
-    }
-
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
+      const ethersProvider = getEthersProvider()
+      ethersProvider.removeAllListeners('accountsChanged')
+      ethersProvider.removeAllListeners('chainChanged')
+
       const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
@@ -72,7 +70,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
+
+        const provider = await onProviderChange(KeyManager.MetaMask, wallet)
+
+        if (!provider) {
+          throw new Error('walletProvider.metaMask.errors.connectFailure')
+        }
 
         await (async () => {
           const isMetaMask = await checkIsMetaMask(wallet)
@@ -97,13 +101,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     }
     setLoading(false)
   }, [
-    dispatch,
+    onProviderChange,
     getAdapter,
-    history,
-    isSnapsEnabled,
     setErrorLoading,
+    dispatch,
+    localWallet,
+    isSnapsEnabled,
     showSnapModal,
-    state.provider,
+    history,
   ])
 
   const handleRedirect = useCallback((): void => {

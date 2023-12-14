@@ -1,6 +1,6 @@
+import type { SwapSource } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { Dex } from '@shapeshiftoss/unchained-client'
-import type { SwapSource } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 import { THORCHAIN_STREAM_SWAP_SOURCE } from './swapper/swappers/ThorchainSwapper/constants'
 

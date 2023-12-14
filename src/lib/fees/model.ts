@@ -37,7 +37,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
     foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
   )
 
-  if (tradeAmountUsd.lte(noFeeThresholdUsd)) {
+  if (tradeAmountUsd.lt(noFeeThresholdUsd)) {
     return {
       feeBps: bn(0),
       feeUsd: bn(0),

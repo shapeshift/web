@@ -1,29 +1,43 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
+import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { Asset } from 'lib/asset-service'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import type {
+  MidgardActionsResponse,
   ThornodePoolResponse,
   ThornodeStatusResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+import { assertGetUtxoChainAdapter } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
 
-const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: boolean) => {
+const getThorchainTransactionStatus = async ({
+  txHash,
+  skipOutbound,
+  expectedCompletionTime,
+}: {
+  txHash: string
+  skipOutbound?: boolean
+  expectedCompletionTime?: number
+}) => {
+  const now = dayjs().unix()
+  if (expectedCompletionTime && now < expectedCompletionTime) {
+    return TxStatus.Pending
+  }
+
   const thorTxHash = txHash.replace(/^0x/, '')
   const { data: thorTxData, status } = await axios.get<ThornodeStatusResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
@@ -32,41 +46,74 @@ const getThorchainTransactionStatus = async (txHash: string, skipOutbound?: bool
   )
 
   if ('error' in thorTxData || status === 404) return TxStatus.Unknown
+
+  // Tx hasn't been observed yet
+  if (thorTxData.stages.inbound_observed?.completed === false) return TxStatus.Pending
+
   // Tx has been observed, but swap/outbound Tx hasn't been completed yet
   if (
-    // Despite the Tx being observed, things may be slow to be picked on the THOR node side of things i.e for swaps to/from BTC
     thorTxData.stages.inbound_finalised?.completed === false ||
     thorTxData.stages.swap_status?.pending === true ||
     (!skipOutbound && thorTxData.stages.outbound_signed?.completed === false)
-  )
-    return TxStatus.Pending
-  if (
-    // Skips outbound checks. If the swap is complete, we assume the transaction as confirmed
-    (skipOutbound && thorTxData.stages.swap_status?.pending === false) ||
-    // When enforcing outbound checks, ensures the outbound Tx is signed and an out Tx is present
-    (thorTxData.stages.outbound_signed?.completed && thorTxData.out_txs)
   ) {
-    // TODO(gomes): introspect thornode and handle failed refunds
-    return TxStatus.Confirmed
+    return TxStatus.Pending
   }
+  // When skipping outbound checks, if the swap is complete, we assume the transaction itself is confirmed
+  if (skipOutbound && thorTxData.stages.swap_status?.pending === false) return TxStatus.Confirmed
 
-  // We shouldn't end up here, but just in case
-  return TxStatus.Unknown
+  if (thorTxData.stages.swap_status?.pending) return TxStatus.Pending
+
+  // Introspect midgard to detect failures/success states when enforcing outbound checks
+  const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+  const maybeResult = await thorService.get<MidgardActionsResponse>(
+    `${midgardUrl}/actions?txid=${thorTxHash}`,
+  )
+
+  // We shouldn't end up here unless midgard is down - if it is, we can't determine the status of the transaction
+  if (maybeResult.isErr()) {
+    return TxStatus.Unknown
+  }
+  const { data: result } = maybeResult.unwrap()
+
+  // This may be failed refund or a refund - either way, the THOR Tx is effectively "failed" from a user standpoint
+  // even though the inner swap may have succeeded
+  if (result.actions.some(action => action.type === 'refund')) return TxStatus.Failed
+
+  // All checks passed, but we still need to ensure there's an outbound Txid
+  return result.actions.some(
+    action =>
+      action.type === 'withdraw' && action.status === 'success' && action.out.some(tx => tx.txID),
+  ) ||
+    // in the case of RUNE as outbound, there is no "withdraw" action, both are "swap" actions
+    // note since these are internal to the THOR network, there is no Txid. The Txid *is* the Txid of e.g the loan Tx itself
+    result.actions.every(action => action.type === 'swap' && action.status === 'success')
+    ? TxStatus.Confirmed
+    : TxStatus.Pending
 }
 
 export const waitForThorchainUpdate = ({
   txId,
   skipOutbound,
+  expectedCompletionTime,
 }: {
   txId: string
   skipOutbound?: boolean
-}) =>
-  poll({
-    fn: () => getThorchainTransactionStatus(txId, skipOutbound),
-    validate: status => Boolean(status && status === TxStatus.Confirmed),
-    interval: 60000,
-    maxAttempts: 60,
+  expectedCompletionTime?: number
+}) => {
+  // When skipping outbound, Txs completion state (i.e internal swap complete) is pretty fast to be reflected
+  // When outbounds are enforced, Txs can take a long, very long time to have their outbound signed (1+, and sometimes many hours)
+  // so we poll with half the frequency and double the total attempts
+  const interval = skipOutbound ? 60_000 : 120_000
+  // 60 attempts over an hour when skipping outbound checks,
+  // 120 attempts over 4 hours when enforcing it
+  const maxAttempts = skipOutbound ? 60 : 120
+  return poll({
+    fn: () => getThorchainTransactionStatus({ txHash: txId, skipOutbound, expectedCompletionTime }),
+    validate: status => [TxStatus.Confirmed, TxStatus.Failed].includes(status),
+    interval,
+    maxAttempts,
   })
+}
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
@@ -138,9 +185,7 @@ const getAccountAddressesWithBalances = async (
 ): Promise<{ address: string; balance: string }[]> => {
   if (isUtxoAccountId(accountId)) {
     const { chainId, account: pubkey } = fromAccountId(accountId)
-    const chainAdapters = getChainAdapterManager()
-    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+    const adapter = assertGetUtxoChainAdapter(chainId)
 
     const {
       chainSpecific: { addresses },

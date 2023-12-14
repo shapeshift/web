@@ -1,9 +1,6 @@
 import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build'
 import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInput,
@@ -12,11 +9,13 @@ import type {
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
-} from 'lib/swapper/types'
-import { SwapErrorType } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
+} from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { Result } from '@sniptt/monads/build'
+import { Err } from '@sniptt/monads/build'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -33,7 +32,7 @@ export const lifiApi: SwapperApi = {
   // but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    assetsById: AssetsById,
+    assetsById: AssetsByIdPartial,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
@@ -131,6 +130,7 @@ export const lifiApi: SwapperApi = {
   checkTradeStatus: async ({
     quoteId,
     txHash,
+    stepIndex,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
@@ -142,14 +142,19 @@ export const lifiApi: SwapperApi = {
     //   url: 'https://li.quest/v1/status',
     // })
 
+    const {
+      action: { fromChainId, toChainId },
+      tool,
+    } = lifiRoute.steps[stepIndex]
+
     // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
     // i.e don't do `await getLifi().getStatus(getStatusRequest)`
     const url = new URL('https://li.quest/v1/status')
     const getStatusRequestParams: { [Key in keyof GetStatusRequest]: string } = {
       txHash,
-      bridge: lifiRoute.steps[0].tool,
-      fromChain: lifiRoute.fromChainId.toString(),
-      toChain: lifiRoute.toChainId.toString(),
+      bridge: tool,
+      fromChain: fromChainId.toString(),
+      toChain: toChainId.toString(),
     }
     url.search = new URLSearchParams(getStatusRequestParams).toString()
     const response = await fetch(url, { cache: 'no-store' }) // don't cache!

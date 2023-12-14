@@ -1,9 +1,9 @@
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import uniqBy from 'lodash/uniqBy'
-import type { Asset } from 'lib/asset-service'
 
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'

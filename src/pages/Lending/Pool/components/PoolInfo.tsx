@@ -13,6 +13,7 @@ import { useAppSelector } from 'state/store'
 import { DynamicComponent } from './PoolStat'
 
 const labelProps = { fontSize: 'sm ' }
+const responsiveFlex = { base: 'auto', lg: 1 }
 
 type PoolInfoProps = {
   poolAssetId: AssetId
@@ -71,35 +72,35 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
           {translate('lending.healthy')}
         </Tag>
       </Flex>
-      <Flex>
+      <Flex flexWrap='wrap' gap={4}>
         <DynamicComponent
           isLoading={isPoolDataLoading}
           label='lending.totalCollateral'
           component={totalCollateralComponent}
-          flex={1}
+          flex={responsiveFlex}
           labelProps={labelProps}
         />
         <DynamicComponent
           isLoading={isPoolDataLoading}
           label='lending.totalDebtBalance'
           component={totalDebtBalance}
-          flex={1}
+          flex={responsiveFlex}
           labelProps={labelProps}
         />
       </Flex>
-      <Flex>
+      <Flex flexWrap='wrap' gap={4}>
         <DynamicComponent
           isLoading={isPoolDataLoading}
           label='lending.estCollateralizationRatio'
           component={estCollateralizationRatioComponent}
-          flex={1}
+          flex={responsiveFlex}
           labelProps={labelProps}
         />
         <DynamicComponent
           isLoading={isPoolDataLoading}
           label='lending.totalBorrowers'
           component={totalBorrowersComponent}
-          flex={1}
+          flex={responsiveFlex}
           labelProps={labelProps}
         />
       </Flex>

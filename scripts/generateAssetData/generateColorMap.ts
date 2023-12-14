@@ -1,9 +1,9 @@
 import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
-import type { Asset } from 'lib/asset-service'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'

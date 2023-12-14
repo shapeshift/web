@@ -3,6 +3,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
+import type { StreamingSwapFailedSwap } from 'state/slices/tradeQuoteSlice/types'
 
 import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from './types'
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
@@ -24,11 +25,6 @@ export const getThorchainStreamingSwap = async (
   return streamingSwapData
 }
 
-export type FailedSwap = {
-  reason: string
-  swapIndex: number
-}
-
 export const useThorStreamingProgress = (
   txHash: string | undefined,
   isThorStreamingSwap: boolean,
@@ -36,7 +32,7 @@ export const useThorStreamingProgress = (
   progressProps: ProgressProps
   attemptedSwapCount: number
   totalSwapCount: number
-  failedSwaps: FailedSwap[]
+  failedSwaps: StreamingSwapFailedSwap[]
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()

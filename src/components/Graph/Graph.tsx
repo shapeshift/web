@@ -61,14 +61,16 @@ export const Graph: React.FC<GraphProps> = ({
             />
           </Suspense>
         ) : (
-          <PrimaryChart
-            height={height}
-            width={width}
-            color={color}
-            margin={margin}
-            data={total}
-            hideAxis={hideAxis}
-          />
+          <Suspense fallback={suspenseFallback}>
+            <PrimaryChart
+              height={height}
+              width={width}
+              color={color}
+              margin={margin}
+              data={total}
+              hideAxis={hideAxis}
+            />
+          </Suspense>
         )
       ) : null
     },

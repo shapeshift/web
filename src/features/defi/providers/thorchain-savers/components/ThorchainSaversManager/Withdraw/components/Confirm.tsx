@@ -1,10 +1,21 @@
-import { Alert, AlertIcon, Box, Skeleton, Stack, useToast } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Flex,
+  Skeleton,
+  Stack,
+  useToast,
+} from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -31,13 +42,13 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/types'
 import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -141,7 +152,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const userAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -214,17 +228,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const {
           expiry,
           dust_amount,
-          expected_amount_deposit,
+          expected_amount_out,
           fees: { slippage_bps },
         } = maybeQuote.unwrap()
 
         setExpiry(expiry)
 
+        // If there's nothing being withdrawn, then the protocol fee is the entire amount
+        const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+          ? amountCryptoThorBaseUnit
+          : amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
-          toBaseUnit(
-            fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
-            asset.precision,
-          ),
+          toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
         setDustAmountCryptoBaseUnit(
           bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
@@ -299,18 +314,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
       const quote = maybeQuote.unwrap()
-      const { expiry, expected_amount_deposit, dust_amount } = quote
+      const { expiry, expected_amount_out, dust_amount } = quote
 
       const amountCryptoThorBaseUnit = toThorBaseUnit({
         valueCryptoBaseUnit: amountCryptoBaseUnit,
         asset,
       })
       setExpiry(expiry)
+
+      // If there's nothing being withdrawn, then the protocol fee is the entire amount
+      const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+        ? amountCryptoThorBaseUnit
+        : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
-        toBaseUnit(
-          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_deposit)),
-          asset.precision,
-        ),
+        toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
       )
 
       if (!maybeQuote) throw new Error('Cannot get THORCHain savers withdraw quote')
@@ -744,14 +761,51 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [missingBalanceForGasCryptoPrecision, feeAsset.symbol],
   )
 
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
+
+  const disableSmartContractWithdraw = useMemo(() => {
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress])
+
+  const preFooter = useMemo(() => {
+    if (!_isSmartContractAddress) return null
+
+    return (
+      <Flex direction='column' gap={2}>
+        <Alert status='error' width='auto' fontSize='sm'>
+          <AlertIcon />
+          <Stack spacing={0}>
+            <AlertTitle>{translate('trade.errors.smartContractWalletNotSupported')}</AlertTitle>
+            <AlertDescription lineHeight='short'>
+              {translate('trade.thorSmartContractWalletUnsupported')}
+            </AlertDescription>
+          </Stack>
+        </Alert>
+      </Flex>
+    )
+  }, [_isSmartContractAddress, translate])
+
+  const canWithdraw = useMemo(() => {
+    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+    return bnOrZero(amountCryptoBaseUnit).gt(protocolFeeCryptoBaseUnit)
+  }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit])
+
   if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm
       onCancel={handleCancel}
+      preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
-      isDisabled={!hasEnoughBalanceForGas}
-      loading={quoteLoading || state.loading}
+      isDisabled={
+        !hasEnoughBalanceForGas || !userAddress || disableSmartContractWithdraw || !canWithdraw
+      }
+      loading={quoteLoading || state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
     >

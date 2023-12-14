@@ -1,3 +1,4 @@
+import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
   SkeletonCircle,
@@ -8,6 +9,7 @@ import {
   StepIndicator,
   StepSeparator,
   StepTitle,
+  useStyleConfig,
 } from '@chakra-ui/react'
 
 const width = { width: '100%' }
@@ -19,6 +21,9 @@ export type StepperStepProps = {
   content?: JSX.Element
   isLastStep?: boolean
   isLoading?: boolean
+  isError?: boolean
+  titleProps?: StepTitleProps
+  descriptionProps?: BoxProps
 }
 
 export const StepperStep = ({
@@ -28,19 +33,26 @@ export const StepperStep = ({
   content,
   isLastStep,
   isLoading,
+  isError,
+  titleProps,
+  descriptionProps,
 }: StepperStepProps) => {
+  const { indicator: styles } = useStyleConfig('Stepper', {
+    variant: isError ? 'error' : 'default',
+  }) as { indicator: SystemStyleObject }
+
   return (
     <Step style={width}>
-      <StepIndicator>{isLoading ? <SkeletonCircle /> : stepIndicator}</StepIndicator>
+      <StepIndicator sx={styles}>{isLoading ? <SkeletonCircle /> : stepIndicator}</StepIndicator>
 
       <Box flex={1}>
-        <StepTitle>
+        <StepTitle {...titleProps}>
           <SkeletonText noOfLines={1} skeletonHeight={6} isLoaded={!isLoading}>
             {title}
           </SkeletonText>
         </StepTitle>
         {description && (
-          <StepDescription>
+          <StepDescription as={Box} {...descriptionProps}>
             {isLoading ? (
               <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
             ) : (
@@ -51,7 +63,7 @@ export const StepperStep = ({
         {content !== undefined && <Box mt={2}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}
       </Box>
-      <StepSeparator />
+      {!isLastStep && <StepSeparator />}
     </Step>
   )
 }

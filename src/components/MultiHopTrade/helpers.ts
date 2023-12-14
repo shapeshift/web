@@ -1,5 +1,5 @@
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { SwapperName } from 'lib/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById, selectWillDonate } from 'state/slices/selectors'
 import {
@@ -8,8 +8,8 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
-  selectQuoteDonationAmountUsd,
   selectQuoteDonationAmountUserCurrency,
+  selectQuoteFeeAmountUsd,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUsd,
   selectSellAmountUserCurrency,
@@ -30,7 +30,7 @@ export const getMixpanelEventData = () => {
 
   const assets = selectAssets(state)
   const _donationAmountUserCurrency = selectQuoteDonationAmountUserCurrency(state)
-  const _donationAmountUsd = selectQuoteDonationAmountUsd(state)
+  const _donationAmountUsd = selectQuoteFeeAmountUsd(state)
   const sellAmountBeforeFeesUsd = selectSellAmountUsd(state)
   const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)

@@ -434,7 +434,6 @@
       "youHaveSent": "Anda telah berhasil mengirim %{amount} %{symbol}",
       "tokenAddress": "Alamat Token",
       "scanQrCode": "Pindai kode QR",
-      "permissionsButton": "Coba Lagi",
       "sent": "%{asset} terkirim",
       "errorTitle": "Pengiriman %{asset} Anda gagal",
       "errors": {

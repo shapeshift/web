@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { ProtocolFee, TradeQuote } from '@shapeshiftoss/swapper'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote } from 'lib/swapper/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,

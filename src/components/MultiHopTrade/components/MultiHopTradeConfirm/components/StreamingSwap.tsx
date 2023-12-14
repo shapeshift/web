@@ -3,23 +3,19 @@ import { Progress, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 
-import { useMockThorStreamingProgress } from '../hooks/mockHooks'
+import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
 
 export type StreamingSwapProps = {
-  sellTxHash: string | undefined
+  hopIndex: number
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {
-  const { sellTxHash } = props
+  const { hopIndex } = props
 
   const translate = useTranslate()
 
-  const {
-    attemptedSwapCount,
-    progressProps: thorStreamingSwapProgressProps,
-    totalSwapCount,
-    failedSwaps,
-  } = useMockThorStreamingProgress(sellTxHash, true)
+  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } =
+    useThorStreamingProgress(hopIndex)
 
   return (
     <Stack px={4}>
@@ -30,7 +26,17 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
         )}
       </Row>
       <Row>
-        <Progress width='full' borderRadius='full' size='sm' {...thorStreamingSwapProgressProps} />
+        <Progress
+          width='full'
+          borderRadius='full'
+          size='sm'
+          min={0}
+          max={totalSwapCount}
+          value={attemptedSwapCount}
+          hasStripe
+          isAnimated={!isComplete}
+          colorScheme={isComplete ? 'green' : 'blue'}
+        />
       </Row>
       {failedSwaps.length > 0 && (
         <Row>

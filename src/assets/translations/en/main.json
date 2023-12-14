@@ -27,7 +27,7 @@
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
-    "insufficientAmountForGas": "Not enough %{assetSymbol} to cover gas",
+    "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
@@ -135,7 +135,8 @@
       "sortedAsc": "Sorted ascending",
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
-    }
+    },
+    "featureDisabled": "This feature is temporarily disabled."
   },
   "consentBanner": {
     "body": {
@@ -548,8 +549,6 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Missions",
-    "foxMissionsShort": "Missions",
     "lending": "Lending"
   },
   "transactionRow": {
@@ -728,6 +727,7 @@
     "free": "Free",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
+    "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
     "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
@@ -750,8 +750,6 @@
     },
     "errors": {
       "title": "Something went wrong",
-      "sellAssetStartSentence": "Sell asset",
-      "buyAssetStartSentence": "Buy asset",
       "sellAssetMiddleSentence": "sell asset",
       "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
@@ -791,7 +789,9 @@
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
-      "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
+      "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
+      "sellAssetNotSupportedByWallet": "Sell asset not supported by wallet",
+      "intermediaryAssetNotSupportedByWallet": "Intermediary not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
       "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
       "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
@@ -802,7 +802,9 @@
       "generalError": "A trade error has occurred",
       "quoteError": "An error occurred getting a quote",
       "tradeFailed": "Trade failed. Assets returned minus gas fee",
-      "noQuotesAvailable": "No quotes available for this trade"
+      "noQuotesAvailable": "No quotes available for this trade",
+      "smartContractWalletNotSupported": "Smart contract wallet not supported",
+      "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -810,13 +812,16 @@
     "or": "or",
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
+    "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
-    "approvalGasFee": "Approval gas fee %{fee}"
+    "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalFailed": "A problem occurred during allowance approval",
+    "swapFailed": "A problem occurred executing the %{tradeType}"
   },
   "modals": {
     "popup": {
@@ -940,6 +945,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
+        "tooltip": "Send funds to a single address for THORChain compatibility.",
         "consolidateFunds": "Consolidate"
       },
       "getBalanceError": "Error getting wallet balances",
@@ -1958,77 +1964,6 @@
     },
     "custom": "Custom"
   },
-  "idle": {
-    "emptyTitle": "Earn %{apy}% on your %{asset} with Idle Finance",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield Strategy",
-          "body": "Senior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple, conservative-risk yield sources to always provide the highest APY"
-        },
-        "page-2": {
-          "title": "Senior Best Yield strategies:",
-          "bullets": {
-            "one": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches",
-            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Junior Best Yield Strategy",
-          "body": "Junior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple Junior Tranches to always provide boosted, maximized APYs"
-        },
-        "page-2": {
-          "title": "Junior Best Yield strategies:",
-          "bullets": {
-            "one": "Automation and optimization of the yield generation across multiple Junior Tranches, providing boosted yields by design",
-            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Senior Tranche Strategy",
-          "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
-        },
-        "page-2": {
-          "title": "Senior Tranche strategies:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranche Strategy",
-          "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
-        },
-        "page-2": {
-          "title": "Junior Tranche strategies:"
-        }
-      },
-      "monitorSystem": "Utilize Idle finance's monitoring system to find better-performing allocations and trigger a rebalance",
-      "offerHighReturn": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer",
-      "leverageYield": "Leverage yield using Senior tranches funds",
-      "higherRisk": "Higher risk exposure by protecting senior tranches",
-      "minRisk": "Minimized risk exposure",
-      "builtInCoverage": "Built-in coverage for variable rate rewards",
-      "noLockingPeriod": "No locking period or epochs",
-      "autoReinvest": "Auto-Reinvest accrued tokens",
-      "fundsCoveredJunior": "Funds covered by Junior Tranches",
-      "automation": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches"
-    },
-    "bestYield": {
-      "title": "What is Best Yield?",
-      "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
-    },
-    "seniorTranche": {
-      "title": "What is a Senior Tranche?",
-      "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
-    },
-    "juniorTranche": {
-      "title": "What is a Junior Tranche?",
-      "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Buy Crypto with NO KYC",
@@ -2123,56 +2058,6 @@
     "reportSpam": "Report Spam",
     "refresh": "Refresh"
   },
-  "missions": {
-    "subtitle": "FOX Missions",
-    "missionEnded": "Mission Ended",
-    "viewMission": "View Mission",
-    "comingSoon": "Coming Soon",
-    "activeMissions": "Active Missions",
-    "endedMissions": "Ended Missions",
-    "title": {
-      "1": "Unleash the Decentralized Universe and",
-      "2": "Reap Rewards"
-    },
-    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
-    "ends": "Ends",
-    "ongoing": "Ongoing Mission",
-    "optimism": {
-      "title": "Earn up to 19.5 OP",
-      "subtitle": "Explore Optimism",
-      "cta": "Start Mission"
-    },
-    "foxatar": {
-      "title": "Get a Free & Customizable NFT",
-      "subtitle": "Mint a FOXatar",
-      "cta": "Start Mission"
-    },
-    "foxArmy": {
-      "subtitle": "Join the FOX Army",
-      "title": "20,000 FOX Pool",
-      "cta": "Start Mission"
-    },
-    "yat": {
-      "subtitle": "Play Yat Fantasy",
-      "title": "3,000 USDC Prize Pool",
-      "cta": "Start Mission"
-    },
-    "getListed": {
-      "subtitle": "Your Project Here",
-      "title": "Launch a Mission for Your Project",
-      "cta": "Submit Project"
-    },
-    "foxRewards": {
-      "subtitle": "Buy, sell, trade, earn, and more",
-      "title": "Earn FOX",
-      "cta": "Start Mission"
-    },
-    "snapfoxatar": {
-      "title": "Unlock Bitcoin with MetaMask",
-      "subtitle": "Mint a Metamask FOXatar skin",
-      "cta": "Start Mission"
-    }
-  },
   "avatar": {
     "modal": {
       "title": "Set a New Avatar",
@@ -2181,14 +2066,18 @@
   },
   "lending": {
     "lending": "Lending",
+    "repaymentAvailable": "Repayment available",
+    "daysUntilRepayment": "%{numDays} days until repayment",
+    "repaymentDays": "%{numDays} days",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
     "collateralValue": "Collateral Value",
+    "collateralValueDescription": "Current value of your asset used as collateral",
     "debtValue": "Debt Value",
     "loanToValue": "Loan to Value",
     "availablePools": "Available Pools",
-    "yourLoans": "Your Loans",
     "pool": "Pool",
     "poolDepth": "Pool Depth",
+    "poolDepthDescription": "The healthiness of the pool",
     "totalDebtBalance": "Total Debt Balance",
     "totalCollateral": "Total Collateral",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
@@ -2198,8 +2087,12 @@
     "loanInformation": "Loan Summary",
     "poolInformation": "Pool Information",
     "collateralBalance": "Collateral Balance",
+    "collateralBalanceDescription": "Total amount of your asset currently held as collateral",
     "debtBalance": "Debt Balance",
+    "debtBalanceDescription": "Total amount of debt you owe for this loan",
     "repaymentLock": "Repayment Lock",
+    "repaymentLockDescription": "Minimum period before you can repay your loan",
+    "receiveCollateral": "The amount of collateral you will receive back",
     "borrow": "Borrow",
     "repay": "Repay",
     "repayAmount": "Repay Amount",
@@ -2223,31 +2116,51 @@
     "repayNoticeCta": "I understand",
     "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
     "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
+    "refetchQuote": "Refetch Quote",
     "faq": {
       "title": "FAQ",
       "lending": {
         "title": "What is THORChain Lending?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Lending allows users to deposit native collateral, and then create a debt at a collateralization ratio (CR). The debt is always denominated in USD (aka TOR), regardless of what L1 asset the user receives"
       },
       "borrowing": {
         "title": "How does borrowing work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Borrowing in THORChain involves using your deposited assets as collateral to take out a loan. The loan is denominated in USD (TOR) and can be received in various L1 assets. With a dynamic collateralization ratio, you can borrow flexibly without the worry of interest or liquidation"
       },
       "repayments": {
         "title": "How does repayment work?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Repayment in THORChain is flexible, allowing you to repay at any time after your repayment lock has elapsed, and in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
       }
+    },
+    "quote": {
+      "collateral": "Total asset amount which will be secured against your loan",
+      "debt": "Total debt you'll owe based on your new loan amount",
+      "repaymentLock": "Minimum period before you can repay your loan",
+      "collateralizationRatio": "Ratio of your collateral value to the loan amount",
+      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
+    },
+    "yourLoans": {
+      "yourLoans": "Your Loans",
+      "emptyTitle": "The Land of Zero Loans!",
+      "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Current FOX Power",
+    "currentFoxPower": "Your FOX Power",
     "foxPower": "FOX Power",
-    "simulateTitle": "Simulate your FOX Savings",
+    "simulateTitle": "Simulate your FOX power discounts",
     "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your trade. Simply adjust the sliders below to indicate your FOX holder amount and the trade size in fiat, and watch your potential savings unfold!",
     "tradeSize": "Trade Size",
     "totalFee": "Total Fee",
     "foxPowerDiscount": "FOX Power Discount",
-    "basedOnFee": "Based on a fee of: %{fee}"
+    "basedOnFee": "Based on a fee of: %{fee}",
+    "feeSummary": "Fee Summary",
+    "simulateFee": "Simulate Discount",
+    "freeUnderThreshold": "Trades under %{threshold} are always FREE",
+    "breakdownHeader": "Your FOX Power Discount",
+    "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
+    "tradeFee": "Trade Fee",
+    "totalTradeFee": "Total Trade Fee"
   }
 }
 

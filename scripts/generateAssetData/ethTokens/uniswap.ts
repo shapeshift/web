@@ -1,6 +1,6 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
-import type { Asset } from 'lib/asset-service'
 
 import { colorMap } from '../colorMap'
 

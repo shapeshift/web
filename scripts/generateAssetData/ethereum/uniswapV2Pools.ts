@@ -1,5 +1,5 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'

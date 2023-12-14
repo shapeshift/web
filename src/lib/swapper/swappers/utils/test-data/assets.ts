@@ -14,7 +14,7 @@ import {
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',

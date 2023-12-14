@@ -15,7 +15,6 @@ import {
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
 import { useMemo } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -68,7 +67,6 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       ? getSignParamsMessage(request.params, true)
       : undefined
   const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
-  const chainAdapter = chainId && getChainAdapterManager().get(chainId)
 
   return {
     isInteractingWithContract,
@@ -76,7 +74,6 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     transaction,
     message,
     method,
-    chainAdapter,
     requestEvent,
     connectedAccounts,
     accountId,

@@ -94,12 +94,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
-      console.warn(
-        'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId',
-      )
-      return []
-    }
+    if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) return []
 
     try {
       const priceHistory = await super.findPriceHistoryByAssetId({

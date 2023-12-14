@@ -3,7 +3,7 @@ import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 
 export const useLedgerEventHandler = (
@@ -13,12 +13,13 @@ export const useLedgerEventHandler = (
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
 ) => {
   const { keyring, modal } = state
+  const localWallet = useLocalWallet()
 
   useEffect(() => {
     // This effect should run and attach event handlers on Ledger only
     // Failure to check for the localWalletType will result in a bunch of random bugs on other wallets
     // being mistakenly identified as KeepKey
-    const localWalletType = getLocalWalletType()
+    const { localWalletType } = localWallet
     if (localWalletType !== KeyManager.Ledger) return
 
     const handleConnect = async (_deviceId: string) => {
@@ -50,5 +51,6 @@ export const useLedgerEventHandler = (
     setDeviceState,
     state.connectedType,
     state.modalType,
+    localWallet,
   ])
 }

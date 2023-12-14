@@ -1,8 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { GetTradeQuoteInput, SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Asset } from 'lib/asset-service'
-import type { GetTradeQuoteInput, SwapErrorRight } from 'lib/swapper/types'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export type StepperStep = {
   title: string
@@ -16,11 +15,13 @@ export enum ActiveQuoteStatus {
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
   InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
-  InsufficientLastHopFeeAssetBalance = 'InsufficientLastHopFeeAssetBalance',
+  InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
   NoConnectedWallet = 'NoConnectedWallet',
+  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
   SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
+  IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
   BuyAssetNotNotSupportedByWallet = 'BuyAssetNotNotSupportedByWallet',
   NoReceiveAddress = 'NoReceiveAddress',
   NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair',
@@ -28,6 +29,7 @@ export enum ActiveQuoteStatus {
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   NoQuotesAvailable = 'NoQuotesAvailable',
+  UnsafeQuote = 'UnsafeQuote',
   UnknownError = 'UnknownError',
 }
 
@@ -60,6 +62,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'receiveAddress'
   | 'accountNumber'
   | 'affiliateBps'
+  | 'potentialAffiliateBps'
   | 'allowMultiHop'
   | 'slippageTolerancePercentage'
 >

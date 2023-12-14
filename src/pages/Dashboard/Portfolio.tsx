@@ -15,18 +15,15 @@ import {
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectChartTimeframe,
-  selectClaimableRewards,
-  selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
@@ -60,27 +57,9 @@ export const Portfolio = memo(() => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
   const portfolioTotalUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
-  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
-  )
-  const totalBalance = useMemo(
-    () =>
-      bnOrZero(earnUserCurrencyBalance)
-        .plus(portfolioTotalUserCurrencyBalance)
-        .plus(claimableRewardsUserCurrencyBalance)
-        .toFixed(),
-    [
-      claimableRewardsUserCurrencyBalance,
-      earnUserCurrencyBalance,
-      portfolioTotalUserCurrencyBalance,
-    ],
-  )
-
   const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
@@ -111,12 +90,12 @@ export const Portfolio = memo(() => {
         <Flex flexDir='column' justifyContent='center' alignItems='center'>
           <Heading as='div' color='text.subtle'>
             <Skeleton isLoaded={isLoaded}>
-              <Text translation='defi.netWorth' />
+              <Text translation='defi.walletBalance' />
             </Skeleton>
           </Heading>
           <Heading as='h2' fontSize='4xl' lineHeight='1'>
             <Skeleton isLoaded={isLoaded}>
-              <Amount.Fiat value={totalBalance} />
+              <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />
             </Skeleton>
           </Heading>
           {isFinite(percentChange) && (

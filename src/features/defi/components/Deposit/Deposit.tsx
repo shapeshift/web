@@ -1,6 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -14,7 +14,6 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {

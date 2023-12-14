@@ -1,4 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
@@ -134,17 +133,6 @@ export type Recipient = {
   cycle: number
   wallet: string // address that's claiming.  Weird Tokemak naming convention
   amount: string
-}
-
-export type RebaseEvent = {
-  epoch: string
-  blockNumber: number
-}
-
-export type RebaseHistory = {
-  assetId: AssetId
-  balanceDiff: string
-  blockTime: number
 }
 
 export type StakingContract = {

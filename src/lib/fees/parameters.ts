@@ -1,4 +1,3 @@
-export const FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS = 168 // 1 week
 export const FEE_CURVE_MAX_FEE_BPS = 29 // basis points
 export const FEE_CURVE_MIN_FEE_BPS = 10 // basis points
 export const FEE_CURVE_NO_FEE_THRESHOLD_USD = 1_000 // usd

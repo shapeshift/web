@@ -1,26 +1,23 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type {
-  ChainAdapter,
-  CosmosSdkBaseAdapter,
   CosmosSdkChainId,
-  EvmBaseAdapter,
   EvmChainId,
   FeeData,
   FeeDataEstimate,
   GetFeeDataInput,
-  UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { tokenOrUndefined } from 'lib/utils'
+import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -49,26 +46,22 @@ export const estimateFees = ({
   accountId,
   contractAddress,
 }: EstimateFeesInput): Promise<FeeDataEstimate<ChainId>> => {
-  const chainAdapterManager = getChainAdapterManager()
   const { account } = fromAccountId(accountId)
   const state = store.getState()
   const asset = selectAssetById(state, assetId)
   if (!asset) throw new Error(`Asset not found for ${assetId}`)
   const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
 
-  const adapter = chainAdapterManager.get(asset.chainId)
-  if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)
-
   const { chainNamespace } = fromChainId(asset.chainId)
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.CosmosSdk: {
+      const adapter = assertGetCosmosSdkChainAdapter(asset.chainId)
       const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
-      return (adapter as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>).getFeeData(
-        getFeeDataInput,
-      )
+      return adapter.getFeeData(getFeeDataInput)
     }
     case CHAIN_NAMESPACE.Evm: {
+      const adapter = assertGetEvmChainAdapter(asset.chainId)
       const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to,
         value,
@@ -79,16 +72,17 @@ export const estimateFees = ({
         },
         sendMax,
       }
-      return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData(getFeeDataInput)
+      return adapter.getFeeData(getFeeDataInput)
     }
     case CHAIN_NAMESPACE.Utxo: {
+      const adapter = assertGetUtxoChainAdapter(asset.chainId)
       const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to,
         value,
         chainSpecific: { from, pubkey: account },
         sendMax,
       }
-      return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData(getFeeDataInput)
+      return adapter.getFeeData(getFeeDataInput)
     }
     default:
       throw new Error(`${chainNamespace} not supported`)
@@ -102,7 +96,6 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
-  const chainAdapterManager = getChainAdapterManager()
   const supportedEvmChainIds = getSupportedEvmChainIds()
 
   const state = store.getState()
@@ -119,14 +112,11 @@ export const handleSend = async ({
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }
 
-  const adapter = chainAdapterManager.get(asset.chainId) as ChainAdapter<KnownChainIds>
-  if (!adapter) throw new Error(`useFormSend: no adapter available for ${asset.chainId}`)
-
   const value = bnOrZero(sendInput.cryptoAmount)
     .times(bn(10).exponentiatedBy(asset.precision))
     .toFixed(0)
 
-  const chainId = adapter.getChainId()
+  const chainId = asset.chainId
 
   const { estimatedFees, feeType, to, memo, from } = sendInput
 
@@ -153,7 +143,8 @@ export const handleSend = async ({
       }
       const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
       const { accountNumber } = bip44Params
-      return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
+      const adapter = assertGetEvmChainAdapter(chainId)
+      return await adapter.buildSendTransaction({
         to,
         value,
         wallet,
@@ -178,7 +169,8 @@ export const handleSend = async ({
         )
       }
       const { accountNumber } = bip44Params
-      return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
+      const adapter = assertGetUtxoChainAdapter(chainId)
+      return adapter.buildSendTransaction({
         to,
         value,
         wallet,
@@ -205,7 +197,7 @@ export const handleSend = async ({
         chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
         sendMax: sendInput.sendMax,
       }
-
+      const adapter = assertGetCosmosSdkChainAdapter(chainId)
       return adapter.buildSendTransaction(params)
     }
 
@@ -213,6 +205,8 @@ export const handleSend = async ({
   })()
 
   const txToSign = result.txToSign
+
+  const adapter = assertGetChainAdapter(chainId)
 
   const senderAddress = await adapter.getAddress({
     accountNumber: accountMetadata.bip44Params.accountNumber,

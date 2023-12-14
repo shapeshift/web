@@ -1,6 +1,7 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
+import type { Asset } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useCallback } from 'react'
@@ -15,7 +16,6 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   LpEarnOpportunityType,

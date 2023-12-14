@@ -6,9 +6,6 @@ Bug fixes and features should always come with tests.
 
 - Unit - test both frontend code in isolation
   - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library](https://testing-library.com/docs/react-testing-library/api/#renderhook)
-- E2E - to test the full stack completely on critical flows
-  - [cypress](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests)
-    - When selecting DOM elements [use `data-test-*` instead of using a `class` or `id`](https://docs.cypress.io/guides/references/best-practices#Selecting-Elements).
 - Workflows - tools and libraries for GitHub Workflows or any DevOps processes
   - [act](https://github.com/nektos/act) - Emulates GitHub Workflows virtual environment via Docker containers.
 

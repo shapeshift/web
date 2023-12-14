@@ -44,18 +44,4 @@ function makeHeaders(...csps: Csp[]): Record<string, string> {
   }
 }
 
-function makeCypressHeaders(...csps: Csp[]): Record<string, string> {
-  return {
-    ...baseHeaders,
-    'Content-Security-Policy': `${serializeCsp(
-      cspMerge(...csps, {
-        'frame-ancestors': ["'self'"],
-      }),
-    )}`,
-    'Permissions-Policy': 'document-domain=(self)',
-  }
-}
-
-const useCypressRelaxedSecurity = process.env.CYPRESS_RELAXED_SECURITY === 'true'
-
-export const headers = (useCypressRelaxedSecurity ? makeCypressHeaders : makeHeaders)(cspHeader)
+export const headers = makeHeaders(cspHeader)

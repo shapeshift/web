@@ -21,11 +21,9 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import {
-  setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId,
-} from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
@@ -117,6 +115,7 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
   const { getAdapter, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const translate = useTranslate()
@@ -150,6 +149,11 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
           if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
 
+          // remove all provider event listeners from previously connected wallets
+          const ethersProvider = getEthersProvider()
+          ethersProvider.removeAllListeners('accountsChanged')
+          ethersProvider.removeAllListeners('chainChanged')
+
           const wallet = await adapter.pairDevice(revoker.id)
           await wallet?.loadDevice({ mnemonic: revoker.mnemonic })
           if (!(await wallet?.isInitialized())) {
@@ -169,8 +173,8 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-          setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
-          setLocalNativeWalletName(item?.label ?? 'label')
+          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)
           setError('walletProvider.shapeShift.load.error.pair')
@@ -179,7 +183,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         setError('walletProvider.shapeShift.load.error.pair')
       }
     },
-    [dispatch, getAdapter],
+    [dispatch, getAdapter, localWallet],
   )
 
   const handleDelete = useCallback(

@@ -2,11 +2,18 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { GetEvmTradeQuoteInput, SwapSource } from '@shapeshiftoss/swapper'
+import {
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapErrorType,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
@@ -14,9 +21,6 @@ import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/types'
-import { SwapErrorType, SwapperName } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { isFulfilled } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
@@ -38,6 +42,7 @@ export async function getTradeQuote(
     slippageTolerancePercentage,
     supportsEIP1559,
     affiliateBps,
+    potentialAffiliateBps,
   } = input
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -67,14 +72,9 @@ export async function getTradeQuote(
     toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
     fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
     toTokenAddress: getLifiEvmAssetAddress(buyAsset),
-    // HACK: use the receive address as the send address
-    // lifi's exchanges may use this to check allowance on their side
-    // this swapper is not cross-account so this works
     fromAddress: sendAddress,
     toAddress: receiveAddress,
     fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    // as recommended by lifi, dodo is denied until they fix their gas estimates
-    // TODO: convert this config to .env variable
     options: {
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
@@ -82,7 +82,7 @@ export async function getTradeQuote(
         slippageTolerancePercentage ??
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI),
       ),
-      exchanges: { deny: ['dodo'] },
+      bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
       allowSwitchChain: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
       fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
@@ -172,13 +172,15 @@ export async function getTradeQuote(
           )
 
           const buyAmountAfterFeesCryptoBaseUnit = bnOrZero(
-            selectedLifiRoute.toAmount,
+            lifiStep.estimate.toAmount,
           ).toPrecision()
 
           const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
             .plus(sellSideProtocolFeeBuyAssetBaseUnit)
             .plus(buySideProtocolFeeCryptoBaseUnit)
             .toString()
+
+          const sellAmountIncludingProtocolFeesCryptoBaseUnit = lifiStep.action.fromAmount
 
           const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 
@@ -225,6 +227,7 @@ export async function getTradeQuote(
         id: selectedLifiRoute.id,
         receiveAddress,
         affiliateBps,
+        potentialAffiliateBps,
         steps,
         rate: netRate,
         selectedLifiRoute,

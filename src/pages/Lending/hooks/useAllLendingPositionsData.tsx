@@ -9,8 +9,9 @@ import {
   selectAccountIdsByAssetId,
   selectUserCurrencyRateByAssetId,
   selectUserCurrencyToUsdRate,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { useLendingSupportedAssets } from './useLendingSupportedAssets'
 
@@ -21,6 +22,7 @@ type UseAllLendingPositionsDataProps = {
 export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
 
+  const accountIds = useAppSelector(selectWalletAccountIds)
   const accounts = useMemo(
     () =>
       (lendingSupportedAssets ?? [])
@@ -32,7 +34,10 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
           return _accountIds.map(accountId => ({ accountId, assetId: asset.assetId }))
         })
         .flat(),
-    [assetId, lendingSupportedAssets],
+    // We want to react on accountIds, since the portfolio may not be loaded in the useMemo() above,
+    // and we're iterating, meaning we cannot be reactive on selectAccountIdsByAssetId at hook scope
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [assetId, accountIds, lendingSupportedAssets],
   )
 
   const positions = useQueries({

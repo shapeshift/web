@@ -6,8 +6,8 @@ import {
   optimismAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Asset } from 'lib/asset-service'
 
 import { filterEvmAssetIdsBySellable } from './filterAssetIdsBySellable'
 

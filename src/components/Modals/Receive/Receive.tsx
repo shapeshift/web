@@ -1,8 +1,8 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
-import type { Asset } from 'lib/asset-service'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveRouter } from './ReceiveRouter'

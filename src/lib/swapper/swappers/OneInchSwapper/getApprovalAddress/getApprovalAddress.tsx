@@ -1,8 +1,8 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
-import type { SwapErrorRight } from 'lib/swapper/types'
 
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchSpenderResponse } from '../utils/types'

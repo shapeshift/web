@@ -1,11 +1,10 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
 import { matchSorter } from 'match-sorter'
-import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -16,7 +15,6 @@ import {
   selectIncludeRewardsBalancesParamFromFilter,
   selectSearchQueryFromFilter,
 } from 'state/selectors'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {
@@ -317,7 +315,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     /**
      * we want to be able to search on...
      * - provider "thorch" for THORChain, "unis" for Uniswap
-     * - asset name (vault/underlying/rewards) e.g. idle 'senior tr' for Idle Senior TR, 'usdc' will match too
+     * - asset name (vault/underlying/rewards) e.g. fox for FOXy
      * - chain "opt" for Optimism
      *
      * https://github.com/kentcdodds/match-sorter#advanced-options
@@ -338,7 +336,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     const searchOpportunities = <T extends LpEarnOpportunityType | StakingEarnOpportunityType>(
       searchQuery: string | undefined,
       combined: T[],
-      assets: AssetsById,
+      assets: AssetsByIdPartial,
     ): T[] => {
       if (!searchQuery) return combined
 
@@ -396,7 +394,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     })
 
     const initial = {
-      [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),

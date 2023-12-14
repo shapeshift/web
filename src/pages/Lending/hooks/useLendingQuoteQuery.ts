@@ -3,17 +3,23 @@ import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MarketData } from '@shapeshiftoss/types'
+import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingOpenQuote } from 'lib/utils/thorchain/lending'
-import type { LendingDepositQuoteResponseSuccess } from 'lib/utils/thorchain/lending/types'
+import type {
+  LendingDepositQuoteResponseSuccess,
+  LendingQuoteOpen,
+} from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataById,
@@ -28,7 +34,6 @@ type UseLendingQuoteQueryProps = {
   collateralAccountId: AccountId
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
-  isLoanOpenPending?: boolean
 }
 
 type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
@@ -42,7 +47,7 @@ const selectLendingQuoteQuery = memoize(
     data: LendingDepositQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     borrowAssetMarketData: MarketData
-  }) => {
+  }): LendingQuoteOpen => {
     const quote = data
 
     const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
@@ -87,6 +92,17 @@ const selectLendingQuoteQuery = memoize(
 
     const quoteInboundAddress = quote.inbound_address
     const quoteMemo = quote.memo
+    const quoteExpiry = quote.expiry
+    const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
+    const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)
+      .times(1000)
+      .toNumber()
+    // Sane number for total time, in case the outbound is 0 seconds and the inbound is also fast,
+    // so that users don't end up waiting 30s before the seeminngly "complete" Tx as far as progress bar goes, and actual confirmed state
+    const quoteTotalTimeMs = BigNumber.max(
+      120_000,
+      bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
+    ).toNumber()
 
     return {
       quoteCollateralAmountCryptoPrecision,
@@ -99,6 +115,10 @@ const selectLendingQuoteQuery = memoize(
       quoteTotalFeesFiatUserCurrency,
       quoteInboundAddress,
       quoteMemo,
+      quoteOutboundDelayMs,
+      quoteInboundConfirmationMs,
+      quoteTotalTimeMs,
+      quoteExpiry,
     }
   },
 )
@@ -109,8 +129,8 @@ export const useLendingQuoteOpenQuery = ({
   borrowAccountId: _borrowAccountId,
   borrowAssetId: _borrowAssetId,
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
-  isLoanOpenPending,
-}: UseLendingQuoteQueryProps) => {
+  enabled = true,
+}: UseLendingQuoteQueryProps & QueryObserverOptions) => {
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
@@ -221,8 +241,12 @@ export const useLendingQuoteOpenQuery = ({
     // Failed queries go stale and don't honor "staleTime", which means smaller amounts would trigger a THOR daemon fetch from all consumers (3 currently)
     // vs. the failed query being considered fresh
     retry: false,
+    // Do not refetch if consumers explicitly set enabled to false
+    // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function
+    refetchIntervalInBackground: enabled,
+    refetchInterval: enabled ? 20_000 : undefined,
     enabled: Boolean(
-      !isLoanOpenPending &&
+      enabled &&
         bnOrZero(depositAmountCryptoPrecision).gt(0) &&
         collateralAccountId &&
         collateralAccountId &&

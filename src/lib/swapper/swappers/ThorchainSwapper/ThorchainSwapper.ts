@@ -2,6 +2,12 @@ import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  BuyAssetBySellIdInput,
+  CosmosSdkTransactionExecutionProps,
+  Swapper,
+  UtxoTransactionExecutionProps,
+} from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import {
   buySupportedChainIds,
@@ -10,12 +16,6 @@ import {
 import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import type {
-  BuyAssetBySellIdInput,
-  CosmosSdkTransactionExecutionProps,
-  Swapper,
-  UtxoTransactionExecutionProps,
-} from 'lib/swapper/types'
 import { isSome } from 'lib/utils'
 import { executeEvmTransaction } from 'lib/utils/evm'
 

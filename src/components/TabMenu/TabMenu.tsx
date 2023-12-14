@@ -16,7 +16,7 @@ export type TabItem = {
 }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const navItemPadding = { base: 6, '2xl': 8 }
+const navItemPadding = { base: 4, '2xl': 8 }
 const navCss = {
   '&::-webkit-scrollbar': {
     display: 'none',

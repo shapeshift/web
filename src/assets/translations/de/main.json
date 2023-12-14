@@ -103,6 +103,7 @@
     "feesPlusSlippage": "Gebühren + Marktabweichung",
     "best": "Beste",
     "gasFee": "Gasgebühr",
+    "consolidationFee": "Konsolidierungsgebühr",
     "fees": "Gebühren",
     "alternative": "Alternative",
     "validator": "der %{name} Prüfer",
@@ -121,6 +122,7 @@
     "showAll": "Zeige alles",
     "showLess": "Zeige weniger",
     "yourBalance": "Ihr Kontostand",
+    "signMessage": "Nachricht unterschreiben",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -546,8 +548,6 @@
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop",
-    "foxMissions": "FOX Mission",
-    "foxMissionsShort": "Missionen",
     "lending": "Verleihen"
   },
   "transactionRow": {
@@ -800,7 +800,8 @@
       "generalError": "Ein Handelsfehler ist aufgetreten",
       "quoteError": "Beim Abruf des Angebots ist ein Fehler aufgetreten",
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr",
-      "noQuotesAvailable": "Für diesen Handel sind keine Angebote verfügbar"
+      "noQuotesAvailable": "Für diesen Handel sind keine Angebote verfügbar",
+      "smartContractWalletNotSupported": "Smart Contract Wallet wird nicht unterstützt"
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen",
@@ -813,7 +814,10 @@
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
-    "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap"
+    "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap",
+    "approvalGasFee": "Genehmigungsgasgebühr %{fee}",
+    "approvalFailed": "Bei der Genehmigung ist ein Problem aufgetreten",
+    "swapFailed": "Beim Ausführen von %{tradeType} ist ein Problem aufgetreten."
   },
   "modals": {
     "popup": {
@@ -937,6 +941,7 @@
     "send": {
       "consolidate": {
         "body": "ShapeShift berücksichtigt das Sicherheitsdesign von %{asset}, indem es für jede Transaktion eine neue Adresse verwendet. Zur Anpassung an das THORChain-Protokoll, das mit einer einzigen Adresse arbeitet, konsolidieren wir Ihre Gelder an einer einzigen Adresse.",
+        "tooltip": "Senden Sie an eine einzige Adresse, um die THORChain-Kompatibilität zu gewährleisten.",
         "consolidateFunds": "Konsolidieren"
       },
       "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
@@ -1955,77 +1960,6 @@
     },
     "custom": "Benutzerdefiniert"
   },
-  "idle": {
-    "emptyTitle": "Verdienen Sie mit Idle Finance %{apy}% auf Ihr %{asset}",
-    "emptyBody": {
-      "seniorBestYield": {
-        "page-1": {
-          "title": "Senior Best Yield Strategie",
-          "body": "Senior Best Yield Tresore sind Set-and-Forget-Strategien, die Gelder automatisch über mehrere Ertragsquellen mit konservativem Risiko leiten, um immer den höchsten APY zu erzielen"
-        },
-        "page-2": {
-          "title": "Senior Best Yield Strategien:",
-          "bullets": {
-            "one": "Automatisierung und Optimierung der Ertragsgenerierung über Aave-, Compound- und mehrere Senior-Tranchen hinweg",
-            "two": "Bieten maximierte Renditen, ohne dass der Benutzer bei jeder Überweisung ständig die Tarife überprüft und Gas verbraucht"
-          }
-        }
-      },
-      "juniorBestYield": {
-        "page-1": {
-          "title": "Junior Best Yield Strategie",
-          "body": "Junior Best Yield Tresore sind Set-and-Forget-Strategien, die automatisch Gelder über mehrere Junior-Tranchen leiten, um immer erhöhte, maximierte APYs bereitzustellen"
-        },
-        "page-2": {
-          "title": "Junior Best Yield Strategien:",
-          "bullets": {
-            "one": "Automatisierung und Optimierung der Ertragsgenerierung über mehrere Junior-Tranchen hinweg, wodurch die Erträge durch deren Art gesteigert werden",
-            "two": "Maximale Renditen, ohne dass der Benutzer ständig die Tarife überprüfen und bei jeder Überweisung Transfergebühren zahlen muss"
-          }
-        }
-      },
-      "seniorTranche": {
-        "page-1": {
-          "title": "Senior Tranchen Strategie",
-          "body": "Genießen Sie DeFi-Erträge mit integriertem Einlagenschutz. Senior-Tranchen bieten eine vollständige Abdeckung durch ihre Junior-Gegenpartei."
-        },
-        "page-2": {
-          "title": "Senior Tranchen Strategien:"
-        }
-      },
-      "juniorTranche": {
-        "page-1": {
-          "title": "Junior Tranchen Strategie",
-          "body": "Genießen Sie gesteigerte DeFi-Erträge. Junior-Tranchen bieten gehebelte Renditen, da sie von ihrer Senior-Gegenpartei dafür entschädigt werden, dass sie ein höheres Risiko eingehen."
-        },
-        "page-2": {
-          "title": "Junior Tranchen Strategien:"
-        }
-      },
-      "monitorSystem": "Nutzen Sie das Überwachungssystem von Idle Finance, um Allokationen mit besserer Leistung zu finden und eine Neugewichtung auszulösen",
-      "offerHighReturn": "Bieten maximierte Renditen, ohne dass der Benutzer bei jeder Überweisung ständig die Tarife überprüft und Gas verbraucht",
-      "leverageYield": "Leverage Rendite mit Senior Tranchen Fonds",
-      "higherRisk": "Höheres Risiko durch Schutz vorrangiger Tranchen",
-      "minRisk": "Minimiertes Risiko",
-      "builtInCoverage": "Integrierter Versicherungsschutz für variabel verzinsliche Prämien",
-      "noLockingPeriod": "Keine Sperrfrist oder Epochen",
-      "autoReinvest": "investierte Token automatisch reinvestieren",
-      "fundsCoveredJunior": "Anlage von Junior-Tranchen abgedeckt",
-      "automation": "Automatisierung und Optimierung der Ertragsgenerierung über Aave-, Compound- und mehrere Senior-Tranchen hinweg"
-    },
-    "bestYield": {
-      "title": "Was ist Best Yield?",
-      "body": "Maximieren Sie automatisch den Ertrag über mehrere erprobte DeFi-Protokolle. Die Best-Yield-Strategie optimiert die Ertragsgenerierung durch Verteilung der Transaktionskosten und automatisiert die Ertragsgenerierung durch algorithmische Kapitalverlagerung, wenn sich neue Ertragschancen ergeben."
-    },
-    "seniorTranche": {
-      "title": "Was ist eine Senior Tranche?",
-      "body": "Genießen Sie DeFi-Erträge mit integriertem Einlagenschutz. Senior-Tranchen bieten eine vollständige Abdeckung durch ihre Junior-Gegenpartei."
-    },
-    "juniorTranche": {
-      "title": "Was ist eine Junior Tranche?",
-      "body": "Genießen Sie gesteigerte DeFi-Erträge. Junior-Tranchen bieten gehebelte Renditen, da sie von ihrer Senior-Gegenpartei dafür entschädigt werden, dass sie ein höheres Risiko eingehen."
-    }
-  },
   "promo": {
     "onRamper": {
       "title": "Kaufen Sie Krypto ohne KYC",
@@ -2120,56 +2054,6 @@
     "reportSpam": "Spam melden",
     "refresh": "Aktualisierung"
   },
-  "missions": {
-    "subtitle": "FOX Missionen",
-    "missionEnded": "Mission beendet",
-    "viewMission": "Zeige Mission",
-    "comingSoon": "Demnächst",
-    "activeMissions": "Aktive Missionen",
-    "endedMissions": "Beendete Missionen",
-    "title": {
-      "1": "Entfessle das dezentrale Universum und",
-      "2": "erhalte Belohnungen"
-    },
-    "body": "Begeben Sie sich auf Missionen, verdienen Sie Belohnungen und erweitern Sie Ihr Wissen über das ständig wachsende ShapeShift-Ökosystem",
-    "ends": "Endet",
-    "ongoing": "laufende Mission",
-    "optimism": {
-      "title": "Verdiene bis zu 19,5 OP",
-      "subtitle": "Entdecke Optimism",
-      "cta": "Beginne Mission"
-    },
-    "foxatar": {
-      "title": "Holen Sie sich ein kostenloses und anpassbares NFT",
-      "subtitle": "Minte einen FOXatar",
-      "cta": "Beginne Mission"
-    },
-    "foxArmy": {
-      "subtitle": "Treten Sie der FOX-Armee bei",
-      "title": "20,000 FOX Pool",
-      "cta": "Beginne Mission"
-    },
-    "yat": {
-      "subtitle": "Spiele Yat Fantasy",
-      "title": "3,000 USDC Preis Pool",
-      "cta": "Beginne Mission"
-    },
-    "getListed": {
-      "subtitle": "Ihr Projekt hier",
-      "title": "Starten Sie eine Mission für Ihr Projekt",
-      "cta": "Projekt einreichen"
-    },
-    "foxRewards": {
-      "subtitle": "Kaufen, verkaufen, handeln, verdienen und mehr",
-      "title": "Verdiene FOX",
-      "cta": "Starte Mission"
-    },
-    "snapfoxatar": {
-      "title": "Schalte Bitcoin mit MetaMask frei",
-      "subtitle": "Mint eine Metamask FOXatar Skin",
-      "cta": "Starte Mission"
-    }
-  },
   "avatar": {
     "modal": {
       "title": "Legen Sie einen neuen Avatar fest",
@@ -2178,14 +2062,19 @@
   },
   "lending": {
     "lending": "Verleihen",
+    "repaymentAvailable": "Rückzahlung möglich",
+    "daysUntilRepayment": "%{numDays} Tage bis zur Rückzahlung",
+    "repaymentDays": "%{numDays} Tage",
     "lendingBody": "Eine Auflistung aller Pools, die zinslos und ohne Liquidation ausgeliehen werden können.",
     "collateralValue": "Sicherheitenwert",
+    "collateralValueDescription": "Aktueller Vermögenswert, der als Sicherheit dient",
     "debtValue": "Schuldenwert",
     "loanToValue": "Beleihungswert",
     "availablePools": "Verfügbare Pools",
     "yourLoans": "Ihre Kredite",
     "pool": "Pool",
     "poolDepth": "Pooltiefe",
+    "poolDepthDescription": "Die Gesundheit des Pools",
     "totalDebtBalance": "Gesamtschuldensaldo",
     "totalCollateral": "Gesamtsicherheiten",
     "estCollateralizationRatio": "zirka Besicherungsverhältnis",
@@ -2195,11 +2084,15 @@
     "loanInformation": "Kreditübersicht",
     "poolInformation": "Pool Information",
     "collateralBalance": "Sicherheitensaldo",
+    "collateralBalanceDescription": "Gesamtbetrag Ihres Vermögenswertes, der derzeit als Sicherheit gehalten wird",
     "debtBalance": "Schuldenstand",
+    "debtBalanceDescription": "Gesamtbetrag der Schulden, die Sie für dieses Darlehen schulden",
     "repaymentLock": "Rückzahlungssperre",
+    "repaymentLockDescription": "Mindestlaufzeit, bevor Sie Ihr Darlehen zurückzahlen können",
     "borrow": "Ausleihen",
     "repay": "Zurückzahlen",
     "repayAmount": "Rückzahlungsbetrag",
+    "unlocked": "Entsperrt",
     "unlockedCollateral": "Freigeschaltete Sicherheiten",
     "depositAsset": "Einzahlen von %{asset}",
     "switchAssets": "Vermögenswerte wechseln",
@@ -2212,34 +2105,52 @@
     "risky": "Riskant",
     "confirmAndBorrow": "Bestätigen und ausleihen",
     "confirmAndRepay": "Bestätigen und zurückzahlen",
+    "borrowAgain": "Nochmals ausleihen",
+    "repayAgain": "Nochmals zurückzahlen",
     "transactionInfo": "Transaktionsübersicht",
     "repayNoticeTitle": "Halten!",
     "repayNoticeCta": "Ich verstehe",
     "repayNotice": "Um Ihre Sicherheiten zurückzuerhalten, müssen Sie 100 % Ihrer Schulden zurückzahlen.",
+    "feesNotice": "Für die Sicherheiten, die Sie nach vollständiger Rückzahlung Ihrer Schulden zurückerhalten, fallen Gebühren an",
+    "refetchQuote": "Angebot erneut abrufen",
     "faq": {
       "title": "FAQ",
       "lending": {
         "title": "Was ist THORChain Lending?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Die Kreditvergabe ermöglicht es Benutzern, native Sicherheiten zu hinterlegen und dann eine Schuld mit einer Besicherungsquote (CR) zu schaffen. Die Schulden lauten immer auf USD (auch bekannt als TOR), unabhängig davon, welchen L1 Vermögenswert der Benutzer erhält"
       },
       "borrowing": {
         "title": "Wie funktioniert die Kreditaufnahme?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Bei der Kreditaufnahme in THORChain nutzen Sie Ihr hinterlegtes Vermögen als Sicherheit für die Aufnahme eines Kredits. Das Darlehen lautet auf USD (TOR) und kann in verschiedenen L1 Vermögenswerten aufgenommen werden. Mit einer dynamischen Besicherungsquote können Sie flexibel Kredite aufnehmen, ohne sich um Zinsen oder Liquidation sorgen zu müssen"
       },
       "repayments": {
         "title": "Wie funktioniert die Rückzahlung?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Die Rückzahlung in THORChain ist flexibel, sodass Sie jederzeit in jedem Vermögenswert zurückzahlen können, der dann in TOR umgewandelt wird. Der Rückzahlungsbetrag wird von Ihrem Schuldensaldo abgezogen und die anteilige Sicherheit wird Ihnen bei vollständiger Rückzahlung wieder freigegeben"
       }
+    },
+    "quote": {
+      "collateral": "Gesamtvermögenswert, der gegen Ihr Darlehen besichert wird",
+      "debt": "Gesamtschulden, die Sie basierend auf Ihrem neuen Kreditbetrag schulden",
+      "repaymentLock": "Mindestlaufzeit, bevor Sie Ihr Darlehen zurückzahlen können",
+      "collateralizationRatio": "Verhältnis Ihres Sicherheitenwertes zum Kreditbetrag",
+      "feesPlusSlippage": "Es fielen insgesamt Gebühren an, einschließlich L1 Gebühren, Slippage und THORChain-Liquiditätsgebühren"
     }
   },
   "foxDiscounts": {
-    "currentFoxPower": "Aktuelle FOX Power",
+    "currentFoxPower": "Deine FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Simuliere FOX-Ersparnisse",
     "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihren Handel erhalten. Passen Sie einfach die Schieberegler unten an, um die Anzahl Ihrer FOX und die Handelsgröße in Fiat anzugeben, und sehen Sie, wie sich Ihre potenziellen Einsparungen vermehren!",
     "tradeSize": "Handelsgröße",
     "totalFee": "Gesamtgebühr",
     "foxPowerDiscount": "FOX Power Rabatt",
-    "basedOnFee": "Basierend auf einer Gebühr von: %{fee}"
+    "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
+    "feeSummary": "Gebührenübersicht",
+    "simulateFee": "Gebühr simulieren",
+    "freeUnderThreshold": "Trades unter %{threshold} sind immer KOSTENLOS",
+    "breakdownHeader": "Ihr FOX Power Rabatt",
+    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer Handelsgebühren und des entsprechenden angewendeten FOX Power Rabatten. Erfahren Sie auf derRegisterkarte „Simulieren“, wie viel mehr Sie  sparen können.",
+    "tradeFee": "Handelsgebühr",
+    "totalTradeFee": "Gesamte Handelsgebühr"
   }
 }

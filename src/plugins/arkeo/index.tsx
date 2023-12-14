@@ -20,6 +20,7 @@ export default function register(): Plugins {
             main: ArkeoPage,
             icon: <ArkeoIcon />,
             category: RouteCategory.Explore,
+            hide: true,
           },
         ],
       },

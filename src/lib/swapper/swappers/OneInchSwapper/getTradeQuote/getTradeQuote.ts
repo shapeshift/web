@@ -1,11 +1,15 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import {
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapErrorType,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
-import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
-import { SwapErrorType, SwapperName } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import {
   addBasisPointAmount,
@@ -27,6 +31,7 @@ export async function getTradeQuote(
     buyAsset,
     accountNumber,
     affiliateBps,
+    potentialAffiliateBps,
     supportsEIP1559,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -47,6 +52,7 @@ export async function getTradeQuote(
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: getOneInchTokenAddress(sellAsset),
     toTokenAddress: getOneInchTokenAddress(buyAsset),
+    receiver: receiveAddress,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     ...(maybeTreasuryAddress && {
       fee: buyTokenPercentageFee,
@@ -91,6 +97,7 @@ export async function getTradeQuote(
       id: uuid(),
       receiveAddress,
       affiliateBps,
+      potentialAffiliateBps,
       rate,
       steps: [
         {

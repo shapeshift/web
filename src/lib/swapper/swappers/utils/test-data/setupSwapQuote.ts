@@ -1,8 +1,8 @@
+import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Asset } from 'lib/asset-service'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
-import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 import { DEFAULT_SLIPPAGE } from '../constants'
 
@@ -13,6 +13,7 @@ export const setupQuote = () => {
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: undefined,
+    potentialAffiliateBps: undefined,
     rate: '1',
     steps: [
       {
@@ -42,6 +43,7 @@ export const setupQuote = () => {
     accountNumber: 0,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    potentialAffiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
     slippageTolerancePercentage: DEFAULT_SLIPPAGE,

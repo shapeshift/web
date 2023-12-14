@@ -30,6 +30,7 @@ export const OnboardPager: React.FC<OnboardPagerProps> = ({ activeRoute }) => {
         onClick={() => handleGoToPage(route.path)}
         size='10px'
         bg={route.path === activeRoute ? 'blue.500' : pageColor}
+        key={route.path}
       />
     ))
   }, [activeRoute, handleGoToPage, pageColor])

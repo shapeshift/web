@@ -71,13 +71,13 @@ export function AppProviders({ children }: ProvidersProps) {
                           <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
                             <ModalProvider>
                               <TransactionsProvider>
-                                <AppProvider>
-                                  <FoxEthProvider>
-                                    <QueryClientProvider>
+                                <QueryClientProvider>
+                                  <AppProvider>
+                                    <FoxEthProvider>
                                       <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </QueryClientProvider>
-                                  </FoxEthProvider>
-                                </AppProvider>
+                                    </FoxEthProvider>
+                                  </AppProvider>
+                                </QueryClientProvider>
                               </TransactionsProvider>
                             </ModalProvider>
                           </ErrorBoundary>

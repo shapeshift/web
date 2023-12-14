@@ -1,7 +1,7 @@
+import type { PartialRecord } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type { WalletConnectAction, WalletConnectState } from 'plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/types'
-import type { PartialRecord } from 'lib/utils'
 
 export const walletConnectReducer = (
   state: WalletConnectState,

@@ -1,14 +1,12 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { TradeQuoteStep } from 'lib/swapper/types'
-import { isEvmChainAdapter } from 'lib/utils/evm'
-import { selectFirstHopSellAccountId } from 'state/slices/selectors'
-import { selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
@@ -16,19 +14,19 @@ import { getApprovalTxData } from '../helpers'
 
 export const useApprovalTx = (
   tradeQuoteStep: TradeQuoteStep,
-  isFirstHop: boolean,
+  hopIndex: number,
   isExactAllowance: boolean,
 ) => {
   const [approvalNetworkFeeCryptoBaseUnit, setApprovalNetworkFeeCryptoBaseUnit] = useState<
     string | undefined
   >()
+  const [isLoading, setIsLoading] = useState(true)
   const [buildCustomTxInput, setBuildCustomTxInput] = useState<evm.BuildCustomTxInput | undefined>()
   const wallet = useWallet().state.wallet
   const { poll, cancelPolling: stopPolling } = usePoll()
 
-  const sellAssetAccountId = useAppSelector(
-    isFirstHop ? selectFirstHopSellAccountId : selectLastHopSellAccountId,
-  )
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+
   // This accidentally works since all EVM chains share the same address, so there's no need
   // to call adapter.getAddress() later down the call stack
   const from = sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined
@@ -36,14 +34,9 @@ export const useApprovalTx = (
   useEffect(() => {
     poll({
       fn: async () => {
-        const adapterManager = getChainAdapterManager()
-        const adapter = adapterManager.get(tradeQuoteStep.sellAsset.chainId)
+        const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
 
         if (!wallet || !supportsETH(wallet)) throw Error('eth wallet required')
-        if (!adapter || !isEvmChainAdapter(adapter))
-          throw Error(
-            `no valid EVM chain adapter found for chain Id: ${tradeQuoteStep.sellAsset.chainId}`,
-          )
 
         const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData({
           tradeQuoteStep,
@@ -55,6 +48,7 @@ export const useApprovalTx = (
 
         setApprovalNetworkFeeCryptoBaseUnit(networkFeeCryptoBaseUnit)
         setBuildCustomTxInput(buildCustomTxInput)
+        setIsLoading(false)
       },
       validate: () => false,
       interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
@@ -66,5 +60,6 @@ export const useApprovalTx = (
     approvalNetworkFeeCryptoBaseUnit,
     buildCustomTxInput,
     stopPolling,
+    isLoading,
   }
 }

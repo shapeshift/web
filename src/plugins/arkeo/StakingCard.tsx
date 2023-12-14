@@ -19,7 +19,7 @@ type StakingCardProps = {
 export const StakingCard: React.FC<StakingCardProps> = props => {
   const translate = useTranslate()
   const { onClick, ...opportunity } = props
-  const { assetId, underlyingAssetId, provider, apy, opportunityName } = opportunity
+  const { assetId, underlyingAssetId, provider, apy, isLoaded, opportunityName } = opportunity
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
@@ -68,10 +68,10 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
       <CardBody display='flex' flexDir='column' gap={4} height='100%'>
         <AssetIcon assetId={currentAssetId} />
         <Text fontSize='xl' fontWeight='bold' translation={stakingCardTitle} />
-        <SkeletonText noOfLines={4} isLoaded={bnOrZero(opportunityApy).gt(0)}>
+        <SkeletonText noOfLines={4} isLoaded={isLoaded}>
           <Text color='text.subtle' translation={stakingCardBody} />
         </SkeletonText>
-        <Skeleton isLoaded={bnOrZero(opportunityApy).gt(0)} mt='auto'>
+        <Skeleton isLoaded={isLoaded} mt='auto'>
           <Button width='full' colorScheme='blue' onClick={handleClick}>
             {translate(cta, { asset: asset?.name })}
           </Button>

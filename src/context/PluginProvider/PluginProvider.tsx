@@ -59,7 +59,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
-    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<ChainId> } = {}
+    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<KnownChainIds> } = {}
 
     // register providers from each plugin
     for (const plugin of pluginManager.values()) {

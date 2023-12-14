@@ -160,7 +160,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
   const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
     state
 
-  if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = useCallback(() => {
     onClick && onClick()
@@ -173,7 +172,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
           <WalletButton
             onConnect={handleConnect}
             walletInfo={walletInfo}
-            isConnected={isConnected}
+            isConnected={isConnected && !isLocked}
             isDemoWallet={isDemoWallet}
             isLoadingLocalWallet={isLoadingLocalWallet}
             data-test='navigation-wallet-dropdown-button'

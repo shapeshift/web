@@ -1,21 +1,19 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isSome } from 'lib/utils'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/idle/types'
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
@@ -57,18 +55,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
-      const idleCdoContractAddresses = Object.values(stakingOpportunitiesById)
-        .map(opportunity => (opportunity as IdleStakingSpecificMetadata | undefined)?.cdoAddress)
-        .filter(isSome)
-      const idleContractAddresses = [
-        ...idleCdoContractAddresses,
-        IDLE_PROXY_1_CONTRACT_ADDRESS,
-        IDLE_PROXY_2_CONTRACT_ADDRESS,
-      ]
-      const shouldRefetchIdleOpportunities = transfers.some(
-        ({ from, to }) =>
-          idleContractAddresses.includes(from) || idleContractAddresses.includes(to),
-      )
       const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
       const shouldRefetchSaversOpportunities =
         isSupportedThorchainSaversChainId(chainId) &&
@@ -85,9 +71,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             [foxAssetId, foxEthLpAssetId].includes(assetId) ||
             Object.values(stakingOpportunitiesById).some(opportunity =>
               // Detect Txs including a transfer either of either
-              // - an asset being wrapped into an Idle token
-              // - Idle reward assets being claimed
-              // - the Idle AssetId being withdrawn
+              // - an asset being wrapped into a token
+              // - reward assets being claimed
+              // - the underlying asset being withdrawn
               Boolean(
                 opportunity?.assetId === assetId ||
                   opportunity?.underlyingAssetId === assetId ||
@@ -100,20 +86,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         )
       )
 
-      if (shouldRefetchIdleOpportunities) {
-        dispatch(
-          getOpportunitiesUserData.initiate(
-            [
-              {
-                accountId,
-                defiProvider: DefiProvider.Idle,
-                defiType: DefiType.Staking,
-              },
-            ],
-            { forceRefetch: true },
-          ),
-        )
-      } else if (shouldRefetchCosmosSdkOpportunities) {
+      if (shouldRefetchCosmosSdkOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
             [
@@ -127,22 +100,21 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           ),
         )
       } else if (shouldRefetchSaversOpportunities) {
-        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
-        // This way, we ensure "View Position" actually routes to the updated position
-        waitForThorchainUpdate({ txId: txid }).promise.then(() => {
-          dispatch(
-            getOpportunitiesUserData.initiate(
-              [
-                {
-                  accountId,
-                  defiProvider: DefiProvider.ThorchainSavers,
-                  defiType: DefiType.Staking,
-                },
-              ],
-              { forceRefetch: true },
-            ),
-          )
-        })
+        // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
+        waitForThorchainUpdate({ txId: txid, skipOutbound: true })
+
+        dispatch(
+          getOpportunitiesUserData.initiate(
+            [
+              {
+                accountId,
+                defiProvider: DefiProvider.ThorchainSavers,
+                defiType: DefiType.Staking,
+              },
+            ],
+            { forceRefetch: true },
+          ),
+        )
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities
@@ -153,6 +125,20 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // Investigate me, but for now having no deps here is our safest bet
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
+  )
+
+  const maybeRefetchVotingPower = useCallback(
+    ({ status }: Transaction, chainId: ChainId) => {
+      // Only refetch voting power for EVM ChainIds. Refetching at Tx history provider is so we can refetch voting power on a best-effort basis,
+      // and we should probably do some king of interval refetching instead of relying on Tx history
+      if (!isEvmChainId(chainId)) return
+      if (status !== TxStatus.Confirmed) return
+
+      // Always refetch voting power on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
+      // strategies e.g Hedgeys has updated
+      dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+    },
+    [dispatch],
   )
 
   const maybeRefetchNfts = useCallback(
@@ -221,6 +207,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
               )
 
+              maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)
               maybeRefetchNfts(msg)
 
@@ -247,6 +234,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     wallet,
     maybeRefetchOpportunities,
     maybeRefetchNfts,
+    maybeRefetchVotingPower,
   ])
 
   return <>{children}</>

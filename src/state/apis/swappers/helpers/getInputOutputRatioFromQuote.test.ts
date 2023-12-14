@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockStore } from 'test/mocks/store'
-import { SwapperName } from 'lib/swapper/types'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import {
   cowQuote,

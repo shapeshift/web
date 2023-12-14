@@ -9,28 +9,34 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText } from 'components/Text'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
+import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -60,7 +66,11 @@ type BorrowInputProps = {
   onBorrowAccountIdChange: (accountId: AccountId) => void
   borrowAsset: Asset | null
   setBorrowAsset: (asset: Asset) => void
+  confirmedQuote: LendingQuoteOpen | null
+  setConfirmedQuote: (quote: LendingQuoteOpen | null) => void
 }
+
+const percentOptions = [0]
 
 export const BorrowInput = ({
   isAccountSelectionDisabled,
@@ -74,6 +84,8 @@ export const BorrowInput = ({
   onBorrowAccountIdChange: handleBorrowAccountIdChange,
   borrowAsset,
   setBorrowAsset,
+  confirmedQuote,
+  setConfirmedQuote,
 }: BorrowInputProps) => {
   const [fromAddress, setFromAddress] = useState<string | null>(null)
 
@@ -83,18 +95,19 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: borrowAssets } = useLendingSupportedAssets({ type: 'borrow' })
-
-  useEffect(() => {
-    if (!borrowAssets) return
-
-    setBorrowAsset(borrowAssets[0])
-  }, [borrowAssets, setBorrowAsset])
+  const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
+    useLendingSupportedAssets({ type: 'borrow' })
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
-  const percentOptions = useMemo(() => [0], [])
+  useEffect(() => {
+    if (!(collateralAsset && borrowAssets)) return
+    if (borrowAsset) return
+
+    if (!borrowAsset) setBorrowAsset(collateralAsset)
+  }, [borrowAsset, borrowAssets, collateralAsset, setBorrowAsset])
+
+  const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const buyAssetSearch = useModal('buyAssetSearch')
   const handleBorrowAssetClick = useCallback(() => {
@@ -152,9 +165,8 @@ export const BorrowInput = ({
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId,
     collateralAccountId,
-    borrowAccountId,
-    borrowAssetId: borrowAsset?.assetId ?? '',
     depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
+    confirmedQuote,
   })
 
   const balanceFilter = useMemo(
@@ -254,8 +266,6 @@ export const BorrowInput = ({
     enabled: isSweepNeededSuccess,
   })
 
-  console.log({ estimatedSweepFeesData, isSweepNeeded })
-
   const hasEnoughBalanceForTxPlusSweep = useMemo(() => {
     if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
       return false
@@ -276,32 +286,6 @@ export const BorrowInput = ({
     isEstimatedSweepFeesDataSuccess,
   ])
 
-  const onSubmit = useCallback(() => {
-    if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
-    history.push(BorrowRoutePaths.Sweep)
-  }, [history, isSweepNeeded])
-
-  const collateralAssetSelectComponent = useMemo(() => {
-    return (
-      <TradeAssetSelect
-        assetId={collateralAssetId}
-        onAssetClick={noop}
-        onAssetChange={handleAssetChange}
-        isReadOnly
-      />
-    )
-  }, [collateralAssetId, handleAssetChange])
-
-  const borrowAssetSelectComponent = useMemo(() => {
-    return (
-      <TradeAssetSelect
-        assetId={borrowAsset?.assetId ?? ''}
-        onAssetClick={handleBorrowAssetClick}
-        onAssetChange={handleAssetChange}
-      />
-    )
-  }, [borrowAsset?.assetId, handleAssetChange, handleBorrowAssetClick])
-
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
@@ -321,15 +305,78 @@ export const BorrowInput = ({
   const {
     data,
     isLoading: isLendingQuoteLoading,
+    isRefetching: isLendingQuoteRefetching,
     isSuccess: isLendingQuoteSuccess,
     isError: isLendingQuoteError,
     error: lendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
+  const lendingQuoteData = isLendingQuoteError ? null : data
+
+  useEffect(() => {
+    setConfirmedQuote(lendingQuoteData ?? null)
+  }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
+
+  const userAddress = useMemo(() => {
+    if (!collateralAccountId) return ''
+
+    return fromAccountId(collateralAccountId).account
+  }, [collateralAccountId])
+
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
+
+  const disableSmartContractDeposit = useMemo(() => {
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress])
+
+  const onSubmit = useCallback(() => {
+    if (!lendingQuoteData) return
+    if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
+    history.push(BorrowRoutePaths.Sweep)
+  }, [history, isSweepNeeded, lendingQuoteData])
+
+  const collateralAssetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        assetId={collateralAssetId}
+        onAssetClick={noop}
+        onAssetChange={handleAssetChange}
+        isReadOnly
+        isLoading={isLendingSupportedAssetsLoading}
+      />
+    )
+  }, [collateralAssetId, handleAssetChange, isLendingSupportedAssetsLoading])
+
+  const borrowAssetSelectComponent = useMemo(() => {
+    return (
+      <TradeAssetSelect
+        assetId={borrowAsset?.assetId ?? ''}
+        onAssetClick={handleBorrowAssetClick}
+        onAssetChange={handleAssetChange}
+        isLoading={isLendingSupportedAssetsLoading}
+      />
+    )
+  }, [
+    borrowAsset?.assetId,
+    handleAssetChange,
+    handleBorrowAssetClick,
+    isLendingSupportedAssetsLoading,
+  ])
+
   const quoteErrorTranslation = useMemo(() => {
+    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
-      (isLendingQuoteSuccess && isEstimatedFeesDataSuccess && !hasEnoughBalanceForTxPlusSweep)
+      (isLendingQuoteSuccess &&
+        isEstimatedFeesDataSuccess &&
+        collateralAsset &&
+        ((isUtxoChainId(collateralAsset.chainId) && !hasEnoughBalanceForTxPlusSweep) ||
+          !hasEnoughBalanceForTxPlusFees))
     )
       return 'common.insufficientFunds'
     if (isLendingQuoteError) {
@@ -343,15 +390,16 @@ export const BorrowInput = ({
     }
     return null
   }, [
+    _isSmartContractAddress,
+    collateralAsset,
     hasEnoughBalanceForTx,
+    hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
     isLendingQuoteError,
     isLendingQuoteSuccess,
     lendingQuoteError?.message,
   ])
-
-  const lendingQuoteData = isLendingQuoteError ? null : data
 
   if (!(collateralAsset && borrowAsset && feeAsset)) return null
 
@@ -400,8 +448,8 @@ export const BorrowInput = ({
           isReadOnly
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
-          showInputSkeleton={isLendingQuoteLoading}
-          showFiatSkeleton={isLendingQuoteLoading}
+          showInputSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
+          showFiatSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
           label={translate('lending.borrow')}
           onAccountIdChange={handleBorrowAccountIdChange}
           formControlProps={formControlProps}
@@ -410,6 +458,8 @@ export const BorrowInput = ({
         />
         <Collapse in={isLendingQuoteSuccess}>
           <LoanSummary
+            confirmedQuote={confirmedQuote}
+            isLoading={isLendingQuoteLoading || isLendingQuoteRefetching}
             collateralAssetId={collateralAssetId}
             collateralAccountId={collateralAccountId}
             debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
@@ -429,7 +479,7 @@ export const BorrowInput = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.slippage')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   <Amount.Crypto
                     value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
                     symbol={borrowAsset.symbol}
@@ -440,14 +490,20 @@ export const BorrowInput = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={isEstimatedFeesDataSuccess && isLendingQuoteSuccess}>
+                <Skeleton
+                  isLoaded={
+                    isEstimatedFeesDataSuccess && isLendingQuoteSuccess && !isLendingQuoteRefetching
+                  }
+                >
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
               </Row.Value>
             </Row>
             {isSweepNeeded && (
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.consolidationFee')}</Row.Label>
+                <HelperTooltip label={translate('modals.send.consolidate.tooltip')}>
+                  <Row.Label>{translate('modals.send.consolidate.consolidateFunds')}</Row.Label>
+                </HelperTooltip>
                 <Row.Value>
                   <Skeleton
                     isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
@@ -460,8 +516,18 @@ export const BorrowInput = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.fees')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={isLendingQuoteSuccess}>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
                   <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(lendingQuoteData?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
                 </Skeleton>
               </Row.Value>
             </Row>
@@ -484,18 +550,22 @@ export const BorrowInput = ({
             onClick={onSubmit}
             isLoading={
               isLendingQuoteLoading ||
+              isLendingQuoteRefetching ||
               isEstimatedFeesDataLoading ||
               isEstimatedSweepFeesDataLoading ||
               isEstimatedSweepFeesDataLoading ||
-              isSweepNeededLoading
+              isSweepNeededLoading ||
+              isAddressByteCodeLoading
             }
             isDisabled={Boolean(
               bnOrZero(depositAmountCryptoPrecision).isZero() ||
                 isLendingQuoteError ||
                 isLendingQuoteLoading ||
+                isLendingQuoteRefetching ||
                 quoteErrorTranslation ||
                 isEstimatedFeesDataError ||
-                isEstimatedFeesDataLoading,
+                isEstimatedFeesDataLoading ||
+                disableSmartContractDeposit,
             )}
           >
             {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}

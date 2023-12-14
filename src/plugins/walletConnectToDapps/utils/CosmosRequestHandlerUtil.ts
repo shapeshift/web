@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 import type {
   CustomTransactionData,
@@ -11,7 +12,6 @@ import type {
 } from 'plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/types'
 import { assertIsDefined } from 'lib/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveCosmosRequestArgs = {
   requestEvent: SupportedSessionRequest

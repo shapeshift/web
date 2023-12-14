@@ -40,7 +40,7 @@ const main = async (): Promise<void> => {
         }),
       ),
     },
-    rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57',
+    rpcUrl: 'https://dev-daemon.ethereum.shapeshift.com',
   })
 
   // using 0 value array since only one contract subset exists

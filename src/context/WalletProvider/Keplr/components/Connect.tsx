@@ -3,8 +3,9 @@ import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
@@ -19,6 +20,7 @@ export interface KeplrSetupProps
 
 export const KeplrConnect = ({ history }: KeplrSetupProps) => {
   const { dispatch, getAdapter } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,6 +32,11 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
     setLoading(true)
     const adapter = await getAdapter(KeyManager.Keplr)
     if (adapter) {
+      // Remove all provider event listeners from previously connected wallets
+      const ethersProvider = getEthersProvider()
+      ethersProvider.removeAllListeners('accountsChanged')
+      ethersProvider.removeAllListeners('chainChanged')
+
       const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
@@ -52,7 +59,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Keplr },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         /** Reinitialize wallet when user changes accounts */
@@ -69,7 +76,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history])
+  }, [dispatch, getAdapter, history, localWallet])
 
   return (
     <ConnectModal

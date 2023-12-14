@@ -6,10 +6,11 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { ConnectModal } from 'context/WalletProvider/components/ConnectModal'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Error'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { isWalletConnectWallet } from 'lib/utils'
 
 import type { LocationState } from '../../NativeWallet/types'
@@ -24,6 +25,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
   // https://github.com/orgs/WalletConnect/discussions/3010
   clearWalletConnectLocalStorage()
   const { dispatch, state, getAdapter, onProviderChange } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
 
   const pairDevice = useCallback(async () => {
@@ -31,17 +33,23 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
     const adapter = await getAdapter(KeyManager.WalletConnectV2)
-    await onProviderChange(KeyManager.WalletConnectV2)
 
     try {
       if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {
+          // Remove all provider event listeners from previously connected wallets
+          const ethersProvider = getEthersProvider()
+          ethersProvider.removeAllListeners('accountsChanged')
+          ethersProvider.removeAllListeners('chainChanged')
+
           setLoading(true)
 
           // trigger the web3 modal
           const wallet = await adapter.pairDevice()
 
           if (!wallet) throw new WalletNotFoundError()
+
+          await onProviderChange(KeyManager.WalletConnectV2, wallet)
 
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
           dispatch({
@@ -57,7 +65,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
             payload: { wallet, name, icon, deviceId, connectedType: KeyManager.WalletConnectV2 },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          setLocalWalletTypeAndDeviceId(KeyManager.WalletConnectV2, deviceId)
+          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.WalletConnectV2, deviceId)
         }
       }
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
@@ -68,7 +76,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
         history.push('/walletconnect/failure')
       }
     }
-  }, [dispatch, getAdapter, history, onProviderChange, state.wallet])
+  }, [dispatch, getAdapter, history, localWallet, onProviderChange, state.wallet])
 
   return (
     <ConnectModal

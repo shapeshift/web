@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 import { usePoll } from 'hooks/usePoll/usePoll'
 
@@ -24,6 +24,7 @@ export const useKeepKeyEventHandler = (
     modal,
     deviceState: { disposition, isUpdatingPin },
   } = state
+  const localWallet = useLocalWallet()
 
   const toast = useToast()
   const translate = useTranslate()
@@ -33,7 +34,7 @@ export const useKeepKeyEventHandler = (
     // This effect should run and attach event handlers on KeepKey only
     // Failure to check for the localWalletType will result in a bunch of random bugs on other wallets
     // being mistakenly identified as KeepKey
-    const localWalletType = getLocalWalletType()
+    const { localWalletType } = localWallet
     if (localWalletType !== KeyManager.KeepKey) return
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
@@ -277,5 +278,6 @@ export const useKeepKeyEventHandler = (
     poll,
     state.connectedType,
     state.modalType,
+    localWallet,
   ])
 }

@@ -1,14 +1,13 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/types'
-import { SwapErrorType } from 'lib/swapper/types'
-import { makeSwapErrorRight } from 'lib/swapper/utils'
 import { assertUnreachable } from 'lib/utils'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
@@ -17,19 +16,24 @@ import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
 
+type ThorTradeQuoteSpecificMetadata = {
+  isStreaming: boolean
+  memo: string
+  recommendedMinimumCryptoBaseUnit: string
+}
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
     router: string
     data: string
+    tradeType: TradeType
   }
 
-type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean; memo: string }
-type ThorTradeQuoteBase = TradeQuote | ThorEvmTradeQuote
-export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
+export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
-  assetsById: AssetsById,
+  assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
   const { sellAsset, buyAsset, chainId, receiveAddress } = input
@@ -98,7 +102,7 @@ export const getThorTradeQuote = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1quote(input, streamingInterval)
+      return getL1quote(input, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
     case TradeType.LongTailToLongTail:

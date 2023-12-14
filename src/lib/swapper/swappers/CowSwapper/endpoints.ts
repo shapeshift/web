@@ -1,9 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
-import { getConfig } from 'config'
-import { v4 as uuid } from 'uuid'
 import type {
   CowSwapOrder,
   EvmMessageToSign,
@@ -13,7 +9,11 @@ import type {
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
-} from 'lib/swapper/types'
+} from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { Result } from '@sniptt/monads/build'
+import { getConfig } from 'config'
+import { v4 as uuid } from 'uuid'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'

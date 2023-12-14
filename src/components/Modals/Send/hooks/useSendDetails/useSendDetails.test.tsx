@@ -1,6 +1,5 @@
 import { btcAssetId, cosmosAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { mocked } from 'jest-mock'
 import type { PropsWithChildren } from 'react'
@@ -8,10 +7,12 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
@@ -35,7 +36,9 @@ jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('context/PluginProvider/chainAdapterSingleton')
+jest.mock('lib/utils/cosmosSdk')
+jest.mock('lib/utils/evm')
+jest.mock('lib/utils/utxo')
 jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({
@@ -141,14 +144,11 @@ describe('useSendDetails', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
-      () =>
-        new Map([
-          [KnownChainIds.BitcoinMainnet, mockAdapterBtc],
-          [KnownChainIds.CosmosMainnet, mockAdapterAtom],
-          [KnownChainIds.EthereumMainnet, mockAdapterEth],
-        ]),
+    ;(assertGetCosmosSdkChainAdapter as jest.Mock<unknown>).mockImplementation(
+      () => mockAdapterAtom,
     )
+    ;(assertGetEvmChainAdapter as jest.Mock<unknown>).mockImplementation(() => mockAdapterEth)
+    ;(assertGetUtxoChainAdapter as jest.Mock<unknown>).mockImplementation(() => mockAdapterBtc)
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,

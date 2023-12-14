@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -23,10 +24,16 @@ type ThorchainBlock = {
 const thorchainBlockTimeSeconds = '6.1'
 const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
-export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
+export const useRepaymentLockData = ({
+  accountId,
+  assetId,
+  // Let the parent pass its own query options
+  // enabled will be used in conjunction with this hook's own isRepaymentLockQueryEnabled to determine whether or not to run the query
+  enabled = true,
+}: UseLendingPositionDataProps & QueryObserverOptions) => {
   const repaymentLockQueryKey = useMemo(
-    () => ['thorchainLendingRepaymentLock', { accountId, assetId }],
-    [accountId, assetId],
+    () => ['thorchainLendingRepaymentLock', { accountId, assetId, enabled }],
+    [accountId, assetId, enabled],
   )
 
   const { data: blockHeight } = useQuery({
@@ -61,7 +68,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     [accountId, assetId],
   )
 
-  const { data: position } = useQuery({
+  const { data: position, isSuccess: isPositionQuerySuccess } = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
     // by default, there's a 5mn cache time, but a 0 stale time, meaning queries are considered stale immediately
     // Since react-query queries aren't persisted, and until we have an actual need for ensuring the data is fresh,
@@ -73,11 +80,24 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
     enabled: !!accountId && !!assetId,
   })
 
+  const isRepaymentLockQueryEnabled = useMemo(() => {
+    // We always need the LOANREPAYMENTMATURITY value from the mimir query as repaymentMaturity
+    if (!mimir) return false
+    // We need position data to calculate the repayment lock for a specific account's position
+    if (!!accountId && !!assetId) return isPositionQuerySuccess && !!blockHeight
+
+    // We have a mimir, and we're not looking for a specific position's repayment lock, so we can proceed with the query
+    return true
+  }, [accountId, assetId, blockHeight, isPositionQuerySuccess, mimir])
+
   const repaymentLockData = useQuery({
     staleTime: Infinity,
     queryKey: repaymentLockQueryKey,
     queryFn: () => {
-      if (mimir && 'LOANREPAYMENTMATURITY' in mimir)
+      // This should never happen given the enabled flag but just in case
+      if (!mimir) throw new Error('mimir must be defined to get the loan repayment maturity')
+
+      if ('LOANREPAYMENTMATURITY' in mimir)
         return {
           repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
           position,
@@ -86,7 +106,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
       return null
     },
     select: data => {
-      if (!(data && data?.blockHeight)) return null
+      if (!data) return null
       const { repaymentMaturity, position, blockHeight } = data
 
       // No position, return the repayment maturity as specified by the network, i.e not for the specific position
@@ -100,6 +120,11 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
 
+      // This shouldn't happen, see isRepaymentLockQueryEnabled above.
+      // calling this hook with an `accountId` and an `assetId` requires `blockHeight` to be defined for this query to run
+      // But if anything changes, and we happen to not have a blockHeight, this brings safety
+      if (!blockHeight) return null
+
       const repaymentLock = bnOrZero(repaymentBlock)
         .minus(blockHeight)
         .times(thorchainBlockTimeSeconds)
@@ -108,7 +133,7 @@ export const useRepaymentLockData = ({ accountId, assetId }: UseLendingPositionD
 
       return repaymentLock
     },
-    enabled: true,
+    enabled: Boolean(enabled && isRepaymentLockQueryEnabled),
   })
 
   return repaymentLockData

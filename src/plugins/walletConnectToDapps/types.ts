@@ -1,10 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
 import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { Dispatch } from 'react'
-import type { PartialRecord } from 'lib/utils'
 
 export type RegistryItem = {
   category: string

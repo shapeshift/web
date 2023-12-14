@@ -7,7 +7,7 @@ import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/t
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
-import type { RebasesState, TxHistory, TxsState } from './txHistorySlice'
+import type { TxHistory, TxsState } from './txHistorySlice'
 import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
 
@@ -24,11 +24,6 @@ describe('txHistorySlice', () => {
         byId: {},
         byAccountIdAssetId: {},
         ids: [],
-      },
-      rebases: {
-        byAccountIdAssetId: {},
-        ids: [],
-        byId: {},
       },
     })
   })
@@ -211,13 +206,8 @@ describe('txHistorySlice', () => {
         byAccountIdAssetId: {},
         ids: ['a', 'b'],
       }
-      const rebases: RebasesState = {
-        byAccountIdAssetId: {},
-        ids: [],
-        byId: {},
-      }
 
-      const txHistory: TxHistory = { txs, rebases }
+      const txHistory: TxHistory = { txs }
 
       const state = {
         ...mockStore,
@@ -231,7 +221,6 @@ describe('txHistorySlice', () => {
           // this array will always change on every new tx
           ids: ['a', 'b', 'c'],
         },
-        rebases,
       }
 
       // redux will replace the array on update

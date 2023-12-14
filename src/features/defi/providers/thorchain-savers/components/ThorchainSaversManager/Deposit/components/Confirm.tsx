@@ -1,9 +1,20 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Flex,
+  Stack,
+  useToast,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -31,14 +42,13 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/types'
 import { isToken, tokenOrUndefined } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -124,7 +134,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
-  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const userAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
@@ -650,14 +663,44 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAsset.symbol],
   )
 
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
+
+  const disableSmartContractDeposit = useMemo(() => {
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  }, [_isSmartContractAddress])
+
+  const preFooter = useMemo(() => {
+    if (!_isSmartContractAddress) return null
+
+    return (
+      <Flex direction='column' gap={2}>
+        <Alert status='error' width='auto' fontSize='sm'>
+          <AlertIcon />
+          <Stack spacing={0}>
+            <AlertTitle>{translate('trade.errors.smartContractWalletNotSupported')}</AlertTitle>
+            <AlertDescription lineHeight='short'>
+              {translate('trade.thorSmartContractWalletUnsupported')}
+            </AlertDescription>
+          </Stack>
+        </Alert>
+      </Flex>
+    )
+  }, [_isSmartContractAddress, translate])
+
   if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm
       onCancel={handleCancel}
       onConfirm={handleDeposit}
-      isDisabled={!hasEnoughBalanceForGas}
-      loading={state.loading}
+      preFooter={preFooter}
+      isDisabled={!hasEnoughBalanceForGas || !userAddress || disableSmartContractDeposit}
+      loading={state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
     >

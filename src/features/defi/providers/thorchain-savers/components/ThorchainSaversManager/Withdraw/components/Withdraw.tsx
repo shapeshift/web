@@ -2,7 +2,8 @@ import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -20,19 +21,18 @@ import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -43,6 +43,7 @@ import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
   useGetThorchainSaversWithdrawQuoteQuery,
 } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -221,11 +222,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const saversRouterContractAddress = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
-    skip: !isTokenWithdraw || !feeAsset?.assetId,
-  })
-
   // TODO(gomes): use useGetEstimatedFeesQuery instead of this.
   // The logic of useGetEstimatedFeesQuery and its consumption will need some touching up to work with custom Txs
   // since the guts of it are made to accomodate Tx/fees/sweep fees deduction and there are !isUtxoChainId checks in place currently
@@ -245,9 +241,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         // re-returning the outbound fee error, which should take precedence over the withdraw gas estimation one
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
-        const chainAdapters = getChainAdapterManager()
-
         if (isTokenWithdraw) {
+          const saversRouterContractAddress = await queryClient.fetchQuery({
+            queryKey: ['routerContractAddress', feeAsset.assetId, false],
+            queryFn: () => fetchRouterContractAddress(assetId, false),
+            staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
+          })
+
           if (!saversRouterContractAddress)
             return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
@@ -310,7 +310,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const quote = maybeQuote.unwrap()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
-        const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+        const adapter = assertGetUtxoChainAdapter(chainId)
         const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
           to: quote.inbound_address,
           value: dustAmountCryptoBaseUnit,
@@ -327,7 +327,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       } catch (error) {
         console.error(error)
         // Assume insufficient amount for gas if we've thrown on the try block above
-        return Err(translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol }))
+        return Err(
+          translate('common.insufficientAmountForGas', {
+            assetSymbol: feeAsset.symbol,
+            chainSymbol: getChainShortName(feeAsset.chainId as KnownChainIds),
+          }),
+        )
       }
     },
     [
@@ -342,10 +347,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
-      saversRouterContractAddress,
+      queryClient,
       feeAsset.assetId,
       feeAsset.symbol,
+      feeAsset.chainId,
       translate,
+      assetId,
     ],
   )
 
@@ -616,21 +623,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
         const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
 
-        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
-          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
-            accountId,
-            asset,
-            type: 'withdraw',
-            fromAddress,
-          })
+        const hasValidBalance = await (async () => {
+          // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+          if (!isUtxoChainId(chainId)) {
+            return (
+              balanceCryptoPrecision.gt(0) &&
+              withdrawAmountCryptoPrecision.gt(0) &&
+              balanceCryptoPrecision.gte(withdrawAmountCryptoPrecision)
+            )
+          }
 
-        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+            await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+              amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
+              accountId,
+              asset,
+              type: 'withdraw',
+              fromAddress,
+            })
 
-        const hasValidBalance =
-          balanceCryptoPrecision.gt(0) &&
-          withdrawAmountCryptoPrecision.gt(0) &&
-          hasEnoughBalanceForTxPlusFeesPlusSweep
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+
+          return (
+            balanceCryptoPrecision.gt(0) &&
+            withdrawAmountCryptoPrecision.gt(0) &&
+            hasEnoughBalanceForTxPlusFeesPlusSweep
+          )
+        })()
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
           .minus(outboundFeeCryptoBaseUnit)
           .lt(0)
@@ -663,6 +682,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       getOutboundFeeCryptoBaseUnit,
       getWithdrawGasEstimateCryptoBaseUnit,
       amountAvailableCryptoPrecision,
+      chainId,
       fromAddress,
       translate,
     ],
@@ -695,22 +715,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(assetMarketData.price)
         const valueCryptoPrecision = bnOrZero(value)
 
-        const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
-          await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
-            amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
-            accountId,
-            asset,
-            type: 'withdraw',
-            fromAddress,
-          })
+        const hasValidBalance = await (async () => {
+          // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
+          if (!isUtxoChainId(chainId)) {
+            return (
+              amountAvailableFiat.gt(0) &&
+              valueCryptoPrecision.gt(0) &&
+              amountAvailableFiat.gte(value)
+            )
+          }
+          const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
+            await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
+              amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
+              accountId,
+              asset,
+              type: 'withdraw',
+              fromAddress,
+            })
 
-        if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
 
-        const hasValidBalance =
-          amountAvailableFiat.gt(0) &&
-          valueCryptoPrecision.gt(0) &&
-          amountAvailableFiat.gte(value) &&
-          hasEnoughBalanceForTxPlusFeesPlusSweep
+          return (
+            amountAvailableFiat.gt(0) &&
+            valueCryptoPrecision.gt(0) &&
+            amountAvailableFiat.gte(value) &&
+            hasEnoughBalanceForTxPlusFeesPlusSweep
+          )
+        })()
 
         if (valueCryptoPrecision.isEqualTo(0)) return ''
         return hasValidBalance || 'common.insufficientFunds'
@@ -726,6 +757,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       amountAvailableCryptoPrecision,
       asset,
       assetMarketData.price,
+      chainId,
       dispatch,
       fromAddress,
       opportunityData,

@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
-import type { Asset } from 'lib/asset-service'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
@@ -211,8 +210,6 @@ export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
   switch (provider) {
     case DefiProvider.CosmosSdk:
       return assetName
-    case DefiProvider.Idle:
-      return 'Idle Finance'
     default:
       return provider
   }

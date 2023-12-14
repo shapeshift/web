@@ -1,7 +1,7 @@
+import type { SwapSource } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import type { SwapSource } from 'lib/swapper/types'
-import { SwapperName } from 'lib/swapper/types'
 
 export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,

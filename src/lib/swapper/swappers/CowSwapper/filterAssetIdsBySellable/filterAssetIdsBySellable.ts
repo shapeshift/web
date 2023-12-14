@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
+import type { Asset } from '@shapeshiftoss/types'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { COWSWAP_UNSUPPORTED_ASSETS } from '../utils/blacklist'

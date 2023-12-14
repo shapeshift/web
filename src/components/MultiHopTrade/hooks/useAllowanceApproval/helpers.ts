@@ -7,9 +7,9 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import { assertGetChainAdapter } from 'lib/utils'
 import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
 
 export type GetAllowanceArgs = {
@@ -35,10 +35,8 @@ export const getAllowance = async ({
   wallet,
   accountId,
 }: GetAllowanceArgs): Promise<Result<string, GetAllowanceErr>> => {
-  const adapterManager = getChainAdapterManager()
-  const adapter = adapterManager.get(chainId)
+  const adapter = assertGetChainAdapter(chainId)
 
-  if (!adapter) throw Error(`no chain adapter found for chain Id: ${chainId}`)
   if (!wallet) throw new Error('no wallet available')
 
   // No approval needed for selling a non-EVM asset

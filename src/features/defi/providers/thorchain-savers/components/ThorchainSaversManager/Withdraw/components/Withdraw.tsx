@@ -32,7 +32,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -222,11 +222,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const saversRouterContractAddress = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
-    skip: !isTokenWithdraw || !feeAsset?.assetId,
-  })
-
   // TODO(gomes): use useGetEstimatedFeesQuery instead of this.
   // The logic of useGetEstimatedFeesQuery and its consumption will need some touching up to work with custom Txs
   // since the guts of it are made to accomodate Tx/fees/sweep fees deduction and there are !isUtxoChainId checks in place currently
@@ -247,6 +242,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
         if (isTokenWithdraw) {
+          const saversRouterContractAddress = await queryClient.fetchQuery({
+            queryKey: ['routerContractAddress', feeAsset.assetId, false],
+            queryFn: () => fetchRouterContractAddress(assetId, false),
+            staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
+          })
+
           if (!saversRouterContractAddress)
             return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
@@ -346,9 +347,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
-      saversRouterContractAddress,
-      feeAsset,
+      queryClient,
+      feeAsset.assetId,
+      feeAsset.symbol,
+      feeAsset.chainId,
       translate,
+      assetId,
     ],
   )
 

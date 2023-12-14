@@ -1,4 +1,3 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
@@ -128,8 +127,6 @@ export const ApprovalStep = ({
     txHash,
   ])
 
-  const leftIcon = useMemo(() => <CheckCircleIcon />, [])
-
   const content = useMemo(() => {
     // only render the approval button when the component is active and we don't yet have a tx hash
     if (txHash !== undefined || !isActive) return
@@ -169,7 +166,6 @@ export const ApprovalStep = ({
           <Button
             width='full'
             size='sm'
-            leftIcon={leftIcon}
             colorScheme='blue'
             disabled={isAllowanceApprovalLoading || !canAttemptApproval}
             isLoading={
@@ -189,7 +185,6 @@ export const ApprovalStep = ({
     isActive,
     isAllowanceApprovalLoading,
     isExactAllowance,
-    leftIcon,
     toggleIsExactAllowance,
     translate,
     txHash,
@@ -204,6 +199,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isError={approvalTxState === TransactionExecutionState.Failed}
+      isPending={approvalTxState === TransactionExecutionState.Pending}
     />
   )
 }

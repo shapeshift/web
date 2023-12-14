@@ -169,9 +169,6 @@ export const useGetTradeQuotes = () => {
   )
 
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
-  const debouncedTradeQuoteInputOrSkip = shouldRefetchTradeQuotes
-    ? debouncedTradeQuoteInput
-    : skipToken
 
   useEffect(() => {
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
@@ -274,14 +271,17 @@ export const useGetTradeQuotes = () => {
 
   // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
   // This ensures we never return cached data, if skip has been set after the initial query load
-  const { currentData } = useGetTradeQuoteQuery(debouncedTradeQuoteInputOrSkip, {
-    pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
-    /*
+  const { currentData } = useGetTradeQuoteQuery(
+    shouldRefetchTradeQuotes ? debouncedTradeQuoteInput : skipToken,
+    {
+      pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
+      /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
      */
-    refetchOnMountOrArgChange: true,
-  })
+      refetchOnMountOrArgChange: true,
+    },
+  )
 
   useEffect(() => {
     if (currentData && mixpanel) {

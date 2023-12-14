@@ -1,7 +1,11 @@
 import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
+import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
+import { type Address, getContract, type PublicClient } from 'viem'
 
+import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
+import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
@@ -52,4 +56,85 @@ export function getTradeType(
     default:
       return undefined
   }
+}
+
+// TODO: we need to fetch these contracts dynamically, as the whitelist can change
+export enum AggregatorContract {
+  TSAggregatorUniswapV3_100 = '0xbd68cbe6c247e2c3a0e36b8f0e24964914f26ee8',
+  TSAggregatorUniswapV3_500 = '0xe4ddca21881bac219af7f217703db0475d2a9f02',
+  TSAggregatorUniswapV3_3000 = '0x11733abf0cdb43298f7e949c930188451a9a9ef2',
+  TSAggregatorUniswapV3_10000 = '0xb33874810e5395eb49d8bd7e912631db115d5a03',
+}
+
+export const contractToFeeAmountMap: Record<AggregatorContract, FeeAmount> = {
+  [AggregatorContract.TSAggregatorUniswapV3_100]: FeeAmount.LOWEST,
+  [AggregatorContract.TSAggregatorUniswapV3_500]: FeeAmount.LOW,
+  [AggregatorContract.TSAggregatorUniswapV3_3000]: FeeAmount.MEDIUM,
+  [AggregatorContract.TSAggregatorUniswapV3_10000]: FeeAmount.HIGH,
+}
+
+export const generateV3PoolAddressesAcrossFeeRange = (
+  factoryAddress: string,
+  tokenA: Token,
+  tokenB: Token,
+): string[] => {
+  return Object.values(contractToFeeAmountMap).map(fee => {
+    return computePoolAddress({
+      factoryAddress,
+      tokenA,
+      tokenB,
+      fee,
+    })
+  })
+}
+
+export const getPoolContracts = (poolAddresses: string[], publicClient: PublicClient) => {
+  return poolAddresses.map(address => {
+    return getContract({
+      abi: IUniswapV3PoolABI,
+      address: address as Address,
+      publicClient,
+    })
+  })
+}
+
+export const getQuotedAmountOuts = (
+  poolContracts: ReturnType<typeof getPoolContracts>,
+  tokenIn: Address,
+  tokenOut: Address,
+  fee: FeeAmount,
+  sellAmount: bigint,
+  publicClient: PublicClient,
+): Promise<Map<Address, bigint>> => {
+  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
+  const quoterContract = getContract({
+    abi: QuoterAbi,
+    address: QUOTER_CONTRACT_ADDRESS as Address,
+    publicClient,
+  })
+  return Promise.all(
+    poolContracts.map(async poolContract => {
+      const quotedAmountOut = await quoterContract.simulate
+        .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
+        .then(res => res.result)
+
+      return [poolContract.address, quotedAmountOut] as [Address, bigint]
+    }),
+  ).then(results => new Map(results))
+}
+
+const findAddressWithHighestAmount = (
+  quotedAmounts: Map<Address, bigint>,
+): [Address, bigint] | undefined => {
+  return Array.from(quotedAmounts.entries()).reduce(
+    (
+      addressWithHighestAmount: [Address, bigint] | undefined,
+      [address, amount]: [Address, bigint],
+    ) => {
+      return amount > (addressWithHighestAmount?.[1] ?? BigInt(0))
+        ? [address, amount]
+        : addressWithHighestAmount
+    },
+    undefined,
+  )
 }

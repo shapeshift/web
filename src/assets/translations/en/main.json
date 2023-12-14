@@ -136,7 +136,7 @@
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
     },
-    "featureDisabled": "As a precautionary measure, this feature is temporarily disabled."
+    "featureDisabled": "This feature is temporarily disabled."
   },
   "consentBanner": {
     "body": {

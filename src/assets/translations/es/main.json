@@ -27,7 +27,7 @@
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
-    "insufficientAmountForGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
+    "insufficientAmountForGas": "No suficiente %{assetSymbol}.%{chainSymbol} para cubrir gas",
     "invalidAddress": "Dirección Inválida",
     "invalidAddressOrYat": "Dirección no válida o Yat",
     "deposit": "Depositar",
@@ -726,6 +726,7 @@
     "free": "Gratis",
     "slowSwapTitle": "%{protocol} intercambiar",
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
+    "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
     "updatingQuote": "Actualizando cotización...",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
     "manualReceiveAddress": "Dirección de Recepción",
@@ -748,8 +749,6 @@
     },
     "errors": {
       "title": "Algo salió mal",
-      "sellAssetStartSentence": "Vender activo",
-      "buyAssetStartSentence": "Comprar activo",
       "sellAssetMiddleSentence": "vender activo",
       "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
@@ -789,7 +788,9 @@
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
       "unsupportedChain": "Esta cadena no es compatible actualmente.",
       "rateError": "No podemos obtener una cotización para este par.",
-      "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
+      "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} no es compatible con la billetera",
+      "sellAssetNotSupportedByWallet": "Vender activo no soportado por billetera",
+      "intermediaryAssetNotSupportedByWallet": "Intermediario no soportado por billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
       "tradingNotActiveNoAssetSymbol": "Intercambios detenidos temporalmente en esta ruta",
@@ -801,7 +802,8 @@
       "quoteError": "Ocurrió un error al obtener cotización",
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas",
       "noQuotesAvailable": "No hay cotizaciones disponibles para operar",
-      "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente"
+      "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente",
+      "unsafeQuote": "Cantidad debajo del mínimo recomendado para este par (%{recommendedMin} %{symbol}). Esto podría provocar fracaso o pérdida de fondos."
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
@@ -809,6 +811,7 @@
     "or": "o",
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
+    "numHops": "Esta operación incluye %{numHops} saltos",
     "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No hay dirección %{chainName} en billetera conectada. Introduzca dirección ó",
     "toContinue": "para continuar.",
@@ -2071,7 +2074,6 @@
     "debtValue": "Valor de la deuda",
     "loanToValue": "Préstamo a valor",
     "availablePools": "Piscinas disponibles",
-    "yourLoans": "Tus préstamos",
     "pool": "Piscina",
     "poolDepth": "Profundidad de la piscina",
     "poolDepthDescription": "La salud de su pool",
@@ -2089,6 +2091,7 @@
     "debtBalanceDescription": "Monto total de la deuda que debe por el préstamo",
     "repaymentLock": "Bloqueo de repago",
     "repaymentLockDescription": "Período mínimo antes de poder pagar su préstamo",
+    "receiveCollateral": "La cantidad de garantía que recibirá",
     "borrow": "Pedir prestado",
     "repay": "Repago",
     "repayAmount": "Monto a Pagar",
@@ -2125,7 +2128,7 @@
       },
       "repayments": {
         "title": "¿Cómo funciona el reembolso o repago?",
-        "body": "El pago en THORChain es flexible, permite pagar en cualquier momento con cualquier activo, que luego se convierte a TOR. El monto del reembolso se deduce del saldo de su deuda y se le devuelve la garantía proporcional al realizar el pago total."
+        "body": "El pago en THORChain es flexible, permite pagar en cualquier momento después de que haya transcurrido su bloqueo, y en cualquier activo, que luego se convierte a TOR. El monto de reembolso se deduce del saldo de su deuda y se devuelve la garantía proporcional al realizar el pago total."
       }
     },
     "quote": {
@@ -2134,19 +2137,24 @@
       "repaymentLock": "Período mínimo antes de poder pagar su préstamo",
       "collateralizationRatio": "Relación entre valor de su garantía y monto del préstamo",
       "feesPlusSlippage": "Tarifas totales, incluidas tarifas L1, deslizamiento y tarifas de liquidez THORChain"
+    },
+    "yourLoans": {
+      "yourLoans": "Tus préstamos",
+      "emptyTitle": "¡La Tierra de Cero Préstamos!",
+      "emptyBody": "No tienes préstamo en este momento. ¿Es esto un zen financiero o un descanso antes de su próxima aventura crediticia? De cualquier manera, ¡disfruta de la calma!"
     }
   },
   "foxDiscounts": {
     "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
-    "simulateTitle": "Simule sus Ahorros FOX",
+    "simulateTitle": "Simula tus descuentos de Poder FOX",
     "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
     "tradeSize": "Tamaño de intercambio",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
-    "simulateFee": "Simular Tarifa",
+    "simulateFee": "Simular Descuento",
     "freeUnderThreshold": "Operaciones debajo de %{threshold} son siempre GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
     "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",

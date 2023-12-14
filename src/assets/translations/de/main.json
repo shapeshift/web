@@ -27,7 +27,7 @@
     "insufficientFunds": "Unzureichende Mittel",
     "estimatedGas": "Geschätzte Gasgebühr",
     "relayerGasFee": "Relayer-Gasgebühr",
-    "insufficientAmountForGas": "Nicht genug ETH, um Gas zu decken",
+    "insufficientAmountForGas": "Nicht genug %{assetSymbol}.%{chainSymbol}, um Gasspesen abzudecken",
     "invalidAddress": "Ungültige Adresse",
     "invalidAddressOrYat": "Ungültige Adresse oder Yat",
     "deposit": "Einzahlen",
@@ -726,6 +726,7 @@
     "free": "Gratis",
     "slowSwapTitle": "%{protocol} Handel",
     "slowSwapBody": "Dieser Wechsel kann einige Minuten dauern.",
+    "thorSmartContractWalletUnsupported": "Das THORChain-Netzwerk unterstützt derzeit keine Smart Contract Wallets.",
     "updatingQuote": "Angebot aktualisieren...",
     "intoAssetSymbolBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von %{assetSymbol} ist vorübergehend nicht verfügbar",
     "manualReceiveAddress": "Adresse erhalten",
@@ -748,8 +749,6 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
-      "sellAssetStartSentence": "Vermögenswerte verkaufen",
-      "buyAssetStartSentence": "Vermögenswerte kaufen",
       "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
       "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
@@ -789,7 +788,9 @@
       "unsupportedPair": "Dieses Handelspaar wird derzeit nicht unterstützt.",
       "unsupportedChain": "Diese Blockchain wird derzeit nicht unterstützt.",
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
-      "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
+      "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} wird von der Wallet nicht unterstützt",
+      "sellAssetNotSupportedByWallet": "Verkauf dieses Vermögenswertes wird von der Wallet nicht unterstützt",
+      "intermediaryAssetNotSupportedByWallet": "Vermittler wird von Wallet nicht unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
       "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
       "tradingNotActiveNoAssetSymbol": "Der Handel auf dieser Route wurde vorübergehend eingestellt",
@@ -801,7 +802,8 @@
       "quoteError": "Beim Abruf des Angebots ist ein Fehler aufgetreten",
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr",
       "noQuotesAvailable": "Für diesen Handel sind keine Angebote verfügbar",
-      "smartContractWalletNotSupported": "Smart Contract Wallet wird nicht unterstützt"
+      "smartContractWalletNotSupported": "Smart Contract Wallet wird nicht unterstützt",
+      "unsafeQuote": "Dieser Betrag liegt unter dem empfohlenen Mindestwert für dieses Paar (%{recommendedMin} %{symbol}). Dies könnte zum Scheitern Ihres Handels oder zum Verlust von Werten führen."
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen",
@@ -809,6 +811,7 @@
     "or": "oder",
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
+    "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse der verbundenen Wallet gefunden. Geben Sie manuell eine Adresse ein oder",
     "toContinue": " weiter zu machen.",
@@ -2071,7 +2074,6 @@
     "debtValue": "Schuldenwert",
     "loanToValue": "Beleihungswert",
     "availablePools": "Verfügbare Pools",
-    "yourLoans": "Ihre Kredite",
     "pool": "Pool",
     "poolDepth": "Pooltiefe",
     "poolDepthDescription": "Die Gesundheit des Pools",
@@ -2089,6 +2091,7 @@
     "debtBalanceDescription": "Gesamtbetrag der Schulden, die Sie für dieses Darlehen schulden",
     "repaymentLock": "Rückzahlungssperre",
     "repaymentLockDescription": "Mindestlaufzeit, bevor Sie Ihr Darlehen zurückzahlen können",
+    "receiveCollateral": "Der Betrag der Sicherheit, den Sie zurückerhalten",
     "borrow": "Ausleihen",
     "repay": "Zurückzahlen",
     "repayAmount": "Rückzahlungsbetrag",
@@ -2125,7 +2128,7 @@
       },
       "repayments": {
         "title": "Wie funktioniert die Rückzahlung?",
-        "body": "Die Rückzahlung in THORChain ist flexibel, sodass Sie jederzeit in jedem Vermögenswert zurückzahlen können, der dann in TOR umgewandelt wird. Der Rückzahlungsbetrag wird von Ihrem Schuldensaldo abgezogen und die anteilige Sicherheit wird Ihnen bei vollständiger Rückzahlung wieder freigegeben"
+        "body": "Die Rückzahlung in THORChain ist flexibel und ermöglicht Ihnen die Rückzahlung jederzeit nach Ablauf Ihrer Rückzahlungssperre und in jedem Vermögenswert, der dann in TOR umgewandelt wird. Der Rückzahlungsbetrag wird von Ihrem Schuldensaldo abgezogen und die anteilige Sicherheit wird Ihnen bei vollständiger Rückzahlung wieder freigegeben"
       }
     },
     "quote": {
@@ -2134,19 +2137,24 @@
       "repaymentLock": "Mindestlaufzeit, bevor Sie Ihr Darlehen zurückzahlen können",
       "collateralizationRatio": "Verhältnis Ihres Sicherheitenwertes zum Kreditbetrag",
       "feesPlusSlippage": "Es fielen insgesamt Gebühren an, einschließlich L1 Gebühren, Slippage und THORChain-Liquiditätsgebühren"
+    },
+    "yourLoans": {
+      "yourLoans": "Ihre Kredite",
+      "emptyTitle": "Das Land der Nullkredite!",
+      "emptyBody": "Offenbar haben Sie im Moment keine Kredite. Ist das ein finanzieller Zen-Zauber oder nur eine Pause vor Ihrem nächsten großen Kreditabenteuer? Wie auch immer, genießen Sie die Ruhe!"
     }
   },
   "foxDiscounts": {
     "currentFoxPower": "Deine FOX Power",
     "foxPower": "FOX Power",
-    "simulateTitle": "Simuliere FOX-Ersparnisse",
+    "simulateTitle": "Simulieren Sie Ihre FOX-Power Rabatte",
     "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihren Handel erhalten. Passen Sie einfach die Schieberegler unten an, um die Anzahl Ihrer FOX und die Handelsgröße in Fiat anzugeben, und sehen Sie, wie sich Ihre potenziellen Einsparungen vermehren!",
     "tradeSize": "Handelsgröße",
     "totalFee": "Gesamtgebühr",
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
-    "simulateFee": "Gebühr simulieren",
+    "simulateFee": "Rabatt simulieren",
     "freeUnderThreshold": "Trades unter %{threshold} sind immer KOSTENLOS",
     "breakdownHeader": "Ihr FOX Power Rabatt",
     "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer Handelsgebühren und des entsprechenden angewendeten FOX Power Rabatten. Erfahren Sie auf derRegisterkarte „Simulieren“, wie viel mehr Sie  sparen können.",

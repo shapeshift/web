@@ -27,7 +27,7 @@
     "insufficientFunds": "不充足的资金",
     "estimatedGas": "预估手续费",
     "relayerGasFee": "中继器手续费",
-    "insufficientAmountForGas": "没有足够的 %{assetSymbol} 来支付手续费",
+    "insufficientAmountForGas": "没有足够的 %{assetSymbol}.%{chainSymbol} 来支付手续费",
     "invalidAddress": "无效地址",
     "invalidAddressOrYat": "无效地址或者无效Yat",
     "deposit": "充值",
@@ -726,6 +726,7 @@
     "free": "免费",
     "slowSwapTitle": "%{protocol} 交易",
     "slowSwapBody": "这个兑换可能需要几分钟才能完成。",
+    "thorSmartContractWalletUnsupported": "THORChain网络目前不支持智能合约钱包。",
     "updatingQuote": "正在更新报价...",
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
     "manualReceiveAddress": "接收地址",
@@ -736,7 +737,7 @@
       "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
       "donation": "帮助支持 ShapeShift 并使我们保持正常运行。",
       "protocol": "这是你的交易路径的协议。",
-      "protocolLifi": "这是你的交易路径的协议。 LI.FI 在幕后执行一系列中介交易，以获得价格、安全性和速度的最佳整体组合。",
+      "protocolLifi": "这是你的交易路径的协议。 LI.FI 在幕后执行一系列中间交易，以获得价格、安全性和速度的最佳整体组合。",
       "protocolFee": "交易费用是选择的协议收取的，不是 ShapeShift 收取的",
       "shapeshiftFee": "ShapeShift 不会增加交易费用 🎉",
       "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。"
@@ -748,8 +749,6 @@
     },
     "errors": {
       "title": "出了些问题",
-      "sellAssetStartSentence": "出售资产",
-      "buyAssetStartSentence": "购买资产",
       "sellAssetMiddleSentence": "出售资产",
       "buyAssetMiddleSentence": "购买资产",
       "notEnoughEth": "没有足够的 ETH 来支付此交易的手续费。",
@@ -789,7 +788,9 @@
       "unsupportedPair": "目前不支持该交易对。",
       "unsupportedChain": "目前不支持该链。",
       "rateError": "我们无法获得这个交易对的报价",
-      "assetNotSupportedByWallet": "钱包不支持 %{assetSymbol}",
+      "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} 不被钱包支持。",
+      "sellAssetNotSupportedByWallet": "出售钱包不支持的资产",
+      "intermediaryAssetNotSupportedByWallet": "钱包不支持中间交易",
       "noReceiveAddress": "%{assetSymbol} 没有接收地址",
       "tradingNotActive": "%{assetSymbol} 的交易暂时停止",
       "tradingNotActiveNoAssetSymbol": "该交易路径暂时停止",
@@ -801,7 +802,8 @@
       "quoteError": "获取报价时出错",
       "tradeFailed": "交易失败。扣除手续费后退还资产",
       "noQuotesAvailable": "此交易没有可用的报价",
-      "smartContractWalletNotSupported": "不支持智能合约钱包"
+      "smartContractWalletNotSupported": "不支持智能合约钱包",
+      "unsafeQuote": "此金额低于该交易对的建议最小值 (%{recommulatedMin} %{symbol})。这可能会导致你的交易失败或资金损失。"
     },
     "swappingComingSoonForWallet": "%{walletName} 的兑换即将推出",
     "recentTrades": "最近的交易",
@@ -809,6 +811,7 @@
     "or": "或者",
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
+    "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
     "toContinue": "来继续。",
@@ -2071,7 +2074,6 @@
     "debtValue": "债务价值",
     "loanToValue": "贷款价值",
     "availablePools": "可用池",
-    "yourLoans": "你的借贷",
     "pool": "池",
     "poolDepth": "池深度",
     "poolDepthDescription": "池的健康状况",
@@ -2089,6 +2091,7 @@
     "debtBalanceDescription": "你为此贷款所欠的债务总额",
     "repaymentLock": "还款锁定",
     "repaymentLockDescription": "你可以偿还贷款的最短期限",
+    "receiveCollateral": "你将收到的抵押品金额",
     "borrow": "借",
     "repay": "还款",
     "repayAmount": "还款金额",
@@ -2125,7 +2128,7 @@
       },
       "repayments": {
         "title": "还款如何运作？",
-        "body": "THORChain 的还款方式灵活，你可以随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
+        "body": "THORChain 中的还款非常灵活，允许您在还款锁定到期后随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
       }
     },
     "quote": {
@@ -2134,19 +2137,24 @@
       "repaymentLock": "你可以偿还贷款的最短期限",
       "collateralizationRatio": "你的抵押品价值与贷款金额的比率",
       "feesPlusSlippage": "发生的总费用，包括 L1 费用、滑点费用和 THORChain 流动性费用"
+    },
+    "yourLoans": {
+      "yourLoans": "你的贷款",
+      "emptyTitle": "零贷款之地！",
+      "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
     }
   },
   "foxDiscounts": {
     "currentFoxPower": "你的 FOX Power",
     "foxPower": "FOX Power",
-    "simulateTitle": "模拟你i的 FOX 储蓄",
+    "simulateTitle": "模拟您的 FOX Power 折扣",
     "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",
     "tradeSize": "交易规模",
     "totalFee": "总费用",
     "foxPowerDiscount": "FOX Power 折扣",
     "basedOnFee": "基于费用：%{fee}",
     "feeSummary": "费用概要",
-    "simulateFee": "模拟费用",
+    "simulateFee": "模拟折扣",
     "freeUnderThreshold": "%{threshold} 以下的交易始终免费",
     "breakdownHeader": "你的 FOX Power 折扣",
     "breakdownBody": "以下是你的交易费用和相应的 FOX Power 折扣的明细。了解在“模拟”选项卡上您还可以节省多少费用。",

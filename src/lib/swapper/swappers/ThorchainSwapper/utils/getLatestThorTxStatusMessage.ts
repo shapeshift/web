@@ -23,7 +23,9 @@ export const getLatestThorTxStatusMessage = (
       case 'inbound_observed': {
         const obj = response.stages[key]
         return {
-          message: obj.completed ? 'Inbound transaction observed' : 'Inbound transaction pending',
+          message: obj.completed
+            ? 'Inbound transaction accepted by THOR'
+            : 'Inbound transaction pending',
           status: TxStatus.Pending,
         }
       }

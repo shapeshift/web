@@ -1,5 +1,7 @@
 import type { MidgardActionsResponse } from '../types'
 
+const THORCHAIN_EVM_CHAINS = ['ETH', 'AVAX', 'BSC'] as const
+
 export const parseThorBuyTxHash = (
   sellTxId: string,
   thorActionsData: MidgardActionsResponse,
@@ -11,7 +13,10 @@ export const parseThorBuyTxHash = (
   // swaps into rune aren't double swaps so don't have a second tx (buy tx)
   if (!isDoubleSwap) return sellTxId
 
-  const isEvmCoinAsset = outCoinAsset?.startsWith('ETH.') || outCoinAsset?.startsWith('AVAX.')
+  const isEvmCoinAsset = !THORCHAIN_EVM_CHAINS.some(
+    thorEvmChain => outCoinAsset?.startsWith(thorEvmChain),
+  )
+
   const buyTxId = thorActionsData.actions[0]?.out[0]?.txID
   return isEvmCoinAsset && buyTxId ? `0x${buyTxId}` : buyTxId
 }

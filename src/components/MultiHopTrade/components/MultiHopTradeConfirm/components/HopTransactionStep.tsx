@@ -107,7 +107,7 @@ export const HopTransactionStep = ({
         <Card width='full'>
           <CardBody px={2} py={2}>
             <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
-              {translate('common.signMessage')}
+              {translate('common.signTransaction')}
             </Button>
           </CardBody>
         </Card>

@@ -3,8 +3,9 @@ import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LedgerConfig } from '../config'
@@ -19,6 +20,7 @@ export interface LedgerSetupProps
 
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const { dispatch: walletDispatch, getAdapter } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,6 +36,11 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     const adapter = await getAdapter(KeyManager.Ledger)
     if (adapter) {
       try {
+        // Remove all provider event listeners from previously connected wallets
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
+
         const wallet = await adapter.pairDevice()
 
         if (!wallet) {
@@ -50,7 +57,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
         })
         walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
         history.push('/ledger/chains')
       } catch (e: any) {
         console.error(e)
@@ -59,7 +66,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
     }
     setLoading(false)
-  }, [getAdapter, history, setErrorLoading, walletDispatch])
+  }, [getAdapter, history, localWallet, setErrorLoading, walletDispatch])
 
   return (
     <ConnectModal

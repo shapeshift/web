@@ -191,4 +191,9 @@ export const mockStore: ReduxState = {
     votingPower: undefined,
     strategies: undefined,
   },
+  localWalletSlice: {
+    walletType: null,
+    walletDeviceId: null,
+    nativeWalletName: null,
+  },
 }

@@ -13,8 +13,9 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
@@ -39,6 +40,7 @@ const translateError = (event: Event) => {
 
 export const KeepKeyConnect = () => {
   const { dispatch, getAdapter, state } = useWallet()
+  const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,6 +59,11 @@ export const KeepKeyConnect = () => {
 
     const wallet = await (async () => {
       try {
+        // Remove all provider event listeners from previously connected wallets
+        const ethersProvider = getEthersProvider()
+        ethersProvider.removeAllListeners('accountsChanged')
+        ethersProvider.removeAllListeners('chainChanged')
+
         const sdk = await setupKeepKeySDK()
 
         // There is no need to instantiate KkRestAdapter and attempt pairing if SDK is undefined
@@ -109,7 +116,10 @@ export const KeepKeyConnect = () => {
         },
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-      setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+      localWallet.setLocalWalletTypeAndDeviceId(
+        KeyManager.KeepKey,
+        state.keyring.getAlias(deviceId),
+      )
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       console.error(e)
@@ -117,7 +127,7 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
+  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
   return (
     <>
       <ModalHeader>

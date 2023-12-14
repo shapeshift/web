@@ -206,9 +206,13 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const saversRouterContractAddress = useRouterContractAddress({
+  const {
+    routerContractAddress: saversRouterContractAddress,
+    isLoading: isSaversRouterContractAddressLoading,
+  } = useRouterContractAddress({
     feeAssetId: feeAsset?.assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
+    excludeHalted: true,
   })
 
   useEffect(() => {
@@ -937,6 +941,7 @@ export const Deposit: React.FC<DepositProps> = ({
         isEstimatedFeesDataLoading ||
         isSweepNeededLoading ||
         isThorchainSaversDepositQuoteLoading ||
+        isSaversRouterContractAddressLoading ||
         state.loading
       }
     >

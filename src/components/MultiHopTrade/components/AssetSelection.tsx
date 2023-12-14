@@ -31,6 +31,7 @@ const TradeAssetAwaitingAsset = () => {
 type TradeAssetSelectProps = {
   assetId?: AssetId
   isReadOnly?: boolean
+  isLoading: boolean
   onAssetClick?: () => void
   onAssetChange: (asset: Asset) => void
 }
@@ -40,11 +41,16 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAssetChange,
   assetId,
   isReadOnly,
+  isLoading,
 }) => {
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
-  const { data, isLoading, isError } = useGetRelatedAssetIdsQuery(assetId ?? '')
+  const {
+    data,
+    isLoading: isRelatedAssetsLoading,
+    isError,
+  } = useGetRelatedAssetIdsQuery(assetId ?? '')
 
   const handleAssetChange = useCallback(
     (assetId: AssetId) => {
@@ -80,6 +86,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         isDisabled={isReadOnly}
         _disabled={disabledStyle}
         rightIcon={rightIcon}
+        isLoading={isLoading || isRelatedAssetsLoading}
       >
         {icon}
         {asset?.symbol}
@@ -89,7 +96,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         assetIds={data}
         assetId={assetId}
         onClick={handleAssetChange}
-        isLoading={isLoading}
+        isLoading={isLoading || isRelatedAssetsLoading}
         isError={isError}
       />
     </Flex>

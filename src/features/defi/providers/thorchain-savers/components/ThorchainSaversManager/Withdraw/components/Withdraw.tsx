@@ -3,7 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -31,7 +32,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
+import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -221,11 +222,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
-  const saversRouterContractAddress = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
-    skip: !isTokenWithdraw || !feeAsset?.assetId,
-  })
-
   // TODO(gomes): use useGetEstimatedFeesQuery instead of this.
   // The logic of useGetEstimatedFeesQuery and its consumption will need some touching up to work with custom Txs
   // since the guts of it are made to accomodate Tx/fees/sweep fees deduction and there are !isUtxoChainId checks in place currently
@@ -246,6 +242,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         if (maybeOutboundFeeCryptoBaseUnit.isErr()) return maybeOutboundFeeCryptoBaseUnit
 
         if (isTokenWithdraw) {
+          const saversRouterContractAddress = await queryClient.fetchQuery({
+            queryKey: ['routerContractAddress', feeAsset.assetId, false],
+            queryFn: () => fetchRouterContractAddress(assetId, false),
+            staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
+          })
+
           if (!saversRouterContractAddress)
             return Err(`No router contract address found for feeAsset: ${feeAsset.assetId}`)
 
@@ -325,7 +327,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       } catch (error) {
         console.error(error)
         // Assume insufficient amount for gas if we've thrown on the try block above
-        return Err(translate('common.insufficientAmountForGas', { assetSymbol: feeAsset.symbol }))
+        return Err(
+          translate('common.insufficientAmountForGas', {
+            assetSymbol: feeAsset.symbol,
+            chainSymbol: getChainShortName(feeAsset.chainId as KnownChainIds),
+          }),
+        )
       }
     },
     [
@@ -340,10 +347,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       isTokenWithdraw,
       chainId,
       supportedEvmChainIds,
-      saversRouterContractAddress,
+      queryClient,
       feeAsset.assetId,
       feeAsset.symbol,
+      feeAsset.chainId,
       translate,
+      assetId,
     ],
   )
 

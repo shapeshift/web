@@ -8,7 +8,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
@@ -104,11 +103,7 @@ export const ApprovalStep = ({
       )
     }
 
-    const href = getTxLink({
-      name: tradeQuoteStep.source,
-      defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
-      tradeId: txHash,
-    })
+    const href = `${tradeQuoteStep.sellAsset.explorerTxLink}${txHash}`
 
     return (
       <>
@@ -122,7 +117,6 @@ export const ApprovalStep = ({
     approvalNetworkFeeCryptoFormatted,
     isError,
     tradeQuoteStep.sellAsset.explorerTxLink,
-    tradeQuoteStep.source,
     translate,
     txHash,
   ])

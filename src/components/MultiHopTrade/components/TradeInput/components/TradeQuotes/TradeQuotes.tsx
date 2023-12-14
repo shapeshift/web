@@ -1,8 +1,10 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -33,14 +35,21 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
     })
     const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
+    const useReceiveAddressArgs = useMemo(
+      () => ({
+        fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+      }),
+      [wallet],
+    )
+    const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
     // TODO(gomes): buy chain not supported effectively means connecting MM/other EVM-only wallets and trying to get a THOR trade quote
     // This makes things not borked as it doesn't display quotes at all vs. stale quotes with the wrong symbol, but we may want to ditch the
     // destination param instead, to be able to get a quote, *if* and only if we can ensure proper guards are in place to never allow a memo without a destination
     const sortedQuotes = useMemo(() => {
-      if (!isBuyAssetChainSupported) return []
+      if (!isBuyAssetChainSupported && !receiveAddress) return []
 
       return _sortedQuotes
-    }, [_sortedQuotes, isBuyAssetChainSupported])
+    }, [_sortedQuotes, isBuyAssetChainSupported, receiveAddress])
 
     const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
     const translate = useTranslate()

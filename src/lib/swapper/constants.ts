@@ -11,7 +11,7 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
-export const QUOTE_TIMEOUT_MS = 10_000
+export const QUOTE_TIMEOUT_MS = 60_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,

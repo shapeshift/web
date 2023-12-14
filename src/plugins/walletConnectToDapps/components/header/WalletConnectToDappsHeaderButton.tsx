@@ -115,6 +115,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
 export const WalletConnectToDappsHeaderButton: FC = memo(() => {
   const walletConnectV2 = useWalletConnectV2()
 
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
 
   const walletConnectV2Connected = useMemo(
@@ -128,7 +129,7 @@ export const WalletConnectToDappsHeaderButton: FC = memo(() => {
 
   switch (true) {
     case !walletConnectV2Connected && isWalletConnectToDappsV2Enabled:
-      return <WalletConnectButtons />
+      return <WalletConnectButtons isDisabled={!isWalletConnectToDappsEnabled} />
     default:
       return <WalletConnectV2ConnectedButton />
   }

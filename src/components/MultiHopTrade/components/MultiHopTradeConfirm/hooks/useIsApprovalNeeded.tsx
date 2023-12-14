@@ -1,4 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import { type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useAllowance } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useAllowance'
@@ -16,6 +17,10 @@ export const useIsApprovalNeeded = (
 
   const isApprovalNeeded = useMemo(() => {
     if (tradeQuoteStep === undefined) return undefined
+
+    const isEvmChainId = evmChainIds.includes(tradeQuoteStep.sellAsset.chainId as EvmChainId)
+
+    if (!isEvmChainId) return false
 
     if (data?.isErr()) {
       const error = data.unwrapErr()

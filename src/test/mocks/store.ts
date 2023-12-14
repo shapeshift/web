@@ -72,6 +72,7 @@ export const mockStore: ReduxState = {
       Cowswap: false,
       CowswapGnosis: false,
       Yat: false,
+      WalletConnectToDapps: false,
       WalletConnectToDappsV2: false,
       Wherever: false,
       SaversVaults: false,
@@ -184,5 +185,10 @@ export const mockStore: ReduxState = {
   snapshot: {
     votingPower: undefined,
     strategies: undefined,
+  },
+  localWalletSlice: {
+    walletType: null,
+    walletDeviceId: null,
+    nativeWalletName: null,
   },
 }

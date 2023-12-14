@@ -1,6 +1,4 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import {
   supportsArbitrum,
   supportsArbitrumNova,
@@ -12,7 +10,7 @@ import {
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
@@ -22,11 +20,8 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
   const result = await (async () => {
     let acc: AccountMetadataById = {}
     for (const chainId of chainIds) {
-      if (!evmChainIds.includes(chainId as EvmChainId))
-        throw new Error(`${chainId} does not exist in ${evmChainIds}`)
-
       const { chainReference } = fromChainId(chainId)
-      const adapter = getChainAdapterManager().get(chainId)!
+      const adapter = assertGetEvmChainAdapter(chainId)
 
       if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
         if (!supportsETH(wallet)) continue

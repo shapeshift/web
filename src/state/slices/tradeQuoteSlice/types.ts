@@ -49,6 +49,7 @@ export type SwapExecutionMetadata = {
   sellTxHash?: string
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
+  message?: string
 }
 
 export type HopExecutionMetadata = {

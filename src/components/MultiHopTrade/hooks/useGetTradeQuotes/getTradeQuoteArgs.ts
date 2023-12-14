@@ -1,4 +1,3 @@
-import type { EvmChainAdapter, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
@@ -9,8 +8,9 @@ import {
   isUtxoSwap,
 } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'
+import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
@@ -64,9 +64,7 @@ export const getTradeQuoteArgs = async ({
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-    const sellAssetChainAdapter = getChainAdapterManager().get(
-      sellAsset.chainId,
-    ) as unknown as EvmChainAdapter
+    const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,
@@ -81,9 +79,7 @@ export const getTradeQuoteArgs = async ({
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return
-    const sellAssetChainAdapter = getChainAdapterManager().get(
-      sellAsset.chainId,
-    ) as unknown as UtxoChainAdapter
+    const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
       wallet,

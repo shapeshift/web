@@ -1,8 +1,7 @@
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled, isRejected, isSome } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
@@ -32,7 +31,6 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 }> => {
   const state = reduxApi.getState() as ReduxState
 
-  const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
 
   const cosmosSdkChainIdsWhitelist = [cosmosChainId]
@@ -44,9 +42,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   const cosmosSdkAccounts = await Promise.allSettled(
     cosmosSdkAccountIds.map(accountId => {
       const { account: pubKey, chainId } = fromAccountId(accountId)
-      const adapter = chainAdapters.get(
-        chainId,
-      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+      const adapter = assertGetCosmosSdkChainAdapter(chainId)
       return adapter.getAccount(pubKey)
     }),
   ).then(settledAccountsPromises =>
@@ -85,10 +81,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
       const { account: validatorAddress, chainId } = fromAccountId(validatorId)
 
       try {
-        const chainAdapters = getChainAdapterManager()
-        const adapter = chainAdapters.get(
-          chainId,
-        ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+        const adapter = assertGetCosmosSdkChainAdapter(chainId)
 
         const data = await adapter.getValidator(validatorAddress)
 
@@ -183,8 +176,8 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
         data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: defiType },
       })
     }
-    const chainAdapters = getChainAdapterManager()
-    const adapter = chainAdapters.get(chainId) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+
+    const adapter = assertGetCosmosSdkChainAdapter(chainId)
 
     const cosmosAccount = await adapter.getAccount(pubKey)
     const assetId = accountIdToFeeAssetId(accountId)

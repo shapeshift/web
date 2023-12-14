@@ -1,4 +1,3 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
@@ -38,7 +37,7 @@ export const getThorTradeQuote = async (
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
   const { sellAsset, buyAsset, chainId, receiveAddress } = input
 
-  const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+  const buyAssetChainId = buyAsset.chainId
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)

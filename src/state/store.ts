@@ -30,7 +30,7 @@ import { updateWindowStoreMiddleware } from './windowMiddleware'
 const persistConfig = {
   key: 'root',
   version: Math.max(...Object.keys(migrations).map(Number)),
-  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft', 'snapshot'],
+  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft', 'snapshot', 'localWalletSlice'],
   storage: localforage,
   // @ts-ignore createMigrate typings are wrong
   migrate: createMigrate(migrations, { debug: false }),
@@ -64,6 +64,7 @@ export const clearState = () => {
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
   store.dispatch(slices.swappers.actions.clear())
+  store.dispatch(slices.localWalletSlice.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

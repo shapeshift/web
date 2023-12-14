@@ -1,8 +1,8 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useEffect, useState } from 'react'
 import { assertGetViemClient } from 'lib/viem-client'
 
-export const useBlockNumber = (chainId: ChainId | undefined, enabled: boolean) => {
+export const useEvmBlockNumber = (chainId: EvmChainId | undefined, enabled: boolean) => {
   const [blockNumber, setBlockNumber] = useState<bigint>()
 
   useEffect(() => {

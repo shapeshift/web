@@ -1,53 +1,51 @@
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
-import { useCallback, useEffect, useState } from 'react'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 // Fetches the THOR router contract address for a given feeAssetId
 // This is used to determine the correct router contract address for THOR contract approvals, swaps, and savers deposits/withdraws.
 
+export const fetchRouterContractAddress = async (assetId: AssetId, excludeHalted: boolean) => {
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const maybeInboundAddressData = await getInboundAddressDataForChain(
+    daemonUrl,
+    assetId,
+    excludeHalted,
+  )
+
+  if (maybeInboundAddressData.isErr()) {
+    throw new Error(maybeInboundAddressData.unwrapErr().message)
+  }
+
+  const inboundAddressData = maybeInboundAddressData.unwrap()
+
+  if (!inboundAddressData.router) {
+    throw new Error(`No router address found for feeAsset ${assetId}`)
+  }
+
+  return inboundAddressData.router
+}
+
 export const useRouterContractAddress = ({
   skip = false,
   feeAssetId: assetId,
+  excludeHalted,
 }: {
   skip?: boolean
-  // A native EVM AssetId i.e ethAssetId and avalancheAssetId, the two supported EVM chains at the time of writing
   feeAssetId: AssetId
+  excludeHalted?: boolean
 }) => {
-  const [routerContractAddress, setRouterContractAddress] = useState<string | null>(null)
+  const { chainId } = fromAssetId(assetId)
+  const isEvmChain = isEvmChainId(chainId)
 
-  const fetchRouterContractAddress = useCallback(async () => {
-    try {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+  const { data: routerContractAddress, isLoading } = useQuery({
+    queryKey: ['routerContractAddress', assetId, excludeHalted],
+    queryFn: () => fetchRouterContractAddress(assetId, Boolean(excludeHalted)),
+    enabled: !skip && isEvmChain,
+    staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
+  })
 
-      if (maybeInboundAddressData.isErr()) {
-        throw new Error(maybeInboundAddressData.unwrapErr().message)
-      }
-
-      const inboundAddressData = maybeInboundAddressData.unwrap()
-
-      // This should never happen as we're passing EVM native AssetIds here, but it may
-      if (!inboundAddressData.router) {
-        throw new Error(`No router address found for feeAsset ${assetId}`)
-      }
-
-      setRouterContractAddress(inboundAddressData.router)
-    } catch (error) {
-      console.error(error)
-      setRouterContractAddress(null)
-    }
-  }, [assetId])
-
-  useEffect(() => {
-    if (skip) return
-
-    const { chainId } = fromAssetId(assetId)
-    if (!isEvmChainId(chainId)) return
-
-    fetchRouterContractAddress()
-  }, [skip, fetchRouterContractAddress, assetId])
-
-  return routerContractAddress
+  return { routerContractAddress, isLoading }
 }

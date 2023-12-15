@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react'
 
 export function useDebounce<T>(value: T, delayMilliseconds: number, leading = true): T {
   const [debouncedValue, setDebouncedValue] = useState(value)
-  const [isFirstCall, setIsFirstCall] = useState(leading)
+  const [skipLeading, setSkipLeading] = useState(leading)
 
   useEffect(() => {
-    const handler = isFirstCall
+    const handler = skipLeading
       ? null
       : setTimeout(() => {
           setDebouncedValue(value)
         }, delayMilliseconds)
 
-    if (isFirstCall && leading) {
+    if (skipLeading) {
       setDebouncedValue(value)
-      setIsFirstCall(false)
+      setSkipLeading(false)
     }
 
     return () => {
@@ -21,11 +21,11 @@ export function useDebounce<T>(value: T, delayMilliseconds: number, leading = tr
         clearTimeout(handler)
       }
     }
-  }, [value, delayMilliseconds, isFirstCall, leading])
+  }, [value, delayMilliseconds, skipLeading, leading])
 
   useEffect(() => {
-    // Reset the first call flag when the delay or leading option changes
-    setIsFirstCall(leading)
+    // Reset the skip leading directive when the delay or leading option changes
+    setSkipLeading(leading)
   }, [leading, delayMilliseconds])
 
   return debouncedValue

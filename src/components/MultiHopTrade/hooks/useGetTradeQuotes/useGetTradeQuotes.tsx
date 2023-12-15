@@ -10,7 +10,9 @@ import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuo
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -18,7 +20,11 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
-import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
+import {
+  GET_TRADE_QUOTE_POLLING_INTERVAL,
+  swappersApi,
+  useGetTradeQuoteQuery,
+} from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAsset,
   selectFirstHopSellAccountId,
@@ -104,7 +110,6 @@ export const useGetTradeQuotes = () => {
     skipToken,
   )
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
-  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500, false)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -147,7 +152,30 @@ export const useGetTradeQuotes = () => {
     [isSnapshotApiQueriesPending, votingPower],
   )
 
+  const isSnapInstalled = useIsSnapInstalled()
+  const walletSupportsBuyAssetChain = useWalletSupportsChain({
+    chainId: buyAsset.chainId,
+    wallet,
+    isSnapInstalled,
+  })
+  const isBuyAssetChainSupported = walletSupportsBuyAssetChain
+
+  const shouldRefetchTradeQuotes = useMemo(
+    () =>
+      Boolean(
+        wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading,
+      ),
+    [wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+  )
+
+  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500, false)
+
   useEffect(() => {
+    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
+    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
+    // That effectively means we'll unsubscribe to queries, considering them stale
+    dispatch(swappersApi.util.invalidateTags(['TradeQuote']))
+
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
@@ -210,6 +238,7 @@ export const useGetTradeQuotes = () => {
       // if the quote input args changed, reset the selected swapper and update the trade quote args
       if (tradeQuoteInput !== skipToken) {
         setTradeQuoteInput(skipToken)
+        dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
         dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
       }
     }
@@ -230,6 +259,7 @@ export const useGetTradeQuotes = () => {
     sellAssetUsdRate,
     sellAccountId,
     isVotingPowerLoading,
+    isBuyAssetChainSupported,
   ])
 
   useEffect(() => {
@@ -239,19 +269,24 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const { data } = useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
-    pollingInterval: hasFocus ? 20000 : undefined,
-    /*
+  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
+  // This ensures we never return cached data, if skip has been set after the initial query load
+  const { currentData } = useGetTradeQuoteQuery(
+    shouldRefetchTradeQuotes ? debouncedTradeQuoteInput : skipToken,
+    {
+      pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
+      /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
      */
-    refetchOnMountOrArgChange: true,
-  })
+      refetchOnMountOrArgChange: true,
+    },
+  )
 
   useEffect(() => {
-    if (data && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(data)
+    if (currentData && mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(currentData)
       mixpanel.track(MixPanelEvents.QuotesReceived, quoteData)
     }
-  }, [data, mixpanel])
+  }, [currentData, mixpanel])
 }

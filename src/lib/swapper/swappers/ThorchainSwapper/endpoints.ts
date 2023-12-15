@@ -21,6 +21,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
+import axios from 'axios'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
@@ -36,9 +37,11 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getTradeTxs } from './getTradeTxs/getTradeTxs'
+import type { MidgardActionsResponse, ThornodeStatusResponse } from './types'
 import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
+import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
+import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
 
 const deductOutboundRuneFee = (fee: string): string => {
   // 0.02 RUNE is automatically charged on outbound transactions
@@ -319,20 +322,42 @@ export const thorchainApi: SwapperApi = {
     message: string | undefined
   }> => {
     try {
-      // thorchain swapper uses txId to get tx status (not trade ID)
-      const { buyTxId: buyTxHash } = await getTradeTxs(txHash)
-      const status = buyTxHash ? TxStatus.Confirmed : TxStatus.Pending
+      const thorTxHash = txHash.replace(/^0x/, '')
+
+      // not using monadic axios, this is intentional for simplicity in this non-monadic context
+      const [{ data: thorTxData }, { data: thorActionsData }] = await Promise.all([
+        axios.get<ThornodeStatusResponse>(
+          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+        ),
+        axios.get<MidgardActionsResponse>(
+          `${getConfig().REACT_APP_MIDGARD_URL}/actions?txid=${thorTxHash}`,
+        ),
+      ])
+
+      if ('error' in thorTxData) {
+        return {
+          buyTxHash: undefined,
+          status: TxStatus.Unknown,
+          message: undefined,
+        }
+      }
+
+      const outCoinAsset: string | undefined = thorActionsData.actions[0]?.out[0]?.coins[0]?.asset
+      const hasOutboundTx = outCoinAsset !== 'THOR.RUNE'
+
+      const { message, status } = getLatestThorTxStatusMessage(thorTxData, hasOutboundTx)
+      const buyTxHash = parseThorBuyTxHash(txHash, thorActionsData)
 
       return {
         buyTxHash,
         status,
-        message: undefined,
+        message,
       }
     } catch (e) {
       console.error(e)
       return {
         buyTxHash: undefined,
-        status: TxStatus.Failed,
+        status: TxStatus.Unknown,
         message: undefined,
       }
     }

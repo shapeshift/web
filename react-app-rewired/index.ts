@@ -398,8 +398,7 @@ const reactAppRewireConfig = {
   },
   jest: (config: Config.InitialOptions) => {
     config.transformIgnorePatterns = [
-      '/node_modules/(?!(viem)/)',
-      '/node_modules/(?!(@wagmi)/)',
+      '/node_modules/(?!(viem|@wagmi|pretty-ms|parse-ms)/)',
       '^.+\\.module\\.(css|sass|scss)$',
     ]
     // allows jest to not crash when our deps import different versions of axios

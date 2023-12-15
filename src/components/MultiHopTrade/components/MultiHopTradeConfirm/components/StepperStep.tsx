@@ -24,6 +24,7 @@ export type StepperStepProps = {
   isError?: boolean
   titleProps?: StepTitleProps
   descriptionProps?: BoxProps
+  isPending?: boolean
 }
 
 export const StepperStep = ({
@@ -36,6 +37,7 @@ export const StepperStep = ({
   isError,
   titleProps,
   descriptionProps,
+  isPending,
 }: StepperStepProps) => {
   const { indicator: styles } = useStyleConfig('Stepper', {
     variant: isError ? 'error' : 'default',
@@ -43,7 +45,9 @@ export const StepperStep = ({
 
   return (
     <Step style={width}>
-      <StepIndicator sx={styles}>{isLoading ? <SkeletonCircle /> : stepIndicator}</StepIndicator>
+      <StepIndicator className={isPending ? 'step-pending' : undefined} sx={styles}>
+        {isLoading ? <SkeletonCircle /> : stepIndicator}
+      </StepIndicator>
 
       <Box flex={1}>
         <StepTitle {...titleProps}>

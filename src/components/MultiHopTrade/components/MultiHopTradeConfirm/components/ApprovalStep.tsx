@@ -1,4 +1,3 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
@@ -9,7 +8,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
@@ -105,11 +103,7 @@ export const ApprovalStep = ({
       )
     }
 
-    const href = getTxLink({
-      name: tradeQuoteStep.source,
-      defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
-      tradeId: txHash,
-    })
+    const href = `${tradeQuoteStep.sellAsset.explorerTxLink}${txHash}`
 
     return (
       <>
@@ -123,12 +117,9 @@ export const ApprovalStep = ({
     approvalNetworkFeeCryptoFormatted,
     isError,
     tradeQuoteStep.sellAsset.explorerTxLink,
-    tradeQuoteStep.source,
     translate,
     txHash,
   ])
-
-  const leftIcon = useMemo(() => <CheckCircleIcon />, [])
 
   const content = useMemo(() => {
     // only render the approval button when the component is active and we don't yet have a tx hash
@@ -169,7 +160,6 @@ export const ApprovalStep = ({
           <Button
             width='full'
             size='sm'
-            leftIcon={leftIcon}
             colorScheme='blue'
             disabled={isAllowanceApprovalLoading || !canAttemptApproval}
             isLoading={
@@ -189,7 +179,6 @@ export const ApprovalStep = ({
     isActive,
     isAllowanceApprovalLoading,
     isExactAllowance,
-    leftIcon,
     toggleIsExactAllowance,
     translate,
     txHash,
@@ -204,6 +193,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isError={approvalTxState === TransactionExecutionState.Failed}
+      isPending={approvalTxState === TransactionExecutionState.Pending}
     />
   )
 }

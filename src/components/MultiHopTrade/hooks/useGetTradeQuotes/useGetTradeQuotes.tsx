@@ -104,7 +104,7 @@ export const useGetTradeQuotes = () => {
     skipToken,
   )
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
-  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
+  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500, false)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const useReceiveAddressArgs = useMemo(

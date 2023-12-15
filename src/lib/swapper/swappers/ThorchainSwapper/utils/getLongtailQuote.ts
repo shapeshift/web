@@ -7,10 +7,12 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { FeeAmount } from '@uniswap/v3-sdk'
 import assert from 'assert'
-import type { Address } from 'viem'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { type Address, getContract } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { viemClientByChainId } from 'lib/viem-client'
 
+import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
 import {
@@ -67,39 +69,37 @@ export const getLongtailToL1Quote = async (
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
-  console.log('xxx let us generate pool addresses')
-
   const poolAddresses: Map<Address, FeeAmount> = generateV3PoolAddressesAcrossFeeRange(
     POOL_FACTORY_CONTRACT_ADDRESS,
     tokenA,
     tokenB,
   )
 
-  console.log('xxx poolAddresses', { poolAddresses })
-
-  const poolContractData = getPoolContractData(
+  const poolContractData = await getPoolContractData(
     poolAddresses,
     publicClient,
     tokenA.address,
     tokenB.address,
   )
 
-  console.log('xxx poolContractData', { poolContractData })
+  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
+  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
+    getContract({
+      abi: QuoterAbi,
+      address: QUOTER_CONTRACT_ADDRESS as Address,
+      publicClient,
+    })
 
   const quotedAmountOuts = await getQuotedAmountOuts(
     poolContractData,
     BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
-    publicClient,
+    quoterContract,
   )
-
-  console.log('xxx quotedAmountOuts', { quotedAmountOuts })
 
   const [bestAggreatorContract, quotedAmountOut] = selectBestRate(quotedAmountOuts) ?? [
     undefined,
     undefined,
   ]
-
-  console.log('xxx best', { bestAggreatorContract, quotedAmountOut })
 
   if (!bestAggreatorContract || !quotedAmountOut) {
     return Err(

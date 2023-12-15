@@ -2,10 +2,11 @@ import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshi
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
+import type { GetContractReturnType, WalletClient } from 'viem'
 import { type Address, getContract, type PublicClient } from 'viem'
 
 import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
-import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
+import type { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
@@ -99,44 +100,44 @@ type ContractData = {
   tokenOut: Address
 }
 
-export const getPoolContractData = (
+export const getPoolContractData = async (
   poolAddresses: Map<Address, FeeAmount>,
   publicClient: PublicClient,
   tokenAAddress: string,
   tokenBAddress: string,
-): Map<Address, ContractData> => {
+): Promise<Map<Address, ContractData>> => {
   const poolContracts = new Map<Address, ContractData>()
-  poolAddresses.forEach(async (feeAmount, address) => {
-    const poolContract = getContract({
-      abi: IUniswapV3PoolABI,
-      address,
-      publicClient,
-    })
-    const [token0, token1]: [Address, Address] = await Promise.all([
-      poolContract.read.token0(),
-      poolContract.read.token1(),
-    ])
+  await Promise.all(
+    Array.from(poolAddresses.entries()).map(async ([address, feeAmount]) => {
+      const poolContract = getContract({
+        abi: IUniswapV3PoolABI,
+        address,
+        publicClient,
+      })
+      try {
+        const [token0, token1]: [Address, Address] = await Promise.all([
+          poolContract.read.token0(),
+          poolContract.read.token1(),
+        ])
 
-    const tokenIn = token0 === tokenAAddress ? token0 : token1
-    const tokenOut = token1 === tokenBAddress ? token1 : token0
+        const tokenIn = token0 === tokenAAddress ? token0 : token1
+        const tokenOut = token1 === tokenBAddress ? token1 : token0
 
-    poolContracts.set(poolContract.address, { fee: feeAmount, tokenIn, tokenOut })
-  })
+        poolContracts.set(poolContract.address, { fee: feeAmount, tokenIn, tokenOut })
+      } catch {
+        // The pool contract is not supported, that's ok - skip it without logging an error
+        return
+      }
+    }),
+  )
   return poolContracts
 }
 
 export const getQuotedAmountOuts = (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
-  publicClient: PublicClient,
+  quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient>,
 ): Promise<Map<Address, bigint>> => {
-  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
-  const quoterContract = getContract({
-    abi: QuoterAbi,
-    address: QUOTER_CONTRACT_ADDRESS as Address,
-    publicClient,
-  })
-
   return Promise.all(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {
       const { fee, tokenIn, tokenOut } = data

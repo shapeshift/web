@@ -153,7 +153,7 @@ type ThorNodeTxSchema = {
   memo?: string
 }
 
-type ThorNodeStatusResponseSuccess = {
+export type ThorNodeStatusResponseSuccess = {
   tx?: {
     id: string
     memo: string
@@ -164,19 +164,40 @@ type ThorNodeStatusResponseSuccess = {
   stages: {
     inbound_observed: {
       started?: boolean
-      final_count: number
+      final_count?: number
+      pre_confirmation_count?: number
       completed: boolean
     }
     inbound_confirmation_counted?: {
       completed: boolean
+      counting_start_height?: number
+      chain?: string
+      external_observed_height?: number
+      external_confirmation_delay_height?: number
+      remaining_confirmation_seconds?: number
     }
     inbound_finalised?: {
       completed: boolean
     }
     swap_status?: {
       pending: boolean
+      streaming?: {
+        interval: number
+        quantity: number
+        count: number
+      }
+    }
+    swap_finalised?: {
+      completed: boolean
+    }
+    outbound_delay?: {
+      remaining_delay_blocks?: number
+      remaining_delay_seconds?: number
+      completed: boolean
     }
     outbound_signed?: {
+      scheduled_outbound_height?: number
+      blocks_since_scheduled?: number
       completed: boolean
     }
   }

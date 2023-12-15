@@ -1,4 +1,3 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
 import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -99,14 +98,12 @@ export const HopTransactionStep = ({
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])
 
-  const signIcon = useMemo(() => <CheckCircleIcon />, [])
-
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <Button colorScheme='blue' size='sm' leftIcon={signIcon} onClick={handleSignTx}>
+            <Button colorScheme='blue' size='sm' onClick={handleSignTx} width='100%'>
               {translate('common.signTransaction')}
             </Button>
           </CardBody>
@@ -125,16 +122,7 @@ export const HopTransactionStep = ({
         </Card>
       )
     }
-  }, [
-    handleSignTx,
-    hopIndex,
-    isActive,
-    sellTxHash,
-    signIcon,
-    swapTxState,
-    tradeQuoteStep.source,
-    translate,
-  ])
+  }, [handleSignTx, hopIndex, isActive, sellTxHash, swapTxState, tradeQuoteStep.source, translate])
 
   const errorTranslation = useMemo(
     (): [string, Polyglot.InterpolationOptions] => ['trade.swapFailed', { tradeType }],
@@ -217,6 +205,7 @@ export const HopTransactionStep = ({
       content={content}
       isLastStep={isLastStep}
       isError={swapTxState === TransactionExecutionState.Failed}
+      isPending={swapTxState === TransactionExecutionState.Pending}
     />
   )
 }

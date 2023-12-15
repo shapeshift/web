@@ -176,11 +176,6 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swappersApi.util.invalidateTags(['TradeQuote']))
 
-    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-    // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swappersApi.util.invalidateTags(['TradeQuote']))
-
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params

@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { TradeAssetInputProps } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -37,7 +37,12 @@ export const SellAssetInput = memo(
       (sellAmountUserCurrencyHuman: string, sellAmountCryptoPrecision: string) => {
         setSellAmountUserCurrencyHuman(sellAmountUserCurrencyHuman)
         setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
-        dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+
+        dispatch(
+          swappers.actions.setSellAmountCryptoPrecision(
+            positiveOrZero(sellAmountCryptoPrecision).toString(),
+          ),
+        )
       },
       [dispatch],
     )
@@ -60,14 +65,25 @@ export const SellAssetInput = memo(
       handleSellAssetInputChangeInner('0', '0')
     }, [asset, handleSellAssetInputChangeInner])
 
+    // Allow decimals to be entered in the form of . as the first character
+    const cryptoAmount = useMemo(() => {
+      if (sellAmountCryptoPrecision === '.') return sellAmountCryptoPrecision
+      return positiveOrZero(sellAmountCryptoPrecision).toString()
+    }, [sellAmountCryptoPrecision])
+
+    const fiatAmount = useMemo(() => {
+      if (sellAmountUserCurrencyHuman === '.') return sellAmountUserCurrencyHuman
+      return positiveOrZero(sellAmountUserCurrencyHuman).toString()
+    }, [sellAmountUserCurrencyHuman])
+
     return (
       <TradeAssetInput
         accountId={accountId}
         assetId={asset.assetId}
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
-        cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
-        fiatAmount={positiveOrZero(sellAmountUserCurrencyHuman).toString()}
+        cryptoAmount={cryptoAmount}
+        fiatAmount={fiatAmount}
         isSendMaxDisabled={false}
         onChange={handleSellAssetInputChange}
         percentOptions={percentOptions}

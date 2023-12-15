@@ -27,7 +27,7 @@
     "insufficientFunds": "残高不足",
     "estimatedGas": "ガス代の目安",
     "relayerGasFee": "リレイヤーのガス代",
-    "insufficientAmountForGas": "ガス代を支払うための十分な %{assetSymbol} がありません",
+    "insufficientAmountForGas": "ガス代をカバーするための%{assetSymbol}.%{chainSymbol}が不足しています。",
     "invalidAddress": "無効なアドレス",
     "invalidAddressOrYat": "無効なアドレスまたはYat",
     "deposit": "入金する",
@@ -726,6 +726,7 @@
     "free": "無料",
     "slowSwapTitle": "%{protocol} 取引",
     "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
+    "thorSmartContractWalletUnsupported": "THORChainネットワークは現在、スマートコントラクト ウォレットをサポートしていません。",
     "updatingQuote": "見積を更新しています...",
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
     "manualReceiveAddress": "受信アドレス",
@@ -748,8 +749,6 @@
     },
     "errors": {
       "title": "問題が発生しました",
-      "sellAssetStartSentence": "アセットを売る",
-      "buyAssetStartSentence": "アセットを買う",
       "sellAssetMiddleSentence": "アセットを売る",
       "buyAssetMiddleSentence": "アセットを買う",
       "notEnoughEth": "このトランザクションのガス代に十分なETHがありません。",
@@ -789,7 +788,9 @@
       "unsupportedPair": "この取引ペアは現在サポートされていません。",
       "unsupportedChain": "このチェーンは現在サポートされていません。",
       "rateError": "このペアの見積もりを取得できません",
-      "assetNotSupportedByWallet": "%{assetSymbol} はウォレットでサポートされていません",
+      "assetNotSupportedByWallet": "ウォレットでは%{assetSymbol}.%{chainSymbol}はサポートされていません。",
+      "sellAssetNotSupportedByWallet": "ウォレットでサポートされていないアセットを販売する",
+      "intermediaryAssetNotSupportedByWallet": "仲介者はウォレットでサポートされていません",
       "noReceiveAddress": "%{assetSymbol} の受信アドレスがありません",
       "tradingNotActive": "%{assetSymbol} の取引は一時的に停止されました",
       "tradingNotActiveNoAssetSymbol": "このルートの取引は一時的に停止されています",
@@ -801,7 +802,8 @@
       "quoteError": "見積もりの​​取得中にエラーが発生しました",
       "tradeFailed": "取引は失敗しました。ガス代を差し引いた額が返還されました",
       "noQuotesAvailable": "この取引には利用可能な見積もりがありません",
-      "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません"
+      "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません",
+      "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -809,6 +811,7 @@
     "or": "または",
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
+    "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
     "toContinue": "続ける。",
@@ -2071,7 +2074,6 @@
     "debtValue": "負債額",
     "loanToValue": "価値へのローン",
     "availablePools": "利用可能なプール",
-    "yourLoans": "ローン",
     "pool": "プール",
     "poolDepth": "プールの深さ",
     "poolDepthDescription": "プールの状態",
@@ -2089,6 +2091,7 @@
     "debtBalanceDescription": "このローンに対して負っている負債の総額",
     "repaymentLock": "返済ロック",
     "repaymentLockDescription": "ローンを返済できるまでの最低期間",
+    "receiveCollateral": "返金してもらえる担保金額",
     "borrow": "借りる",
     "repay": "返済",
     "repayAmount": "返済額",
@@ -2125,7 +2128,7 @@
       },
       "repayments": {
         "title": "返済はどのように行われますか?",
-        "body": "THORChainでの返済は柔軟であり、いつでもどの資産でも返済でき、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
+        "body": "THORChainでの返済は柔軟であり、返済ロックが経過した後はいつでも、任意の資産で返済することができ、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
       }
     },
     "quote": {
@@ -2134,19 +2137,24 @@
       "repaymentLock": "ローンを返済できるまでの最低期間",
       "collateralizationRatio": "融資金額に対する担保価値の比率",
       "feesPlusSlippage": "L1手数料、スリッページ、THORChain流動性手数料を含む、発生した手数料の合計"
+    },
+    "yourLoans": {
+      "yourLoans": "あなたのローン",
+      "emptyTitle": "ローンゼロ",
+      "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
     }
   },
   "foxDiscounts": {
     "currentFoxPower": "あなたのFOX",
     "foxPower": "FOXパワー",
-    "simulateTitle": "FOX貯蓄額をシミュレーションする",
+    "simulateTitle": "FOX割引をシミュレーションする",
     "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
     "tradeSize": "取引規模",
     "totalFee": "合計料金",
     "foxPowerDiscount": "FOXパワー割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
-    "simulateFee": "料金シミュレーション",
+    "simulateFee": "割引をシミュレーションする",
     "freeUnderThreshold": "%{threshold} 未満の取引は常に無料です",
     "breakdownHeader": "FOX割引",
     "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",

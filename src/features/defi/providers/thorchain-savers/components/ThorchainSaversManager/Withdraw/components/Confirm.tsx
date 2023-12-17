@@ -575,10 +575,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+      receiverAddress: maybeFromUTXOAccountAddress,
     })
     return txid
-  }, [wallet, accountNumber, getCustomTxInput, chainId])
+  }, [wallet, accountNumber, getCustomTxInput, chainId, maybeFromUTXOAccountAddress])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return

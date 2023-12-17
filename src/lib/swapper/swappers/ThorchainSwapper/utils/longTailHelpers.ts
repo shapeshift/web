@@ -74,6 +74,13 @@ export const contractToFeeAmountMap: Record<AggregatorContract, FeeAmount> = {
   [AggregatorContract.TSAggregatorUniswapV3_10000]: FeeAmount.HIGH,
 }
 
+export const feeAmountToContractMap: Record<FeeAmount, AggregatorContract> = Object.entries(
+  contractToFeeAmountMap,
+).reduce(
+  (acc, [key, value]) => ({ ...acc, [value]: key }),
+  {} as Record<FeeAmount, AggregatorContract>,
+)
+
 export const generateV3PoolAddressesAcrossFeeRange = (
   factoryAddress: string,
   tokenA: Token,
@@ -100,7 +107,7 @@ type ContractData = {
   tokenOut: Address
 }
 
-export const getPoolContractData = async (
+export const getContractDataByPool = async (
   poolAddresses: Map<Address, FeeAmount>,
   publicClient: PublicClient,
   tokenAAddress: string,
@@ -133,7 +140,7 @@ export const getPoolContractData = async (
   return poolContracts
 }
 
-export const getQuotedAmountOuts = (
+export const getQuotedAmountOutByPool = (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
   quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient>,
@@ -156,10 +163,10 @@ export const selectBestRate = (
   return Array.from(quotedAmounts.entries()).reduce(
     (
       addressWithHighestAmount: [Address, bigint] | undefined,
-      [address, amount]: [Address, bigint],
+      [poolAddress, amount]: [Address, bigint],
     ) => {
       return amount > (addressWithHighestAmount?.[1] ?? BigInt(0))
-        ? [address, amount]
+        ? [poolAddress, amount]
         : addressWithHighestAmount
     },
     undefined,

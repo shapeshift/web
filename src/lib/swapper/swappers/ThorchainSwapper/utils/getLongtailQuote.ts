@@ -16,9 +16,10 @@ import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
 import {
+  feeAmountToContractMap,
   generateV3PoolAddressesAcrossFeeRange,
-  getPoolContractData,
-  getQuotedAmountOuts,
+  getContractDataByPool,
+  getQuotedAmountOutByPool,
   getTokenFromAsset,
   getWrappedToken,
   selectBestRate,
@@ -75,7 +76,7 @@ export const getLongtailToL1Quote = async (
     tokenB,
   )
 
-  const poolContractData = await getPoolContractData(
+  const poolContractData = await getContractDataByPool(
     poolAddresses,
     publicClient,
     tokenA.address,
@@ -90,18 +91,21 @@ export const getLongtailToL1Quote = async (
       publicClient,
     })
 
-  const quotedAmountOuts = await getQuotedAmountOuts(
+  const quotedAmountOutByPool = await getQuotedAmountOutByPool(
     poolContractData,
     BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
     quoterContract,
   )
 
-  const [bestAggreatorContract, quotedAmountOut] = selectBestRate(quotedAmountOuts) ?? [
+  const [bestPool, quotedAmountOut] = selectBestRate(quotedAmountOutByPool) ?? [
     undefined,
     undefined,
   ]
 
-  if (!bestAggreatorContract || !quotedAmountOut) {
+  const bestContractData = bestPool ? poolContractData.get(bestPool) : undefined
+  const bestAggregator = bestContractData ? feeAmountToContractMap[bestContractData.fee] : undefined
+
+  if (!bestAggregator || !quotedAmountOut) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No best aggregator contract found.`,
@@ -125,7 +129,7 @@ export const getLongtailToL1Quote = async (
   return thorchainQuotes.andThen(quotes => {
     const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
       ...q,
-      router: bestAggreatorContract,
+      router: bestPool,
       steps: q.steps.map(s => ({
         ...s,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain

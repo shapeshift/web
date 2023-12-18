@@ -35,6 +35,7 @@ export const checkIsMetaMask = pMemoize(
   },
 )
 
+// https://github.com/MetaMask/metamask-sdk/blob/6230d8394157f53f1b020ae44601a0a69edc6155/packages/sdk/src/Platform/PlatfformManager.ts#L102C30-L111
 export const checkisMetaMaskMobileWebView = () => {
   if (typeof window === 'undefined') {
     return false

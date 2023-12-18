@@ -43,6 +43,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   }, [])
 
   const isSnapsEnabled = useFeatureFlag('Snaps')
+  const isMetaMaskMobileWebView = useMemo(() => checkisMetaMaskMobileWebView(), [])
 
   const pairDevice = useCallback(async () => {
     setError(null)
@@ -83,6 +84,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
+          // We don't want to show the snaps modal on MM mobile browser, as snaps aren't supported on mobile
+          if (isMetaMaskMobileWebView) return
+
           const isMetaMask = await checkIsMetaMask(wallet)
           if (!isMetaMask) return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
@@ -105,11 +109,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     }
     setLoading(false)
   }, [
-    onProviderChange,
     getAdapter,
     setErrorLoading,
     dispatch,
     localWallet,
+    onProviderChange,
+    isMetaMaskMobileWebView,
     isSnapsEnabled,
     showSnapModal,
     history,
@@ -125,8 +130,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     return window.location.assign(`metamask://dapp//${mmDeeplinkTarget}`)
   }, [])
-
-  const isMetaMaskMobileWebView = useMemo(() => checkisMetaMaskMobileWebView(), [])
 
   return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal

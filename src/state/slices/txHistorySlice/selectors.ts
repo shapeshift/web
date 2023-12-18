@@ -208,13 +208,19 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
   },
 )
+
 export const selectTxsByQuery = createDeepEqualOutputSelector(
   selectTxs,
+  selectTxIdsByFilter,
   selectAssets,
   selectSearchQueryFromFilter,
-  (txsById, assets, searchQuery): TxId[] => {
-    const txArray: [TxId, Tx][] = Object.entries(txsById)
-    if (!searchQuery) return Object.keys(txsById)
+  (txsById, txIds, assets, searchQuery): TxId[] => {
+    // Txs do *not* have a guaranteed order, but txIds do (most recent first)
+    // Ensure we honor the order of Txids when sorting Txs
+    const txArray: [TxId, Tx][] = txIds.map(txId => [txId, txsById[txId]])
+
+    if (!searchQuery) return txIds
+
     const results = matchSorter(txArray, searchQuery, {
       keys: [
         'txid',
@@ -227,6 +233,8 @@ export const selectTxsByQuery = createDeepEqualOutputSelector(
       ],
       threshold: matchSorter.rankings.CONTAINS,
     })
+
+    // Return the sorted TxIds
     return results.map(result => result[0])
   },
 )

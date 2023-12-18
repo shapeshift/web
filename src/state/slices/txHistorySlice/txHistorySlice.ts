@@ -125,18 +125,28 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   )
 }
 
+const checkTxHashReceived = (state: ReduxState, txHash: string) => {
+  return state.txHistory.txs.ids.some(txIndex => deserializeTxIndex(txIndex).txid === txHash)
+}
+
 // Resolves when a tx with a given txhash has been received. Used for signalling tx completion only.
 // Ignores the fact that there may be multiple txs received for a given txhash (thorchain swapper).
 export const waitForTransactionHash = createAsyncThunk<
   void,
   string,
   { state: ReduxState; extra: { subscribe: (listener: (state: ReduxState) => void) => () => void } }
->('txHistory/waitForTransaction', (txHash, { extra: { subscribe } }) => {
+>('txHistory/waitForTransaction', (txHash, { getState, extra: { subscribe } }) => {
   return new Promise(resolve => {
+    const transactionReceived = checkTxHashReceived(getState(), txHash)
+
+    // don't subscribe if the tx was already received - prevents race condition and infinite await
+    if (transactionReceived) {
+      resolve()
+      return
+    }
+
     const unsubscribe = subscribe(state => {
-      const transactionReceived = state.txHistory.txs.ids.some(
-        txIndex => deserializeTxIndex(txIndex).txid === txHash,
-      )
+      const transactionReceived = checkTxHashReceived(state, txHash)
       if (transactionReceived) {
         unsubscribe()
         resolve()

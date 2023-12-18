@@ -234,7 +234,6 @@ export const selectTxsByQuery = createDeepEqualOutputSelector(
       threshold: matchSorter.rankings.CONTAINS,
     })
 
-    // Return the sorted TxIds
     return results.map(result => result[0])
   },
 )

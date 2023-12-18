@@ -84,14 +84,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
-          // We don't want to show the snaps modal on MM mobile browser, as snaps aren't supported on mobile
           if (isMetaMaskMobileWebView) return
 
           const isMetaMask = await checkIsMetaMask(wallet)
           if (!isMetaMask) return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 
-          if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
+          // We don't want to show the snaps modal on MM mobile browser, as snaps aren't supported on mobile
+          if (isSnapsEnabled && !isMetaMaskMobileWebView && !isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')
           }
 

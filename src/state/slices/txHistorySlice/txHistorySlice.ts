@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
@@ -15,9 +15,10 @@ import {
   isSpammyTokenText,
 } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
+import type { ReduxState } from 'state/reducer'
 import type { Nominal } from 'types/common'
 
-import { getRelatedAssetIds, serializeTxIndex } from './utils'
+import { deserializeTxIndex, getRelatedAssetIds, serializeTxIndex } from './utils'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -124,6 +125,26 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   )
 }
 
+// Resolves when a tx with a given txhash has been received. Used for signalling tx completion only.
+// Ignores the fact that there may be multiple txs received for a given txhash (thorchain swapper).
+export const waitForTransactionHash = createAsyncThunk<
+  void,
+  string,
+  { state: ReduxState; extra: { subscribe: (listener: (state: ReduxState) => void) => () => void } }
+>('txHistory/waitForTransaction', (txHash, { extra: { subscribe } }) => {
+  return new Promise(resolve => {
+    const unsubscribe = subscribe(state => {
+      const transactionReceived = state.txHistory.txs.ids.some(
+        txIndex => deserializeTxIndex(txIndex).txid === txHash,
+      )
+      if (transactionReceived) {
+        unsubscribe()
+        resolve()
+      }
+    })
+  })
+})
+
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
@@ -141,7 +162,9 @@ export const txHistory = createSlice({
       }
     },
   },
-  extraReducers: builder => builder.addCase(PURGE, () => initialState),
+  extraReducers: builder => {
+    builder.addCase(PURGE, () => initialState)
+  },
 })
 
 export const txHistoryApi = createApi({

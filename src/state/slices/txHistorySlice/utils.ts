@@ -3,7 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Tx } from './txHistorySlice'
 
 type TxIndex = string
-type TxDescriptor = {
+export type TxDescriptor = {
   accountId: AccountId
   txid: Tx['txid']
   address: Tx['address']

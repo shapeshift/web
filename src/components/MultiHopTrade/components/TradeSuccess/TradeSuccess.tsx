@@ -8,6 +8,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
@@ -23,6 +24,7 @@ import { TwirlyToggle } from '../MultiHopTradeConfirm/components/TwirlyToggle'
 export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
 
 export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
+  const translate = useTranslate()
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
@@ -54,8 +56,12 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
 
     const cryptoAmountFormatted = toCrypto(totalCryptoHumanBalance, lastHop.buyAsset.symbol)
     const chainName = adapter.getDisplayName()
-    return `You now have ${cryptoAmountFormatted} in your wallet on ${chainName}.`
-  }, [lastHop, toCrypto, totalCryptoHumanBalance])
+
+    return translate('trade.tradeComplete', {
+      cryptoAmountFormatted,
+      chainName,
+    })
+  }, [lastHop, toCrypto, totalCryptoHumanBalance, translate])
 
   if (!lastHop) return null
 
@@ -81,11 +87,11 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
       <CardFooter flexDir='column' gap={2} px={4}>
         <SlideTransition>
           <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            Do another trade
+            {translate('trade.doAnotherTrade')}
           </Button>
           <HStack width='full' justifyContent='space-between' mt={4}>
             <Button variant='link' onClick={onToggle} px={2}>
-              Show Details
+              {translate('trade.showDetails')}
             </Button>
             <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />
           </HStack>

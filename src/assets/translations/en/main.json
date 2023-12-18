@@ -821,7 +821,11 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "approvalGasFee": "Approval gas fee %{fee}",
     "approvalFailed": "A problem occurred during allowance approval",
-    "swapFailed": "A problem occurred executing the %{tradeType}"
+    "swapFailed": "A problem occurred executing the %{tradeType}",
+    "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
+    "doAnotherTrade": "Do another trade",
+    "showDetails": "Show Details",
+    "transactionSuccessful": "Transaction successful, waiting for confirmations"
   },
   "modals": {
     "popup": {

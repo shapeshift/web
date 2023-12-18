@@ -25,6 +25,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
@@ -54,6 +55,8 @@ const apiMiddleware = [
   abiApi.middleware,
   zerionApi.middleware,
 ]
+
+const subscriptionMiddleware = createSubscriptionMiddleware()
 
 const persistedReducer = persistReducer(persistConfig, reducer)
 
@@ -145,8 +148,12 @@ export const createStore = () =>
           warnAfter: 128,
           ignoredActions: [PERSIST, PURGE],
         },
+        thunk: {
+          extraArgument: { subscribe: subscriptionMiddleware.subscribe },
+        },
       })
         .concat(apiMiddleware)
+        .concat(subscriptionMiddleware.middleware)
         .concat(getConfig().REACT_APP_REDUX_WINDOW ? [updateWindowStoreMiddleware] : []),
     devTools: {
       actionSanitizer,

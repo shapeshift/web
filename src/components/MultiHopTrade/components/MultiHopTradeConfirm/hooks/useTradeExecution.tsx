@@ -8,6 +8,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
@@ -15,7 +16,7 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -23,9 +24,11 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { waitForTransactionHash } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeExecution = (hopIndex: number) => {
+  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
@@ -50,6 +53,12 @@ export const useTradeExecution = (hopIndex: number) => {
     return cancelPollingRef.current
   }, [])
 
+  // The intermediary buy asset may not actually be supported. If it doesnt exist in the asset slice
+  // the it must be unsupported.
+  const supportedBuyAsset = useAppSelector(state =>
+    selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
+  )
+
   const executeTrade = useCallback(() => {
     if (!wallet) throw Error('missing wallet')
     if (!accountMetadata) throw Error('missing accountMetadata')
@@ -69,16 +78,43 @@ export const useTradeExecution = (hopIndex: number) => {
       }
 
       const execution = new TradeExecution()
+      let txHash: string | undefined
 
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
+        txHash = sellTxHash
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
         dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
-        buyTxHash && tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
+        if (buyTxHash) {
+          txHash = buyTxHash
+          tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
+        }
       })
-      execution.on(TradeExecutionEvent.Success, () => {
-        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message: undefined }))
+      execution.on(TradeExecutionEvent.Success, async () => {
+        if (!txHash) {
+          showErrorToast(Error('missing txHash'))
+          resolve()
+          return
+        }
+
+        dispatch(
+          tradeQuoteSlice.actions.setSwapTxMessage({
+            hopIndex,
+            message: translate('trade.transactionSuccessful'),
+          }),
+        )
+
+        // Prevent "where's my money" support messages:
+        // Once the transaction is successful, we must wait for the node to transmit the tx(s)
+        // to the tx history slice so we can render accurate account balance on completion.
+        // BUT only do this if the asset we're waiting on is actually supported, since it will never
+        // be indexed in the negative case. This occurs with multi-hop trades where the intermediary
+        // asset isn't supported by our asset service.
+        const isBuyAssetSupported = supportedBuyAsset !== undefined
+        if (isBuyAssetSupported) {
+          await dispatch(waitForTransactionHash(txHash)).unwrap()
+        }
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()
       })
@@ -242,6 +278,8 @@ export const useTradeExecution = (hopIndex: number) => {
     dispatch,
     hopIndex,
     showErrorToast,
+    translate,
+    supportedBuyAsset,
     slippageTolerancePercentageDecimal,
   ])
 

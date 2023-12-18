@@ -52,8 +52,8 @@ export const useTradeExecution = (hopIndex: number) => {
     return cancelPollingRef.current
   }, [])
 
-  // The intermediary buy asset may not actually be supported. If it doesnt exist in the asset slice
-  // the it must be unsupported.
+  // The intermediary buy asset may not actually be supported. If it doesn't exist in the asset slice
+  // then it must be unsupported.
   const supportedBuyAsset = useAppSelector(state =>
     selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
   )

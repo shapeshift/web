@@ -11,7 +11,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
+import { TradeSuccessTemp } from '../TradeSuccess/TradeSuccessTemp'
 import { Footer } from './components/Footer'
 import { Hops } from './components/Hops'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
@@ -88,9 +88,9 @@ export const MultiHopTradeConfirm = memo(() => {
           </WithBackButton>
         </CardHeader>
         {isTradeComplete ? (
-          <TradeSuccess handleBack={handleBack}>
+          <TradeSuccessTemp handleBack={handleBack}>
             <Hops isFirstHopOpen isSecondHopOpen />
-          </TradeSuccess>
+          </TradeSuccessTemp>
         ) : (
           <>
             <CardBody py={0} px={0}>

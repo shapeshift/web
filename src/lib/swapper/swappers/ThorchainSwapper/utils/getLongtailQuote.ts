@@ -129,7 +129,7 @@ export const getLongtailToL1Quote = async (
   return thorchainQuotes.andThen(quotes => {
     const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
       ...q,
-      router: bestPool,
+      router: bestAggregator,
       steps: q.steps.map(s => ({
         ...s,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain

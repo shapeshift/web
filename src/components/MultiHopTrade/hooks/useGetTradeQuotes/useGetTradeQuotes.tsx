@@ -126,8 +126,6 @@ export const useGetTradeQuotes = () => {
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 
-  console.log({ isDebouncing })
-
   // User *may* donate if the fox discounts flag is off and they kept the donation checkbox on
   // or if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
   const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled

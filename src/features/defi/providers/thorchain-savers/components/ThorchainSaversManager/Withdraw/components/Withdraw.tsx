@@ -1,4 +1,5 @@
-import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
+import { CopyIcon } from '@chakra-ui/icons'
+import { Alert, AlertIcon, Box, Flex, Skeleton, Text as CText, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
@@ -31,7 +32,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
-import { assertGetChainAdapter, isToken } from 'lib/utils'
+import { assertGetChainAdapter, isToken, middleEllipsis } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   createBuildCustomTxInput,
@@ -781,7 +782,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [validateFiatAmount],
   )
 
-  if (!state) return null
+  const handleCopyClick = useCallback(async () => {
+    if (!fromAddress) return
+
+    const duration = 2500
+    const isClosable = true
+    const toastPayload = { duration, isClosable }
+    try {
+      await navigator.clipboard.writeText(fromAddress)
+      const title = translate('common.copied')
+      const status = 'success'
+      const description = fromAddress
+      toast({ description, title, status, ...toastPayload })
+    } catch (e) {
+      const title = translate('common.copyFailed')
+      const status = 'error'
+      const description = translate('common.copyFailedDescription')
+      toast({ description, title, status })
+    }
+  }, [fromAddress, toast, translate])
 
   return (
     <FormProvider {...methods}>
@@ -798,7 +817,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           isEstimatedFeesDataLoading ||
           isSweepNeededLoading ||
           isThorchainSaversWithdrawQuoteLoading ||
-          state.loading
+          state?.loading
         }
         percentOptions={percentOptions}
         enableSlippage={false}
@@ -813,9 +832,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           </Row.Value>
         </Row>
         {bnOrZero(missingFunds).gt(0) && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={missingFundsForGasTranslation} />
+          <Alert status='error' borderRadius='lg' variant='solid'>
+            <Box flex='1' textAlign='left'>
+              <Flex justify='space-between' align='center'>
+                <AlertIcon color='red' />
+                <Text translation={missingFundsForGasTranslation} />
+              </Flex>
+              <Flex align='center' mt={2}>
+                <CText>{middleEllipsis(fromAddress ?? '')}</CText>
+                <Box ml={2}>
+                  <CopyIcon cursor='pointer' onClick={handleCopyClick} />
+                </Box>
+              </Flex>
+            </Box>
           </Alert>
         )}
       </ReusableWithdraw>

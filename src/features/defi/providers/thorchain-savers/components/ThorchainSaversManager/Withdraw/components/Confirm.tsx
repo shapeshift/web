@@ -1,3 +1,4 @@
+import { CopyIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -7,6 +8,7 @@ import {
   Flex,
   Skeleton,
   Stack,
+  Text as CText,
   useToast,
 } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
@@ -49,7 +51,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isToken } from 'lib/utils'
+import { isToken, middleEllipsis } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -801,6 +803,28 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return bnOrZero(amountCryptoBaseUnit).gt(protocolFeeCryptoBaseUnit)
   }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit])
 
+  const handleCopyClick = useCallback(async () => {
+    const address = maybeFromUTXOAccountAddress ?? userAddress
+
+    if (!address) return
+
+    const duration = 2500
+    const isClosable = true
+    const toastPayload = { duration, isClosable }
+    try {
+      await navigator.clipboard.writeText(address)
+      const title = translate('common.copied')
+      const status = 'success'
+      const description = address
+      toast({ description, title, status, ...toastPayload })
+    } catch (e) {
+      const title = translate('common.copyFailed')
+      const status = 'error'
+      const description = translate('common.copyFailedDescription')
+      toast({ description, title, status })
+    }
+  }, [maybeFromUTXOAccountAddress, toast, translate, userAddress])
+
   if (!state || !contextDispatch) return null
 
   return (
@@ -925,10 +949,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Text translation={'defi.modals.saversVaults.dangerousWithdrawWarning'} />
           </Alert>
         )}
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={missingFundsForGasTranslation} />
+        {bnOrZero(missingBalanceForGasCryptoPrecision).gt(0) && (
+          <Alert status='error' borderRadius='lg' variant='solid'>
+            <Box flex='1' textAlign='left'>
+              <Flex justify='space-between' align='center'>
+                <AlertIcon color='red' />
+                <Text translation={missingFundsForGasTranslation} />
+              </Flex>
+              <Flex align='center' mt={2}>
+                <CText>{middleEllipsis(maybeFromUTXOAccountAddress ?? userAddress ?? '')}</CText>
+                <Box ml={2}>
+                  <CopyIcon cursor='pointer' onClick={handleCopyClick} />
+                </Box>
+              </Flex>
+            </Box>
           </Alert>
         )}
       </Summary>

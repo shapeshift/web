@@ -825,7 +825,11 @@
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
-    "transactionSuccessful": "Transaction successful, waiting for confirmations"
+    "transactionSuccessful": "Transaction successful, waiting for confirmations",
+    "temp": {
+      "tradeSuccess": "Trade complete",
+      "tradeComplete": "Successfully received %{symbol} on %{chainName}."
+    }
   },
   "modals": {
     "popup": {

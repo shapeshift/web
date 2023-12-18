@@ -24,7 +24,6 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { waitForTransactionHash } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeExecution = (hopIndex: number) => {
@@ -91,7 +90,7 @@ export const useTradeExecution = (hopIndex: number) => {
           tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
         }
       })
-      execution.on(TradeExecutionEvent.Success, async () => {
+      execution.on(TradeExecutionEvent.Success, () => {
         if (!txHash) {
           showErrorToast(Error('missing txHash'))
           resolve()
@@ -113,7 +112,10 @@ export const useTradeExecution = (hopIndex: number) => {
         // asset isn't supported by our asset service.
         const isBuyAssetSupported = supportedBuyAsset !== undefined
         if (isBuyAssetSupported) {
-          await dispatch(waitForTransactionHash(txHash)).unwrap()
+          // TODO: temporarily disabled until we circle back to implement this properly
+          // Temporary UI will be used to bypass balance display after a trade to sidestep the
+          // issue in the interim.
+          // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
         resolve()

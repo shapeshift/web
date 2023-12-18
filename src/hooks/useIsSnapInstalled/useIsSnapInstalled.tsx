@@ -35,6 +35,16 @@ export const checkIsMetaMask = pMemoize(
   },
 )
 
+export const checkisMetaMaskMobileWebView = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return (
+    Boolean(window.ReactNativeWebView) && Boolean(navigator.userAgent.endsWith('MetaMaskMobile'))
+  )
+}
+
 export const useIsSnapInstalled = (): null | boolean => {
   const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
 

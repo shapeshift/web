@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -6,10 +7,13 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import {
+  checkIsMetaMask,
+  checkisMetaMaskMobileWebView,
+  checkIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { isMobile } from 'lib/globals'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -27,7 +31,7 @@ export interface MetaMaskSetupProps
 }
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
-  const { dispatch, state, getAdapter, onProviderChange } = useWallet()
+  const { dispatch, getAdapter, onProviderChange } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -119,12 +123,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       .filter(x => !!x)
       .join(':')
 
-    return window.location.assign(`https://metamask.app.link/dapp/${mmDeeplinkTarget}`)
+    return window.location.assign(`metamask://dapp//${mmDeeplinkTarget}`)
   }, [])
 
-  // The MM mobile app itself injects a provider, so we'll use pairDevice once
-  // we've reopened ourselves in that environment.
-  return !state.provider && isMobile ? (
+  const isMetaMaskMobileWebView = useMemo(() => checkisMetaMaskMobileWebView(), [])
+
+  return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

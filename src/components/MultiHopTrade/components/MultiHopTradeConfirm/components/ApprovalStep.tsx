@@ -199,7 +199,7 @@ const ApprovalStepPending = ({
 
   return (
     <StepperStep
-      title='Token allowance approval'
+      title={translate('trade.approvalTitle')}
       description={description}
       stepIndicator={stepIndicator}
       content={content}
@@ -217,6 +217,7 @@ const ApprovalStepComplete = ({
   isLastStep,
   isLoading,
 }: ApprovalStepProps) => {
+  const translate = useTranslate()
   const {
     state,
     approval: { txHash, state: approvalTxState },
@@ -244,7 +245,7 @@ const ApprovalStepComplete = ({
 
   return (
     <StepperStep
-      title='Token allowance approval'
+      title={translate('trade.approvalTitle')}
       description={description}
       stepIndicator={stepIndicator}
       content={undefined}

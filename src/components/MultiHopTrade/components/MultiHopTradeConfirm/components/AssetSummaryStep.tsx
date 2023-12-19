@@ -1,5 +1,6 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -21,6 +22,7 @@ export const AssetSummaryStep = ({
   amountCryptoBaseUnit,
   isLastStep,
 }: AssetSummaryStepProps) => {
+  const translate = useTranslate()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -53,7 +55,7 @@ export const AssetSummaryStep = ({
   return (
     <StepperStep
       title={amountCryptoFormatted}
-      description={`${amountFiatFormatted} on ${chainName}`}
+      description={translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })}
       stepIndicator={assetIcon}
       isLastStep={isLastStep}
     />

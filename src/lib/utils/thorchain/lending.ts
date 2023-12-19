@@ -73,20 +73,20 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
   collateralAssetId,
-  repaymentPercentOrDefault,
+  repaymentPercent,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
   collateralAssetId: AssetId
-  repaymentPercentOrDefault: number
+  repaymentPercent: number
   repaymentAssetId: AssetId
   collateralAssetAddress: string
 }): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
-  if (!repaymentPercentOrDefault) return Err('A non-zero amount is required')
+  if (!repaymentPercent) return Err('A non-zero amount is required')
 
   const repaymentAsset = selectAssetById(store.getState(), repaymentAssetId)
   if (!repaymentAsset) return Err(`Asset not found for assetId ${repaymentAsset}`)
-  const repayBps = convertDecimalPercentageToBasisPoints(repaymentPercentOrDefault)
+  const repayBps = convertDecimalPercentageToBasisPoints(bn(repaymentPercent).div(100).toNumber())
 
   const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
   if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)

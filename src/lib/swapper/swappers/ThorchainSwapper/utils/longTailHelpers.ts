@@ -165,7 +165,8 @@ export const selectBestRate = (
       addressWithHighestAmount: [Address, bigint] | undefined,
       [poolAddress, amount]: [Address, bigint],
     ) => {
-      return amount > (addressWithHighestAmount?.[1] ?? BigInt(0))
+      if (addressWithHighestAmount === undefined) return [poolAddress, amount]
+      return amount > addressWithHighestAmount?.[1]
         ? [poolAddress, amount]
         : addressWithHighestAmount
     },

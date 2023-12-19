@@ -8,6 +8,7 @@ import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/selectors'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { store } from 'state/store'
 
 import type {
@@ -72,22 +73,20 @@ export const getMaybeThorchainLendingOpenQuote = async ({
 // see https://thornode.ninerealms.com/thorchain/doc
 export const getMaybeThorchainLendingCloseQuote = async ({
   collateralAssetId,
-  repaymentAmountCryptoBaseUnit,
+  repaymentPercentOrDefault,
   repaymentAssetId,
   collateralAssetAddress,
 }: {
   collateralAssetId: AssetId
-  repaymentAmountCryptoBaseUnit: BigNumber.Value | null | undefined
+  repaymentPercentOrDefault: number
   repaymentAssetId: AssetId
   collateralAssetAddress: string
 }): Promise<Result<LendingWithdrawQuoteResponseSuccess, string>> => {
-  if (!repaymentAmountCryptoBaseUnit) return Err('Amount is required')
+  if (!repaymentPercentOrDefault) return Err('A non-zero amount is required')
+
   const repaymentAsset = selectAssetById(store.getState(), repaymentAssetId)
   if (!repaymentAsset) return Err(`Asset not found for assetId ${repaymentAsset}`)
-  const amountCryptoThorBaseUnit = toThorBaseUnit({
-    valueCryptoBaseUnit: repaymentAmountCryptoBaseUnit,
-    asset: repaymentAsset,
-  })
+  const repayBps = convertDecimalPercentageToBasisPoints(repaymentPercentOrDefault)
 
   const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
   if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
@@ -103,7 +102,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   const url =
     `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/quote/loan/close` +
     `?from_asset=${from_asset}` +
-    `&amount=${amountCryptoThorBaseUnit.toString()}` +
+    `&repay_bps=${repayBps.toString()}` +
     `&to_asset=${to_asset}` +
     `&loan_owner=${parsedCollateralAssetAddress}`
 

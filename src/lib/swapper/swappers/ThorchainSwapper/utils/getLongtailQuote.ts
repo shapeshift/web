@@ -138,6 +138,7 @@ export const getLongtailToL1Quote = async (
         sellAsset: input.sellAsset,
         allowanceContract: ALLOWANCE_CONTRACT,
       })),
+      isLongtail: true,
     }))
 
     return Ok(updatedQuotes)

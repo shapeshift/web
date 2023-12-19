@@ -14,6 +14,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
@@ -30,7 +31,6 @@ import {
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { TradeType } from '../types'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { DonationStep } from './DonationStep'
@@ -54,6 +54,7 @@ export const Hop = ({
   isOpen: boolean
   onToggleIsOpen?: () => void
 }) => {
+  const translate = useTranslate()
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
   )
@@ -121,9 +122,11 @@ export const Hop = ({
 
   const title = useMemo(() => {
     const isBridge = tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId
-    const tradeType = isBridge ? TradeType.Bridge : TradeType.Swap
-    return `${tradeType} via ${swapperName}`
-  }, [swapperName, tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId])
+
+    return isBridge
+      ? translate('trade.hopTitle.bridge', { swapperName })
+      : translate('trade.hopTitle.swap', { swapperName })
+  }, [swapperName, tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId, translate])
 
   const shouldRenderFinalSteps = !isMultiHopTrade || hopIndex === 1
 

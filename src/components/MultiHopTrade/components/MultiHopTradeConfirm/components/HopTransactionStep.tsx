@@ -1,7 +1,6 @@
 import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
 import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type Polyglot from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -17,7 +16,6 @@ import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeExecution } from '../hooks/useTradeExecution'
-import { TradeType } from '../types'
 import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
@@ -60,11 +58,8 @@ export const HopTransactionStep = ({
     await executeTrade()
   }, [executeTrade, swapTxState])
 
-  const tradeType = useMemo(
-    () =>
-      tradeQuoteStep.buyAsset.chainId === tradeQuoteStep.sellAsset.chainId
-        ? TradeType.Swap
-        : TradeType.Bridge,
+  const isBridge = useMemo(
+    () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,
     [tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId],
   )
 
@@ -124,11 +119,6 @@ export const HopTransactionStep = ({
     }
   }, [handleSignTx, hopIndex, isActive, sellTxHash, swapTxState, tradeQuoteStep.source, translate])
 
-  const errorTranslation = useMemo(
-    (): [string, Polyglot.InterpolationOptions] => ['trade.swapFailed', { tradeType }],
-    [tradeType],
-  )
-
   const description = useMemo(() => {
     const sellChainSymbol = getChainShortName(tradeQuoteStep.sellAsset.chainId as KnownChainIds)
     const buyChainSymbol = getChainShortName(tradeQuoteStep.buyAsset.chainId as KnownChainIds)
@@ -155,7 +145,15 @@ export const HopTransactionStep = ({
         <RawText>
           {`${sellAmountCryptoFormatted}.${sellChainSymbol} -> ${buyAmountCryptoFormatted}.${buyChainSymbol}`}
         </RawText>
-        {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
+        {isError && (
+          <Text
+            color='text.error'
+            translation={
+              isBridge ? 'trade.transactionFailed.bridge' : 'trade.transactionFailed.swap'
+            }
+            fontWeight='bold'
+          />
+        )}
         {Boolean(message) && (
           <Tooltip label={message}>
             <RawText color='text.subtle'>{message}</RawText>
@@ -169,7 +167,7 @@ export const HopTransactionStep = ({
       </VStack>
     )
   }, [
-    errorTranslation,
+    isBridge,
     isError,
     message,
     toCrypto,
@@ -192,10 +190,16 @@ export const HopTransactionStep = ({
       ?.getDisplayName()
     const buyChainName = chainAdapterManager.get(tradeQuoteStep.buyAsset.chainId)?.getDisplayName()
 
-    return tradeType === TradeType.Swap
-      ? `${tradeType} on ${sellChainName} via ${swapperName}`
-      : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`
-  }, [swapperName, tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId, tradeType])
+    return isBridge
+      ? translate('trade.transactionTitle.bridge', { sellChainName, buyChainName, swapperName })
+      : translate('trade.transactionTitle.swap', { sellChainName, swapperName })
+  }, [
+    isBridge,
+    swapperName,
+    tradeQuoteStep.buyAsset.chainId,
+    tradeQuoteStep.sellAsset.chainId,
+    translate,
+  ])
 
   return (
     <StepperStep

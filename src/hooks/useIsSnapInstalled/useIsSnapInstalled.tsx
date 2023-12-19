@@ -12,6 +12,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
 
+// https://github.com/wevm/wagmi/blob/21245be51d7c6dff1c7b285226d0c89c4a9d8cac/packages/connectors/src/utils/getInjectedName.ts#L6-L56
+// This will need to be kept up-to-date with the latest list of impersonators
 const METAMASK_IMPERSONATORS = [
   'isBraveWallet',
   'isTokenary',

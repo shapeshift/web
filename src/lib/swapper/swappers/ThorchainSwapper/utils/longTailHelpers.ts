@@ -2,6 +2,7 @@ import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshi
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
+import axios from 'axios'
 import type { GetContractReturnType, WalletClient } from 'viem'
 import { type Address, getContract, type PublicClient } from 'viem'
 
@@ -172,4 +173,30 @@ export const selectBestRate = (
     },
     undefined,
   )
+}
+
+export const checkAggregatorWhitelisted = async (bestAggregator: string): Promise<boolean> => {
+  const url =
+    'https://gitlab.com/thorchain/thornode/-/raw/develop/x/thorchain/aggregators/dex_mainnet_current.go'
+  try {
+    // TODO: add caching
+    const response = await axios.get(url)
+    const text = response.data
+
+    // General regex to match a function returning an array of Aggregators
+    // It is somewhat fragile by design, as we want to fail-closed to prompt a manual review of the upstream code
+    const match = text.match(/func \w+\(\) \[\]Aggregator {([\s\S]*?)}/)
+
+    if (!match) {
+      return false
+    }
+    const content = match[1]
+
+    // Check if the bestAggregator string is present
+    return content.includes(bestAggregator)
+  } catch (error) {
+    // We want this fail-closed for safety. Better to not allow a swap than to allow a swap to a black hole.
+    console.error('Error fetching or processing data: ', error)
+    return false
+  }
 }

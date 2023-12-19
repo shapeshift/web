@@ -16,6 +16,7 @@ import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
 import {
+  checkAggregatorWhitelisted,
   feeAmountToContractMap,
   generateV3PoolAddressesAcrossFeeRange,
   getContractDataByPool,
@@ -109,6 +110,19 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No best aggregator contract found.`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      }),
+    )
+  }
+
+  const isBestAggregatorWhitelisted = await checkAggregatorWhitelisted(bestAggregator)
+  if (!isBestAggregatorWhitelisted) {
+    console.error(
+      '[getThorTradeQuote] - Best aggregator contract is not whitelisted. Something has changed upsteam: rectify with priority.',
+    )
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Best aggregator contract ${bestAggregator} is not whitelisted.`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
       }),
     )

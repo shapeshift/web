@@ -138,21 +138,36 @@ export const getContractDataByPool = (
   return poolContracts
 }
 
-export const getQuotedAmountOutByPool = (
+export const getQuotedAmountOutByPool = async (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
   quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient>,
 ): Promise<Map<Address, bigint>> => {
-  return Promise.all(
+  const results: PromiseSettledResult<[Address, bigint] | undefined>[] = await Promise.allSettled(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {
       const { fee, tokenIn, tokenOut } = data
-      const quotedAmountOut = await quoterContract.simulate
-        .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
-        .then(res => res.result)
+      try {
+        const quotedAmountOut = await quoterContract.simulate
+          .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
+          .then(res => res.result)
 
-      return [poolContract, quotedAmountOut] as [Address, bigint]
+        return [poolContract, quotedAmountOut] as [Address, bigint]
+      } catch {
+        // The pool contract is not supported, that's ok - skip it without logging an error
+        return undefined
+      }
     }),
-  ).then(results => new Map(results))
+  )
+
+  const result: Map<Address, bigint> = new Map(
+    results
+      .filter(
+        (result): result is PromiseFulfilledResult<[Address, bigint]> =>
+          result.status === 'fulfilled' && result.value !== undefined,
+      )
+      .map(result => result.value!),
+  )
+  return result
 }
 
 export const selectBestRate = (

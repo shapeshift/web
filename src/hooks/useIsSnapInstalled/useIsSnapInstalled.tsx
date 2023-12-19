@@ -106,7 +106,9 @@ export const checkIsMetaMaskImpersonator = pMemoize(
 
     const provider = (await detectEthereumProvider()) as providers.ExternalProvider
     // Some impersonators really like to make it difficult for us to detect *actual* MetaMask
-    return METAMASK_IMPERSONATORS.some(impersonator => (provider as any)[impersonator])
+    // Note, checking for the truthiness of the value isn't enough - some impersonators have the key present but undefined
+    // This is weird, but welcome to the world of web3
+    return METAMASK_IMPERSONATORS.some(impersonator => impersonator in provider)
   },
   {
     cacheKey: ([_wallet]) => (_wallet as MetaMaskShapeShiftMultiChainHDWallet | null)?._isMetaMask,

@@ -108,13 +108,15 @@ export const generateV3PoolAddressesAcrossFeeRange = (
 
 type ContractData = {
   fee: FeeAmount
-  token0: Address
-  token1: Address
+  tokenIn: Address
+  tokenOut: Address
 }
 
 export const getContractDataByPool = (
   poolAddresses: Map<Address, { token0: Address; token1: Address; fee: FeeAmount }>,
   publicClient: PublicClient,
+  tokenAAddress: string,
+  tokenBAddress: string,
 ): Map<Address, ContractData> => {
   const poolContracts = new Map<Address, ContractData>()
   Array.from(poolAddresses.entries()).forEach(([address, { fee, token0, token1 }]) => {
@@ -123,8 +125,10 @@ export const getContractDataByPool = (
       address,
       publicClient,
     })
+    const tokenIn = token0 === tokenAAddress ? token0 : token1
+    const tokenOut = token1 === tokenBAddress ? token1 : token0
     try {
-      poolContracts.set(poolContract.address, { fee, token0, token1 })
+      poolContracts.set(poolContract.address, { fee, tokenIn, tokenOut })
     } catch {
       // The pool contract is not supported, that's ok - skip it without logging an error
       return
@@ -141,9 +145,9 @@ export const getQuotedAmountOutByPool = (
 ): Promise<Map<Address, bigint>> => {
   return Promise.all(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {
-      const { fee, token0, token1 } = data
+      const { fee, tokenIn, tokenOut } = data
       const quotedAmountOut = await quoterContract.simulate
-        .quoteExactInputSingle([token0, token1, fee, sellAmount, BigInt(0)])
+        .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
         .then(res => res.result)
 
       return [poolContract, quotedAmountOut] as [Address, bigint]

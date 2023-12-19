@@ -73,7 +73,12 @@ export const getLongtailToL1Quote = async (
   const poolAddresses: Map<Address, { token0: Address; token1: Address; fee: FeeAmount }> =
     generateV3PoolAddressesAcrossFeeRange(POOL_FACTORY_CONTRACT_ADDRESS, tokenA, tokenB)
 
-  const poolContractData = await getContractDataByPool(poolAddresses, publicClient)
+  const poolContractData = await getContractDataByPool(
+    poolAddresses,
+    publicClient,
+    tokenA.address,
+    tokenB.address,
+  )
 
   const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
   const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =

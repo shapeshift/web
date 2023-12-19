@@ -24,7 +24,6 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -33,7 +32,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
-import { isToken } from 'lib/utils'
+import { assertGetChainAdapter, isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
@@ -307,8 +306,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         // Quote errors aren't necessarily user-friendly, we don't want to return them
         if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
         const quote = maybeQuote.unwrap()
-        const adapter = getChainAdapterManager().get(chainId)
-        if (!adapter) throw new Error(`No adapter found for chainId ${chainId}`)
+        const adapter = assertGetChainAdapter(chainId)
 
         const getFeeDataInput = {
           to: quote.inbound_address,

@@ -5,18 +5,26 @@ import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapesh
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
+import type { FeeAmount } from '@uniswap/v3-sdk'
 import assert from 'assert'
-import type { Address } from 'viem'
-import { getContract } from 'viem'
+import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import { type Address, getContract } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { viemClientByChainId } from 'lib/viem-client'
 
-import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
 import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getL1quote } from './getL1quote'
-import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
+import {
+  feeAmountToContractMap,
+  generateV3PoolAddressesAcrossFeeRange,
+  getContractDataByPool,
+  getQuotedAmountOutByPool,
+  getTokenFromAsset,
+  getWrappedToken,
+  selectBestRate,
+  TradeType,
+} from './longTailHelpers'
 
 // This just gets uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
@@ -54,54 +62,57 @@ export const getLongtailToL1Quote = async (
 
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
-  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
-  // TODO: we need to fetch this dynamically, as it can change
-  const AGGREGATOR_CONTRACT = '0x11733abf0cdb43298f7e949c930188451a9a9ef2' // TSAggregatorUniswapV3 3000 - this needs to match the fee below
   const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
   const tokenA = getTokenFromAsset(input.sellAsset)
   const tokenB = getWrappedToken(nativeBuyAsset)
 
-  const currentPoolAddress = computePoolAddress({
-    factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
-    tokenA,
-    tokenB,
-    fee: FeeAmount.MEDIUM, // FIXME: how best should be pick this?
-  })
-
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
-  const poolContract = getContract({
-    abi: IUniswapV3PoolABI,
-    address: currentPoolAddress as Address,
+  const poolAddresses: Map<Address, FeeAmount> = generateV3PoolAddressesAcrossFeeRange(
+    POOL_FACTORY_CONTRACT_ADDRESS,
+    tokenA,
+    tokenB,
+  )
+
+  const poolContractData = await getContractDataByPool(
+    poolAddresses,
     publicClient,
-  })
+    tokenA.address,
+    tokenB.address,
+  )
 
-  const [token0, token1, fee] = await Promise.all([
-    poolContract.read.token0(),
-    poolContract.read.token1(),
-    poolContract.read.fee(),
-  ])
+  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
+  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
+    getContract({
+      abi: QuoterAbi,
+      address: QUOTER_CONTRACT_ADDRESS as Address,
+      publicClient,
+    })
 
-  const quoterContract = getContract({
-    abi: QuoterAbi,
-    address: QUOTER_CONTRACT_ADDRESS as Address,
-    publicClient,
-  })
+  const quotedAmountOutByPool = await getQuotedAmountOutByPool(
+    poolContractData,
+    BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
+    quoterContract,
+  )
 
-  const tokenIn = token0 === tokenA.address ? token0 : token1
-  const tokenOut = token1 === tokenB.address ? token1 : token0
+  const [bestPool, quotedAmountOut] = selectBestRate(quotedAmountOutByPool) ?? [
+    undefined,
+    undefined,
+  ]
 
-  const quotedAmountOut = await quoterContract.simulate
-    .quoteExactInputSingle([
-      tokenIn,
-      tokenOut,
-      fee,
-      BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
-      BigInt(0),
-    ])
-    .then(res => res.result)
+  const bestContractData = bestPool ? poolContractData.get(bestPool) : undefined
+  const bestAggregator = bestContractData ? feeAmountToContractMap[bestContractData.fee] : undefined
+
+  if (!bestAggregator || !quotedAmountOut) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - No best aggregator contract found.`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      }),
+    )
+  }
 
   const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
@@ -118,7 +129,7 @@ export const getLongtailToL1Quote = async (
   return thorchainQuotes.andThen(quotes => {
     const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
       ...q,
-      router: AGGREGATOR_CONTRACT,
+      router: bestAggregator,
       steps: q.steps.map(s => ({
         ...s,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain

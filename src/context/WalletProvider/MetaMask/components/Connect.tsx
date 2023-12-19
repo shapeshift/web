@@ -84,8 +84,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
-          if (isMetaMaskMobileWebView) return
-
           const isMetaMask = await checkIsMetaMask(wallet)
           if (!isMetaMask) return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()

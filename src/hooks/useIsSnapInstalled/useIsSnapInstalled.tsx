@@ -12,6 +12,69 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
 
+const METAMASK_IMPERSONATORS = [
+  'isBraveWallet',
+  'isTokenary',
+  'isFrame',
+  'isLiquality',
+  'isOpera',
+  'isTally',
+  'isStatus',
+  'isXDEFI',
+  'isNifty',
+  'isRonin',
+  'isBinance',
+  'isCoinbase',
+  'isExodus',
+  'isPhantom',
+  'isGlow',
+  'isOneInch',
+  'isRabby',
+  'isTrezor',
+  'isLedger',
+  'isKeystone',
+  'isBitBox',
+  'isGridPlus',
+  'isJade',
+  'isPortis',
+  'isFortmatic',
+  'isTorus',
+  'isAuthereum',
+  'isWalletLink',
+  'isWalletConnect',
+  'isDapper',
+  'isBitski',
+  'isVenly',
+  'isSequence',
+  'isGamestop',
+  'isZerion',
+  'isDeBank',
+  'isKukai',
+  'isTemple',
+  'isSpire',
+  'isWallet',
+  'isCore',
+  'isAnchor',
+  'isWombat',
+  'isMathWallet',
+  'isMeetone',
+  'isHyperPay',
+  'isTokenPocket',
+  'isBitpie',
+  'isAToken',
+  'isOwnbit',
+  'isHbWallet',
+  'isMYKEY',
+  'isHuobiWallet',
+  'isEidoo',
+  'isTrust',
+  'isImToken',
+  'isONTO',
+  'isSafePal',
+  'isCoin98',
+  'isVision',
+]
+
 export const checkIsSnapInstalled = pDebounce.promise(
   (): Promise<boolean | null> => shapeShiftSnapInstalled(snapId),
 )
@@ -25,10 +88,23 @@ export const checkIsMetaMask = pMemoize(
     const provider = (await detectEthereumProvider()) as providers.ExternalProvider
     // MetaMask impersonators don't support the methods we need to check for snap installation, and will throw
     if (!provider.isMetaMask) return false
-    // Some impersonators really like to make it difficult for us to detect *actual* MetaMask
-    if ((provider as any).isBraveWallet) return false
 
     return true
+  },
+  {
+    cacheKey: ([_wallet]) => (_wallet as MetaMaskShapeShiftMultiChainHDWallet | null)?._isMetaMask,
+  },
+)
+
+export const checkIsMetaMaskImpersonator = pMemoize(
+  async (wallet: HDWallet | null): Promise<boolean> => {
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    // We don't want to run this hook altogether if using any wallet other than MM
+    if (!isMetaMaskMultichainWallet) return false
+
+    const provider = (await detectEthereumProvider()) as providers.ExternalProvider
+    // Some impersonators really like to make it difficult for us to detect *actual* MetaMask
+    return METAMASK_IMPERSONATORS.some(impersonator => (provider as any)[impersonator])
   },
   {
     cacheKey: ([_wallet]) => (_wallet as MetaMaskShapeShiftMultiChainHDWallet | null)?._isMetaMask,
@@ -56,6 +132,8 @@ export const useIsSnapInstalled = (): null | boolean => {
   const checkSnapInstallation = useCallback(async () => {
     if (!isConnected || isDemoWallet) return
     const isMetaMask = await checkIsMetaMask(wallet)
+    const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+    if (isMetaMaskImpersonator) return
     if (!isMetaMask) return
 
     const _isSnapInstalled = await checkIsSnapInstalled()

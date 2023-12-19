@@ -1,3 +1,4 @@
+import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -109,6 +110,8 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const previousTradeQuoteInput = usePrevious(tradeQuoteInput)
+  const isTradeQuoteUpdated = tradeQuoteInput !== previousTradeQuoteInput
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -120,6 +123,9 @@ export const useGetTradeQuotes = () => {
   )
   const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
+  const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
+
   // User *may* donate if the fox discounts flag is off and they kept the donation checkbox on
   // or if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
   const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled
@@ -163,14 +169,29 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading,
+        isTradeQuoteUpdated &&
+          wallet &&
+          !isDebouncing &&
+          sellAccountId &&
+          sellAccountMetadata &&
+          receiveAddress &&
+          !isVotingPowerLoading,
       ),
-    [wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [
+      isTradeQuoteUpdated,
+      wallet,
+      isDebouncing,
+      sellAccountId,
+      sellAccountMetadata,
+      receiveAddress,
+      isVotingPowerLoading,
+    ],
   )
 
-  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
-
   useEffect(() => {
+    // Don't update tradeQuoteInput while we're still debouncing
+    if (isDebouncing) return
+
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
@@ -186,7 +207,7 @@ export const useGetTradeQuotes = () => {
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
         const mayDonate = walletIsKeepKey ? userMayDonate && !isFromEvm : userMayDonate
 
-        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
+        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
         const potentialAffiliateBps = mayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
         const affiliateBps = (() => {
           if (!isFoxDiscountsEnabled) return potentialAffiliateBps
@@ -260,6 +281,8 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
+    debouncedSellAmountCryptoPrecision,
+    isDebouncing,
   ])
 
   useEffect(() => {
@@ -271,17 +294,15 @@ export const useGetTradeQuotes = () => {
 
   // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
   // This ensures we never return cached data, if skip has been set after the initial query load
-  const { currentData } = useGetTradeQuoteQuery(
-    shouldRefetchTradeQuotes ? debouncedTradeQuoteInput : skipToken,
-    {
-      pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
-      /*
+  const { currentData } = useGetTradeQuoteQuery(tradeQuoteInput, {
+    skip: !shouldRefetchTradeQuotes,
+    pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
+    /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
      */
-      refetchOnMountOrArgChange: true,
-    },
-  )
+    refetchOnMountOrArgChange: true,
+  })
 
   useEffect(() => {
     if (currentData && mixpanel) {

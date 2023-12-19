@@ -114,6 +114,7 @@ export const tradeQuoteSlice = createSlice({
       if (isFirstHop) {
         // complete the first hop
         state.tradeExecution.firstHop.swap.state = TransactionExecutionState.Complete
+        state.tradeExecution.firstHop.swap.message = undefined
         state.tradeExecution.firstHop.state = HopExecutionState.Complete
 
         if (isMultiHopTrade) {
@@ -130,6 +131,7 @@ export const tradeQuoteSlice = createSlice({
       } else {
         // complete the second hop
         state.tradeExecution.secondHop.swap.state = TransactionExecutionState.Complete
+        state.tradeExecution.secondHop.swap.message = undefined
         state.tradeExecution.secondHop.state = HopExecutionState.Complete
 
         // second hop of multi-hop trade - trade complete

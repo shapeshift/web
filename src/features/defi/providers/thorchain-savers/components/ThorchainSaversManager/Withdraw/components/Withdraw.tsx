@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
@@ -33,7 +32,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
-import { isToken } from 'lib/utils'
+import { assertGetChainAdapter, isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
@@ -43,7 +42,6 @@ import {
   queryFn as getThorchainSaversWithdrawQuoteQueryFn,
   useGetThorchainSaversWithdrawQuoteQuery,
 } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -308,10 +306,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         // Quote errors aren't necessarily user-friendly, we don't want to return them
         if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
         const quote = maybeQuote.unwrap()
-        // We're lying to Ts, this isn't always an UtxoBaseAdapter
-        // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
-        const adapter = assertGetUtxoChainAdapter(chainId)
-        const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+        const adapter = assertGetChainAdapter(chainId)
+
+        const getFeeDataInput = {
           to: quote.inbound_address,
           value: dustAmountCryptoBaseUnit,
           // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work

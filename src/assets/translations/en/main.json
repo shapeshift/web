@@ -821,7 +821,28 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "approvalGasFee": "Approval gas fee %{fee}",
     "approvalFailed": "A problem occurred during allowance approval",
-    "swapFailed": "A problem occurred executing the %{tradeType}"
+    "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
+    "doAnotherTrade": "Do another trade",
+    "showDetails": "Show Details",
+    "transactionSuccessful": "Transaction successful, waiting for confirmations",
+    "temp": {
+      "tradeSuccess": "Trade complete",
+      "tradeComplete": "Successfully received %{symbol} on %{chainName}."
+    },
+    "hopTitle": {
+      "bridge": "Bridge via %{swapperName}",
+      "swap": "Swap via %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "A problem occurred executing the bridge",
+      "swap": "A problem occurred executing the swap"
+    },
+    "transactionTitle": {
+      "bridge": "Bridge from %{sellChainName} to %{buyChainName} via %{swapperName}",
+      "swap": "Swap on %{sellChainName} via %{swapperName}"
+    },
+    "approvalTitle": "Token allowance approval",
+    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}"
   },
   "modals": {
     "popup": {

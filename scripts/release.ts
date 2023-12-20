@@ -112,13 +112,45 @@ const doRegularRelease = async () => {
   exit()
 }
 
-const doHotfixRelease = () => {
-  exit(chalk.yellow('Unimplemented. PRs welcome!'))
-  // TODO(0xdef1cafe): implement hotfix release
-  // 1. ask if we want to merge currently checked out branch to main
-  // 2. set release to current branch
-  // 3. force push release to origin
-  // 4. create draft PR
+const chooseCommitsForHotfix = async (commits: string[]): Promise<string[]> => {
+  const questions: inquirer.QuestionCollection<{ chosenCommits: string[] }> = [
+    {
+      type: 'checkbox',
+      name: 'chosenCommits',
+      message: 'Select commits for the hotfix release:',
+      choices: commits,
+    },
+  ]
+  return (await inquirer.prompt(questions)).chosenCommits
+}
+
+const doHotfixRelease = async () => {
+  await fetch()
+  const { messages, total } = await getCommits('develop')
+  assertCommitsToRelease(total)
+
+  const chosenCommits = await chooseCommitsForHotfix(messages)
+  if (chosenCommits.length === 0) {
+    exit(chalk.red('No commits selected for the hotfix.'))
+  }
+
+  await inquireProceedWithCommits(chosenCommits, 'create')
+  // Rest of the hotfix release process similar to doRegularRelease
+  // but using the chosenCommits instead of all commits from develop.
+  console.log(chalk.green('Checking out develop...'))
+  await git().checkout(['develop'])
+  console.log(chalk.green('Pulling develop...'))
+  await git().pull()
+  console.log(chalk.green('Resetting release to develop...'))
+  // **note** - most devs are familiar with lowercase -b to check out a new branch
+  // capital -B will checkout and reset the branch to the current HEAD
+  // so we can reuse the release branch, and force push over it
+  // this is required as the fleek environment is pointed at this specific branch
+  await git().checkout(['-B', 'release'])
+  console.log(chalk.green('Force pushing release branch...'))
+  await git().push(['--force', 'origin', 'release'])
+  await createDraftPR()
+  exit()
 }
 
 type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>

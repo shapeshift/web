@@ -205,14 +205,19 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const slippage = useMemo(() => {
     if (!quote) return
 
-    const isError =
+    // user slippage setting was not applied if:
+    // - the user did not input a custom value
+    // - the slippage on the quote is different to the custom value
+    const isUserSlippageNotApplied =
       userSlippagePercentageDecimal !== undefined &&
       quote.slippageTolerancePercentageDecimal !== userSlippagePercentageDecimal
 
-    if (!isError && quote.slippageTolerancePercentageDecimal === undefined) return
+    if (!isUserSlippageNotApplied && quote.slippageTolerancePercentageDecimal === undefined) {
+      return
+    }
 
     const tooltip = (() => {
-      if (isError) {
+      if (isUserSlippageNotApplied) {
         return translate('trade.quote.cantSetSlippage', {
           userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
           swapperName: quoteData.swapperName,
@@ -228,15 +233,15 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       <Skeleton isLoaded={!isLoading}>
         <Tooltip label={tooltip}>
           <Flex gap={2} alignItems='center'>
-            <RawText color={isError ? 'text.error' : 'text.subtle'}>
+            <RawText color={isUserSlippageNotApplied ? 'text.error' : 'text.subtle'}>
               <SlippageIcon />
             </RawText>
             {quote.slippageTolerancePercentageDecimal !== undefined && (
-              <RawText color={isError ? 'text.error' : undefined}>
+              <RawText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
                 {toPercent(quote.slippageTolerancePercentageDecimal)}
               </RawText>
             )}
-            {isError && <WarningIcon color='text.error' />}
+            {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
           </Flex>
         </Tooltip>
       </Skeleton>

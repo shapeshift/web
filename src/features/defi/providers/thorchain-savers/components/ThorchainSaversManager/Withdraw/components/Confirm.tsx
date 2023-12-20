@@ -353,6 +353,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       state?.withdraw.cryptoAmount,
     ])
 
+  const isDangerousWithdraw = useMemo(() => {
+    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+    return amountCryptoBaseUnit === protocolFeeCryptoBaseUnit
+  }, [asset.precision, protocolFeeCryptoBaseUnit, state?.withdraw.cryptoAmount])
+
   const getCustomTxInput: () => Promise<BuildCustomTxInput | undefined> = useCallback(async () => {
     if (!contextDispatch || !opportunityData?.stakedAmountCryptoBaseUnit) return
     if (!(accountId && assetId && feeAsset && accountNumber !== undefined && wallet)) return
@@ -912,6 +917,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               </Box>
             </Row.Value>
           </Row>
+        )}
+        {isDangerousWithdraw && (
+          <Alert status='warning' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={'defi.modals.saversVaults.dangerousWithdrawWarning'} />
+          </Alert>
         )}
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>

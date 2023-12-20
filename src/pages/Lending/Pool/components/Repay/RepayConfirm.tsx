@@ -104,7 +104,7 @@ export const RepayConfirm = ({
       // which we *want* to wait for before considering the repay as complete
       await waitForThorchainUpdate({
         txId: _txId,
-        skipOutbound: bn(confirmedQuote.repaymentPercentOrDefault).lt(101),
+        skipOutbound: bn(confirmedQuote.repaymentPercent).lt(100),
         expectedCompletionTime,
       }).promise
       queryClient.invalidateQueries({ queryKey: ['thorchainLendingPosition'], exact: false })
@@ -167,14 +167,14 @@ export const RepayConfirm = ({
       repaymentAccountId,
       // Use the previously locked quote's repayment perecent to refetch a quote after expiry
       // This is locked in the confirmed quote and should never be programmatic, or we risk being off-by-one and missing a bit of dust for 100% repayments
-      repaymentPercent: confirmedQuote?.repaymentPercentOrDefault ?? 0,
+      repaymentPercent: confirmedQuote?.repaymentPercent ?? 0,
     }),
     [
       collateralAccountId,
       collateralAssetId,
       repaymentAccountId,
       repaymentAsset?.assetId,
-      confirmedQuote?.repaymentPercentOrDefault,
+      confirmedQuote?.repaymentPercent,
     ],
   )
 
@@ -210,7 +210,7 @@ export const RepayConfirm = ({
 
     // This should never happen, but if it does, we don't want to rug our testing accounts and have to wait 30.5 more days before testing again
     if (
-      bn(confirmedQuote.repaymentPercentOrDefault).gte(100) &&
+      bn(confirmedQuote.repaymentPercent).gte(100) &&
       bn(confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision).isZero()
     ) {
       throw new Error('100% repayments should trigger a collateral refund transfer')
@@ -485,7 +485,7 @@ export const RepayConfirm = ({
             confirmedQuote={confirmedQuote}
             repaymentAsset={repaymentAsset}
             collateralAssetId={collateralAssetId}
-            repaymentPercent={confirmedQuote?.repaymentPercentOrDefault ?? 0}
+            repaymentPercent={confirmedQuote?.repaymentPercent ?? 0}
             repayAmountCryptoPrecision={confirmedQuote?.repaymentAmountCryptoPrecision ?? '0'}
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'

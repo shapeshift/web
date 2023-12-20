@@ -380,7 +380,8 @@
           "tooltip": "Estimated time to cover deposit fees and earnings."
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
-        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
+        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
+        "dangerousWithdrawWarning": "Withdrawal disabled as the THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
       }
     },
     "memoNote": {

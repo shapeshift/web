@@ -19,7 +19,6 @@ export const ETH_FOX_STAKING_CONTRACT_ADDRESS_V7 =
 export const ETH_FOX_STAKING_CONTRACT_ADDRESS_V8 =
   '0x662da6c777a258382f08b979d9489c3fbbbd8ac3' as const
 
-
 // Exported as a string literal for contract address discrimination purposes
 export const ETH_FOX_POOL_CONTRACT_ADDRESS = '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c' as const
 

@@ -48,6 +48,9 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
   differenceFromBestQuoteDecimalPercentage: number
+  quoteReceived: boolean
+  isStreaming: boolean
+  isLongtail: boolean
 }
 
 type GetMixPanelDataFromApiQuotesReturn = {
@@ -72,12 +75,13 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
         differenceFromBestQuoteDecimalPercentage,
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
+        isLongtail: quote?.isLongtail ?? false,
       }
     })
     .filter(isSome)
 
   // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
-  const version = '20230824'
+  const version = '20231220'
 
   return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, version }
 }

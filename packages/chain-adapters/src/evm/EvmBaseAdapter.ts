@@ -47,7 +47,7 @@ import type {
   TxHistoryResponse,
   ValidAddressResult,
 } from '../types'
-import { ValidAddressResultType } from '../types'
+import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
@@ -474,7 +474,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     try {
@@ -502,7 +502,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }

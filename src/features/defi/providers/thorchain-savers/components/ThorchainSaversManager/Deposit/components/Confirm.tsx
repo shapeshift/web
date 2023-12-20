@@ -10,11 +10,11 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -41,7 +41,6 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -54,6 +53,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
+  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -258,7 +258,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assetId,
         from: maybeFromUTXOAccountAddress,
         to: quote.inbound_address,
-        memo: supportedEvmChainIds.includes(chainId)
+        memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
           ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
           : memoUtf8,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
@@ -472,7 +472,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId)
+        memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
           ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
           : memoUtf8,
         amountFieldError: '',
@@ -506,7 +506,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const handleCustomTx = useCallback(async (): Promise<string | undefined> => {
-    if (!wallet || accountNumber === undefined) return
+    if (!wallet) return
     const buildCustomTxInput = await getCustomTxInput()
     if (!buildCustomTxInput) return
 
@@ -515,10 +515,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: undefined, // no receiver for this contract call
+      receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
     })
     return txid
-  }, [wallet, accountNumber, getCustomTxInput, chainId])
+  }, [wallet, getCustomTxInput, chainId])
 
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params && accountType)) return

@@ -11,12 +11,12 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { checkIsMetaMask, checkIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -128,7 +128,7 @@ export const handleSend = async ({
   }
 
   const result = await (async () => {
-    if (supportedEvmChainIds.includes(chainId)) {
+    if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
       if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
       const fees = estimatedFees[feeType] as FeeData<EvmChainId>
       const {

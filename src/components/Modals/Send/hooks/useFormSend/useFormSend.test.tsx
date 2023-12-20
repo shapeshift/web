@@ -63,8 +63,8 @@ const mockEvmChainIds = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.ArbitrumNovaMainnet,
 ]
-jest.mock('hooks/useEvm/useEvm', () => ({
-  ...jest.requireActual('hooks/useEvm/useEvm'),
+jest.mock('lib/utils/evm', () => ({
+  ...jest.requireActual('lib/utils/evm'),
   getSupportedEvmChainIds: () => mockEvmChainIds,
 }))
 

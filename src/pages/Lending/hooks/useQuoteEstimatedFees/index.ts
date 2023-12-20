@@ -1,11 +1,11 @@
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { utils } from 'ethers'
 import { useMemo } from 'react'
 import { estimateFees } from 'components/Modals/Send/utils'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,7 +48,7 @@ export const useQuoteEstimatedFeesQuery = ({
     const cryptoAmount = depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
     const assetId = repaymentAsset?.assetId ?? collateralAssetId
     const quoteMemo = confirmedQuote?.quoteMemo ?? confirmedQuote?.quoteMemo ?? ''
-    const memo = supportedEvmChainIds.includes(fromAssetId(assetId).chainId)
+    const memo = supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)
       ? utils.hexlify(utils.toUtf8Bytes(quoteMemo))
       : quoteMemo
     const to = confirmedQuote?.quoteInboundAddress ?? confirmedQuote?.quoteInboundAddress ?? ''

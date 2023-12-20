@@ -12,7 +12,7 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -32,10 +32,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useInterval } from 'hooks/useInterval/useInterval'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
@@ -240,7 +240,7 @@ export const BorrowConfirm = ({
         from,
         sendMax: false,
         accountId: collateralAccountId,
-        memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId)
+        memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId as KnownChainIds)
           ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
           : confirmedQuote.quoteMemo,
         amountFieldError: '',

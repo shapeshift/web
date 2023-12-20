@@ -32,7 +32,7 @@ describe('utils', () => {
 
   describe('hashOrder', () => {
     it('should return the correct order digest', () => {
-      const order: CowSwapOrder = {
+      const order: Omit<CowSwapOrder, 'appDataHash'> = {
         sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
         buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
         sellAmount: '20200000000000000',

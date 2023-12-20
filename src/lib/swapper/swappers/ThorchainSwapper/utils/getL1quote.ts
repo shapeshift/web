@@ -55,15 +55,15 @@ export const getL1quote = async (
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
     potentialAffiliateBps,
-    slippageTolerancePercentage,
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-  const inputSlippageBps = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentage ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-  )
+  const slippageTolerancePercentage =
+    input.slippageTolerancePercentage ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain)
+
+  const inputSlippageBps = convertDecimalPercentageToBasisPoints(slippageTolerancePercentage)
 
   const maybeSwapQuote = await getQuote({
     sellAsset,
@@ -218,6 +218,7 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
+              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
               rate,
               data,
               router,
@@ -314,6 +315,7 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
+              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
               rate,
               steps: [
                 {
@@ -392,6 +394,7 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
+              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
               rate,
               steps: [
                 {

@@ -14,6 +14,7 @@ export const setupQuote = () => {
     receiveAddress: '0x1234',
     affiliateBps: undefined,
     potentialAffiliateBps: undefined,
+    slippageTolerancePercentage: '0',
     rate: '1',
     steps: [
       {

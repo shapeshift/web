@@ -7,6 +7,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { OPTIMISM_L1_SWAP_GAS_LIMIT } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
@@ -27,9 +28,12 @@ export async function getZrxTradeQuote(
     potentialAffiliateBps,
     chainId,
     supportsEIP1559,
-    slippageTolerancePercentage,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
+
+  const slippageTolerancePercentage =
+    input.slippageTolerancePercentage ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx)
 
   const sellAssetChainId = sellAsset.chainId
   const buyAssetChainId = buyAsset.chainId
@@ -83,6 +87,7 @@ export async function getZrxTradeQuote(
     price,
     allowanceTarget,
     gas,
+    expectedSlippage,
   } = zrxQuoteResponse
 
   const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -107,7 +112,11 @@ export async function getZrxTradeQuote(
       receiveAddress,
       potentialAffiliateBps,
       affiliateBps,
-      slippageTolerancePercentage,
+      // Slippage protection is only provided for specific pairs.
+      // If slippage protection is not provided, assume a no slippage limit.
+      // If slippage protection is provided, return the limit instead of the estimated slippage.
+      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+      slippageTolerancePercentage: expectedSlippage ? slippageTolerancePercentage : undefined,
       rate,
       steps: [
         {

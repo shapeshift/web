@@ -5,6 +5,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { bn } from 'lib/bignumber/bignumber'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -30,6 +31,11 @@ export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
+
+  const slippageTolerancePercentage =
+    input.slippageTolerancePercentage ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
+
   const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
@@ -49,7 +55,8 @@ export async function getCowSwapTradeQuote(
   const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-  const { appData, appDataHash } = await getFullAppData()
+  const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentage)
+
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
     `${baseUrl}/${network}/api/v1/quote/`,
@@ -103,6 +110,7 @@ export async function getCowSwapTradeQuote(
     affiliateBps: undefined,
     potentialAffiliateBps: undefined,
     rate,
+    slippageTolerancePercentage,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,

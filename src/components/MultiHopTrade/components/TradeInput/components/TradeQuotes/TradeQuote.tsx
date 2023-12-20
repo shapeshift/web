@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -17,9 +18,11 @@ import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { SlippageIcon } from 'components/Icons/Slippage'
 import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
@@ -29,6 +32,7 @@ import {
   selectMarketDataById,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
@@ -66,6 +70,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const redColor = useColorModeValue('red.500', 'red.200')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
+  const {
+    number: { toPercent },
+  } = useLocaleFormatter()
+
   const { quote, error } = quoteData
 
   const { isTradingActive } = useIsTradingActive()
@@ -73,6 +81,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const assetsById = useAppSelector(selectAssets)
+  const userSlippageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const buyAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, buyAsset.assetId ?? ''),
@@ -193,6 +202,46 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     [quote?.steps],
   )
 
+  const slippage = useMemo(() => {
+    if (!quote) return
+
+    const isError =
+      userSlippageDecimal !== undefined && quote.slippageTolerancePercentage !== userSlippageDecimal
+
+    if (!isError && quote.slippageTolerancePercentage === undefined) return
+
+    const tooltip = (() => {
+      if (isError) {
+        return translate('trade.quote.cantSetSlippage', {
+          userSlippageFormatted: toPercent(userSlippageDecimal),
+          swapperName: quoteData.swapperName,
+        })
+      }
+
+      return translate('trade.quote.slippage', {
+        slippageFormatted: toPercent(quote.slippageTolerancePercentage ?? '0'),
+      })
+    })()
+
+    return (
+      <Skeleton isLoaded={!isLoading}>
+        <Tooltip label={tooltip}>
+          <Flex gap={2} alignItems='center'>
+            <RawText color={isError ? 'text.error' : 'text.subtle'}>
+              <SlippageIcon />
+            </RawText>
+            {quote.slippageTolerancePercentage !== undefined && (
+              <RawText color={isError ? 'text.error' : undefined}>
+                {toPercent(quote.slippageTolerancePercentage)}
+              </RawText>
+            )}
+            {isError && <WarningIcon color='text.error' />}
+          </Flex>
+        </Tooltip>
+      </Skeleton>
+    )
+  }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippageDecimal])
+
   return showSwapper ? (
     <>
       <Card
@@ -266,16 +315,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         {quote && (
           <CardFooter px={4} pb={4}>
             <Flex justifyContent='left' alignItems='left' gap={8}>
-              {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
-                <Skeleton isLoaded={!isLoading}>
-                  <Flex gap={2} alignItems='center'>
-                    <RawText color='text.subtle'>
-                      <FaRegClock />
-                    </RawText>
-                    {prettyMilliseconds(totalEstimatedExecutionTimeMs)}
-                  </Flex>
-                </Skeleton>
-              )}
               <Skeleton isLoaded={!isLoading}>
                 <Flex gap={2} alignItems='center'>
                   <RawText color='text.subtle'>
@@ -292,6 +331,17 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
                   }
                 </Flex>
               </Skeleton>
+              {slippage}
+              {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
+                <Skeleton isLoaded={!isLoading}>
+                  <Flex gap={2} alignItems='center'>
+                    <RawText color='text.subtle'>
+                      <FaRegClock />
+                    </RawText>
+                    {prettyMilliseconds(totalEstimatedExecutionTimeMs)}
+                  </Flex>
+                </Skeleton>
+              )}
               <Skeleton isLoaded={!isLoading}>
                 {quote?.steps.length > 1 && (
                   <Tooltip label={translate('trade.numHops', { numHops: quote?.steps.length })}>

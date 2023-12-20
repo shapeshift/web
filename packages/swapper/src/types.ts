@@ -150,7 +150,7 @@ export type TradeQuote = {
   potentialAffiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   isStreaming?: boolean
-  slippageTolerancePercentage?: string
+  slippageTolerancePercentage: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
 }
 
@@ -163,7 +163,7 @@ export type CowSwapOrder = {
   buyAmount: string
   validTo: number
   appData: string
-  appDataHash?: string
+  appDataHash: string
   feeAmount: string
   kind: string
   partiallyFillable: boolean

@@ -47,6 +47,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
     T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse
   >(`/swap/v1/${priceOrQuote}`, {
     params: {
+      enableSlippageProtection: true,
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,

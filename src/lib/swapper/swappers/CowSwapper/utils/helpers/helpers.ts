@@ -15,6 +15,7 @@ import { ethers } from 'ethers'
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils.js'
 import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
@@ -96,7 +97,10 @@ export const hashTypedData = (
  * @param order The order to compute the digest for.
  * @return Hex-encoded 32-byte order digest.
  */
-export const hashOrder = (domain: TypedDataDomain, order: CowSwapOrder): string => {
+export const hashOrder = (
+  domain: TypedDataDomain,
+  order: Omit<CowSwapOrder, 'appDataHash'>,
+): string => {
   return hashTypedData(domain, { Order: ORDER_TYPE_FIELDS }, order)
 }
 
@@ -230,10 +234,12 @@ const generateAppDataFromDoc = async (
 
 const metadataApi = new MetadataApi()
 // See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
-export const getFullAppData = async () => {
+export const getFullAppData = async (slippageTolerancePercentage: string) => {
   const APP_CODE = 'shapeshift'
   const orderClass: OrderClass = { orderClass: 'market' }
-  const quote = { slippageBips: '50' }
+  const quote = {
+    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toString(),
+  }
 
   const appDataDoc = await metadataApi.generateAppDataDoc({
     appCode: APP_CODE,

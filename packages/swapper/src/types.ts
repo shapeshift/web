@@ -151,6 +151,7 @@ export type TradeQuote = {
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   isStreaming?: boolean
   slippageTolerancePercentage?: string
+  isLongtail?: boolean
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }

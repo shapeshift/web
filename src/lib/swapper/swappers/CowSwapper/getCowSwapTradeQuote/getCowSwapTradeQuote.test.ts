@@ -99,7 +99,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentage: '0.005',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -132,7 +132,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   rate: '0.00004995640398295996',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentage: '0.005',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -165,7 +165,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   rate: '1.0003121775396440882',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentage: '0.005',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -198,7 +198,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentage: '0.005',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,

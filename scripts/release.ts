@@ -91,23 +91,23 @@ const assertCommitsToRelease = (total: number) => {
   if (!total) exit(chalk.red('No commits to release.'))
 }
 
-const doRegularRelease = async () => {
-  await fetch()
-  const { messages, total } = await getCommits('develop')
-  assertCommitsToRelease(total)
-  await inquireProceedWithCommits(messages, 'create')
+async function updateReleaseBranch() {
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
   console.log(chalk.green('Resetting release to develop...'))
-  // **note** - most devs are familiar with lowercase -b to check out a new branch
-  // capital -B will checkout and reset the branch to the current HEAD
-  // so we can reuse the release branch, and force push over it
-  // this is required as the fleek environment is pointed at this specific branch
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
   await git().push(['--force', 'origin', 'release'])
+}
+
+const doRegularRelease = async () => {
+  await fetch()
+  const { messages, total } = await getCommits('develop')
+  assertCommitsToRelease(total)
+  await inquireProceedWithCommits(messages, 'create')
+  await updateReleaseBranch()
   await createDraftPR()
   exit()
 }
@@ -135,20 +135,7 @@ const doHotfixRelease = async () => {
   }
 
   await inquireProceedWithCommits(chosenCommits, 'create')
-  // Rest of the hotfix release process similar to doRegularRelease
-  // but using the chosenCommits instead of all commits from develop.
-  console.log(chalk.green('Checking out develop...'))
-  await git().checkout(['develop'])
-  console.log(chalk.green('Pulling develop...'))
-  await git().pull()
-  console.log(chalk.green('Resetting release to develop...'))
-  // **note** - most devs are familiar with lowercase -b to check out a new branch
-  // capital -B will checkout and reset the branch to the current HEAD
-  // so we can reuse the release branch, and force push over it
-  // this is required as the fleek environment is pointed at this specific branch
-  await git().checkout(['-B', 'release'])
-  console.log(chalk.green('Force pushing release branch...'))
-  await git().push(['--force', 'origin', 'release'])
+  await updateReleaseBranch()
   await createDraftPR()
   exit()
 }

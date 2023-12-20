@@ -81,5 +81,6 @@ export const getMixpanelEventData = () => {
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
     isStreaming: activeQuote?.isStreaming ?? false,
+    isLongtail: activeQuote?.isLongtail ?? false,
   }
 }

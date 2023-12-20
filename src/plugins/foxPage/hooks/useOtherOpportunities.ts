@@ -3,7 +3,7 @@ import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshift
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyAddresses } from 'lib/investor/investor-foxy'
-import { foxEthLpAssetId, foxEthStakingAssetIdV7 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV8 } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -21,7 +21,7 @@ import { OpportunityTypes } from '../FoxCommon'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const highestFarmingBalanceAccountIdFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV7 as StakingId,
+      stakingId: foxEthStakingAssetIdV8 as StakingId,
     }),
     [],
   )
@@ -58,7 +58,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const stakingOpportunities = useAppSelector(selectStakingOpportunitiesById)
 
   const foxFarmingOpportunityMetadata = useMemo(
-    () => stakingOpportunities[foxEthStakingAssetIdV7 as StakingId],
+    () => stakingOpportunities[foxEthStakingAssetIdV8 as StakingId],
     [stakingOpportunities],
   )
 

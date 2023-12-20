@@ -101,8 +101,8 @@ export async function getTradeQuote(
       potentialAffiliateBps,
       rate,
       // slippage is a pass-thru for this swapper because it's actually inputted to 1inch when building the tx
-      slippageTolerancePercentage:
-        input.slippageTolerancePercentage ??
+      slippageTolerancePercentageDecimal:
+        input.slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.OneInch),
       steps: [
         {

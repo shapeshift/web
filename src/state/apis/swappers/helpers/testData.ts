@@ -7,7 +7,7 @@ export const lifiQuote: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentageDecimal: '0',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -56,7 +56,7 @@ export const thorQuote: TradeQuote = {
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
   potentialAffiliateBps: '30',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentageDecimal: '0',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -138,7 +138,7 @@ export const oneInchQuote: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentageDecimal: '0',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -187,7 +187,7 @@ export const cowQuote: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentageDecimal: '0',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
@@ -253,7 +253,7 @@ export const zrxQuote: TradeQuote = {
   affiliateBps: undefined,
   potentialAffiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentage: '0',
+  slippageTolerancePercentageDecimal: '0',
   steps: [
     {
       estimatedExecutionTimeMs: undefined,

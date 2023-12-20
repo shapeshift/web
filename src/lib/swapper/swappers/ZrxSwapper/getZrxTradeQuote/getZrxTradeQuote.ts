@@ -31,8 +31,8 @@ export async function getZrxTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
-  const slippageTolerancePercentage =
-    input.slippageTolerancePercentage ??
+  const slippageTolerancePercentageDecimal =
+    input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx)
 
   const sellAssetChainId = sellAsset.chainId
@@ -75,7 +75,7 @@ export async function getZrxTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
     affiliateBps,
-    slippageTolerancePercentage,
+    slippageTolerancePercentageDecimal,
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
@@ -116,7 +116,9 @@ export async function getZrxTradeQuote(
       // If slippage protection is not provided, assume a no slippage limit.
       // If slippage protection is provided, return the limit instead of the estimated slippage.
       // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
-      slippageTolerancePercentage: expectedSlippage ? slippageTolerancePercentage : undefined,
+      slippageTolerancePercentageDecimal: expectedSlippage
+        ? slippageTolerancePercentageDecimal
+        : undefined,
       rate,
       steps: [
         {

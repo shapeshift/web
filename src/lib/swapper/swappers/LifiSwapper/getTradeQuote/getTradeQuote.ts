@@ -44,8 +44,8 @@ export async function getTradeQuote(
     potentialAffiliateBps,
   } = input
 
-  const slippageTolerancePercentage =
-    input.slippageTolerancePercentage ??
+  const slippageTolerancePercentageDecimal =
+    input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.LIFI)
 
   const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -81,7 +81,7 @@ export async function getTradeQuote(
     options: {
       // used for analytics and donations - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
-      slippage: Number(slippageTolerancePercentage),
+      slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
       allowSwitchChain: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
       fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
@@ -231,7 +231,7 @@ export async function getTradeQuote(
         steps,
         rate: netRate,
         selectedLifiRoute,
-        slippageTolerancePercentage,
+        slippageTolerancePercentageDecimal,
       }
     }),
   )

@@ -100,7 +100,7 @@ type CommonTradeInput = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
-  slippageTolerancePercentage?: string
+  slippageTolerancePercentageDecimal?: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -150,7 +150,7 @@ export type TradeQuote = {
   potentialAffiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
   isStreaming?: boolean
-  slippageTolerancePercentage: string | undefined // undefined if slippage limit is not provided or specified by the swapper
+  slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
 }
 

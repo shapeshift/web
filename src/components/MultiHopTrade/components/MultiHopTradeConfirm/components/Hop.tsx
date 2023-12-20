@@ -45,14 +45,14 @@ export const Hop = ({
   tradeQuoteStep,
   hopIndex,
   isOpen,
-  slippageTolerancePercentage,
+  slippageTolerancePercentageDecimal,
   onToggleIsOpen,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isOpen: boolean
-  slippageTolerancePercentage: string | undefined
+  slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
 }) => {
   const translate = useTranslate()
@@ -220,12 +220,12 @@ export const Hop = ({
             <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
-          {slippageTolerancePercentage !== undefined && (
+          {slippageTolerancePercentageDecimal !== undefined && (
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>
                 <SlippageIcon />
               </Flex>
-              <Amount.Percent value={slippageTolerancePercentage} display='inline' />
+              <Amount.Percent value={slippageTolerancePercentageDecimal} display='inline' />
             </Flex>
           )}
         </HStack>

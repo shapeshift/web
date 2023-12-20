@@ -81,7 +81,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const assetsById = useAppSelector(selectAssets)
-  const userSlippageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
+  const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const buyAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, buyAsset.assetId ?? ''),
@@ -206,20 +206,21 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     if (!quote) return
 
     const isError =
-      userSlippageDecimal !== undefined && quote.slippageTolerancePercentage !== userSlippageDecimal
+      userSlippagePercentageDecimal !== undefined &&
+      quote.slippageTolerancePercentageDecimal !== userSlippagePercentageDecimal
 
-    if (!isError && quote.slippageTolerancePercentage === undefined) return
+    if (!isError && quote.slippageTolerancePercentageDecimal === undefined) return
 
     const tooltip = (() => {
       if (isError) {
         return translate('trade.quote.cantSetSlippage', {
-          userSlippageFormatted: toPercent(userSlippageDecimal),
+          userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
           swapperName: quoteData.swapperName,
         })
       }
 
       return translate('trade.quote.slippage', {
-        slippageFormatted: toPercent(quote.slippageTolerancePercentage ?? '0'),
+        slippageFormatted: toPercent(quote.slippageTolerancePercentageDecimal ?? '0'),
       })
     })()
 
@@ -230,9 +231,9 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
             <RawText color={isError ? 'text.error' : 'text.subtle'}>
               <SlippageIcon />
             </RawText>
-            {quote.slippageTolerancePercentage !== undefined && (
+            {quote.slippageTolerancePercentageDecimal !== undefined && (
               <RawText color={isError ? 'text.error' : undefined}>
-                {toPercent(quote.slippageTolerancePercentage)}
+                {toPercent(quote.slippageTolerancePercentageDecimal)}
               </RawText>
             )}
             {isError && <WarningIcon color='text.error' />}
@@ -240,7 +241,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         </Tooltip>
       </Skeleton>
     )
-  }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippageDecimal])
+  }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
   return showSwapper ? (
     <>

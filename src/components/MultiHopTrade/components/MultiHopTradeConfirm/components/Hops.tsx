@@ -41,7 +41,7 @@ export const Hops = memo((props: HopsProps) => {
         hopIndex={0}
         isOpen={isFirstHopOpen}
         onToggleIsOpen={onToggleFirstHop}
-        slippageTolerancePercentage={activeQuote.slippageTolerancePercentage}
+        slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
       />
       {isMultiHopTrade && lastHop && (
         <Hop
@@ -50,7 +50,7 @@ export const Hops = memo((props: HopsProps) => {
           hopIndex={1}
           isOpen={isSecondHopOpen}
           onToggleIsOpen={onToggleSecondHop}
-          slippageTolerancePercentage={activeQuote.slippageTolerancePercentage}
+          slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
         />
       )}
     </Stack>

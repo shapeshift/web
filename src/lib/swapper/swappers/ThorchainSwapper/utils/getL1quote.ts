@@ -59,11 +59,11 @@ export const getL1quote = async (
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-  const slippageTolerancePercentage =
-    input.slippageTolerancePercentage ??
+  const slippageTolerancePercentageDecimal =
+    input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain)
 
-  const inputSlippageBps = convertDecimalPercentageToBasisPoints(slippageTolerancePercentage)
+  const inputSlippageBps = convertDecimalPercentageToBasisPoints(slippageTolerancePercentageDecimal)
 
   const maybeSwapQuote = await getQuote({
     sellAsset,
@@ -218,7 +218,9 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
-              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
+              slippageTolerancePercentageDecimal: isStreaming
+                ? undefined
+                : slippageTolerancePercentageDecimal,
               rate,
               data,
               router,
@@ -315,7 +317,9 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
-              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
+              slippageTolerancePercentageDecimal: isStreaming
+                ? undefined
+                : slippageTolerancePercentageDecimal,
               rate,
               steps: [
                 {
@@ -394,7 +398,9 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
-              slippageTolerancePercentage: isStreaming ? undefined : slippageTolerancePercentage,
+              slippageTolerancePercentageDecimal: isStreaming
+                ? undefined
+                : slippageTolerancePercentageDecimal,
               rate,
               steps: [
                 {

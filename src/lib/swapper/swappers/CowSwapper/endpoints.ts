@@ -60,7 +60,7 @@ export const cowApi: SwapperApi = {
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
-    const { receiveAddress, slippageTolerancePercentage } = tradeQuote
+    const { receiveAddress, slippageTolerancePercentageDecimal } = tradeQuote
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference
@@ -73,7 +73,7 @@ export const cowApi: SwapperApi = {
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
     const { appData, appDataHash } = await getFullAppData(
-      slippageTolerancePercentage ??
+      slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap),
     )
     // https://api.cow.fi/docs/#/default/post_api_v1_quote

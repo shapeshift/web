@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
   Button,
   CardFooter,
   CardHeader,
@@ -11,7 +15,8 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
@@ -318,7 +323,31 @@ export const BorrowConfirm = ({
     return loanTxStatus === 'success' ? 'lending.borrowAgain' : 'lending.confirmAndBorrow'
   }, [isQuoteExpired, loanTxStatus])
 
-  if (!depositAmount) return null
+  const maybeLedgerOpenAppWarning = useMemo(() => {
+    if (!wallet || !isLedger(wallet)) return null
+
+    const chain = (() => {
+      if (!chainAdapter) return ''
+      // All EVM chains are managed using the Ethereum app on Ledger
+      if (isEvmChainId(fromAssetId(collateralAssetId).chainId)) return 'Ethereum'
+      return chainAdapter?.getDisplayName()
+    })()
+
+    return (
+      <Alert status='info'>
+        <AlertIcon />
+        <AlertDescription>
+          <Text
+            // eslint is drunk, this whole JSX expression is already memoized
+            // eslint-disable-next-line react-memo/require-usememo
+            translation={['walletProvider.ledger.signWarning', { chain }]}
+          />
+        </AlertDescription>
+      </Alert>
+    )
+  }, [chainAdapter, collateralAssetId, wallet])
+
+  if (!depositAmount || !chainAdapter) return null
 
   return (
     <SlideTransition>
@@ -441,28 +470,33 @@ export const BorrowConfirm = ({
             depositAmountCryptoPrecision={depositAmount ?? '0'}
           />
           <CardFooter px={4} py={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              onClick={handleConfirm}
-              isLoading={
-                isLoanPending ||
-                isLendingQuoteRefetching ||
-                loanTxStatus === 'pending' ||
-                isEstimatedFeesDataLoading ||
-                !confirmedQuote
-              }
-              disabled={
-                loanTxStatus === 'pending' ||
-                isLoanPending ||
-                isEstimatedFeesDataLoading ||
-                isEstimatedFeesDataError ||
-                !confirmedQuote
-              }
-            >
-              {translate(confirmTranslation)}
-            </Button>
+            <Stack spacing={4} width='full'>
+              {maybeLedgerOpenAppWarning && <Box width='full'>{maybeLedgerOpenAppWarning}</Box>}
+              <Box width='full'>
+                <Button
+                  colorScheme='blue'
+                  size='lg'
+                  width='full'
+                  onClick={handleConfirm}
+                  isLoading={
+                    isLoanPending ||
+                    isLendingQuoteRefetching ||
+                    loanTxStatus === 'pending' ||
+                    isEstimatedFeesDataLoading ||
+                    !confirmedQuote
+                  }
+                  disabled={
+                    loanTxStatus === 'pending' ||
+                    isLoanPending ||
+                    isEstimatedFeesDataLoading ||
+                    isEstimatedFeesDataError ||
+                    !confirmedQuote
+                  }
+                >
+                  {translate(confirmTranslation)}
+                </Button>
+              </Box>
+            </Stack>
           </CardFooter>
         </Stack>
       </Flex>

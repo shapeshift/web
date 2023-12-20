@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
   Button,
   CardFooter,
   CardHeader,
@@ -13,7 +17,8 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
@@ -367,6 +372,30 @@ export const RepayConfirm = ({
     return loanTxStatus === 'success' ? 'lending.repayAgain' : 'lending.confirmAndRepay'
   }, [isQuoteExpired, loanTxStatus])
 
+  const maybeLedgerOpenAppWarning = useMemo(() => {
+    if (!wallet || !isLedger(wallet)) return null
+
+    const chain = (() => {
+      if (!chainAdapter) return ''
+      // All EVM chains are managed using the Ethereum app on Ledger
+      if (isEvmChainId(fromAssetId(repaymentAsset?.assetId ?? '').chainId)) return 'Ethereum'
+      return chainAdapter?.getDisplayName()
+    })()
+
+    return (
+      <Alert status='info'>
+        <AlertIcon />
+        <AlertDescription>
+          <Text
+            // eslint is drunk, this whole JSX expression is already memoized
+            // eslint-disable-next-line react-memo/require-usememo
+            translation={['walletProvider.ledger.signWarning', { chain }]}
+          />
+        </AlertDescription>
+      </Alert>
+    )
+  }, [chainAdapter, repaymentAsset, wallet])
+
   if (!collateralAsset || !repaymentAsset) return null
 
   return (
@@ -497,28 +526,33 @@ export const RepayConfirm = ({
             mt={0}
           />
           <CardFooter px={4} py={4}>
-            <Button
-              isLoading={
-                isEstimatedFeesDataLoading ||
-                isLendingQuoteCloseQueryRefetching ||
-                loanTxStatus === 'pending' ||
-                isLoanPending
-              }
-              disabled={
-                loanTxStatus === 'pending' ||
-                isLoanPending ||
-                isLendingQuoteCloseQueryRefetching ||
-                isEstimatedFeesDataLoading ||
-                isEstimatedFeesDataError ||
-                !confirmedQuote
-              }
-              onClick={handleConfirm}
-              colorScheme='blue'
-              size='lg'
-              width='full'
-            >
-              {translate(confirmTranslation)}
-            </Button>
+            <Stack spacing={4} width='full'>
+              {maybeLedgerOpenAppWarning && <Box width='full'>{maybeLedgerOpenAppWarning}</Box>}
+              <Box width='full'>
+                <Button
+                  isLoading={
+                    isEstimatedFeesDataLoading ||
+                    isLendingQuoteCloseQueryRefetching ||
+                    loanTxStatus === 'pending' ||
+                    isLoanPending
+                  }
+                  disabled={
+                    loanTxStatus === 'pending' ||
+                    isLoanPending ||
+                    isLendingQuoteCloseQueryRefetching ||
+                    isEstimatedFeesDataLoading ||
+                    isEstimatedFeesDataError ||
+                    !confirmedQuote
+                  }
+                  onClick={handleConfirm}
+                  colorScheme='blue'
+                  size='lg'
+                  width='full'
+                >
+                  {translate(confirmTranslation)}
+                </Button>
+              </Box>
+            </Stack>
           </CardFooter>
         </Stack>
       </Flex>

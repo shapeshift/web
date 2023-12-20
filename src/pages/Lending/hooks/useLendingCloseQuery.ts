@@ -8,7 +8,6 @@ import memoize from 'lodash/memoize'
 import { useMemo } from 'react'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { BigNumber, bn } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingCloseQuote } from 'lib/utils/thorchain/lending'
@@ -39,12 +38,12 @@ const selectLendingCloseQueryData = memoize(
     data,
     collateralAssetMarketData,
     repaymentAmountCryptoPrecision,
-    repaymentPercentOrDefault,
+    repaymentPercent,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     repaymentAmountCryptoPrecision: string | null
-    repaymentPercentOrDefault: number
+    repaymentPercent: number
   }): LendingQuoteClose => {
     const quote = data
 
@@ -111,7 +110,7 @@ const selectLendingCloseQueryData = memoize(
       quoteTotalTimeMs,
       quoteExpiry,
       repaymentAmountCryptoPrecision,
-      repaymentPercentOrDefault,
+      repaymentPercent,
     }
   },
 )
@@ -124,13 +123,6 @@ export const useLendingQuoteCloseQuery = ({
   collateralAccountId: _collateralAccountId,
   enabled = true,
 }: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
-  const repaymentPercentOrDefault = useMemo(() => {
-    const repaymentPercentBn = bnOrZero(_repaymentPercent)
-    // 1% buffer in case our market data differs from THOR's, to ensure 100% loan repays are actually 100% repays
-    if (!repaymentPercentBn.eq(100)) return _repaymentPercent
-    return repaymentPercentBn.plus('1').toNumber()
-  }, [_repaymentPercent])
-
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: _collateralAssetId,
     accountId: _collateralAccountId,
@@ -145,7 +137,7 @@ export const useLendingQuoteCloseQuery = ({
         repaymentAccountId: _repaymentAccountId,
         collateralAssetId: _collateralAssetId,
         collateralAccountId: _collateralAccountId,
-        repaymentPercent: repaymentPercentOrDefault,
+        repaymentPercent: _repaymentPercent,
       },
     ],
     500,
@@ -187,12 +179,12 @@ export const useLendingQuoteCloseQuery = ({
   const repaymentAmountFiatUserCurrency = useMemo(() => {
     if (!lendingPositionData) return null
 
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercentOrDefault)
+    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
       .times(lendingPositionData?.debtBalanceFiatUserCurrency ?? 0)
       .div(100)
 
     return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercentOrDefault])
+  }, [lendingPositionData, repaymentPercent])
 
   const repaymentAmountCryptoPrecision = useMemo(() => {
     if (!repaymentAmountFiatUserCurrency) return null
@@ -208,10 +200,7 @@ export const useLendingQuoteCloseQuery = ({
       const quote = await getMaybeThorchainLendingCloseQuote({
         repaymentAssetId,
         collateralAssetId,
-        repaymentAmountCryptoBaseUnit: toBaseUnit(
-          repaymentAmountCryptoPrecision ?? 0, // actually always defined at runtime, see "enabled" option
-          repaymentAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
-        ),
+        repaymentPercent,
         collateralAssetAddress, // actually always defined at runtime, see "enabled" option
       })
 
@@ -227,7 +216,7 @@ export const useLendingQuoteCloseQuery = ({
         data,
         collateralAssetMarketData,
         repaymentAmountCryptoPrecision,
-        repaymentPercentOrDefault,
+        repaymentPercent,
       }),
     // Do not refetch if consumers explicitly set enabled to false
     // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function
@@ -236,7 +225,7 @@ export const useLendingQuoteCloseQuery = ({
     enabled: Boolean(
       enabled &&
         lendingPositionData?.address &&
-        bnOrZero(repaymentPercentOrDefault).gt(0) &&
+        bnOrZero(repaymentPercent).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&

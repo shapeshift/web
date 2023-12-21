@@ -139,10 +139,10 @@ describe('utxoSelect', () => {
       outputs: [
         {
           address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
-          value: 33130,
+          value: 33128,
         },
       ],
-      fee: 429,
+      fee: 431,
     }
     expect(result).toEqual(expectedResult)
   })
@@ -171,10 +171,10 @@ describe('utxoSelect', () => {
           address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         },
         {
-          value: 31246,
+          value: 31244,
         },
       ],
-      fee: 315,
+      fee: 317,
     }
     expect(result).toEqual(expectedResult)
   })

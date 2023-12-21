@@ -843,7 +843,12 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}"
+    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
+    "quote": {
+      "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
+      "slippage": "Slippage: %{slippageFormatted}"
+    }
+
   },
   "modals": {
     "popup": {

@@ -14,7 +14,7 @@ import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAsset
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
 import { cowService } from './utils/cowService'
-import { domain, getCowswapNetwork, getFullAppData, hashOrder } from './utils/helpers/helpers'
+import { domain, getCowswapNetwork, hashOrder } from './utils/helpers/helpers'
 
 export const cowSwapper: Swapper = {
   executeEvmMessage: async (
@@ -24,7 +24,7 @@ export const cowSwapper: Swapper = {
     const { chainReference } = fromChainId(chainId)
     const signingDomain = Number(chainReference)
 
-    const { appData, appDataHash } = await getFullAppData()
+    const { appData, appDataHash } = orderToSign
     // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
     // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
     // For more info, check hashOrder method implementation

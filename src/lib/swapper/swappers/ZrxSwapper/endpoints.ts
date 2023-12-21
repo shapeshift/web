@@ -30,7 +30,7 @@ export const zrxApi: SwapperApi = {
     from,
     tradeQuote,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    const { affiliateBps, receiveAddress, slippageTolerancePercentage, steps } = tradeQuote
+    const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
 
     // We need to re-fetch the quote from 0x here because actual quote fetches include validation of
@@ -44,7 +44,7 @@ export const zrxApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       receiveAddress,
       affiliateBps: affiliateBps ?? '0',
-      slippageTolerancePercentage,
+      slippageTolerancePercentageDecimal,
     })
 
     if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()

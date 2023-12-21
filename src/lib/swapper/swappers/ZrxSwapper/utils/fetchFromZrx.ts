@@ -19,7 +19,7 @@ export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   receiveAddress: string
   affiliateBps: string
-  slippageTolerancePercentage?: string
+  slippageTolerancePercentageDecimal?: string
 }
 
 export const fetchFromZrx = async <T extends 'price' | 'quote'>({
@@ -29,7 +29,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
   receiveAddress,
   affiliateBps,
-  slippageTolerancePercentage,
+  slippageTolerancePercentageDecimal,
 }: FetchFromZrxArgs<T>): Promise<
   Result<T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse, SwapErrorRight>
 > => {
@@ -47,6 +47,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
     T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse
   >(`/swap/v1/${priceOrQuote}`, {
     params: {
+      enableSlippageProtection: true,
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -54,7 +55,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: priceOrQuote === 'price', // don't validate allowances for price queries
       slippagePercentage:
-        slippageTolerancePercentage ??
+        slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
       ...(maybeTreasuryAddress && {
         feeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent

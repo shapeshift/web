@@ -1,9 +1,11 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import React, { memo, useCallback, useMemo } from 'react'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectMarketDataById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -50,13 +52,16 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
     if (props.onChange) props.onChange(balance, false)
   }, [balance, props])
 
-  const { assetNamespace } = fromAssetId(assetId)
+  const showMax = useMemo(
+    () => isEvmChainId(fromAssetId(assetId).chainId) && !isNativeEvmAsset(assetId),
+    [assetId],
+  )
 
   return (
     <TradeAmountInput
       balance={balance}
       fiatBalance={fiatBalance}
-      onMaxClick={assetNamespace === 'erc20' ? onMaxClick : undefined}
+      onMaxClick={showMax ? onMaxClick : undefined}
       {...props}
     />
   )

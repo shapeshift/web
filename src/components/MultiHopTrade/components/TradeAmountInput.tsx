@@ -58,7 +58,7 @@ export type TradeAmountInputProps = {
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
-  onMaxClick?: () => Promise<void>
+  onMaxClick?: () => void
   onPercentOptionClick?: (args: number) => void
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean

@@ -1,5 +1,5 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId, type AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { memo, useCallback, useMemo } from 'react'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
@@ -46,9 +46,9 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  const onMaxClick = useCallback(async () => {
+  const onMaxClick = useCallback(() => {
     if (props.onChange) props.onChange(balance, false)
-  }, [balance, props.onChange])
+  }, [balance, props])
 
   const { assetNamespace } = fromAssetId(assetId)
 

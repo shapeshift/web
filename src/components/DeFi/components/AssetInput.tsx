@@ -53,7 +53,7 @@ export type AssetInputProps = {
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
-  onMaxClick?: () => Promise<void>
+  onMaxClick?: () => void
   onPercentOptionClick?: (args: number) => void
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean

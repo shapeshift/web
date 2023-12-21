@@ -52,7 +52,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
     if (props.onChange) props.onChange(balance, false)
   }, [balance, props])
 
-  const showMax = useMemo(
+  const shouldShowMax = useMemo(
     () => isEvmChainId(fromAssetId(assetId).chainId) && !isNativeEvmAsset(assetId),
     [assetId],
   )
@@ -61,7 +61,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
     <TradeAmountInput
       balance={balance}
       fiatBalance={fiatBalance}
-      onMaxClick={showMax ? onMaxClick : undefined}
+      onMaxClick={shouldShowMax ? onMaxClick : undefined}
       {...props}
     />
   )

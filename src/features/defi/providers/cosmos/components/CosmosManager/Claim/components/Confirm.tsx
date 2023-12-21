@@ -22,7 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectAssets,
@@ -124,7 +124,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.ClickOpportunity,
+        MixPanelEvent.ClickOpportunity,
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],

@@ -18,7 +18,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -116,7 +116,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       }
 
       trackOpportunityEvent(
-        MixPanelEvents.ClickOpportunity,
+        MixPanelEvent.ClickOpportunity,
         {
           opportunity,
           element: 'Table Row',

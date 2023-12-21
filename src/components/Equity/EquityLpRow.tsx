@@ -7,7 +7,7 @@ import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -88,7 +88,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     }
 
     trackOpportunityEvent(
-      MixPanelEvents.ClickOpportunity,
+      MixPanelEvent.ClickOpportunity,
       {
         opportunity,
         element: 'Equity LP Row',

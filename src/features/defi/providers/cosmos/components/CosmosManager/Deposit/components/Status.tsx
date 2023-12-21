@@ -18,7 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -73,7 +73,7 @@ export const Status = () => {
     if (!opportunityMetadata) return
     if (state?.deposit.txStatus === 'success') {
       trackOpportunityEvent(
-        MixPanelEvents.DepositSuccess,
+        MixPanelEvent.DepositSuccess,
         {
           opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],

@@ -7,7 +7,7 @@ import type { MixPanelType } from './types'
 let _mixPanel: typeof Mixpanel | undefined = undefined
 
 // we need to be able to access this outside react
-export const getMixPanel = (): MixPanelType => {
+export const getMixPanel = (): MixPanelType | undefined => {
   const mixPanelEnabled = getConfig().REACT_APP_FEATURE_MIXPANEL
   if (!mixPanelEnabled) return
   if (_mixPanel) return _mixPanel

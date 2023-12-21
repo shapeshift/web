@@ -23,7 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -117,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity,
           fiatAmounts: [state.withdraw.fiatAmount],
@@ -147,7 +147,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
-      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+      mixpanel?.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 

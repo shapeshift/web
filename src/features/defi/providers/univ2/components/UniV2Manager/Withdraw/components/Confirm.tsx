@@ -24,7 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -109,7 +109,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas && mixpanel) {
-      mixpanel.track(MixPanelEvents.InsufficientFunds)
+      mixpanel.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
@@ -140,7 +140,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       dispatch({ type: UniV2WithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity: lpOpportunity,
           fiatAmounts: [state.withdraw.lpFiatAmount],

@@ -70,10 +70,12 @@ export const getLongtailToL1Quote = async (
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
-  const poolAddresses: Map<Address, { token0: Address; token1: Address; fee: FeeAmount }> =
-    generateV3PoolAddressesAcrossFeeRange(POOL_FACTORY_CONTRACT_ADDRESS, tokenA, tokenB)
+  const poolAddresses: Map<
+    Address,
+    { token0Address: Address; token1Address: Address; fee: FeeAmount }
+  > = generateV3PoolAddressesAcrossFeeRange(POOL_FACTORY_CONTRACT_ADDRESS, tokenA, tokenB)
 
-  const poolContractData = await getContractDataByPool(
+  const poolContractData = getContractDataByPool(
     poolAddresses,
     publicClient,
     tokenA.address,
@@ -84,7 +86,7 @@ export const getLongtailToL1Quote = async (
   const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
     getContract({
       abi: QuoterAbi,
-      address: QUOTER_CONTRACT_ADDRESS as Address,
+      address: QUOTER_CONTRACT_ADDRESS,
       publicClient,
     })
 

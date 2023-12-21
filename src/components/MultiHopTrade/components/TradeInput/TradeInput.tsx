@@ -33,7 +33,6 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
-import { getSwapperSupportsSlippage } from 'components/MultiHopTrade/components/TradeInput/getSwapperSupportsSlippage'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -175,7 +174,6 @@ export const TradeInput = memo(() => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
 
@@ -596,10 +594,7 @@ export const TradeInput = memo(() => {
                     </FadeTransition>
                   )}
                 </AnimatePresence>
-
-                {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && (
-                  <SlippagePopover />
-                )}
+                <SlippagePopover />
               </Flex>
             </Flex>
           </CardHeader>

@@ -360,8 +360,10 @@ export const BorrowInput = ({
         totalFeesUsd: bn(lendingQuoteData.quoteTotalFeesFiatUsd).toFixed(2),
         depositAmountCryptoPrecision,
         collateralAmountCryptoPrecision: lendingQuoteData.quoteCollateralAmountCryptoPrecision,
-        collateralAmountUserCurrency: lendingQuoteData.quoteCollateralAmountFiatUserCurrency,
-        collateralAmountUsd: lendingQuoteData.quoteCollateralAmountFiatUsd,
+        collateralAmountUserCurrency: bn(
+          lendingQuoteData.quoteCollateralAmountFiatUserCurrency,
+        ).toFixed(2),
+        collateralAmountUsd: bn(lendingQuoteData.quoteCollateralAmountFiatUsd).toFixed(2),
         borrowedAmountUserCurrency: bn(lendingQuoteData.quoteBorrowedAmountUserCurrency).toFixed(2),
         borrowedAmountUsd: bn(lendingQuoteData.quoteBorrowedAmountUsd).toFixed(2),
         borrowedAmountCryptoPrecision: lendingQuoteData.quoteBorrowedAmountCryptoPrecision,

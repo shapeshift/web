@@ -362,11 +362,11 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
-    confirmedQuote.quoteInboundAddress,
-    confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision,
-    confirmedQuote.quoteMemo,
-    confirmedQuote.repaymentAmountCryptoPrecision,
-    confirmedQuote.repaymentPercent,
+    confirmedQuote?.quoteInboundAddress,
+    confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision,
+    confirmedQuote?.quoteMemo,
+    confirmedQuote?.repaymentAmountCryptoPrecision,
+    confirmedQuote?.repaymentPercent,
     eventData,
     history,
     isQuoteExpired,

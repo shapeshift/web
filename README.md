@@ -143,7 +143,7 @@ Run the command and follow the prompts.
 
 ## MixPanel
 
-MixPanel is used for non-private deployments of the interaface.
+MixPanel is used for non-private deployments of the interface.
 
 We have a test MixPanel environment for developing and testing. To use this, update the `.env` file to include `REACT_APP_MIXPANEL_TOKEN=dev-project-id`.
 

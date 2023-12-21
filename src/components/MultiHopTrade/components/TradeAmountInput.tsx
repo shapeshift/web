@@ -269,12 +269,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
               </Button>
             )}
-            {onPercentOptionClick && (
+            {(onMaxClick || onPercentOptionClick) && (
               <PercentOptionsButtonGroup
                 options={percentOptions}
                 isDisabled={isReadOnly || isSendMaxDisabled}
                 onMaxClick={onMaxClick}
-                onClick={onPercentOptionClick}
+                onPercentOptionClick={onPercentOptionClick}
               />
             )}
           </Flex>

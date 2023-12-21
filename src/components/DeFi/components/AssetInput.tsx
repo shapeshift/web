@@ -217,7 +217,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               options={percentOptions}
               isDisabled={isReadOnly || isSendMaxDisabled}
               onMaxClick={onMaxClick}
-              onClick={onPercentOptionClick}
+              onPercentOptionClick={onPercentOptionClick}
             />
           )}
         </Stack>

@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import React, { memo, useMemo } from 'react'
+import { fromAssetId, type AssetId } from '@shapeshiftoss/caip'
+import React, { memo, useCallback, useMemo } from 'react'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,7 +46,20 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  return <TradeAmountInput balance={balance} fiatBalance={fiatBalance} {...props} />
+  const onMaxClick = useCallback(async () => {
+    if (props.onChange) props.onChange(balance, false)
+  }, [balance, props.onChange])
+
+  const { assetNamespace } = fromAssetId(assetId)
+
+  return (
+    <TradeAmountInput
+      balance={balance}
+      fiatBalance={fiatBalance}
+      onMaxClick={assetNamespace === 'erc20' ? onMaxClick : undefined}
+      {...props}
+    />
+  )
 }
 
 export type TradeAssetInputProps = {

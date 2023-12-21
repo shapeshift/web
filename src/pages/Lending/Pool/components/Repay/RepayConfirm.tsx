@@ -36,6 +36,9 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
@@ -46,9 +49,11 @@ import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimate
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectAssets,
+  selectFeeAssetById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -121,7 +126,59 @@ export const RepayConfirm = ({
     select: mutation => mutation.state.submittedAt,
   })
 
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+  const repaymentFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
+  )
+  const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+
+  const eventData = useMemo(() => {
+    if (!confirmedQuote) return {}
+
+    const assets = selectAssets(store.getState())
+
+    const compositeRepaymentAsset = getMaybeCompositeAssetSymbol(
+      repaymentAsset?.assetId ?? '',
+      assets,
+    )
+    const compositeCollateralAsset = getMaybeCompositeAssetSymbol(
+      collateralAsset?.assetId ?? '',
+      assets,
+    )
+
+    return {
+      repaymentAsset: compositeRepaymentAsset,
+      collateralAsset: compositeCollateralAsset,
+      repaymentAssetChain: repaymentFeeAsset?.networkName,
+      collateralAssetChain: collateralFeeAsset?.networkName,
+      totalFeesUserCurrency: bn(confirmedQuote.quoteTotalFeesFiatUserCurrency).toFixed(2),
+      totalFeesUsd: bn(confirmedQuote.quoteTotalFeesFiatUsd).toFixed(2),
+      repaymentPercent: confirmedQuote.repaymentPercent,
+      repaymentAmountUserCurrency: bnOrZero(confirmedQuote.repaymentAmountFiatUserCurrency).toFixed(
+        2,
+      ),
+      repaymentAmountUsd: bnOrZero(confirmedQuote.repaymentAmountFiatUsd).toFixed(2),
+      repaymentAmountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
+      debtRepaidAmountUserCurrency: bn(confirmedQuote.quoteDebtRepaidAmountUserCurrency).toFixed(2),
+      debtRepaidAmountUsd: bn(confirmedQuote.quoteDebtRepaidAmountUsd).toFixed(2),
+      collateralDecreaseCryptoPrecision: confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision,
+      collateralDecreaseUserCurrency: bn(
+        confirmedQuote.quoteLoanCollateralDecreaseFiatUserCurrency,
+      ).toFixed(2),
+      collateralDecreaseUsd: bn(confirmedQuote.quoteLoanCollateralDecreaseFiatUsd).toFixed(2),
+    }
+  }, [
+    collateralAsset?.assetId,
+    collateralFeeAsset?.networkName,
+    confirmedQuote,
+    repaymentAsset?.assetId,
+    repaymentFeeAsset?.networkName,
+  ])
+
+  const mixpanel = getMixPanel()
+
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
+
   useEffect(() => {
     // don't start polling until we have a tx
     if (!(txId && confirmedQuote)) return
@@ -130,13 +187,13 @@ export const RepayConfirm = ({
         .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
         .unix()
       await mutateAsync({ txId, expectedCompletionTime })
+      mixpanel?.track(MixPanelEvents.RepaySuccess, eventData)
       setIsLoanPending(false)
     })()
-  }, [confirmedQuote, mutateAsync, refetchLendingPositionData, txId])
+  }, [confirmedQuote, eventData, mixpanel, mutateAsync, refetchLendingPositionData, txId])
 
   const history = useHistory()
   const translate = useTranslate()
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   const handleBack = useCallback(() => {
     history.push(RepayRoutePaths.Input)
@@ -217,6 +274,8 @@ export const RepayConfirm = ({
     }
 
     setIsLoanPending(true)
+
+    mixpanel?.track(MixPanelEvents.RepayConfirm, eventData)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
@@ -303,10 +362,16 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
-    confirmedQuote,
+    confirmedQuote.quoteInboundAddress,
+    confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision,
+    confirmedQuote.quoteMemo,
+    confirmedQuote.repaymentAmountCryptoPrecision,
+    confirmedQuote.repaymentPercent,
+    eventData,
     history,
     isQuoteExpired,
     loanTxStatus,
+    mixpanel,
     refetchQuote,
     repaymentAccountId,
     repaymentAccountNumber,

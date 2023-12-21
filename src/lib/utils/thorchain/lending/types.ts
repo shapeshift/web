@@ -105,7 +105,9 @@ export type LendingQuoteOpen = {
 export type LendingQuoteClose = {
   quoteLoanCollateralDecreaseCryptoPrecision: string
   quoteLoanCollateralDecreaseFiatUserCurrency: string
+  quoteLoanCollateralDecreaseFiatUsd: string
   quoteDebtRepaidAmountUserCurrency: string
+  quoteDebtRepaidAmountUsd: string
   quoteWithdrawnAmountAfterFeesCryptoPrecision: string
   quoteWithdrawnAmountAfterFeesUserCurrency: string
   quoteSlippageWithdrawndAssetCryptoPrecision: string
@@ -118,6 +120,8 @@ export type LendingQuoteClose = {
   quoteTotalTimeMs: number
   quoteExpiry: number
   repaymentAmountCryptoPrecision: string | null
+  repaymentAmountFiatUsd: string | null
+  repaymentAmountFiatUserCurrency: string | null
   repaymentPercent: number
 }
 

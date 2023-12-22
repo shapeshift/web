@@ -20,7 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -150,7 +150,7 @@ export const Deposit: React.FC<DepositProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
         trackOpportunityEvent(
-          MixPanelEvents.DepositContinue,
+          MixPanelEvent.DepositContinue,
           {
             opportunity: opportunityMetadata,
             fiatAmounts: [formValues.fiatAmount],

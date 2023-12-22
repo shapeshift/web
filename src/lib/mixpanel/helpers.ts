@@ -4,7 +4,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { getMixPanel } from './mixPanelSingleton'
-import type { MixPanelEvents, TrackOpportunityProps } from './types'
+import type { MixPanelEvent, TrackOpportunityProps } from './types'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
 export const mapMixpanelPathname = (pathname: string, assets: AssetsByIdPartial): string | null => {
@@ -44,7 +44,7 @@ export const getMaybeCompositeAssetSymbol = (
 }
 
 export const trackOpportunityEvent = (
-  event: MixPanelEvents,
+  event: MixPanelEvent,
   properties: TrackOpportunityProps,
   assetsById: AssetsByIdPartial,
 ) => {

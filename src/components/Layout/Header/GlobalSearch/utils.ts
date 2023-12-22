@@ -4,7 +4,7 @@ import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/Defi
 import type { Location } from 'history'
 import qs from 'qs'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type {
   LpEarnOpportunityType,
   OpportunityId,
@@ -51,7 +51,7 @@ export const makeOpportunityRouteDetails = ({
   const { assetReference, assetNamespace } = fromAssetId(assetId)
 
   trackOpportunityEvent(
-    MixPanelEvents.ClickOpportunity,
+    MixPanelEvent.ClickOpportunity,
     {
       opportunity,
       element: 'Search Row',

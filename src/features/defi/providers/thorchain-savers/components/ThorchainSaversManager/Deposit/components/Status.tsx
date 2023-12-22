@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
@@ -115,7 +115,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!opportunity || !assetId) return
     if (state?.deposit.txStatus === 'success') {
       trackOpportunityEvent(
-        MixPanelEvents.DepositSuccess,
+        MixPanelEvent.DepositSuccess,
         {
           opportunity,
           fiatAmounts: [state.deposit.fiatAmount],

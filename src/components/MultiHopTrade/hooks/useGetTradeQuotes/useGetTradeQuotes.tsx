@@ -17,7 +17,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -311,7 +311,7 @@ export const useGetTradeQuotes = () => {
   useEffect(() => {
     if (currentData && mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(currentData)
-      mixpanel.track(MixPanelEvents.QuotesReceived, quoteData)
+      mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [currentData, mixpanel])
 }

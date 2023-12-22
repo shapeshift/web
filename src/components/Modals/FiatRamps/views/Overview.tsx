@@ -33,7 +33,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -172,7 +172,7 @@ export const Overview: React.FC<OverviewProps> = ({
         assetId: getMaybeCompositeAssetSymbol(assetId, assets),
         ramp: ramp.id,
       }
-      getMixPanel()?.track(MixPanelEvents.FiatRamp, mpData)
+      getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
       const url = ramp.onSubmit({
         action: fiatRampAction,
         assetId,

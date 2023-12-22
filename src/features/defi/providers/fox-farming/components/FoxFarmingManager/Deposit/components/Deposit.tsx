@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -167,7 +167,7 @@ export const Deposit: React.FC<DepositProps> = ({
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
           trackOpportunityEvent(
-            MixPanelEvents.DepositContinue,
+            MixPanelEvent.DepositContinue,
             {
               opportunity: foxFarmingOpportunity,
               fiatAmounts: [formValues.fiatAmount],

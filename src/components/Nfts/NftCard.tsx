@@ -18,7 +18,7 @@ import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectAssetById } from 'state/slices/selectors'
@@ -81,7 +81,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
       nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),
     }
 
-    mixpanel?.track(MixPanelEvents.ClickNft, eventData)
+    mixpanel?.track(MixPanelEvent.ClickNft, eventData)
   }, [collection, nftItem, nftModal])
 
   const mediaBoxProps = useMemo(

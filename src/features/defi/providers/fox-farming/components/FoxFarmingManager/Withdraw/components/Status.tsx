@@ -20,7 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -114,7 +114,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!opportunity) return
     if (state?.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawSuccess,
+        MixPanelEvent.WithdrawSuccess,
         {
           opportunity,
           fiatAmounts: [state.withdraw.fiatAmount],

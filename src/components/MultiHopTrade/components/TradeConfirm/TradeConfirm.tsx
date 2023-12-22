@@ -50,7 +50,7 @@ import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
@@ -234,11 +234,11 @@ export const TradeConfirm = () => {
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
     if (status === TxStatus.Confirmed) {
-      mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
+      mixpanel.track(MixPanelEvent.TradeSuccess, eventData)
       setHasMixpanelFired(true)
     }
     if (status === TxStatus.Failed) {
-      mixpanel.track(MixPanelEvents.TradeFailed, eventData)
+      mixpanel.track(MixPanelEvent.TradeFailed, eventData)
       setHasMixpanelFired(true)
     }
   }, [eventData, hasMixpanelFired, mixpanel, status])
@@ -276,7 +276,7 @@ export const TradeConfirm = () => {
       // only track after swapper successfully executes trade
       // otherwise unsigned txs will be tracked as confirmed trades
       if (mixpanel && eventData) {
-        mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
+        mixpanel.track(MixPanelEvent.TradeConfirm, eventData)
       }
     } catch (e) {
       showErrorToast(e)

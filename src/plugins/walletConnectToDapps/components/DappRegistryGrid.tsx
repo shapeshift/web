@@ -22,7 +22,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
@@ -68,7 +68,7 @@ export const DappRegistryGrid: FC = () => {
   )
 
   const handleClick = useCallback((dapp: string) => {
-    getMixPanel()?.track(MixPanelEvents.ClickdApp, { dapp })
+    getMixPanel()?.track(MixPanelEvent.ClickdApp, { dapp })
   }, [])
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)

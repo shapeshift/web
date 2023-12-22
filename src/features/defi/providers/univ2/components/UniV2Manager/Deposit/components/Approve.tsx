@@ -24,7 +24,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -225,7 +225,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas && mixpanel) {
-      mixpanel.track(MixPanelEvents.InsufficientFunds)
+      mixpanel.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
@@ -254,7 +254,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       })
 
       trackOpportunityEvent(
-        MixPanelEvents.DepositApprove,
+        MixPanelEvent.DepositApprove,
         {
           opportunity: lpOpportunity,
           fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],

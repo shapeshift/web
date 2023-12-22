@@ -18,7 +18,7 @@ import { Text } from 'components/Text'
 import { Address } from 'components/TransactionHistoryRows/TransactionDetails/Address'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 type DustProps = {
   accountId: AccountId | undefined
@@ -48,7 +48,7 @@ export const Dust: React.FC<DustProps> = () => {
   }, [history, location.pathname, query])
 
   const handleConfirm = useCallback(() => {
-    mixpanel?.track(MixPanelEvents.DustConfirm)
+    mixpanel?.track(MixPanelEvent.DustConfirm)
     history.push({
       pathname: location.pathname,
       search: qs.stringify({

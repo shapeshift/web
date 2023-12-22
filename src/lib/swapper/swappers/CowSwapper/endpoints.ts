@@ -1,18 +1,20 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type {
-  CowSwapOrder,
-  EvmMessageToSign,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
-  GetUnsignedEvmMessageArgs,
-  SwapErrorRight,
-  SwapperApi,
-  TradeQuote,
+import {
+  type CowSwapOrder,
+  type EvmMessageToSign,
+  type GetEvmTradeQuoteInput,
+  type GetTradeQuoteInput,
+  type GetUnsignedEvmMessageArgs,
+  type SwapErrorRight,
+  type SwapperApi,
+  SwapperName,
+  type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
@@ -58,7 +60,7 @@ export const cowApi: SwapperApi = {
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
-    const { receiveAddress } = tradeQuote
+    const { receiveAddress, slippageTolerancePercentageDecimal } = tradeQuote
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference
@@ -70,7 +72,10 @@ export const cowApi: SwapperApi = {
     const network = maybeNetwork.unwrap()
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-    const { appData, appDataHash } = await getFullAppData()
+    const { appData, appDataHash } = await getFullAppData(
+      slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap),
+    )
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
       `${baseUrl}/${network}/api/v1/quote/`,
@@ -99,6 +104,7 @@ export const cowApi: SwapperApi = {
       sellTokenBalance: ERC20_TOKEN_BALANCE,
       buyTokenBalance: ERC20_TOKEN_BALANCE,
       quoteId: id,
+      appDataHash,
     }
 
     return { chainId, orderToSign }

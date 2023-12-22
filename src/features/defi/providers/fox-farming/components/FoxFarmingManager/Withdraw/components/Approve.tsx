@@ -21,7 +21,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -119,7 +119,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       onNext(DefiStep.Confirm)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawApprove,
+        MixPanelEvent.WithdrawApprove,
         {
           opportunity,
           fiatAmounts: [],

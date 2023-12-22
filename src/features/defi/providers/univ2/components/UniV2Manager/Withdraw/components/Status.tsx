@@ -20,7 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -114,7 +114,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!lpOpportunity) return
     if (state?.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawSuccess,
+        MixPanelEvent.WithdrawSuccess,
         {
           opportunity: lpOpportunity,
           fiatAmounts: [state?.withdraw.lpFiatAmount],

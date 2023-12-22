@@ -33,7 +33,6 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
-import { getSwapperSupportsSlippage } from 'components/MultiHopTrade/components/TradeInput/getSwapperSupportsSlippage'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -51,7 +50,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -175,7 +174,6 @@ export const TradeInput = memo(() => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
 
@@ -265,7 +263,7 @@ export const TradeInput = memo(() => {
     try {
       const eventData = getMixpanelEventData()
       if (mixpanel && eventData) {
-        mixpanel.track(MixPanelEvents.TradePreview, eventData)
+        mixpanel.track(MixPanelEvent.TradePreview, eventData)
       }
 
       if (!wallet) throw Error('missing wallet')
@@ -596,10 +594,7 @@ export const TradeInput = memo(() => {
                     </FadeTransition>
                   )}
                 </AnimatePresence>
-
-                {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && (
-                  <SlippagePopover />
-                )}
+                <SlippagePopover />
               </Flex>
             </Flex>
           </CardHeader>

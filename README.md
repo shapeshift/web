@@ -140,3 +140,16 @@ yarn build:web
 The command `yarn release` helps to automate the release process.
 
 Run the command and follow the prompts.
+
+## MixPanel
+
+MixPanel is used for non-private deployments of the interface.
+
+We have a test MixPanel environment for developing and testing. To use this, update the `.env` file to include:
+
+```sh
+REACT_APP_MIXPANEL_TOKEN=dev-project-id
+REACT_APP_FEATURE_MIXPANEL=true
+```
+
+The MixPanel project UI will now show events from your local session.

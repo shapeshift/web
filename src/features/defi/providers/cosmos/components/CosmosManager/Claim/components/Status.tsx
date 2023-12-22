@@ -18,7 +18,7 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -83,7 +83,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!opportunity) return
     if (txStatus === TxStatus.SUCCESS) {
       trackOpportunityEvent(
-        MixPanelEvents.ClaimSuccess,
+        MixPanelEvent.ClaimSuccess,
         {
           opportunity,
           fiatAmounts: [rewardFiatAmount],

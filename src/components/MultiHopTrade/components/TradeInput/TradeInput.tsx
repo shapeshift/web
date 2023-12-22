@@ -50,7 +50,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -263,7 +263,7 @@ export const TradeInput = memo(() => {
     try {
       const eventData = getMixpanelEventData()
       if (mixpanel && eventData) {
-        mixpanel.track(MixPanelEvents.TradePreview, eventData)
+        mixpanel.track(MixPanelEvent.TradePreview, eventData)
       }
 
       if (!wallet) throw Error('missing wallet')

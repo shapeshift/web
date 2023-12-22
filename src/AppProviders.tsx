@@ -25,7 +25,7 @@ import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsP
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
@@ -48,7 +48,7 @@ export function AppProviders({ children }: ProvidersProps) {
         componentStack: string
       },
     ) => {
-      getMixPanel()?.track(MixPanelEvents.Error, { error, info })
+      getMixPanel()?.track(MixPanelEvent.Error, { error, info })
     },
     [],
   )

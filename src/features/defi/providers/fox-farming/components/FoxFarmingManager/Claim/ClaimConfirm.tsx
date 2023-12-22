@@ -35,7 +35,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -125,7 +125,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         contractAddress,
       })
       trackOpportunityEvent(
-        MixPanelEvents.ClaimConfirm,
+        MixPanelEvent.ClaimConfirm,
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],
@@ -206,7 +206,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   useEffect(() => {
     if (mixpanel && !hasEnoughBalanceForGas) {
-      mixpanel.track(MixPanelEvents.InsufficientFunds)
+      mixpanel.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 

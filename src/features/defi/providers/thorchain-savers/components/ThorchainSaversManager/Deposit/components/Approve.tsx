@@ -25,7 +25,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -245,7 +245,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       trackOpportunityEvent(
-        MixPanelEvents.DepositApprove,
+        MixPanelEvent.DepositApprove,
         {
           opportunity: opportunityData,
           fiatAmounts: [state.deposit.fiatAmount],

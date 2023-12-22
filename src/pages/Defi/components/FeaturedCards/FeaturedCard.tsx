@@ -18,7 +18,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
@@ -68,7 +68,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)
     trackOpportunityEvent(
-      MixPanelEvents.ClickOpportunity,
+      MixPanelEvent.ClickOpportunity,
       {
         opportunity,
         element: 'Featured Card',

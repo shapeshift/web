@@ -20,7 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -148,7 +148,7 @@ export const Deposit: React.FC<DepositProps> = ({
         },
       })
       trackOpportunityEvent(
-        MixPanelEvents.DepositContinue,
+        MixPanelEvent.DepositContinue,
         {
           opportunity: lpOpportunity,
           fiatAmounts: [formValues.fiatAmount0, formValues.fiatAmount1],

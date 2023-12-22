@@ -47,15 +47,17 @@ export const swappersApi = createApi({
         } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
-        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
 
-        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
-
-        // Await market data fetching thunk, to ensure we can display some USD rate and don't bail in getDependencies above
+        // hydrate crypto market data for buy and sell assets
         await dispatch(
           marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
         )
+
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
+
+        // this should never be needed but here for paranoia
+        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
 
         // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
         const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(

@@ -61,14 +61,12 @@ const selectLendingQuoteQuery = memoize(
       .toString()
 
     const quoteCollateralAmountFiatUsd = bn(quoteCollateralAmountFiatUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
     const quoteDebtAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_issued)
       .times(userCurrencyToUsdRate)
       .toString()
-    const quoteDebtAmountUsd = bn(quoteDebtAmountUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
-      .toString()
+    const quoteDebtAmountUsd = bn(quoteDebtAmountUserCurrency).div(userCurrencyToUsdRate).toString()
 
     const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
@@ -77,7 +75,7 @@ const selectLendingQuoteQuery = memoize(
       .times(borrowAssetMarketData?.price ?? 0)
       .toString()
     const quoteBorrowedAmountUsd = bn(quoteBorrowedAmountUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
 
     const quoteCollateralizationRatioPercent = bnOrZero(quote.expected_collateralization_ratio).div(
@@ -93,7 +91,7 @@ const selectLendingQuoteQuery = memoize(
       .times(borrowAssetMarketData?.price ?? 0)
       .toString()
     const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
     // getting the amount before all fees, so we can determine the slippage denominated in receive asset
     const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(

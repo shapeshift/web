@@ -59,13 +59,13 @@ const selectLendingCloseQueryData = memoize(
       .times(collateralAssetMarketData.price)
       .toString()
     const quoteLoanCollateralDecreaseFiatUsd = bn(quoteLoanCollateralDecreaseFiatUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
     const quoteDebtRepaidAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_repaid)
       .times(userCurrencyToUsdRate)
       .toString()
     const quoteDebtRepaidAmountUsd = bn(quoteDebtRepaidAmountUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
     const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
@@ -83,7 +83,7 @@ const selectLendingCloseQueryData = memoize(
       .times(collateralAssetMarketData?.price ?? 0)
       .toString()
     const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
 
     const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
@@ -108,7 +108,7 @@ const selectLendingCloseQueryData = memoize(
     ).toNumber()
 
     const repaymentAmountFiatUsd = bnOrZero(repaymentAmountFiatUserCurrency)
-      .times(bn(1).div(userCurrencyToUsdRate))
+      .div(userCurrencyToUsdRate)
       .toString()
 
     return {

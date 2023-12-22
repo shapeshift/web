@@ -28,7 +28,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -176,7 +176,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
@@ -208,7 +208,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
-      getMixPanel()?.track(MixPanelEvents.InsufficientFunds)
+      getMixPanel()?.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas])
 

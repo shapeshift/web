@@ -48,7 +48,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -88,6 +88,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
+  const [isDangerousWithdraw, setIsDangerousWithdraw] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
@@ -323,7 +324,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       setExpiry(expiry)
 
       // If there's nothing being withdrawn, then the protocol fee is the entire amount
-      const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+      const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
+      setIsDangerousWithdraw(_isDangerousWithdraw)
+      const protocolFeeCryptoThorBaseUnit = isDangerousWithdraw
         ? amountCryptoThorBaseUnit
         : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
@@ -346,17 +349,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       assetId,
       chainId,
+      isDangerousWithdraw,
       isTokenWithdraw,
       maybeFromUTXOAccountAddress,
       opportunityData?.rewardsCryptoBaseUnit?.amounts,
       opportunityData?.stakedAmountCryptoBaseUnit,
       state?.withdraw.cryptoAmount,
     ])
-
-  const isDangerousWithdraw = useMemo(() => {
-    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
-    return amountCryptoBaseUnit === protocolFeeCryptoBaseUnit
-  }, [asset.precision, protocolFeeCryptoBaseUnit, state?.withdraw.cryptoAmount])
 
   const getCustomTxInput: () => Promise<BuildCustomTxInput | undefined> = useCallback(async () => {
     if (!contextDispatch || !opportunityData?.stakedAmountCryptoBaseUnit) return
@@ -665,7 +664,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity: opportunityData,
           fiatAmounts: [state.withdraw.fiatAmount],
@@ -751,7 +750,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
-      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+      mixpanel?.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 

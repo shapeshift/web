@@ -29,7 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { assertGetChainAdapter, isToken } from 'lib/utils'
 import {
@@ -502,7 +502,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
 
         trackOpportunityEvent(
-          MixPanelEvents.WithdrawContinue,
+          MixPanelEvent.WithdrawContinue,
           {
             opportunity: opportunityData,
             fiatAmounts: [formValues.fiatAmount],

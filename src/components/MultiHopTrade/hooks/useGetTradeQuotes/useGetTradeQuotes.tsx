@@ -17,7 +17,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -93,13 +93,13 @@ const isEqualExceptAffiliateBpsAndSlippage = (
   if (!isSkipToken(a) && b) {
     const {
       affiliateBps: _affiliateBps,
-      slippageTolerancePercentage: _slippageTolerancePercentage,
+      slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
       ...aWithoutAffiliateBpsAndSlippage
     } = a
 
     const {
       affiliateBps: _updatedAffiliateBps,
-      slippageTolerancePercentage: _updatedSlippageTolerancePercentage,
+      slippageTolerancePercentageDecimal: _updatedSlippageTolerancePercentageDecimal,
       ...bWithoutAffiliateBpsAndSlippage
     } = b
 
@@ -137,7 +137,7 @@ export const useGetTradeQuotes = () => {
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
-  const userSlippageTolerancePercentage = useAppSelector(selectUserSlippagePercentageDecimal)
+  const userslippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
@@ -239,7 +239,7 @@ export const useGetTradeQuotes = () => {
           affiliateBps,
           potentialAffiliateBps,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
-          slippageTolerancePercentage: userSlippageTolerancePercentage,
+          slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
@@ -249,8 +249,8 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps or the userSlippageTolerancePercentage changed, we've either:
-          // - switched swappers where one has a different default slippageTolerancePercentage
+          // If only the affiliateBps or the userslippageTolerancePercentageDecimal changed, we've either:
+          // - switched swappers where one has a different default slippageTolerancePercentageDecimal
           // In either case, we don't want to reset the selected swapper
           if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
@@ -279,7 +279,7 @@ export const useGetTradeQuotes = () => {
     wallet,
     userMayDonate,
     receiveAccountMetadata?.bip44Params,
-    userSlippageTolerancePercentage,
+    userslippageTolerancePercentageDecimal,
     isFoxDiscountsEnabled,
     sellAssetUsdRate,
     sellAccountId,
@@ -311,7 +311,7 @@ export const useGetTradeQuotes = () => {
   useEffect(() => {
     if (currentData && mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(currentData)
-      mixpanel.track(MixPanelEvents.QuotesReceived, quoteData)
+      mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [currentData, mixpanel])
 }

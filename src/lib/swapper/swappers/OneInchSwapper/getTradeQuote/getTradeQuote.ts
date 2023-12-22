@@ -9,6 +9,7 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import {
@@ -99,6 +100,10 @@ export async function getTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate,
+      // slippage is a pass-thru for this swapper because it's actually inputted to 1inch when building the tx
+      slippageTolerancePercentageDecimal:
+        input.slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.OneInch),
       steps: [
         {
           estimatedExecutionTimeMs: undefined,

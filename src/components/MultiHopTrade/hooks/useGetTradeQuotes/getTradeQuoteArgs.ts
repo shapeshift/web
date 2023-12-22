@@ -19,7 +19,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: string
-  slippageTolerancePercentage?: string
+  slippageTolerancePercentageDecimal?: string
   receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
@@ -44,7 +44,7 @@ export const getTradeQuoteArgs = async ({
   allowMultiHop,
   affiliateBps,
   potentialAffiliateBps,
-  slippageTolerancePercentage,
+  slippageTolerancePercentageDecimal,
   pubKey,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
@@ -60,7 +60,7 @@ export const getTradeQuoteArgs = async ({
     affiliateBps: affiliateBps ?? '0',
     potentialAffiliateBps: potentialAffiliateBps ?? '0',
     allowMultiHop,
-    slippageTolerancePercentage,
+    slippageTolerancePercentageDecimal,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

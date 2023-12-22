@@ -7,7 +7,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { mapMixpanelPathname } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,7 +36,7 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   useEffect(() => {
     const maybePathname = mapMixpanelPathname(location.pathname, assets)
     if (maybePathname !== null)
-      getMixPanel()?.track(MixPanelEvents.PageView, { pathname: maybePathname })
+      getMixPanel()?.track(MixPanelEvent.PageView, { pathname: maybePathname })
   }, [assets, location.pathname])
 
   const router = useMemo(

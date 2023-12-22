@@ -21,7 +21,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from 'state/slices/selectors'
@@ -64,7 +64,7 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
   }, [allNativeAssets])
 
   const handleNext = useCallback(() => {
-    getMixPanel()?.track(MixPanelEvents.StartAddSnap)
+    getMixPanel()?.track(MixPanelEvent.StartAddSnap)
     history.push('/confirm')
   }, [history])
 

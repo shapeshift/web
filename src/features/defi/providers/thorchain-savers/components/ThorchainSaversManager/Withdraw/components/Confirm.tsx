@@ -88,6 +88,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
+  const [isDangerousWithdraw, setIsDangerousWithdraw] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
@@ -323,7 +324,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       setExpiry(expiry)
 
       // If there's nothing being withdrawn, then the protocol fee is the entire amount
-      const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+      const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
+      setIsDangerousWithdraw(_isDangerousWithdraw)
+      const protocolFeeCryptoThorBaseUnit = isDangerousWithdraw
         ? amountCryptoThorBaseUnit
         : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
@@ -346,17 +349,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       assetId,
       chainId,
+      isDangerousWithdraw,
       isTokenWithdraw,
       maybeFromUTXOAccountAddress,
       opportunityData?.rewardsCryptoBaseUnit?.amounts,
       opportunityData?.stakedAmountCryptoBaseUnit,
       state?.withdraw.cryptoAmount,
     ])
-
-  const isDangerousWithdraw = useMemo(() => {
-    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
-    return amountCryptoBaseUnit === protocolFeeCryptoBaseUnit
-  }, [asset.precision, protocolFeeCryptoBaseUnit, state?.withdraw.cryptoAmount])
 
   const getCustomTxInput: () => Promise<BuildCustomTxInput | undefined> = useCallback(async () => {
     if (!contextDispatch || !opportunityData?.stakedAmountCryptoBaseUnit) return

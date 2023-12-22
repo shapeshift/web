@@ -48,7 +48,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -664,7 +664,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity: opportunityData,
           fiatAmounts: [state.withdraw.fiatAmount],
@@ -750,7 +750,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
-      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+      mixpanel?.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 

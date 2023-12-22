@@ -10,7 +10,7 @@ import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
@@ -43,7 +43,7 @@ export const portfolio = createSlice({
         const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
         // if we already have state.walletId, we're switching wallets, otherwise connecting
         getMixPanel()?.track(
-          state.walletId ? MixPanelEvents.SwitchWallet : MixPanelEvents.ConnectWallet,
+          state.walletId ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
           data,
         )
         state.walletId = walletId
@@ -52,7 +52,7 @@ export const portfolio = createSlice({
       } else {
         state.walletId = undefined
         state.walletName = undefined
-        getMixPanel()?.track(MixPanelEvents.DisconnectWallet)
+        getMixPanel()?.track(MixPanelEvent.DisconnectWallet)
       }
     },
     upsertAccountMetadata: {

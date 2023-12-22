@@ -6,9 +6,9 @@ import type {
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 
-export type MixPanelType = typeof Mixpanel | undefined
+export type MixPanelType = typeof Mixpanel
 
-export enum MixPanelEvents {
+export enum MixPanelEvent {
   DepositContinue = 'Deposit Continue',
   DepositApprove = 'Deposit Approve',
   DepositConfirm = 'Deposit Confirm',
@@ -25,6 +25,7 @@ export enum MixPanelEvents {
   InsufficientFunds = 'Insufficient Funds',
   TradePreview = 'Trade Preview',
   TradeConfirm = 'Trade Confirm',
+  TradeConfirmSecondHop = 'Trade Confirm Second Hop',
   TradeSuccess = 'Trade Success',
   TradeFailed = 'Trade Failed',
   ConnectWallet = 'Connect Wallet',

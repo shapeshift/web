@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -76,7 +76,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
       }
 
       trackOpportunityEvent(
-        MixPanelEvents.ClickOpportunity,
+        MixPanelEvent.ClickOpportunity,
         {
           opportunity,
           element: 'Table Row',

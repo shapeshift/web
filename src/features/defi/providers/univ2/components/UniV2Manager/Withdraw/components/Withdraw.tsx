@@ -19,7 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -173,7 +173,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       )
 
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawContinue,
+        MixPanelEvent.WithdrawContinue,
         {
           opportunity: uniV2Opportunity,
           fiatAmounts: [formValues.fiatAmount],

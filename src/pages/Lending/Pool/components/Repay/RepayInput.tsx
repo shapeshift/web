@@ -29,6 +29,9 @@ import { RawText, Text } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
@@ -36,11 +39,12 @@ import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupport
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectAssets,
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -86,7 +90,10 @@ export const RepayInput = ({
   const translate = useTranslate()
   const history = useHistory()
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, repaymentAsset?.assetId ?? ''))
+  const repaymentFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
+  )
+  const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
 
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
@@ -118,11 +125,65 @@ export const RepayInput = ({
     setConfirmedQuote(lendingQuoteCloseData ?? null)
   }, [lendingQuoteCloseData, setConfirmedQuote])
 
+  const mixpanel = getMixPanel()
   const onSubmit = useCallback(() => {
     if (!lendingQuoteCloseData) return
+
     setConfirmedQuote(lendingQuoteCloseData)
+
+    if (mixpanel) {
+      const assets = selectAssets(store.getState())
+
+      const compositeRepaymentAsset = getMaybeCompositeAssetSymbol(
+        repaymentAsset?.assetId ?? '',
+        assets,
+      )
+      const compositeCollateralAsset = getMaybeCompositeAssetSymbol(
+        collateralAsset?.assetId ?? '',
+        assets,
+      )
+
+      const eventData = {
+        repaymentAsset: compositeRepaymentAsset,
+        collateralAsset: compositeCollateralAsset,
+        repaymentAssetChain: repaymentFeeAsset?.networkName,
+        collateralAssetChain: collateralFeeAsset?.networkName,
+        totalFeesUserCurrency: bn(lendingQuoteCloseData.quoteTotalFeesFiatUserCurrency).toFixed(2),
+        totalFeesUsd: bn(lendingQuoteCloseData.quoteTotalFeesFiatUsd).toFixed(2),
+        repaymentPercent,
+        repaymentAmountUserCurrency: bnOrZero(
+          lendingQuoteCloseData.repaymentAmountFiatUserCurrency,
+        ).toFixed(2),
+        repaymentAmountUsd: bnOrZero(lendingQuoteCloseData.repaymentAmountFiatUsd).toFixed(2),
+        repaymentAmountCryptoPrecision: lendingQuoteCloseData.repaymentAmountCryptoPrecision,
+        debtRepaidAmountUserCurrency: bn(
+          lendingQuoteCloseData.quoteDebtRepaidAmountUserCurrency,
+        ).toFixed(2),
+        debtRepaidAmountUsd: bn(lendingQuoteCloseData.quoteDebtRepaidAmountUsd).toFixed(2),
+        collateralDecreaseCryptoPrecision:
+          lendingQuoteCloseData.quoteLoanCollateralDecreaseCryptoPrecision,
+        collateralDecreaseUserCurrency: bn(
+          lendingQuoteCloseData.quoteLoanCollateralDecreaseFiatUserCurrency,
+        ).toFixed(2),
+        collateralDecreaseUsd: bn(lendingQuoteCloseData.quoteLoanCollateralDecreaseFiatUsd).toFixed(
+          2,
+        ),
+      }
+      mixpanel.track(MixPanelEvent.RepayPreview, eventData)
+    }
+
     history.push(RepayRoutePaths.Confirm)
-  }, [history, lendingQuoteCloseData, setConfirmedQuote])
+  }, [
+    collateralAsset?.assetId,
+    collateralFeeAsset?.networkName,
+    history,
+    lendingQuoteCloseData,
+    mixpanel,
+    repaymentAsset?.assetId,
+    repaymentFeeAsset?.networkName,
+    repaymentPercent,
+    setConfirmedQuote,
+  ])
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
@@ -241,8 +302,8 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId ?? '', accountId: repaymentAccountId }),
-    [feeAsset?.assetId, repaymentAccountId],
+    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
@@ -257,15 +318,20 @@ export const RepayInput = ({
   )
 
   const hasEnoughBalanceForTx = useMemo(() => {
-    if (!(feeAsset && repaymentAsset)) return
+    if (!(repaymentFeeAsset && repaymentAsset)) return
 
     return bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision)
-  }, [amountAvailableCryptoPrecision, feeAsset, repaymentAmountCryptoPrecision, repaymentAsset])
+  }, [
+    amountAvailableCryptoPrecision,
+    repaymentFeeAsset,
+    repaymentAmountCryptoPrecision,
+    repaymentAsset,
+  ])
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
-    if (!(feeAsset && repaymentAsset)) return
+    if (!(repaymentFeeAsset && repaymentAsset)) return
 
-    if (feeAsset.assetId === repaymentAsset.assetId)
+    if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
       return bnOrZero(repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
@@ -281,7 +347,7 @@ export const RepayInput = ({
   }, [
     amountAvailableCryptoPrecision,
     estimatedFeesData?.txFeeCryptoBaseUnit,
-    feeAsset,
+    repaymentFeeAsset,
     feeAssetBalanceCryptoBaseUnit,
     repaymentAmountCryptoPrecision,
     repaymentAsset,

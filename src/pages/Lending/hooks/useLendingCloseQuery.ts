@@ -38,14 +38,17 @@ const selectLendingCloseQueryData = memoize(
     data,
     collateralAssetMarketData,
     repaymentAmountCryptoPrecision,
+    repaymentAmountFiatUserCurrency,
     repaymentPercent,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     repaymentAmountCryptoPrecision: string | null
+    repaymentAmountFiatUserCurrency: string | null
     repaymentPercent: number
   }): LendingQuoteClose => {
     const quote = data
+    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
     const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
       quote.expected_collateral_withdrawn,
@@ -55,9 +58,14 @@ const selectLendingCloseQueryData = memoize(
     )
       .times(collateralAssetMarketData.price)
       .toString()
-    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+    const quoteLoanCollateralDecreaseFiatUsd = bn(quoteLoanCollateralDecreaseFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
+      .toString()
     const quoteDebtRepaidAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_repaid)
       .times(userCurrencyToUsdRate)
+      .toString()
+    const quoteDebtRepaidAmountUsd = bn(quoteDebtRepaidAmountUserCurrency)
+      .div(userCurrencyToUsdRate)
       .toString()
     const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
@@ -74,6 +82,10 @@ const selectLendingCloseQueryData = memoize(
     const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
       .times(collateralAssetMarketData?.price ?? 0)
       .toString()
+    const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
+      .toString()
+
     const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
       bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
     )
@@ -95,14 +107,21 @@ const selectLendingCloseQueryData = memoize(
       bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
     ).toNumber()
 
+    const repaymentAmountFiatUsd = bnOrZero(repaymentAmountFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
+      .toString()
+
     return {
       quoteLoanCollateralDecreaseCryptoPrecision,
       quoteLoanCollateralDecreaseFiatUserCurrency,
+      quoteLoanCollateralDecreaseFiatUsd,
       quoteDebtRepaidAmountUserCurrency,
+      quoteDebtRepaidAmountUsd,
       quoteWithdrawnAmountAfterFeesCryptoPrecision,
       quoteWithdrawnAmountAfterFeesUserCurrency,
       quoteSlippageWithdrawndAssetCryptoPrecision,
       quoteTotalFeesFiatUserCurrency,
+      quoteTotalFeesFiatUsd,
       quoteInboundAddress,
       quoteMemo,
       quoteOutboundDelayMs,
@@ -110,6 +129,8 @@ const selectLendingCloseQueryData = memoize(
       quoteTotalTimeMs,
       quoteExpiry,
       repaymentAmountCryptoPrecision,
+      repaymentAmountFiatUsd,
+      repaymentAmountFiatUserCurrency,
       repaymentPercent,
     }
   },
@@ -216,6 +237,7 @@ export const useLendingQuoteCloseQuery = ({
         data,
         collateralAssetMarketData,
         repaymentAmountCryptoPrecision,
+        repaymentAmountFiatUserCurrency,
         repaymentPercent,
       }),
     // Do not refetch if consumers explicitly set enabled to false

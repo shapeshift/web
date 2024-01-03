@@ -88,7 +88,7 @@ export async function getTradeQuote(
     },
   }
 
-  // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+  // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {
   //   swapper: SwapperName.LIFI,
   //   method: 'get',
   //   // Note, this may change if the Li.Fi SDK changes

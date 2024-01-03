@@ -14,6 +14,13 @@ export type UTXOSelectInput = {
 
 type SanitizedUTXO = Omit<unchained.bitcoin.Utxo, 'value'> & { value: number }
 
+// convert number to hex and ensure there are two characters per byte
+const numberToHex = (num: number) => {
+  const hex = num.toString(16)
+  if (hex.length % 2 === 0) return hex
+  return '0' + hex
+}
+
 /**
  * Returns necessary utxo inputs & outputs for a desired tx at a given fee with OP_RETURN data considered if provided
  *
@@ -32,7 +39,20 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     return acc
   }, [])
 
-  const extraOutput = input.opReturnData ? [{ value: 0, script: input.opReturnData }] : []
+  const extraOutput = (() => {
+    if (!input.opReturnData) return []
+
+    const opReturnData = Buffer.from(input.opReturnData)
+    const opReturnOpCode = Buffer.from('6a', 'hex')
+    const opReturnDataLength = Buffer.from(numberToHex(opReturnData.length), 'hex')
+
+    const output = {
+      value: 0,
+      script: Buffer.concat([opReturnOpCode, opReturnDataLength, opReturnData]).toString('utf-8'),
+    }
+
+    return [output]
+  })()
 
   const result = (() => {
     if (input.sendMax) {

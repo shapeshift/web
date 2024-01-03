@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   BTCSignTx,
   CosmosSignTx,
@@ -15,6 +15,10 @@ import type { UtxoChainId } from './utxo'
 import * as utxo from './utxo/types'
 
 export { cosmossdk, evm, utxo }
+
+// this placeholder forces us to be explicit about transactions not transferring funds to humans
+export type ContractInteraction = Nominal<'contract-interaction', 'ContractInteraction'>
+export const CONTRACT_INTERACTION: ContractInteraction = 'contract-interaction' as const
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
@@ -331,12 +335,12 @@ export enum ChainAdapterDisplayName {
 
 export type BroadcastTransactionInput = {
   senderAddress: string
-  receiverAddress: string | undefined // this is not defined for staking etc
+  receiverAddress: string | ContractInteraction
   hex: string
 }
 
 export type SignAndBroadcastTransactionInput<T extends ChainId> = {
   senderAddress: string
-  receiverAddress: string | undefined // this is not defined for staking etc
+  receiverAddress: string | ContractInteraction
   signTxInput: SignTxInput<SignTx<T>>
 }

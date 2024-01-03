@@ -15,7 +15,7 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -77,7 +77,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
       }
 
       trackOpportunityEvent(
-        MixPanelEvents.ClickOpportunity,
+        MixPanelEvent.ClickOpportunity,
         {
           opportunity,
           element: 'Table Row',

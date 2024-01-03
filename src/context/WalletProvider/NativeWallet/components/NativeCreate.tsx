@@ -21,7 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
 
@@ -77,7 +77,7 @@ export const NativeCreate = () => {
         vault,
         isLegacyWallet,
       })
-      mixpanel?.track(MixPanelEvents.NativeCreate)
+      mixpanel?.track(MixPanelEvent.NativeCreate)
     }
   }, [history, isLegacyWallet, mixpanel, vault])
 

@@ -48,7 +48,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -88,6 +88,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
+  const [isDangerousWithdraw, setIsDangerousWithdraw] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
@@ -234,8 +235,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         setExpiry(expiry)
 
+        const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
+        setIsDangerousWithdraw(_isDangerousWithdraw)
         // If there's nothing being withdrawn, then the protocol fee is the entire amount
-        const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+        const protocolFeeCryptoThorBaseUnit = _isDangerousWithdraw
           ? amountCryptoThorBaseUnit
           : amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
@@ -267,6 +270,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
+    isDangerousWithdraw,
   ])
 
   useEffect(() => {
@@ -323,7 +327,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       setExpiry(expiry)
 
       // If there's nothing being withdrawn, then the protocol fee is the entire amount
-      const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+      const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
+      setIsDangerousWithdraw(_isDangerousWithdraw)
+      const protocolFeeCryptoThorBaseUnit = _isDangerousWithdraw
         ? amountCryptoThorBaseUnit
         : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
@@ -570,10 +576,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: undefined, // no receiver for this contract call
+      receiverAddress: maybeFromUTXOAccountAddress,
     })
     return txid
-  }, [wallet, accountNumber, getCustomTxInput, chainId])
+  }, [wallet, accountNumber, getCustomTxInput, chainId, maybeFromUTXOAccountAddress])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
     if (!wallet) return
@@ -660,7 +666,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Status)
       trackOpportunityEvent(
-        MixPanelEvents.WithdrawConfirm,
+        MixPanelEvent.WithdrawConfirm,
         {
           opportunity: opportunityData,
           fiatAmounts: [state.withdraw.fiatAmount],
@@ -746,7 +752,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
-      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+      mixpanel?.track(MixPanelEvent.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
@@ -912,6 +918,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               </Box>
             </Row.Value>
           </Row>
+        )}
+        {isDangerousWithdraw && (
+          <Alert status='warning' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={'defi.modals.saversVaults.dangerousWithdrawWarning'} />
+          </Alert>
         )}
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>

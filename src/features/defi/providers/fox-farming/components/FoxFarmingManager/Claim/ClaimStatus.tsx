@@ -17,7 +17,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -138,7 +138,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     if (!opportunity || !asset) return
     if (state.txStatus === TxStatus.SUCCESS) {
       trackOpportunityEvent(
-        MixPanelEvents.ClaimSuccess,
+        MixPanelEvent.ClaimSuccess,
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],

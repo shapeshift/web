@@ -1,10 +1,11 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import type {
-  EvmBaseAdapter,
-  EvmChainId,
-  FeeDataEstimate,
-  GetFeeDataInput,
+import {
+  CONTRACT_INTERACTION,
+  type EvmBaseAdapter,
+  type EvmChainId,
+  type FeeDataEstimate,
+  type GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -121,7 +122,7 @@ export class FoxyApi {
 
   // TODO(gomes): This is rank and should really belong in web for sanity sake.
   private async signAndBroadcastTx(input: SignAndBroadcastTx): Promise<string> {
-    const { payload, wallet, dryRun } = input
+    const { payload, wallet, dryRun, receiverAddress } = input
 
     const {
       chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
@@ -156,7 +157,7 @@ export class FoxyApi {
         }
         return this.adapter.broadcastTransaction({
           senderAddress,
-          receiverAddress: undefined, // no receiver for this contract call
+          receiverAddress,
           hex: signedTx,
         })
       } catch (e) {
@@ -168,7 +169,7 @@ export class FoxyApi {
       }
       return this.adapter.signAndBroadcastTransaction({
         senderAddress,
-        receiverAddress: undefined, // no receiver for this contract call
+        receiverAddress,
         signTxInput: { txToSign, wallet },
       })
     } else {
@@ -527,7 +528,12 @@ export class FoxyApi {
       to: tokenContractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: CONTRACT_INTERACTION,
+    })
   }
 
   async allowance(input: AllowanceInput): Promise<string> {
@@ -575,7 +581,12 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: CONTRACT_INTERACTION,
+    })
   }
 
   async withdraw(input: WithdrawInput): Promise<string> {
@@ -614,7 +625,7 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
   }
 
   async canClaimWithdraw(input: CanClaimWithdrawParams): Promise<boolean> {
@@ -735,7 +746,7 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
   }
 
   async canSendWithdrawalRequest(input: StakingContract): Promise<boolean> {
@@ -836,7 +847,7 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
   }
 
   // not a user facing function
@@ -871,7 +882,12 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: CONTRACT_INTERACTION,
+    })
   }
 
   // not a user facing function
@@ -906,7 +922,7 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
+    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
   }
 
   // returns time when the users withdraw request is claimable

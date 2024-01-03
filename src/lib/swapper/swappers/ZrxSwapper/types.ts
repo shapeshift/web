@@ -28,7 +28,7 @@ export type ZrxPriceResponse = {
   grossSellAmount: string
   allowanceTarget: string
   sources: ZrxSwapSource[]
-  expectedSlippage: string
+  expectedSlippage?: string
   minimumProtocolFee: string
   protocolFee: string
   estimatedPriceImpact: string

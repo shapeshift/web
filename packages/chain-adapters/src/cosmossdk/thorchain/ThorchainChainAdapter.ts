@@ -17,13 +17,14 @@ import type {
   SignAndBroadcastTransactionInput,
   SignTxInput,
 } from '../../types'
-import { ChainAdapterDisplayName } from '../../types'
+import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { validateAddress } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { Message } from '../types'
+import type { ThorchainMsgSend } from '../types'
+import { ThorchainMessageType, type ThorchainMsgDeposit } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
@@ -133,8 +134,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
-      const msg: Message = {
-        type: 'thorchain/MsgSend',
+      const msg: ThorchainMsgSend = {
+        type: ThorchainMessageType.MsgSend,
         value: {
           amount: [{ amount, denom: this.denom }],
           from_address: from,
@@ -176,8 +177,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const account = await this.getAccount(from)
 
       // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
-      const msg: Message = {
-        type: 'thorchain/MsgDeposit',
+      const msg: ThorchainMsgDeposit = {
+        type: ThorchainMessageType.MsgDeposit,
         value: {
           coins: [{ asset: 'THOR.RUNE', amount: bnOrZero(value).toString() }],
           memo,
@@ -215,7 +216,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     const { wallet } = signTxInput

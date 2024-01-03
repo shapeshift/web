@@ -18,7 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -167,7 +167,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           payload: false,
         })
         trackOpportunityEvent(
-          MixPanelEvents.WithdrawContinue,
+          MixPanelEvent.WithdrawContinue,
           {
             opportunity: earnOpportunityData,
             fiatAmounts: [formValues.fiatAmount],

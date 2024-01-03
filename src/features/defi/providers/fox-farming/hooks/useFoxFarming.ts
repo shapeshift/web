@@ -1,5 +1,6 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
@@ -78,7 +79,7 @@ export const useFoxFarming = (
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: undefined, // no receiver for this contract call
+          receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
         })
 
         return txid
@@ -120,7 +121,7 @@ export const useFoxFarming = (
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: undefined, // no receiver for this contract call
+          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
         })
 
         return txid
@@ -238,7 +239,7 @@ export const useFoxFarming = (
 
     const txid = await buildAndBroadcast({
       adapter,
-      receiverAddress: undefined, // no receiver for this contract call
+      receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       buildCustomTxInput: {
         accountNumber,
         to: uniV2LPContract.address,
@@ -272,7 +273,7 @@ export const useFoxFarming = (
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: undefined, // no receiver for this contract call
+      receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
     })
 
     return txid

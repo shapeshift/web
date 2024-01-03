@@ -25,15 +25,18 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fetchRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { assertGetChainAdapter, isToken } from 'lib/utils'
-import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  createBuildCustomTxInput,
+  getSupportedEvmChainIds,
+} from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -315,7 +318,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
           chainSpecific: {
             pubkey: userAddress,
-            from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+            from: supportedEvmChainIds.includes(chainId as KnownChainIds) ? userAddress : '',
           },
           sendMax: false,
         }
@@ -499,7 +502,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
 
         trackOpportunityEvent(
-          MixPanelEvents.WithdrawContinue,
+          MixPanelEvent.WithdrawContinue,
           {
             opportunity: opportunityData,
             fiatAmounts: [formValues.fiatAmount],

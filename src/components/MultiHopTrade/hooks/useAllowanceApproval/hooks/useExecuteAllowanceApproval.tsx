@@ -1,4 +1,4 @@
-import type { evm } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, type evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -48,7 +48,7 @@ export const useExecuteAllowanceApproval = (
       const txId = await buildAndBroadcast({
         adapter,
         buildCustomTxInput,
-        receiverAddress: undefined, // no receiver for this contract call
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 
       setTxId(txId)

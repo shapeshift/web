@@ -36,7 +36,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import {
@@ -519,7 +519,7 @@ export const Deposit: React.FC<DepositProps> = ({
         }
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
         trackOpportunityEvent(
-          MixPanelEvents.DepositContinue,
+          MixPanelEvent.DepositContinue,
           {
             opportunity: opportunityData,
             fiatAmounts: [formValues.fiatAmount],

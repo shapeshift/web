@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import type { GetContractReturnType, WalletClient } from 'viem'
-import { type Address, getContract, type PublicClient } from 'viem'
+import { type Address, getAddress, getContract, type PublicClient } from 'viem'
 
 import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
 import type { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
@@ -85,8 +85,12 @@ export const generateV3PoolAddressesAcrossFeeRange = (
   factoryAddress: string,
   tokenA: Token,
   tokenB: Token,
-): Map<Address, FeeAmount> => {
-  const poolAddresses = new Map<Address, FeeAmount>()
+): Map<Address, { token0Address: Address; token1Address: Address; fee: FeeAmount }> => {
+  const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
+  const poolAddresses = new Map<
+    Address,
+    { token0Address: Address; token1Address: Address; fee: FeeAmount }
+  >()
   Object.values(FeeAmount)
     .filter((value): value is FeeAmount => typeof value === 'number')
     .forEach((fee: FeeAmount) => {
@@ -96,7 +100,11 @@ export const generateV3PoolAddressesAcrossFeeRange = (
         tokenB,
         fee,
       })
-      poolAddresses.set(poolAddress as Address, fee as FeeAmount)
+      poolAddresses.set(getAddress(poolAddress), {
+        fee: fee as FeeAmount,
+        token0Address: getAddress(token0.address),
+        token1Address: getAddress(token1.address),
+      })
     })
   return poolAddresses
 }
@@ -107,54 +115,64 @@ type ContractData = {
   tokenOut: Address
 }
 
-export const getContractDataByPool = async (
-  poolAddresses: Map<Address, FeeAmount>,
+export const getContractDataByPool = (
+  poolAddresses: Map<Address, { token0Address: Address; token1Address: Address; fee: FeeAmount }>,
   publicClient: PublicClient,
   tokenAAddress: string,
   tokenBAddress: string,
-): Promise<Map<Address, ContractData>> => {
+): Map<Address, ContractData> => {
   const poolContracts = new Map<Address, ContractData>()
-  await Promise.all(
-    Array.from(poolAddresses.entries()).map(async ([address, feeAmount]) => {
+  Array.from(poolAddresses.entries()).forEach(
+    ([address, { fee, token0Address, token1Address }]) => {
       const poolContract = getContract({
         abi: IUniswapV3PoolABI,
         address,
         publicClient,
       })
+      const tokenIn = token0Address === tokenAAddress ? token0Address : token1Address
+      const tokenOut = token1Address === tokenBAddress ? token1Address : token0Address
       try {
-        const [token0, token1]: [Address, Address] = await Promise.all([
-          poolContract.read.token0(),
-          poolContract.read.token1(),
-        ])
-
-        const tokenIn = token0 === tokenAAddress ? token0 : token1
-        const tokenOut = token1 === tokenBAddress ? token1 : token0
-
-        poolContracts.set(poolContract.address, { fee: feeAmount, tokenIn, tokenOut })
+        poolContracts.set(poolContract.address, { fee, tokenIn, tokenOut })
       } catch {
         // The pool contract is not supported, that's ok - skip it without logging an error
         return
       }
-    }),
+    },
   )
+
   return poolContracts
 }
 
-export const getQuotedAmountOutByPool = (
+export const getQuotedAmountOutByPool = async (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
   quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient>,
 ): Promise<Map<Address, bigint>> => {
-  return Promise.all(
+  const results: PromiseSettledResult<[Address, bigint] | undefined>[] = await Promise.allSettled(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {
       const { fee, tokenIn, tokenOut } = data
-      const quotedAmountOut = await quoterContract.simulate
-        .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
-        .then(res => res.result)
+      try {
+        const quotedAmountOut = await quoterContract.simulate
+          .quoteExactInputSingle([tokenIn, tokenOut, fee, sellAmount, BigInt(0)])
+          .then(res => res.result)
 
-      return [poolContract, quotedAmountOut] as [Address, bigint]
+        return [poolContract, quotedAmountOut] as [Address, bigint]
+      } catch {
+        // The pool contract is not supported, that's ok - skip it without logging an error
+        return undefined
+      }
     }),
-  ).then(results => new Map(results))
+  )
+
+  const result: Map<Address, bigint> = new Map(
+    results
+      .filter(
+        (result): result is PromiseFulfilledResult<[Address, bigint]> =>
+          result.status === 'fulfilled' && result.value !== undefined,
+      )
+      .map(result => result.value!),
+  )
+  return result
 }
 
 export const selectBestRate = (

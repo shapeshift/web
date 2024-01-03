@@ -1,7 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+  SignTx,
+  thorchain,
+} from '@shapeshiftoss/chain-adapters'
 import type { CosmosSdkFeeData, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -28,7 +32,7 @@ type GetCosmosTxDataInput = {
 
 export const getCosmosTxData = async (
   input: GetCosmosTxDataInput,
-): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
+): Promise<Result<SignTx<CosmosSdkChainId>, SwapErrorRight>> => {
   const { accountNumber, sellAmountCryptoBaseUnit, sellAsset, quote, from, sellAdapter, memo } =
     input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet

@@ -1,6 +1,6 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, SignMessageInput, SignTx } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -215,7 +215,7 @@ export const useTradeExecution = () => {
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
-              const txToSign: ThorchainSignTx = {
+              const txToSign: SignTx<CosmosSdkChainId> = {
                 addressNList: toAddressNList(bip44Params),
                 tx: {
                   fee: {
@@ -231,7 +231,7 @@ export const useTradeExecution = () => {
                 chain_id: transactionRequest.chain_id,
               }
               const signedTx = await adapter.signTransaction({
-                txToSign,
+                txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
               })
               return adapter.broadcastTransaction({

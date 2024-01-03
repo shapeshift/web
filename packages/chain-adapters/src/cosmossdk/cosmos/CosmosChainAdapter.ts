@@ -20,12 +20,22 @@ import type {
   SignAndBroadcastTransactionInput,
   SignTxInput,
 } from '../../types'
-import { ChainAdapterDisplayName } from '../../types'
+import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { bn, calcFee, toAddressNList } from '../../utils'
 import { validateAddress } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { Message, ValidatorAction } from '../types'
+import type {
+  CosmosSdkMsgBeginRedelegate,
+  CosmosSdkMsgDelegate,
+  CosmosSdkMsgSend,
+  CosmosSdkMsgUndelegate,
+} from '../types'
+import {
+  CosmosSdkMessageType,
+  type CosmosSdkMsgWithdrawDelegationReward,
+  type ValidatorAction,
+} from '../types'
 
 export const MIN_FEE = '5000'
 
@@ -105,8 +115,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
-      const msg: Message = {
-        type: 'cosmos-sdk/MsgSend',
+      const msg: CosmosSdkMsgSend = {
+        type: CosmosSdkMessageType.MsgSend,
         value: {
           amount: [{ amount, denom: this.denom }],
           from_address: from,
@@ -144,8 +154,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const validatorAction: ValidatorAction = { address: validator, type: 'delegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
-      const msg: Message = {
-        type: 'cosmos-sdk/MsgDelegate',
+      const msg: CosmosSdkMsgDelegate = {
+        type: CosmosSdkMessageType.MsgDelegate,
         value: {
           amount: { amount, denom: this.denom },
           delegator_address: from,
@@ -175,8 +185,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const validatorAction: ValidatorAction = { address: validator, type: 'undelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
-      const msg: Message = {
-        type: 'cosmos-sdk/MsgUndelegate',
+      const msg: CosmosSdkMsgUndelegate = {
+        type: CosmosSdkMessageType.MsgUndelegate,
         value: {
           amount: { amount, denom: this.denom },
           delegator_address: from,
@@ -208,8 +218,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const validatorAction: ValidatorAction = { address: fromValidator, type: 'redelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
-      const msg: Message = {
-        type: 'cosmos-sdk/MsgBeginRedelegate',
+      const msg: CosmosSdkMsgBeginRedelegate = {
+        type: CosmosSdkMessageType.MsgBeginRedelegate,
         value: {
           amount: { amount, denom: this.denom },
           delegator_address: from,
@@ -235,8 +245,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
-      const msg: Message = {
-        type: 'cosmos-sdk/MsgWithdrawDelegationReward',
+      const msg: CosmosSdkMsgWithdrawDelegationReward = {
+        type: CosmosSdkMessageType.MsgWithdrawDelegationReward,
         value: {
           delegator_address: from,
           validator_address: validator,
@@ -289,7 +299,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }: SignAndBroadcastTransactionInput<KnownChainIds.CosmosMainnet>): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     const { wallet } = signTxInput

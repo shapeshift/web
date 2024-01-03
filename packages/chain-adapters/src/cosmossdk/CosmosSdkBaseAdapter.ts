@@ -34,7 +34,7 @@ import type {
   TxHistoryResponse,
   ValidAddressResult,
 } from '../types'
-import { ValidAddressResultType } from '../types'
+import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
@@ -339,7 +339,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     try {

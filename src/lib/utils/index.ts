@@ -221,14 +221,16 @@ export const timeout = <Left, Right>(
 }
 
 export const getSupportedChainIdsByChainNamespace = () => {
-  return Array.from(getChainAdapterManager().keys()).reduce<Record<ChainNamespace, ChainId[]>>(
+  return Array.from(getChainAdapterManager().keys()).reduce<
+    Record<ChainNamespace, KnownChainIds[]>
+  >(
     (acc, chainId) => {
       const { chainNamespace } = fromChainId(chainId)
       if (!acc[chainNamespace]) acc[chainNamespace] = []
-      acc[chainNamespace].push(chainId)
+      acc[chainNamespace].push(chainId as KnownChainIds)
       return acc
     },
-    {} as Record<ChainNamespace, ChainId[]>,
+    {} as Record<ChainNamespace, KnownChainIds[]>,
   )
 }
 

@@ -10,7 +10,6 @@ import {
   Stepper,
 } from '@chakra-ui/react'
 import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -46,12 +45,14 @@ export const Hop = ({
   tradeQuoteStep,
   hopIndex,
   isOpen,
+  slippageTolerancePercentageDecimal,
   onToggleIsOpen,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isOpen: boolean
+  slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
 }) => {
   const translate = useTranslate()
@@ -114,11 +115,6 @@ export const Hop = ({
         assertUnreachable(hopExecutionState)
     }
   }, [hopExecutionState, hopIndex])
-
-  const slippageDecimalPercentage = useMemo(
-    () => getDefaultSlippageDecimalPercentageForSwapper(swapperName),
-    [swapperName],
-  )
 
   const title = useMemo(() => {
     const isBridge = tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId
@@ -218,20 +214,20 @@ export const Hop = ({
 
           {/* Hovering over this should render a popover with details */}
           <Flex alignItems='center' gap={2}>
-            {/* Placeholder - use correct icon here */}
             <Flex color='text.subtle'>
               <ProtocolIcon />
             </Flex>
             <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
           </Flex>
 
-          <Flex alignItems='center' gap={2}>
-            {/* Placeholder - use correct icon here */}
-            <Flex color='text.subtle'>
-              <SlippageIcon />
+          {slippageTolerancePercentageDecimal !== undefined && (
+            <Flex alignItems='center' gap={2}>
+              <Flex color='text.subtle'>
+                <SlippageIcon />
+              </Flex>
+              <Amount.Percent value={slippageTolerancePercentageDecimal} display='inline' />
             </Flex>
-            <Amount.Percent value={slippageDecimalPercentage} display='inline' />
-          </Flex>
+          )}
         </HStack>
       </CardFooter>
     </Card>

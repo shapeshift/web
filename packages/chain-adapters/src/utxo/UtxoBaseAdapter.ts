@@ -36,7 +36,7 @@ import type {
   UtxoBuildSendApiTxInput,
   ValidAddressResult,
 } from '../types'
-import { ValidAddressResultType } from '../types'
+import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import {
   accountTypeToOutputScriptType,
   accountTypeToScriptType,
@@ -432,7 +432,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     try {
@@ -525,7 +525,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
       validateAddress(senderAddress),
-      receiverAddress !== undefined && validateAddress(receiverAddress),
+      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
     ])
 
     return this.providers.http.sendTx({ sendTxBody: { hex } })

@@ -14,6 +14,7 @@ export const setupQuote = () => {
     receiveAddress: '0x1234',
     affiliateBps: undefined,
     potentialAffiliateBps: undefined,
+    slippageTolerancePercentageDecimal: '0',
     rate: '1',
     steps: [
       {
@@ -46,7 +47,7 @@ export const setupQuote = () => {
     potentialAffiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
-    slippageTolerancePercentage: DEFAULT_SLIPPAGE,
+    slippageTolerancePercentageDecimal: DEFAULT_SLIPPAGE,
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }

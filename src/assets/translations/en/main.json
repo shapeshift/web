@@ -380,7 +380,8 @@
           "tooltip": "Estimated time to cover deposit fees and earnings."
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
-        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
+        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
+        "dangerousWithdrawWarning": "Withdrawal disabled as the THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
       }
     },
     "memoNote": {
@@ -842,7 +843,12 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}"
+    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
+    "quote": {
+      "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
+      "slippage": "Slippage: %{slippageFormatted}"
+    }
+
   },
   "modals": {
     "popup": {

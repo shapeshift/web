@@ -1,6 +1,6 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, SignMessageInput, SignTx } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -26,12 +27,16 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { useMixpanel } from './useMixpanel'
+
 export const useTradeExecution = (hopIndex: number) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorHandler()
+  const trackMixpanelEvent = useMixpanel()
+  const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
@@ -73,7 +78,21 @@ export const useTradeExecution = (hopIndex: number) => {
         dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
         showErrorToast(e)
+
+        if (!hasMixpanelSuccessOrFailFiredRef.current) {
+          trackMixpanelEvent(MixPanelEvent.TradeFailed)
+          hasMixpanelSuccessOrFailFiredRef.current = true
+        }
+
         resolve()
+      }
+
+      // only track after swapper successfully executes a trade
+      // otherwise unsigned txs will be tracked as confirmed trades
+      const trackMixpanelEventOnExecute = () => {
+        const event =
+          hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
+        trackMixpanelEvent(event)
       }
 
       const execution = new TradeExecution()
@@ -118,6 +137,13 @@ export const useTradeExecution = (hopIndex: number) => {
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
+
+        const isLastHop = hopIndex === tradeQuote.steps.length - 1
+        if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
+          trackMixpanelEvent(MixPanelEvent.TradeSuccess)
+          hasMixpanelSuccessOrFailFiredRef.current = true
+        }
+
         resolve()
       })
       execution.on(TradeExecutionEvent.Fail, onFail)
@@ -150,7 +176,10 @@ export const useTradeExecution = (hopIndex: number) => {
               wallet,
             }
 
-            return await adapter.signMessage(signMessageInput)
+            const output = await adapter.signMessage(signMessageInput)
+
+            trackMixpanelEventOnExecute()
+            return output
           },
         })
 
@@ -184,13 +213,17 @@ export const useTradeExecution = (hopIndex: number) => {
                 wallet,
                 accountNumber,
               } as BuildCustomTxInput)
-              return await signAndBroadcast({
+
+              const output = await signAndBroadcast({
                 adapter,
                 txToSign,
                 wallet,
                 senderAddress: from,
                 receiverAddress,
               })
+
+              trackMixpanelEventOnExecute()
+              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -218,11 +251,15 @@ export const useTradeExecution = (hopIndex: number) => {
                 txToSign,
                 wallet,
               })
-              return adapter.broadcastTransaction({
+
+              const output = await adapter.broadcastTransaction({
                 senderAddress,
                 receiverAddress,
                 hex: signedTx,
               })
+
+              trackMixpanelEventOnExecute()
+              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -238,7 +275,7 @@ export const useTradeExecution = (hopIndex: number) => {
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
-              const txToSign: ThorchainSignTx = {
+              const txToSign: SignTx<CosmosSdkChainId> = {
                 addressNList: toAddressNList(bip44Params),
                 tx: {
                   fee: {
@@ -254,14 +291,17 @@ export const useTradeExecution = (hopIndex: number) => {
                 chain_id: transactionRequest.chain_id,
               }
               const signedTx = await adapter.signTransaction({
-                txToSign,
+                txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
               })
-              return adapter.broadcastTransaction({
+              const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress: tradeQuote.receiveAddress,
                 hex: signedTx,
               })
+
+              trackMixpanelEventOnExecute()
+              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -280,6 +320,7 @@ export const useTradeExecution = (hopIndex: number) => {
     dispatch,
     hopIndex,
     showErrorToast,
+    trackMixpanelEvent,
     translate,
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,

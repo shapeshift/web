@@ -38,7 +38,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
@@ -187,7 +187,7 @@ export const RepayConfirm = ({
         .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
         .unix()
       await mutateAsync({ txId, expectedCompletionTime })
-      mixpanel?.track(MixPanelEvents.RepaySuccess, eventData)
+      mixpanel?.track(MixPanelEvent.RepaySuccess, eventData)
       setIsLoanPending(false)
     })()
   }, [confirmedQuote, eventData, mixpanel, mutateAsync, refetchLendingPositionData, txId])
@@ -275,7 +275,7 @@ export const RepayConfirm = ({
 
     setIsLoanPending(true)
 
-    mixpanel?.track(MixPanelEvents.RepayConfirm, eventData)
+    mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 

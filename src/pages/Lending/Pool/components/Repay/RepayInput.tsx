@@ -31,7 +31,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
@@ -169,7 +169,7 @@ export const RepayInput = ({
           2,
         ),
       }
-      mixpanel.track(MixPanelEvents.RepayPreview, eventData)
+      mixpanel.track(MixPanelEvent.RepayPreview, eventData)
     }
 
     history.push(RepayRoutePaths.Confirm)

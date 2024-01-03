@@ -37,7 +37,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -184,7 +184,7 @@ export const BorrowConfirm = ({
         .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
         .unix()
       await mutateAsync({ txId, expectedCompletionTime })
-      mixpanel?.track(MixPanelEvents.BorrowSuccess, eventData)
+      mixpanel?.track(MixPanelEvent.BorrowSuccess, eventData)
       setIsLoanPending(false)
     })()
   }, [confirmedQuote, eventData, mixpanel, mutateAsync, txId])
@@ -272,7 +272,7 @@ export const BorrowConfirm = ({
 
     setIsLoanPending(true)
 
-    mixpanel?.track(MixPanelEvents.BorrowConfirm, eventData)
+    mixpanel?.track(MixPanelEvent.BorrowConfirm, eventData)
 
     const from = await getThorchainFromAddress({
       accountId: collateralAccountId,

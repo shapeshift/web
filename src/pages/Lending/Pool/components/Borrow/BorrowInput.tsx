@@ -30,7 +30,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
@@ -370,7 +370,7 @@ export const BorrowInput = ({
         debtAmountUserCurrency: bn(lendingQuoteData.quoteDebtAmountUserCurrency).toFixed(2),
         debtAmountUsd: bn(lendingQuoteData.quoteDebtAmountUsd).toFixed(2),
       }
-      mixpanel.track(MixPanelEvents.BorrowPreview, eventData)
+      mixpanel.track(MixPanelEvent.BorrowPreview, eventData)
     }
 
     if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)

@@ -100,21 +100,23 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           ),
         )
       } else if (shouldRefetchSaversOpportunities) {
-        // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
-        waitForThorchainUpdate({ txId: txid, skipOutbound: true })
+        ;(async () => {
+          // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
+          await waitForThorchainUpdate({ txId: txid, skipOutbound: true }).promise
 
-        dispatch(
-          getOpportunitiesUserData.initiate(
-            [
-              {
-                accountId,
-                defiProvider: DefiProvider.ThorchainSavers,
-                defiType: DefiType.Staking,
-              },
-            ],
-            { forceRefetch: true },
-          ),
-        )
+          dispatch(
+            getOpportunitiesUserData.initiate(
+              [
+                {
+                  accountId,
+                  defiProvider: DefiProvider.ThorchainSavers,
+                  defiType: DefiType.Staking,
+                },
+              ],
+              { forceRefetch: true },
+            ),
+          )
+        })()
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities

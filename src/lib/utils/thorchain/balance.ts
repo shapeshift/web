@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, dogeAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -232,11 +232,19 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
       })
     : undefined
 
+  // TODO(gomes): Abstract this and find heuristics for other UTXOs as well.
+  // This is a safe fee regardless of the inputs/outputs
+
+  const txFeeCryptoBaseUnit =
+    asset.assetId === dogeAssetId && consolidate === false
+      ? '200000000' // 2 DOGE fees as a safe buffer which will work regardless of the UTXO set
+      : _estimatedFeesData?.txFeeCryptoBaseUnit
+
   const { hasEnoughBalance, missingFunds } = getHasEnoughBalanceForTxPlusFeesPlusSweep({
     precision: asset.precision,
     balanceCryptoBaseUnit,
     amountCryptoPrecision,
-    txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+    txFeeCryptoBaseUnit: txFeeCryptoBaseUnit ?? '0',
     sweepTxFeeCryptoBaseUnit: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? '0',
   })
 

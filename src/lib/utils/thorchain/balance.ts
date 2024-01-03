@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -80,20 +81,37 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   asset,
   type,
   fromAddress,
+  // Assume consolidation by default. This means all UTXOs will be used for balance checks.
+  // Consuming this with consolidate = false will only check for the balance of the fromAddress being passed instead
+  consolidate = true,
 }: {
   asset: Asset
   fromAddress: string | null
   amountCryptoPrecision: string
   accountId: AccountId
   type: 'deposit' | 'withdraw'
+  consolidate?: boolean
 }) => {
   const isUtxoChain = isUtxoChainId(asset.chainId)
   const estimateFeesQueryEnabled = Boolean(fromAddress && accountId && isUtxoChain)
 
-  const balanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(store.getState(), {
-    assetId: asset.assetId,
-    accountId,
-  })
+  const adapter = getChainAdapterManager().get(asset.chainId)
+
+  const shouldUseAddressAccountBalance = Boolean(fromAddress && isUtxoChain && !consolidate)
+
+  const addressAccount = shouldUseAddressAccountBalance
+    ? await adapter?.getAccount(fromAddress!)
+    : null
+  const accountBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(
+    store.getState(),
+    {
+      assetId: asset.assetId,
+      accountId,
+    },
+  )
+
+  const balanceCryptoBaseUnit = addressAccount?.balance ?? accountBalanceCryptoBaseUnit
+
   const assetMarketData = selectMarketDataById(store.getState(), asset.assetId)
   const quote = await (async () => {
     switch (type) {

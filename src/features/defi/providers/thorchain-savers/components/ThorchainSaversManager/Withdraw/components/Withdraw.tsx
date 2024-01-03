@@ -641,6 +641,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               asset,
               type: 'withdraw',
               fromAddress,
+              consolidate: false,
             })
 
           if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())
@@ -732,6 +733,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               asset,
               type: 'withdraw',
               fromAddress,
+              consolidate: false,
             })
 
           if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds!.toFixed())

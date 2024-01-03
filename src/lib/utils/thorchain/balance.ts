@@ -61,7 +61,6 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
   sweepTxFeeCryptoBaseUnit: string
 }) => {
   const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-  if (balanceCryptoBaseUnitBn.isZero()) return { hasEnoughBalance: false, missingFunds: null }
 
   return {
     hasEnoughBalance: bnOrZero(amountCryptoPrecision)

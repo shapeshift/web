@@ -34,7 +34,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useInterval } from 'hooks/useInterval/useInterval'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -43,11 +46,13 @@ import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQue
 import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import {
   selectAssetById,
+  selectAssets,
+  selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
@@ -84,8 +89,14 @@ export const BorrowConfirm = ({
   const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
   const translate = useTranslate()
+
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const debtAsset = useAppSelector(state => selectAssetById(state, borrowAssetId))
+  const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+  const borrowFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, borrowAsset?.assetId ?? ''),
+  )
+
   const collateralAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, collateralAssetId),
   )
@@ -128,6 +139,42 @@ export const BorrowConfirm = ({
     return TxStatus.Unknown
   }, [loanTxStatus])
 
+  const mixpanel = getMixPanel()
+  const eventData = useMemo(() => {
+    if (!confirmedQuote) return {}
+
+    const assets = selectAssets(store.getState())
+    const compositeBorrowAsset = getMaybeCompositeAssetSymbol(borrowAsset?.assetId ?? '', assets)
+    const compositeCollateralAsset = getMaybeCompositeAssetSymbol(collateralAssetId ?? '', assets)
+
+    return {
+      borrowAsset: compositeBorrowAsset,
+      collateralAsset: compositeCollateralAsset,
+      borrowAssetChain: borrowFeeAsset?.networkName,
+      collateralAssetChain: collateralFeeAsset?.networkName,
+      totalFeesUserCurrency: bn(confirmedQuote.quoteTotalFeesFiatUserCurrency).toFixed(2),
+      totalFeesUsd: bn(confirmedQuote.quoteTotalFeesFiatUsd).toFixed(2),
+      depositAmountCryptoPrecision: depositAmount,
+      collateralAmountCryptoPrecision: confirmedQuote.quoteCollateralAmountCryptoPrecision,
+      collateralAmountUserCurrency: bn(
+        confirmedQuote.quoteCollateralAmountFiatUserCurrency,
+      ).toFixed(2),
+      collateralAmountUsd: bn(confirmedQuote.quoteCollateralAmountFiatUsd).toFixed(2),
+      borrowedAmountUserCurrency: bn(confirmedQuote.quoteBorrowedAmountUserCurrency).toFixed(2),
+      borrowedAmountUsd: bn(confirmedQuote.quoteBorrowedAmountUsd).toFixed(2),
+      borrowedAmountCryptoPrecision: confirmedQuote.quoteBorrowedAmountCryptoPrecision,
+      debtAmountUserCurrency: bn(confirmedQuote.quoteDebtAmountUserCurrency).toFixed(2),
+      debtAmountUsd: bn(confirmedQuote.quoteDebtAmountUsd).toFixed(2),
+    }
+  }, [
+    borrowAsset?.assetId,
+    borrowFeeAsset?.networkName,
+    collateralAssetId,
+    collateralFeeAsset?.networkName,
+    confirmedQuote,
+    depositAmount,
+  ])
+
   useEffect(() => {
     // don't start polling until we have a tx
     if (!txId) return
@@ -137,9 +184,10 @@ export const BorrowConfirm = ({
         .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
         .unix()
       await mutateAsync({ txId, expectedCompletionTime })
+      mixpanel?.track(MixPanelEvent.BorrowSuccess, eventData)
       setIsLoanPending(false)
     })()
-  }, [confirmedQuote, mutateAsync, txId])
+  }, [confirmedQuote, eventData, mixpanel, mutateAsync, txId])
 
   const handleBack = useCallback(() => {
     history.push(BorrowRoutePaths.Input)
@@ -187,6 +235,7 @@ export const BorrowConfirm = ({
   const collateralAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
   )
+
   const handleConfirm = useCallback(async () => {
     if (!confirmedQuote) return
 
@@ -214,12 +263,16 @@ export const BorrowConfirm = ({
         chainAdapter &&
         isLendingQuoteSuccess &&
         isEstimatedFeesDataSuccess &&
-        collateralAccountMetadata
+        collateralAccountMetadata &&
+        borrowAsset &&
+        collateralAsset
       )
     )
       return
 
     setIsLoanPending(true)
+
+    mixpanel?.track(MixPanelEvent.BorrowConfirm, eventData)
 
     const from = await getThorchainFromAddress({
       accountId: collateralAccountId,
@@ -266,6 +319,7 @@ export const BorrowConfirm = ({
     return maybeTxId
   }, [
     confirmedQuote,
+    mixpanel,
     isQuoteExpired,
     loanTxStatus,
     collateralAssetId,
@@ -275,6 +329,9 @@ export const BorrowConfirm = ({
     isLendingQuoteSuccess,
     isEstimatedFeesDataSuccess,
     collateralAccountMetadata,
+    borrowAsset,
+    collateralAsset,
+    eventData,
     collateralAccountId,
     estimatedFeesData,
     setTxid,

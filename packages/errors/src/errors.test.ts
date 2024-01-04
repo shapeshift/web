@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { ErrorWithDetails } from './ErrorWithDetails'
 import { ForbiddenError } from './ForbiddenError'
 import { NotFoundError } from './NotFoundError'

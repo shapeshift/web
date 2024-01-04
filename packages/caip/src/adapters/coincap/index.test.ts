@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { toAssetId } from '../../assetId/assetId'
 import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 import { assetIdToCoinCap, coincapToAssetId } from '.'

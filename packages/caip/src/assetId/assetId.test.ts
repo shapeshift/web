@@ -1,4 +1,5 @@
 import { omit } from 'lodash'
+import { describe, expect, it } from 'vitest'
 
 import type { ChainNamespace, ChainReference } from '../chainId/chainId'
 import { toChainId } from '../chainId/chainId'

@@ -1,11 +1,12 @@
 import { Text } from '@chakra-ui/react'
 import { render, renderHook } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 
 import { useRefCallback } from './useRefCallback'
 
 function setup<T>() {
-  const onInit = jest.fn()
-  const onDestroy = jest.fn()
+  const onInit = vi.fn()
+  const onDestroy = vi.fn()
 
   const { result, rerender } = renderHook(() => useRefCallback<T>({ onInit, onDestroy }))
   return { result, rerender, onInit, onDestroy }

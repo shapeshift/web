@@ -1,4 +1,5 @@
 import * as webcrypto from '@peculiar/webcrypto'
+import { describe, expect, it, vi } from 'vitest'
 
 import { decryptNativeWallet, getPasswordHash } from './login'
 

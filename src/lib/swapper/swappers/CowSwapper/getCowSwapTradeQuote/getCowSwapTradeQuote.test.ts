@@ -2,7 +2,7 @@ import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
-import type { AxiosStatic } from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import {
@@ -14,25 +14,42 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
-jest.mock('@shapeshiftoss/chain-adapters')
-jest.mock('../utils/cowService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+vi.mock('@shapeshiftoss/chain-adapters')
+
+const mockedCowService = vi.mocked(cowService)
+
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('../utils/cowService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    cowService: axios.create(),
+    cowService: mockAxios.default.create(),
   }
 })
-jest.mock('../utils/helpers/helpers', () => {
+
+vi.mock('../utils/helpers/helpers', async () => {
+  const actual = await vi.importActual('../utils/helpers/helpers')
   return {
-    ...jest.requireActual('../utils/helpers/helpers'),
+    ...actual,
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
   }
 })
 
-jest.mock('../../utils/helpers/helpers', () => {
+vi.mock('../../utils/helpers/helpers', async () => {
+  const actual = await vi.importActual('../../utils/helpers/helpers')
   return {
-    ...jest.requireActual('../../utils/helpers/helpers'),
+    ...actual,
     getApproveContractData: () => '0xABCDEFGH',
   }
 })
@@ -267,7 +284,7 @@ describe('getCowTradeQuote', () => {
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
     }
 
-    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+    mockedCowService.post.mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
@@ -311,7 +328,7 @@ describe('getCowTradeQuote', () => {
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
     }
 
-    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+    mockedCowService.post.mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
@@ -355,7 +372,7 @@ describe('getCowTradeQuote', () => {
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
     }
 
-    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+    mockedCowService.post.mockReturnValue(
       Promise.resolve(
         Ok({
           data: {
@@ -399,7 +416,7 @@ describe('getCowTradeQuote', () => {
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
     }
 
-    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+    mockedCowService.post.mockReturnValue(
       Promise.resolve(
         Ok({
           data: {

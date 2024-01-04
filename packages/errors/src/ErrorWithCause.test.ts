@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { ErrorWithCause } from './ErrorWithCause'
 
 describe('ErrorWithCause', () => {

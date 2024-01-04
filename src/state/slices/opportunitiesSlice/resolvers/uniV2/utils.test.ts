@@ -1,12 +1,9 @@
-/**
- * @jest-environment node
- */
-
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
 import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import type { Address, GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { getContract } from 'viem'
+import { describe, expect, it, vi } from 'vitest'
 import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,
@@ -18,10 +15,10 @@ const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-jest.mock('lib/viem-client', () => {
+vi.mock('lib/viem-client', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   const viemEthMainnetClient = {
-    createEventFilter: jest.fn(() => ({})),
+    createEventFilter: vi.fn(() => ({})),
     getLogs: () =>
       new Promise(resolve => {
         resolve([

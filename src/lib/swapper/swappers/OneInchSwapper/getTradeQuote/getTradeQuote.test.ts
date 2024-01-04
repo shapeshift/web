@@ -1,29 +1,40 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
-import type { AxiosStatic } from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { oneInchService } from '../utils/oneInchService'
 import { getTradeQuote } from './getTradeQuote'
 
-jest.mock('../utils/oneInchService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('../utils/oneInchService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    oneInchService: axios.create(),
+    oneInchService: mockAxios.default.create(),
   }
 })
 
 const averageGasPrice = '15000000000' // 15 gwei
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
-        getChainId: () => 'eip155:1',
-        getGasFeeData: () => ({
+        getChainId: vi.fn(() => 'eip155:1'),
+        getGasFeeData: vi.fn(() => ({
           average: { gasPrice: averageGasPrice },
-        }),
+        })),
       }),
     }
   },
@@ -35,7 +46,7 @@ describe('getTradeQuote', () => {
   const approvalURL = `${apiUrl}/1/approve/spender`
 
   it('returns the correct quote', async () => {
-    ;(oneInchService.get as jest.Mock<unknown>).mockImplementation(async url => {
+    vi.mocked(oneInchService.get).mockImplementation(async url => {
       switch (url) {
         case approvalURL:
           return await Promise.resolve(

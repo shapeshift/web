@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { generateAppRoutes, pathTo } from './helpers'
 
 const TestComp = () => <div />

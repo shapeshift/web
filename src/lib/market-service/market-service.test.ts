@@ -1,4 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { describe, expect, it, vi } from 'vitest'
 
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import {
@@ -19,30 +20,30 @@ import {
   mockYearnServiceFindAllData,
 } from './yearn/yearnMockData'
 
-const mockCoingeckoFindAll = jest.fn().mockImplementation(() => mockCGFindAllData)
-const mockCoingeckoFindByAssetId = jest.fn().mockImplementation(() => mockCGFindByAssetIdData)
-const mockCoingeckoFindPriceHistoryByAssetId = jest
+const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
+const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
+const mockCoingeckoFindPriceHistoryByAssetId = vi
   .fn()
   .mockImplementation(() => mockCGPriceHistoryData)
 
-jest.mock('./coingecko/coingecko', () => ({
-  CoinGeckoMarketService: jest.fn().mockImplementation(() => ({
+vi.mock('./coingecko/coingecko', () => ({
+  CoinGeckoMarketService: vi.fn().mockImplementation(() => ({
     findAll: mockCoingeckoFindAll,
     findByAssetId: mockCoingeckoFindByAssetId,
     findPriceHistoryByAssetId: mockCoingeckoFindPriceHistoryByAssetId,
   })),
 }))
 
-const coingeckoMock = jest.mocked(CoinGeckoMarketService)
+const coingeckoMock = vi.mocked(CoinGeckoMarketService)
 
-const mockCoincapFindAll = jest.fn().mockImplementation(() => mockCGFindAllData)
-const mockCoincapFindByAssetId = jest.fn().mockImplementation(() => mockCGFindByAssetIdData)
-const mockCoincapFindPriceHistoryByAssetId = jest
+const mockCoincapFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
+const mockCoincapFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
+const mockCoincapFindPriceHistoryByAssetId = vi
   .fn()
   .mockImplementation(() => mockCGPriceHistoryData)
 
-jest.mock('./coincap/coincap', () => ({
-  CoinCapMarketService: jest.fn().mockImplementation(() => {
+vi.mock('./coincap/coincap', () => ({
+  CoinCapMarketService: vi.fn().mockImplementation(() => {
     return {
       findAll: mockCoincapFindAll,
       findByAssetId: mockCoincapFindByAssetId,
@@ -51,14 +52,14 @@ jest.mock('./coincap/coincap', () => ({
   }),
 }))
 
-const mockYearnVaultFindAll = jest.fn().mockImplementation(() => mockYearnServiceFindAllData)
-const mockYearnVaultFindByAssetId = jest.fn().mockImplementation(() => mockYearnFindByAssetIdData)
-const mockYearnVaultFindPriceHistoryByAssetId = jest
+const mockYearnVaultFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
+const mockYearnVaultFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
+const mockYearnVaultFindPriceHistoryByAssetId = vi
   .fn()
   .mockImplementation(() => mockYearnPriceHistoryData)
 
-jest.mock('./yearn/yearn-vaults', () => ({
-  YearnVaultMarketCapService: jest.fn().mockImplementation(() => {
+vi.mock('./yearn/yearn-vaults', () => ({
+  YearnVaultMarketCapService: vi.fn().mockImplementation(() => {
     return {
       findAll: mockYearnVaultFindAll,
       findByAssetId: mockYearnVaultFindByAssetId,
@@ -67,14 +68,12 @@ jest.mock('./yearn/yearn-vaults', () => ({
   }),
 }))
 
-const mockIdleFindAll = jest.fn().mockImplementation(() => mockIdleServiceFindAllData)
-const mockIdleFindByAssetId = jest.fn().mockImplementation(() => mockIdleFindByAssetIdData)
-const mockIdleFindPriceHistoryByAssetId = jest
-  .fn()
-  .mockImplementation(() => mockIdlePriceHistoryData)
+const mockIdleFindAll = vi.fn().mockImplementation(() => mockIdleServiceFindAllData)
+const mockIdleFindByAssetId = vi.fn().mockImplementation(() => mockIdleFindByAssetIdData)
+const mockIdleFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockIdlePriceHistoryData)
 
-jest.mock('./idle/idle', () => ({
-  IdleMarketService: jest.fn().mockImplementation(() => {
+vi.mock('./idle/idle', () => ({
+  IdleMarketService: vi.fn().mockImplementation(() => {
     return {
       findAll: mockIdleFindAll,
       findByAssetId: mockIdleFindByAssetId,
@@ -83,14 +82,14 @@ jest.mock('./idle/idle', () => ({
   }),
 }))
 
-const mockYearnTokenFindAll = jest.fn().mockImplementation(() => mockYearnServiceFindAllData)
-const mockYearnTokenFindByAssetId = jest.fn().mockImplementation(() => mockYearnFindByAssetIdData)
-const mockYearnTokenFindPriceHistoryByAssetId = jest
+const mockYearnTokenFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
+const mockYearnTokenFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
+const mockYearnTokenFindPriceHistoryByAssetId = vi
   .fn()
   .mockImplementation(() => mockYearnPriceHistoryData)
 
-jest.mock('./yearn/yearn-tokens', () => ({
-  YearnTokenMarketCapService: jest.fn().mockImplementation(() => {
+vi.mock('./yearn/yearn-tokens', () => ({
+  YearnTokenMarketCapService: vi.fn().mockImplementation(() => {
     return {
       findAll: mockYearnTokenFindAll,
       findByAssetId: mockYearnTokenFindByAssetId,
@@ -99,14 +98,12 @@ jest.mock('./yearn/yearn-tokens', () => ({
   }),
 }))
 
-const mockFoxyFindAll = jest.fn().mockImplementation(() => mockFoxyMarketData)
-const mockFoxyFindByAssetId = jest.fn().mockImplementation(() => mockFoxyMarketData)
-const mockFoxyFindPriceHistoryByAssetId = jest
-  .fn()
-  .mockImplementation(() => mockFoxyPriceHistoryData)
+const mockFoxyFindAll = vi.fn().mockImplementation(() => mockFoxyMarketData)
+const mockFoxyFindByAssetId = vi.fn().mockImplementation(() => mockFoxyMarketData)
+const mockFoxyFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockFoxyPriceHistoryData)
 
-jest.mock('./foxy/foxy', () => ({
-  FoxyMarketService: jest.fn().mockImplementation(() => {
+vi.mock('./foxy/foxy', () => ({
+  FoxyMarketService: vi.fn().mockImplementation(() => {
     return {
       findAll: mockFoxyFindAll,
       findByAssetId: mockFoxyFindByAssetId,
@@ -115,7 +112,7 @@ jest.mock('./foxy/foxy', () => ({
   }),
 }))
 
-jest.mock('@yfi/sdk')
+vi.mock('@yfi/sdk')
 
 describe('market service', () => {
   const marketServiceManagerArgs = {

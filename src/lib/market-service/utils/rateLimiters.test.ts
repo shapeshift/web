@@ -2,6 +2,7 @@
 import type { AxiosAdapter, AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { RateLimiter as ServerRateLimiter } from 'limiter'
+import { describe, expect, it } from 'vitest'
 
 import { createRateLimiter } from './rateLimiters'
 

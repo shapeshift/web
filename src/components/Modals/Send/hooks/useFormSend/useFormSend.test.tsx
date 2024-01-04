@@ -8,6 +8,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
+import { describe, expect, it, vi } from 'vitest'
 import type { Modals } from 'context/ModalProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -18,41 +19,54 @@ import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
-jest.mock('@shapeshiftoss/metamask-snaps-adapter', () => ({
-  ...jest.requireActual('@shapeshiftoss/metamask-snaps-adapter'),
-  shapeShiftSnapInstalled: jest.fn(),
+vi.mock('@shapeshiftoss/metamask-snaps-adapter', async () => {
+  const actual = await vi.importActual('@shapeshiftoss/metamask-snaps-adapter')
+  return {
+    ...actual,
+    shapeShiftSnapInstalled: vi.fn(),
+  }
+})
+
+vi.mock('state/slices/selectors', async () => {
+  const actual = await vi.importActual('state/slices/selectors')
+  return {
+    ...actual,
+    selectPortfolioAccountMetadataByAccountId: () => ({
+      bip44Params: {
+        purpose: 44,
+        coinType: 60,
+        accountNumber: 0,
+      },
+    }),
+    selectAssetById: vi.fn(() => mockEthereum),
+    selectMarketDataById: () => ({ price: '2000' }),
+  }
+})
+
+vi.mock('@chakra-ui/react', async () => {
+  const actual = await vi.importActual('@chakra-ui/react')
+  return {
+    ...actual,
+    useToast: vi.fn(),
+  }
+})
+
+vi.mock('@shapeshiftoss/hdwallet-core', async () => {
+  const actual = await vi.importActual('@shapeshiftoss/hdwallet-core')
+  return {
+    ...actual,
+    supportsETH: vi.fn(),
+  }
+})
+vi.mock('react-hook-form')
+vi.mock('react-polyglot', () => ({
+  useTranslate: () => vi.fn(),
 }))
 
-jest.mock('state/slices/selectors', () => ({
-  ...jest.requireActual('state/slices/selectors'),
-  selectPortfolioAccountMetadataByAccountId: () => ({
-    bip44Params: {
-      purpose: 44,
-      coinType: 60,
-      accountNumber: 0,
-    },
-  }),
-  selectAssetById: jest.fn(() => mockEthereum),
-  selectMarketDataById: () => ({ price: '2000' }),
-}))
-
-jest.mock('@chakra-ui/react', () => ({
-  ...jest.requireActual('@chakra-ui/react'),
-  useToast: jest.fn(),
-}))
-jest.mock('@shapeshiftoss/hdwallet-core', () => ({
-  ...jest.requireActual('@shapeshiftoss/hdwallet-core'),
-  supportsETH: jest.fn(),
-}))
-jest.mock('react-hook-form')
-jest.mock('react-polyglot', () => ({
-  useTranslate: () => jest.fn(),
-}))
-
-jest.mock('context/PluginProvider/chainAdapterSingleton')
-jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('hooks/useModal/useModal')
-jest.mock('hooks/useWallet/useWallet')
+vi.mock('context/PluginProvider/chainAdapterSingleton')
+vi.mock('context/PluginProvider/PluginProvider')
+vi.mock('hooks/useModal/useModal')
+vi.mock('hooks/useWallet/useWallet')
 
 const mockEvmChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -63,12 +77,15 @@ const mockEvmChainIds = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.ArbitrumNovaMainnet,
 ]
-jest.mock('lib/utils/evm', () => ({
-  ...jest.requireActual('lib/utils/evm'),
-  getSupportedEvmChainIds: () => mockEvmChainIds,
-}))
+vi.mock('lib/utils/evm', async () => {
+  const actual = await vi.importActual('lib/utils/evm')
+  return {
+    ...actual,
+    getSupportedEvmChainIds: () => mockEvmChainIds,
+  }
+})
 
-jest.mock('lib/address/ens')
+vi.mock('lib/address/ens')
 
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
@@ -140,24 +157,22 @@ describe.each([
   ['wallet supports EIP-1559', true],
 ])('useFormSend (%s)', (_, walletSupportsEIP1559) => {
   it('handles successfully sending a tx with ETH address', async () => {
-    const toaster = jest.fn()
-    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
-      Promise.resolve(false),
-    )
-    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    const toaster = vi.fn()
+    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
+    useToast.mockImplementation(() => toaster)
+    useWallet.mockImplementation(() => ({
       state: {
         wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(true),
-          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
+          supportsOfflineSigning: vi.fn().mockReturnValue(true),
+          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
-    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
+    supportsETH.mockReturnValue(true)
 
-    const sendClose = jest.fn()
-    const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+    const sendClose = vi.fn()
+    const qrClose = vi.fn()
+    useModal.mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
           return { close: qrClose }
@@ -180,7 +195,7 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
+    getChainAdapterManager.mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -190,39 +205,37 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     await result.current.handleFormSend(formData)
-    jest.advanceTimersByTime(5000)
+    vi.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
-    const toaster = jest.fn()
-    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
-      Promise.resolve(false),
-    )
-    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    const toaster = vi.fn()
+    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
+    useToast.mockImplementation(() => toaster)
+    useWallet.mockImplementation(() => ({
       state: {
         wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(true),
-          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
+          supportsOfflineSigning: vi.fn().mockReturnValue(true),
+          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
-    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
+    supportsETH.mockReturnValue(true)
 
-    const sendClose = jest.fn()
-    const qrClose = jest.fn()
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() =>
+    const sendClose = vi.fn()
+    const qrClose = vi.fn()
+    ;(ensLookup as unknown).mockImplementation(() =>
       Promise.resolve({
         address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
         error: false,
       }),
     )
-    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+    useModal.mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
           return { close: qrClose }
@@ -246,7 +259,7 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
+    getChainAdapterManager.mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -256,35 +269,33 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     await result.current.handleFormSend(formDataEnsAddress)
-    jest.advanceTimersByTime(5000)
+    vi.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
-    const toaster = jest.fn()
-    const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
-    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
-      Promise.resolve(false),
-    )
-    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    const toaster = vi.fn()
+    const signAndBroadcastTransaction = vi.fn().mockResolvedValue('txid')
+    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
+    useToast.mockImplementation(() => toaster)
+    useWallet.mockImplementation(() => ({
       state: {
         wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(false),
-          supportsBroadcast: jest.fn().mockReturnValue(true),
-          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
+          supportsOfflineSigning: vi.fn().mockReturnValue(false),
+          supportsBroadcast: vi.fn().mockReturnValue(true),
+          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
-    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
+    supportsETH.mockReturnValue(true)
 
-    const sendClose = jest.fn()
-    const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+    const sendClose = vi.fn()
+    const qrClose = vi.fn()
+    useModal.mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
           return { close: qrClose }
@@ -307,7 +318,7 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
+    getChainAdapterManager.mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -317,9 +328,9 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     await result.current.handleFormSend(formData)
-    jest.advanceTimersByTime(5000)
+    vi.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(qrClose).toHaveBeenCalled()
@@ -328,30 +339,28 @@ describe.each([
 
   it('handles successfully sending an ENS name tx without offline signing', async () => {
     const mockWallet = {
-      supportsOfflineSigning: jest.fn().mockReturnValue(false),
-      supportsBroadcast: jest.fn().mockReturnValue(true),
-      ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
+      supportsOfflineSigning: vi.fn().mockReturnValue(false),
+      supportsBroadcast: vi.fn().mockReturnValue(true),
+      ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
     } as unknown as HDWallet
-    const toaster = jest.fn()
-    const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
+    const toaster = vi.fn()
+    const signAndBroadcastTransaction = vi.fn().mockResolvedValue('txid')
+    ensLookup.mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
-    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
-      Promise.resolve(false),
-    )
-    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
+    useToast.mockImplementation(() => toaster)
+    useWallet.mockImplementation(() => ({
       state: {
         wallet: mockWallet,
       },
     }))
-    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
+    supportsETH.mockReturnValue(true)
 
-    const sendClose = jest.fn()
-    const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+    const sendClose = vi.fn()
+    const qrClose = vi.fn()
+    useModal.mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
           return { close: qrClose }
@@ -374,7 +383,7 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
+    getChainAdapterManager.mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -384,9 +393,9 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     await result.current.handleFormSend(formDataEnsAddress)
-    jest.advanceTimersByTime(5000)
+    vi.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(qrClose).toHaveBeenCalled()
@@ -394,18 +403,16 @@ describe.each([
   })
 
   it('handles a failure while sending a tx', async () => {
-    const toaster = jest.fn()
-    ;(shapeShiftSnapInstalled as jest.Mock<unknown>).mockImplementation(() =>
-      Promise.resolve(false),
-    )
-    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    const toaster = vi.fn()
+    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
+    useToast.mockImplementation(() => toaster)
+    useWallet.mockImplementation(() => ({
       state: { wallet: {} },
     }))
 
-    const sendClose = jest.fn()
-    const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+    const sendClose = vi.fn()
+    const qrClose = vi.fn()
+    useModal.mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
           return { close: qrClose }
@@ -430,7 +437,7 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
+    getChainAdapterManager.mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],

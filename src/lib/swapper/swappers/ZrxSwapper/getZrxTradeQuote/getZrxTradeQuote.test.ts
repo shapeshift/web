@@ -1,46 +1,57 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosStatic } from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 
 import { BTC } from '../../utils/test-data/assets'
+import { gasFeeData } from '../../utils/test-data/fees'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
-jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('../utils/zrxService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    zrxServiceFactory: () => axios.create(),
+    zrxServiceFactory: mockAxios.default.create,
   }
 })
 
-const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
-
-jest.mock('../utils/helpers/helpers', () => ({
-  ...jest.requireActual('../utils/helpers/helpers'),
-  baseUrlFromChainId: jest.fn(() => 'https://api.0x.org/'),
-}))
-jest.mock('../../utils/helpers/helpers')
-jest.mock('../utils/zrxService')
-jest.mock('@shapeshiftoss/chain-adapters', () => {
+vi.mock('../utils/helpers/helpers', async () => {
+  const actual = await vi.importActual('../utils/helpers/helpers')
+  return {
+    ...actual,
+    baseUrlFromChainId: vi.fn(() => 'https://api.0x.org/'),
+  }
+})
+vi.mock('../../utils/helpers/helpers')
+vi.mock('@shapeshiftoss/chain-adapters', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   return {
-    isEvmChainId: jest.fn(() => true),
+    isEvmChainId: vi.fn(() => true),
     evmChainIds: [KnownChainIds.EthereumMainnet],
     optimism: {
-      isOptimismChainAdapter: jest.fn(() => false),
+      isOptimismChainAdapter: vi.fn(() => false),
     },
   }
 })
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { gasFeeData } = require('../../utils/test-data/fees')
   return {
-    getChainAdapterManager: jest.fn(
+    getChainAdapterManager: vi.fn(
       () =>
         new Map([
           [
@@ -55,14 +66,16 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   }
 })
 
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
-const mockErr = Err as jest.MockedFunction<typeof Err>
+const mockOk = Ok
+const mockErr = Err
 describe('getZrxTradeQuote', () => {
-  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
+  const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
+
+  vi.mocked(baseUrlFromChainId).mockReturnValue('https://api.0x.org/')
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
+    vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockOk({
           data: { price: '100', gasPrice: '1000', gas: '1000000' },
@@ -82,9 +95,7 @@ describe('getZrxTradeQuote', () => {
 
   it('bubbles up the zrxService Err from a bad zrx response', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockErr({ some: 'error' })),
-    )
+    vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(mockErr({ some: 'error' })))
     const maybeTradeQuote = await getZrxTradeQuote(quoteInput)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
@@ -95,7 +106,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockResolvedValue(
+    vi.mocked(zrxService.get).mockResolvedValue(
       Err({
         response: { data: { code: 502, reason: 'Failed to do some stuff' } },
       }) as unknown as never,
@@ -111,7 +122,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns quote without gas limit', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
+    vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         Ok({
           data: { price: '100' },
@@ -130,7 +141,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for buyAsset', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
+    vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({})))
 
     const maybeTradeQuote = await getZrxTradeQuote({
       ...quoteInput,
@@ -148,7 +159,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
+    ;(zrxService.get as vi.mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
 
     const maybeTradeQuote = await getZrxTradeQuote({
       ...quoteInput,

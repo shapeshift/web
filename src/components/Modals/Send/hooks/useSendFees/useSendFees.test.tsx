@@ -7,18 +7,20 @@ import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
-jest.mock('react-hook-form')
-jest.mock('hooks/useWallet/useWallet')
-jest.mock('state/slices/selectors', () => ({
-  ...jest.requireActual('state/slices/selectors'),
+vi.mock('react-hook-form')
+vi.mock('hooks/useWallet/useWallet')
+vi.mock('state/slices/selectors', () => ({
+  ...vi.importActual('state/slices/selectors'),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectMarketDataById: () => ({ price: '3500' }),
+  selectPortfolioAssetIds: () => [],
 }))
 
 const fees = {
@@ -52,10 +54,10 @@ type SetupProps = {
 }
 
 const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps) => {
-  ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+  useWallet.mockImplementation(() => ({
     state: { wallet },
   }))
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ assetId, estimatedFees }))
+  useWatch.mockImplementation(() => ({ assetId, estimatedFees }))
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -66,7 +68,7 @@ const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps)
 
 describe('useSendFees', () => {
   beforeEach(() => {
-    ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
+    ;(useFormContext as vi.mock<unknown>).mockImplementation(() => ({ control: {} }))
   })
 
   it('returns the fees with market data', async () => {

@@ -1,12 +1,12 @@
 import { btcAssetId, cosmosAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { mocked } from 'jest-mock'
 import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
@@ -24,33 +24,37 @@ import {
 
 import { useSendDetails } from './useSendDetails'
 
-jest.mock('lib/market-service', () => ({
-  findAll: jest.fn,
+vi.mock('lib/market-service', () => ({
+  findAll: vi.fn,
   findByAssetId: () => ({
     price: 3500,
     network: 'ethereum',
   }),
-  findPriceHistoryByAssetId: jest.fn,
+  findPriceHistoryByAssetId: vi.fn,
 }))
-jest.mock('react-hook-form')
-jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
-jest.mock('hooks/useWallet/useWallet')
-jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('lib/utils/cosmosSdk')
-jest.mock('lib/utils/evm')
-jest.mock('lib/utils/utxo')
-jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
+vi.mock('react-hook-form')
+vi.mock('react-router-dom', () => ({ useHistory: vi.fn() }))
+vi.mock('hooks/useWallet/useWallet')
+vi.mock('context/PluginProvider/PluginProvider')
+vi.mock('lib/utils/cosmosSdk')
+vi.mock('lib/utils/evm')
+vi.mock('lib/utils/utxo')
+vi.mock('lib/address/ens', () => ({ ensLookup: vi.fn() }))
 
-jest.mock('state/slices/selectors', () => ({
-  ...jest.requireActual('state/slices/selectors'),
-  selectFeeAssetById: jest.fn(),
-  selectPortfolioCryptoPrecisionBalanceByFilter: jest.fn(),
-  selectPortfolioCryptoBalanceBaseUnitByFilter: jest.fn(),
-  selectPortfolioUserCurrencyBalanceByFilter: jest.fn(),
-  selectMarketDataById: jest.fn(() => ({
-    [ethAssetId]: { price: '2000' },
-  })),
-}))
+vi.mock('state/slices/selectors', async () => {
+  const actual = await vi.importActual('state/slices/selectors')
+
+  return {
+    ...actual,
+    selectFeeAssetById: vi.fn(),
+    selectPortfolioCryptoPrecisionBalanceByFilter: vi.fn(),
+    selectPortfolioCryptoBalanceBaseUnitByFilter: vi.fn(),
+    selectPortfolioUserCurrencyBalanceByFilter: vi.fn(),
+    selectMarketDataById: vi.fn(() => ({
+      [ethAssetId]: { price: '2000' },
+    })),
+  }
+})
 
 const ethAssetId = 'eip155:1/slip44:60'
 const runeAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
@@ -75,10 +79,10 @@ const setup = ({
   asset = mockEthereum,
   assetBalance = '',
   formErrors = {},
-  setError = jest.fn(),
-  setValue = jest.fn(),
+  setError = vi.fn(),
+  setValue = vi.fn(),
 }) => {
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) => {
+  vi.mocked(useWatch).mockImplementation(({ name }) => {
     switch (name) {
       case 'assetId':
         return asset.assetId
@@ -89,7 +93,7 @@ const setup = ({
     }
   })
 
-  mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
+  vi.mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
       [mockEthereum.assetId]: {
         price: '3500',
@@ -106,14 +110,14 @@ const setup = ({
     }
     return fakeMarketData[assetId]
   })
-  mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  mocked(selectPortfolioCryptoPrecisionBalanceByFilter).mockReturnValue(
+  vi.mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
+  vi.mocked(selectPortfolioCryptoPrecisionBalanceByFilter).mockReturnValue(
     fromBaseUnit(assetBalance, asset.precision),
   )
-  mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
-  mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
-  ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
-    clearErrors: jest.fn(),
+  vi.mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
+  vi.mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
+  ;(useFormContext as vi.mock<unknown>).mockImplementation(() => ({
+    clearErrors: vi.fn(),
     setError,
     setValue,
     formState: { errors: formErrors },
@@ -142,21 +146,19 @@ describe('useSendDetails', () => {
   const mockAdapterAtom = Object.assign({}, mockAdapter, { getFeeAssetId: () => cosmosAssetId })
 
   beforeEach(() => {
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
-    ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
-    ;(assertGetCosmosSdkChainAdapter as jest.Mock<unknown>).mockImplementation(
-      () => mockAdapterAtom,
-    )
-    ;(assertGetEvmChainAdapter as jest.Mock<unknown>).mockImplementation(() => mockAdapterEth)
-    ;(assertGetUtxoChainAdapter as jest.Mock<unknown>).mockImplementation(() => mockAdapterBtc)
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
+    useWallet.mockImplementation(() => ({ state: { wallet: {} } }))
+    useHistory.mockImplementation(() => ({ push: vi.fn() }))
+    assertGetCosmosSdkChainAdapter.mockImplementation(() => mockAdapterAtom)
+    assertGetEvmChainAdapter.mockImplementation(() => mockAdapterEth)
+    assertGetUtxoChainAdapter.mockImplementation(() => mockAdapterBtc)
+    ensLookup.mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('returns the default useSendDetails state', () => {
@@ -180,7 +182,7 @@ describe('useSendDetails', () => {
   })
 
   it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
-    let setError = jest.fn()
+    let setError = vi.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
       formErrors: {
@@ -197,8 +199,8 @@ describe('useSendDetails', () => {
   })
 
   it('handles input change on fiatAmount', async () => {
-    jest.useFakeTimers()
-    const setValue = jest.fn()
+    vi.useFakeTimers()
+    const setValue = vi.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
       setValue,
@@ -209,22 +211,22 @@ describe('useSendDetails', () => {
     // Set fiat amount
     await act(async () => {
       await result.current.handleInputChange('1')
-      jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
+      vi.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
 
       setValue.mockClear()
 
       await result.current.handleInputChange('0')
-      jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
+      vi.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
     })
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('handles input change on cryptoAmount', async () => {
-    jest.useFakeTimers()
-    const setValue = jest.fn()
+    vi.useFakeTimers()
+    const setValue = vi.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
       setValue,
@@ -242,15 +244,15 @@ describe('useSendDetails', () => {
     // Set crypto amount
     await act(async () => {
       await result.current.handleInputChange('3500')
-      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
+      vi.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
       setValue.mockClear()
     })
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('handles setting up send max for network asset', async () => {
-    const setValue = jest.fn()
+    const setValue = vi.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
       setValue,
@@ -271,7 +273,7 @@ describe('useSendDetails', () => {
   })
 
   it('handles setting up send max for erc20', async () => {
-    const setValue = jest.fn()
+    const setValue = vi.fn()
     const { result } = setup({
       asset: mockRune,
       assetBalance: balances[runeAssetId],

@@ -88,7 +88,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
               : 'common.invalidAddress'
             return address ? true : invalidMessage
           } catch (e) {
-            // This should never catch, but in case it ever does, we never want to have a stale manual receive address stored
+            // This function should never throw, but in case it ever does, we never want to have a stale manual receive address stored
             console.error(e)
             dispatch(swappers.actions.setManualReceiveAddress(undefined))
           }

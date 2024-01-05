@@ -3,7 +3,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
-import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -11,15 +10,11 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
-const ZERION_BASE_URL = 'https://api.zerion.io/v1'
+const ZERION_BASE_URL = 'https://zerion.shapeshift.com'
 
 const options = {
   method: 'GET' as const,
   baseURL: ZERION_BASE_URL,
-  headers: {
-    accept: 'application/json',
-    authorization: `Basic ${getConfig().REACT_APP_ZERION_API_KEY}`,
-  },
 }
 
 // Looks like we're using a useless memoize here as zerionApi.endpoints.getRelatedAssetIds takes care of caching
@@ -31,7 +26,7 @@ export const _getRelatedAssetIds = memoize(async (assetId: AssetId): Promise<Ass
 
   try {
     const filter = { params: { 'filter[implementation_address]': assetReference } }
-    const url = '/fungibles/'
+    const url = '/fungibles'
     const payload = { ...options, ...filter, url }
     const { data: res } = await axios.request(payload)
     const validationResult = zerionFungiblesSchema.parse(res)

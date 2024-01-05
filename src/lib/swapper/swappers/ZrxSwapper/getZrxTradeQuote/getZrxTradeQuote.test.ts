@@ -5,7 +5,6 @@ import type { AxiosStatic } from 'axios'
 
 import { BTC } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
@@ -18,11 +17,11 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
-const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
+const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum' })
 
 jest.mock('../utils/helpers/helpers', () => ({
   ...jest.requireActual('../utils/helpers/helpers'),
-  baseUrlFromChainId: jest.fn(() => 'https://api.0x.org/'),
+  baseUrlFromChainId: jest.fn(() => 'https://0x.shapeshift.com/ethereum'),
 }))
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
@@ -58,8 +57,6 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
-  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
-
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(

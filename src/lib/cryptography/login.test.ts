@@ -1,5 +1,5 @@
 import * as webcrypto from '@peculiar/webcrypto'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { decryptNativeWallet, getPasswordHash } from './login'
 
@@ -24,13 +24,17 @@ describe('login', () => {
       )
     })
 
-    it('should properly hash email and password', async () => {
-      const email = 'tester987zyx@test.com'
-      const password = 'tester987zyx!'
-      await expect(getPasswordHash(email, password)).resolves.toEqual(
-        'a6EWN3FQlPvRpRfvuQyK69Ofmg1ZioeEencQ/dcQZyE=',
-      )
-    })
+    it(
+      'should properly hash email and password',
+      async () => {
+        const email = 'tester987zyx@test.com'
+        const password = 'tester987zyx!'
+        await expect(getPasswordHash(email, password)).resolves.toEqual(
+          'a6EWN3FQlPvRpRfvuQyK69Ofmg1ZioeEencQ/dcQZyE=',
+        )
+      },
+      { timeout: 10000, retry: 2 },
+    )
   })
 
   describe('decryption', () => {

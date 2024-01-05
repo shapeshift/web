@@ -1,5 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderHook, waitFor } from '@testing-library/react'
+import { act } from 'react-dom/test-utils'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { APP_UPDATE_CHECK_INTERVAL, useHasAppUpdated } from './useHasAppUpdated'
 
@@ -28,9 +29,13 @@ vi.mock('axios', () => {
 
 describe('useHasAppUpdated', () => {
   vi.spyOn(window, 'setInterval')
+  vi.useFakeTimers()
 
   beforeEach(() => {
-    vi.useFakeTimers()
+    vi.unstubAllGlobals()
+  })
+  beforeAll(() => {
+    vi.clearAllTimers()
   })
   afterEach(() => {
     vi.resetAllMocks()
@@ -38,11 +43,10 @@ describe('useHasAppUpdated', () => {
   })
 
   describe('hosted environments', () => {
-    vi.stubGlobal('location', {
-      hostname: 'https://www.example.com',
-    })
-
     it('should return true when metadata.json is updated', async () => {
+      vi.stubGlobal('location', {
+        hostname: 'https://www.example.com',
+      })
       mocks.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -54,9 +58,17 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await waitFor(() => expect(result.current).toBe(true))
+      act(() => {
+        vi.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
+      })
+      await vi.waitFor(() => {
+        return expect(result.current).toBe(true)
+      })
     })
     it('should return false when metadata.json is not updated', async () => {
+      vi.stubGlobal('location', {
+        hostname: 'https://www.example.com',
+      })
       mocks.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -67,6 +79,9 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return false when axios fails', async () => {
+      vi.stubGlobal('location', {
+        hostname: 'https://www.example.com',
+      })
       mocks.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -77,16 +92,15 @@ describe('useHasAppUpdated', () => {
         return Promise.reject({ error: {} })
       })
 
-      await waitFor(() => expect(result.current).toBe(false))
+      await vi.waitFor(() => expect(result.current).toBe(false))
     })
   })
 
   describe('localhost', () => {
-    vi.stubGlobal('location', {
-      hostname: 'localhost',
-    })
-
     it('should return false for localhost', async () => {
+      vi.stubGlobal('location', {
+        hostname: 'localhost',
+      })
       mocks.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -111,6 +125,9 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should not make network requests on localhost', async () => {
+      vi.stubGlobal('location', {
+        hostname: 'localhost',
+      })
       mocks.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
@@ -121,7 +138,7 @@ describe('useHasAppUpdated', () => {
 
       mocks.get.mockImplementationOnce(() => Promise.resolve({ data: {} }))
 
-      await waitFor(() => undefined)
+      await vi.waitFor(() => undefined)
       expect(mocks.get.mock.calls.length).toEqual(0)
     })
   })

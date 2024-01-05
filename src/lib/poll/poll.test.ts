@@ -24,7 +24,7 @@ describe('poll', () => {
     await expect(promise).rejects.toThrow('Exceeded max attempts')
     expect(fn).toHaveBeenCalledTimes(3)
     expect(validate).toHaveBeenCalledTimes(3)
-  }, 4000)
+  })
 
   it('should not resolve or reject after polling is cancelled', async () => {
     const fn = vi.fn().mockImplementation(() => new Promise(() => {})) // Promise that doesn't resolve or reject

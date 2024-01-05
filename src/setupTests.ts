@@ -6,6 +6,7 @@ import '@testing-library/jest-dom'
 
 import { server } from 'test/msw-utils'
 
+// TODO(gomes): do we still need this for vitest?
 global.console = {
   ...console,
   debug: jest.fn(),
@@ -14,15 +15,17 @@ global.console = {
   error: jest.fn(),
 }
 
+// We don't need this anymore because we use happy-dom with vitest now
 // open issues to get this patch eliminated
-//  https://github.com/facebook/jest/issues/9983
-//  https://github.com/jsdom/jsdom/issues/2524
-if (typeof globalThis.TextEncoder === 'undefined') {
-  const { TextEncoder, TextDecoder } = require('util')
-  globalThis.TextEncoder = TextEncoder
-  globalThis.TextDecoder = TextDecoder
-}
+// https://github.com/facebook/jest/issues/9983
+// https://github.com/jsdom/jsdom/issues/2524
+// if (typeof globalThis.TextEncoder === 'undefined') {
+// const { TextEncoder, TextDecoder } = require('util')
+// globalThis.TextEncoder = TextEncoder
+// globalThis.TextDecoder = TextDecoder
+// }
 
+// TODO(gomes): do we still need these for vitest since we don't use react-app-rewired with it?
 beforeAll(() => {
   server!.listen({
     onUnhandledRequest: 'error',

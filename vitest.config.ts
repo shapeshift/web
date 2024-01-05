@@ -14,7 +14,7 @@ export default defineConfig({
       'react-app-rewired/**/*.test.tsx',
     ],
     environment: 'happy-dom',
-    setupFiles: ['dotenv/config'],
+    setupFiles: ['dotenv/config', 'src/setupVitest'],
     poolOptions: {
       threads: {
         singleThread: true,

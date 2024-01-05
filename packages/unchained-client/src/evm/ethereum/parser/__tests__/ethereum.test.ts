@@ -1,11 +1,12 @@
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
+import type { V1Api } from '../../index'
 import {
   FOXY_STAKING_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V3,
@@ -59,11 +60,7 @@ const mocks = vi.hoisted(() => {
   }
   return {
     api: {
-      getTokenMetadata: vi.fn(() => {
-        console.log({ tokenMetadata })
-
-        return tokenMetadata
-      }),
+      getTokenMetadata: vi.fn().mockResolvedValue({ tokenMetadata }),
     },
     tokenMetadata,
     get: vi.fn(() => {
@@ -71,6 +68,19 @@ const mocks = vi.hoisted(() => {
     }),
     post: vi.fn(),
   }
+})
+
+const getApi = vi.hoisted(async () => {
+  const actual = await vi.importActual<{ V1Api: typeof V1Api }>('../../index')
+  const v1Api = vi.mocked(new actual.V1Api())
+  const tokenMetadata = mocks.tokenMetadata
+  v1Api.getTokenMetadata = vi.fn().mockResolvedValue(tokenMetadata)
+
+  return v1Api
+})
+
+vi.hoisted(() => {
+  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
 })
 
 vi.mock('axios', () => {
@@ -88,20 +98,23 @@ vi.mock('axios', () => {
   }
 })
 
-const makeTxParser = () =>
-  new TransactionParser({
-    rpcUrl: '',
-    chainId: ethChainId,
-    assetId: ethAssetId,
-    api: mocks.api as unknown as Api,
-  })
+const makeTxParser = vi.fn(
+  async () =>
+    new TransactionParser({
+      rpcUrl: '',
+      chainId: ethChainId,
+      assetId: ethAssetId,
+      api: (await getApi) as unknown as Api,
+    }),
+)
 
 describe('parseTx', () => {
+  beforeAll(() => {
+    vi.clearAllMocks()
+  })
+
   describe('standard', () => {
     describe('erc721', () => {
-      beforeEach(() => {
-        vi.clearAllMocks()
-      })
       it('should be able to parse mempool send', async () => {
         const { txMempool } = erc721
         const address = '0xa5d981BC0Bc57500ffEDb2674c597F14a3Cb68c1'
@@ -117,7 +130,7 @@ describe('parseTx', () => {
           transfers: [],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(txMempool, address)
 
         expect(actual).toEqual(expected)
@@ -163,9 +176,8 @@ describe('parseTx', () => {
           ],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(tx, address)
-        console.log({ actual, expected })
 
         expect(actual).toEqual(expected)
       })
@@ -185,7 +197,7 @@ describe('parseTx', () => {
           transfers: [],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(txMempool, address)
 
         expect(actual).toEqual(expected)
@@ -227,7 +239,7 @@ describe('parseTx', () => {
           ],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(tx, address)
 
         expect(actual).toEqual(expected)
@@ -250,7 +262,7 @@ describe('parseTx', () => {
           transfers: [],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(txMempool, address)
 
         expect(actual).toEqual(expected)
@@ -296,7 +308,7 @@ describe('parseTx', () => {
           ],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(tx, address)
 
         expect(actual).toEqual(expected)
@@ -317,7 +329,7 @@ describe('parseTx', () => {
           transfers: [],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(txMempool, address)
 
         expect(actual).toEqual(expected)
@@ -359,7 +371,7 @@ describe('parseTx', () => {
           ],
         }
 
-        const txParser = makeTxParser()
+        const txParser = await makeTxParser()
         const actual = await txParser.parse(tx, address)
 
         expect(actual).toEqual(expected)
@@ -395,7 +407,7 @@ describe('parseTx', () => {
         transfers: [standardTransfer],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -441,7 +453,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -486,7 +498,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -527,7 +539,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -568,7 +580,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -609,7 +621,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -659,7 +671,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -707,7 +719,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -756,7 +768,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -831,7 +843,7 @@ describe('parseTx', () => {
         trade,
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -872,7 +884,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(txMempool, address)
 
       expect(actual).toEqual(expected)
@@ -916,7 +928,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -956,7 +968,7 @@ describe('parseTx', () => {
           },
         ],
       }
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
 
       const actual = await txParser.parse(txMempool, address)
 
@@ -1003,7 +1015,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1038,7 +1050,7 @@ describe('parseTx', () => {
         transfers: [],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1086,7 +1098,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(txMempool, address)
 
       expect(actual).toEqual(expected)
@@ -1143,7 +1155,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1178,7 +1190,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(txMempool, address)
 
       expect(actual).toEqual(expected)
@@ -1236,7 +1248,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1275,7 +1287,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1300,7 +1312,7 @@ describe('parseTx', () => {
         transfers: [],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(txMempool, address)
 
       expect(actual).toEqual(expected)
@@ -1340,7 +1352,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1365,7 +1377,7 @@ describe('parseTx', () => {
         transfers: [],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(txMempool, address)
 
       expect(actual).toEqual(expected)
@@ -1414,7 +1426,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1466,7 +1478,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1516,7 +1528,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1566,7 +1578,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1607,7 +1619,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1665,7 +1677,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
@@ -1721,7 +1733,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx2, address)
 
       expect(actual).toEqual(expected)
@@ -1779,7 +1791,7 @@ describe('parseTx', () => {
         ],
       }
 
-      const txParser = makeTxParser()
+      const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)

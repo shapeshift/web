@@ -245,7 +245,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Gnosis,
       })
-      console.log(assetId)
       expect(assetIdToCoingecko(assetId)).toEqual('xdai')
     })
   })

@@ -43,10 +43,6 @@ vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('portfolioSlice', () => {
-  vi.hoisted(() => {
-    vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')
-  })
-
   const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)
   afterAll(() => consoleInfoSpy.mockRestore())
   const bip44Params: BIP44Params = {

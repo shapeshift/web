@@ -36,7 +36,7 @@
     "release": "yarn ts-node --skipProject ./scripts/release.ts",
     "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "test": "yarn test:packages && yarn test:web",
-    "test:web": "yarn vitest react-app-rewired && react-app-rewired test",
+    "test:web": "yarn vitest react-app-rewired && yarn vitest src",
     "test:packages": "yarn vitest packages",
     "test:ci": "yarn test:packages && yarn test:web",
     "test:dev:web": "yarn react-app-rewired test --watch",

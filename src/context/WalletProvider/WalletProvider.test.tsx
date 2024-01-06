@@ -62,10 +62,6 @@ const setup = () => {
   return result
 }
 
-vi.hoisted(() => {
-  vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')
-})
-
 describe('WalletProvider', () => {
   describe('dispatch', () => {
     it('can SET_WALLET sets a wallet in state', () => {

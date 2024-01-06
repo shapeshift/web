@@ -6,19 +6,17 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
-    include: [
-      'src/**/*.test.ts',
-      'src/**/*.test.tsx',
-      'packages/**/*.test.ts',
-      'packages/**/*.test.tsx',
-      'react-app-rewired/**/*.test.ts',
-      'react-app-rewired/**/*.test.tsx',
-    ],
+    include: ['packages/**/*.test.ts', 'packages/**/*.test.tsx'],
     environment: 'happy-dom',
     setupFiles: ['dotenv/config', 'src/setupVitest'],
+    clearMocks: true,
     poolOptions: {
+      isolate: false,
       threads: {
         singleThread: true,
+      },
+      forks: {
+        isolate: false,
       },
     },
   },

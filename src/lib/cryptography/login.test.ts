@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { decryptNativeWallet, getPasswordHash } from './login'
 
-describe.skip('login', () => {
+describe('login', () => {
   globalThis.crypto = new webcrypto.Crypto() as Crypto
 
   describe('password-hash', () => {

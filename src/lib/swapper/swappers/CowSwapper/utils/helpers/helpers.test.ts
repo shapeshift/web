@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 
-vi.mock('../cowService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
+vi.mock('../cowService', async () => {
+  const axios: AxiosStatic = await vi.importMock('axios')
   axios.create = vi.fn(() => axios)
 
   return {

@@ -1,13 +1,22 @@
 import { btcAssetId, cosmosAssetId } from '@shapeshiftoss/caip'
+import type {
+  CosmosSdkChainAdapter,
+  EvmChainAdapter,
+  UtxoChainAdapter,
+} from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook, waitFor } from '@testing-library/react'
+import type { History, LocationState } from 'history'
 import type { PropsWithChildren } from 'react'
+import type { UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { IWalletContext } from 'context/WalletProvider/WalletContext'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { ResolveVanityAddressReturn } from 'lib/address/address'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -82,7 +91,7 @@ const setup = ({
   setError = vi.fn(),
   setValue = vi.fn(),
 }) => {
-  vi.mocked(useWatch).mockImplementation(({ name }) => {
+  vi.mocked(useWatch).mockImplementation((({ name }: { name: string }) => {
     switch (name) {
       case 'assetId':
         return asset.assetId
@@ -91,7 +100,7 @@ const setup = ({
       default:
         return undefined
     }
-  })
+  }) as any)
 
   vi.mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
@@ -116,16 +125,19 @@ const setup = ({
   )
   vi.mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
   vi.mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
-  ;(useFormContext as vi.mock<unknown>).mockImplementation(() => ({
-    clearErrors: vi.fn(),
-    setError,
-    setValue,
-    formState: { errors: formErrors },
-    getValues: () => ({
-      cryptoAmount: '1',
-      asset: asset.assetId,
-    }),
-  }))
+  vi.mocked(useFormContext).mockImplementation(
+    () =>
+      ({
+        clearErrors: vi.fn(),
+        setError,
+        setValue,
+        formState: { errors: formErrors },
+        getValues: () => ({
+          cryptoAmount: '1',
+          asset: asset.assetId,
+        }),
+      }) as unknown as UseFormReturn<any, any>,
+  )
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -141,20 +153,31 @@ describe('useSendDetails', () => {
       txToSign: {},
     }),
   }
-  const mockAdapterBtc = Object.assign({}, mockAdapter, { getFeeAssetId: () => btcAssetId })
-  const mockAdapterEth = Object.assign({}, mockAdapter, { getFeeAssetId: () => ethAssetId })
-  const mockAdapterAtom = Object.assign({}, mockAdapter, { getFeeAssetId: () => cosmosAssetId })
+  const mockAdapterBtc = Object.assign({}, mockAdapter, {
+    getFeeAssetId: () => btcAssetId,
+  }) as unknown as UtxoChainAdapter
+  const mockAdapterEth = Object.assign({}, mockAdapter, {
+    getFeeAssetId: () => ethAssetId,
+  }) as unknown as EvmChainAdapter
+  const mockAdapterAtom = Object.assign({}, mockAdapter, {
+    getFeeAssetId: () => cosmosAssetId,
+  }) as unknown as CosmosSdkChainAdapter
 
   beforeEach(() => {
-    useWallet.mockImplementation(() => ({ state: { wallet: {} } }))
-    useHistory.mockImplementation(() => ({ push: vi.fn() }))
-    assertGetCosmosSdkChainAdapter.mockImplementation(() => mockAdapterAtom)
-    assertGetEvmChainAdapter.mockImplementation(() => mockAdapterEth)
-    assertGetUtxoChainAdapter.mockImplementation(() => mockAdapterBtc)
-    ensLookup.mockImplementation(() => ({
-      address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
-      error: false,
-    }))
+    vi.mocked(useWallet).mockImplementation(() => ({ state: { wallet: {} } }) as IWalletContext)
+    vi.mocked(useHistory).mockImplementation(
+      () => ({ push: vi.fn() }) as unknown as History<LocationState>,
+    )
+    vi.mocked(assertGetCosmosSdkChainAdapter).mockImplementation(() => mockAdapterAtom)
+    vi.mocked(assertGetEvmChainAdapter).mockImplementation(() => mockAdapterEth)
+    vi.mocked(assertGetUtxoChainAdapter).mockImplementation(() => mockAdapterBtc)
+    vi.mocked(ensLookup).mockImplementation(
+      () =>
+        ({
+          address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
+          error: false,
+        }) as unknown as Promise<ResolveVanityAddressReturn>,
+    )
   })
 
   afterEach(() => {

@@ -72,7 +72,7 @@ describe('coincap market service', () => {
     }
 
     it('can flatten multiple responses', async () => {
-      axios.get
+      vi.mocked(axios.get)
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValue({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()

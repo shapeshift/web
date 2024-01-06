@@ -1,9 +1,11 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { oneInchService } from '../utils/oneInchService'
+import type { OneInchBaseResponse } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
 
 const mocks = vi.hoisted(() => ({
@@ -51,8 +53,10 @@ describe('getTradeQuote', () => {
         case approvalURL:
           return await Promise.resolve(
             Ok({
-              data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' },
-            }),
+              data: {
+                address: '0x1111111254eeb25477b68fb85ed929f73a960583',
+              },
+            } as unknown as AxiosResponse<OneInchBaseResponse>),
           )
         case quoteURL:
           return await Promise.resolve(
@@ -91,10 +95,10 @@ describe('getTradeQuote', () => {
                 ],
                 estimatedGas: 189386,
               },
-            }),
+            } as unknown as AxiosResponse<OneInchBaseResponse>),
           )
         default:
-          return await Promise.resolve(Ok({}))
+          return await Promise.resolve(Ok({} as unknown as AxiosResponse<OneInchBaseResponse>))
       }
     })
 

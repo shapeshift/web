@@ -2,9 +2,11 @@ import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import type { CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
@@ -299,7 +301,7 @@ describe('getCowTradeQuote', () => {
               buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
-        }),
+        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
       ),
     )
 
@@ -343,7 +345,7 @@ describe('getCowTradeQuote', () => {
               buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
-        }),
+        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
       ),
     )
 
@@ -387,7 +389,7 @@ describe('getCowTradeQuote', () => {
               buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
-        }),
+        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
       ),
     )
 
@@ -431,7 +433,7 @@ describe('getCowTradeQuote', () => {
               buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
-        }),
+        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
       ),
     )
 

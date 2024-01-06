@@ -1,6 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
-import axios from 'axios'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 

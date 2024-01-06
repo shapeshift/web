@@ -4,10 +4,12 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
+import type { DeepPartialSkipArrayKey, UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { IWalletContext } from 'context/WalletProvider/WalletContext'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
 
@@ -50,14 +52,19 @@ const fees = {
 type SetupProps = {
   assetId: AssetId
   estimatedFees: Record<string, unknown>
-  wallet: HDWallet | null | undefined
+  wallet: HDWallet | null
 }
 
 const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps) => {
-  useWallet.mockImplementation(() => ({
-    state: { wallet },
-  }))
-  useWatch.mockImplementation(() => ({ assetId, estimatedFees }))
+  vi.mocked(useWallet).mockImplementation(
+    () =>
+      ({
+        state: { wallet },
+      }) as IWalletContext,
+  )
+  vi.mocked(useWatch).mockImplementation(
+    () => ({ assetId, estimatedFees }) as unknown as DeepPartialSkipArrayKey<any>,
+  )
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -68,7 +75,12 @@ const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps)
 
 describe('useSendFees', () => {
   beforeEach(() => {
-    ;(useFormContext as vi.mock<unknown>).mockImplementation(() => ({ control: {} }))
+    vi.mocked(useFormContext).mockImplementation(
+      () =>
+        ({
+          control: {},
+        }) as UseFormReturn<any, any>,
+    )
   })
 
   it('returns the fees with market data', async () => {

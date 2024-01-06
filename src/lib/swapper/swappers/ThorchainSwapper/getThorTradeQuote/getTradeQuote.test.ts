@@ -193,7 +193,9 @@ describe('getTradeQuote', () => {
               '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
           }
 
-          return Promise.resolve(Ok(mockThorQuote))
+          return Promise.resolve(
+            Ok(mockThorQuote as unknown as AxiosResponse<ThornodeQuoteResponseSuccess[]>),
+          )
         }
       }
     })

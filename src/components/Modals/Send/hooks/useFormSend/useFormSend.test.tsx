@@ -1,5 +1,7 @@
+import type { CreateToastFnReturn } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -9,8 +11,9 @@ import { renderHook } from '@testing-library/react'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
 import { describe, expect, it, vi } from 'vitest'
-import type { Modals } from 'context/ModalProvider/types'
+import type { BaseProps, Modals } from 'context/ModalProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { IWalletContext } from 'context/WalletProvider/WalletContext'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
@@ -157,27 +160,30 @@ describe.each([
   ['wallet supports EIP-1559', true],
 ])('useFormSend (%s)', (_, walletSupportsEIP1559) => {
   it('handles successfully sending a tx with ETH address', async () => {
-    const toaster = vi.fn()
-    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
-    useToast.mockImplementation(() => toaster)
-    useWallet.mockImplementation(() => ({
-      state: {
-        wallet: {
-          supportsOfflineSigning: vi.fn().mockReturnValue(true),
-          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-        },
-      },
-    }))
-    supportsETH.mockReturnValue(true)
+    const toaster = vi.fn() as unknown as CreateToastFnReturn
+    vi.mocked(shapeShiftSnapInstalled).mockImplementation(() => Promise.resolve(false))
+    vi.mocked(useToast).mockImplementation(() => toaster)
+    vi.mocked(useWallet).mockImplementation(
+      () =>
+        ({
+          state: {
+            wallet: {
+              supportsOfflineSigning: vi.fn().mockReturnValue(true),
+              ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
+            },
+          },
+        }) as unknown as IWalletContext,
+    )
+    vi.mocked(supportsETH).mockReturnValue(true)
 
     const sendClose = vi.fn()
     const qrClose = vi.fn()
-    useModal.mockImplementation((key: keyof Modals) => {
+    vi.mocked(useModal).mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
-          return { close: qrClose }
+          return { close: qrClose } as unknown as BaseProps<any>
         case 'send':
-          return { close: sendClose }
+          return { close: sendClose } as unknown as BaseProps<any>
         default:
           throw Error('invalid key')
       }
@@ -195,13 +201,13 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    getChainAdapterManager.mockImplementation(
+    vi.mocked(getChainAdapterManager).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
           [KnownChainIds.CosmosMainnet, mockAdapter],
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
-        ]),
+        ]) as unknown as ChainAdapterManager,
     )
 
     const { result } = renderHook(() => useFormSend())
@@ -214,33 +220,33 @@ describe.each([
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
-    const toaster = vi.fn()
-    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
-    useToast.mockImplementation(() => toaster)
-    useWallet.mockImplementation(() => ({
-      state: {
-        wallet: {
-          supportsOfflineSigning: vi.fn().mockReturnValue(true),
-          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-        },
-      },
-    }))
-    supportsETH.mockReturnValue(true)
+    const toaster = vi.fn() as unknown as CreateToastFnReturn
+    vi.mocked(shapeShiftSnapInstalled).mockImplementation(() => Promise.resolve(false))
+    vi.mocked(useToast).mockImplementation(() => toaster)
+    vi.mocked(useWallet).mockImplementation(
+      () =>
+        ({
+          state: {
+            wallet: {
+              supportsOfflineSigning: vi.fn().mockReturnValue(true),
+              ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
+            },
+          },
+        }) as unknown as IWalletContext,
+    )
+    vi.mocked(supportsETH).mockReturnValue(true)
 
     const sendClose = vi.fn()
     const qrClose = vi.fn()
-    ;(ensLookup as unknown).mockImplementation(() =>
-      Promise.resolve({
-        address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
-        error: false,
-      }),
+    vi.mocked(ensLookup).mockImplementation(() =>
+      Promise.resolve('0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c'),
     )
-    useModal.mockImplementation((key: keyof Modals) => {
+    vi.mocked(useModal).mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
-          return { close: qrClose }
+          return { close: qrClose } as unknown as BaseProps<any>
         case 'send':
-          return { close: sendClose }
+          return { close: sendClose } as unknown as BaseProps<any>
         default:
           throw Error('invalid key')
       }
@@ -259,13 +265,13 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    getChainAdapterManager.mockImplementation(
+    vi.mocked(getChainAdapterManager).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
           [KnownChainIds.CosmosMainnet, mockAdapter],
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
-        ]),
+        ]) as unknown as ChainAdapterManager,
     )
 
     const { result } = renderHook(() => useFormSend())
@@ -278,29 +284,32 @@ describe.each([
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
-    const toaster = vi.fn()
+    const toaster = vi.fn() as unknown as CreateToastFnReturn
     const signAndBroadcastTransaction = vi.fn().mockResolvedValue('txid')
-    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
-    useToast.mockImplementation(() => toaster)
-    useWallet.mockImplementation(() => ({
-      state: {
-        wallet: {
-          supportsOfflineSigning: vi.fn().mockReturnValue(false),
-          supportsBroadcast: vi.fn().mockReturnValue(true),
-          ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-        },
-      },
-    }))
-    supportsETH.mockReturnValue(true)
+    vi.mocked(shapeShiftSnapInstalled).mockImplementation(() => Promise.resolve(false))
+    vi.mocked(useToast).mockImplementation(() => toaster)
+    vi.mocked(useWallet).mockImplementation(
+      () =>
+        ({
+          state: {
+            wallet: {
+              supportsOfflineSigning: vi.fn().mockReturnValue(false),
+              supportsBroadcast: vi.fn().mockReturnValue(true),
+              ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
+            },
+          },
+        }) as unknown as IWalletContext,
+    )
+    vi.mocked(supportsETH).mockReturnValue(true)
 
     const sendClose = vi.fn()
     const qrClose = vi.fn()
-    useModal.mockImplementation((key: keyof Modals) => {
+    vi.mocked(useModal).mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
-          return { close: qrClose }
+          return { close: qrClose } as unknown as BaseProps<any>
         case 'send':
-          return { close: sendClose }
+          return { close: sendClose } as unknown as BaseProps<any>
         default:
           throw Error('invalid key')
       }
@@ -318,13 +327,13 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    getChainAdapterManager.mockImplementation(
+    vi.mocked(getChainAdapterManager).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
           [KnownChainIds.CosmosMainnet, mockAdapter],
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
-        ]),
+        ]) as unknown as ChainAdapterManager,
     )
 
     const { result } = renderHook(() => useFormSend())
@@ -343,29 +352,31 @@ describe.each([
       supportsBroadcast: vi.fn().mockReturnValue(true),
       ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
     } as unknown as HDWallet
-    const toaster = vi.fn()
+    const toaster = vi.fn() as unknown as CreateToastFnReturn
     const signAndBroadcastTransaction = vi.fn().mockResolvedValue('txid')
-    ensLookup.mockImplementation(() => ({
-      address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
-      error: false,
-    }))
-    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
-    useToast.mockImplementation(() => toaster)
-    useWallet.mockImplementation(() => ({
-      state: {
-        wallet: mockWallet,
-      },
-    }))
-    supportsETH.mockReturnValue(true)
+    vi.mocked(ensLookup).mockImplementation(() =>
+      Promise.resolve('0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c'),
+    )
+    vi.mocked(shapeShiftSnapInstalled).mockImplementation(() => Promise.resolve(false))
+    vi.mocked(useToast).mockImplementation(() => toaster)
+    vi.mocked(useWallet).mockImplementation(
+      () =>
+        ({
+          state: {
+            wallet: mockWallet,
+          },
+        }) as unknown as IWalletContext,
+    )
+    vi.mocked(supportsETH).mockReturnValue(true)
 
     const sendClose = vi.fn()
     const qrClose = vi.fn()
-    useModal.mockImplementation((key: keyof Modals) => {
+    vi.mocked(useModal).mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
-          return { close: qrClose }
+          return { close: qrClose } as unknown as BaseProps<any>
         case 'send':
-          return { close: sendClose }
+          return { close: sendClose } as unknown as BaseProps<any>
         default:
           throw Error('invalid key')
       }
@@ -383,13 +394,13 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    getChainAdapterManager.mockImplementation(
+    vi.mocked(getChainAdapterManager).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
           [KnownChainIds.CosmosMainnet, mockAdapter],
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
-        ]),
+        ]) as unknown as ChainAdapterManager,
     )
 
     const { result } = renderHook(() => useFormSend())
@@ -403,21 +414,24 @@ describe.each([
   })
 
   it('handles a failure while sending a tx', async () => {
-    const toaster = vi.fn()
-    shapeShiftSnapInstalled.mockImplementation(() => Promise.resolve(false))
-    useToast.mockImplementation(() => toaster)
-    useWallet.mockImplementation(() => ({
-      state: { wallet: {} },
-    }))
+    const toaster = vi.fn() as unknown as CreateToastFnReturn
+    vi.mocked(shapeShiftSnapInstalled).mockImplementation(() => Promise.resolve(false))
+    vi.mocked(useToast).mockImplementation(() => toaster)
+    vi.mocked(useWallet).mockImplementation(
+      () =>
+        ({
+          state: { wallet: {} },
+        }) as unknown as IWalletContext,
+    )
 
     const sendClose = vi.fn()
     const qrClose = vi.fn()
-    useModal.mockImplementation((key: keyof Modals) => {
+    vi.mocked(useModal).mockImplementation((key: keyof Modals) => {
       switch (key) {
         case 'qrCode':
-          return { close: qrClose }
+          return { close: qrClose } as unknown as BaseProps<any>
         case 'send':
-          return { close: sendClose }
+          return { close: sendClose } as unknown as BaseProps<any>
         default:
           throw Error('invalid key')
       }
@@ -437,13 +451,13 @@ describe.each([
       getFeeAssetId: () => ethAssetId,
     }
 
-    getChainAdapterManager.mockImplementation(
+    vi.mocked(getChainAdapterManager).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
           [KnownChainIds.CosmosMainnet, mockAdapter],
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
-        ]),
+        ]) as unknown as ChainAdapterManager,
     )
 
     const { result } = renderHook(() => useFormSend())

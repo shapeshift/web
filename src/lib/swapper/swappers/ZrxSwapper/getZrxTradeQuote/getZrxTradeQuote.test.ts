@@ -1,6 +1,9 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import { BTC } from '../../utils/test-data/assets'
@@ -79,7 +82,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve(
         mockOk({
           data: { price: '100', gasPrice: '1000', gas: '1000000' },
-        }),
+        } as AxiosResponse<unknown, any>),
       ),
     )
     const maybeQuote = await getZrxTradeQuote(quoteInput)
@@ -95,7 +98,14 @@ describe('getZrxTradeQuote', () => {
 
   it('bubbles up the zrxService Err from a bad zrx response', async () => {
     const { quoteInput } = setupQuote()
-    vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(mockErr({ some: 'error' })))
+    vi.mocked(zrxService.get).mockReturnValue(
+      Promise.resolve(
+        mockErr({ some: 'error' }) as unknown as Result<
+          AxiosResponse<unknown, any>,
+          SwapErrorRight
+        >,
+      ),
+    )
     const maybeTradeQuote = await getZrxTradeQuote(quoteInput)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
@@ -126,7 +136,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve(
         Ok({
           data: { price: '100' },
-        }),
+        } as AxiosResponse<unknown>),
       ),
     )
     const maybeQuote = await getZrxTradeQuote(quoteInput)
@@ -141,7 +151,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for buyAsset', async () => {
     const { quoteInput } = setupQuote()
-    vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({})))
+    vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({} as AxiosResponse<unknown>)))
 
     const maybeTradeQuote = await getZrxTradeQuote({
       ...quoteInput,
@@ -159,7 +169,9 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
-    ;(zrxService.get as vi.mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
+    vi.mocked(zrxService.get).mockReturnValue(
+      Promise.resolve(Ok({} as AxiosResponse<unknown, any>)),
+    )
 
     const maybeTradeQuote = await getZrxTradeQuote({
       ...quoteInput,

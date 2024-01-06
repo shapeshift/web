@@ -80,7 +80,9 @@ describe('calculateBucketPrices', () => {
     vi.setSystemTime(new Date(mockedDate))
   })
 
-  afterAll(() => vi.useRealTimers())
+  afterAll(() => {
+    vi.useRealTimers()
+  })
 
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const transfer = FOXSend.transfers[0]

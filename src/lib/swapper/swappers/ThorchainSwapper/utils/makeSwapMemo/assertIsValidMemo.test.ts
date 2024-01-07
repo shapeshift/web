@@ -1,4 +1,5 @@
 import { bchChainId, btcChainId, ethChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import { describe, expect, it } from 'vitest'
 
 import { assertIsValidMemo, isValidMemoAddress } from './assertIsValidMemo'
 

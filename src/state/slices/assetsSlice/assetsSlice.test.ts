@@ -2,11 +2,12 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from 'test/mocks/assets'
 import { mockChainAdapters } from 'test/mocks/portfolio'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { MinimalAsset } from './assetsSlice'
 import { makeAsset } from './assetsSlice'
 
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
 

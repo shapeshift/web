@@ -1,5 +1,6 @@
 import { thorchainChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { describe, expect, it } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { getTreasuryAddressFromChainId, normalizeIntegerAmount } from './helpers'

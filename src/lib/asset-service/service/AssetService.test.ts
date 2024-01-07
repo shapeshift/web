@@ -1,12 +1,32 @@
 import type { Asset } from '@shapeshiftoss/types'
+import type { AxiosInstance } from 'axios'
 import axios from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 
 import { AssetService } from './AssetService'
 import { descriptions } from './descriptions'
 
-jest.mock('axios')
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
 
-const mockedAxios = axios as jest.Mocked<typeof axios>
+vi.mock('axios', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
+
+  return {
+    default: mockAxios.default.create(),
+  }
+})
+
+const mockedAxios = vi.mocked<AxiosInstance>(axios)
 
 const EthAsset: Asset = {
   assetId: 'eip155:1/slip44:60',
@@ -21,7 +41,7 @@ const EthAsset: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-jest.mock('./descriptions', () => ({
+vi.mock('./descriptions', () => ({
   descriptions: {
     en: {
       'eip155:1/slip44:60': 'overridden en description',
@@ -50,10 +70,12 @@ jest.mock('./descriptions', () => ({
   },
 }))
 
-jest.mock('./generatedAssetData.json', () => ({
-  'eip155:1/slip44:60': {
-    assetId: 'eip155:1/slip44:60',
-    chainId: 'eip155:1',
+vi.mock('./generatedAssetData.json', () => ({
+  default: {
+    'eip155:1/slip44:60': {
+      assetId: 'eip155:1/slip44:60',
+      chainId: 'eip155:1',
+    },
   },
 }))
 
@@ -84,7 +106,7 @@ describe('AssetService', () => {
 
       const assetService = new AssetService()
       const description = { en: 'a blue fox' }
-      mockedAxios.get.mockResolvedValue({ data: { description } })
+      vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: description.en,
       })
@@ -97,7 +119,7 @@ describe('AssetService', () => {
 
       const assetService = new AssetService()
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
-      mockedAxios.get.mockResolvedValue({ data: { description } })
+      vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
         description: description.es,
       })
@@ -105,7 +127,7 @@ describe('AssetService', () => {
 
     it('should throw if not found', async () => {
       const assetService = new AssetService()
-      mockedAxios.get.mockRejectedValue({ data: null })
+      vi.mocked(mockedAxios.get).mockRejectedValue({ data: null })
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         chainId: 'eip155:1',

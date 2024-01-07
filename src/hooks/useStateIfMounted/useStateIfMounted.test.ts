@@ -1,14 +1,15 @@
 import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useStateIfMounted } from './useStateIfMounted'
 
 describe('useStateIfMounted hook tied to component', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.clearAllTimers()
+    vi.clearAllTimers()
   })
 
   it('sets state if component is mounted', () => {
@@ -29,7 +30,7 @@ describe('useStateIfMounted hook tied to component', () => {
 
     expect(result.current[0]).toBe(0)
 
-    jest.runAllTimers()
+    vi.runAllTimers()
 
     expect(result.current[0]).toBe(1)
   })
@@ -49,7 +50,7 @@ describe('useStateIfMounted hook tied to component', () => {
     )
 
     unmount()
-    jest.runAllTimers()
+    vi.runAllTimers()
 
     expect(state).toBe(0)
   })

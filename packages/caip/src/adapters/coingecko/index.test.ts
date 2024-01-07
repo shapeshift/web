@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { toAssetId } from '../../assetId/assetId'
 import {
   ASSET_REFERENCE,
@@ -243,7 +245,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Gnosis,
       })
-      console.log(assetId)
       expect(assetIdToCoingecko(assetId)).toEqual('xdai')
     })
   })

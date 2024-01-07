@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { mockStore } from 'test/mocks/store'
+import { describe, expect, it } from 'vitest'
 import type {
   OpportunitiesState,
   OpportunityId,

@@ -1,4 +1,5 @@
 import { dogeAssetId, dogeChainId } from '@shapeshiftoss/caip'
+import { describe, expect, it } from 'vitest'
 
 import type { ParsedTx } from '../../../../types'
 import { TransferType, TxStatus } from '../../../../types'

@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { cspMerge, cspToEntries, entriesToCsp, serializeCsp } from './util'
 
 describe('cspToEntries', () => {

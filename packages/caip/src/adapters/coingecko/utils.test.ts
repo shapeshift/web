@@ -1,4 +1,5 @@
 import realFs from 'fs'
+import { describe, expect, it, vi } from 'vitest'
 
 import { bitcoinAssetMap, cosmosAssetMap } from '../../utils'
 import { parseData, writeFiles } from './utils'
@@ -71,10 +72,12 @@ const makeThorchainMockCoingeckoResponse = () => ({
   },
 })
 
-jest.mock('fs', () => ({
-  promises: {
-    writeFile: jest.fn(() => undefined),
-    mkdir: jest.fn(() => undefined),
+vi.mock('fs', () => ({
+  default: {
+    promises: {
+      writeFile: vi.fn(() => undefined),
+      mkdir: vi.fn(() => undefined),
+    },
   },
 }))
 
@@ -177,7 +180,7 @@ describe('adapters:coingecko:utils', () => {
       }
       const fooAssetIds = JSON.stringify(data.foo)
       const barAssetIds = JSON.stringify(data.bar)
-      console.info = jest.fn()
+      console.info = vi.fn()
       await writeFiles(data)
       expect(realFs.promises.mkdir).toHaveBeenNthCalledWith(
         1,

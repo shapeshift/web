@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
 import { assertIsChainId, isChainId } from '../typeGuards'
 import { fromCAIP2, fromChainId, toCAIP2, toChainId } from './chainId'

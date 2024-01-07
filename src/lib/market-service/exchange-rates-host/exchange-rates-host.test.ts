@@ -1,8 +1,8 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
-import axios from 'axios'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './erhMockData'
@@ -13,16 +13,31 @@ const exchangeRateHostService = new ExchangeRateHostService()
 const baseUrl = getConfig().REACT_APP_EXCHANGERATEHOST_BASE_URL
 const apiKey = getConfig().REACT_APP_EXCHANGERATEHOST_API_KEY
 
-jest.mock('axios', () => {
-  const axios = jest.requireActual('axios')
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
 
-  axios.create = jest.fn().mockImplementation(() => axios)
+vi.mock('axios', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
-  return axios
+  return {
+    default: {
+      ...mockAxios.default.create(),
+      create: mockAxios.default.create,
+    },
+  }
 })
 
-jest.mock('axios-cache-interceptor', () => ({
-  setupCache: jest.fn().mockImplementation((axiosInstance: AxiosInstance) => axiosInstance),
+vi.mock('axios-cache-interceptor', () => ({
+  setupCache: vi.fn().mockImplementation((axiosInstance: AxiosInstance) => axiosInstance),
 }))
 
 describe('ExchangeRateHostService', () => {
@@ -30,12 +45,12 @@ describe('ExchangeRateHostService', () => {
   const mockTime = 'T12:00:00.000Z'
   const mockDate = `${mockDay}${mockTime}`
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(new Date(mockDate))
-    jest.useFakeTimers().setSystemTime(new Date(mockDate))
+    vi.useFakeTimers().setSystemTime(new Date(mockDate))
+    vi.useFakeTimers().setSystemTime(new Date(mockDate))
   })
   afterEach(() => {
-    jest.restoreAllMocks()
-    jest.useRealTimers()
+    vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   describe('findByFiatSymbol', () => {
@@ -50,13 +65,13 @@ describe('ExchangeRateHostService', () => {
     }
 
     it('should return fiat market data for EUR', async () => {
-      jest.spyOn(axios, 'get').mockResolvedValue({ data: eurRate })
+      mocks.get.mockResolvedValue({ data: eurRate })
       expect(await exchangeRateHostService.findByFiatSymbol(args)).toEqual(mockERHFindByFiatSymbol)
     })
 
     it('should return null on network error', async () => {
-      jest.spyOn(axios, 'get').mockRejectedValue(Error)
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => void 0)
+      mocks.get.mockRejectedValue(Error)
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(exchangeRateHostService.findByFiatSymbol(args)).rejects.toEqual(
         new Error('FiatMarketService(findByFiatSymbol): error fetching market data'),
       )
@@ -81,15 +96,15 @@ describe('ExchangeRateHostService', () => {
     }
 
     it('should return historical fiat market data for EUR', async () => {
-      jest.spyOn(axios, 'get').mockResolvedValue({ data })
+      mocks.get.mockResolvedValue({ data })
       expect(await exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).toEqual(
         mockERHPriceHistoryData,
       )
     })
 
     it('should return null on network error', async () => {
-      jest.spyOn(axios, 'get').mockRejectedValue(Error)
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => void 0)
+      mocks.get.mockRejectedValue(Error)
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).rejects.toEqual(
         new Error('ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history'),
       )
@@ -97,37 +112,37 @@ describe('ExchangeRateHostService', () => {
     })
 
     it('should have different start and end dates for hour timeframe', async () => {
-      jest.spyOn(axios, 'get').mockResolvedValue({ data })
+      mocks.get.mockResolvedValue({ data })
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
         timeframe: HistoryTimeframe.HOUR,
       })
-      expect(jest.spyOn(axios, 'get')).toBeCalledWith(
+      expect(mocks.get).toBeCalledWith(
         `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
     it('should have different and sensible dates for day timeframe', async () => {
-      jest.spyOn(axios, 'get').mockResolvedValue({ data })
+      mocks.get.mockResolvedValue({ data })
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
         timeframe: HistoryTimeframe.DAY,
       })
-      expect(jest.spyOn(axios, 'get')).toBeCalledWith(
+      expect(mocks.get).toBeCalledWith(
         `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
     it('should have different and sensible dates for week timeframe', async () => {
-      jest.spyOn(axios, 'get').mockResolvedValue({ data })
+      mocks.get.mockResolvedValue({ data })
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
         timeframe: HistoryTimeframe.WEEK,
       })
-      expect(jest.spyOn(axios, 'get')).toBeCalledWith(
+      expect(mocks.get).toBeCalledWith(
         `${baseUrl}/timeframe?access_key=${apiKey}&source=USD&currencies=EUR&start_date=2020-12-24&end_date=${mockDay}`,
       )
     })

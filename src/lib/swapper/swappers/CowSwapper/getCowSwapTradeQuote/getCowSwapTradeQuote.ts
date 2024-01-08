@@ -7,7 +7,7 @@ import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { bn } from 'lib/bignumber/bignumber'
-import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowSwapQuoteError, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -76,7 +76,7 @@ export async function getCowSwapTradeQuote(
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError)?.response?.data
+    const errData = (err.cause as AxiosError<CowSwapQuoteError>)?.response?.data
     if (
       (err.cause as AxiosError)?.isAxiosError &&
       errData?.errorType === 'SellAmountDoesNotCoverFee'

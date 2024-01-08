@@ -67,7 +67,7 @@ const walletConnectV2OptionalChainIds: AtLeastOneNumber = (() => {
 })()
 
 const {
-  REACT_APP_WALLET_CONNECT_PROJECT_ID,
+  REACT_APP_WALLET_CONNECT_WALLET_PROJECT_ID,
   REACT_APP_AVALANCHE_NODE_URL,
   REACT_APP_OPTIMISM_NODE_URL,
   REACT_APP_BNBSMARTCHAIN_NODE_URL,
@@ -79,7 +79,7 @@ const {
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
-  projectId: REACT_APP_WALLET_CONNECT_PROJECT_ID,
+  projectId: REACT_APP_WALLET_CONNECT_WALLET_PROJECT_ID,
   chains: walletConnectV2RequiredChainIds,
   optionalChains: walletConnectV2OptionalChainIds,
   optionalMethods: [

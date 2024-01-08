@@ -6,6 +6,7 @@ import {
   ltcAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import { describe, expect, it } from 'vitest'
 
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'

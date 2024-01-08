@@ -1,11 +1,3 @@
-// Allow explicit any since this is a test file
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-/**
- * Test BitcoinCashChainAdapter
- * @group unit
- */
-
 import { bchAssetId, bchChainId } from '@shapeshiftoss/caip'
 import type { BTCSignTx, BTCWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -17,13 +9,14 @@ import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as bitcoincash from './BitcoinCashChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
+vi.mock('../../utils/validateAddress', () => ({
+  validateAddress: vi.fn(),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
@@ -181,7 +174,7 @@ describe('BitcoinCashChainAdapter', () => {
   describe('getAccount', () => {
     it('should return account info for a specified address', async () => {
       args.providers.http = {
-        getAccount: jest.fn().mockResolvedValue({
+        getAccount: vi.fn().mockResolvedValue({
           pubkey: address,
           balance: '100',
           unconfirmedBalance: '50',
@@ -215,10 +208,10 @@ describe('BitcoinCashChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
-        getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new bitcoincash.ChainAdapter(args)
@@ -272,16 +265,15 @@ describe('BitcoinCashChainAdapter', () => {
     })
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
   describe.skip('signTransaction', () => {
     it('should sign a properly formatted signTxInput object', async () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
-        getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new bitcoincash.ChainAdapter(args)
@@ -329,7 +321,7 @@ describe('BitcoinCashChainAdapter', () => {
     it('is should correctly call broadcastTransaction', async () => {
       const sendDataResult = 'success'
       args.providers.http = {
-        sendTx: jest.fn().mockResolvedValue(sendDataResult),
+        sendTx: vi.fn().mockResolvedValue(sendDataResult),
       } as any
       const adapter = new bitcoincash.ChainAdapter(args)
       const mockTx = '0x123'
@@ -346,8 +338,8 @@ describe('BitcoinCashChainAdapter', () => {
   describe('getFeeData', () => {
     it('should return current BCH network fees', async () => {
       args.providers.http = {
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
-        getUtxos: jest.fn().mockResolvedValue([]),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn().mockResolvedValue([]),
       } as any
 
       const adapter = new bitcoincash.ChainAdapter(args)
@@ -433,7 +425,7 @@ describe('BitcoinCashChainAdapter', () => {
 
     it('should not show address on device by default', async () => {
       const wallet = (await getWallet()) as BTCWallet
-      wallet.btcGetAddress = jest.fn().mockResolvedValue(address)
+      wallet.btcGetAddress = vi.fn().mockResolvedValue(address)
 
       const adapter = new bitcoincash.ChainAdapter(args)
       const accountNumber = 1

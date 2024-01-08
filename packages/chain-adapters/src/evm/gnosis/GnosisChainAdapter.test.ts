@@ -13,6 +13,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
+import { describe, expect, it, vi } from 'vitest'
 import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
@@ -22,8 +23,8 @@ import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as gnosis from './GnosisChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
+vi.mock('../../utils/validateAddress', () => ({
+  validateAddress: vi.fn(),
 }))
 
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -122,8 +123,8 @@ describe('GnosisChainAdapter', () => {
   describe('getFeeData', () => {
     it('should return current network fees', async () => {
       const httpProvider = {
-        estimateGas: jest.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
+        estimateGas: vi.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
+        getGasFees: vi.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.gnosis.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -176,7 +177,7 @@ describe('GnosisChainAdapter', () => {
   describe('getGasFeeData', () => {
     it('should return current network gas fees', async () => {
       const httpProvider = {
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
+        getGasFees: vi.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.gnosis.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -209,7 +210,7 @@ describe('GnosisChainAdapter', () => {
   describe('getAddress', () => {
     const adapter = new gnosis.ChainAdapter(makeChainAdapterArgs())
     const accountNumber = 0
-    const fn = jest.fn()
+    const fn = vi.fn()
 
     it('should return a valid address', async () => {
       const wallet = await getWallet()
@@ -261,7 +262,7 @@ describe('GnosisChainAdapter', () => {
     it('should sign a properly formatted txToSign object', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.gnosis.V1Api
@@ -290,7 +291,7 @@ describe('GnosisChainAdapter', () => {
     it('should throw on txToSign with invalid data', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.gnosis.V1Api
@@ -397,7 +398,7 @@ describe('GnosisChainAdapter', () => {
       const expectedResult = 'success'
 
       const httpProvider = {
-        sendTx: jest.fn().mockResolvedValue(expectedResult),
+        sendTx: vi.fn().mockResolvedValue(expectedResult),
       } as unknown as unchained.gnosis.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -450,7 +451,7 @@ describe('GnosisChainAdapter', () => {
 
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.gnosis.V1Api
@@ -487,7 +488,7 @@ describe('GnosisChainAdapter', () => {
 
     it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.gnosis.V1Api
@@ -514,7 +515,7 @@ describe('GnosisChainAdapter', () => {
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
       )
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.gnosis.V1Api
@@ -549,7 +550,7 @@ describe('GnosisChainAdapter', () => {
 
     it("should build a tx with value: '0' for BEP20 txs without sendMax", async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
@@ -585,7 +586,7 @@ describe('GnosisChainAdapter', () => {
 
     it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
@@ -622,7 +623,7 @@ describe('GnosisChainAdapter', () => {
 
     it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),

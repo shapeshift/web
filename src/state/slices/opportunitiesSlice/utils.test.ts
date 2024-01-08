@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { gomesAccountId, mockStakingContractOne } from './mocks'
 import type { UserStakingId } from './types'
 import type { UserStakingIdParts } from './utils'
@@ -13,7 +15,9 @@ describe('opportunitiesSlice utils', () => {
     })
   })
   describe('deserializeUserStakingId', () => {
-    const result = deserializeUserStakingId(mockStakingIdOne)
-    expect(result).toEqual(mockParts)
+    it('deserializes a UserStakingId into parts', () => {
+      const result = deserializeUserStakingId(mockStakingIdOne)
+      expect(result).toEqual(mockParts)
+    })
   })
 })

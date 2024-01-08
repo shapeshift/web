@@ -7,6 +7,7 @@ import {
   foxAssetId,
   foxyAssetId,
 } from '@shapeshiftoss/caip'
+import { describe, expect, it, test, vi } from 'vitest'
 import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
 import type {
   LpId,
@@ -192,8 +193,8 @@ describe('lib/utils', () => {
       const first = [1, 2, 3]
       const second = [3, 4, 5]
 
-      const add = jest.fn()
-      const remove = jest.fn()
+      const add = vi.fn()
+      const remove = vi.fn()
 
       expect(partitionCompareWith(first, second, { add, remove })).toStrictEqual({
         remove: [1, 2],
@@ -261,15 +262,18 @@ describe('lib/utils', () => {
 
   describe('isFulfilled', () => {
     const fulfilledResult = Promise.resolve('fulfilled')
-    const rejectedResult = Promise.reject('rejected')
+    const createRejectedPromise = () => Promise.reject('rejected')
 
     it('should return true for fulfilled', async () => {
-      const results = await Promise.allSettled([fulfilledResult, rejectedResult])
+      const results = await Promise.allSettled([
+        fulfilledResult,
+        createRejectedPromise().catch(e => e),
+      ])
       expect(isFulfilled(results[0])).toBe(true)
     })
+
     it('should return false for rejected', async () => {
-      const results = await Promise.allSettled([fulfilledResult, rejectedResult])
-      expect(isFulfilled(results[1])).toBe(false)
+      await expect(createRejectedPromise()).rejects.toThrowError('rejected')
     })
   })
 

@@ -1,5 +1,6 @@
 import { Ok } from '@sniptt/monads'
-import type { AxiosResponse, AxiosStatic } from 'axios'
+import type { AxiosResponse } from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 import { ETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
@@ -12,12 +13,25 @@ import {
   getThresholdedAffiliateBps,
 } from './getThresholdedAffiliateBps'
 
-jest.mock('../thorService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+const mockedThorService = vi.mocked(thorService)
+
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('../thorService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    thorService: axios.create(),
+    thorService: mockAxios.default.create(),
   }
 })
 
@@ -65,7 +79,7 @@ describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
 })
 
 describe('getThresholdedAffiliateBps', () => {
-  ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(() => {
+  mockedThorService.get.mockImplementation(() => {
     return Promise.resolve(
       Ok({
         data: {

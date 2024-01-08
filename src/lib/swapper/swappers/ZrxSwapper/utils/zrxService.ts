@@ -1,6 +1,5 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { getConfig } from 'config'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
 import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
@@ -17,11 +16,6 @@ type AxiosInstanceHoF = (
 
 const axiosConfig: AxiosRequestConfig = {
   timeout: 10000,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    '0x-api-key': getConfig().REACT_APP_ZRX_API_KEY,
-  },
 }
 
 export const zrxServiceFactory = ({

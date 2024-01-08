@@ -9,7 +9,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { BTC } from '../../utils/test-data/assets'
 import { gasFeeData } from '../../utils/test-data/fees'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
@@ -37,7 +36,7 @@ vi.mock('../utils/helpers/helpers', async () => {
   const actual = await vi.importActual('../utils/helpers/helpers')
   return {
     ...actual,
-    baseUrlFromChainId: vi.fn(() => 'https://api.0x.org/'),
+    baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum'),
   }
 })
 vi.mock('../../utils/helpers/helpers')
@@ -72,9 +71,7 @@ vi.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok
 const mockErr = Err
 describe('getZrxTradeQuote', () => {
-  const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
-
-  vi.mocked(baseUrlFromChainId).mockReturnValue('https://api.0x.org/')
+  const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum' })
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()

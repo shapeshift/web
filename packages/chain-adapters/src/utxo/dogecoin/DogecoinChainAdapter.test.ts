@@ -1,23 +1,16 @@
-// Allow explicit any since this is a test file
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-/**
- * Test DogecoinChainAdapter
- * @group unit
- */
-
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
+vi.mock('../../utils/validateAddress', () => ({
+  validateAddress: vi.fn(),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
@@ -182,7 +175,7 @@ describe('DogecoinChainAdapter', () => {
   describe('getAccount', () => {
     it('should return account info for a specified address', async () => {
       args.providers.http = {
-        getAccount: jest.fn().mockResolvedValue({
+        getAccount: vi.fn().mockResolvedValue({
           pubkey: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
           balance: '100',
           unconfirmedBalance: '50',
@@ -216,10 +209,10 @@ describe('DogecoinChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
-        getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -274,16 +267,14 @@ describe('DogecoinChainAdapter', () => {
   })
 
   describe('signTransaction', () => {
-    // skip for the moment (need to fill mock data w/ historical receive and spend utxos)
-    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should sign a properly formatted signTxInput object', async () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
-        getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
-        getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
-        getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
+        getTransaction: vi.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
+        getAccount: vi.fn().mockResolvedValue(getAccountMockResponse),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -318,7 +309,7 @@ describe('DogecoinChainAdapter', () => {
     it('is should correctly call broadcastTransaction', async () => {
       const sendDataResult = 'success'
       args.providers.http = {
-        sendTx: jest.fn().mockResolvedValue(sendDataResult),
+        sendTx: vi.fn().mockResolvedValue(sendDataResult),
       } as any
       const adapter = new dogecoin.ChainAdapter(args)
       const mockTx = '0x123'
@@ -335,8 +326,8 @@ describe('DogecoinChainAdapter', () => {
   describe('getFeeData', () => {
     it('should return current BTC network fees', async () => {
       args.providers.http = {
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
-        getUtxos: jest.fn().mockResolvedValue([]),
+        getNetworkFees: vi.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: vi.fn().mockResolvedValue([]),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)

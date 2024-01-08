@@ -10,9 +10,9 @@ let core: ICore
 // WalletConnect Core singleton
 export const getWalletConnectCore = () => {
   if (!core) {
-    const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
+    const walletConnectToDappsProjectId = getConfig().REACT_APP_WALLET_CONNECT_TO_DAPPS_PROJECT_ID
     core = new Core({
-      projectId: walletConnectProjectId,
+      projectId: walletConnectToDappsProjectId,
     })
   }
 

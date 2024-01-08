@@ -235,8 +235,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         setExpiry(expiry)
 
+        const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
+        setIsDangerousWithdraw(_isDangerousWithdraw)
         // If there's nothing being withdrawn, then the protocol fee is the entire amount
-        const protocolFeeCryptoThorBaseUnit = bnOrZero(expected_amount_out).isZero()
+        const protocolFeeCryptoThorBaseUnit = _isDangerousWithdraw
           ? amountCryptoThorBaseUnit
           : amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
@@ -268,6 +270,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
+    isDangerousWithdraw,
   ])
 
   useEffect(() => {
@@ -326,7 +329,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // If there's nothing being withdrawn, then the protocol fee is the entire amount
       const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
       setIsDangerousWithdraw(_isDangerousWithdraw)
-      const protocolFeeCryptoThorBaseUnit = isDangerousWithdraw
+      const protocolFeeCryptoThorBaseUnit = _isDangerousWithdraw
         ? amountCryptoThorBaseUnit
         : amountCryptoThorBaseUnit.minus(expected_amount_out)
       setProtocolFeeCryptoBaseUnit(
@@ -349,7 +352,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       assetId,
       chainId,
-      isDangerousWithdraw,
       isTokenWithdraw,
       maybeFromUTXOAccountAddress,
       opportunityData?.rewardsCryptoBaseUnit?.amounts,

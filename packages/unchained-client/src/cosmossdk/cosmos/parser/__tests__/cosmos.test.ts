@@ -1,4 +1,5 @@
 import { cosmosAssetId, cosmosChainId } from '@shapeshiftoss/caip'
+import { describe, expect, it } from 'vitest'
 
 import { TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'

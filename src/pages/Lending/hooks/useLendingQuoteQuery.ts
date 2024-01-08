@@ -49,6 +49,7 @@ const selectLendingQuoteQuery = memoize(
     borrowAssetMarketData: MarketData
   }): LendingQuoteOpen => {
     const quote = data
+    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
     const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_collateral_deposited,
@@ -58,16 +59,23 @@ const selectLendingQuoteQuery = memoize(
     )
       .times(collateralAssetMarketData.price)
       .toString()
-    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+
+    const quoteCollateralAmountFiatUsd = bn(quoteCollateralAmountFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
+      .toString()
     const quoteDebtAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_issued)
       .times(userCurrencyToUsdRate)
       .toString()
+    const quoteDebtAmountUsd = bn(quoteDebtAmountUserCurrency).div(userCurrencyToUsdRate).toString()
 
     const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
     const quoteBorrowedAmountUserCurrency = bnOrZero(quoteBorrowedAmountCryptoPrecision)
       .times(borrowAssetMarketData?.price ?? 0)
+      .toString()
+    const quoteBorrowedAmountUsd = bn(quoteBorrowedAmountUserCurrency)
+      .div(userCurrencyToUsdRate)
       .toString()
 
     const quoteCollateralizationRatioPercent = bnOrZero(quote.expected_collateralization_ratio).div(
@@ -81,6 +89,9 @@ const selectLendingQuoteQuery = memoize(
       .toString()
     const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
       .times(borrowAssetMarketData?.price ?? 0)
+      .toString()
+    const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
       .toString()
     // getting the amount before all fees, so we can determine the slippage denominated in receive asset
     const borrowAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
@@ -107,12 +118,16 @@ const selectLendingQuoteQuery = memoize(
     return {
       quoteCollateralAmountCryptoPrecision,
       quoteCollateralAmountFiatUserCurrency,
+      quoteCollateralAmountFiatUsd,
       quoteDebtAmountUserCurrency,
+      quoteDebtAmountUsd,
       quoteBorrowedAmountCryptoPrecision,
       quoteBorrowedAmountUserCurrency,
+      quoteBorrowedAmountUsd,
       quoteCollateralizationRatioPercentDecimal,
       quoteSlippageBorrowedAssetCryptoPrecision,
       quoteTotalFeesFiatUserCurrency,
+      quoteTotalFeesFiatUsd,
       quoteInboundAddress,
       quoteMemo,
       quoteOutboundDelayMs,

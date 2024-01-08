@@ -84,12 +84,16 @@ export type BorrowersResponse = BorrowersResponseSuccess | BorrowersResponseErro
 export type LendingQuoteOpen = {
   quoteCollateralAmountCryptoPrecision: string
   quoteCollateralAmountFiatUserCurrency: string
+  quoteCollateralAmountFiatUsd: string
   quoteDebtAmountUserCurrency: string
+  quoteDebtAmountUsd: string
   quoteBorrowedAmountCryptoPrecision: string
   quoteBorrowedAmountUserCurrency: string
+  quoteBorrowedAmountUsd: string
   quoteCollateralizationRatioPercentDecimal: string
   quoteSlippageBorrowedAssetCryptoPrecision: string
   quoteTotalFeesFiatUserCurrency: string
+  quoteTotalFeesFiatUsd: string
   quoteInboundAddress: string
   quoteMemo: string
   quoteOutboundDelayMs: number
@@ -101,11 +105,14 @@ export type LendingQuoteOpen = {
 export type LendingQuoteClose = {
   quoteLoanCollateralDecreaseCryptoPrecision: string
   quoteLoanCollateralDecreaseFiatUserCurrency: string
+  quoteLoanCollateralDecreaseFiatUsd: string
   quoteDebtRepaidAmountUserCurrency: string
+  quoteDebtRepaidAmountUsd: string
   quoteWithdrawnAmountAfterFeesCryptoPrecision: string
   quoteWithdrawnAmountAfterFeesUserCurrency: string
   quoteSlippageWithdrawndAssetCryptoPrecision: string
   quoteTotalFeesFiatUserCurrency: string
+  quoteTotalFeesFiatUsd: string
   quoteInboundAddress: string
   quoteMemo: string
   quoteOutboundDelayMs: number
@@ -113,6 +120,8 @@ export type LendingQuoteClose = {
   quoteTotalTimeMs: number
   quoteExpiry: number
   repaymentAmountCryptoPrecision: string | null
+  repaymentAmountFiatUsd: string | null
+  repaymentAmountFiatUserCurrency: string | null
   repaymentPercent: number
 }
 

@@ -1,10 +1,11 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from 'test/mocks/assets'
 import { mockChainAdapters } from 'test/mocks/portfolio'
+import { describe, expect, it, vi } from 'vitest'
 
 import { mapMixpanelPathname } from './helpers'
 
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
 

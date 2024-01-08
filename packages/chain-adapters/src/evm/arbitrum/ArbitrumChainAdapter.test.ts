@@ -1,9 +1,3 @@
-// Allow explicit any since this is a test file
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * Test ArbitrumChainAdapter
- * @group unit
- */
 import { arbitrumAssetId, arbitrumChainId, ASSET_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
@@ -12,6 +6,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
+import { describe, expect, it, vi } from 'vitest'
 import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
@@ -21,8 +16,8 @@ import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as arbitrum from './ArbitrumChainAdapter'
 
-jest.mock('../../utils/validateAddress', () => ({
-  validateAddress: jest.fn(),
+vi.mock('../../utils/validateAddress', () => ({
+  validateAddress: vi.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -122,8 +117,8 @@ describe('ArbitrumChainAdapter', () => {
   describe('getFeeData', () => {
     it('should return current network fees', async () => {
       const httpProvider = {
-        estimateGas: jest.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
+        estimateGas: vi.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
+        getGasFees: vi.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.arbitrum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -176,7 +171,7 @@ describe('ArbitrumChainAdapter', () => {
   describe('getGasFeeData', () => {
     it('should return current network gas fees', async () => {
       const httpProvider = {
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
+        getGasFees: vi.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.arbitrum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -209,7 +204,7 @@ describe('ArbitrumChainAdapter', () => {
   describe('getAddress', () => {
     const adapter = new arbitrum.ChainAdapter(makeChainAdapterArgs())
     const accountNumber = 0
-    const fn = jest.fn()
+    const fn = vi.fn()
 
     it('should return a valid address', async () => {
       const wallet = await getWallet()
@@ -261,7 +256,7 @@ describe('ArbitrumChainAdapter', () => {
     it('should sign a properly formatted txToSign object', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.arbitrum.V1Api
@@ -290,7 +285,7 @@ describe('ArbitrumChainAdapter', () => {
     it('should throw on txToSign with invalid data', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.arbitrum.V1Api
@@ -397,7 +392,7 @@ describe('ArbitrumChainAdapter', () => {
       const expectedResult = 'success'
 
       const httpProvider = {
-        sendTx: jest.fn().mockResolvedValue(expectedResult),
+        sendTx: vi.fn().mockResolvedValue(expectedResult),
       } as unknown as unchained.arbitrum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -450,7 +445,7 @@ describe('ArbitrumChainAdapter', () => {
 
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.arbitrum.V1Api
@@ -487,7 +482,7 @@ describe('ArbitrumChainAdapter', () => {
 
     it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.arbitrum.V1Api
@@ -514,7 +509,7 @@ describe('ArbitrumChainAdapter', () => {
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
       )
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.arbitrum.V1Api
@@ -549,7 +544,7 @@ describe('ArbitrumChainAdapter', () => {
 
     it("should build a tx with value: '0' for BEP20 txs without sendMax", async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
@@ -585,7 +580,7 @@ describe('ArbitrumChainAdapter', () => {
 
     it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
@@ -622,7 +617,7 @@ describe('ArbitrumChainAdapter', () => {
 
     it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
-        getAccount: jest
+        getAccount: vi
           .fn<any, any>()
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),

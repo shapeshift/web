@@ -278,10 +278,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ])
 
   const getEstimatedFees = useCallback(async () => {
+    if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
+      // UTXO from address not fetched yet
+      return
+    }
+
     const estimateFeesArgs = await getEstimateFeesArgs()
     if (!estimateFeesArgs) return
     return estimateFees(estimateFeesArgs)
-  }, [getEstimateFeesArgs])
+  }, [chainId, getEstimateFeesArgs, maybeFromUTXOAccountAddress])
 
   const getCustomTxInput: () => Promise<BuildCustomTxInput | undefined> = useCallback(async () => {
     if (!contextDispatch) return

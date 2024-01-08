@@ -1,14 +1,15 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { describe, expect, it, vi } from 'vitest'
 
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './exchange-rates-host/erhMockData'
 import { FiatMarketProviders } from './fiat-market-providers'
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from './fiat-market-service-manager'
 
-jest.mock('./exchange-rates-host/exchange-rates-host', () => ({
-  ExchangeRateHostService: jest.fn().mockImplementation(() => {
+vi.mock('./exchange-rates-host/exchange-rates-host', () => ({
+  ExchangeRateHostService: vi.fn().mockImplementation(() => {
     return {
-      findByFiatSymbol: jest.fn(() => mockERHFindByFiatSymbol),
-      findPriceHistoryByFiatSymbol: jest.fn(() => mockERHPriceHistoryData),
+      findByFiatSymbol: vi.fn(() => mockERHFindByFiatSymbol),
+      findPriceHistoryByFiatSymbol: vi.fn(() => mockERHPriceHistoryData),
     }
   }),
 }))

@@ -1,10 +1,11 @@
 import type { Vault } from '@yfi/sdk'
 import realFs from 'fs'
 import toLower from 'lodash/toLower'
+import { describe, expect, it, vi } from 'vitest'
 
 import { parseEthData, writeFiles } from './utils'
 
-jest.mock('@yfi/sdk')
+vi.mock('@yfi/sdk')
 
 const vault1: Vault = {
   address: '0x6FAfCA7f49B4Fd9dC38117469cd31A1E5aec91F5',
@@ -185,9 +186,11 @@ const vault3: Vault = {
   },
 }
 
-jest.mock('fs', () => ({
-  promises: {
-    writeFile: jest.fn(() => undefined),
+vi.mock('fs', () => ({
+  default: {
+    promises: {
+      writeFile: vi.fn(() => undefined),
+    },
   },
 }))
 
@@ -213,7 +216,7 @@ describe('adapters:yearn:utils', () => {
         },
       }
       const fooAssetIds = JSON.stringify(data.foo)
-      console.info = jest.fn()
+      console.info = vi.fn()
       await writeFiles(data)
       expect(realFs.promises.writeFile).toBeCalledWith(
         './src/adapters/yearn/generated/foo/adapter.json',

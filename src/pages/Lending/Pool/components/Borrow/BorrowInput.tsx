@@ -26,8 +26,11 @@ import { RawText } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
@@ -39,11 +42,12 @@ import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimate
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
@@ -176,14 +180,17 @@ export const BorrowInput = ({
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
-
-  const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId ?? '', accountId: collateralAccountId }),
-    [collateralAccountId, feeAsset?.assetId],
+  const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+  const borrowFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, borrowAsset?.assetId ?? ''),
   )
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+
+  const collateralFeeAssetBalanceFilter = useMemo(
+    () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId }),
+    [collateralAccountId, collateralFeeAsset?.assetId],
+  )
+  const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, collateralFeeAssetBalanceFilter),
   )
 
   const amountAvailableCryptoPrecision = useMemo(
@@ -197,17 +204,17 @@ export const BorrowInput = ({
   )
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
-    if (!(isEstimatedFeesDataSuccess && feeAsset)) return false
+    if (!(isEstimatedFeesDataSuccess && collateralFeeAsset)) return false
 
     // This is a native asset, so we can deduct the fees from the value
-    if (feeAsset.assetId === collateralAssetId)
+    if (collateralFeeAsset.assetId === collateralAssetId)
       return bnOrZero(depositAmountCryptoPrecision)
         .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0))
         .lte(amountAvailableCryptoPrecision)
 
     return (
       bnOrZero(depositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
-      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(collateralFeeAssetBalanceCryptoBaseUnit)
     )
   }, [
     amountAvailableCryptoPrecision,
@@ -215,8 +222,8 @@ export const BorrowInput = ({
     collateralAssetId,
     depositAmountCryptoPrecision,
     estimatedFeesData?.txFeeCryptoBaseUnit,
-    feeAsset,
-    feeAssetBalanceCryptoBaseUnit,
+    collateralFeeAsset,
+    collateralFeeAssetBalanceCryptoBaseUnit,
     isEstimatedFeesDataSuccess,
   ])
 
@@ -334,11 +341,51 @@ export const BorrowInput = ({
     return false
   }, [_isSmartContractAddress])
 
+  const mixpanel = getMixPanel()
   const onSubmit = useCallback(() => {
-    if (!lendingQuoteData) return
+    if (!lendingQuoteData || !collateralAsset || !borrowAsset) return
+
+    if (mixpanel) {
+      const assets = selectAssets(store.getState())
+
+      const compositeBorrowAsset = getMaybeCompositeAssetSymbol(borrowAsset.assetId, assets)
+      const compositeCollateralAsset = getMaybeCompositeAssetSymbol(collateralAsset.assetId, assets)
+
+      const eventData = {
+        borrowAsset: compositeBorrowAsset,
+        collateralAsset: compositeCollateralAsset,
+        borrowAssetChain: borrowFeeAsset?.networkName,
+        collateralAssetChain: collateralFeeAsset?.networkName,
+        totalFeesUserCurrency: bn(lendingQuoteData.quoteTotalFeesFiatUserCurrency).toFixed(2),
+        totalFeesUsd: bn(lendingQuoteData.quoteTotalFeesFiatUsd).toFixed(2),
+        depositAmountCryptoPrecision,
+        collateralAmountCryptoPrecision: lendingQuoteData.quoteCollateralAmountCryptoPrecision,
+        collateralAmountUserCurrency: bn(
+          lendingQuoteData.quoteCollateralAmountFiatUserCurrency,
+        ).toFixed(2),
+        collateralAmountUsd: bn(lendingQuoteData.quoteCollateralAmountFiatUsd).toFixed(2),
+        borrowedAmountUserCurrency: bn(lendingQuoteData.quoteBorrowedAmountUserCurrency).toFixed(2),
+        borrowedAmountUsd: bn(lendingQuoteData.quoteBorrowedAmountUsd).toFixed(2),
+        borrowedAmountCryptoPrecision: lendingQuoteData.quoteBorrowedAmountCryptoPrecision,
+        debtAmountUserCurrency: bn(lendingQuoteData.quoteDebtAmountUserCurrency).toFixed(2),
+        debtAmountUsd: bn(lendingQuoteData.quoteDebtAmountUsd).toFixed(2),
+      }
+      mixpanel.track(MixPanelEvent.BorrowPreview, eventData)
+    }
+
     if (!isSweepNeeded) return history.push(BorrowRoutePaths.Confirm)
     history.push(BorrowRoutePaths.Sweep)
-  }, [history, isSweepNeeded, lendingQuoteData])
+  }, [
+    borrowAsset,
+    borrowFeeAsset?.networkName,
+    collateralAsset,
+    collateralFeeAsset?.networkName,
+    depositAmountCryptoPrecision,
+    history,
+    isSweepNeeded,
+    lendingQuoteData,
+    mixpanel,
+  ])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -401,7 +448,7 @@ export const BorrowInput = ({
     lendingQuoteError?.message,
   ])
 
-  if (!(collateralAsset && borrowAsset && feeAsset)) return null
+  if (!(collateralAsset && borrowAsset && collateralFeeAsset)) return null
 
   return (
     <SlideTransition>

@@ -1,4 +1,5 @@
 import type { BIP44Params } from '@shapeshiftoss/types'
+import { describe, expect, it } from 'vitest'
 
 import { fromAddressNList, fromPath, toAddressNList, toPath } from './utils'
 

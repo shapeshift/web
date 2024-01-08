@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
   Button,
   CardFooter,
   CardHeader,
@@ -13,7 +17,8 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
@@ -36,6 +41,9 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
@@ -46,9 +54,11 @@ import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimate
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectAssets,
+  selectFeeAssetById,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { RepayRoutePaths } from './types'
@@ -121,7 +131,59 @@ export const RepayConfirm = ({
     select: mutation => mutation.state.submittedAt,
   })
 
+  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
+  const repaymentFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
+  )
+  const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+
+  const eventData = useMemo(() => {
+    if (!confirmedQuote) return {}
+
+    const assets = selectAssets(store.getState())
+
+    const compositeRepaymentAsset = getMaybeCompositeAssetSymbol(
+      repaymentAsset?.assetId ?? '',
+      assets,
+    )
+    const compositeCollateralAsset = getMaybeCompositeAssetSymbol(
+      collateralAsset?.assetId ?? '',
+      assets,
+    )
+
+    return {
+      repaymentAsset: compositeRepaymentAsset,
+      collateralAsset: compositeCollateralAsset,
+      repaymentAssetChain: repaymentFeeAsset?.networkName,
+      collateralAssetChain: collateralFeeAsset?.networkName,
+      totalFeesUserCurrency: bn(confirmedQuote.quoteTotalFeesFiatUserCurrency).toFixed(2),
+      totalFeesUsd: bn(confirmedQuote.quoteTotalFeesFiatUsd).toFixed(2),
+      repaymentPercent: confirmedQuote.repaymentPercent,
+      repaymentAmountUserCurrency: bnOrZero(confirmedQuote.repaymentAmountFiatUserCurrency).toFixed(
+        2,
+      ),
+      repaymentAmountUsd: bnOrZero(confirmedQuote.repaymentAmountFiatUsd).toFixed(2),
+      repaymentAmountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
+      debtRepaidAmountUserCurrency: bn(confirmedQuote.quoteDebtRepaidAmountUserCurrency).toFixed(2),
+      debtRepaidAmountUsd: bn(confirmedQuote.quoteDebtRepaidAmountUsd).toFixed(2),
+      collateralDecreaseCryptoPrecision: confirmedQuote.quoteLoanCollateralDecreaseCryptoPrecision,
+      collateralDecreaseUserCurrency: bn(
+        confirmedQuote.quoteLoanCollateralDecreaseFiatUserCurrency,
+      ).toFixed(2),
+      collateralDecreaseUsd: bn(confirmedQuote.quoteLoanCollateralDecreaseFiatUsd).toFixed(2),
+    }
+  }, [
+    collateralAsset?.assetId,
+    collateralFeeAsset?.networkName,
+    confirmedQuote,
+    repaymentAsset?.assetId,
+    repaymentFeeAsset?.networkName,
+  ])
+
+  const mixpanel = getMixPanel()
+
   const loanTxStatus = useMemo(() => lendingMutationStatus?.[0], [lendingMutationStatus])
+
   useEffect(() => {
     // don't start polling until we have a tx
     if (!(txId && confirmedQuote)) return
@@ -130,13 +192,13 @@ export const RepayConfirm = ({
         .add(confirmedQuote.quoteTotalTimeMs, 'millisecond')
         .unix()
       await mutateAsync({ txId, expectedCompletionTime })
+      mixpanel?.track(MixPanelEvent.RepaySuccess, eventData)
       setIsLoanPending(false)
     })()
-  }, [confirmedQuote, mutateAsync, refetchLendingPositionData, txId])
+  }, [confirmedQuote, eventData, mixpanel, mutateAsync, refetchLendingPositionData, txId])
 
   const history = useHistory()
   const translate = useTranslate()
-  const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   const handleBack = useCallback(() => {
     history.push(RepayRoutePaths.Input)
@@ -217,6 +279,8 @@ export const RepayConfirm = ({
     }
 
     setIsLoanPending(true)
+
+    mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
@@ -303,10 +367,16 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
-    confirmedQuote,
+    confirmedQuote?.quoteInboundAddress,
+    confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision,
+    confirmedQuote?.quoteMemo,
+    confirmedQuote?.repaymentAmountCryptoPrecision,
+    confirmedQuote?.repaymentPercent,
+    eventData,
     history,
     isQuoteExpired,
     loanTxStatus,
+    mixpanel,
     refetchQuote,
     repaymentAccountId,
     repaymentAccountNumber,
@@ -370,6 +440,30 @@ export const RepayConfirm = ({
 
     return loanTxStatus === 'success' ? 'lending.repayAgain' : 'lending.confirmAndRepay'
   }, [isQuoteExpired, loanTxStatus])
+
+  const maybeLedgerOpenAppWarning = useMemo(() => {
+    if (!wallet || !isLedger(wallet)) return null
+
+    const chain = (() => {
+      if (!chainAdapter) return ''
+      // All EVM chains are managed using the Ethereum app on Ledger
+      if (isEvmChainId(fromAssetId(repaymentAsset?.assetId ?? '').chainId)) return 'Ethereum'
+      return chainAdapter?.getDisplayName()
+    })()
+
+    return (
+      <Alert status='info'>
+        <AlertIcon />
+        <AlertDescription>
+          <Text
+            // eslint is drunk, this whole JSX expression is already memoized
+            // eslint-disable-next-line react-memo/require-usememo
+            translation={['walletProvider.ledger.signWarning', { chain }]}
+          />
+        </AlertDescription>
+      </Alert>
+    )
+  }, [chainAdapter, repaymentAsset, wallet])
 
   if (!collateralAsset || !repaymentAsset) return null
 
@@ -501,28 +595,33 @@ export const RepayConfirm = ({
             mt={0}
           />
           <CardFooter px={4} py={4}>
-            <Button
-              isLoading={
-                isEstimatedFeesDataLoading ||
-                isLendingQuoteCloseQueryRefetching ||
-                loanTxStatus === 'pending' ||
-                isLoanPending
-              }
-              disabled={
-                loanTxStatus === 'pending' ||
-                isLoanPending ||
-                isLendingQuoteCloseQueryRefetching ||
-                isEstimatedFeesDataLoading ||
-                isEstimatedFeesDataError ||
-                !confirmedQuote
-              }
-              onClick={handleConfirm}
-              colorScheme='blue'
-              size='lg'
-              width='full'
-            >
-              {translate(confirmTranslation)}
-            </Button>
+            <Stack spacing={4} width='full'>
+              {maybeLedgerOpenAppWarning && <Box width='full'>{maybeLedgerOpenAppWarning}</Box>}
+              <Box width='full'>
+                <Button
+                  isLoading={
+                    isEstimatedFeesDataLoading ||
+                    isLendingQuoteCloseQueryRefetching ||
+                    loanTxStatus === 'pending' ||
+                    isLoanPending
+                  }
+                  disabled={
+                    loanTxStatus === 'pending' ||
+                    isLoanPending ||
+                    isLendingQuoteCloseQueryRefetching ||
+                    isEstimatedFeesDataLoading ||
+                    isEstimatedFeesDataError ||
+                    !confirmedQuote
+                  }
+                  onClick={handleConfirm}
+                  colorScheme='blue'
+                  size='lg'
+                  width='full'
+                >
+                  {translate(confirmTranslation)}
+                </Button>
+              </Box>
+            </Stack>
           </CardFooter>
         </Stack>
       </Flex>

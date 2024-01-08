@@ -1,11 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const ethers = {
-  ...jest.requireActual('ethers').ethers,
+import {
+  BigNumber,
+  Bytes,
+  BytesLike,
+  ethers,
+  providers,
+  Signature,
+  Signer,
+  UnsignedTransaction,
+  utils,
+} from 'ethers'
+import { vi } from 'vitest'
+
+const ethersMock = {
+  ...ethers,
   providers: {
-    JsonRpcProvider: jest.fn(),
-    JsonRpcBatchProvider: jest.fn(),
+    JsonRpcProvider: vi.fn(),
+    JsonRpcBatchProvider: vi.fn(),
   },
-  Contract: jest.fn().mockImplementation(address => ({
+  Contract: vi.fn().mockImplementation(address => ({
     decimals: () => {
       switch (address as string) {
         case '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48':
@@ -47,18 +59,8 @@ const ethers = {
   })),
 }
 
-// extra mocks for hdwallet which uses explicit imports instead of the standard `import { ethers } from 'ethers'`
-const BigNumber = jest.requireActual('ethers').BigNumber
-const Bytes = jest.requireActual('ethers').Bytes
-const BytesLike = jest.requireActual('ethers').BytesLike
-const Signature = jest.requireActual('ethers').Signature
-const Signer = jest.requireActual('ethers').Signer
-const UnsignedTransaction = jest.requireActual('ethers').UnsignedTransaction
-const providers = jest.requireActual('ethers').providers
-const utils = jest.requireActual('ethers').utils
-
 export {
-  ethers,
+  ethersMock as ethers,
   BigNumber,
   Bytes,
   BytesLike,

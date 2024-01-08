@@ -1,11 +1,13 @@
 import type { CowSwapOrder } from '@shapeshiftoss/swapper'
 import type { AxiosStatic } from 'axios'
+import type { Awaitable, HookCleanupCallback } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 
-jest.mock('../cowService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+vi.mock('../cowService', async () => {
+  const axios: AxiosStatic = await vi.importMock('axios')
+  axios.create = vi.fn(() => axios)
 
   return {
     cowService: axios.create(),
@@ -17,10 +19,15 @@ describe('utils', () => {
     const mockDay = '2020-12-31'
     const mockTime = 'T23:59:59.000Z'
     const mockDate = `${mockDay}${mockTime}`
-    beforeEach(() => jest.useFakeTimers().setSystemTime(new Date(mockDate)))
+    beforeEach(
+      () =>
+        vi
+          .useFakeTimers()
+          .setSystemTime(new Date(mockDate)) as unknown as Awaitable<HookCleanupCallback>,
+    )
     afterEach(() => {
-      jest.restoreAllMocks()
-      jest.useRealTimers()
+      vi.restoreAllMocks()
+      vi.useRealTimers()
     })
 
     it('should return the timestamp corresponding to current time + 30 minutes (UTC)', () => {

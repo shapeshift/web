@@ -3,6 +3,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { mockAssetState } from 'test/mocks/assets'
 import { createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
+import { describe, expect, it } from 'vitest'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 
 const [deposit] = createMockEthTxs('foo')

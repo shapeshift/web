@@ -54,7 +54,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
     get: (trappedAxios, method: 'get' | 'post') => {
       const originalMethodPromise = trappedAxios[method]
       return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
-        // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+        // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {
         //   swapper: swapperName,
         //   url: args[0],
         //   method,

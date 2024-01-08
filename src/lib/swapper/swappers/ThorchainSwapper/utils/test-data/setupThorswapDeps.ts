@@ -2,6 +2,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, ChainAdapterManager, evm } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { vi } from 'vitest'
 
 const feeData = {
   fast: {
@@ -15,11 +16,11 @@ export const mockChainAdapterManager: ChainAdapterManager = new Map([
   [
     KnownChainIds.EthereumMainnet,
     {
-      getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
-      getFeeData: jest.fn(() => feeData),
-      getFeeAssetId: jest.fn(() => ethAssetId),
-      getChainId: jest.fn(() => KnownChainIds.EthereumMainnet),
-      getGasFeeData: jest.fn(
+      getAddress: vi.fn(() => Promise.resolve('0xthisIsMyAddress')),
+      getFeeData: vi.fn(() => feeData),
+      getFeeAssetId: vi.fn(() => ethAssetId),
+      getChainId: vi.fn(() => KnownChainIds.EthereumMainnet),
+      getGasFeeData: vi.fn(
         (): evm.GasFeeDataEstimate => ({
           [FeeDataKey.Slow]: {
             gasPrice: '1',

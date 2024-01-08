@@ -1,5 +1,6 @@
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { describe, expect, it } from 'vitest'
 import { localAssetData } from 'lib/asset-service'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'

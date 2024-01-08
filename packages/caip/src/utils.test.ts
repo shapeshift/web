@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { toAssetId } from './assetId/assetId'
 import type { ChainNamespace, ChainReference } from './chainId/chainId'
 import {

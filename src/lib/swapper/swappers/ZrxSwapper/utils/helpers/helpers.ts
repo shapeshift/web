@@ -17,17 +17,17 @@ import { zrxSupportedChainIds } from '../../types'
 export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
-      return 'https://api.0x.org/'
+      return 'https://0x.shapeshift.com/ethereum/'
     case KnownChainIds.AvalancheMainnet:
-      return 'https://avalanche.api.0x.org/'
+      return 'https://0x.shapeshift.com/avalanche/'
     case KnownChainIds.OptimismMainnet:
-      return 'https://optimism.api.0x.org/'
+      return 'https://0x.shapeshift.com/optimism/'
     case KnownChainIds.BnbSmartChainMainnet:
-      return 'https://bsc.api.0x.org/'
+      return 'https://0x.shapeshift.com/bnbsmartchain/'
     case KnownChainIds.PolygonMainnet:
-      return 'https://polygon.api.0x.org/'
+      return 'https://0x.shapeshift.com/polygon/'
     case KnownChainIds.ArbitrumMainnet:
-      return 'https://arbitrum.api.0x.org/'
+      return 'https://0x.shapeshift.com/arbitrum/'
     default:
       assertUnreachable(chainId)
   }

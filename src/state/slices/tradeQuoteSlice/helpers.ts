@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -108,25 +108,34 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (quote: TradeQuote) => {
   ).toString()
 }
 
-// TODO(woodenfurniture): this assumes `requiresBalance` is the same for steps for a given asset
-export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
-  quote.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
-    return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
-      (innerAcc, [assetId, protocolFee]) => {
-        if (!protocolFee) return innerAcc
-        if (innerAcc[assetId] === undefined) {
-          innerAcc[assetId] = protocolFee
-          return innerAcc
-        }
+export const _reduceTotalProtocolFeeByAssetForStep = (
+  accumulator: Record<AssetId, ProtocolFee>,
+  step: TradeQuoteStep,
+) =>
+  Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
+    (innerAccumulator, [assetId, protocolFee]) => {
+      if (!protocolFee) return innerAccumulator
+      if (innerAccumulator[assetId] === undefined) {
+        innerAccumulator[assetId] = protocolFee
+        return innerAccumulator
+      }
 
-        innerAcc[assetId] = {
-          ...innerAcc[assetId],
-          amountCryptoBaseUnit: bn(innerAcc[assetId].amountCryptoBaseUnit)
-            .plus(protocolFee.amountCryptoBaseUnit)
-            .toString(),
-        }
-        return innerAcc
-      },
-      acc,
-    )
-  }, {})
+      innerAccumulator[assetId] = {
+        ...innerAccumulator[assetId],
+        amountCryptoBaseUnit: bn(innerAccumulator[assetId].amountCryptoBaseUnit)
+          .plus(protocolFee.amountCryptoBaseUnit)
+          .toString(),
+      }
+      return innerAccumulator
+    },
+    accumulator,
+  )
+
+export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
+  _reduceTotalProtocolFeeByAssetForStep({}, step)
+
+export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
+  quote.steps.reduce<Record<AssetId, ProtocolFee>>(
+    (acc, step) => _reduceTotalProtocolFeeByAssetForStep(acc, step),
+    {},
+  )

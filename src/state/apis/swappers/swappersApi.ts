@@ -21,6 +21,7 @@ import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { validateTradeQuote } from './helpers/validateTradeQuote'
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swappersApi = createApi({
@@ -83,14 +84,41 @@ export const swappersApi = createApi({
           })
           .flat()
 
+        const unorderedQuotes: Omit<ApiQuote, 'index'>[] = quotesWithInputOutputRatios.map(
+          quoteData => {
+            const { quote, swapperName, inputOutputRatio, error } = quoteData
+
+            // TODO: TradeQuoteTopLevelError(s)
+            // quotes.length === 0 &&
+            // bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
+            // TradeQuoteValidationError.NoQuotesAvailable,
+
+            const validationErrors = validateTradeQuote(state, {
+              swapperName,
+              quote,
+              error,
+            })
+            return {
+              quote,
+              swapperName,
+              inputOutputRatio,
+              validationErrors,
+            }
+          },
+        )
+
         const orderedQuotes: ApiQuote[] = orderBy(
-          quotesWithInputOutputRatios,
+          unorderedQuotes,
           ['inputOutputRatio', 'swapperName'],
           ['desc', 'asc'],
         ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
-        // Ensures we autoselect the first quote on quotes received
-        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
+        const firstActionableQuote = orderedQuotes.find(
+          apiQuote => apiQuote.validationErrors.length === 0,
+        )
+
+        // Ensure we auto-select the first actionable quote
+        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(firstActionableQuote?.index ?? 0))
         return { data: orderedQuotes }
       },
       providesTags: ['TradeQuote'],

@@ -6,6 +6,7 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
@@ -20,6 +21,8 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -173,22 +176,25 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         state.wallet?.disconnect?.()
         store.dispatch(localWalletSlice.actions.clearLocalWallet())
       }
-      const deviceId = action?.payload?.deviceId
-      // set walletId in redux store
-      const walletMeta = { walletId: deviceId, walletName: action?.payload?.name }
+      const { deviceId, name, wallet, icon, meta, isDemoWallet, connectedType } = action.payload
+      // set wallet metadata in redux store
+      const walletMeta = {
+        walletId: deviceId,
+        walletName: name,
+      }
       store.dispatch(portfolio.actions.setWalletMeta(walletMeta))
       return {
         ...state,
-        isDemoWallet: Boolean(action.payload.isDemoWallet),
-        wallet: action.payload.wallet,
-        connectedType: action.payload.connectedType,
+        isDemoWallet: Boolean(isDemoWallet),
+        wallet,
+        connectedType,
         walletInfo: {
-          name: action?.payload?.name,
-          icon: action?.payload?.icon,
+          name,
+          icon,
           deviceId,
           meta: {
-            label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet).ethAddress ?? '',
+            label: meta?.label ?? '',
+            address: (wallet as MetaMaskHDWallet).ethAddress ?? '',
           },
         },
       }
@@ -317,9 +323,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
       // reset wallet meta in redux store
-      store.dispatch(
-        portfolio.actions.setWalletMeta({ walletId: undefined, walletName: undefined }),
-      )
+      store.dispatch(portfolio.actions.setWalletMeta(undefined))
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
@@ -981,6 +985,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       connectDemo,
     ],
   )
+
+  const isSnapInstalled = useIsSnapInstalled()
+
+  useEffect(() => {
+    const walletSupportedChains = Object.values(KnownChainIds).filter(chainId =>
+      walletSupportsChain({ chainId, wallet: value.state.wallet, isSnapInstalled }),
+    )
+    store.dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChains))
+  }, [isSnapInstalled, value.state.wallet])
 
   return (
     <WalletContext.Provider value={value}>

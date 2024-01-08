@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -93,9 +93,6 @@ export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
   selectActiveQuote,
   (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
 )
-
-export const selectActiveQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
-  createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.error)
 
 /*
   Cross-account trading means trades that are either:

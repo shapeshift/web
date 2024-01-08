@@ -1,6 +1,6 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
@@ -23,8 +23,9 @@ import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
 type WalletMetaPayload = {
-  walletId?: WalletId | undefined
-  walletName?: string | undefined
+  walletId: WalletId
+  walletName: string
+  walletSupportedChains: ChainId[]
 }
 
 export const portfolio = createSlice({
@@ -34,37 +35,48 @@ export const portfolio = createSlice({
     clear: () => {
       return initialState
     },
-    setWalletMeta: (state, { payload }: { payload: WalletMetaPayload }) => {
-      const { walletId, walletName } = payload
+    setWalletMeta: (
+      state,
+      { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChains'> | undefined },
+    ) => {
       // don't fire and rerender with same action
-      if (state.walletId === walletId) return
+      if (state.connectedWallet?.id === payload?.walletId) return
+
       // note this function can unset the walletId to undefined
-      if (walletId) {
+      if (payload !== undefined) {
+        const { walletId, walletName } = payload
+
         const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
         // if we already have state.walletId, we're switching wallets, otherwise connecting
         getMixPanel()?.track(
-          state.walletId ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
+          state.connectedWallet?.id ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
           data,
         )
-        state.walletId = walletId
-        state.walletName = walletName
+        state.connectedWallet = {
+          id: walletId,
+          name: walletName,
+          supportedChainIds: [],
+        }
         state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
       } else {
-        state.walletId = undefined
-        state.walletName = undefined
+        state.connectedWallet = undefined
         getMixPanel()?.track(MixPanelEvent.DisconnectWallet)
       }
+    },
+    setWalletSupportedChainIds: (state, { payload }: { payload: ChainId[] }) => {
+      if (state.connectedWallet === undefined) return
+      Object.assign(state.connectedWallet, { supportedChainIds: payload })
     },
     upsertAccountMetadata: {
       reducer: (draftState, { payload }: { payload: AccountMetadataById }) => {
         draftState.accountMetadata.byId = merge(draftState.accountMetadata.byId, payload)
         draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-        if (!draftState.walletId) return // realistically, at this point, we should have a walletId set
-        const existingWalletAccountIds = draftState.wallet.byId[draftState.walletId] ?? []
+        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
+        const existingWalletAccountIds = draftState.wallet.byId[draftState.connectedWallet.id] ?? []
         const newWalletAccountIds = Object.keys(payload)
         // keep an index of what account ids belong to this wallet
-        draftState.wallet.byId[draftState.walletId] = uniq(
+        draftState.wallet.byId[draftState.connectedWallet.id] = uniq(
           existingWalletAccountIds.concat(newWalletAccountIds),
         )
       },

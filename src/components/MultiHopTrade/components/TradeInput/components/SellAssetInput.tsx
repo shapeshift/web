@@ -17,12 +17,18 @@ export type SellAssetInputProps = {
   asset: Asset
   onAccountIdChange: AccountDropdownProps['onChange']
   labelPostFix?: TradeAssetInputProps['labelPostFix']
+  percentOptions: number[]
 }
 
-const percentOptions = [1]
-
 export const SellAssetInput = memo(
-  ({ accountId, asset, label, onAccountIdChange, ...rest }: SellAssetInputProps) => {
+  ({
+    accountId,
+    asset,
+    label,
+    onAccountIdChange,
+    percentOptions,
+    ...rest
+  }: SellAssetInputProps) => {
     const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
     const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
     const dispatch = useAppDispatch()

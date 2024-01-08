@@ -39,7 +39,6 @@ vi.mock('../utils/helpers/helpers', async () => {
     baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum'),
   }
 })
-vi.mock('../../utils/helpers/helpers')
 vi.mock('@shapeshiftoss/chain-adapters', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   return {

@@ -36,7 +36,7 @@ vi.mock('../utils/helpers/helpers', async () => {
   const actual = await vi.importActual('../utils/helpers/helpers')
   return {
     ...actual,
-    baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum'),
+    baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
   }
 })
 vi.mock('@shapeshiftoss/chain-adapters', () => {
@@ -70,7 +70,7 @@ vi.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok
 const mockErr = Err
 describe('getZrxTradeQuote', () => {
-  const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum' })
+  const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum/' })
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()

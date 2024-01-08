@@ -8,6 +8,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { describe, expect, test } from 'vitest'
 
 import { filterEvmAssetIdsBySellable } from './filterAssetIdsBySellable'
 

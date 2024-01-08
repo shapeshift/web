@@ -8,6 +8,7 @@ import {
   polygonAssetId,
 } from '@shapeshiftoss/caip'
 import { mockChainAdapters } from 'test/mocks/portfolio'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   accountIdToFeeAssetId,
@@ -16,7 +17,7 @@ import {
   trimWithEndEllipsis,
 } from './utils'
 
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
 

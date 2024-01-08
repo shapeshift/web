@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee } from '@shapeshiftoss/swapper'
 import BigNumber from 'bignumber.js'
+import { describe, expect, it } from 'vitest'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
 import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
@@ -109,32 +110,32 @@ describe('sumProtocolFeesToDenom', () => {
 })
 
 describe('subtractBasisPoints', () => {
-  test('should subtract 100 basis points correctly', () => {
+  it('should subtract 100 basis points correctly', () => {
     const result = subtractBasisPointAmount('100', '100')
     expect(result).toBe('99')
   })
 
-  test('should subtract 0 basis points correctly', () => {
+  it('should subtract 0 basis points correctly', () => {
     const result = subtractBasisPointAmount('100', '0')
     expect(result).toBe('100')
   })
 
-  test('should subtract 10000 basis points correctly', () => {
+  it('should subtract 10000 basis points correctly', () => {
     const result = subtractBasisPointAmount('100', '10000')
     expect(result).toBe('0')
   })
 
-  test('should subtract 20000 basis points correctly', () => {
+  it('should subtract 20000 basis points correctly', () => {
     const result = subtractBasisPointAmount('100', '20000')
     expect(result).toBe('-100')
   })
 
-  test('should handle very large numbers correctly', () => {
+  it('should handle very large numbers correctly', () => {
     const result = subtractBasisPointAmount('123456789012345678901234567890', '100')
     expect(result).toBe('122222221122222222112222222211.1')
   })
 
-  test('should round up correctly', () => {
+  it('should round up correctly', () => {
     const result = subtractBasisPointAmount(
       '123456789012345678901234567890',
       '100',

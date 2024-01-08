@@ -1,128 +1,128 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`portfolioSlice reducers upsertPortfolio Bitcoin should update state 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update state 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "bip122:000000000019d6689c085ae165831e93/slip44:0": "100",
       },
     },
-    "ids": Array [
+    "ids": [
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
+        "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice reducers upsertPortfolio Bitcoin should update state with multiple bitcoin accounts 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update state with multiple bitcoin accounts 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "bip122:000000000019d6689c085ae165831e93/slip44:0": "100",
       },
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "bip122:000000000019d6689c085ae165831e93/slip44:0": "100",
       },
     },
-    "ids": Array [
+    "ids": [
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
+        "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
         "hasActivity": true,
       },
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
-        "assetIds": Array [
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
+        "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice reducers upsertPortfolio Ethereum and bitcoin should update state 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > should update state 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "bip122:000000000019d6689c085ae165831e93/slip44:0": "1010",
       },
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
         "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9": "8178352",
         "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "41208456",
         "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "42729243327349401946",
         "eip155:1/slip44:60": "27803816548287370",
       },
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
         "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9": "8178352",
         "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "41208456",
         "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "40729243327349401946",
         "eip155:1/slip44:60": "23803816548287370",
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
+        "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
         "hasActivity": true,
       },
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
-        "assetIds": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -130,8 +130,8 @@ Object {
         ],
         "hasActivity": true,
       },
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
-        "assetIds": Array [
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -140,27 +140,27 @@ Object {
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice reducers upsertPortfolio Ethereum and bitcoin should update state and exclude unknown asset ids 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > should update state and exclude unknown asset ids 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "bip122:000000000019d6689c085ae165831e93/slip44:0": "1010",
       },
-      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": Object {
+      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": {
         "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9": "8178312",
         "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "41208442",
         "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "40729243327349401958",
@@ -168,25 +168,25 @@ Object {
         "eip155:1/slip44:60": "23803816548287371",
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9",
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
+        "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
         "hasActivity": true,
       },
-      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": Object {
-        "assetIds": Array [
+      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9",
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -196,105 +196,105 @@ Object {
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9",
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice reducers upsertPortfolio ethereum should update state 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update state 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
         "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
         "eip155:1/slip44:60": "1000",
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
         ],
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice reducers upsertPortfolio ethereum should update state with multiple accounts 1`] = `
-Object {
-  "accountBalances": Object {
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update state with multiple accounts 1`] = `
+{
+  "accountBalances": {
+    "byId": {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
         "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
         "eip155:1/slip44:60": "1000",
       },
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
         "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
         "eip155:1/slip44:60": "10",
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
     ],
   },
-  "accountMetadata": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "accountMetadata": {
+    "byId": {},
+    "ids": [],
   },
-  "accounts": Object {
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
-        "assetIds": Array [
+  "accounts": {
+    "byId": {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
         ],
         "hasActivity": true,
       },
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
-        "assetIds": Array [
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
+        "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         ],
         "hasActivity": true,
       },
     },
-    "ids": Array [
+    "ids": [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
     ],
   },
-  "wallet": Object {
-    "byId": Object {},
-    "ids": Array [],
+  "wallet": {
+    "byId": {},
+    "ids": [],
   },
 }
 `;
 
-exports[`portfolioSlice selectors selectPortfolioAccountRows should return correct portfolio rows in case of 100% allocation on one asset 1`] = `Array []`;
+exports[`portfolioSlice > selectors > selectPortfolioAccountRows > should return correct portfolio rows in case of 100% allocation on one asset 1`] = `[]`;

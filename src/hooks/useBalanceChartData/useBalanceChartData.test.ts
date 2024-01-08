@@ -4,6 +4,7 @@ import type { Asset, HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
@@ -39,11 +40,13 @@ describe('makeBuckets', () => {
 
 describe('bucketTxs', () => {
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date(mockedDate))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(mockedDate))
   })
 
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => {
+    vi.useRealTimers()
+  })
 
   it('can bucket txs', () => {
     const transfer = FOXSend.transfers[0]
@@ -73,11 +76,13 @@ describe('bucketTxs', () => {
 
 describe('calculateBucketPrices', () => {
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date(mockedDate))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(mockedDate))
   })
 
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => {
+    vi.useRealTimers()
+  })
 
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const transfer = FOXSend.transfers[0]

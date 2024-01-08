@@ -46,9 +46,13 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  const onMaxClick = useCallback(async () => {
-    if (props.onChange) await props.onChange(balance, false)
-  }, [balance, props])
+  const onMaxClick = useCallback(
+    async (isFiat: boolean) => {
+      const value = isFiat ? fiatBalance : balance
+      if (props.onChange) await props.onChange(value, isFiat)
+    },
+    [balance, fiatBalance, props],
+  )
 
   return (
     <TradeAmountInput

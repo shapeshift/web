@@ -61,6 +61,7 @@ export const SellAssetInput = memo(
         const sellAmountCryptoPrecision = isFiat
           ? bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
           : value
+        console.log({ isFiat, sellAmountUserCurrencyHuman, sellAmountCryptoPrecision })
         handleSellAssetInputChangeInner(sellAmountUserCurrencyHuman, sellAmountCryptoPrecision)
       },
       [handleSellAssetInputChangeInner, sellAssetUserCurrencyRate],

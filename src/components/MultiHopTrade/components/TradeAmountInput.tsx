@@ -59,7 +59,7 @@ export type TradeAmountInputProps = {
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
-  onMaxClick?: () => Promise<void>
+  onMaxClick?: (isFiat: boolean) => Promise<void>
   onPercentOptionClick?: (args: number) => void
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
@@ -177,6 +177,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [assetSymbol, balance, fiatBalance, isFiat, translate],
     )
 
+    const handleOnMaxClick = useMemo(() => {
+      if (!onMaxClick) return
+
+      return () => onMaxClick(isFiat)
+    }, [isFiat, onMaxClick])
+
     return (
       <FormControl
         borderWidth={1}
@@ -274,7 +280,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               <PercentOptionsButtonGroup
                 options={percentOptions}
                 isDisabled={isReadOnly || isSendMaxDisabled}
-                onMaxClick={onMaxClick}
+                onMaxClick={handleOnMaxClick}
                 onClick={onPercentOptionClick ?? noop}
               />
             )}

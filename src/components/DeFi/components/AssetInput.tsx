@@ -53,7 +53,7 @@ export type AssetInputProps = {
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
-  onMaxClick?: () => void
+  onMaxClick?: () => Promise<void>
   onPercentOptionClick?: (args: number) => void
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
@@ -217,7 +217,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               options={percentOptions}
               isDisabled={isReadOnly || isSendMaxDisabled}
               onMaxClick={onMaxClick}
-              onPercentOptionClick={onPercentOptionClick}
+              onClick={onPercentOptionClick}
             />
           )}
         </Stack>

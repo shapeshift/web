@@ -5,8 +5,8 @@ import { Amount } from 'components/Amount/Amount'
 
 type MaxButtonProps = {
   isDisabled?: boolean
-  onPercentOptionClick?: (args: number) => void
-  onMaxClick?: () => void
+  onClick: (args: number) => void
+  onMaxClick?: () => Promise<void>
   option: number
   value?: number | null
 }
@@ -18,19 +18,15 @@ const percentFormatOptions = {
 
 export const PercentOptionsButton: React.FC<MaxButtonProps> = ({
   isDisabled,
-  onPercentOptionClick,
+  onClick,
   onMaxClick,
   option,
   value,
 }) => {
   const translate = useTranslate()
-  const handleClick = useCallback(() => {
-    if (onMaxClick && option === 1) {
-      onMaxClick()
-    } else if (onPercentOptionClick) {
-      onPercentOptionClick(option)
-    }
-  }, [onPercentOptionClick, onMaxClick, option])
+  const handleClick = useCallback(async () => {
+    onMaxClick && option === 1 ? await onMaxClick() : onClick(option)
+  }, [onClick, onMaxClick, option])
 
   return (
     <Button isDisabled={isDisabled} isActive={option === value} key={option} onClick={handleClick}>
@@ -45,15 +41,15 @@ export const PercentOptionsButton: React.FC<MaxButtonProps> = ({
 
 type MaxButtonGroupProps = {
   isDisabled?: boolean
-  onPercentOptionClick?: (args: number) => void
-  onMaxClick?: () => void
+  onClick: (args: number) => void
+  onMaxClick?: () => Promise<void>
   options: number[]
   value?: number | null
 }
 
 export const PercentOptionsButtonGroup: React.FC<MaxButtonGroupProps> = ({
   isDisabled,
-  onPercentOptionClick,
+  onClick,
   onMaxClick,
   options,
   value,
@@ -66,7 +62,7 @@ export const PercentOptionsButtonGroup: React.FC<MaxButtonGroupProps> = ({
           value={value}
           option={option}
           key={option}
-          onPercentOptionClick={onPercentOptionClick}
+          onClick={onClick}
           onMaxClick={onMaxClick}
         />
       ))}

@@ -11,6 +11,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import noop from 'lodash/noop'
 import type { FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
@@ -58,7 +59,7 @@ export type TradeAmountInputProps = {
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
-  onMaxClick?: () => void
+  onMaxClick?: () => Promise<void>
   onPercentOptionClick?: (args: number) => void
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
@@ -274,7 +275,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 options={percentOptions}
                 isDisabled={isReadOnly || isSendMaxDisabled}
                 onMaxClick={onMaxClick}
-                onPercentOptionClick={onPercentOptionClick}
+                onClick={onPercentOptionClick ?? noop}
               />
             )}
           </Flex>

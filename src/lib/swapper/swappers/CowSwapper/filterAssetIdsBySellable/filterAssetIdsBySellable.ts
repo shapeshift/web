@@ -7,7 +7,6 @@ import { getSupportedChainIds } from '../utils/helpers/helpers'
 
 export const filterAssetIdsBySellable = (assets: Asset[]): AssetId[] => {
   const supportedChainIds = getSupportedChainIds()
-  console.log({ assets, supportedChainIds })
   return assets
     .filter(asset => {
       return (

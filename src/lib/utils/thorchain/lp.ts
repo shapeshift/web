@@ -33,11 +33,12 @@ export const getThorchainLiquidityProviderPosition = async ({
 }): Promise<LiquidityProvider | null> => {
   // TODO(gomes): we want to use the /liquidity_provider/<address> endpoint for any chain other than UTXOs
   // this is a big response, and can take a long time to be fetched
-  const lendingPositionsResponse = await getAllThorchainLiquidityProviderPositions(assetId)
+  const liquidityProviderPositionsResponse =
+    await getAllThorchainLiquidityProviderPositions(assetId)
 
-  const allPositions = lendingPositionsResponse
+  const allPositions = liquidityProviderPositionsResponse
   if (!allPositions.length) {
-    throw new Error(`No lending positions found for asset ID: ${assetId}`)
+    throw new Error(`No LP positions found for asset ID: ${assetId}`)
   }
 
   const accountAddresses = await getAccountAddresses(accountId)

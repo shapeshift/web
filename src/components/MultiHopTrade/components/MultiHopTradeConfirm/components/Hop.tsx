@@ -19,7 +19,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
@@ -32,7 +31,6 @@ import { useAppSelector } from 'state/store'
 
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
-import { DonationStep } from './DonationStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
@@ -63,7 +61,6 @@ export const Hop = ({
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const {
     state: hopExecutionState,
@@ -191,7 +188,7 @@ export const Hop = ({
             hopIndex={hopIndex}
             isLastStep={!shouldRenderFinalSteps}
           />
-          {shouldRenderFinalSteps && isFoxDiscountsEnabled ? <FeeStep /> : <DonationStep />}
+          {shouldRenderFinalSteps ? <FeeStep /> : null}
           {shouldRenderFinalSteps && (
             <AssetSummaryStep
               asset={tradeQuoteStep.buyAsset}

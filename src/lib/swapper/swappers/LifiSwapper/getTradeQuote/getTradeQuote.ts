@@ -85,7 +85,7 @@ export async function getTradeQuote(
     toAddress: receiveAddress,
     fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     options: {
-      // used for analytics and donations - do not change this without considering impact
+      // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },

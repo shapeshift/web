@@ -11,6 +11,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import noop from 'lodash/noop'
 import type { FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
@@ -58,7 +59,7 @@ export type TradeAmountInputProps = {
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
-  onMaxClick?: () => Promise<void>
+  onMaxClick: (isFiat: boolean) => Promise<void>
   onPercentOptionClick?: (args: number) => void
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
@@ -176,6 +177,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [assetSymbol, balance, fiatBalance, isFiat, translate],
     )
 
+    const handleOnMaxClick = useMemo(() => () => onMaxClick(isFiat), [isFiat, onMaxClick])
+
     return (
       <FormControl
         borderWidth={1}
@@ -269,14 +272,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
               </Button>
             )}
-            {onPercentOptionClick && (
-              <PercentOptionsButtonGroup
-                options={percentOptions}
-                isDisabled={isReadOnly || isSendMaxDisabled}
-                onMaxClick={onMaxClick}
-                onClick={onPercentOptionClick}
-              />
-            )}
+            <PercentOptionsButtonGroup
+              options={percentOptions}
+              isDisabled={isReadOnly || isSendMaxDisabled}
+              onMaxClick={handleOnMaxClick}
+              onClick={onPercentOptionClick ?? noop}
+            />
           </Flex>
         )}
 

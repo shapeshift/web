@@ -1,5 +1,5 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import React, { memo, useCallback, useMemo } from 'react'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'

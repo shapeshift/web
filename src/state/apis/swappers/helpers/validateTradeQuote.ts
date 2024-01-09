@@ -1,6 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+// import { isTradingActive } from 'components/MultiHopTrade/utils'
+import { isSmartContractAddress } from 'lib/address/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -23,10 +25,10 @@ import {
   selectSellAmountCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 
-import type { TradeQuoteValidationMeta } from '../types'
+import type { ValidationMeta } from '../types'
 import { TradeQuoteError } from '../types'
 
-export const validateTradeQuote = (
+export const validateTradeQuote = async (
   state: ReduxState,
   {
     swapperName,
@@ -37,7 +39,7 @@ export const validateTradeQuote = (
     quote: TradeQuote | undefined
     error: SwapErrorRight | undefined
   },
-): TradeQuoteValidationMeta[] => {
+): Promise<ValidationMeta<TradeQuoteError>[]> => {
   if (!quote || error) return [{ error: TradeQuoteError.UnknownError }]
 
   const isMultiHopTrade = quote.steps.length > 1
@@ -146,7 +148,35 @@ export const validateTradeQuote = (
     !recommendedMinimumCryptoBaseUnit ||
     bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
 
+  const disableSmartContractSwap = await (async () => {
+    // Swappers other than THORChain shouldn't be affected by this limitation
+    if (swapperName !== SwapperName.Thorchain) return false
+
+    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    const _isSmartContractAddress = await isSmartContractAddress(quote.receiveAddress)
+    if (_isSmartContractAddress !== false) return true
+
+    // All checks passed - this is an EOA address
+    return false
+  })()
+
+  const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = [true, true]
+
+  // await Promise.all([
+  //   isTradingActive(firstHop.sellAsset.assetId, swapperName),
+  //   isTradingActive(firstHop.buyAsset.assetId, swapperName),
+  // ])
+
   return [
+    !!disableSmartContractSwap && {
+      error: TradeQuoteError.SmartContractWalletNotSupported,
+    },
+    !isTradingActiveOnSellPool && {
+      error: TradeQuoteError.TradingInactiveOnSellChain,
+    },
+    !isTradingActiveOnBuyPool && {
+      error: TradeQuoteError.TradingInactiveOnBuyChain,
+    },
     !walletSupportsIntermediaryAssetChain && {
       error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
     },

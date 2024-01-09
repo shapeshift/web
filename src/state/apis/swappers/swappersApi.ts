@@ -10,17 +10,28 @@ import {
 } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote } from 'state/apis/swappers/types'
+import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
+import { TradeQuoteRequestValidationError } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import {
+  selectIsWalletConnected,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectWalletSupportedChainIds,
+} from 'state/slices/common-selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectManualReceiveAddress,
+  selectSellAsset,
+} from 'state/slices/swappersSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { prevalidateQuoteRequest } from './helpers/prevalidateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
@@ -30,33 +41,62 @@ export const swappersApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
-    getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
-      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+    getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
+      queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
-          getTradeQuoteInput
+        const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
+        const isWalletConnected = selectIsWalletConnected(state)
+        const walletSupportedChains = selectWalletSupportedChainIds(state)
+        const manualReceiveAddress = selectManualReceiveAddress(state)
+        const firstHopSellAccountId = selectFirstHopSellAccountId(state)
+        const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+          accountId: firstHopSellAccountId,
+          assetId: tradeQuoteInput.sellAsset.assetId,
+        })
+
+        const topLevelValidationErrors = await prevalidateQuoteRequest({
+          tradeQuoteInput,
+          isWalletConnected,
+          walletSupportedChains,
+          manualReceiveAddress,
+          sellAssetBalanceCryptoBaseUnit,
+        })
+
+        if (topLevelValidationErrors.length > 0) {
+          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
+          return { data: { validationErrors: topLevelValidationErrors, quotes: [] } }
+        }
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
           marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
         )
 
-        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, tradeQuoteInput.sellAsset.assetId)
 
         // this should never be needed but here for paranoia
         if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
 
         const quoteResults = await getTradeQuotes(
           {
-            ...getTradeQuoteInput,
+            ...tradeQuoteInput,
             affiliateBps,
           },
           enabledSwappers,
           selectAssets(state),
         )
+
+        if (quoteResults.length === 0) {
+          return {
+            data: {
+              validationErrors: [{ error: TradeQuoteRequestValidationError.NoQuotesAvailable }],
+              quotes: [],
+            },
+          }
+        }
 
         const quotesWithInputOutputRatios = quoteResults
           .map(result => {
@@ -84,16 +124,10 @@ export const swappersApi = createApi({
           })
           .flat()
 
-        const unorderedQuotes: Omit<ApiQuote, 'index'>[] = quotesWithInputOutputRatios.map(
-          quoteData => {
+        const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
+          quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
-
-            // TODO: TradeQuoteTopLevelError(s)
-            // quotes.length === 0 &&
-            // bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
-            // TradeQuoteValidationError.NoQuotesAvailable,
-
-            const validationErrors = validateTradeQuote(state, {
+            const validationErrors = await validateTradeQuote(state, {
               swapperName,
               quote,
               error,
@@ -104,7 +138,7 @@ export const swappersApi = createApi({
               inputOutputRatio,
               validationErrors,
             }
-          },
+          }),
         )
 
         const orderedQuotes: ApiQuote[] = orderBy(
@@ -119,7 +153,7 @@ export const swappersApi = createApi({
 
         // Ensure we auto-select the first actionable quote
         dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(firstActionableQuote?.index ?? 0))
-        return { data: orderedQuotes }
+        return { data: { validationErrors: [], quotes: orderedQuotes } }
       },
       providesTags: ['TradeQuote'],
     }),

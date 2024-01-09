@@ -4,11 +4,11 @@ import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-import type { ApiQuote } from './types'
+import type { ApiQuote, TradeQuoteResponse } from './types'
 
 const selectSwappersApi = (state: ReduxState) => state.swappersApi
 
-export const selectMostRecentTradeQuoteQuery = createDeepEqualOutputSelector(
+const selectMostRecentTradeQuoteQuery = createDeepEqualOutputSelector(
   selectSwappersApi,
   swappersApi => {
     const getTradeQuoteQueries = Object.values(swappersApi.queries).filter(
@@ -29,7 +29,7 @@ export const selectMostRecentTradeQuoteQuery = createDeepEqualOutputSelector(
 
 export const selectSwappersApiTradeQuotes: Selector<ReduxState, ApiQuote[]> = createSelector(
   selectMostRecentTradeQuoteQuery,
-  query => (query?.data ?? []) as ApiQuote[],
+  query => ((query?.data as TradeQuoteResponse)?.quotes ?? []) as ApiQuote[],
 )
 
 export const selectSwappersApiTradeQuotePending = createSelector(

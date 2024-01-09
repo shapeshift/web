@@ -297,7 +297,7 @@ export const useGetTradeQuotes = () => {
 
   useEffect(() => {
     if (currentData && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(currentData)
+      const quoteData = getMixPanelDataFromApiQuotes(currentData.quotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [currentData, mixpanel])

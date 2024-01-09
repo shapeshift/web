@@ -1,5 +1,4 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
-import axios from 'axios'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 // Important: maxAge should be small because inbound address info must be recent
@@ -11,7 +10,6 @@ const cachedUrls = [
   '/v2/pools',
   '/v2/pool/',
 ]
-const cache = createCache(maxAge, cachedUrls)
 
 const axiosConfig = {
   timeout: 10000,
@@ -19,8 +17,8 @@ const axiosConfig = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  adapter: cache.adapter,
 }
 
-const thorServiceBase = axios.create(axiosConfig)
+const thorServiceBase = createCache(maxAge, cachedUrls, axiosConfig)
+
 export const thorService = makeSwapperAxiosServiceMonadic(thorServiceBase, SwapperName.Thorchain)

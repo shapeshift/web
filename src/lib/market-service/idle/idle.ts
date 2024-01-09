@@ -3,6 +3,7 @@ import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketCapResult, MarketData, MarketDataArgs } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
+import { setupCache } from 'axios-cache-interceptor'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
@@ -37,16 +38,24 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
 
     this.baseUrl = 'https://api.idle.finance'
     this.providerUrls = providerUrls
-    this.idle = axios.create({
-      timeout: 10000,
-      baseURL: this.baseUrl,
-      headers: {
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcDIiLCJpYXQiOjE2NzAyMzc1Mjd9.pf4YYdBf_Lf6P2_oKZ5r63UMd6R44p9h5ybPprtJmT4',
+
+    this.idle = setupCache(
+      axios.create({
+        timeout: 10000,
+        baseURL: this.baseUrl,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcDIiLCJpYXQiOjE2NzAyMzc1Mjd9.pf4YYdBf_Lf6P2_oKZ5r63UMd6R44p9h5ybPprtJmT4',
+        },
+      }),
+      {
+        // 5 seconds
+        ttl: 5 * 1000,
+        interpretHeader: false,
+        staleIfError: true,
+        cacheTakeover: false,
       },
-      // 5 seconds
-      cache: { maxAge: 5 * 1000, clearOnStale: true, readOnError: false, readHeaders: false },
-    })
+    )
   }
 
   async getOpportunities(): Promise<OpportunityByAssetId> {

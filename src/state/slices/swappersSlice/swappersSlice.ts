@@ -14,7 +14,6 @@ export type SwappersState = {
   sellAssetAccountId: AccountId | undefined
   buyAssetAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
-  willDonate: boolean
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
   slippagePreferencePercentage: string | undefined
@@ -27,7 +26,6 @@ const initialState: SwappersState = {
   sellAssetAccountId: undefined,
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
-  willDonate: true,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
   slippagePreferencePercentage: undefined,
@@ -71,9 +69,6 @@ export const swappers = createSlice({
       const buyAsset = state.sellAsset
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
-    },
-    toggleWillDonate: state => {
-      state.willDonate = !state.willDonate
     },
     setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
       state.manualReceiveAddress = action.payload

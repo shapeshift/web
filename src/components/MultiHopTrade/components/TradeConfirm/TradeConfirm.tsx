@@ -42,7 +42,6 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -57,7 +56,7 @@ import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,
-  selectActiveQuotePotentialDonationBps,
+  selectActiveQuotePotentialAffiliateBps,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -69,8 +68,8 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectPotentialDonationAmountUserCurrency,
-  selectQuoteDonationAmountUserCurrency,
+  selectPotentialAffiliateFeeAmountUserCurrency,
+  selectQuoteAffiliateFeeUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -90,7 +89,6 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
-  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -157,7 +155,6 @@ export const TradeConfirm = () => {
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const { executeTrade, sellTxHash, buyTxHash, tradeStatus: status } = useTradeExecution()
 
@@ -200,32 +197,28 @@ export const TradeConfirm = () => {
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
 
-  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
-  const potentialDonationAmountUserCurrency = useAppSelector(
-    selectPotentialDonationAmountUserCurrency,
+  const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+  const potentialAffiliateFeeAmountUserCurrency = useAppSelector(
+    selectPotentialAffiliateFeeAmountUserCurrency,
   )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
+  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialAffiliateBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(
+  const { shapeShiftFee } = useMemo(
     () =>
       calculateShapeShiftAndAffiliateFee({
         quote: tradeQuote,
-        isFoxDiscountsEnabled,
-        potentialDonationAmountUserCurrency,
-        donationAmountUserCurrency: _donationAmountUserCurrency,
+        potentialAffiliateFeeAmountUserCurrency,
+        affiliateFeeAmountUserCurrency,
         affiliateBps,
         potentialAffiliateBps,
-        applyThorSwapAffiliateFees,
         swapperName,
       }),
     [
-      _donationAmountUserCurrency,
+      affiliateFeeAmountUserCurrency,
       affiliateBps,
-      applyThorSwapAffiliateFees,
-      isFoxDiscountsEnabled,
       potentialAffiliateBps,
-      potentialDonationAmountUserCurrency,
+      potentialAffiliateFeeAmountUserCurrency,
       swapperName,
       tradeQuote,
     ],
@@ -400,7 +393,6 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee={shapeShiftFee}
-          donationAmountUserCurrency={donationAmountUserCurrency}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
@@ -413,7 +405,6 @@ export const TradeConfirm = () => {
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       buyAsset?.symbol,
-      donationAmountUserCurrency,
       netBuyAmountUserCurrency,
       sellAmountBeforeFeesCryptoPrecision,
       sellAmountBeforeFeesUserCurrency,

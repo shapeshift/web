@@ -39,7 +39,6 @@ import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import type { MidgardActionsResponse, ThornodeStatusResponse } from './types'
-import { THORCHAIN_AFFILIATE_FEE_BPS } from './utils/constants'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
@@ -56,11 +55,7 @@ export const thorchainApi: SwapperApi = {
     input: GetTradeQuoteInput,
     assetsById: AssetsByIdPartial,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const applyThorSwapAffiliateFees = getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES
-
-    const affiliateBps = applyThorSwapAffiliateFees
-      ? THORCHAIN_AFFILIATE_FEE_BPS
-      : input.affiliateBps
+    const { affiliateBps } = input
 
     return await getThorTradeQuote(
       {

@@ -45,7 +45,6 @@ export type FeatureFlags = {
   WalletConnectV2: boolean
   CustomSendNonce: boolean
   Snaps: boolean
-  FoxDiscounts: boolean
   ThorchainLending: boolean
   LedgerWallet: boolean
   MultiHopTrades: boolean
@@ -86,7 +85,6 @@ const initialState: Preferences = {
     ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
-    ThorSwapAffiliateFees: getConfig().REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
@@ -112,7 +110,6 @@ const initialState: Preferences = {
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
-    FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,

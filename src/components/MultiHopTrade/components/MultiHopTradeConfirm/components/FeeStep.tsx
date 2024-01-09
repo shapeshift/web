@@ -8,9 +8,9 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { calculateShapeShiftFee } from 'lib/fees/utils'
 import {
   selectActiveQuoteAffiliateBps,
-  selectActiveQuotePotentialDonationBps,
-  selectPotentialDonationAmountUserCurrency,
-  selectQuoteDonationAmountUserCurrency,
+  selectActiveQuotePotentialAffiliateBps,
+  selectPotentialAffiliateFeeAmountUserCurrency,
+  selectQuoteAffiliateFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,9 +29,11 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   } = useLocaleFormatter()
   const translate = useTranslate()
   const [showFeeModal, setShowFeeModal] = useState(false)
-  const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
-  const amountBeforeDiscountUserCurrency = useAppSelector(selectPotentialDonationAmountUserCurrency)
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
+  const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+  const amountBeforeDiscountUserCurrency = useAppSelector(
+    selectPotentialAffiliateFeeAmountUserCurrency,
+  )
+  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialAffiliateBps)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
   const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])

@@ -115,6 +115,8 @@ export const getThorchainSaversPosition = async ({
   accountId: AccountId
   assetId: AssetId
 }): Promise<ThorchainSaverPositionResponse | null> => {
+  // TODO(gomes): we want to use the /saver/<address> endpoint for any chain other than UTXOs
+  // this is a big response, and can take a long time to be fetched
   const allPositions = await getAllThorchainSaversPositions(assetId)
 
   if (!allPositions.length)

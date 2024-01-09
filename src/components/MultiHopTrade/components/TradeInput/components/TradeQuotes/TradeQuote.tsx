@@ -10,6 +10,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
@@ -29,6 +30,8 @@ import {
   selectAssets,
   selectBuyAsset,
   selectFeeAssetByChainId,
+  selectFeeAssetById,
+  selectMarketDataByFilter,
   selectMarketDataById,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
@@ -39,7 +42,7 @@ import {
   getTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
@@ -90,10 +93,27 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
-  const networkFeeUserCurrencyPrecision = useMemo(
-    () => (quote ? getTotalNetworkFeeUserCurrencyPrecision(quote) : undefined),
-    [quote],
-  )
+  const networkFeeUserCurrencyPrecision = useMemo(() => {
+    if (!quote) return
+    const state = store.getState()
+    const getFeeAsset = (assetId: AssetId) => {
+      const feeAsset = selectFeeAssetById(state, assetId)
+      if (feeAsset === undefined) {
+        throw Error(`missing fee asset for assetId ${assetId}`)
+      }
+      return feeAsset
+    }
+    const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
+      selectMarketDataByFilter(state, {
+        assetId: feeAssetId,
+      }).price
+
+    return getTotalNetworkFeeUserCurrencyPrecision(
+      quote,
+      getFeeAsset,
+      getFeeAssetUserCurrencyRate,
+    ).toString()
+  }, [quote])
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const totalReceiveAmountCryptoPrecision = useMemo(

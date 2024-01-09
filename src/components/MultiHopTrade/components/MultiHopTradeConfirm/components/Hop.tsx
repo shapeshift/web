@@ -22,7 +22,7 @@ import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
-  selectHopTotalNetworkFeeFiatPrecision,
+  selectHopNetworkFeeUserCurrencyPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -55,7 +55,7 @@ export const Hop = ({
 }) => {
   const translate = useTranslate()
   const networkFeeFiatPrecision = useAppSelector(state =>
-    selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
+    selectHopNetworkFeeUserCurrencyPrecision(state, hopIndex),
   )
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),

@@ -9,7 +9,8 @@ export type LiquidityProvider = {
   asset_deposit_value: string
 }
 
-// TODO(gomes): This is the LP provider type from /liquidity_providers/<address>, which contains more data then the one from /liquidity_providers/
+// TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/
+// use this instead of the /liquidity_providers/ endpoint when applicable, and perhaps consume those fields if useful?
 // We're not using this anywhere just yet, but most likely should.
 export type ExtendedLiquidityProvider = LiquidityProvider & {
   rune_redeem_value: string

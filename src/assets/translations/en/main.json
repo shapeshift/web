@@ -550,7 +550,8 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "lending": "Lending"
+    "lending": "Lending",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Sent",

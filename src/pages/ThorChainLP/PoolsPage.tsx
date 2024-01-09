@@ -8,7 +8,9 @@ export const PoolsPage = () => {
   // TODO(gomes): for development only - remove me
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
 
-  useUserLpData({ accountId: defaultAccountId, assetId: ethAssetId })
+  const { data } = useUserLpData({ accountId: defaultAccountId, assetId: ethAssetId })
+
+  console.log({ data })
 
   return <div>Coming soon</div>
 }

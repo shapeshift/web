@@ -1,6 +1,7 @@
 import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { bn } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
@@ -8,7 +9,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {
-  accountId: AccountId
+  accountId: AccountId | undefined
   assetId: AssetId
 }
 
@@ -23,12 +24,10 @@ export const thorchainLendingPositionQueryFn = async ({
 }
 
 export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
-  // TODO(gomes): handle UTXOs too
-  // TODO(gomes): handle symmetric LP positions
-  const lpPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainUserLpData', { accountId, assetId }],
-    [accountId, assetId],
-  )
+  // TODO(gomes): return a list of positions, and discriminate asym/sim as two different positions
+  // TODO(gomes): handle symmetric LP positions - this work was started with an asymmetric position with underlying rebalancing
+  const lpPositionQueryKey: [string, { accountId: AccountId | undefined; assetId: AssetId }] =
+    useMemo(() => ['thorchainUserLpData', { accountId, assetId }], [accountId, assetId])
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
@@ -39,28 +38,40 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
     queryKey: lpPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { accountId, assetId }] = queryKey
+
+      if (!accountId) return null
       const position = await getThorchainLiquidityProviderPosition({ accountId, assetId })
       return position
     },
     select: data => {
-      const assetValueFiatUserCurrency = fromThorBaseUnit(data?.asset_deposit_value || '0').times(
-        poolAssetMarketData?.price || 0,
-      )
-      const runeValueFiatUserCurrency = fromThorBaseUnit(data?.rune_deposit_value || '0').times(
-        runeMarketData?.price || 0,
-      )
+      if (!data) return null
 
-      const totalValueFiatUserCurrency = assetValueFiatUserCurrency
-        .plus(runeValueFiatUserCurrency)
+      const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
+        data?.asset_deposit_value || '0',
+      ).times(poolAssetMarketData?.price || 0)
+      const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
+        data?.rune_deposit_value || '0',
+      ).times(runeMarketData?.price || 0)
+
+      // When depositing asymetrically, the assetDeposit value is the total amount deposited, but the asset_deposit_value is only half of that
+      // because of the underlying rebalancing
+      const isAsymmetric = data.assetDeposit !== data.asset_deposit_value
+      const asymSide = bn(data.assetDeposit).gt(data.asset_deposit_value) ? 'asset' : 'rune'
+
+      const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
+        .plus(underlyingRuneValueFiatUserCurrency)
         .toFixed()
 
       return {
-        assetValueFiatUserCurrency: assetValueFiatUserCurrency.toFixed(),
-        runeValueFiatUserCurrency: runeValueFiatUserCurrency.toFixed(),
+        underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(data.asset_deposit_value).toFixed(),
+        isAsymmetric,
+        asymSide: isAsymmetric ? asymSide : null,
+        underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
+        underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
         totalValueFiatUserCurrency,
       }
     },
-    enabled: true,
+    enabled: Boolean(accountId),
   })
 
   return lendingPositionData

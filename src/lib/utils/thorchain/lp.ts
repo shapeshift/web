@@ -4,7 +4,12 @@ import { getConfig } from 'config'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 
 import { getAccountAddresses } from '.'
-import type { LiquidityProvider, ThorchainLiquidityProvidersResponseSuccess } from './lp/types'
+import type {
+  MidgardLiquidityProvider,
+  MidgardPool,
+  ThorchainLiquidityProvidersResponseSuccess,
+  ThorNodeLiquidityProvider,
+} from './lp/types'
 
 export const getAllThorchainLiquidityProviderPositions = async (
   assetId: AssetId,
@@ -30,7 +35,7 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<LiquidityProvider | null> => {
+}): Promise<(ThorNodeLiquidityProvider & MidgardPool) | null> => {
   // TODO(gomes): we want to use the /liquidity_provider/<address> endpoint for any chain other than UTXOs
   // this is a big response, and can take a long time to be fetched
   const liquidityProviderPositionsResponse =
@@ -44,8 +49,27 @@ export const getThorchainLiquidityProviderPosition = async ({
   const accountAddresses = await getAccountAddresses(accountId)
 
   const accountPosition = allPositions.find(position =>
-    accountAddresses.includes(position.asset_address),
+    accountAddresses.includes(position?.asset_address ?? ''),
   )
 
-  return accountPosition || null
+  if (!accountPosition) return null
+
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  // TODO(gomes): asset_address *or* rune_address when implementing sim. pools
+  const { data: midgardLiquidityProvider } = await axios.get<MidgardLiquidityProvider>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/member/${accountPosition.asset_address}`,
+  )
+
+  // If we do have a THORNode /liquidity_provider/<address> response, we should assume that we're going to have a Midgard response with the matchint position
+  // But in case we don't, let's not rug the whole position, and make the MidgardPool fields optional instead
+  const maybeMidgardMember = midgardLiquidityProvider.pools.find(pool => pool.pool === poolAssetId)
+
+  if (!maybeMidgardMember)
+    throw new Error(`No Midgard position found for address: ${accountPosition.asset_address}`)
+
+  return {
+    ...accountPosition,
+    ...maybeMidgardMember,
+  }
 }

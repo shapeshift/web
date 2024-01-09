@@ -43,18 +43,22 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
       return position
     },
     select: data => {
-      const assetValueFiatUserCurrency = fromThorBaseUnit(data?.asset_deposit_value || '0')
-        .times(poolAssetMarketData?.price || 0)
+      const assetValueFiatUserCurrency = fromThorBaseUnit(data?.asset_deposit_value || '0').times(
+        poolAssetMarketData?.price || 0,
+      )
+      const runeValueFiatUserCurrency = fromThorBaseUnit(data?.rune_deposit_value || '0').times(
+        runeMarketData?.price || 0,
+      )
+
+      const totalValueFiatUserCurrency = assetValueFiatUserCurrency
+        .plus(runeValueFiatUserCurrency)
         .toFixed()
-      const runeValueFiatUserCurrency = fromThorBaseUnit(data?.rune_deposit_value || '0')
-        .times(runeMarketData?.price || 0)
-        .toFixed()
-      console.log({
-        assetValueUsd: assetValueFiatUserCurrency,
-        runeValueUsd: runeValueFiatUserCurrency,
-      })
-      // TODO(gomes): Make this useful
-      return data
+
+      return {
+        assetValueFiatUserCurrency: assetValueFiatUserCurrency.toFixed(),
+        runeValueFiatUserCurrency: runeValueFiatUserCurrency.toFixed(),
+        totalValueFiatUserCurrency,
+      }
     },
     enabled: true,
   })

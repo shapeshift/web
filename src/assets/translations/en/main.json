@@ -701,6 +701,7 @@
     "expand": "Expand",
     "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
+    "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",

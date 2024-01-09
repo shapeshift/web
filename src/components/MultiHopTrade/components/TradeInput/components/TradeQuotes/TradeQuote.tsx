@@ -10,7 +10,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { SwapErrorType } from '@shapeshiftoss/swapper'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -24,7 +24,7 @@ import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingA
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ApiQuote } from 'state/apis/swappers'
+import { type ApiQuote, TradeQuoteError } from 'state/apis/swappers'
 import {
   selectAssets,
   selectBuyAsset,
@@ -74,7 +74,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     number: { toPercent },
   } = useLocaleFormatter()
 
-  const { quote, error } = quoteData
+  const { quote, errors } = quoteData
 
   const { isTradingActive } = useIsTradingActive()
 
@@ -163,11 +163,14 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       // Add helper to get user-friendly error message from code
       return (
         <Tag size='sm' colorScheme='red'>
-          {translate(...quoteStatusTranslation(error, assetsById))}
+          {/* TODO: temporary hack - implement properly */}
+          {translate(
+            ...quoteStatusTranslation(errors?.[0].error as unknown as SwapErrorRight, assetsById),
+          )}
         </Tag>
       )
     }
-  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, error, assetsById])
+  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, errors, assetsById])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor
@@ -181,16 +184,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     [focusColor, isActive],
   )
 
-  const isDisabled = !!error
+  const isDisabled = !!errors?.length
 
   // TODO: work out for which error codes we want to show a swapper with a human-readable error vs hiding it
-  const showSwapperError =
-    error?.code &&
-    [
-      SwapErrorType.TRADING_HALTED,
-      SwapErrorType.UNSUPPORTED_PAIR,
-      SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
-    ].includes(error.code)
+  const showSwapperError = errors?.[0].error !== TradeQuoteError.UnknownError
 
   const showSwapper = !!quote || showSwapperError
 

@@ -1,21 +1,24 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
-import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/quoteValidation/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
-import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ErrorWithMeta } from 'state/apis/swappers'
+import { TradeQuoteError, TradeQuoteRequestError } from 'state/apis/swappers'
+import {
+  selectSwappersApiTradeQuotePending,
+  selectTradeQuoteRequestErrors,
+} from 'state/apis/swappers/selectors'
 import {
   selectBuyAsset,
   selectSellAmountCryptoPrecision,
 } from 'state/slices/swappersSlice/selectors'
 import {
-  selectActiveQuote,
-  selectActiveQuoteError,
+  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
@@ -27,20 +30,16 @@ import { useAppSelector } from 'state/store'
 import { useAccountIds } from '../useAccountIds'
 
 export const useActiveQuoteStatus = (): QuoteStatus => {
-  const validationErrors = useQuoteValidationErrors()
-
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const secondHopSellAsset = useAppSelector(selectSecondHopSellAsset)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const secondHopSellFeeAsset = useAppSelector(selectSecondHopSellFeeAsset)
   const tradeBuyAsset = useAppSelector(selectBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-
-  const insufficientBalanceProtocolFeeMeta = useInsufficientBalanceProtocolFeeMeta()
-
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const activeQuoteError = useAppSelector(selectActiveQuoteError)
+  const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
+  const insufficientBalanceProtocolFeeMeta = useInsufficientBalanceProtocolFeeMeta()
 
   const { sellAssetAccountId } = useAccountIds()
 
@@ -68,59 +67,32 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     [sellAmountCryptoPrecision],
   )
 
-  // TODO: implement properly once we've got api loading state rigged up
-  const isLoading = useMemo(
-    () => !activeQuote && !activeQuoteError,
-    [activeQuote, activeQuoteError],
-  )
+  const isLoading = useAppSelector(selectSwappersApiTradeQuotePending)
 
-  const quoteErrors: ActiveQuoteStatus[] = useMemo(() => {
+  const quoteErrors: ErrorWithMeta<TradeQuoteError | TradeQuoteRequestError>[] = useMemo(() => {
     if (isLoading || !hasUserEnteredAmount) return []
 
-    const errors: ActiveQuoteStatus[] = []
-
-    if (activeQuoteError) {
-      // Map known swapper errors to quote status
-
-      const errorData = (() => {
-        switch (activeQuoteError.code) {
-          case SwapErrorType.UNSUPPORTED_PAIR:
-            return ActiveQuoteStatus.NoQuotesAvailableForTradePair
-          default:
-            // We didn't recognize the error, use a generic error message
-            return ActiveQuoteStatus.UnknownError
-        }
-      })()
-
-      errors.push(errorData)
-    } else if (activeQuote) {
-      // We have a quote, but something might be wrong
-      return validationErrors
-    } else {
-      // No quote or error data
-      errors.push(ActiveQuoteStatus.NoQuotesAvailable)
-    }
-    return errors
-  }, [isLoading, hasUserEnteredAmount, activeQuoteError, activeQuote, validationErrors])
+    return tradeQuoteRequestErrors ?? activeQuoteErrors ?? []
+  }, [activeQuoteErrors, hasUserEnteredAmount, isLoading, tradeQuoteRequestErrors])
 
   // Map validation errors to translation strings
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
-    const firstError = quoteErrors[0]
+    const firstError = quoteErrors?.[0]
 
     // TODO(gomes): Shoehorning this here for an immediate fix, but errors should be handled at quote level like all others
     if (disableSmartContractSwap) return 'trade.errors.smartContractWalletNotSupported'
 
     // Return a translation string based on the first error. We might want to show multiple one day.
     return (() => {
-      switch (firstError) {
-        case ActiveQuoteStatus.NoConnectedWallet:
+      switch (firstError.error) {
+        case TradeQuoteRequestError.NoConnectedWallet:
           return 'common.connectWallet'
-        case ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet:
+        case TradeQuoteRequestError.BuyAssetNotNotSupportedByWallet:
           return ['trade.errors.noReceiveAddress', { assetSymbol: tradeBuyAsset?.symbol }]
-        case ActiveQuoteStatus.InsufficientSellAssetBalance:
+        case TradeQuoteRequestError.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
-        case ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance:
+        case TradeQuoteError.InsufficientFirstHopFeeAssetBalance:
           return [
             'common.insufficientAmountForGas',
             {
@@ -130,7 +102,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
                 : '',
             },
           ]
-        case ActiveQuoteStatus.InsufficientSecondHopFeeAssetBalance:
+        case TradeQuoteError.InsufficientSecondHopFeeAssetBalance:
           return [
             'common.insufficientAmountForGas',
             {
@@ -140,13 +112,13 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
                 : '',
             },
           ]
-        case ActiveQuoteStatus.NoQuotesAvailableForTradePair:
+        case TradeQuoteError.NoQuotesAvailableForTradePair:
           return 'trade.errors.invalidTradePairBtnText'
-        case ActiveQuoteStatus.UnknownError:
+        case TradeQuoteError.UnknownError:
           return 'trade.errors.quoteError'
-        case ActiveQuoteStatus.NoQuotesAvailable:
+        case TradeQuoteRequestError.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
-        case ActiveQuoteStatus.SellAssetNotNotSupportedByWallet:
+        case TradeQuoteRequestError.SellAssetNotNotSupportedByWallet:
           return firstHopSellAsset
             ? [
                 'trade.errors.assetNotSupportedByWallet',
@@ -156,7 +128,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
                 },
               ]
             : 'sellAssetNotSupportedByWallet'
-        case ActiveQuoteStatus.IntermediaryAssetNotNotSupportedByWallet:
+        case TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet:
           return secondHopSellAsset
             ? [
                 'trade.errors.assetNotSupportedByWallet',
@@ -166,10 +138,10 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
                 },
               ]
             : 'intermediaryAssetNotSupportedByWallet'
-        case ActiveQuoteStatus.NoReceiveAddress:
-        case ActiveQuoteStatus.SellAmountBelowTradeFee:
+        case TradeQuoteRequestError.NoReceiveAddress:
+        case TradeQuoteError.SellAmountBelowTradeFee:
           return 'trade.errors.sellAmountDoesNotCoverFee'
-        case ActiveQuoteStatus.InsufficientFundsForProtocolFee:
+        case TradeQuoteError.InsufficientFundsForProtocolFee:
           return [
             'trade.errors.insufficientFundsForProtocolFee',
             insufficientBalanceProtocolFeeMeta ?? {},
@@ -192,6 +164,5 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   return {
     quoteErrors,
     quoteStatusTranslation,
-    error: activeQuoteError,
   }
 }

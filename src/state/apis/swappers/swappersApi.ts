@@ -3,6 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import orderBy from 'lodash/orderBy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -11,7 +12,7 @@ import {
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
-import { TradeQuoteRequestValidationError } from 'state/apis/swappers/types'
+import { TradeQuoteRequestError } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
@@ -43,6 +44,11 @@ export const swappersApi = createApi({
   endpoints: build => ({
     getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+        if (bnOrZero(tradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit).isZero()) {
+          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
+          return { data: { errors: [], quotes: [] } }
+        }
+
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
@@ -67,7 +73,7 @@ export const swappersApi = createApi({
 
         if (topLevelValidationErrors.length > 0) {
           dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
-          return { data: { validationErrors: topLevelValidationErrors, quotes: [] } }
+          return { data: { errors: topLevelValidationErrors, quotes: [] } }
         }
 
         // hydrate crypto market data for buy and sell assets
@@ -92,7 +98,7 @@ export const swappersApi = createApi({
         if (quoteResults.length === 0) {
           return {
             data: {
-              validationErrors: [{ error: TradeQuoteRequestValidationError.NoQuotesAvailable }],
+              errors: [{ error: TradeQuoteRequestError.NoQuotesAvailable }],
               quotes: [],
             },
           }
@@ -127,7 +133,7 @@ export const swappersApi = createApi({
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
           quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
-            const validationErrors = await validateTradeQuote(state, {
+            const errors = await validateTradeQuote(state, {
               swapperName,
               quote,
               error,
@@ -136,7 +142,7 @@ export const swappersApi = createApi({
               quote,
               swapperName,
               inputOutputRatio,
-              validationErrors,
+              errors,
             }
           }),
         )
@@ -147,13 +153,11 @@ export const swappersApi = createApi({
           ['desc', 'asc'],
         ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
-        const firstActionableQuote = orderedQuotes.find(
-          apiQuote => apiQuote.validationErrors.length === 0,
-        )
+        const firstActionableQuote = orderedQuotes.find(apiQuote => apiQuote.errors.length === 0)
 
         // Ensure we auto-select the first actionable quote
         dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(firstActionableQuote?.index ?? 0))
-        return { data: { validationErrors: [], quotes: orderedQuotes } }
+        return { data: { errors: [], quotes: orderedQuotes } }
       },
       providesTags: ['TradeQuote'],
     }),

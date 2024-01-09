@@ -8,7 +8,7 @@ import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import type { ApiQuote } from 'state/apis/swappers'
+import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -93,6 +93,11 @@ export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
   selectActiveQuote,
   (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
 )
+
+export const selectActiveQuoteErrors: Selector<
+  ReduxState,
+  ErrorWithMeta<TradeQuoteError>[] | undefined
+> = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.errors)
 
 /*
   Cross-account trading means trades that are either:

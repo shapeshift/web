@@ -14,7 +14,7 @@ export type QuoteHelperType = (
 ) => Promise<Result<TradeQuote, SwapErrorRight>>
 
 // The following are errors that affect all quotes
-export enum TradeQuoteRequestValidationError {
+export enum TradeQuoteRequestError {
   InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
   NoConnectedWallet = 'NoConnectedWallet',
   NoQuotesAvailable = 'NoQuotesAvailable',
@@ -25,7 +25,9 @@ export enum TradeQuoteRequestValidationError {
 
 // The following affect individual trade quotes
 export enum TradeQuoteError {
+  NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair', // TODO: rename to UnsupportedTradePair
   SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
+  TradingHalted = 'TradingHalted',
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
@@ -35,20 +37,22 @@ export enum TradeQuoteError {
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
   UnsafeQuote = 'UnsafeQuote',
+  InputAmountTooSmall = 'InputAmountTooSmall',
+  InputAmountLowerThanFees = 'InputAmountLowerThanFees',
   UnknownError = 'UnknownError',
 }
 
-export type ValidationMeta<T extends string> = { error: T; meta?: InterpolationOptions }
+export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
 
 export type ApiQuote = {
   index: number
   quote: TradeQuote | undefined
   swapperName: SwapperName
   inputOutputRatio: number
-  validationErrors: ValidationMeta<TradeQuoteError>[]
+  errors: ErrorWithMeta<TradeQuoteError>[]
 }
 
 export type TradeQuoteResponse = {
-  validationErrors: ValidationMeta<TradeQuoteRequestValidationError>[]
+  errors: ErrorWithMeta<TradeQuoteRequestError>[]
   quotes: ApiQuote[]
 }

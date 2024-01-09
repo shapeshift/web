@@ -57,6 +57,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
+  selectTradeQuoteRequestFailed,
 } from 'state/apis/swappers/selectors'
 import {
   selectBuyAsset,
@@ -174,7 +175,7 @@ export const TradeInput = memo(() => {
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
-  const activeQuoteError = useAppSelector(selectActiveQuoteError)
+  const tradeQuoteRequestFailed = useAppSelector(selectTradeQuoteRequestFailed)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
@@ -436,7 +437,7 @@ export const TradeInput = memo(() => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              isError={activeQuoteError !== undefined}
+              isError={tradeQuoteRequestFailed}
             />
 
             {activeQuote ? (
@@ -494,7 +495,7 @@ export const TradeInput = memo(() => {
     ),
     [
       activeQuote,
-      activeQuoteError,
+      tradeQuoteRequestFailed,
       activeQuoteStatus.quoteStatusTranslation,
       activeSwapperName,
       buyAmountAfterFeesCryptoPrecision,

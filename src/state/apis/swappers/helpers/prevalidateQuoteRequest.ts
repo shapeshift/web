@@ -3,8 +3,8 @@ import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
 
-import type { ValidationMeta } from '../types'
-import { TradeQuoteRequestValidationError } from '../types'
+import type { ErrorWithMeta } from '../types'
+import { TradeQuoteRequestError } from '../types'
 
 export const prevalidateQuoteRequest = ({
   isWalletConnected,
@@ -18,10 +18,10 @@ export const prevalidateQuoteRequest = ({
   manualReceiveAddress: string | undefined
   sellAssetBalanceCryptoBaseUnit: string
   tradeQuoteInput: GetTradeQuoteInput
-}): ValidationMeta<TradeQuoteRequestValidationError>[] => {
+}): ErrorWithMeta<TradeQuoteRequestError>[] => {
   // early exit - further validation errors without a wallet are wrong
   if (!isWalletConnected) {
-    return [{ error: TradeQuoteRequestValidationError.NoConnectedWallet }]
+    return [{ error: TradeQuoteRequestError.NoConnectedWallet }]
   }
 
   const walletSupportsSellAssetChain = walletSupportedChains.includes(
@@ -36,17 +36,17 @@ export const prevalidateQuoteRequest = ({
 
   return [
     !walletSupportsSellAssetChain && {
-      error: TradeQuoteRequestValidationError.SellAssetNotNotSupportedByWallet,
+      error: TradeQuoteRequestError.SellAssetNotNotSupportedByWallet,
     },
     !walletSupportsBuyAssetChain &&
       !manualReceiveAddress && {
-        error: TradeQuoteRequestValidationError.BuyAssetNotNotSupportedByWallet,
+        error: TradeQuoteRequestError.BuyAssetNotNotSupportedByWallet,
       },
     !hasSufficientSellAssetBalance && {
-      error: TradeQuoteRequestValidationError.InsufficientSellAssetBalance,
+      error: TradeQuoteRequestError.InsufficientSellAssetBalance,
     },
     !tradeQuoteInput.receiveAddress && {
-      error: TradeQuoteRequestValidationError.NoReceiveAddress,
+      error: TradeQuoteRequestError.NoReceiveAddress,
     },
   ].filter(isTruthy)
 }

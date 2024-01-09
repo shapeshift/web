@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 // import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { isSmartContractAddress } from 'lib/address/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -25,7 +25,7 @@ import {
   selectSellAmountCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 
-import type { ValidationMeta } from '../types'
+import type { ErrorWithMeta } from '../types'
 import { TradeQuoteError } from '../types'
 
 export const validateTradeQuote = async (
@@ -39,8 +39,26 @@ export const validateTradeQuote = async (
     quote: TradeQuote | undefined
     error: SwapErrorRight | undefined
   },
-): Promise<ValidationMeta<TradeQuoteError>[]> => {
-  if (!quote || error) return [{ error: TradeQuoteError.UnknownError }]
+): Promise<ErrorWithMeta<TradeQuoteError>[]> => {
+  if (!quote || error) {
+    const tradeQuoteError = (() => {
+      switch (error?.code) {
+        case SwapErrorType.UNSUPPORTED_PAIR:
+          return TradeQuoteError.NoQuotesAvailableForTradePair
+        case SwapErrorType.TRADING_HALTED:
+          return TradeQuoteError.TradingHalted
+        case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL:
+          return TradeQuoteError.InputAmountTooSmall
+        case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
+          return TradeQuoteError.InputAmountLowerThanFees
+        default:
+          // We didn't recognize the error, use a generic error message
+          return TradeQuoteError.UnknownError
+      }
+    })()
+
+    return [{ error: tradeQuoteError }]
+  }
 
   const isMultiHopTrade = quote.steps.length > 1
   const firstHop = quote.steps[0]

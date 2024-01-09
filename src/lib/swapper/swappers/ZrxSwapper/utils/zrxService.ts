@@ -1,6 +1,5 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import axios from 'axios'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
 import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
@@ -8,7 +7,6 @@ import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = ['/swap/v1/price']
-const cache = createCache(maxAge, cachedUrls)
 
 // A higher-order function to be applied to the proxied axios instance
 type AxiosInstanceHoF = (
@@ -18,7 +16,6 @@ type AxiosInstanceHoF = (
 
 const axiosConfig: AxiosRequestConfig = {
   timeout: 10000,
-  adapter: cache.adapter,
 }
 
 export const zrxServiceFactory = ({
@@ -28,6 +25,7 @@ export const zrxServiceFactory = ({
   baseUrl: string
   wrapper?: AxiosInstanceHoF
 }): MonadicSwapperAxiosService => {
-  const axiosInstance = wrapper(axios.create({ ...axiosConfig, baseURL: baseUrl }))
+  const cache = createCache(maxAge, cachedUrls, { ...axiosConfig, baseURL: baseUrl })
+  const axiosInstance = wrapper(cache)
   return makeSwapperAxiosServiceMonadic(axiosInstance, SwapperName.Zrx)
 }

@@ -18,7 +18,6 @@ export type FeatureFlags = {
   ArbitrumNova: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
-  ThorSwapAffiliateFees: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean

@@ -30,6 +30,9 @@ export type GetTradeQuoteInputArgs = {
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
+  // KeepKey is rugged and requires a bandaid to disable affiliate fee for EVM sell assets, see https://github.com/shapeshift/web/issues/4518
+  // Since we have a single shared input across all swappers, we need to pass this as feature detection to monkey patch affiliate bps to 0
+  isKeepKey: boolean
 }
 
 export const getTradeQuoteArgs = async ({
@@ -46,6 +49,7 @@ export const getTradeQuoteArgs = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
+  isKeepKey,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -61,6 +65,7 @@ export const getTradeQuoteArgs = async ({
     potentialAffiliateBps: potentialAffiliateBps ?? '0',
     allowMultiHop,
     slippageTolerancePercentageDecimal,
+    isKeepKey,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

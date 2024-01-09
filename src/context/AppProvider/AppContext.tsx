@@ -11,7 +11,7 @@ import {
   fromAccountId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { type AccountMetadataById, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
@@ -100,6 +100,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
+
+  useEffect(() => {
+    if (!wallet) return
+    const walletSupportedChains = Object.values(KnownChainIds).filter(chainId =>
+      walletSupportsChain({ chainId, wallet, isSnapInstalled }),
+    )
+    dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChains))
+  }, [dispatch, isSnapInstalled, wallet])
 
   useEffect(() => {
     if (!wallet) return

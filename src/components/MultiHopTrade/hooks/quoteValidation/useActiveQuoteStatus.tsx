@@ -85,7 +85,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
 
     // Return a translation string based on the first error. We might want to show multiple one day.
     return (() => {
-      switch (firstError.error) {
+      switch (firstError?.error) {
         case TradeQuoteRequestError.NoConnectedWallet:
           return 'common.connectWallet'
         case TradeQuoteRequestError.BuyAssetNotNotSupportedByWallet:

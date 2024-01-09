@@ -6,7 +6,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { providers } from 'ethers'
@@ -21,8 +20,6 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -985,15 +982,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       connectDemo,
     ],
   )
-
-  const isSnapInstalled = useIsSnapInstalled()
-
-  useEffect(() => {
-    const walletSupportedChains = Object.values(KnownChainIds).filter(chainId =>
-      walletSupportsChain({ chainId, wallet: value.state.wallet, isSnapInstalled }),
-    )
-    store.dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChains))
-  }, [isSnapInstalled, value.state.wallet])
 
   return (
     <WalletContext.Provider value={value}>

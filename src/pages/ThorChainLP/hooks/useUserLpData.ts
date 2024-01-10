@@ -93,6 +93,9 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
         underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(
           position.asset_deposit_value,
         ).toFixed(),
+        underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(
+          position.rune_deposit_value,
+        ).toFixed(),
         isAsymmetric,
         asymSide: isAsymmetric ? asymSide : null,
         underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),

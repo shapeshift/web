@@ -1,5 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
 
@@ -37,16 +39,28 @@ export const prevalidateQuoteRequest = ({
   return [
     !walletSupportsSellAssetChain && {
       error: TradeQuoteRequestError.SellAssetNotNotSupportedByWallet,
+      meta: {
+        assetSymbol: tradeQuoteInput.sellAsset.symbol,
+        chainSymbol: getChainShortName(tradeQuoteInput.sellAsset.chainId as KnownChainIds),
+      },
     },
     !walletSupportsBuyAssetChain &&
       !manualReceiveAddress && {
         error: TradeQuoteRequestError.BuyAssetNotNotSupportedByWallet,
+        meta: {
+          assetSymbol: tradeQuoteInput.buyAsset.symbol,
+          chainSymbol: getChainShortName(tradeQuoteInput.buyAsset.chainId as KnownChainIds),
+        },
       },
     !hasSufficientSellAssetBalance && {
       error: TradeQuoteRequestError.InsufficientSellAssetBalance,
     },
     !tradeQuoteInput.receiveAddress && {
       error: TradeQuoteRequestError.NoReceiveAddress,
+      meta: {
+        assetSymbol: tradeQuoteInput.buyAsset.symbol,
+        chainSymbol: getChainShortName(tradeQuoteInput.buyAsset.chainId as KnownChainIds),
+      },
     },
   ].filter(isTruthy)
 }

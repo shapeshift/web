@@ -1,9 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 // import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { isSmartContractAddress } from 'lib/address/utils'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { assertGetChainAdapter, isTruthy } from 'lib/utils'
@@ -14,6 +16,7 @@ import {
   selectWalletSupportedChainIds,
 } from 'state/slices/common-selectors'
 import {
+  selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
   selectPortfolioAccountIdByNumberByChainId,
@@ -47,20 +50,45 @@ export const validateTradeQuote = async (
     const tradeQuoteError = (() => {
       switch (error?.code) {
         case SwapErrorType.UNSUPPORTED_PAIR:
-          return TradeQuoteError.NoQuotesAvailableForTradePair
+          return { error: TradeQuoteError.NoQuotesAvailableForTradePair }
         case SwapErrorType.TRADING_HALTED:
-          return TradeQuoteError.TradingHalted
-        case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL:
-          return TradeQuoteError.InputAmountTooSmall
+          return { error: TradeQuoteError.TradingHalted }
+        case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL: {
+          const {
+            minAmountCryptoBaseUnit,
+            assetId,
+          }: { minAmountCryptoBaseUnit?: string; assetId?: AssetId } = error?.details ?? {}
+
+          const assetsById = selectAssets(state)
+          const asset = assetId && assetsById[assetId]
+
+          if (!minAmountCryptoBaseUnit || !asset) {
+            return {
+              error: TradeQuoteError.InputAmountTooSmallUnknownMinimum,
+            }
+          }
+
+          const minAmountCryptoHuman = baseUnitToHuman({
+            value: minAmountCryptoBaseUnit,
+            inputExponent: asset.precision,
+          })
+          const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
+          const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
+
+          return {
+            error: TradeQuoteError.SellAmountBelowMinimum,
+            meta: { minLimit: minimumAmountUserMessage },
+          }
+        }
         case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
-          return TradeQuoteError.InputAmountLowerThanFees
+          return { error: TradeQuoteError.InputAmountLowerThanFees }
         default:
           // We didn't recognize the error, use a generic error message
-          return TradeQuoteError.UnknownError
+          return { error: TradeQuoteError.UnknownError }
       }
     })()
 
-    return { errors: [{ error: tradeQuoteError }], warnings: [] }
+    return { errors: [tradeQuoteError], warnings: [] }
   }
 
   const isMultiHopTrade = quote.steps.length > 1
@@ -95,7 +123,7 @@ export const validateTradeQuote = async (
       })
     : undefined
 
-  const networkFeeRequiresBalance = swapperName === SwapperName.CowSwap
+  const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
 
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
@@ -181,8 +209,8 @@ export const validateTradeQuote = async (
     return false
   })()
 
+  // TODO: pass this in
   const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = [true, true]
-
   // await Promise.all([
   //   isTradingActive(firstHop.sellAsset.assetId, swapperName),
   //   isTradingActive(firstHop.buyAsset.assetId, swapperName),
@@ -195,18 +223,42 @@ export const validateTradeQuote = async (
       },
       !isTradingActiveOnSellPool && {
         error: TradeQuoteError.TradingInactiveOnSellChain,
+        meta: {
+          assetSymbol: firstHop.sellAsset.symbol,
+          chainSymbol: getChainShortName(firstHop.sellAsset.chainId as KnownChainIds),
+        },
       },
       !isTradingActiveOnBuyPool && {
         error: TradeQuoteError.TradingInactiveOnBuyChain,
+        meta: {
+          assetSymbol: lastHop.buyAsset.symbol,
+          chainSymbol: getChainShortName(lastHop.buyAsset.chainId as KnownChainIds),
+        },
       },
       !walletSupportsIntermediaryAssetChain && {
         error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
+        meta: {
+          assetSymbol: secondHop.sellAsset.symbol,
+          chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
+        },
       },
       !firstHopHasSufficientBalanceForGas && {
         error: TradeQuoteError.InsufficientFirstHopFeeAssetBalance,
+        meta: {
+          assetSymbol: firstHopSellFeeAsset?.symbol,
+          chainSymbol: firstHopSellFeeAsset
+            ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+            : '',
+        },
       },
       !secondHopHasSufficientBalanceForGas && {
         error: TradeQuoteError.InsufficientSecondHopFeeAssetBalance,
+        meta: {
+          assetSymbol: secondHopSellFeeAsset?.symbol,
+          chainSymbol: secondHopSellFeeAsset
+            ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
+            : '',
+        },
       },
       feesExceedsSellAmount && { error: TradeQuoteError.SellAmountBelowTradeFee },
 

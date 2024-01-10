@@ -13,7 +13,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -30,7 +29,6 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { type ApiQuote, TradeQuoteError } from 'state/apis/swappers'
 import {
-  selectAssets,
   selectBuyAsset,
   selectFeeAssetByChainId,
   selectFeeAssetById,
@@ -89,7 +87,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
-  const assetsById = useAppSelector(selectAssets)
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const buyAssetMarketData = useAppSelector(state =>
@@ -168,35 +165,33 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
   const tag: JSX.Element = useMemo(() => {
-    if (quote)
-      switch (true) {
-        case !hasAmountWithPositiveReceive && isAmountEntered:
-          return (
-            <Tag size='sm' colorScheme='red'>
-              {translate('trade.rates.tags.negativeRatio')}
-            </Tag>
-          )
-        case isBest:
-          return (
-            <Tag size='sm' colorScheme='green'>
-              {translate('common.best')}
-            </Tag>
-          )
-        default:
-          return <Tag size='sm'>{translate('common.alternative')}</Tag>
-      }
-    else {
-      // Add helper to get user-friendly error message from code
-      return (
-        <Tag size='sm' colorScheme='red'>
-          {/* TODO: temporary hack - implement properly */}
-          {translate(
-            ...quoteStatusTranslation(errors?.[0].error as unknown as SwapErrorRight, assetsById),
-          )}
-        </Tag>
-      )
+    const error = errors?.[0]
+    const defaultError = { error: TradeQuoteError.UnknownError }
+
+    switch (true) {
+      case !quote || error !== undefined:
+        console.log(translate(...quoteStatusTranslation(error ?? defaultError)))
+        return (
+          <Tag size='sm' colorScheme='red'>
+            {translate(...quoteStatusTranslation(error ?? defaultError))}
+          </Tag>
+        )
+      case !hasAmountWithPositiveReceive && isAmountEntered:
+        return (
+          <Tag size='sm' colorScheme='red'>
+            {translate('trade.rates.tags.negativeRatio')}
+          </Tag>
+        )
+      case isBest:
+        return (
+          <Tag size='sm' colorScheme='green'>
+            {translate('common.best')}
+          </Tag>
+        )
+      default:
+        return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, errors, assetsById])
+  }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor

@@ -1,41 +1,48 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
-import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import { baseUnitToHuman } from 'lib/bignumber/bignumber'
+import { assertUnreachable } from 'lib/utils'
+import type { ErrorWithMeta } from 'state/apis/swappers'
+import { TradeQuoteError } from 'state/apis/swappers'
 
 export const quoteStatusTranslation = (
-  swapError: SwapErrorRight | undefined,
-  assetsById: PartialRecord<AssetId, Asset>,
-): [string] | [string, InterpolationOptions] => {
-  const code = swapError?.code
-
-  switch (code) {
-    case SwapErrorType.TRADING_HALTED:
-      return ['trade.errors.tradingNotActiveNoAssetSymbol']
-    case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL: {
-      const {
-        minAmountCryptoBaseUnit,
-        assetId,
-      }: { minAmountCryptoBaseUnit?: string; assetId?: AssetId } = swapError?.details ?? {}
-
-      const asset = assetId && assetsById[assetId]
-
-      if (!minAmountCryptoBaseUnit || !asset) return ['trade.errors.amountTooSmallUnknownMinimum']
-
-      const minAmountCryptoHuman = baseUnitToHuman({
-        value: minAmountCryptoBaseUnit,
-        inputExponent: asset.precision,
-      })
-      const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
-      const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
-
-      return ['trade.errors.amountTooSmall', { minLimit: minimumAmountUserMessage }]
+  tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
+): [string, InterpolationOptions | undefined] => {
+  const error = tradeQuoteError.error
+  const translationKey = (() => {
+    switch (error) {
+      case TradeQuoteError.NoQuotesAvailableForTradePair:
+        return 'trade.errors.unsupportedTradePair'
+      case TradeQuoteError.SmartContractWalletNotSupported:
+        return 'trade.errors.smartContractWalletNotSupported'
+      case TradeQuoteError.TradingHalted:
+        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+      case TradeQuoteError.TradingInactiveOnSellChain:
+        return 'trade.errors.tradingNotActiveForChain'
+      case TradeQuoteError.TradingInactiveOnBuyChain:
+        return 'trade.errors.tradingNotActiveForChain'
+      case TradeQuoteError.SellAmountBelowTradeFee:
+        return 'trade.errors.sellAmountDoesNotCoverFee'
+      case TradeQuoteError.InsufficientFirstHopFeeAssetBalance:
+        return 'common.insufficientAmountForGas'
+      case TradeQuoteError.InsufficientSecondHopFeeAssetBalance:
+        return 'common.insufficientAmountForGas'
+      case TradeQuoteError.InsufficientFundsForProtocolFee:
+        return 'trade.errors.insufficientFundsForProtocolFee'
+      case TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet:
+        return 'trade.errors.assetNotSupportedByWallet'
+      case TradeQuoteError.SellAmountBelowMinimum:
+        return 'trade.errors.amountTooSmall'
+      case TradeQuoteError.InputAmountTooSmallUnknownMinimum:
+        return 'trade.errors.amountTooSmallUnknownMinimum'
+      case TradeQuoteError.InputAmountLowerThanFees:
+      case TradeQuoteError.UnsafeQuote:
+        console.error('TradeQuoteError.UnsafeQuote should be a warning')
+        return 'trade.errors.quoteError'
+      case TradeQuoteError.UnknownError:
+        return 'trade.errors.quoteError'
+      default:
+        assertUnreachable(error)
     }
-    case SwapErrorType.UNSUPPORTED_PAIR:
-      return ['trade.errors.unsupportedTradePair']
-    default:
-      return ['trade.errors.quoteError']
-  }
+  })()
+
+  return [translationKey, tradeQuoteError.meta]
 }

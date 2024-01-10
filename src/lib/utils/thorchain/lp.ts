@@ -1,8 +1,10 @@
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+import { getAccountAddresses } from '.'
 import type {
   MidgardLiquidityProvider,
   MidgardPool,
@@ -35,30 +37,32 @@ export const getThorchainLiquidityProviderPosition = async ({
   accountId: AccountId
   assetId: AssetId
 }): Promise<(ThorNodeLiquidityProvider & MidgardPool) | null> => {
-  // TODO(gomes): this won't work for UTXOs, and will need to properly introspect all positions with the code below
-  // const liquidityProviderPositionsResponse =
-  // await getAllThorchainLiquidityProviderPositions(assetId)
-  //
-  // const allPositions = liquidityProviderPositionsResponse
-  // if (!allPositions.length) {
-  // throw new Error(`No LP positions found for asset ID: ${assetId}`)
-  // }
-  //
-  // const accountAddresses = await getAccountAddresses(accountId)
-  //
-  // const accountPosition = allPositions.find(position =>
-  // accountAddresses.includes(position?.asset_address ?? ''),
-  // )
-  //
-  // if (!accountPosition) return null
-
-  const address = fromAccountId(accountId).account
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const { data: accountPosition } = await axios.get<ThorNodeLiquidityProvider>(
-    `${
-      getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/pool/${poolAssetId}/liquidity_provider/${address}`,
-  )
+
+  const accountPosition = await (async () => {
+    const address = fromAccountId(accountId).account
+    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+      return (
+        await axios.get<ThorNodeLiquidityProvider>(
+          `${
+            getConfig().REACT_APP_THORCHAIN_NODE_URL
+          }/lcd/thorchain/pool/${poolAssetId}/liquidity_provider/${address}`,
+        )
+      ).data
+
+    const liquidityProviderPositionsResponse =
+      await getAllThorchainLiquidityProviderPositions(assetId)
+
+    const allPositions = liquidityProviderPositionsResponse
+    if (!allPositions.length) {
+      throw new Error(`No LP positions found for asset ID: ${assetId}`)
+    }
+
+    const accountAddresses = await getAccountAddresses(accountId)
+
+    return allPositions.find(position => accountAddresses.includes(position?.asset_address ?? ''))
+  })()
+  if (!accountPosition) return null
 
   // TODO(gomes): asset_address *or* rune_address when implementing sim. pools
   const { data: midgardLiquidityProvider } = await axios.get<MidgardLiquidityProvider>(

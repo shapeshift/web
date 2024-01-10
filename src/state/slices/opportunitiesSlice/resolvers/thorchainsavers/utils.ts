@@ -8,6 +8,7 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
+  fromAccountId,
   fromAssetId,
   ltcAssetId,
 } from '@shapeshiftoss/caip'
@@ -22,6 +23,7 @@ import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import type {
   MidgardPoolPeriod,
@@ -115,28 +117,47 @@ export const getThorchainSaversPosition = async ({
   accountId: AccountId
   assetId: AssetId
 }): Promise<ThorchainSaverPositionResponse | null> => {
-  // TODO(gomes): we want to use the /saver/<address> endpoint for any chain other than UTXOs
-  // this is a big response, and can take a long time to be fetched
-  const allPositions = await getAllThorchainSaversPositions(assetId)
+  const address = fromAccountId(accountId).account
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
 
-  if (!allPositions.length)
-    throw new Error(`Error fetching THORCHain savers positions for assetId: ${assetId}`)
+  const accountPosition = await (async () => {
+    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+      return (
+        await axios.get<ThorchainSaverPositionResponse>(
+          `${
+            getConfig().REACT_APP_THORCHAIN_NODE_URL
+          }/lcd/thorchain/pool/${poolAssetId}/saver/${address}`,
+        )
+      ).data
 
-  // Returns either
-  // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
-  // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
-  const accountAddresses = await getAccountAddresses(accountId)
+    const lendingPositionsResponse = await getAllThorchainSaversPositions(assetId)
 
-  const accountPosition = allPositions.find(
-    ({ asset_address }) =>
-      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
-  )
+    const allPositions = lendingPositionsResponse
+    if (!allPositions.length) {
+      throw new Error(`No lending positions found for asset ID: ${assetId}`)
+    }
 
-  if (!accountPosition) {
-    return null
-  }
+    if (!allPositions.length)
+      throw new Error(`Error fetching THORCHain savers positions for assetId: ${assetId}`)
 
-  return accountPosition
+    // Returns either
+    // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
+    // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
+    const accountAddresses = await getAccountAddresses(accountId)
+
+    const accountPosition = allPositions.find(
+      ({ asset_address }) =>
+        asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+    )
+
+    if (!accountPosition) {
+      return null
+    }
+
+    return accountPosition
+  })()
+
+  return accountPosition || null
 }
 
 export const getMaybeThorchainSaversDepositQuote = async ({

@@ -11,7 +11,14 @@ type PoolIconProps = {
 
 export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => {
   const renderIcons = useMemo(() => {
-    return assetIds.map(assetId => <AssetIcon size={size} assetId={assetId} />)
+    return assetIds.map((assetId, index) => (
+      <AssetIcon
+        key={assetId}
+        size={size}
+        assetId={assetId}
+        ml={index + 1 === assetIds.length ? '-0.5em' : 0}
+      />
+    ))
   }, [assetIds, size])
   return <Flex>{renderIcons}</Flex>
 }

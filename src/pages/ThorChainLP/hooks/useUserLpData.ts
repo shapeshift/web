@@ -17,10 +17,13 @@ type UseLendingPositionDataProps = {
   assetId: AssetId
 }
 
-const calculatePoolOwnershipPercentage = (
-  userLiquidityUnits: string,
-  totalPoolUnits: string,
-): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
+const calculatePoolOwnershipPercentage = ({
+  userLiquidityUnits,
+  totalPoolUnits,
+}: {
+  userLiquidityUnits: string
+  totalPoolUnits: string
+}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
 export const thorchainLendingPositionQueryFn = async ({
   queryKey,
@@ -82,10 +85,10 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
         .plus(underlyingRuneValueFiatUserCurrency)
         .toFixed()
 
-      const poolOwnershipPercentage = calculatePoolOwnershipPercentage(
-        position.liquidityUnits,
-        poolData.pool_units,
-      )
+      const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
+        userLiquidityUnits: position.liquidityUnits,
+        totalPoolUnits: poolData.pool_units,
+      })
 
       return {
         underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(

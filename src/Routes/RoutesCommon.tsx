@@ -4,6 +4,7 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -60,7 +61,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/pools',
     label: 'navBar.pools',
-    icon: <RiExchangeFundsLine />,
+    icon: <PoolsIcon />,
     main: PoolsPage,
     category: RouteCategory.Featured,
     priority: 4,

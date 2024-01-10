@@ -37,9 +37,10 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<
-  (ThorNodeLiquidityProvider & MidgardPool & { poolData: ThornodePoolResponse }) | null
-> => {
+}): Promise<{
+  positions: (ThorNodeLiquidityProvider & MidgardPool)[]
+  poolData: ThornodePoolResponse
+} | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const accountPosition = await (async () => {
@@ -72,19 +73,26 @@ export const getThorchainLiquidityProviderPosition = async ({
     `${getConfig().REACT_APP_MIDGARD_URL}/member/${accountPosition.asset_address}`,
   )
 
-  // If we do have a THORNode /liquidity_provider/<address> response, we should assume that we're going to have a Midgard response with the matchint position
-  // But in case we don't, let's not rug the whole position, and make the MidgardPool fields optional instead
-  const maybeMidgardMember = midgardLiquidityProvider.pools.find(pool => pool.pool === poolAssetId)
+  const memberData = midgardLiquidityProvider.pools.find(
+    pool =>
+      pool.pool === accountPosition.asset &&
+      pool.assetAddress === accountPosition.asset_address &&
+      pool.runeAddress === accountPosition.rune_address,
+  )
 
-  if (!maybeMidgardMember)
-    throw new Error(`No Midgard position found for address: ${accountPosition.asset_address}`)
+  if (!memberData) throw new Error('Cannot get Midgard member data for LP position')
 
   const { data: poolData } = await axios.get<ThornodePoolResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
   )
   return {
-    ...accountPosition,
-    ...maybeMidgardMember,
+    positions: [
+      // TODO(gomes): this should handle multiple positions
+      {
+        ...accountPosition,
+        ...memberData,
+      },
+    ],
     poolData,
   }
 }

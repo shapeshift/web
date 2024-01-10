@@ -32,8 +32,6 @@ export const thorchainLendingPositionQueryFn = async ({
 }
 
 export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
-  // TODO(gomes): return a list of positions, and discriminate asym/sim as two different positions
-  // TODO(gomes): handle symmetric LP positions - this work was started with an asymmetric position with underlying rebalancing
   const lpPositionQueryKey: [string, { accountId: AccountId | undefined; assetId: AssetId }] =
     useMemo(() => ['thorchainUserLpData', { accountId, assetId }], [accountId, assetId])
 

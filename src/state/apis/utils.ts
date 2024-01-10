@@ -6,10 +6,7 @@ type HandleApiErrorArgs = {
   error?: unknown
 }
 
-const handleApiError = ({
-  error,
-  message,
-}: HandleApiErrorArgs): { error: Record<string, unknown> } => {
+const handleApiError = ({ error, message }: HandleApiErrorArgs) => {
   // 'code' is a getter on the ErrorWithDetails class, so we need to explicitly add it to our object
   if (error instanceof ErrorWithDetails) return { error: { ...error, code: error.code } }
   if (error instanceof Error && !isEmpty(error)) return { error: { ...error } }

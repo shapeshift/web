@@ -10,9 +10,10 @@ import {
   getTradeQuotes,
 } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
+import { isTruthy } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
-import { TradeQuoteRequestError } from 'state/apis/swappers/types'
+import { TradeQuoteError, TradeQuoteRequestError } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
@@ -32,6 +33,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getIsTradingActiveApi } from '../swapper/getIsTradingActiveApi'
 import { prevalidateQuoteRequest } from './helpers/prevalidateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
@@ -139,10 +141,45 @@ export const swappersApi = createApi({
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
           quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
+            const [
+              { data: isTradingActiveOnSellPool, error: sellPoolError },
+              { data: isTradingActiveOnBuyPool, error: buyPoolError },
+            ] = await Promise.all(
+              [sellAsset.assetId, buyAsset.assetId].map(assetId => {
+                return dispatch(
+                  getIsTradingActiveApi.endpoints.getIsTradingActive.initiate({
+                    assetId,
+                    swapperName,
+                  }),
+                )
+              }),
+            )
+
+            if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
+              return {
+                quote,
+                swapperName,
+                inputOutputRatio,
+                errors: [
+                  !!sellPoolError && {
+                    error: TradeQuoteError.UnknownError,
+                    meta: sellPoolError,
+                  },
+                  !!buyPoolError && {
+                    error: TradeQuoteError.UnknownError,
+                    meta: buyPoolError,
+                  },
+                ].filter(isTruthy),
+                warnings: [],
+              }
+            }
+
             const { errors, warnings } = await validateTradeQuote(state, {
               swapperName,
               quote,
               error,
+              isTradingActiveOnSellPool,
+              isTradingActiveOnBuyPool,
             })
             return {
               quote,

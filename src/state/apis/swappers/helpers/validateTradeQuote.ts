@@ -37,10 +37,14 @@ export const validateTradeQuote = async (
     swapperName,
     quote,
     error,
+    isTradingActiveOnSellPool,
+    isTradingActiveOnBuyPool,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
     error: SwapErrorRight | undefined
+    isTradingActiveOnSellPool: boolean
+    isTradingActiveOnBuyPool: boolean
   },
 ): Promise<{
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -208,13 +212,6 @@ export const validateTradeQuote = async (
     // All checks passed - this is an EOA address
     return false
   })()
-
-  // TODO: pass this in
-  const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = [true, true]
-  // await Promise.all([
-  //   isTradingActive(firstHop.sellAsset.assetId, swapperName),
-  //   isTradingActive(firstHop.buyAsset.assetId, swapperName),
-  // ])
 
   return {
     errors: [

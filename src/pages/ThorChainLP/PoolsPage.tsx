@@ -1,16 +1,32 @@
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import type { GridProps } from '@chakra-ui/react'
+import { Route, Switch, useRouteMatch } from 'react-router'
 
-import { useUserLpData } from './hooks/useUserLpData'
+import { AvailablePools } from './AvailablePools'
+import { Pool } from './Pool/Pool'
+import { YourPositions } from './YourPositions'
+
+export const poolRowGrid: GridProps['gridTemplateColumns'] = {
+  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
+  md: '200px repeat(5, 1fr)',
+}
 
 export const PoolsPage = () => {
-  // TODO(gomes): for development only - remove me
-  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  const { path } = useRouteMatch()
 
-  const { data } = useUserLpData({ accountId: defaultAccountId, assetId: ethAssetId })
-
-  console.log({ data })
-
-  return <div>Coming soon</div>
+  return (
+    <Switch>
+      <Route exact path={`${path}`}>
+        <AvailablePools />
+      </Route>
+      <Route exact path={`${path}/positions`}>
+        <YourPositions />
+      </Route>
+      <Route path={`${path}/poolAccount/:poolAccountId/:poolAssetId`}>
+        <Pool />
+      </Route>
+      <Route path={`${path}/pool/:poolAssetId`}>
+        <Pool />
+      </Route>
+    </Switch>
+  )
 }

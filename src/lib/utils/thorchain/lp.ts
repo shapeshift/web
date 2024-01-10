@@ -1,6 +1,7 @@
 import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
@@ -36,7 +37,9 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<(ThorNodeLiquidityProvider & MidgardPool) | null> => {
+}): Promise<
+  (ThorNodeLiquidityProvider & MidgardPool & { poolData: ThornodePoolResponse }) | null
+> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const accountPosition = await (async () => {
@@ -76,8 +79,12 @@ export const getThorchainLiquidityProviderPosition = async ({
   if (!maybeMidgardMember)
     throw new Error(`No Midgard position found for address: ${accountPosition.asset_address}`)
 
+  const { data: poolData } = await axios.get<ThornodePoolResponse>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+  )
   return {
     ...accountPosition,
     ...maybeMidgardMember,
+    poolData,
   }
 }

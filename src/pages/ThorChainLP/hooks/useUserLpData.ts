@@ -7,12 +7,11 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import { getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-type UseLendingPositionDataProps = {
+type UseUserLpDataProps = {
   accountId: AccountId | undefined
   assetId: AssetId
 }
@@ -25,17 +24,7 @@ const calculatePoolOwnershipPercentage = ({
   totalPoolUnits: string
 }): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
-export const thorchainLendingPositionQueryFn = async ({
-  queryKey,
-}: {
-  queryKey: [string, { accountId: AccountId; assetId: AssetId }]
-}) => {
-  const [, { accountId, assetId }] = queryKey
-  const position = await getThorchainLendingPosition({ accountId, assetId })
-  return position
-}
-
-export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
+export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
   const lpPositionQueryKey: [string, { accountId: AccountId | undefined; assetId: AssetId }] =
     useMemo(() => ['thorchainUserLpData', { accountId, assetId }], [accountId, assetId])
 

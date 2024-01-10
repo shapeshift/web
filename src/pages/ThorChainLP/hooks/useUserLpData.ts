@@ -27,7 +27,7 @@ export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const lendingPositionData = useQuery({
+  const liquidityPoolPositionData = useQuery({
     // TODO(gomes): remove me, this avoids spamming the API during development
     staleTime: Infinity,
     queryKey: lpPositionQueryKey,
@@ -83,5 +83,5 @@ export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
     enabled: Boolean(accountId),
   })
 
-  return lendingPositionData
+  return liquidityPoolPositionData
 }

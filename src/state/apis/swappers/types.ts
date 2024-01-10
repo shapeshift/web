@@ -50,6 +50,7 @@ export type ApiQuote = {
   swapperName: SwapperName
   inputOutputRatio: number
   errors: ErrorWithMeta<TradeQuoteError>[]
+  warnings: ErrorWithMeta<TradeQuoteError>[]
 }
 
 export type TradeQuoteResponse = {

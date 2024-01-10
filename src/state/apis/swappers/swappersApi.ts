@@ -133,7 +133,7 @@ export const swappersApi = createApi({
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
           quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
-            const errors = await validateTradeQuote(state, {
+            const { errors, warnings } = await validateTradeQuote(state, {
               swapperName,
               quote,
               error,
@@ -143,6 +143,7 @@ export const swappersApi = createApi({
               swapperName,
               inputOutputRatio,
               errors,
+              warnings,
             }
           }),
         )

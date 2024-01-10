@@ -39,7 +39,10 @@ export const validateTradeQuote = async (
     quote: TradeQuote | undefined
     error: SwapErrorRight | undefined
   },
-): Promise<ErrorWithMeta<TradeQuoteError>[]> => {
+): Promise<{
+  errors: ErrorWithMeta<TradeQuoteError>[]
+  warnings: ErrorWithMeta<TradeQuoteError>[]
+}> => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
       switch (error?.code) {
@@ -57,7 +60,7 @@ export const validateTradeQuote = async (
       }
     })()
 
-    return [{ error: tradeQuoteError }]
+    return { errors: [{ error: tradeQuoteError }], warnings: [] }
   }
 
   const isMultiHopTrade = quote.steps.length > 1
@@ -185,27 +188,30 @@ export const validateTradeQuote = async (
   //   isTradingActive(firstHop.buyAsset.assetId, swapperName),
   // ])
 
-  return [
-    !!disableSmartContractSwap && {
-      error: TradeQuoteError.SmartContractWalletNotSupported,
-    },
-    !isTradingActiveOnSellPool && {
-      error: TradeQuoteError.TradingInactiveOnSellChain,
-    },
-    !isTradingActiveOnBuyPool && {
-      error: TradeQuoteError.TradingInactiveOnBuyChain,
-    },
-    !walletSupportsIntermediaryAssetChain && {
-      error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
-    },
-    !firstHopHasSufficientBalanceForGas && {
-      error: TradeQuoteError.InsufficientFirstHopFeeAssetBalance,
-    },
-    !secondHopHasSufficientBalanceForGas && {
-      error: TradeQuoteError.InsufficientSecondHopFeeAssetBalance,
-    },
-    feesExceedsSellAmount && { error: TradeQuoteError.SellAmountBelowTradeFee },
-    isUnsafeQuote && { error: TradeQuoteError.UnsafeQuote },
-    ...insufficientBalanceForProtocolFeesErrors,
-  ].filter(isTruthy)
+  return {
+    errors: [
+      !!disableSmartContractSwap && {
+        error: TradeQuoteError.SmartContractWalletNotSupported,
+      },
+      !isTradingActiveOnSellPool && {
+        error: TradeQuoteError.TradingInactiveOnSellChain,
+      },
+      !isTradingActiveOnBuyPool && {
+        error: TradeQuoteError.TradingInactiveOnBuyChain,
+      },
+      !walletSupportsIntermediaryAssetChain && {
+        error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
+      },
+      !firstHopHasSufficientBalanceForGas && {
+        error: TradeQuoteError.InsufficientFirstHopFeeAssetBalance,
+      },
+      !secondHopHasSufficientBalanceForGas && {
+        error: TradeQuoteError.InsufficientSecondHopFeeAssetBalance,
+      },
+      feesExceedsSellAmount && { error: TradeQuoteError.SellAmountBelowTradeFee },
+
+      ...insufficientBalanceForProtocolFeesErrors,
+    ].filter(isTruthy),
+    warnings: [isUnsafeQuote && { error: TradeQuoteError.UnsafeQuote }].filter(isTruthy),
+  }
 }

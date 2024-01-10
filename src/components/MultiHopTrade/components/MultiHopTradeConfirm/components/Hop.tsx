@@ -29,12 +29,12 @@ import {
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
+import { TwirlyToggle } from '../../TwirlyToggle'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
-import { TwirlyToggle } from './TwirlyToggle'
 
 const collapseWidth = { width: '100%' }
 

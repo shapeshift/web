@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -76,9 +76,8 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
         position?.rune_deposit_value || '0',
       ).times(runeMarketData?.price || 0)
 
-      // When depositing asymetrically, the assetDeposit value is the total amount deposited, but the asset_deposit_value is only half of that
-      // because of the underlying rebalancing
-      const isAsymmetric = position.assetDeposit !== position.asset_deposit_value
+      const isAsymmetric =
+        bnOrZero(position.assetAdded).isZero() || bnOrZero(position.runeAdded).isZero()
       const asymSide = bn(position.assetDeposit).gt(position.asset_deposit_value) ? 'asset' : 'rune'
 
       const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency

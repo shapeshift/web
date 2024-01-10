@@ -35,6 +35,12 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { prevalidateQuoteRequest } from './helpers/prevalidateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
+const sortQuotes = (unorderedQuotes: Omit<ApiQuote, 'index'>[], startingIndex: number) => {
+  return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc']).map(
+    (apiQuote, i) => Object.assign(apiQuote, { index: startingIndex + i }),
+  )
+}
+
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -148,16 +154,19 @@ export const swappersApi = createApi({
           }),
         )
 
-        const orderedQuotes: ApiQuote[] = orderBy(
-          unorderedQuotes,
-          ['inputOutputRatio', 'swapperName'],
-          ['desc', 'asc'],
-        ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
-
-        const firstActionableQuote = orderedQuotes.find(apiQuote => apiQuote.errors.length === 0)
+        // ensure quotes with errors are placed below actionable quotes
+        const happyQuotes = sortQuotes(
+          unorderedQuotes.filter(({ errors }) => errors.length === 0),
+          0,
+        )
+        const errorQuotes = sortQuotes(
+          unorderedQuotes.filter(({ errors }) => errors.length > 0),
+          happyQuotes.length,
+        )
+        const orderedQuotes: ApiQuote[] = [...happyQuotes, ...errorQuotes]
 
         // Ensure we auto-select the first actionable quote
-        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(firstActionableQuote?.index ?? 0))
+        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
         return { data: { errors: [], quotes: orderedQuotes } }
       },
       providesTags: ['TradeQuote'],

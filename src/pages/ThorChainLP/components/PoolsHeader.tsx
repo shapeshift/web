@@ -18,7 +18,7 @@ export const PoolsHeader = () => {
         exact: true,
       },
       {
-        label: 'pools.yourPositions',
+        label: 'pools.yourPositions.yourPositions',
         path: '/pools/positions',
         color: 'blue',
       },
@@ -29,8 +29,8 @@ export const PoolsHeader = () => {
     <Stack>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
         <Stack>
-          <Heading>{translate('lending.lending')}</Heading>
-          <Text color='text.subtle' translation='lending.lendingBody' />
+          <Heading>{translate('pools.pools')}</Heading>
+          <Text color='text.subtle' translation='pools.poolsBody' />
         </Stack>
       </Container>
       <TabMenu items={NavItems} />

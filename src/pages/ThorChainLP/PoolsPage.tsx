@@ -5,7 +5,7 @@ import { AvailablePools } from './AvailablePools'
 import { Pool } from './Pool/Pool'
 import { YourPositions } from './YourPositions'
 
-export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
+export const poolRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
   md: '200px repeat(5, 1fr)',
 }

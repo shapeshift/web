@@ -59,35 +59,41 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
     select: data => {
       if (!data) return null
 
-      const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
-        data?.asset_deposit_value || '0',
-      ).times(poolAssetMarketData?.price || 0)
-      const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
-        data?.rune_deposit_value || '0',
-      ).times(runeMarketData?.price || 0)
+      return data.positions.map(position => {
+        const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
+          position?.assetDeposit || '0',
+        ).times(poolAssetMarketData?.price || 0)
+        const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
+          position?.runeDeposit || '0',
+        ).times(runeMarketData?.price || 0)
 
-      const isAsymmetric = bnOrZero(data.assetAdded).isZero() || bnOrZero(data.runeAdded).isZero()
-      const asymSide = bn(data.assetDeposit).gt(data.asset_deposit_value) ? 'asset' : 'rune'
+        const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
+        const asymSide = (() => {
+          if (position.runeAddress === '') return 'asset'
+          if (position.assetAddress === '') return 'rune'
+          return null
+        })()
 
-      const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
-        .plus(underlyingRuneValueFiatUserCurrency)
-        .toFixed()
+        const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
+          .plus(underlyingRuneValueFiatUserCurrency)
+          .toFixed()
 
-      const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
-        userLiquidityUnits: data.liquidityUnits,
-        totalPoolUnits: data.poolData.pool_units,
+        const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
+          userLiquidityUnits: position.liquidityUnits,
+          totalPoolUnits: data.poolData.pool_units,
+        })
+
+        return {
+          underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
+          underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(position.runeDeposit).toFixed(),
+          isAsymmetric,
+          asymSide: isAsymmetric ? asymSide : null,
+          underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
+          underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
+          totalValueFiatUserCurrency,
+          poolOwnershipPercentage,
+        }
       })
-
-      return {
-        underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(data.asset_deposit_value).toFixed(),
-        underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(data.rune_deposit_value).toFixed(),
-        isAsymmetric,
-        asymSide: isAsymmetric ? asymSide : null,
-        underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
-        underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
-        totalValueFiatUserCurrency,
-        poolOwnershipPercentage,
-      }
     },
     enabled: Boolean(accountId),
   })

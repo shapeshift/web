@@ -31,6 +31,22 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
+export const getThorchainLiquidityMember = async ({
+  accountId,
+}: {
+  accountId: AccountId
+  assetId?: AssetId // not in use yet but we may need it
+}): Promise<MidgardLiquidityProvider | null> => {
+  // TODO(gomes): handle UTXOs - this is only handling address-based accounts for the sake of simplicity
+  const address = fromAccountId(accountId).account
+
+  const { data } = await axios.get<MidgardLiquidityProvider>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
+  )
+
+  return data
+}
+
 export const getThorchainLiquidityProviderPosition = async ({
   accountId,
   assetId,
@@ -38,10 +54,16 @@ export const getThorchainLiquidityProviderPosition = async ({
   accountId: AccountId
   assetId: AssetId
 }): Promise<{
-  positions: (ThorNodeLiquidityProvider & MidgardPool)[]
+  positions: MidgardPool[]
   poolData: ThornodePoolResponse
 } | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const midgardLiquidityProvider = await getThorchainLiquidityMember({ accountId })
+
+  if (!midgardLiquidityProvider) return null
+
+  const positions = midgardLiquidityProvider.pools
 
   const accountPosition = await (async () => {
     const address = fromAccountId(accountId).account
@@ -68,31 +90,11 @@ export const getThorchainLiquidityProviderPosition = async ({
   })()
   if (!accountPosition) return null
 
-  // TODO(gomes): asset_address *or* rune_address when implementing sim. pools
-  const { data: midgardLiquidityProvider } = await axios.get<MidgardLiquidityProvider>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/member/${accountPosition.asset_address}`,
-  )
-
-  const memberData = midgardLiquidityProvider.pools.find(
-    pool =>
-      pool.pool === accountPosition.asset &&
-      pool.assetAddress === accountPosition.asset_address &&
-      pool.runeAddress === accountPosition.rune_address,
-  )
-
-  if (!memberData) throw new Error('Cannot get Midgard member data for LP position')
-
   const { data: poolData } = await axios.get<ThornodePoolResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
   )
   return {
-    positions: [
-      // TODO(gomes): this should handle multiple positions
-      {
-        ...accountPosition,
-        ...memberData,
-      },
-    ],
+    positions,
     poolData,
   }
 }

@@ -8,9 +8,9 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { getAccountAddresses } from '.'
 import type {
   MidgardLiquidityProvider,
+  MidgardLiquidityProvidersList,
   MidgardPool,
   ThorchainLiquidityProvidersResponseSuccess,
-  ThorNodeLiquidityProvider,
 } from './lp/types'
 
 export const getAllThorchainLiquidityProviderPositions = async (
@@ -31,15 +31,19 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
-export const getThorchainLiquidityMember = async ({
-  accountId,
-}: {
-  accountId: AccountId
-  assetId?: AssetId // not in use yet but we may need it
-}): Promise<MidgardLiquidityProvider | null> => {
-  // TODO(gomes): handle UTXOs - this is only handling address-based accounts for the sake of simplicity
-  const address = fromAccountId(accountId).account
+export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidityProvidersList> => {
+  const { data } = await axios.get<MidgardLiquidityProvidersList>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/members`,
+  )
 
+  if (!data?.length || 'error' in data) return []
+
+  return data
+}
+
+export const getThorchainLiquidityMember = async (
+  address: string,
+): Promise<MidgardLiquidityProvider | null> => {
   const { data } = await axios.get<MidgardLiquidityProvider>(
     `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
   )
@@ -59,36 +63,28 @@ export const getThorchainLiquidityProviderPosition = async ({
 } | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
-  const midgardLiquidityProvider = await getThorchainLiquidityMember({ accountId })
-
-  if (!midgardLiquidityProvider) return null
-
-  const positions = midgardLiquidityProvider.pools
-
   const accountPosition = await (async () => {
-    const address = fromAccountId(accountId).account
-    if (!isUtxoChainId(fromAssetId(assetId).chainId))
-      return (
-        await axios.get<ThorNodeLiquidityProvider>(
-          `${
-            getConfig().REACT_APP_THORCHAIN_NODE_URL
-          }/lcd/thorchain/pool/${poolAssetId}/liquidity_provider/${address}`,
-        )
-      ).data
+    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+      const address = fromAccountId(accountId).account
+      return getThorchainLiquidityMember(address)
+    }
 
-    const liquidityProviderPositionsResponse =
-      await getAllThorchainLiquidityProviderPositions(assetId)
+    const allMembers = await getAllThorchainLiquidityMembers()
 
-    const allPositions = liquidityProviderPositionsResponse
-    if (!allPositions.length) {
-      throw new Error(`No LP positions found for asset ID: ${assetId}`)
+    if (!allMembers.length) {
+      throw new Error(`No THORChain members found`)
     }
 
     const accountAddresses = await getAccountAddresses(accountId)
 
-    return allPositions.find(position => accountAddresses.includes(position?.asset_address ?? ''))
+    const foundMember = allMembers.find(member => accountAddresses.includes(member))
+    if (!foundMember) return null
+
+    return getThorchainLiquidityMember(foundMember)
   })()
   if (!accountPosition) return null
+
+  const positions = accountPosition.pools
 
   const { data: poolData } = await axios.get<ThornodePoolResponse>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,

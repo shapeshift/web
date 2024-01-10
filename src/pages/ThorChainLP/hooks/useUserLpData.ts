@@ -50,8 +50,6 @@ export const useUserLpData = ({ accountId, assetId }: UseLendingPositionDataProp
       if (!accountId) return null
       const position = await getThorchainLiquidityProviderPosition({ accountId, assetId })
 
-      console.log({ position })
-
       if (!position) return null
 
       return position

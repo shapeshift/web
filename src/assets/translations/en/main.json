@@ -2190,6 +2190,10 @@
     "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
     "tradeFee": "Trade Fee",
     "totalTradeFee": "Total Trade Fee"
+  },
+  "pools": {
+    "availablePools": "Available Pools",
+    "yourPositions": "Your Positions"
   }
 }
 

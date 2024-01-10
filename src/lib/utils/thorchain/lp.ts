@@ -155,7 +155,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
   runeAmountCryptoThorPrecision: string
   assetId: AssetId
   assetAmountCryptoThorPrecision: string
-}): Promise<{}> => {
+}) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
@@ -182,6 +182,49 @@ export const estimateAddThorchainLiquidityPosition = async ({
     slipPercent: slip.times(100),
     poolShare,
     liquidityUnits,
+    inbound: {
+      fees: {
+        asset: assetInboundFee,
+        rune: runeInboundFee,
+        total: totalFees,
+      },
+    },
+  }
+}
+
+// TODO: add 'percentage' param
+export const estimateRemoveThorchainLiquidityPosition = async ({
+  accountId,
+  assetId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+  assetAmountCryptoThorPrecision: string
+}) => {
+  const lpPosition = await getThorchainLiquidityProviderPosition({ accountId, assetId })
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const liquidityUnits = lpPosition?.liquidityUnits
+  const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
+  if (poolResult.isErr()) throw poolResult.unwrapErr()
+  const pool = poolResult.unwrap().data
+  const poolShare = getPoolShare(bnOrZero(liquidityUnits), pool)
+  const slip = getSlipOnLiquidity({
+    runeAmountCryptoThorPrecision: poolShare.runeShare.toString(),
+    assetAmountCryptoThorPrecision: poolShare.assetShare.toString(),
+    pool,
+  })
+
+  const assetInboundFee = bn(0) // TODO
+  const runeInboundFee = bn(0) // TODO
+  const totalFees = assetInboundFee.plus(runeInboundFee)
+
+  return {
+    assetPool: pool.asset,
+    slipPercent: slip.times(100),
+    poolShare,
+    liquidityUnits,
+    assetAmount: poolShare.assetShare,
+    runeAmount: poolShare.runeShare,
     inbound: {
       fees: {
         asset: assetInboundFee,

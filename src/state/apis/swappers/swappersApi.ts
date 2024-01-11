@@ -34,7 +34,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getIsTradingActiveApi } from '../swapper/getIsTradingActiveApi'
-import { prevalidateQuoteRequest } from './helpers/prevalidateQuoteRequest'
+import { validateQuoteRequest } from './helpers/validateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
 const sortQuotes = (unorderedQuotes: Omit<ApiQuote, 'index'>[], startingIndex: number) => {
@@ -71,18 +71,13 @@ export const swappersApi = createApi({
           assetId: tradeQuoteInput.sellAsset.assetId,
         })
 
-        const topLevelValidationErrors = await prevalidateQuoteRequest({
+        const topLevelValidationErrors = validateQuoteRequest({
           tradeQuoteInput,
           isWalletConnected,
           walletSupportedChains,
           manualReceiveAddress,
           sellAssetBalanceCryptoBaseUnit,
         })
-
-        if (topLevelValidationErrors.length > 0) {
-          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
-          return { data: { errors: topLevelValidationErrors, quotes: [] } }
-        }
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
@@ -106,7 +101,10 @@ export const swappersApi = createApi({
         if (quoteResults.length === 0) {
           return {
             data: {
-              errors: [{ error: TradeQuoteRequestError.NoQuotesAvailable }],
+              errors: [
+                { error: TradeQuoteRequestError.NoQuotesAvailable },
+                ...topLevelValidationErrors,
+              ],
               quotes: [],
             },
           }
@@ -209,7 +207,7 @@ export const swappersApi = createApi({
 
         return {
           data: {
-            errors: [],
+            errors: topLevelValidationErrors,
             quotes: orderedQuotes,
           },
         }

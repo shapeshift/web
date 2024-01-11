@@ -8,7 +8,7 @@ import { isTruthy } from 'lib/utils'
 import type { ErrorWithMeta } from '../types'
 import { TradeQuoteRequestError } from '../types'
 
-export const prevalidateQuoteRequest = ({
+export const validateQuoteRequest = ({
   isWalletConnected,
   walletSupportedChains,
   manualReceiveAddress,

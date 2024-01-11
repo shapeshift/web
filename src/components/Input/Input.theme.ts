@@ -6,7 +6,7 @@ export const InputStyle = {
   baseStyle: () => ({
     field: {
       _placeholder: {
-        color: 'text.subtle',
+        color: 'text.subtlest',
       },
     },
   }),

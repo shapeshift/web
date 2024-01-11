@@ -4,10 +4,9 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import React, { useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
+import { AssetSymbol } from 'components/AssetSymbol'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from '../../PoolIcon'
 
@@ -20,12 +19,6 @@ const checked = {
 }
 const hover = {
   borderColor: 'border.hover',
-}
-
-const AssetSymbol: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) return null
-  return <RawText>{asset.symbol}</RawText>
 }
 
 const TypeLabel: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => {
@@ -51,7 +44,7 @@ const TypeRadio: React.FC<RadioProps> = props => {
       <input {...input} />
       <Box
         bg='background.surface.raised.base'
-        borderRadius='md'
+        borderRadius='lg'
         width='full'
         borderWidth={2}
         borderColor='transparent'
@@ -100,7 +93,7 @@ export const DepositType = () => {
             <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
               <TypeLabel assetIds={value.assetIds} />
               {value.assetIds.length === 1 && (
-                <Box as='span' color='text.subtlest' className='asym-icon'>
+                <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
                   <BiSolidBoltCircle />
                 </Box>
               )}

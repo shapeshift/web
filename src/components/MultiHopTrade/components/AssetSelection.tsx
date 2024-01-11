@@ -77,8 +77,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
       <Button
+        height='40px'
         justifyContent='flex-end'
-        height='auto'
         px={2}
         py={2}
         gap={2}

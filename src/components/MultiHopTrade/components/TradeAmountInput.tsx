@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
-import type { FocusEvent, PropsWithChildren } from 'react'
+import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
@@ -76,7 +76,7 @@ export type TradeAmountInputProps = {
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
   label?: string
-  rightRegion?: JSX.Element
+  rightComponent?: ElementType<{ assetId: AssetId }>
   labelPostFix?: JSX.Element
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
@@ -109,7 +109,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatSkeleton,
     formControlProps,
     label,
-    rightRegion,
+    rightComponent: RightComponent,
     labelPostFix,
     hideAmounts,
     layout = 'stacked',
@@ -198,7 +198,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </FormLabel>
             </Flex>
           )}
-          {balance && assetId && (
+          {balance && assetId && label && (
             <AccountDropdown
               defaultAccountId={accountId}
               assetId={assetId}
@@ -233,7 +233,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 onFocus={handleOnFocus}
               />
             </Skeleton>
-            {rightRegion}
+            {RightComponent && <RightComponent assetId={assetId ?? ''} />}
             {layout === 'inline' && showFiatAmount && !hideAmounts && (
               <Button
                 onClick={toggleIsFiat}
@@ -278,6 +278,19 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               onMaxClick={handleOnMaxClick}
               onClick={onPercentOptionClick ?? noop}
             />
+            {balance && assetId && !label && (
+              <AccountDropdown
+                defaultAccountId={accountId}
+                assetId={assetId}
+                onChange={onAccountIdChange}
+                disabled={isAccountSelectionDisabled}
+                autoSelectHighestBalance
+                buttonProps={buttonProps}
+                boxProps={boxProps}
+                showLabel={false}
+                label={accountDropdownLabel}
+              />
+            )}
           </Flex>
         )}
 

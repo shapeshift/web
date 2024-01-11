@@ -22,8 +22,6 @@ type DevServerConfigFunction = (
 const buildPath = path.resolve(__dirname, '..')
 
 process.env.REACT_APP_CSP_META = serializeCsp(cspMeta)
-console.info('Headers:', headers)
-console.info('Meta CSP:', cspMeta)
 
 // The HTML template can pull in static assets from outside of the Webpack
 // pipeline; these need SRI too. This generates SRI attributes for each static

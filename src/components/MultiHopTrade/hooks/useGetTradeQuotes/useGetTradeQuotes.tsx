@@ -1,7 +1,6 @@
 import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
 import { isEqual } from 'lodash'
@@ -130,8 +129,8 @@ export const useGetTradeQuotes = () => {
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 
-  // User *may* donate if the fox discounts flag is off and they kept the donation checkbox on
-  // or if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
+  // User *may* donate if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
+  // TODO(gomes): remove the willDonate terminology entirely in a follow-up, and remove FOX discounts feature and flag
   const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
@@ -207,19 +206,16 @@ export const useGetTradeQuotes = () => {
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
         const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
-        const isFromEvm = isEvmChainId(sellAsset.chainId)
-        // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-        const mayDonate = walletIsKeepKey ? userMayDonate && !isFromEvm : userMayDonate
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
-        const potentialAffiliateBps = mayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
+        const potentialAffiliateBps = userMayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
         const affiliateBps = (() => {
           if (!isFoxDiscountsEnabled) return potentialAffiliateBps
 
           // free trades if there's an error getting foxHeld
           if (votingPower === undefined) return '0'
 
-          const affiliateBps = mayDonate
+          const affiliateBps = userMayDonate
             ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(votingPower) }).feeBps.toFixed(0)
             : '0'
 
@@ -241,6 +237,7 @@ export const useGetTradeQuotes = () => {
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+          isKeepKey: walletIsKeepKey,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args

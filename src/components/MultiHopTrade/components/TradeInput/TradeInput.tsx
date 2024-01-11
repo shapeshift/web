@@ -14,7 +14,7 @@ import {
   Stack,
   useToken,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -52,7 +52,7 @@ import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { isKeplrHDWallet } from 'lib/utils'
+import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectSwappersApiTradeQuotePending,
@@ -101,8 +101,7 @@ const formControlProps = {
 }
 
 const arrowDownIcon = <ArrowDownIcon />
-
-const percentOptions = [1]
+const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
   useGetTradeQuotes()
@@ -124,6 +123,12 @@ export const TradeInput = memo(() => {
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const percentOptions = useMemo(() => {
+    if (!sellAsset?.assetId) return []
+    if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
+
+    return [1]
+  }, [sellAsset.assetId])
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
   const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
@@ -605,6 +610,7 @@ export const TradeInput = memo(() => {
               label={translate('trade.payWith')}
               onAccountIdChange={setSellAssetAccountId}
               labelPostFix={sellTradeAssetSelect}
+              percentOptions={percentOptions}
             />
             <Flex alignItems='center' justifyContent='center' my={-2}>
               <Divider />
@@ -636,7 +642,7 @@ export const TradeInput = memo(() => {
               fiatAmount={
                 isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
               }
-              percentOptions={percentOptions}
+              percentOptions={emptyPercentOptions}
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}

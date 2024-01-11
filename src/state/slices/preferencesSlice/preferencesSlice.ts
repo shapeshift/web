@@ -47,6 +47,7 @@ export type FeatureFlags = {
   Snaps: boolean
   FoxDiscounts: boolean
   ThorchainLending: boolean
+  ThorchainLP: boolean
   LedgerWallet: boolean
   MultiHopTrades: boolean
   ThorchainSwapLongtail: boolean
@@ -114,6 +115,7 @@ const initialState: Preferences = {
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     FoxDiscounts: getConfig().REACT_APP_FEATURE_FOX_DISCOUNTS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    ThorchainLP: getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,

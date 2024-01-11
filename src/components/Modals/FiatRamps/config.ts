@@ -6,7 +6,7 @@ import CoinbaseLogo from 'assets/coinbase-logo.svg'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
-import OnRamperLogo from 'assets/on-ramper.png'
+import OnRamperLogo from 'assets/onramper-logo.svg'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import type commonFiatCurrencyList from './FiatCurrencyList.json'

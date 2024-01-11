@@ -23,8 +23,5 @@
   },
   "devDependencies": {
     "@yfi/sdk": "^1.2.0"
-  },
-  "dependencies": {
-    "axios": "0.26.1"
   }
 }

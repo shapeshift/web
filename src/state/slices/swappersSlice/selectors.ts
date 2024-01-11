@@ -92,8 +92,6 @@ export const selectBuyAssetUsdRate = createSelector(
   },
 )
 
-export const selectWillDonate = createSelector(selectSwappers, swappers => swappers.willDonate)
-
 export const selectManualReceiveAddress = createSelector(
   selectSwappers,
   swappers => swappers.manualReceiveAddress,

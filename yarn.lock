@@ -9466,6 +9466,7 @@ __metadata:
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   dependencies:
     "@yfi/sdk": ^1.2.0
+    axios: 0.26.1
   languageName: unknown
   linkType: soft
 
@@ -9477,6 +9478,7 @@ __metadata:
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@types/multicoin-address-validator": ^0.5.0
+    axios: 0.26.1
     bech32: ^2.0.0
     coinselect: ^3.1.13
     multicoin-address-validator: ^0.5.12

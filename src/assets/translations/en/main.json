@@ -2202,6 +2202,8 @@
     "poolShare": "Pool Share",
     "poolsBody": "Provide liquidity and earn fees on trades in that pool.",
     "availablePools": "Available Pools",
+    "addLiquidity": "Add Liquidity",
+    "removeLiquidity": "Remove Liquidity",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

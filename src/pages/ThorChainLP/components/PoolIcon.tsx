@@ -9,14 +9,23 @@ type PoolIconProps = {
   size?: AvatarProps['size']
 }
 
+const lastStyle = {
+  marginLeft: '-0.5em',
+}
+const firstStyle = {
+  marginLeft: '0em',
+}
+
 export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => {
   const renderIcons = useMemo(() => {
-    return assetIds.map((assetId, index) => (
+    return assetIds.map(assetId => (
       <AssetIcon
         key={assetId}
         size={size}
         assetId={assetId}
-        ml={index + 1 === assetIds.length ? '-0.5em' : 0}
+        showNetworkIcon={false}
+        _last={lastStyle}
+        _first={firstStyle}
       />
     ))
   }, [assetIds, size])

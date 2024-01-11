@@ -10,10 +10,10 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { getAccountAddresses } from '.'
 import type {
   MidgardLiquidityProvider,
+  MidgardLiquidityProvidersList,
   MidgardPool,
   PoolShareDetail,
   ThorchainLiquidityProvidersResponseSuccess,
-  ThorNodeLiquidityProvider,
 } from './lp/types'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
@@ -36,55 +36,67 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
+export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidityProvidersList> => {
+  const { data } = await axios.get<MidgardLiquidityProvidersList>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/members`,
+  )
+
+  if (!data?.length || 'error' in data) return []
+
+  return data
+}
+
+export const getThorchainLiquidityMember = async (
+  address: string,
+): Promise<MidgardLiquidityProvider | null> => {
+  const { data } = await axios.get<MidgardLiquidityProvider>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
+  )
+
+  return data
+}
+
 export const getThorchainLiquidityProviderPosition = async ({
   accountId,
   assetId,
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<(ThorNodeLiquidityProvider & MidgardPool) | null> => {
+}): Promise<{
+  positions: MidgardPool[]
+  poolData: ThornodePoolResponse
+} | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const accountPosition = await (async () => {
-    const address = fromAccountId(accountId).account
-    if (!isUtxoChainId(fromAssetId(assetId).chainId))
-      return (
-        await axios.get<ThorNodeLiquidityProvider>(
-          `${
-            getConfig().REACT_APP_THORCHAIN_NODE_URL
-          }/lcd/thorchain/pool/${poolAssetId}/liquidity_provider/${address}`,
-        )
-      ).data
+    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+      const address = fromAccountId(accountId).account
+      return getThorchainLiquidityMember(address)
+    }
 
-    const liquidityProviderPositionsResponse =
-      await getAllThorchainLiquidityProviderPositions(assetId)
+    const allMembers = await getAllThorchainLiquidityMembers()
 
-    const allPositions = liquidityProviderPositionsResponse
-    if (!allPositions.length) {
-      throw new Error(`No LP positions found for asset ID: ${assetId}`)
+    if (!allMembers.length) {
+      throw new Error(`No THORChain members found`)
     }
 
     const accountAddresses = await getAccountAddresses(accountId)
 
-    return allPositions.find(position => accountAddresses.includes(position?.asset_address ?? ''))
+    const foundMember = allMembers.find(member => accountAddresses.includes(member))
+    if (!foundMember) return null
+
+    return getThorchainLiquidityMember(foundMember)
   })()
   if (!accountPosition) return null
 
-  // TODO(gomes): asset_address *or* rune_address when implementing sim. pools
-  const { data: midgardLiquidityProvider } = await axios.get<MidgardLiquidityProvider>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/member/${accountPosition.asset_address}`,
+  const positions = accountPosition.pools
+
+  const { data: poolData } = await axios.get<ThornodePoolResponse>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
   )
-
-  // If we do have a THORNode /liquidity_provider/<address> response, we should assume that we're going to have a Midgard response with the matchint position
-  // But in case we don't, let's not rug the whole position, and make the MidgardPool fields optional instead
-  const maybeMidgardMember = midgardLiquidityProvider.pools.find(pool => pool.pool === poolAssetId)
-
-  if (!maybeMidgardMember)
-    throw new Error(`No Midgard position found for address: ${accountPosition.asset_address}`)
-
   return {
-    ...accountPosition,
-    ...maybeMidgardMember,
+    positions,
+    poolData,
   }
 }
 

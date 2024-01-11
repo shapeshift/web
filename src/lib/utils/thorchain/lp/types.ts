@@ -30,6 +30,8 @@ export type MidgardPool = {
   runePending: string
   runeWithdrawn: string
 }
+
+export type MidgardLiquidityProvidersList = string[]
 export type MidgardLiquidityProvider = {
   pools: MidgardPool[]
 }

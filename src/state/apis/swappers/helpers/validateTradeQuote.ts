@@ -85,7 +85,7 @@ export const validateTradeQuote = async (
           }
         }
         case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
-          return { error: TradeQuoteError.InputAmountLowerThanFees }
+          return { error: TradeQuoteError.SellAmountBelowTradeFee }
         default:
           // We didn't recognize the error, use a generic error message
           return { error: TradeQuoteError.UnknownError }
@@ -197,9 +197,10 @@ export const validateTradeQuote = async (
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit
-  const isUnsafeQuote =
+  const isUnsafeQuote = !(
     !recommendedMinimumCryptoBaseUnit ||
-    bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
+    bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
+  )
 
   const disableSmartContractSwap = await (async () => {
     // Swappers other than THORChain shouldn't be affected by this limitation

@@ -34,7 +34,6 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
@@ -57,6 +56,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
+  selectTradeQuoteRequestErrors,
   selectTradeQuoteRequestFailed,
 } from 'state/apis/swappers/selectors'
 import {
@@ -69,7 +69,7 @@ import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,
-  selectActiveQuoteError,
+  selectActiveQuoteErrors,
   selectActiveQuotePotentialAffiliateBps,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -92,6 +92,8 @@ import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
+import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
+import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 
 const formControlProps = {
   borderRadius: 0,
@@ -141,12 +143,29 @@ export const TradeInput = memo(() => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
     [sellAmountCryptoPrecision],
   )
-  const activeQuoteStatus = useActiveQuoteStatus()
+  const quoteStatusTranslation = useMemo(() => {
+    const quoteRequestError = quoteRequestErrors[0]
+    const tradeQuoteError = activeQuoteErrors?.[0]
+    switch (true) {
+      case !!quoteRequestError:
+        return getQuoteRequestErrorTranslation(quoteRequestError)
+      case !!tradeQuoteError:
+        // this should never occur because users shouldn't be able to select and errored quote
+        // but just in case
+        return getQuoteErrorTranslation(tradeQuoteError!)
+      default:
+        return 'trade.previewTrade'
+    }
+  }, [activeQuoteErrors, quoteRequestErrors])
+
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
     [dispatch],
@@ -257,10 +276,6 @@ export const TradeInput = memo(() => {
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
 
-  const quoteHasError = useMemo(() => {
-    return activeQuoteStatus.quoteErrors.length > 0
-  }, [activeQuoteStatus.quoteErrors])
-
   const onSubmit = useCallback(async () => {
     setIsConfirmationLoading(true)
     try {
@@ -352,29 +367,17 @@ export const TradeInput = memo(() => {
     null,
   )
 
-  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-
   useEffect(() => {
     if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
   }, [isUnsafeQuote])
 
-  const quoteHasErrorExcludeUnsafe = useMemo(() => {
-    // If the only error is an UnsafeQuote error and the user has dismissed the notice, don't consider it an error
-    // that should disable the preview button - the user understands the risks and wishes to proceed
-    if (isUnsafeQuote && activeQuoteStatus.quoteErrors.length === 1 && isUnsafeQuoteNoticeDismissed)
-      return false
-
-    return quoteHasError
-  }, [
-    activeQuoteStatus.quoteErrors.length,
-    isUnsafeQuote,
-    isUnsafeQuoteNoticeDismissed,
-    quoteHasError,
-  ])
+  const quoteHasError = useMemo(() => {
+    return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
+  }, [activeQuoteErrors?.length, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      quoteHasErrorExcludeUnsafe ||
+      quoteHasError ||
       manualReceiveAddressIsValidating ||
       isLoading ||
       !isSellAmountEntered ||
@@ -387,7 +390,7 @@ export const TradeInput = memo(() => {
     isLoading,
     isSellAmountEntered,
     manualReceiveAddressIsValidating,
-    quoteHasErrorExcludeUnsafe,
+    quoteHasError,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -481,14 +484,14 @@ export const TradeInput = memo(() => {
         ) : (
           <Button
             type='submit'
-            colorScheme={quoteHasErrorExcludeUnsafe ? 'red' : 'blue'}
+            colorScheme={quoteHasError ? 'red' : 'blue'}
             size='lg-multiline'
             data-test='trade-form-preview-button'
             isDisabled={shouldDisablePreviewButton}
             isLoading={isLoading}
             mx={-2}
           >
-            <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+            <Text translation={quoteStatusTranslation} />
           </Button>
         )}
       </CardFooter>
@@ -496,7 +499,7 @@ export const TradeInput = memo(() => {
     [
       activeQuote,
       tradeQuoteRequestFailed,
-      activeQuoteStatus.quoteStatusTranslation,
+      quoteStatusTranslation,
       activeSwapperName,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
@@ -508,7 +511,7 @@ export const TradeInput = memo(() => {
       isUnsafeQuoteNoticeDismissed,
       maybeUnsafeTradeWarning,
       priceImpactPercentage,
-      quoteHasErrorExcludeUnsafe,
+      quoteHasError,
       rate,
       sellAsset.symbol,
       shapeShiftFee,

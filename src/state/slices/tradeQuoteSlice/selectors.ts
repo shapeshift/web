@@ -7,8 +7,8 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swappers'
+import type { ApiQuote, ErrorWithMeta } from 'state/apis/swappers'
+import { TradeQuoteError } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -56,7 +56,8 @@ export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefin
   createSelector(
     selectActiveQuoteIndex,
     selectSwappersApiTradeQuotes,
-    (activeQuoteIndex, apiQuotes) => apiQuotes[activeQuoteIndex ?? 0]?.swapperName,
+    (activeQuoteIndex, apiQuotes) =>
+      activeQuoteIndex !== undefined ? apiQuotes[activeQuoteIndex]?.swapperName : undefined,
   )
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
@@ -101,6 +102,11 @@ export const selectActiveQuoteErrors: Selector<
   ReduxState,
   ErrorWithMeta<TradeQuoteError>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.errors)
+
+export const selectActiveQuoteWarnings: Selector<
+  ReduxState,
+  ErrorWithMeta<TradeQuoteError>[] | undefined
+> = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.warnings)
 
 /*
   Cross-account trading means trades that are either:
@@ -191,14 +197,9 @@ export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undef
   )
 
 export const selectIsUnsafeActiveQuote: Selector<ReduxState, boolean> = createSelector(
-  selectActiveQuote,
-  selectSellAmountCryptoBaseUnit,
-  (activeQuote, sellAmountCryptoBaseUnit) => {
-    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
-      ?.recommendedMinimumCryptoBaseUnit
-    if (!recommendedMinimumCryptoBaseUnit) return false
-
-    return bnOrZero(sellAmountCryptoBaseUnit).lt(recommendedMinimumCryptoBaseUnit)
+  selectActiveQuoteWarnings,
+  activeQuoteWarnings => {
+    return !!activeQuoteWarnings?.some(({ error }) => error === TradeQuoteError.UnsafeQuote)
   },
 )
 

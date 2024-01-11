@@ -3,9 +3,9 @@ import { assertUnreachable } from 'lib/utils'
 import type { ErrorWithMeta } from 'state/apis/swappers'
 import { TradeQuoteError } from 'state/apis/swappers'
 
-export const quoteStatusTranslation = (
+export const getQuoteErrorTranslation = (
   tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
-): [string, InterpolationOptions | undefined] => {
+): string | [string, InterpolationOptions] => {
   const error = tradeQuoteError.error
   const translationKey = (() => {
     switch (error) {
@@ -33,7 +33,6 @@ export const quoteStatusTranslation = (
         return 'trade.errors.amountTooSmall'
       case TradeQuoteError.InputAmountTooSmallUnknownMinimum:
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      case TradeQuoteError.InputAmountLowerThanFees:
       case TradeQuoteError.UnsafeQuote:
         console.error('TradeQuoteError.UnsafeQuote should be a warning')
         return 'trade.errors.quoteError'
@@ -44,5 +43,5 @@ export const quoteStatusTranslation = (
     }
   })()
 
-  return [translationKey, tradeQuoteError.meta]
+  return tradeQuoteError.meta ? [translationKey, tradeQuoteError.meta] : translationKey
 }

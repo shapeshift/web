@@ -38,7 +38,6 @@ export enum TradeQuoteError {
   UnsafeQuote = 'UnsafeQuote',
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   InputAmountTooSmallUnknownMinimum = 'InputAmountTooSmallUnknownMinimum',
-  InputAmountLowerThanFees = 'InputAmountLowerThanFees',
   UnknownError = 'UnknownError',
 }
 

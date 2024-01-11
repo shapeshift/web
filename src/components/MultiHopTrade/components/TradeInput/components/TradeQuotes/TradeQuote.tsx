@@ -21,7 +21,7 @@ import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
-import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
+import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
 import { TwirlyToggle } from 'components/MultiHopTrade/components/TwirlyToggle'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
@@ -170,10 +170,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
     switch (true) {
       case !quote || error !== undefined:
-        console.log(translate(...quoteStatusTranslation(error ?? defaultError)))
+        const translationParams = getQuoteErrorTranslation(error ?? defaultError)
         return (
           <Tag size='sm' colorScheme='red'>
-            {translate(...quoteStatusTranslation(error ?? defaultError))}
+            {translate(
+              ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
+            )}
           </Tag>
         )
       case !hasAmountWithPositiveReceive && isAmountEntered:

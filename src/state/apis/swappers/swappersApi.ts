@@ -202,9 +202,17 @@ export const swappersApi = createApi({
         )
         const orderedQuotes: ApiQuote[] = [...happyQuotes, ...errorQuotes]
 
-        // Ensure we auto-select the first actionable quote
-        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
-        return { data: { errors: [], quotes: orderedQuotes } }
+        // Ensure we auto-select the first actionable quote, or nothing otherwise
+        dispatch(
+          tradeQuoteSlice.actions.setActiveQuoteIndex(happyQuotes.length > 0 ? 0 : undefined),
+        )
+
+        return {
+          data: {
+            errors: [],
+            quotes: orderedQuotes,
+          },
+        }
       },
       providesTags: ['TradeQuote'],
     }),

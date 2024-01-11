@@ -23,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath, useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText, Text } from 'components/Text'
@@ -30,7 +31,6 @@ import { RawText, Text } from 'components/Text'
 import { PoolIcon } from '../components/PoolIcon'
 import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
-import { DynamicComponent } from './components/PoolStat'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const tabSelected = { color: 'text.base' }

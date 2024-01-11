@@ -80,7 +80,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const isSnapInstalled = useIsSnapInstalled()
 
   // track anonymous portfolio
@@ -156,11 +155,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
   useEffect(() => {
-    if (!isFoxDiscountsEnabled) return
     if (portfolioLoadingStatus === 'loading') return
 
     dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
-  }, [dispatch, portfolioLoadingStatus, isFoxDiscountsEnabled])
+  }, [dispatch, portfolioLoadingStatus])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

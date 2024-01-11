@@ -3,7 +3,7 @@ import type { StackProps, TextProps } from '@chakra-ui/react'
 import { Box, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import type { ReactElement } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { shallowEqual } from 'react-redux'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransitionX } from 'components/SlideTransitionX'
@@ -31,7 +31,9 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
 }) => {
   // Clone the child component and merge the newValue props if provided
   const previousProps = component.props
-  const mergedProps = newValue ? { ...previousProps, ...newValue } : previousProps
+  const mergedProps = useMemo(() => {
+    return newValue ? { ...previousProps, ...newValue } : previousProps
+  }, [newValue, previousProps])
   const clonedComponent = React.cloneElement(component, mergedProps)
   const previousComponent = React.cloneElement(component, previousProps)
   const shouldShowNewValue = newValue !== undefined && !shallowEqual(previousProps, mergedProps)

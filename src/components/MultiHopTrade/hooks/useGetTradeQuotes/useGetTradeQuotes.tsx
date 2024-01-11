@@ -5,11 +5,10 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
+import { DEFAULT_SWAPPER_AFFILIATE_BPS } from 'components/MultiHopTrade/constants'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -34,7 +33,6 @@ import {
   selectSellAsset,
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-  selectWillDonate,
 } from 'state/slices/selectors'
 import {
   selectFirstHopSellAsset,
@@ -109,7 +107,6 @@ const isEqualExceptAffiliateBpsAndSlippage = (
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -128,10 +125,6 @@ export const useGetTradeQuotes = () => {
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
-
-  // User *may* donate if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
-  // TODO(gomes): remove the willDonate terminology entirely in a follow-up, and remove FOX discounts feature and flag
-  const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
@@ -208,16 +201,15 @@ export const useGetTradeQuotes = () => {
         const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
-        const potentialAffiliateBps = userMayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
+        const potentialAffiliateBps = DEFAULT_SWAPPER_AFFILIATE_BPS
         const affiliateBps = (() => {
-          if (!isFoxDiscountsEnabled) return potentialAffiliateBps
-
           // free trades if there's an error getting foxHeld
           if (votingPower === undefined) return '0'
 
-          const affiliateBps = userMayDonate
-            ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(votingPower) }).feeBps.toFixed(0)
-            : '0'
+          const affiliateBps = calculateFees({
+            tradeAmountUsd,
+            foxHeld: bnOrZero(votingPower),
+          }).feeBps.toFixed(0)
 
           return affiliateBps
         })()
@@ -274,10 +266,8 @@ export const useGetTradeQuotes = () => {
     votingPower,
     tradeQuoteInput,
     wallet,
-    userMayDonate,
     receiveAccountMetadata?.bip44Params,
     userslippageTolerancePercentageDecimal,
-    isFoxDiscountsEnabled,
     sellAssetUsdRate,
     sellAccountId,
     isVotingPowerLoading,

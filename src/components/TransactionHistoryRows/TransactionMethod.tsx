@@ -76,15 +76,19 @@ export const TransactionMethod = ({
         return TransferType.Send
       case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
+      case Method.DepositRefund:
       case Method.Exit:
       case Method.ExitPool:
       case Method.InstantUnstake:
+      case Method.LoanOpenRefund:
       case Method.LoanOut:
+      case Method.LoanRepaymentRefund:
       case Method.Out:
       case Method.RecvPacket:
       case Method.Refund:
       case Method.RemoveLiquidityEth:
       case Method.SwapOut:
+      case Method.SwapRefund:
       case Method.Unstake:
       case Method.Withdraw:
       case Method.WithdrawDelegatorReward:

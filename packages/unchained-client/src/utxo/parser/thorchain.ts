@@ -7,11 +7,19 @@ import type { SubParser, Tx, TxSpecific } from '../parser'
 export type LiquidityType = 'Savers' | 'LP'
 export type SwapType = 'Standard' | 'Streaming'
 
+interface Liquidity {
+  type: LiquidityType
+}
+
+interface Swap {
+  type: SwapType
+}
+
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'thorchain'
   memo: string
-  liquidity?: { type: LiquidityType }
-  swap?: { type: SwapType }
+  liquidity?: Liquidity
+  swap?: Swap
 }
 
 interface Coin {
@@ -77,7 +85,14 @@ export interface ActionsResponse {
   }
 }
 
+interface ExtraMetadata {
+  method: string
+  liquidity?: Liquidity
+  swap?: Swap
+}
+
 const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 'Savers' : 'LP')
+
 const getSwapType = (memo: string): SwapType => {
   const regex = /:\d+\/\d+\/\d+:/
   return regex.test(memo) ? 'Streaming' : 'Standard'
@@ -143,32 +158,92 @@ export class Parser implements SubParser<Tx> {
           data: { parser: 'thorchain', memo, method: 'loanRepayment' },
         })
       case 'out': {
-        const [, txid] = memo.split(':')
-        const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
-
-        console.log({ data: JSON.stringify(data) })
-
-        const action = data.actions[data.actions.length - 1]
-        const swapMemo = action.metadata?.swap?.memo ?? ''
-        const [swapType] = swapMemo.split(':')
-        const type = swapType === '$-' || swapType === 'loan-' ? 'loan' : action.type
-        const method = type ? `${type}Out` : 'out'
-        const liquidity =
-          type === 'withdraw' ? { type: getLiquidityType(action.pools[0]) } : undefined
-        const swap =
-          type === 'swap' ? { type: getSwapType(action.metadata?.swap?.memo ?? '') } : undefined
-
+        const extraMetadata = await this.getExtraMetadata(memo)
         return await Promise.resolve({
-          data: { parser: 'thorchain', memo, method, liquidity, swap },
+          data: { parser: 'thorchain', memo, ...extraMetadata },
         })
       }
       case 'refund':
+        const extraMetadata = await this.getExtraMetadata(memo)
         return await Promise.resolve({
-          data: { parser: 'thorchain', memo },
-          trade: { dexName: Dex.Thor, type: TradeType.Refund, memo },
+          data: { parser: 'thorchain', memo, ...extraMetadata },
         })
       default:
         return
     }
+  }
+
+  private getExtraMetadata = async (memo: string): Promise<ExtraMetadata> => {
+    const [type, txid] = memo.split(':')
+    const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
+
+    const action = data.actions[data.actions.length - 1]
+
+    const swapMemo = action.metadata?.swap?.memo ?? ''
+    const [swapType] = swapMemo.split(':')
+
+    const refundMemo = action.metadata?.refund?.memo ?? ''
+    const [refundType] = refundMemo.split(':')
+
+    const txType = (() => {
+      if (swapType) {
+        switch (swapType) {
+          case '$-':
+          case 'loan-':
+            return 'loan'
+          default:
+            return action.type
+        }
+      }
+
+      if (refundType) {
+        switch (refundType) {
+          case 'swap':
+          case '=':
+          case 's':
+            return 'swap'
+          case '$+':
+          case 'loan+':
+            return 'loanOpen'
+          case '$-':
+          case 'loan-':
+            return 'loanRepayment'
+          case 'add':
+          case '+':
+            return 'deposit'
+          case 'withdraw':
+          case '-':
+          case 'wd':
+            return 'withdraw'
+          default:
+            return action.type
+        }
+      }
+
+      return action.type
+    })()
+
+    const method = (() => {
+      switch (type.toLowerCase()) {
+        case 'out': {
+          return txType ? `${txType}Out` : 'out'
+        }
+        case 'refund': {
+          return txType ? `${txType}Refund` : 'refund'
+        }
+        default:
+          return 'unknown'
+      }
+    })()
+
+    const liquidity = (() => {
+      if (txType === 'withdraw') return { type: getLiquidityType(action.pools[0]) }
+      if (type.toLowerCase() === 'refund' && txType === 'deposit')
+        return { type: getLiquidityType(refundMemo.split(':')[1]) }
+    })()
+
+    const swap = txType === 'swap' ? { type: getSwapType(swapMemo || refundMemo) } : undefined
+
+    return { method, liquidity, swap }
   }
 }

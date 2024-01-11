@@ -603,11 +603,15 @@
       },
       "thorchain": {
         "deposit": "Deposit",
+        "depositRefund": "Deposit Refund",
         "loanOpen": "Open Loan",
+        "loanOpenRefund": "Open Loan Refund",
         "loanOut": "Loan Collateral Received",
         "loanRepayment": "Repay Loan",
+        "loanRepaymentRefund": "Repay Loan Refund",
         "out": "Outbound Received",
         "swapOut": "Swap Received",
+        "swapRefund": "Swap Refund",
         "transferOut": "Transfer out",
         "withdraw": "Withdraw Request",
         "withdrawOut": "Withdraw Received"

@@ -34,6 +34,7 @@ export interface Trade {
 // these are user facing values, and should be rendered as such
 export enum TradeType {
   Trade = 'Trade',
+  Swap = 'Swap',
   Refund = 'Refund',
 }
 

@@ -1,4 +1,3 @@
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -25,17 +24,12 @@ export async function getZrxTradeQuote(
     buyAsset,
     accountNumber,
     receiveAddress,
-    affiliateBps: _affiliateBps,
-    potentialAffiliateBps: _potentialAffiliateBps,
+    affiliateBps,
+    potentialAffiliateBps,
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    isKeepKey,
   } = input
-
-  const isFromEvm = isEvmChainId(sellAsset.chainId)
-  const affiliateBps = isKeepKey && isFromEvm ? '0' : _affiliateBps
-  const potentialAffiliateBps = isKeepKey && isFromEvm ? '0' : _potentialAffiliateBps
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??

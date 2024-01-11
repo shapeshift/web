@@ -258,7 +258,6 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
-      isKeepKey: false,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input)
@@ -285,7 +284,6 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
-      isKeepKey: false,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -330,7 +328,6 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
-      isKeepKey: false,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -375,7 +372,6 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
-      isKeepKey: false,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -420,7 +416,6 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
-      isKeepKey: false,
     }
 
     mockedCowService.post.mockReturnValue(

@@ -2,6 +2,7 @@ import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
@@ -44,11 +45,12 @@ const alignItems = {
 }
 
 const PositionButton = () => {
+  const history = useHistory()
   const isLoaded = true
 
   const handlePoolClick = useCallback(() => {
-    console.info('pool click')
-  }, [])
+    history.push('/pools/pool/1')
+  }, [history])
 
   const poolAssetIds = useMemo(() => [ethAssetId, usdcAssetId], [])
 

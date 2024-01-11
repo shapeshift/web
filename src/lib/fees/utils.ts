@@ -1,5 +1,4 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type CalculateShapeShiftFeeArgs = {
@@ -11,12 +10,10 @@ type CalculateShapeShiftFeeArgs = {
 
 type CalculateShapeShiftAndAffiliateFeeArgs = {
   quote: TradeQuote | undefined
-  isFoxDiscountsEnabled: boolean
-  potentialDonationAmountUserCurrency: string | undefined
-  donationAmountUserCurrency: string
+  potentialAffiliateFeeAmountUserCurrency: string | undefined
+  affiliateFeeAmountUserCurrency: string
   affiliateBps: string | undefined
   potentialAffiliateBps: string | undefined
-  applyThorSwapAffiliateFees: boolean
   swapperName: SwapperName | undefined
 }
 
@@ -60,51 +57,25 @@ export const calculateShapeShiftFee = ({
 
 export const calculateShapeShiftAndAffiliateFee = ({
   quote,
-  isFoxDiscountsEnabled,
-  potentialDonationAmountUserCurrency,
-  donationAmountUserCurrency,
+  potentialAffiliateFeeAmountUserCurrency,
+  affiliateFeeAmountUserCurrency,
   affiliateBps,
   potentialAffiliateBps,
-  applyThorSwapAffiliateFees,
-  swapperName,
 }: CalculateShapeShiftAndAffiliateFeeArgs): {
   shapeShiftFee: ShapeShiftFee | undefined
-  donationAmountUserCurrency: string | undefined
 } => {
   if (quote) {
-    if (isFoxDiscountsEnabled) {
-      return {
-        shapeShiftFee: calculateShapeShiftFee({
-          amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency,
-          amountAfterDiscountUserCurrency: donationAmountUserCurrency,
-          affiliateBps,
-          potentialAffiliateBps,
-        }),
-        donationAmountUserCurrency: undefined,
-      }
-    } else {
-      // The donation/shapeshiftFee vernacular is weird but expected for THOR,
-      // see https://github.com/shapeshift/web/pull/5230
-      if (applyThorSwapAffiliateFees && swapperName === SwapperName.Thorchain && quote) {
-        return {
-          shapeShiftFee: {
-            amountAfterDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
-            amountBeforeDiscountUserCurrency: potentialDonationAmountUserCurrency ?? '0',
-            affiliateBps: quote.potentialAffiliateBps ?? '0',
-            foxDiscountPercent: '0',
-            potentialAffiliateBps: potentialAffiliateBps ?? '0',
-            feeDiscountUserCurrency: '0',
-          },
-          donationAmountUserCurrency: undefined,
-        }
-      }
-
-      return { shapeShiftFee: undefined, donationAmountUserCurrency }
+    return {
+      shapeShiftFee: calculateShapeShiftFee({
+        amountBeforeDiscountUserCurrency: potentialAffiliateFeeAmountUserCurrency,
+        amountAfterDiscountUserCurrency: affiliateFeeAmountUserCurrency,
+        affiliateBps,
+        potentialAffiliateBps,
+      }),
     }
   }
 
   return {
     shapeShiftFee: undefined,
-    donationAmountUserCurrency: undefined,
   }
 }

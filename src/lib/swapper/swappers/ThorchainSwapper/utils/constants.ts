@@ -5,7 +5,6 @@ export const THOR_MINIMUM_PADDING = 1.2
 export const THOR_EVM_GAS_LIMIT = '100000' // for sends of eth / erc20 into thorchain router
 export const THORCHAIN_FIXED_PRECISION = 8 // limit values are precision 8 regardless of the chain
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
-export const THORCHAIN_AFFILIATE_FEE_BPS = '25' // the hardcoded amount when REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES is enabled
 export const MEMO_PART_DELIMITER = ':'
 export const POOL_PART_DELIMITER = '.'
 export const LIMIT_PART_DELIMITER = '/'

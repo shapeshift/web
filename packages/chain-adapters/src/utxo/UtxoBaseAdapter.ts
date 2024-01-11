@@ -33,6 +33,7 @@ import type {
   Transaction,
   TxHistoryInput,
   TxHistoryResponse,
+  TxTransfer,
   UtxoBuildSendApiTxInput,
   ValidAddressResult,
 } from '../types'
@@ -45,7 +46,7 @@ import {
   toAddressNList,
   toRootDerivationPath,
 } from '../utils'
-import { bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
@@ -486,25 +487,42 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           addresses.map(async addr => {
             const parsedTx = await this.parser.parse(tx, addr)
 
+            const isSender = tx.vin.some(
+              vin => vin.addresses?.some(address => addresses.includes(address)),
+            )
+
+            // calculate the total output to non owned addresses
+            const totalOutput = tx.vout.reduce((prev, vout) => {
+              if (vout.addresses?.some(address => addresses.includes(address))) return prev
+              prev = prev.plus(vout.value)
+              return prev
+            }, bn(0))
+
             return {
               address: addr,
               blockHash: parsedTx.blockHash,
               blockHeight: parsedTx.blockHeight,
               blockTime: parsedTx.blockTime,
-              chainId: parsedTx.chainId,
               chain: this.getType(),
+              chainId: parsedTx.chainId,
               confirmations: parsedTx.confirmations,
-              txid: parsedTx.txid,
               fee: parsedTx.fee,
               status: parsedTx.status,
               trade: parsedTx.trade,
-              transfers: parsedTx.transfers.map(transfer => ({
-                assetId: transfer.assetId,
-                from: transfer.from,
-                to: transfer.to,
-                type: transfer.type,
-                value: transfer.totalValue,
-              })),
+              transfers: parsedTx.transfers.reduce<TxTransfer[]>((prev, transfer) => {
+                // don't include change transfers (receive to owned address) on send transactions
+                if (isSender && transfer.type === 'Receive' && addresses.includes(transfer.to))
+                  return prev
+                prev.push({
+                  assetId: transfer.assetId,
+                  from: transfer.from,
+                  to: transfer.to,
+                  type: transfer.type,
+                  value: transfer.type === 'Send' ? totalOutput.toString() : transfer.totalValue,
+                })
+                return prev
+              }, []),
+              txid: parsedTx.txid,
             }
           }),
         )

@@ -257,7 +257,7 @@ describe('parseTx', () => {
     })
   })
 
-  describe.only('thorchain', () => {
+  describe('thorchain', () => {
     it('should be able to parse swap', async () => {
       const { tx } = thorchainSwap
       const address = 'bc1qhj86s3evc2y9wawecemntq8sp0c3mqmaagmqjd'

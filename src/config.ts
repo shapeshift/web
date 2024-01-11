@@ -84,7 +84,6 @@ const validators = {
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
-  REACT_APP_FEATURE_THOR_SWAP_AFFILIATE_FEES: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
@@ -157,7 +156,6 @@ const validators = {
   REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
-  REACT_APP_FEATURE_FOX_DISCOUNTS: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),

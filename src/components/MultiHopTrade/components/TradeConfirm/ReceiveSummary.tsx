@@ -20,7 +20,6 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ShapeShiftFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
@@ -44,7 +43,6 @@ type ReceiveSummaryProps = {
   shapeShiftFee?: ShapeShiftFee
   slippageDecimalPercentage: string
   swapperName: string
-  donationAmountUserCurrency?: string
   defaultIsOpen?: boolean
   swapSource?: SwapSource
 } & RowProps
@@ -68,7 +66,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     slippageDecimalPercentage,
     swapperName,
     isLoading,
-    donationAmountUserCurrency,
     defaultIsOpen = false,
     swapSource,
     ...rest
@@ -80,7 +77,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
-    const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -127,9 +123,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
 
     const handleFeeModal = useCallback(() => {
-      if (!isFoxDiscountsEnabled) return
       setShowFeeModal(!showFeeModal)
-    }, [isFoxDiscountsEnabled, showFeeModal])
+    }, [showFeeModal])
 
     const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
       () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
@@ -229,43 +224,24 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   <RawText>&nbsp;{`(${shapeShiftFee.affiliateBps} bps)`}</RawText>
                 )}
               </Row.Label>
-              <Row.Value
-                onClick={handleFeeModal}
-                _hover={isFoxDiscountsEnabled ? shapeShiftFeeModalRowHover : undefined}
-              >
+              <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
                 <Skeleton isLoaded={!isLoading}>
                   <Flex alignItems='center' gap={2}>
                     {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' ? (
                       <>
                         <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUserCurrency} />
-                        {isFoxDiscountsEnabled && <QuestionIcon />}
+                        <QuestionIcon />
                       </>
                     ) : (
                       <>
                         <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                        {isFoxDiscountsEnabled && <QuestionIcon color={greenColor} />}
+                        <QuestionIcon color={greenColor} />
                       </>
                     )}
                   </Flex>
                 </Skeleton>
               </Row.Value>
             </Row>
-            {!isFoxDiscountsEnabled &&
-              donationAmountUserCurrency &&
-              donationAmountUserCurrency !== '0' && (
-                <Row>
-                  <HelperTooltip label={translate('trade.tooltip.donation')}>
-                    <Row.Label>
-                      <Text translation='trade.donation' />
-                    </Row.Label>
-                  </HelperTooltip>
-                  <Row.Value>
-                    <Skeleton isLoaded={!isLoading}>
-                      <Amount.Fiat value={donationAmountUserCurrency} />
-                    </Skeleton>
-                  </Row.Value>
-                </Row>
-              )}
             {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE && (
               <>
                 <Divider borderColor='border.base' />

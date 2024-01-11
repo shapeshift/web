@@ -35,18 +35,22 @@ export enum Method {
   ExitPool = 'exit_pool',
   InstantUnstake = 'instantUnstake',
   JoinPool = 'join_pool',
+  LoanOpen = 'loanOpen',
+  LoanOut = 'loanOut',
+  LoanRepayment = 'loanRepayment',
   Out = 'out',
-  Outbound = 'outbound',
   RecvPacket = 'recv_packet',
   Refund = 'refund',
   RemoveLiquidityEth = 'removeLiquidityETH',
   Revoke = 'revoke',
   Stake = 'stake',
+  SwapOut = 'swapOut',
   Transfer = 'transfer',
   TransferOut = 'transferOut',
   Unstake = 'unstake',
   Withdraw = 'withdraw',
   WithdrawDelegatorReward = 'withdraw_delegator_reward',
+  WithdrawOut = 'withdrawOut',
 }
 
 export interface TxDetails {

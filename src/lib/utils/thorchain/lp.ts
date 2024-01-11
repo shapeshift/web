@@ -2,7 +2,10 @@ import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shape
 import axios from 'axios'
 import { getConfig } from 'config'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  MidgardPoolResponse,
+  ThornodePoolResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -215,7 +218,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 }) => {
   const lpPosition = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const liquidityUnits = lpPosition?.liquidityUnits
+  const liquidityUnits = lpPosition?.poolData.LP_units
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data

@@ -27,7 +27,7 @@ import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingA
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { type ApiQuote, TradeQuoteError } from 'state/apis/swappers'
+import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swappers'
 import {
   selectBuyAsset,
   selectFeeAssetByChainId,
@@ -166,7 +166,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const tag: JSX.Element = useMemo(() => {
     const error = errors?.[0]
-    const defaultError = { error: TradeQuoteError.UnknownError }
+    const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
     switch (true) {
       case !quote || error !== undefined:
@@ -208,7 +208,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const isDisabled = !quote || errors?.length > 0
-  const showSwapperError = errors?.[0]?.error !== TradeQuoteError.UnknownError
+  const showSwapperError = errors?.[0]?.error !== TradeQuoteValidationError.UnknownError
   const showSwapper = !!quote || showSwapperError
 
   const totalEstimatedExecutionTimeMs = useMemo(

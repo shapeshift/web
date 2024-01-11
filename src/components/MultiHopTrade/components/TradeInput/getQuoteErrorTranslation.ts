@@ -1,42 +1,39 @@
 import type { InterpolationOptions } from 'node-polyglot'
 import { assertUnreachable } from 'lib/utils'
 import type { ErrorWithMeta } from 'state/apis/swappers'
-import { TradeQuoteError } from 'state/apis/swappers'
+import { TradeQuoteValidationError } from 'state/apis/swappers'
 
 export const getQuoteErrorTranslation = (
-  tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
+  tradeQuoteError: ErrorWithMeta<TradeQuoteValidationError>,
 ): string | [string, InterpolationOptions] => {
   const error = tradeQuoteError.error
   const translationKey = (() => {
     switch (error) {
-      case TradeQuoteError.NoQuotesAvailableForTradePair:
+      case TradeQuoteValidationError.NoQuotesAvailableForTradePair:
         return 'trade.errors.unsupportedTradePair'
-      case TradeQuoteError.SmartContractWalletNotSupported:
+      case TradeQuoteValidationError.SmartContractWalletNotSupported:
         return 'trade.errors.smartContractWalletNotSupported'
-      case TradeQuoteError.TradingHalted:
+      case TradeQuoteValidationError.TradingHalted:
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
-      case TradeQuoteError.TradingInactiveOnSellChain:
+      case TradeQuoteValidationError.TradingInactiveOnSellChain:
         return 'trade.errors.tradingNotActiveForChain'
-      case TradeQuoteError.TradingInactiveOnBuyChain:
+      case TradeQuoteValidationError.TradingInactiveOnBuyChain:
         return 'trade.errors.tradingNotActiveForChain'
-      case TradeQuoteError.SellAmountBelowTradeFee:
+      case TradeQuoteValidationError.SellAmountBelowTradeFee:
         return 'trade.errors.sellAmountDoesNotCoverFee'
-      case TradeQuoteError.InsufficientFirstHopFeeAssetBalance:
+      case TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
-      case TradeQuoteError.InsufficientSecondHopFeeAssetBalance:
+      case TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
-      case TradeQuoteError.InsufficientFundsForProtocolFee:
+      case TradeQuoteValidationError.InsufficientFundsForProtocolFee:
         return 'trade.errors.insufficientFundsForProtocolFee'
-      case TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet:
+      case TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet:
         return 'trade.errors.assetNotSupportedByWallet'
-      case TradeQuoteError.SellAmountBelowMinimum:
+      case TradeQuoteValidationError.SellAmountBelowMinimum:
         return 'trade.errors.amountTooSmall'
-      case TradeQuoteError.InputAmountTooSmallUnknownMinimum:
+      case TradeQuoteValidationError.InputAmountTooSmallUnknownMinimum:
         return 'trade.errors.amountTooSmallUnknownMinimum'
-      case TradeQuoteError.UnsafeQuote:
-        console.error('TradeQuoteError.UnsafeQuote should be a warning')
-        return 'trade.errors.quoteError'
-      case TradeQuoteError.UnknownError:
+      case TradeQuoteValidationError.UnknownError:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

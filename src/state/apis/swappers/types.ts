@@ -24,7 +24,7 @@ export enum TradeQuoteRequestError {
 }
 
 // The following affect individual trade quotes
-export enum TradeQuoteError {
+export enum TradeQuoteValidationError {
   NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair', // TODO: rename to UnsupportedTradePair
   SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
   TradingHalted = 'TradingHalted',
@@ -35,10 +35,14 @@ export enum TradeQuoteError {
   InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
-  UnsafeQuote = 'UnsafeQuote',
+
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   InputAmountTooSmallUnknownMinimum = 'InputAmountTooSmallUnknownMinimum',
   UnknownError = 'UnknownError',
+}
+
+export enum TradeQuoteWarning {
+  UnsafeQuote = 'UnsafeQuote',
 }
 
 export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
@@ -48,8 +52,8 @@ export type ApiQuote = {
   quote: TradeQuote | undefined
   swapperName: SwapperName
   inputOutputRatio: number
-  errors: ErrorWithMeta<TradeQuoteError>[]
-  warnings: ErrorWithMeta<TradeQuoteError>[]
+  errors: ErrorWithMeta<TradeQuoteValidationError | TradeQuoteValidationError>[]
+  warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }
 
 export type TradeQuoteResponse = {

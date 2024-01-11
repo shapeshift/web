@@ -13,7 +13,7 @@ import { getEnabledSwappers } from 'lib/swapper/utils'
 import { isTruthy } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
-import { TradeQuoteError, TradeQuoteRequestError } from 'state/apis/swappers/types'
+import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
@@ -160,11 +160,11 @@ export const swappersApi = createApi({
                 inputOutputRatio,
                 errors: [
                   !!sellPoolError && {
-                    error: TradeQuoteError.UnknownError,
+                    error: TradeQuoteValidationError.UnknownError,
                     meta: sellPoolError,
                   },
                   !!buyPoolError && {
-                    error: TradeQuoteError.UnknownError,
+                    error: TradeQuoteValidationError.UnknownError,
                     meta: buyPoolError,
                   },
                 ].filter(isTruthy),

@@ -29,7 +29,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
-import { TradeQuoteError } from '../types'
+import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 export const validateTradeQuote = async (
   state: ReduxState,
@@ -47,16 +47,16 @@ export const validateTradeQuote = async (
     isTradingActiveOnBuyPool: boolean
   },
 ): Promise<{
-  errors: ErrorWithMeta<TradeQuoteError>[]
-  warnings: ErrorWithMeta<TradeQuoteError>[]
+  errors: ErrorWithMeta<TradeQuoteValidationError>[]
+  warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }> => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
       switch (error?.code) {
         case SwapErrorType.UNSUPPORTED_PAIR:
-          return { error: TradeQuoteError.NoQuotesAvailableForTradePair }
+          return { error: TradeQuoteValidationError.NoQuotesAvailableForTradePair }
         case SwapErrorType.TRADING_HALTED:
-          return { error: TradeQuoteError.TradingHalted }
+          return { error: TradeQuoteValidationError.TradingHalted }
         case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL: {
           const {
             minAmountCryptoBaseUnit,
@@ -68,7 +68,7 @@ export const validateTradeQuote = async (
 
           if (!minAmountCryptoBaseUnit || !asset) {
             return {
-              error: TradeQuoteError.InputAmountTooSmallUnknownMinimum,
+              error: TradeQuoteValidationError.InputAmountTooSmallUnknownMinimum,
             }
           }
 
@@ -80,15 +80,15 @@ export const validateTradeQuote = async (
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {
-            error: TradeQuoteError.SellAmountBelowMinimum,
+            error: TradeQuoteValidationError.SellAmountBelowMinimum,
             meta: { minLimit: minimumAmountUserMessage },
           }
         }
         case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
-          return { error: TradeQuoteError.SellAmountBelowTradeFee }
+          return { error: TradeQuoteValidationError.SellAmountBelowTradeFee }
         default:
           // We didn't recognize the error, use a generic error message
-          return { error: TradeQuoteError.UnknownError }
+          return { error: TradeQuoteValidationError.UnknownError }
       }
     })()
 
@@ -187,7 +187,7 @@ export const validateTradeQuote = async (
     })
     .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
       return {
-        error: TradeQuoteError.InsufficientFundsForProtocolFee,
+        error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
         meta: {
           symbol: protocolFee.asset.symbol,
           chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
@@ -217,31 +217,31 @@ export const validateTradeQuote = async (
   return {
     errors: [
       !!disableSmartContractSwap && {
-        error: TradeQuoteError.SmartContractWalletNotSupported,
+        error: TradeQuoteValidationError.SmartContractWalletNotSupported,
       },
       !isTradingActiveOnSellPool && {
-        error: TradeQuoteError.TradingInactiveOnSellChain,
+        error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {
           assetSymbol: firstHop.sellAsset.symbol,
           chainSymbol: getChainShortName(firstHop.sellAsset.chainId as KnownChainIds),
         },
       },
       !isTradingActiveOnBuyPool && {
-        error: TradeQuoteError.TradingInactiveOnBuyChain,
+        error: TradeQuoteValidationError.TradingInactiveOnBuyChain,
         meta: {
           assetSymbol: lastHop.buyAsset.symbol,
           chainSymbol: getChainShortName(lastHop.buyAsset.chainId as KnownChainIds),
         },
       },
       !walletSupportsIntermediaryAssetChain && {
-        error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
+        error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
         meta: {
           assetSymbol: secondHop.sellAsset.symbol,
           chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
         },
       },
       !firstHopHasSufficientBalanceForGas && {
-        error: TradeQuoteError.InsufficientFirstHopFeeAssetBalance,
+        error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
         meta: {
           assetSymbol: firstHopSellFeeAsset?.symbol,
           chainSymbol: firstHopSellFeeAsset
@@ -250,7 +250,7 @@ export const validateTradeQuote = async (
         },
       },
       !secondHopHasSufficientBalanceForGas && {
-        error: TradeQuoteError.InsufficientSecondHopFeeAssetBalance,
+        error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
         meta: {
           assetSymbol: secondHopSellFeeAsset?.symbol,
           chainSymbol: secondHopSellFeeAsset
@@ -258,10 +258,10 @@ export const validateTradeQuote = async (
             : '',
         },
       },
-      feesExceedsSellAmount && { error: TradeQuoteError.SellAmountBelowTradeFee },
+      feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),
-    warnings: [isUnsafeQuote && { error: TradeQuoteError.UnsafeQuote }].filter(isTruthy),
+    warnings: [isUnsafeQuote && { error: TradeQuoteWarning.UnsafeQuote }].filter(isTruthy),
   }
 }

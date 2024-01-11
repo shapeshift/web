@@ -2204,6 +2204,10 @@
     "availablePools": "Available Pools",
     "addLiquidity": "Add Liquidity",
     "removeLiquidity": "Remove Liquidity",
+    "initialPricesAndPoolShare": "Initial Prices and Pool Share",
+    "pricePerAsset": "%{from} per %{to}",
+    "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
+    "shareOfPool": "Share of Pool",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

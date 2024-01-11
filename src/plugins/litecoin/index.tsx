@@ -29,6 +29,7 @@ export default function register(): Plugins {
                 return new litecoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Litecoin',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

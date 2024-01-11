@@ -16,7 +16,9 @@ export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => 
         key={assetId}
         size={size}
         assetId={assetId}
+        showNetworkIcon={false}
         ml={index + 1 === assetIds.length ? '-0.5em' : 0}
+        zIndex={index + 1 === assetIds.length ? 4 : 'inherit'}
       />
     ))
   }, [assetIds, size])

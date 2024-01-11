@@ -91,7 +91,6 @@ export const Pool = () => {
                 <Stack flex={1}>
                   <DynamicComponent
                     label='pools.liquidityValue'
-                    toolTipLabel={translate('lending.collateralBalanceDescription')}
                     component={liquidityValueComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'
@@ -116,7 +115,6 @@ export const Pool = () => {
                 <Stack flex={1}>
                   <DynamicComponent
                     label='pools.unclaimedFees'
-                    toolTipLabel={translate('lending.collateralBalanceDescription')}
                     component={liquidityValueComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'

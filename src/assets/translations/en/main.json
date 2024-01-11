@@ -2208,6 +2208,7 @@
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
     "shareOfPool": "Share of Pool",
+    "assetDepositAmount": "%{asset} Deposit Amount",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

@@ -20,7 +20,6 @@
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
-    "axios": "^1.6.5",
     "isomorphic-ws": "^4.0.1",
     "ws": "^8.3.0"
   },

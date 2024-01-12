@@ -2,7 +2,6 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import orderBy from 'lodash/orderBy'
 import {
   getSupportedBuyAssetIds,
@@ -22,10 +21,6 @@ import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
-
-// these are the swappers with special logic regarding minimum donations
-const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swappersApi = createApi({
@@ -37,14 +32,8 @@ export const swappersApi = createApi({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const {
-          sendAddress,
-          receiveAddress,
-          sellAsset,
-          buyAsset,
-          affiliateBps,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        } = getTradeQuoteInput
+        const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
+          getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
@@ -59,31 +48,16 @@ export const swappersApi = createApi({
         // this should never be needed but here for paranoia
         if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
 
-        // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
-        const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset,
-          sellAssetUsdRate,
+        const quoteResults = await getTradeQuotes(
+          {
+            ...getTradeQuoteInput,
+            affiliateBps,
+          },
+          enabledSwappers,
+          selectAssets(state),
         )
 
-        const quoteResults = await Promise.all([
-          getTradeQuotes(
-            {
-              ...getTradeQuoteInput,
-              affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
-            },
-            enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
-            selectAssets(state),
-          ),
-          getTradeQuotes(
-            getTradeQuoteInput,
-            enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
-            selectAssets(state),
-          ),
-        ])
-
         const quotesWithInputOutputRatios = quoteResults
-          .flat()
           .map(result => {
             if (result.isErr()) {
               const error = result.unwrapErr()

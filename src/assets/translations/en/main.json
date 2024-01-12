@@ -550,7 +550,8 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "lending": "Lending"
+    "lending": "Lending",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Sent",
@@ -701,7 +702,6 @@
     "expand": "Expand",
     "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
-    "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
@@ -737,7 +737,6 @@
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "priceImpact": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
-      "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
@@ -2189,6 +2188,31 @@
     "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
     "tradeFee": "Trade Fee",
     "totalTradeFee": "Total Trade Fee"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volume 24H",
+    "volume7d": "Volume 7D",
+    "balance": "Balance",
+    "unclaimedFees": "Unclaimed Fees",
+    "poolShare": "Pool Share",
+    "yourPosition": "Your Position",
+    "poolInformation": "Pool Information",
+    "poolsBody": "Provide liquidity and earn fees on trades in that pool.",
+    "availablePools": "Available Pools",
+    "totalLiquidity": "Total Liquidity",
+    "totalVolume": "Total Volume",
+    "fees24h": "Fees 24H",
+    "addLiquidity": "Add Liquidity",
+    "removeLiquidity": "Remove Liquidity",
+    "liquidityValue": "Liquidity Value",
+    "yourPositions": {
+      "yourPositions": "Your Positions",
+      "emptyTitle": "No active positions",
+      "emptyBody": "Your active liquidity pool positions will appear here."
+    }
   }
 }
 

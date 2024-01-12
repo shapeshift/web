@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -7,6 +7,7 @@ import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { store } from 'state/store'
@@ -139,16 +140,30 @@ export const getThorchainLendingPosition = async ({
   accountId: AccountId
   assetId: AssetId
 }): Promise<Borrower | null> => {
-  const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
+  const address = fromAccountId(accountId).account
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
 
-  const allPositions = lendingPositionsResponse
-  if (!allPositions.length) {
-    throw new Error(`No lending positions found for asset ID: ${assetId}`)
-  }
+  const accountPosition = await (async () => {
+    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+      return (
+        await axios.get<Borrower>(
+          `${
+            getConfig().REACT_APP_THORCHAIN_NODE_URL
+          }/lcd/thorchain/pool/${poolAssetId}/borrower/${address}`,
+        )
+      ).data
 
-  const accountAddresses = await getAccountAddresses(accountId)
+    const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
 
-  const accountPosition = allPositions.find(position => accountAddresses.includes(position.owner))
+    const allPositions = lendingPositionsResponse
+    if (!allPositions.length) {
+      throw new Error(`No lending positions found for asset ID: ${assetId}`)
+    }
+
+    const accountAddresses = await getAccountAddresses(accountId)
+
+    return allPositions.find(position => accountAddresses.includes(position.owner))
+  })()
 
   return accountPosition || null
 }

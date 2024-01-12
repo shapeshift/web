@@ -2,6 +2,7 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, SwapSource } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -40,9 +41,14 @@ export async function getTradeQuote(
     receiveAddress,
     accountNumber,
     supportsEIP1559,
-    affiliateBps,
-    potentialAffiliateBps,
+    affiliateBps: _affiliateBps,
+    potentialAffiliateBps: _potentialAffiliateBps,
+    isKeepKey,
   } = input
+
+  const isFromEvm = isEvmChainId(sellAsset.chainId)
+  const affiliateBps = isKeepKey && isFromEvm ? '0' : _affiliateBps
+  const potentialAffiliateBps = isKeepKey && isFromEvm ? '0' : _potentialAffiliateBps
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -79,7 +85,7 @@ export async function getTradeQuote(
     toAddress: receiveAddress,
     fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     options: {
-      // used for analytics and donations - do not change this without considering impact
+      // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },

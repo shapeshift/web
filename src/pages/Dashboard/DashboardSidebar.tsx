@@ -1,7 +1,7 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { memo } from 'react'
-import OnRamperLogo from 'assets/on-ramper.png'
+import OnRamperLogo from 'assets/onramper-logo.svg'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
 import { PromoCard } from 'components/Promo/PromoCard'

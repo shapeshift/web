@@ -5,12 +5,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { DynamicComponent } from 'components/DynamicComponent'
 import { RawText, Text } from 'components/Text'
 import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-import { DynamicComponent } from './PoolStat'
 
 const labelProps = { fontSize: 'sm ' }
 const responsiveFlex = { base: 'auto', lg: 1 }

@@ -1,3 +1,5 @@
+import type { BN } from 'lib/bignumber/bignumber'
+
 export type ThorNodeLiquidityProvider = {
   asset: string
   asset_address?: string
@@ -46,3 +48,9 @@ export type ExtendedThorNodeLiquidityProvider = ThorNodeLiquidityProvider & {
 }
 
 export type ThorchainLiquidityProvidersResponseSuccess = ThorNodeLiquidityProvider[]
+
+export type PoolShareDetail = {
+  assetShare: BN
+  runeShare: BN
+  poolShareDecimalPercent: string
+}

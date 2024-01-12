@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback } from 'react'
+import { Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
@@ -10,25 +10,18 @@ const suspenseFallback = <div>Loading...</div>
 
 const AddLiquidityEntries = [AddLiquidityRoutePaths.Input, AddLiquidityRoutePaths.Confirm]
 
-type AddLiquidityProps = {
-  headerComponent?: JSX.Element
-}
-
-export const AddLiquidity: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidity = () => {
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <AddLiquidityRoutes headerComponent={headerComponent} />
+      <AddLiquidityRoutes />
     </MemoryRouter>
   )
 }
 
-export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidityRoutes = () => {
   const location = useLocation()
 
-  const renderAddLiquidityInput = useCallback(
-    () => <AddLiquidityInput headerComponent={headerComponent} />,
-    [headerComponent],
-  )
+  const renderAddLiquidityInput = useCallback(() => <AddLiquidityInput />, [])
   const renderAddLiquidityConfirm = useCallback(() => <AddLiquidityConfirm />, [])
 
   return (

@@ -56,11 +56,7 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-type AddLiquidityInputProps = {
-  headerComponent?: JSX.Element
-}
-
-export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({ headerComponent }) => {
+export const AddLiquidityInput = () => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -107,11 +103,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({ headerComp
     )
   }, [])
 
-  const renderHeader = useMemo(() => {
-    if (headerComponent) {
-      return headerComponent
-    }
-    return (
+  return (
+    <SlideTransition>
       <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
         <IconButton
           onClick={handleBackClick}
@@ -122,12 +115,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({ headerComp
         Add Liquidity
         <SlippagePopover />
       </CardHeader>
-    )
-  }, [backIcon, handleBackClick, headerComponent])
-
-  return (
-    <SlideTransition>
-      {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
         <Stack>
           <FormLabel px={6} mb={0} fontSize='sm'>

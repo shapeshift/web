@@ -122,7 +122,7 @@
     "showAll": "显示全部",
     "showLess": "显示较少",
     "yourBalance": "你的余额",
-    "signMessage": "签名",
+    "signTransaction": "签署交易",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -135,7 +135,8 @@
       "sortedAsc": "升序排序",
       "sortedDesc": "降序排序",
       "expandRow": "展开行"
-    }
+    },
+    "featureDisabled": "此功能暂时禁用。"
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "预计收益能支付手续费的时间"
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
-        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现"
+        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
+        "dangerousWithdrawWarning": "提款被禁止，因为 THORChain 费用可能会导致提款资金全部损失。考虑提取更高的金额以避免此问题。"
       }
     },
     "memoNote": {
@@ -820,7 +822,32 @@
     "enableMetaMaskSnap": "使用多链 snap",
     "approvalGasFee": "授权手续费 %{fee}",
     "approvalFailed": "额度审批过程中出现问题",
-    "swapFailed": "执行 %{tradeType} 时出现问题"
+    "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
+    "doAnotherTrade": "进行另一笔交易",
+    "showDetails": "显示详细资料",
+    "transactionSuccessful": "交易成功，等待确认",
+    "temp": {
+      "tradeSuccess": "交易完成",
+      "tradeComplete": "已在 %{chainName} 上成功接收 %{symbol}。"
+    },
+    "hopTitle": {
+      "bridge": "通过 %{swapperName} 桥接",
+      "swap": "通过 %{swapperName} 兑换"
+    },
+    "transactionFailed": {
+      "bridge": "执行桥接时出现问题",
+      "swap": "执行兑换时出现问题"
+    },
+    "transactionTitle": {
+      "bridge": "通过 %{swapperName} 从 %{sellChainName} 桥接到 %{buyChainName}",
+      "swap": "通过 %{swapperName} 在 %{sellChainName} 上进行兑换"
+    },
+    "approvalTitle": "代币津贴批准",
+    "assetSummaryDescription": "%{chainName} 上的 %{amountFiatFormatted}",
+    "quote": {
+      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
+      "slippage": "滑点：%{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1329,7 +1356,8 @@
         "header": "错误",
         "body": "无法连接Ledger钱包"
       },
-      "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。"
+      "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。",
+      "signWarning": "签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
     },
     "metaMask": {
       "errors": {

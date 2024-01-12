@@ -30,7 +30,7 @@ export const getQuoteErrorTranslation = (
       case TradeQuoteValidationError.InsufficientFundsForProtocolFee:
         return 'trade.errors.insufficientFundsForProtocolFee'
       case TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet:
-        return 'trade.errors.assetNotSupportedByWallet'
+        return 'trade.errors.intermediaryAssetNotSupportedByWallet'
       case SwapperTradeQuoteError.SellAmountBelowMinimum:
         return tradeQuoteError.meta
           ? 'trade.errors.amountTooSmall'

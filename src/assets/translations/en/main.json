@@ -762,6 +762,7 @@
       "quoteCrossChainNotSupported": "Cross chain not supported",
       "networkFeeEstimateFailed": "Failed to estimate network fee",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
+      "intermediaryAssetNotSupportedByWallet": "Intermediary asset %{assetSymbol}.%{chainSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol} on %{chainName}",
       "tradingNotActiveForChain": "Trades temporarily halted on %{chainName}",
       "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",

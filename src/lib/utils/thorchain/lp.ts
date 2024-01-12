@@ -285,8 +285,8 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 }) => {
   const lpPositions = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  // TODO: this is wrong. When actually consuming this, make sure we parse this to a ParsedPool, so we can find the position based on the asymSide
-  // For a given pool, an address can have two positions i.e a mix of sym and asym
+  // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
+  // and get the right position for the user depending on the asymSide
   const lpPosition = lpPositions?.[0]
   const liquidityUnitsCryptoThorPrecision = lpPosition?.liquidityUnits
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)

@@ -13,6 +13,7 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { isSome } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getRedeemable, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
+import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -86,6 +87,55 @@ export const useUserLpData = ({
     },
   })
 
+  const selectLiquidityPositionsData = (positions: MidgardPool[] | undefined) => {
+    if (!positions || !thornodePoolData || !midgardPoolData) return null
+
+    return positions.map(position => {
+      const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
+        position?.assetDeposit || '0',
+      ).times(poolAssetMarketData?.price || 0)
+      const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
+        position?.runeDeposit || '0',
+      ).times(runeMarketData?.price || 0)
+
+      const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
+      const asymSide = (() => {
+        if (position.runeAddress === '') return AsymSide.Asset
+        if (position.assetAddress === '') return AsymSide.Rune
+        return null
+      })()
+
+      const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
+        .plus(underlyingRuneValueFiatUserCurrency)
+        .toFixed()
+
+      const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
+        userLiquidityUnits: position.liquidityUnits,
+        totalPoolUnits: thornodePoolData.pool_units,
+      })
+
+      const redeemable = getRedeemable(
+        position.liquidityUnits,
+        thornodePoolData.pool_units,
+        midgardPoolData.assetDepth,
+        midgardPoolData.runeDepth,
+      )
+
+      return {
+        underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
+        underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(position.runeDeposit).toFixed(),
+        isAsymmetric,
+        asymSide: isAsymmetric ? asymSide : null,
+        underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
+        underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
+        totalValueFiatUserCurrency,
+        poolOwnershipPercentage,
+        opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
+        redeemable,
+      }
+    })
+  }
+
   const liquidityPoolPositionData = useQuery({
     // TODO(gomes): remove me, this avoids spamming the API during development
     staleTime: Infinity,
@@ -106,54 +156,7 @@ export const useUserLpData = ({
       if (!allPositions.length) return
       return allPositions
     },
-    select: positions => {
-      if (!positions || !thornodePoolData || !midgardPoolData) return null
-
-      return positions.map(position => {
-        const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
-          position?.assetDeposit || '0',
-        ).times(poolAssetMarketData?.price || 0)
-        const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
-          position?.runeDeposit || '0',
-        ).times(runeMarketData?.price || 0)
-
-        const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
-        const asymSide = (() => {
-          if (position.runeAddress === '') return AsymSide.Asset
-          if (position.assetAddress === '') return AsymSide.Rune
-          return null
-        })()
-
-        const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
-          .plus(underlyingRuneValueFiatUserCurrency)
-          .toFixed()
-
-        const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
-          userLiquidityUnits: position.liquidityUnits,
-          totalPoolUnits: thornodePoolData.pool_units,
-        })
-
-        const redeemable = getRedeemable(
-          position.liquidityUnits,
-          thornodePoolData.pool_units,
-          midgardPoolData.assetDepth,
-          midgardPoolData.runeDepth,
-        )
-
-        return {
-          underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
-          underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(position.runeDeposit).toFixed(),
-          isAsymmetric,
-          asymSide: isAsymmetric ? asymSide : null,
-          underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
-          underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
-          totalValueFiatUserCurrency,
-          poolOwnershipPercentage,
-          opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
-          redeemable,
-        }
-      })
-    },
+    select: selectLiquidityPositionsData,
     enabled: Boolean(thornodePoolData),
   })
 

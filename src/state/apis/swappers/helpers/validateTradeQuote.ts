@@ -8,7 +8,7 @@ import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { assertGetChainAdapter, isTruthy } from 'lib/utils'
+import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
@@ -52,7 +52,8 @@ export const validateTradeQuote = async (
 }> => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
-      switch (error?.code) {
+      const errorCode = error?.code
+      switch (errorCode) {
         case SwapperTradeQuoteError.UnsupportedTradePair:
           return { error: SwapperTradeQuoteError.UnsupportedTradePair }
         case SwapperTradeQuoteError.TradingHalted:
@@ -86,9 +87,12 @@ export const validateTradeQuote = async (
         }
         case SwapperTradeQuoteError.SellAmountBelowTradeFee:
           return { error: SwapperTradeQuoteError.SellAmountBelowTradeFee }
-        default:
+        case SwapperTradeQuoteError.UnknownError:
+        case undefined:
           // We didn't recognize the error, use a generic error message
           return { error: SwapperTradeQuoteError.UnknownError }
+        default:
+          assertUnreachable(errorCode)
       }
     })()
 

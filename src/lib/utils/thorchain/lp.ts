@@ -321,3 +321,23 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
     },
   }
 }
+
+// Calculates all-time volume from the stats endpoint
+export const calculateTotalVolumeFiatUserCurrency = (
+  toAssetVolume: string,
+  toRuneVolume: string,
+  btcPrice: number,
+  runePrice: number,
+): string => {
+  const toAssetVolumeCryptoPrecision = fromThorBaseUnit(toAssetVolume)
+  const toRuneVolumeCryptoPrecision = fromThorBaseUnit(toRuneVolume)
+
+  const tAassetTotalVolumeFiatUserCurrency = toAssetVolumeCryptoPrecision.times(btcPrice)
+  const toRuneTotalVolumeRuneFiatUserCurrency = toRuneVolumeCryptoPrecision.times(runePrice)
+
+  const totalVolumeFiatUserCurrency = tAassetTotalVolumeFiatUserCurrency.plus(
+    toRuneTotalVolumeRuneFiatUserCurrency,
+  )
+
+  return totalVolumeFiatUserCurrency.toFixed()
+}

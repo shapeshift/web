@@ -29,7 +29,7 @@ import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText, Text } from 'components/Text'
-import { getVolume } from 'lib/utils/thorchain/lp'
+import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -122,6 +122,12 @@ export const Pool = () => {
       foundPool ? getVolume('24h', foundPool.assetId ?? '', runeMarketData.price) : '',
   })
 
+  const tvl = useMemo(() => {
+    if (!foundPool) return '0'
+
+    return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
+  }, [foundPool, runeMarketData.price])
+
   if (!foundPool) return null
 
   return (
@@ -197,7 +203,7 @@ export const Pool = () => {
               borderTopWidth={1}
               borderColor='border.base'
             >
-              <PoolInfo volume24h={volume24h} apy={foundPool.poolAPY} />
+              <PoolInfo volume24h={volume24h} apy={foundPool.poolAPY} tvl={tvl} />
             </CardFooter>
           </Card>
           <Faq />

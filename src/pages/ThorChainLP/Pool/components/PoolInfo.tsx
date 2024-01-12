@@ -10,9 +10,10 @@ import { Text } from 'components/Text'
 type PoolInfoProps = {
   volume24h?: string
   apy?: string
+  tvl?: string
 }
 
-export const PoolInfo = ({ volume24h, apy }: PoolInfoProps) => {
+export const PoolInfo = ({ volume24h, apy, tvl }: PoolInfoProps) => {
   return (
     <>
       <Flex gap={4} alignItems='center'>
@@ -38,7 +39,7 @@ export const PoolInfo = ({ volume24h, apy }: PoolInfoProps) => {
       <Flex flexWrap='wrap' gap={12}>
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value='3' fontWeight='medium' />
+            <Amount.Fiat fontSize='xl' value={tvl ?? 0} fontWeight='medium' />
             <Tag colorScheme='green' size='sm' gap={0}>
               <TagLeftIcon as={ArrowUpIcon} mr={1} />
               <Amount.Percent value='0.02' autoColor fontWeight='medium' />
@@ -53,7 +54,7 @@ export const PoolInfo = ({ volume24h, apy }: PoolInfoProps) => {
         </Stack>
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value='4' fontWeight='medium' />
+            <Amount.Fiat fontSize='xl' value={tvl ?? '0'} fontWeight='medium' />
             <Tag colorScheme='green' size='sm' gap={0}>
               <TagLeftIcon as={ArrowUpIcon} mr={1} />
               <Amount.Percent value='0.02' autoColor fontWeight='medium' />

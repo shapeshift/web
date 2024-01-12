@@ -46,8 +46,6 @@ type PoolButtonProps = {
 }
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
-  const isLoaded = true
-
   const handlePoolClick = useCallback(() => {
     console.info('pool click')
   }, [])
@@ -63,12 +61,12 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
     [pool.assetDepth, pool.runeDepth, runeMarketData.price],
   )
 
-  const { data: volume24H } = useQuery({
+  const { data: volume24H, isLoading: isVolume24HLoading } = useQuery({
     queryKey: ['thorchainPoolData24h', pool.assetId],
     queryFn: () => getVolume('24h', pool.assetId, runeMarketData.price),
   })
 
-  const { data: volume7D } = useQuery({
+  const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
     queryKey: ['thorchainPoolData7d', pool.assetId],
     queryFn: () => getVolume('7d', pool.assetId, runeMarketData.price),
   })
@@ -96,13 +94,13 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
           <Amount.Percent value='0.1' />
         </Tag>
       </Flex>
-      <Skeleton isLoaded={isLoaded}>
+      <Skeleton isLoaded={!!tvl}>
         <Amount.Fiat value={tvl} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
+      <Skeleton isLoaded={!isVolume24HLoading} display={mobileDisplay}>
         <Amount.Fiat value={volume24H ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={largeDisplay}>
+      <Skeleton isLoaded={!isVolume7DLoading} display={largeDisplay}>
         <Amount.Fiat value={volume7D ?? '0'} />
       </Skeleton>
     </Button>
@@ -111,7 +109,11 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
 export const AvailablePools = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-  const { data: parsedPools } = usePools()
+  const { data: parsedPools, isLoading } = usePools()
+  const renderRows = useMemo(() => {
+    if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    return parsedPools?.map(pool => <PoolButton key={pool.assetId} pool={pool} />)
+  }, [isLoading, parsedPools])
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
@@ -133,11 +135,7 @@ export const AvailablePools = () => {
             <Text translation='pools.volume7d' />
           </Flex>
         </SimpleGrid>
-        {parsedPools?.map(pool => (
-          <Stack mx={listMargin}>
-            <PoolButton pool={pool} />
-          </Stack>
-        ))}
+        <Stack mx={listMargin}>{renderRows}</Stack>
       </Stack>
     </Main>
   )

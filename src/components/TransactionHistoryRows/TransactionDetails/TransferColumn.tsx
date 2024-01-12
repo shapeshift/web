@@ -14,6 +14,8 @@ type TransferColumnProps = {
   compactMode?: boolean
 } & Transfer
 
+// TODO: address array only
+
 export const TransferColumn = (transfer: TransferColumnProps) => {
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
   const stackDirection: StackDirection = useMemo(
@@ -36,10 +38,28 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       py={2}
     >
       <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.from} />
+        {transfer.from.length ? (
+          (transfer.from as string[]).map(address => (
+            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+          ))
+        ) : (
+          <Address
+            explorerAddressLink={transfer.asset.explorerAddressLink}
+            address={transfer.from as string}
+          />
+        )}
       </Row>
       <Row title='to' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.to} />
+        {transfer.to.length ? (
+          (transfer.to as string[]).map(address => (
+            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+          ))
+        ) : (
+          <Address
+            explorerAddressLink={transfer.asset.explorerAddressLink}
+            address={transfer.to as string}
+          />
+        )}
       </Row>
       <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>

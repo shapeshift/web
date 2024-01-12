@@ -14,6 +14,8 @@ type AssetsTransfersProps = {
   index: number
 }
 
+// TODO: multiple transfers of same asset show crypto value and asset icon (utxo)
+
 export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
   index,
   compactMode,

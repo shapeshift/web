@@ -31,6 +31,7 @@ import type {
   SubscribeError,
   SubscribeTxsInput,
   Transaction,
+  TransferType,
   TxHistoryInput,
   TxHistoryResponse,
   TxTransfer,
@@ -461,78 +462,131 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       cursor: input.cursor,
     })
 
-    const getAddresses = (tx: unchained.utxo.types.Tx): string[] => {
-      const addresses: string[] = []
+    const getAddresses = (tx: unchained.utxo.types.Tx): Record<TransferType, string[]> => {
+      const addresses: Record<TransferType, string[]> = {
+        Contract: [],
+        Receive: [],
+        Send: [],
+      }
 
       tx.vin?.forEach(vin => {
         if (!vin.addresses) return
-        addresses.push(...vin.addresses)
+        addresses['Send'].push(...vin.addresses)
       })
 
       tx.vout?.forEach(vout => {
         if (!vout.addresses) return
-        addresses.push(...vout.addresses)
+        addresses['Receive'].push(...vout.addresses)
       })
 
-      return [...new Set(addresses)]
+      return addresses
     }
 
-    const txs = await Promise.all(
-      (data.txs ?? []).map(tx => {
-        const addresses = getAddresses(tx).filter(addr =>
-          this.accountAddresses[input.pubkey].includes(addr),
-        )
+    const transfers: Record<TransferType, TxTransfer[]> = {
+      Contract: [],
+      Send: [],
+      Receive: [],
+    }
+    let transaction = {} as Omit<Transaction, 'transfers'>
+    for (const tx of data.txs ?? []) {
+      const addressesByType = getAddresses(tx)
 
-        return Promise.all(
-          addresses.map(async addr => {
-            const parsedTx = await this.parser.parse(tx, addr)
+      // all addresses detected in the transaction that are associated with pubkey
+      const ownedAddresses = Object.values(addressesByType)
+        .flat()
+        .filter(addr => this.accountAddresses[input.pubkey].includes(addr))
 
-            const isSender = tx.vin.some(
-              vin => vin.addresses?.some(address => addresses.includes(address)),
-            )
+      // all send addresses owned by pubkey
+      const ownedSendAddresses = addressesByType['Send'].filter(address =>
+        ownedAddresses.includes(address),
+      )
 
-            // calculate the total output to non owned addresses
-            const totalOutput = tx.vout.reduce((prev, vout) => {
-              if (vout.addresses?.some(address => addresses.includes(address))) return prev
-              prev = prev.plus(vout.value)
-              return prev
-            }, bn(0))
+      //const unownedSendAddresses = addressesByType['Send'].filter(
+      //  address => !ownedAddresses.includes(address),
+      //)
 
-            return {
-              address: addr,
-              blockHash: parsedTx.blockHash,
-              blockHeight: parsedTx.blockHeight,
-              blockTime: parsedTx.blockTime,
-              chain: this.getType(),
-              chainId: parsedTx.chainId,
-              confirmations: parsedTx.confirmations,
-              fee: parsedTx.fee,
-              status: parsedTx.status,
-              trade: parsedTx.trade,
-              transfers: parsedTx.transfers.reduce<TxTransfer[]>((prev, transfer) => {
-                // don't include change transfers (receive to owned address) on send transactions
-                if (isSender && transfer.type === 'Receive' && addresses.includes(transfer.to))
-                  return prev
-                prev.push({
-                  assetId: transfer.assetId,
-                  from: transfer.from,
-                  to: transfer.to,
-                  type: transfer.type,
-                  value: transfer.type === 'Send' ? totalOutput.toString() : transfer.totalValue,
-                })
-                return prev
-              }, []),
-              txid: parsedTx.txid,
+      // all receive addresses owned by pubkey
+      const ownedReceiverAddresses = addressesByType['Receive'].filter(address =>
+        ownedAddresses.includes(address),
+      )
+
+      const unownedReceiverAddresses = addressesByType['Receive'].filter(
+        address => !ownedAddresses.includes(address),
+      )
+
+      console.log({
+        senderAddresses: ownedSendAddresses,
+        receiverAddresses: ownedReceiverAddresses,
+      })
+
+      for (const address of ownedAddresses) {
+        const parsedTx = await this.parser.parse(tx, address)
+
+        //const isSender = tx.vin.some(
+        //  vin => vin.addresses?.some(address => addresses.includes(address)),
+        //)
+
+        // calculate the total output to non owned addresses
+        const totalOutput = tx.vout.reduce((prev, vout) => {
+          if (vout.addresses?.some(address => ownedAddresses.includes(address))) return prev
+          prev = prev.plus(vout.value)
+          return prev
+        }, bn(0))
+
+        // create transaction object with all shared properties
+        if (!Object.keys(transaction).length) {
+          transaction = {
+            address,
+            blockHash: parsedTx.blockHash,
+            blockHeight: parsedTx.blockHeight,
+            blockTime: parsedTx.blockTime,
+            chainId: parsedTx.chainId,
+            confirmations: parsedTx.confirmations,
+            status: parsedTx.status,
+            trade: parsedTx.trade,
+            txid: parsedTx.txid,
+          }
+        }
+
+        // add fee if it exists
+        if (parsedTx.fee) transaction.fee = parsedTx.fee
+
+        parsedTx.transfers.forEach(transfer => {
+          // don't include change transfers (receive to owned address) on send transactions
+
+          if (!transfers['Send'][0] && transfer.type === 'Send') {
+            transfers[transfer.type][0] = {
+              assetId: transfer.assetId,
+              from: addressesByType['Send'],
+              to: unownedReceiverAddresses,
+              type: transfer.type,
+              value: totalOutput.toString(),
             }
-          }),
-        )
-      }),
-    )
+          }
+
+          if (transfer.type === 'Receive') {
+            if (ownedSendAddresses.length && ownedAddresses.includes(transfer.to)) return
+
+            transfers[transfer.type].push({
+              assetId: transfer.assetId,
+              from: addressesByType['Send'],
+              to: [transfer.to],
+              type: transfer.type,
+              value: transfer.totalValue,
+            })
+          }
+        })
+      }
+    }
+
+    const transactions: Transaction[] = [
+      { ...transaction, transfers: Object.values(transfers).flat() },
+    ]
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: txs.flat(),
+      transactions,
     }
   }
 
@@ -581,8 +635,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           trade: tx.trade,
           transfers: tx.transfers.map(transfer => ({
             assetId: transfer.assetId,
-            from: transfer.from,
-            to: transfer.to,
+            from: [transfer.from],
+            to: [transfer.to],
             type: transfer.type,
             value: transfer.totalValue,
           })),

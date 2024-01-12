@@ -61,7 +61,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        code: TradeQuoteError.NoQuotesAvailableForTradePair,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -69,7 +69,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: TradeQuoteError.NoQuotesAvailableForTradePair,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -131,7 +131,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
-        code: TradeQuoteError.NoQuotesAvailableForTradePair,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }

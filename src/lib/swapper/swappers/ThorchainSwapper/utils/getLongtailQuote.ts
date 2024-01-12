@@ -108,7 +108,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No best aggregator contract found.`,
-        code: TradeQuoteError.NoQuotesAvailableForTradePair,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }

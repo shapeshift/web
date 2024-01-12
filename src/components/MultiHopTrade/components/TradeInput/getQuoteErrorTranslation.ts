@@ -10,7 +10,7 @@ export const getQuoteErrorTranslation = (
   const error = tradeQuoteError.error
   const translationKey = (() => {
     switch (error) {
-      case SwapperTradeQuoteError.NoQuotesAvailableForTradePair:
+      case SwapperTradeQuoteError.UnsupportedTradePair:
         return 'trade.errors.unsupportedTradePair'
       case TradeQuoteValidationError.SmartContractWalletNotSupported:
         return 'trade.errors.smartContractWalletNotSupported'

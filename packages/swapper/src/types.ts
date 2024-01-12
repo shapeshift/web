@@ -32,7 +32,7 @@ export type SwapErrorRight = {
 }
 
 export enum TradeQuoteError {
-  NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair', // TODO: rename to UnsupportedTradePair
+  UnsupportedTradePair = 'UnsupportedTradePair',
   TradingHalted = 'TradingHalted',
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',

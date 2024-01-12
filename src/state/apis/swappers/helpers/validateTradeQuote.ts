@@ -53,8 +53,8 @@ export const validateTradeQuote = async (
   if (!quote || error) {
     const tradeQuoteError = (() => {
       switch (error?.code) {
-        case SwapperTradeQuoteError.NoQuotesAvailableForTradePair:
-          return { error: SwapperTradeQuoteError.NoQuotesAvailableForTradePair }
+        case SwapperTradeQuoteError.UnsupportedTradePair:
+          return { error: SwapperTradeQuoteError.UnsupportedTradePair }
         case SwapperTradeQuoteError.TradingHalted:
           return { error: SwapperTradeQuoteError.TradingHalted }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {

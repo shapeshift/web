@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
@@ -49,6 +50,8 @@ type UseUserLpDataReturn = {
     asset: string
     rune: string
   }
+  accountId: AccountId
+  assetId: AssetId
 }[]
 
 export const useUserLpData = ({
@@ -87,7 +90,13 @@ export const useUserLpData = ({
     },
   })
 
-  const selectLiquidityPositionsData = (positions: MidgardPool[] | undefined) => {
+  const selectLiquidityPositionsData = (
+    positions:
+      | (MidgardPool & {
+          accountId: AccountId
+        })[]
+      | undefined,
+  ) => {
     if (!positions || !thornodePoolData || !midgardPoolData) return null
 
     return positions.map(position => {
@@ -132,6 +141,8 @@ export const useUserLpData = ({
         poolOwnershipPercentage,
         opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
         redeemable,
+        accountId: position.accountId,
+        assetId,
       }
     })
   }
@@ -157,7 +168,7 @@ export const useUserLpData = ({
       return allPositions
     },
     select: selectLiquidityPositionsData,
-    enabled: Boolean(thornodePoolData),
+    enabled: Boolean(assetId && thornodePoolData),
   })
 
   return liquidityPoolPositionData

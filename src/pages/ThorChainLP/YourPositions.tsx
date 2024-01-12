@@ -3,7 +3,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
@@ -59,14 +59,20 @@ type PositionButtonProps = {
 const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const handlePoolClick = useCallback(() => {
-    // TODO(gomes): programmatic
-    history.push('/pools/pool/1')
-  }, [history])
 
   const { data, isLoading } = useUserLpData({ assetId })
 
   const foundPool = (data ?? []).find(pool => pool.opportunityId === opportunityId)
+
+  const handlePoolClick = useCallback(() => {
+    if (!foundPool) return
+
+    const { opportunityId, accountId } = foundPool
+    history.push(
+      generatePath('/pools/poolAccount/:accountId/:opportunityId', { accountId, opportunityId }),
+    )
+  }, [foundPool, history])
+
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
 

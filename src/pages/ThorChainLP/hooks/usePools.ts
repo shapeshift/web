@@ -46,7 +46,7 @@ export const usePools = () => {
           asymSide: AsymSide.Rune,
           assetId,
           name: `${runeAsset.symbol} LP`,
-          opportunityId: `${assetId}*rune`,
+          opportunityId: `${assetId}*${AsymSide.Rune}`,
         }
 
         const assetSym = {
@@ -55,7 +55,7 @@ export const usePools = () => {
           asymSide: AsymSide.Asset,
           assetId,
           name: `${asset.symbol} LP`,
-          opportunityId: `${assetId}*asset`,
+          opportunityId: `${assetId}*${AsymSide.Asset}}`,
         }
 
         const symmetrical = {

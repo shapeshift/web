@@ -77,7 +77,7 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<MidgardPool[] | null> => {
+}): Promise<(MidgardPool & { accountId: AccountId })[] | null> => {
   const accountPosition = await (async () => {
     if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
       const address = fromAccountId(accountId).account
@@ -100,9 +100,9 @@ export const getThorchainLiquidityProviderPosition = async ({
   if (!accountPosition) return null
 
   // An address may be shared across multiple pools for EVM chains, which could produce wrong results
-  const positions = accountPosition.pools.filter(
-    pool => pool.pool === assetIdToPoolAssetId({ assetId }),
-  )
+  const positions = accountPosition.pools
+    .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
+    .map(position => ({ ...position, accountId }))
 
   return positions
 }

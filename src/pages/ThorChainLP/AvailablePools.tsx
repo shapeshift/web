@@ -93,7 +93,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         </Box>
         <RawText>{pool.name}</RawText>
         <Tag size='sm'>
-          <Amount.Percent value='0.1' />
+          <Amount.Percent value={pool.poolAPY} />
         </Tag>
       </Flex>
       <Skeleton isLoaded={isLoaded}>

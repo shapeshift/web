@@ -111,7 +111,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
 export const AvailablePools = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-  const { parsedPools } = usePools()
+  const { data: parsedPools } = usePools()
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
@@ -133,7 +133,7 @@ export const AvailablePools = () => {
             <Text translation='pools.volume7d' />
           </Flex>
         </SimpleGrid>
-        {parsedPools.map(pool => (
+        {parsedPools?.map(pool => (
           <Stack mx={listMargin}>
             <PoolButton pool={pool} />
           </Stack>

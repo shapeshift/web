@@ -56,14 +56,12 @@ type PositionButtonProps = {
 }
 
 const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
-  const isLoaded = true
-
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const handlePoolClick = useCallback(() => {
     console.info('pool click')
   }, [])
 
-  const { data } = useUserLpData({ assetId })
+  const { data, isLoading } = useUserLpData({ assetId })
 
   const foundPool = (data ?? []).find(pool => pool.opportunityId === opportunityId)
   const poolAssetIds = useMemo(() => {
@@ -72,7 +70,6 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
     return [assetId, thorchainAssetId]
   }, [assetId, foundPool])
 
-  // TODO(gomes): proper loading stateroo
   if (!foundPool || !asset) return null
 
   return (
@@ -98,10 +95,10 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Tag>
         </Flex>
         <Stack spacing={0} alignItems={alignItems}>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isLoading}>
             <Amount.Fiat value={foundPool.totalValueFiatUserCurrency} />
           </Skeleton>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
               value={foundPool.underlyingAssetAmountCryptoPrecision}
               symbol={asset.symbol}
@@ -111,10 +108,10 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isLoading}>
             <Amount.Fiat value={0} />
           </Skeleton>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
               value={foundPool.redeemable.asset}
               symbol={asset.symbol}
@@ -122,7 +119,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
               color='text.subtle'
             />
           </Skeleton>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
               value={foundPool.redeemable.rune}
               symbol={'RUNE'}
@@ -131,7 +128,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
             />
           </Skeleton>
         </Stack>
-        <Skeleton isLoaded={isLoaded} display={largeDisplay}>
+        <Skeleton isLoaded={!isLoading} display={largeDisplay}>
           <Amount.Percent
             options={{ maximumFractionDigits: 8 }}
             value={bn(foundPool.poolOwnershipPercentage).div(100).toFixed()}
@@ -145,15 +142,14 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
 export const YourPositions = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
-  const isActive = true
 
-  const { parsedPools } = usePools()
+  const { data: parsedPools } = usePools()
+
+  const isActive = true
 
   const positionRows = useMemo(() => {
     if (isActive) {
-      // TODO(gomes): add a custom query hook for this and useQueries()
-      // this is a temporary way to achieve this
-      return parsedPools.map(pool => {
+      return parsedPools?.map(pool => {
         return (
           <PositionButton
             assetId={pool.assetId}

@@ -757,6 +757,7 @@
       "transactionRejected": "User has rejected the transaction",
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "unsupportedTradePair": "Unsupported Trade Pair",
+      "noRouteFound": "No routes found for this pair and amount",
       "quoteExpired": "Quote expired, try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",

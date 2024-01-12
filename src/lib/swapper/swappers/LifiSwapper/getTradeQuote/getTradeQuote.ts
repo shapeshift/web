@@ -131,7 +131,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
-        code: TradeQuoteError.UnsupportedTradePair,
+        code: TradeQuoteError.NoRouteFound,
       }),
     )
   }

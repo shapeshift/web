@@ -34,6 +34,8 @@ export type SwapErrorRight = {
 export enum TradeQuoteError {
   // the swapper was unable to find a quote for this pair
   UnsupportedTradePair = 'UnsupportedTradePair',
+  // the swapper does support the pair buy couldn't find a route for the amount specified
+  NoRouteFound = 'NoRouteFound',
   // the swapper doesn't support the chain
   UnsupportedChain = 'UnsupportedChain',
   // the swapper can't swap across chains

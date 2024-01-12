@@ -1,9 +1,9 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
-export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
+export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
   [KnownChainIds.BitcoinMainnet]: true,
   [KnownChainIds.DogecoinMainnet]: true,
@@ -15,7 +15,7 @@ export const sellSupportedChainIds: Record<ThorChainId, boolean> = {
   [KnownChainIds.BnbSmartChainMainnet]: true,
 }
 
-export const buySupportedChainIds: Record<ThorChainId, boolean> = {
+export const buySupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
   [KnownChainIds.BitcoinMainnet]: true,
   [KnownChainIds.DogecoinMainnet]: true,

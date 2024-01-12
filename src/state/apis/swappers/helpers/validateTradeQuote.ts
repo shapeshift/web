@@ -60,6 +60,7 @@ export const validateTradeQuote = async (
         case SwapperTradeQuoteError.QueryFailed:
         case SwapperTradeQuoteError.InternalError:
         case SwapperTradeQuoteError.UnsupportedTradePair:
+        case SwapperTradeQuoteError.NoRouteFound:
         case SwapperTradeQuoteError.TradingHalted:
         case SwapperTradeQuoteError.SellAmountBelowTradeFee:
           // no metadata associated with this error

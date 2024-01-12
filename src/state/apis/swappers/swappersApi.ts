@@ -10,7 +10,6 @@ import {
   getTradeQuotes,
 } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
-import { isTruthy } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
 import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swappers/types'
@@ -139,35 +138,36 @@ export const swappersApi = createApi({
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
           quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
-            const [
-              { data: isTradingActiveOnSellPool, error: sellPoolError },
-              { data: isTradingActiveOnBuyPool, error: buyPoolError },
-            ] = await Promise.all(
-              [sellAsset.assetId, buyAsset.assetId].map(assetId => {
-                return dispatch(
-                  getIsTradingActiveApi.endpoints.getIsTradingActive.initiate({
-                    assetId,
-                    swapperName,
+
+            const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
+              // allow swapper errors to flow through
+              if (error !== undefined) {
+                return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
+              }
+
+              const [{ data: isTradingActiveOnSellPool }, { data: isTradingActiveOnBuyPool }] =
+                await Promise.all(
+                  [sellAsset.assetId, buyAsset.assetId].map(assetId => {
+                    return dispatch(
+                      getIsTradingActiveApi.endpoints.getIsTradingActive.initiate({
+                        assetId,
+                        swapperName,
+                      }),
+                    )
                   }),
                 )
-              }),
-            )
+              return {
+                isTradingActiveOnSellPool,
+                isTradingActiveOnBuyPool,
+              }
+            })()
 
             if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
               return {
                 quote,
                 swapperName,
                 inputOutputRatio,
-                errors: [
-                  !!sellPoolError && {
-                    error: TradeQuoteValidationError.UnknownError,
-                    meta: sellPoolError,
-                  },
-                  !!buyPoolError && {
-                    error: TradeQuoteValidationError.UnknownError,
-                    meta: buyPoolError,
-                  },
-                ].filter(isTruthy),
+                errors: [{ error: TradeQuoteValidationError.QueryFailed }],
                 warnings: [],
               }
             }

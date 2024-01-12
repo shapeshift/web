@@ -12,6 +12,8 @@ export const getQuoteErrorTranslation = (
     switch (error) {
       case SwapperTradeQuoteError.UnsupportedTradePair:
         return 'trade.errors.unsupportedTradePair'
+      case SwapperTradeQuoteError.NoRouteFound:
+        return 'trade.errors.noRouteFound'
       case TradeQuoteValidationError.SmartContractWalletNotSupported:
         return 'trade.errors.smartContractWalletNotSupported'
       case SwapperTradeQuoteError.TradingHalted:
@@ -44,6 +46,7 @@ export const getQuoteErrorTranslation = (
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:
       case SwapperTradeQuoteError.InternalError:
+      case TradeQuoteValidationError.QueryFailed:
       case SwapperTradeQuoteError.QueryFailed:
         return 'trade.errors.quoteError'
       default:

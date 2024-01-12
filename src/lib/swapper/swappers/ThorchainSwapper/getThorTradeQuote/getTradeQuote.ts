@@ -1,5 +1,5 @@
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
@@ -7,6 +7,7 @@ import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 
+import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
@@ -36,6 +37,15 @@ export const getThorTradeQuote = async (
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
   const { sellAsset, buyAsset } = input
 
+  if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unsupported chain',
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(
     `${daemonUrl}/lcd/thorchain/pools`,
@@ -48,6 +58,15 @@ export const getThorTradeQuote = async (
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
+  if (!buyPoolId || !sellPoolId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unsupported trade pair',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
@@ -55,7 +74,14 @@ export const getThorTradeQuote = async (
   const tradeType = thorchainSwapLongtailEnabled
     ? getTradeType(sellAssetPool, buyAssetPool, sellPoolId, buyPoolId)
     : TradeType.L1ToL1
-  if (tradeType === undefined) return Err(makeSwapErrorRight({ message: 'Unknown trade type' }))
+  if (tradeType === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unknown trade type',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
   const streamingInterval =
     sellAssetPool && buyAssetPool

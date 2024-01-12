@@ -176,12 +176,12 @@ export const estimateAddThorchainLiquidityPosition = async ({
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
-  const liquidityUnits = getLiquidityUnits({
+  const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
     pool,
     assetAmountCryptoThorPrecision,
     runeAmountCryptoThorPrecision,
   })
-  const poolShare = getPoolShare(liquidityUnits, pool)
+  const poolShare = getPoolShare(liquidityUnitsCryptoThorPrecision, pool)
 
   const assetInboundFee = bn(0) // TODO
   const runeInboundFee = bn(0) // TODO
@@ -199,7 +199,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
     poolShareAsset: poolShare.assetShare.toFixed(),
     poolShareRune: poolShare.runeShare.toFixed(),
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
-    liquidityUnits: liquidityUnits.toFixed(),
+    liquidityUnits: liquidityUnitsCryptoThorPrecision.toFixed(),
     inbound: {
       fees: {
         asset: assetInboundFee.toFixed(),
@@ -221,11 +221,11 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 }) => {
   const lpPosition = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const liquidityUnits = lpPosition?.poolData.LP_units
+  const liquidityUnitsCryptoThorPrecision = lpPosition?.poolData.LP_units
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
-  const poolShare = getPoolShare(bnOrZero(liquidityUnits), pool)
+  const poolShare = getPoolShare(bnOrZero(liquidityUnitsCryptoThorPrecision), pool)
   const slip = getSlipOnLiquidity({
     runeAmountCryptoThorPrecision: poolShare.runeShare.toString(),
     assetAmountCryptoThorPrecision: poolShare.assetShare.toString(),
@@ -239,12 +239,12 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   return {
     assetPool: pool.asset,
     slipPercent: slip.times(100).toFixed(),
-    poolShareAsset: poolShare.assetShare.toFixed(),
-    poolShareRune: poolShare.runeShare.toFixed(),
+    poolShareAssetCryptoThorPrecision: poolShare.assetShare.toFixed(),
+    poolShareRuneCryptoThorPrecision: poolShare.runeShare.toFixed(),
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
-    liquidityUnits,
-    assetAmount: poolShare.assetShare.toFixed(),
-    runeAmount: poolShare.runeShare.toFixed(),
+    liquidityUnitsCryptoThorPrecision,
+    assetAmountCryptoThorPrecision: poolShare.assetShare.toFixed(),
+    runeAmountCryptoThorPrecision: poolShare.runeShare.toFixed(),
     inbound: {
       fees: {
         asset: assetInboundFee.toFixed(),

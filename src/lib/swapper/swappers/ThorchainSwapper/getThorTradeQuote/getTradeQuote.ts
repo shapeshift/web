@@ -1,5 +1,5 @@
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
@@ -47,7 +47,7 @@ export const getThorTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnknownError,
         details: { sellAssetChainId: chainId, buyAssetChainId },
       }),
     )
@@ -57,7 +57,7 @@ export const getThorTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: '[getThorTradeQuote]: receiveAddress is required',
-        code: SwapErrorType.MISSING_INPUT,
+        code: TradeQuoteError.UnknownError,
       }),
     )
   }

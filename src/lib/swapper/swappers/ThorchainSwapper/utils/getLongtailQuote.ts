@@ -1,7 +1,7 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -40,7 +40,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - Unsupported chainId ${input.sellAsset.chainId}.`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnknownError,
         details: { sellAssetChainId: input.sellAsset.chainId },
       }),
     )
@@ -54,7 +54,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnknownError,
         details: { sellAssetChainId: sellChainId },
       }),
     )
@@ -108,7 +108,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No best aggregator contract found.`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.NoQuotesAvailableForTradePair,
       }),
     )
   }

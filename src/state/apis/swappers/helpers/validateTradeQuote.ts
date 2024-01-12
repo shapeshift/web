@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 // import { isTradingActive } from 'components/MultiHopTrade/utils'
@@ -29,7 +29,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
-import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 export const validateTradeQuote = async (
   state: ReduxState,
@@ -47,17 +47,17 @@ export const validateTradeQuote = async (
     isTradingActiveOnBuyPool: boolean
   },
 ): Promise<{
-  errors: ErrorWithMeta<TradeQuoteValidationError>[]
+  errors: ErrorWithMeta<TradeQuoteError>[]
   warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }> => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
       switch (error?.code) {
-        case SwapErrorType.UNSUPPORTED_PAIR:
-          return { error: TradeQuoteValidationError.NoQuotesAvailableForTradePair }
-        case SwapErrorType.TRADING_HALTED:
-          return { error: TradeQuoteValidationError.TradingHalted }
-        case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL: {
+        case SwapperTradeQuoteError.NoQuotesAvailableForTradePair:
+          return { error: SwapperTradeQuoteError.NoQuotesAvailableForTradePair }
+        case SwapperTradeQuoteError.TradingHalted:
+          return { error: SwapperTradeQuoteError.TradingHalted }
+        case SwapperTradeQuoteError.SellAmountBelowMinimum: {
           const {
             minAmountCryptoBaseUnit,
             assetId,
@@ -68,7 +68,7 @@ export const validateTradeQuote = async (
 
           if (!minAmountCryptoBaseUnit || !asset) {
             return {
-              error: TradeQuoteValidationError.InputAmountTooSmallUnknownMinimum,
+              error: SwapperTradeQuoteError.SellAmountBelowMinimum,
             }
           }
 
@@ -80,15 +80,15 @@ export const validateTradeQuote = async (
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {
-            error: TradeQuoteValidationError.SellAmountBelowMinimum,
+            error: SwapperTradeQuoteError.SellAmountBelowMinimum,
             meta: { minLimit: minimumAmountUserMessage },
           }
         }
-        case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
-          return { error: TradeQuoteValidationError.SellAmountBelowTradeFee }
+        case SwapperTradeQuoteError.SellAmountBelowTradeFee:
+          return { error: SwapperTradeQuoteError.SellAmountBelowTradeFee }
         default:
           // We didn't recognize the error, use a generic error message
-          return { error: TradeQuoteValidationError.UnknownError }
+          return { error: SwapperTradeQuoteError.UnknownError }
       }
     })()
 

@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -17,7 +17,7 @@ export const getInboundAddressDataForChain = async (
     return Err(
       makeSwapErrorRight({
         message: '[getInboundAddressDataForChain]: AssetId is required',
-        code: SwapErrorType.MISSING_INPUT,
+        code: TradeQuoteError.UnknownError,
       }),
     )
   const assetPoolId = assetIdToPoolAssetId({ assetId })
@@ -45,7 +45,7 @@ export const getInboundAddressDataForChain = async (
         return Err(
           makeSwapErrorRight({
             message: `[getInboundAddressDataForChain]: No inbound address found for asset ${assetId}`,
-            code: SwapErrorType.NOT_FOUND,
+            code: TradeQuoteError.UnknownError,
           }),
         )
 

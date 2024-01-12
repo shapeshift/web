@@ -1,15 +1,11 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
 import type BigNumber from 'bignumber.js'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { ONE_INCH_NATIVE_ASSET_ADDRESS } from './constants'
@@ -38,7 +34,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[OneInch: assertValidTrade] - unsupported chainId`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnknownError,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -48,7 +44,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[OneInch: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.UnknownError,
         details: { buyAsset, sellAsset },
       }),
     )
@@ -58,31 +54,12 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: '[OneInch: assertValidTrade] - receive address is required',
-        code: SwapErrorType.MISSING_INPUT,
+        code: TradeQuoteError.UnknownError,
       }),
     )
   }
 
   return Ok(true)
-}
-
-export const getAdapter = (
-  chainId: ChainId | KnownChainIds,
-): Result<EvmChainAdapter, SwapErrorRight> => {
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(chainId)
-
-  if (!isEvmChainAdapter(adapter)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[OneInch: getAdapter] - invalid chain adapter',
-        code: SwapErrorType.UNSUPPORTED_NAMESPACE,
-        details: { chainId },
-      }),
-    )
-  }
-
-  return Ok(adapter)
 }
 
 export const getOneInchTokenAddress = (asset: Asset): string => {

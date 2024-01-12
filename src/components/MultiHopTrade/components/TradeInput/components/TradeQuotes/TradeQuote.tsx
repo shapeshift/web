@@ -13,6 +13,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -208,7 +209,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const isDisabled = !quote || errors?.length > 0
-  const showSwapperError = errors?.[0]?.error !== TradeQuoteValidationError.UnknownError
+  const showSwapperError = ![
+    TradeQuoteValidationError.UnknownError,
+    SwapperTradeQuoteError.UnknownError,
+  ].includes(errors?.[0]?.error)
   const showSwapper = !!quote || showSwapperError
 
   const totalEstimatedExecutionTimeMs = useMemo(

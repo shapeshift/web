@@ -2,11 +2,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type {
-  ErrorWithMeta,
-  TradeQuoteRequestError,
-  TradeQuoteValidationError,
-} from 'state/apis/swappers'
+import type { ErrorWithMeta, TradeQuoteError, TradeQuoteRequestError } from 'state/apis/swappers'
 
 export type StepperStep = {
   title: string
@@ -38,7 +34,7 @@ export enum ActiveQuoteStatus {
 }
 
 export type QuoteStatus = {
-  quoteErrors: ErrorWithMeta<TradeQuoteValidationError | TradeQuoteRequestError>[]
+  quoteErrors: ErrorWithMeta<TradeQuoteError | TradeQuoteRequestError>[]
   quoteStatusTranslation: string | [string, InterpolationOptions]
 }
 

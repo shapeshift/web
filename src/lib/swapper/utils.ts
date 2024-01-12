@@ -1,5 +1,5 @@
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
@@ -73,7 +73,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
             makeSwapErrorRight({
               message: 'makeSwapperAxiosServiceMonadic',
               cause: e,
-              code: SwapErrorType.QUERY_FAILED,
+              code: TradeQuoteError.UnknownError,
             }),
           )
           .andThen<AxiosResponse>(result => {
@@ -82,7 +82,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
                 makeSwapErrorRight({
                   message: 'makeSwapperAxiosServiceMonadic: no data was returned',
                   cause: result,
-                  code: SwapErrorType.QUERY_FAILED,
+                  code: TradeQuoteError.UnknownError,
                 }),
               )
 

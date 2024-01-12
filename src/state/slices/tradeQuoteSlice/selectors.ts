@@ -7,7 +7,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ApiQuote, ErrorWithMeta, TradeQuoteValidationError } from 'state/apis/swappers'
+import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swappers'
 import { TradeQuoteWarning } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
@@ -100,7 +100,7 @@ export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
 
 export const selectActiveQuoteErrors: Selector<
   ReduxState,
-  ErrorWithMeta<TradeQuoteValidationError>[] | undefined
+  ErrorWithMeta<TradeQuoteError>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.errors)
 
 export const selectActiveQuoteWarnings: Selector<

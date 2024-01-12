@@ -1,14 +1,22 @@
-import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'
+import type {
+  MidgardPoolResponse,
+  ThornodePoolResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isSome } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
+import { getRedeemable, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseUserLpDataProps = {
-  accountId: AccountId | undefined
   assetId: AssetId
 }
 
@@ -20,31 +28,64 @@ const calculatePoolOwnershipPercentage = ({
   totalPoolUnits: string
 }): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
-export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
-  const lpPositionQueryKey: [string, { accountId: AccountId | undefined; assetId: AssetId }] =
-    useMemo(() => ['thorchainUserLpData', { accountId, assetId }], [accountId, assetId])
+export const useUserLpData = ({ assetId }: UseUserLpDataProps) => {
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const lpPositionQueryKey: [string, { assetId: AssetId }] = useMemo(
+    () => ['thorchainUserLpData', { assetId }],
+    [assetId],
+  )
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
+  const { data: thornodePoolData } = useQuery({
+    queryKey: ['thornodePoolData', assetId],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId })
+      const { data: poolData } = await axios.get<ThornodePoolResponse>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+      )
+
+      return poolData
+    },
+  })
+
+  const { data: midgardPoolData } = useQuery({
+    queryKey: ['midgardPoolData', assetId],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId })
+      const { data: poolData } = await axios.get<MidgardPoolResponse>(
+        `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}`,
+      )
+
+      return poolData
+    },
+  })
 
   const liquidityPoolPositionData = useQuery({
     // TODO(gomes): remove me, this avoids spamming the API during development
     staleTime: Infinity,
     queryKey: lpPositionQueryKey,
     queryFn: async ({ queryKey }) => {
-      const [, { accountId, assetId }] = queryKey
+      const [, { assetId }] = queryKey
 
-      if (!accountId) return null
-      const position = await getThorchainLiquidityProviderPosition({ accountId, assetId })
+      const allPositions = (
+        await Promise.all(
+          accountIds.map(accountId =>
+            getThorchainLiquidityProviderPosition({ accountId, assetId }),
+          ),
+        )
+      )
+        .flat()
+        .filter(isSome)
 
-      if (!position) return null
-
-      return position
+      if (!allPositions.length) return
+      return allPositions
     },
-    select: data => {
-      if (!data) return null
+    select: positions => {
+      if (!positions || !thornodePoolData || !midgardPoolData) return null
 
-      return data.positions.map(position => {
+      return positions.map(position => {
         const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
           position?.assetDeposit || '0',
         ).times(poolAssetMarketData?.price || 0)
@@ -65,8 +106,15 @@ export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
 
         const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
           userLiquidityUnits: position.liquidityUnits,
-          totalPoolUnits: data.poolData.pool_units,
+          totalPoolUnits: thornodePoolData.pool_units,
         })
+
+        const redeemable = getRedeemable(
+          position.liquidityUnits,
+          thornodePoolData.pool_units,
+          midgardPoolData.assetDepth,
+          midgardPoolData.runeDepth,
+        )
 
         return {
           underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
@@ -77,10 +125,12 @@ export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
           underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
           totalValueFiatUserCurrency,
           poolOwnershipPercentage,
+          opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
+          redeemable,
         }
       })
     },
-    enabled: Boolean(accountId),
+    enabled: Boolean(thornodePoolData),
   })
 
   return liquidityPoolPositionData

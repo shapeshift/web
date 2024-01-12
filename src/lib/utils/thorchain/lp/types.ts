@@ -34,6 +34,36 @@ export type MidgardLiquidityProvider = {
   pools: MidgardPool[]
 }
 
+type MidgardInterval = {
+  averageSlip: string
+  endTime: string
+  runePriceUSD: string
+  startTime: string
+  synthMintAverageSlip: string
+  synthMintCount: string
+  synthMintFees: string
+  synthMintVolume: string
+  synthRedeemAverageSlip: string
+  synthRedeemCount: string
+  synthRedeemFees: string
+  synthRedeemVolume: string
+  toAssetAverageSlip: string
+  toAssetCount: string
+  toAssetFees: string
+  toAssetVolume: string
+  toRuneAverageSlip: string
+  toRuneCount: string
+  toRuneFees: string
+  toRuneVolume: string
+  totalCount: string
+  totalFees: string
+  totalVolume: string
+}
+
+export type MidgardSwapHistoryResponse = {
+  intervals: MidgardInterval[]
+}
+
 // TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/
 // use this instead of the /liquidity_providers/ endpoint when applicable, and perhaps consume those fields if useful?
 // We're not using this anywhere just yet, but most likely should.

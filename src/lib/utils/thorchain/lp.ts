@@ -1,15 +1,17 @@
 import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
-import { getAccountAddresses } from '.'
+import { fromThorBaseUnit, getAccountAddresses } from '.'
 import type {
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
   MidgardPool,
+  MidgardSwapHistoryResponse,
   ThorchainLiquidityProvidersResponseSuccess,
 } from './lp/types'
 
@@ -44,11 +46,20 @@ export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidit
 export const getThorchainLiquidityMember = async (
   address: string,
 ): Promise<MidgardLiquidityProvider | null> => {
-  const { data } = await axios.get<MidgardLiquidityProvider>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
-  )
+  try {
+    const { data } = await axios.get<MidgardLiquidityProvider>(
+      `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
+    )
 
-  return data
+    return data
+  } catch (e) {
+    // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
+    // We only want to log errors to the console if they're actual errors, not 404s
+    if ((e as AxiosError).isAxiosError && (e as AxiosError).response?.status !== 404)
+      console.error(e)
+
+    return null
+  }
 }
 
 export const getThorchainLiquidityProviderPosition = async ({
@@ -57,12 +68,7 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<{
-  positions: MidgardPool[]
-  poolData: ThornodePoolResponse
-} | null> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
+}): Promise<MidgardPool[] | null> => {
   const accountPosition = await (async () => {
     if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
       const address = fromAccountId(accountId).account
@@ -84,13 +90,69 @@ export const getThorchainLiquidityProviderPosition = async ({
   })()
   if (!accountPosition) return null
 
-  const positions = accountPosition.pools
-
-  const { data: poolData } = await axios.get<ThornodePoolResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+  // An address may be shared across multiple pools for EVM chains, which could produce wrong results
+  const positions = accountPosition.pools.filter(
+    pool => pool.pool === assetIdToPoolAssetId({ assetId }),
   )
+
+  return positions
+}
+
+export const calculateTVL = (
+  assetDepthCryptoBaseUnit: string,
+  runeDepthCryptoBaseUnit: string,
+  runePrice: string,
+): string => {
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepthCryptoBaseUnit)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepthCryptoBaseUnit)
+
+  const assetValueFiatUserCurrency = assetDepthCryptoPrecision.times(runePrice)
+  const runeValueFiatUserCurrency = runeDepthCryptoPrecision.times(runePrice)
+
+  const tvl = assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).times(2)
+
+  return tvl.toFixed()
+}
+
+export const getVolume = async (
+  timeframe: '24h' | '7d',
+  assetId: AssetId,
+  runePrice: string,
+): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const days = timeframe === '24h' ? '1' : '7'
+
+  const { data } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?interval=day&count=${days}&pool=${poolAssetId}`,
+  )
+
+  const volume = (data?.intervals ?? []).reduce(
+    (acc, { totalVolume }) => acc.plus(totalVolume),
+    bn(0),
+  )
+
+  return fromThorBaseUnit(volume).times(runePrice).toFixed()
+}
+
+export const getRedeemable = (
+  liquidityUnits: string,
+  poolUnits: string,
+  assetDepth: string,
+  runeDepth: string,
+): { redeemableRune: string; redeemableAsset: string } => {
+  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
+  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
+
+  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
+  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
+  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
+
   return {
-    positions,
-    poolData,
+    redeemableRune,
+    redeemableAsset,
   }
 }

@@ -52,4 +52,5 @@ export type ThorchainLiquidityProvidersResponseSuccess = ThorNodeLiquidityProvid
 export type PoolShareDetail = {
   assetShare: BN
   runeShare: BN
+  poolShareDecimalPercent: string
 }

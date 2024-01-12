@@ -138,6 +138,9 @@ export const getPoolShare = (liquidityUnits: BN, pool: MidgardPoolResponse): Poo
   return {
     assetShare: asset,
     runeShare: rune,
+    poolShareDecimalPercent: liquidityUnits
+      .div(liquidityUnits.plus(pool.liquidityUnits))
+      .toString(),
   }
 }
 
@@ -194,14 +197,16 @@ export const estimateAddThorchainLiquidityPosition = async ({
 
   return {
     assetPool: pool.asset,
-    slipPercent: slip.times(100),
-    poolShare,
-    liquidityUnits,
+    slipPercent: slip.times(100).toFixed(),
+    poolShareAsset: poolShare.assetShare.toFixed(),
+    poolShareRune: poolShare.runeShare.toFixed(),
+    poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
+    liquidityUnits: liquidityUnits.toFixed(),
     inbound: {
       fees: {
-        asset: assetInboundFee,
-        rune: runeInboundFee,
-        total: totalFees,
+        asset: assetInboundFee.toFixed(),
+        rune: runeInboundFee.toFixed(),
+        total: totalFees.toFixed(),
       },
     },
   }
@@ -235,16 +240,17 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 
   return {
     assetPool: pool.asset,
-    slipPercent: slip.times(100),
-    poolShare,
+    slipPercent: slip.times(100).toFixed(),
+    poolShareAsset: poolShare.assetShare.toFixed(),
+    poolShareRune: poolShare.runeShare.toFixed(),
     liquidityUnits,
-    assetAmount: poolShare.assetShare,
-    runeAmount: poolShare.runeShare,
+    assetAmount: poolShare.assetShare.toFixed(),
+    runeAmount: poolShare.runeShare.toFixed(),
     inbound: {
       fees: {
-        asset: assetInboundFee,
-        rune: runeInboundFee,
-        total: totalFees,
+        asset: assetInboundFee.toFixed(),
+        rune: runeInboundFee.toFixed(),
+        total: totalFees.toFixed(),
       },
     },
   }

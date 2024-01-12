@@ -138,9 +138,7 @@ export const getPoolShare = (liquidityUnits: BN, pool: MidgardPoolResponse): Poo
   return {
     assetShare: asset,
     runeShare: rune,
-    poolShareDecimalPercent: liquidityUnits
-      .div(liquidityUnits.plus(pool.liquidityUnits))
-      .toString(),
+    poolShareDecimalPercent: liquidityUnits.div(liquidityUnits.plus(pool.liquidityUnits)).toFixed(),
   }
 }
 
@@ -243,6 +241,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
     slipPercent: slip.times(100).toFixed(),
     poolShareAsset: poolShare.assetShare.toFixed(),
     poolShareRune: poolShare.runeShare.toFixed(),
+    poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
     liquidityUnits,
     assetAmount: poolShare.assetShare.toFixed(),
     runeAmount: poolShare.runeShare.toFixed(),

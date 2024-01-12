@@ -1,11 +1,7 @@
 import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { bn } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -43,53 +39,46 @@ export const useUserLpData = ({ accountId, assetId }: UseUserLpDataProps) => {
 
       if (!position) return null
 
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { REACT_APP_THORCHAIN_NODE_URL } = getConfig()
-
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
-      )
-      return { position, poolData }
+      return position
     },
     select: data => {
       if (!data) return null
 
-      const { position, poolData } = data
+      return data.positions.map(position => {
+        const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
+          position?.assetDeposit || '0',
+        ).times(poolAssetMarketData?.price || 0)
+        const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
+          position?.runeDeposit || '0',
+        ).times(runeMarketData?.price || 0)
 
-      const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
-        position?.asset_deposit_value || '0',
-      ).times(poolAssetMarketData?.price || 0)
-      const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
-        position?.rune_deposit_value || '0',
-      ).times(runeMarketData?.price || 0)
+        const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
+        const asymSide = (() => {
+          if (position.runeAddress === '') return 'asset'
+          if (position.assetAddress === '') return 'rune'
+          return null
+        })()
 
-      const isAsymmetric =
-        bnOrZero(position.assetAdded).isZero() || bnOrZero(position.runeAdded).isZero()
-      const asymSide = bn(position.assetDeposit).gt(position.asset_deposit_value) ? 'asset' : 'rune'
+        const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
+          .plus(underlyingRuneValueFiatUserCurrency)
+          .toFixed()
 
-      const totalValueFiatUserCurrency = underlyingAssetValueFiatUserCurrency
-        .plus(underlyingRuneValueFiatUserCurrency)
-        .toFixed()
+        const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
+          userLiquidityUnits: position.liquidityUnits,
+          totalPoolUnits: data.poolData.pool_units,
+        })
 
-      const poolOwnershipPercentage = calculatePoolOwnershipPercentage({
-        userLiquidityUnits: position.liquidityUnits,
-        totalPoolUnits: poolData.pool_units,
+        return {
+          underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
+          underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(position.runeDeposit).toFixed(),
+          isAsymmetric,
+          asymSide: isAsymmetric ? asymSide : null,
+          underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
+          underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
+          totalValueFiatUserCurrency,
+          poolOwnershipPercentage,
+        }
       })
-
-      return {
-        underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(
-          position.asset_deposit_value,
-        ).toFixed(),
-        underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(
-          position.rune_deposit_value,
-        ).toFixed(),
-        isAsymmetric,
-        asymSide: isAsymmetric ? asymSide : null,
-        underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
-        underlyingRuneValueFiatUserCurrency: underlyingRuneValueFiatUserCurrency.toFixed(),
-        totalValueFiatUserCurrency,
-        poolOwnershipPercentage,
-      }
     },
     enabled: Boolean(accountId),
   })

@@ -2212,6 +2212,7 @@
     "totalLiquidity": "Total Liquidity",
     "totalVolume": "Total Volume",
     "fees24h": "Fees 24H",
+    "estimatedTime": "Estimated Time",
     "liquidityValue": "Liquidity Value",
     "yourPositions": {
       "yourPositions": "Your Positions",

@@ -28,6 +28,7 @@ import { Main } from 'components/Layout/Main'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText, Text } from 'components/Text'
 
+import { AddLiquidity } from '../components/AddLiquitity/AddLiquidity'
 import { PoolIcon } from '../components/PoolIcon'
 import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
@@ -73,6 +74,19 @@ export const Pool = () => {
   const poolAssetIds = useMemo(() => [usdcAssetId, ethAssetId], [])
 
   const liquidityValueComponent = useMemo(() => <Amount.Fiat value='200' fontSize='2xl' />, [])
+
+  const testTabHeader = useMemo(() => {
+    return (
+      <TabList px={2} py={4}>
+        <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
+          {translate('pools.addLiquidity')}
+        </Tab>
+        <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
+          {translate('pools.removeLiquidity')}
+        </Tab>
+      </TabList>
+    )
+  }, [translate])
 
   return (
     <Main headerComponent={headerComponent}>
@@ -155,17 +169,9 @@ export const Pool = () => {
         <Stack flex={1} maxWidth={maxWidth}>
           <Card>
             <Tabs onChange={setStepIndex} variant='unstyled' index={stepIndex}>
-              <TabList px={2} py={4}>
-                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  {translate('pools.addLiquidity')}
-                </Tab>
-                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  {translate('pools.removeLiquidity')}
-                </Tab>
-              </TabList>
               <TabPanels>
                 <TabPanel px={0} py={0}>
-                  <p>Add</p>
+                  <AddLiquidity headerComponent={testTabHeader} />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
                   <p>Remove</p>

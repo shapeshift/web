@@ -4,7 +4,6 @@ import {
   AlertDescription,
   AlertIcon,
   Button,
-  Card,
   CardFooter,
   CardHeader,
   Center,
@@ -31,6 +30,7 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
+import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectAssetById } from 'state/slices/selectors'
@@ -56,7 +56,11 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput = () => {
+type AddLiquidityInputProps = {
+  headerComponent?: JSX.Element
+}
+
+export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -103,8 +107,11 @@ export const AddLiquidityInput = () => {
     )
   }, [])
 
-  return (
-    <Card width='100%' maxWidth='md'>
+  const renderHeader = useMemo(() => {
+    if (headerComponent) {
+      return headerComponent
+    }
+    return (
       <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
         <IconButton
           onClick={handleBackClick}
@@ -115,6 +122,12 @@ export const AddLiquidityInput = () => {
         Add Liquidity
         <SlippagePopover />
       </CardHeader>
+    )
+  }, [backIcon, handleBackClick, headerComponent])
+
+  return (
+    <SlideTransition>
+      {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
         <Stack>
           <FormLabel px={6} mb={0} fontSize='sm'>
@@ -226,6 +239,6 @@ export const AddLiquidityInput = () => {
           Add Liquidity
         </Button>
       </CardFooter>
-    </Card>
+    </SlideTransition>
   )
 }

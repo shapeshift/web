@@ -3,6 +3,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
@@ -56,10 +57,12 @@ type PositionButtonProps = {
 }
 
 const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
+  const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const handlePoolClick = useCallback(() => {
-    console.info('pool click')
-  }, [])
+    // TODO(gomes): programmatic
+    history.push('/pools/pool/1')
+  }, [history])
 
   const { data, isLoading } = useUserLpData({ assetId })
 

@@ -2,6 +2,7 @@ import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shape
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { getAddress, isAddress } from 'viem'
 import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -44,8 +45,10 @@ export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidit
 }
 
 export const getThorchainLiquidityMember = async (
-  address: string,
+  _address: string,
 ): Promise<MidgardLiquidityProvider | null> => {
+  // Ensure Ethereum addresses are checksummed
+  const address = isAddress(_address) ? getAddress(_address) : _address
   try {
     const { data } = await axios.get<MidgardLiquidityProvider>(
       `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,

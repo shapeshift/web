@@ -9,7 +9,7 @@ import { Main } from 'components/Layout/Main'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -70,6 +70,18 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
     return [assetId, thorchainAssetId]
   }, [assetId, foundPool])
 
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
+  const totalRedeemableValue = useMemo(() => {
+    if (!foundPool) return '0'
+    const { asset, rune } = foundPool.redeemable
+
+    const assetValueFiatUserCurrency = bn(asset).times(assetMarketData.price)
+    const runeValueFiatUserCurrency = bn(rune).times(runeMarketData.price)
+    return assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).toFixed()
+  }, [foundPool, assetMarketData, runeMarketData])
+
   if (!foundPool || !asset) return null
 
   return (
@@ -109,7 +121,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Fiat value={0} />
+            <Amount.Fiat value={totalRedeemableValue} />
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto

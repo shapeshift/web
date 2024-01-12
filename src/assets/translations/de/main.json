@@ -845,7 +845,8 @@
     "approvalTitle": "Genehmigung der Token-Zulage",
     "assetSummaryDescription": "%{amountFiatFormatted} auf %{chainName}",
     "quote": {
-      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen"
+      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
+      "slippage": "Slippage: %{slippageFormatted}"
     }
   },
   "modals": {

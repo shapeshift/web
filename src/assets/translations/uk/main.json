@@ -122,7 +122,7 @@
     "showAll": "Показати більше",
     "showLess": "Показати менше",
     "yourBalance": "Ваш баланс",
-    "signMessage": "Підписати повідомлення",
+    "signTransaction": "Підписати транзакцію",
     "carousel": {
       "next": "Далі",
       "prev": "Попередній",
@@ -135,7 +135,8 @@
       "sortedAsc": "Відсортовано за зростанням",
       "sortedDesc": "Відсортовано за спаданням",
       "expandRow": "Розгорнути рядок"
-    }
+    },
+    "featureDisabled": "Ця функція тимчасово вимкнена."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Орієнтовний час для покриття депозитних комісій та отримання прибутку."
         },
         "cannotDepositWhilePendingTx": "Неможливо внести депозит, доки триває обробка транзакцій",
-        "cannotWithdrawWhilePendingTx": "Неможливо вивести кошти, доки триває обробка транзакцій"
+        "cannotWithdrawWhilePendingTx": "Неможливо вивести кошти, доки триває обробка транзакцій",
+        "dangerousWithdrawWarning": "Виведення коштів вимкнено, оскільки комісія THORChain може призвести до повної втрати виведених коштів. Щоб уникнути цієї проблеми, розгляньте можливість виведення більшої суми."
       }
     },
     "memoNote": {
@@ -820,7 +822,32 @@
     "enableMetaMaskSnap": "використайте багатоланцюгову прив'язку",
     "approvalGasFee": "Плата за затвердження газу %{fee}",
     "approvalFailed": "Під час затвердження дозволу виникла проблема",
-    "swapFailed": "Виникла проблема при виконанні команди %{tradeType}"
+    "tradeComplete": "Тепер у вас є %{cryptoAmountFormated} у вашому гаманці на %{chainName}.",
+    "doAnotherTrade": "Зробіть іншу угоду",
+    "showDetails": "Показати деталі",
+    "transactionSuccessful": "Транзакція успішна, чекаємо на підтвердження",
+    "temp": {
+      "tradeSuccess": "Обмін завершено",
+      "tradeComplete": "Успішно отримано %{symbol} на %{chainName}."
+    },
+    "hopTitle": {
+      "bridge": "Міст через %{swapperName}",
+      "swap": "Обміняти через %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "Виникла проблема при виконанні моста",
+      "swap": "Виникла проблема при виконанні обміну"
+    },
+    "transactionTitle": {
+      "bridge": "Міст з %{sellChainName} до %{buyChainName} через %{swapperName}",
+      "swap": "Обмін на %{sellChainName} через %{swapperName}"
+    },
+    "approvalTitle": "Затвердження дозволу на використання токенів",
+    "assetSummaryDescription": "%{amountFiatFormatted} на %{chainName}",
+    "quote": {
+      "cantSetSlippage": "Ми не можемо встановити користувацьке прослизання (%{userSlippageFormatted}) для %{swapperName}",
+      "slippage": "Прослизання: %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1329,7 +1356,8 @@
         "header": "Помилка",
         "body": "Не вдається підключити гаманець Ledger"
       },
-      "connectWarning": "Перш ніж підключати мережу, переконайтеся, що на вашому пристрої відкрито додаток."
+      "connectWarning": "Перш ніж підключати мережу, переконайтеся, що на вашому пристрої відкрито додаток.",
+      "signWarning": "Перш ніж підписувати, переконайтеся, що на вашому пристрої відкрито додаток %{chain}."
     },
     "metaMask": {
       "errors": {

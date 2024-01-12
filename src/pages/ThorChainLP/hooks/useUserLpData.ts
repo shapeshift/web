@@ -99,7 +99,7 @@ export const useUserLpData = ({
   ) => {
     if (!positions || !thornodePoolData || !midgardPoolData) return null
 
-    return positions.map(position => {
+    const parsedPositions = positions.map(position => {
       const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
         position?.assetDeposit || '0',
       ).times(poolAssetMarketData?.price || 0)
@@ -145,11 +145,12 @@ export const useUserLpData = ({
         assetId,
       }
     })
+
+    console.log({ parsedPositions })
+    return parsedPositions
   }
 
   const liquidityPoolPositionData = useQuery({
-    // TODO(gomes): remove me, this avoids spamming the API during development
-    staleTime: Infinity,
     queryKey: lpPositionQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { assetId }] = queryKey
@@ -165,6 +166,7 @@ export const useUserLpData = ({
         .filter(isSome)
 
       if (!allPositions.length) return
+
       return allPositions
     },
     select: selectLiquidityPositionsData,

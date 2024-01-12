@@ -116,7 +116,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={isLoaded}>
             <Amount.Crypto
-              value={foundPool.redeemable.redeemableAsset}
+              value={foundPool.redeemable.asset}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -124,7 +124,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={isLoaded}>
             <Amount.Crypto
-              value={foundPool.redeemable.redeemableRune}
+              value={foundPool.redeemable.rune}
               symbol={'RUNE'}
               fontSize='sm'
               color='text.subtle'

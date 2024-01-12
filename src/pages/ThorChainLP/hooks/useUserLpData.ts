@@ -1,4 +1,5 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -28,7 +29,30 @@ const calculatePoolOwnershipPercentage = ({
   totalPoolUnits: string
 }): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
-export const useUserLpData = ({ assetId }: UseUserLpDataProps) => {
+export enum AsymSide {
+  Asset = 'asset',
+  Rune = 'rune',
+}
+
+type UseUserLpDataReturn = {
+  underlyingAssetAmountCryptoPrecision: string
+  underlyingRuneAmountCryptoPrecision: string
+  isAsymmetric: boolean
+  asymSide: AsymSide | null
+  underlyingAssetValueFiatUserCurrency: string
+  underlyingRuneValueFiatUserCurrency: string
+  totalValueFiatUserCurrency: string
+  poolOwnershipPercentage: string
+  opportunityId: string
+  redeemable: {
+    asset: string
+    rune: string
+  }
+}[]
+
+export const useUserLpData = ({
+  assetId,
+}: UseUserLpDataProps): UseQueryResult<UseUserLpDataReturn | null> => {
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const lpPositionQueryKey: [string, { assetId: AssetId }] = useMemo(
     () => ['thorchainUserLpData', { assetId }],
@@ -95,8 +119,8 @@ export const useUserLpData = ({ assetId }: UseUserLpDataProps) => {
 
         const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
         const asymSide = (() => {
-          if (position.runeAddress === '') return 'asset'
-          if (position.assetAddress === '') return 'rune'
+          if (position.runeAddress === '') return AsymSide.Asset
+          if (position.assetAddress === '') return AsymSide.Rune
           return null
         })()
 

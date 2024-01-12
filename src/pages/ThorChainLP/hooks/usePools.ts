@@ -9,9 +9,11 @@ import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AsymSide } from './useUserLpData'
+
 export type ParsedPool = MidgardPoolResponse & {
   isAsymmetric: boolean
-  asymSide: string | null
+  asymSide: AsymSide | null
   assetId: AssetId
   name: string
   opportunityId: string
@@ -56,7 +58,7 @@ export const usePools = () => {
       const runeSym = {
         ...pool,
         isAsymmetric: true,
-        asymSide: 'rune',
+        asymSide: AsymSide.Rune,
         assetId,
         name: `${runeAsset.symbol} LP`,
         opportunityId: `${assetId}*rune`,
@@ -65,7 +67,7 @@ export const usePools = () => {
       const assetSym = {
         ...pool,
         isAsymmetric: true,
-        asymSide: 'asset',
+        asymSide: AsymSide.Asset,
         assetId,
         name: `${asset.symbol} LP`,
         opportunityId: `${assetId}*asset`,

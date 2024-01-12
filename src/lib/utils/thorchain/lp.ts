@@ -141,7 +141,7 @@ export const getRedeemable = (
   poolUnits: string,
   assetDepth: string,
   runeDepth: string,
-): { redeemableRune: string; redeemableAsset: string } => {
+): { rune: string; asset: string } => {
   const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
   const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
   const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
@@ -152,7 +152,7 @@ export const getRedeemable = (
   const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
 
   return {
-    redeemableRune,
-    redeemableAsset,
+    rune: redeemableRune,
+    asset: redeemableAsset,
   }
 }

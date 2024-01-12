@@ -27,10 +27,10 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText, Text } from 'components/Text'
 import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from '../components/PoolIcon'
@@ -114,6 +114,9 @@ export const Pool = () => {
     [foundUserData?.totalValueFiatUserCurrency],
   )
 
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: volume24h } = useQuery({
@@ -160,8 +163,8 @@ export const Pool = () => {
                         fontWeight='medium'
                       >
                         <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={usdcAssetId} />
-                          <RawText>USDC</RawText>
+                          <AssetIcon size='xs' assetId={poolAssetIds[0]} />
+                          <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto value='100' symbol='USDC' />
                       </Flex>
@@ -184,8 +187,8 @@ export const Pool = () => {
                         fontWeight='medium'
                       >
                         <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={usdcAssetId} />
-                          <RawText>USDC</RawText>
+                          <AssetIcon size='xs' assetId={poolAssetIds[1]} />
+                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto value='100' symbol='USDC' />
                       </Flex>

@@ -145,7 +145,8 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
-export const getRedeemable = (
+// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
+export const getCurrentValue = (
   liquidityUnits: string,
   poolUnits: string,
   assetDepth: string,

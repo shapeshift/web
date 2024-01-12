@@ -166,7 +166,10 @@ export const Pool = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto value='100' symbol='USDC' />
+                        <Amount.Crypto
+                          value={foundUserData?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                          symbol={asset?.symbol ?? ''}
+                        />
                       </Flex>
                     </Stack>
                   </Card>
@@ -190,7 +193,10 @@ export const Pool = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto value='100' symbol='USDC' />
+                        <Amount.Crypto
+                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          symbol={runeAsset?.symbol ?? ''}
+                        />
                       </Flex>
                     </Stack>
                   </Card>

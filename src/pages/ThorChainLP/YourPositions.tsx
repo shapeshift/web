@@ -160,10 +160,7 @@ export const YourPositions = () => {
 
   const { data: parsedPools, isLoading } = usePools()
 
-  const isActive = useMemo(
-    () => parsedPools && parsedPools.length > 0 && !isLoading,
-    [isLoading, parsedPools],
-  )
+  const isEmpty = false
 
   const positionRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
@@ -179,10 +176,6 @@ export const YourPositions = () => {
       )
     })
 
-    const isEmpty = rows?.every(row => row === null)
-
-    console.info(rows)
-
     if (isEmpty) {
       return (
         <ResultsEmpty
@@ -194,10 +187,10 @@ export const YourPositions = () => {
     }
 
     return rows
-  }, [emptyIcon, isLoading, parsedPools])
+  }, [emptyIcon, isEmpty, isLoading, parsedPools])
 
   const renderHeader = useMemo(() => {
-    if (isActive) {
+    if (!isEmpty) {
       return (
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}
@@ -219,7 +212,7 @@ export const YourPositions = () => {
         </SimpleGrid>
       )
     }
-  }, [isActive])
+  }, [isEmpty])
 
   return (
     <Main headerComponent={headerComponent}>

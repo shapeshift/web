@@ -32,10 +32,25 @@ export type SwapErrorRight = {
 }
 
 export enum TradeQuoteError {
+  // the swapper was unable to find a quote for this pair
   UnsupportedTradePair = 'UnsupportedTradePair',
+  // the swapper doesn't support the chain
+  UnsupportedChain = 'UnsupportedChain',
+  // the swapper can't swap across chains
+  CrossChainNotSupported = 'CrossChainNotSupported',
+  // the swapper wasn't able to get a network fee estimate
+  NetworkFeeEstimationFailed = 'NetworkFeeEstimationFailed',
+  // trading has been halted upstream
   TradingHalted = 'TradingHalted',
+  // the sell amount was lower than the minimum defined upstream
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
+  // the fees exceed the sell amount
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  // catch-all for XHRs that can fail
+  QueryFailed = 'QueryFailed',
+  // an assertion triggered, indicating a bug
+  InternalError = 'InternalError',
+  // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }
 

@@ -24,18 +24,19 @@ export const getRate = (response: OneInchBaseResponse): BigNumber => {
 export const assertValidTrade = ({
   buyAsset,
   sellAsset,
-  receiveAddress,
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  receiveAddress?: string
 }): Result<boolean, SwapErrorRight> => {
-  if (!oneInchSupportedChainIds.includes(sellAsset.chainId as OneInchSupportedChainId)) {
+  if (
+    !oneInchSupportedChainIds.includes(sellAsset.chainId as OneInchSupportedChainId) ||
+    !oneInchSupportedChainIds.includes(buyAsset.chainId as OneInchSupportedChainId)
+  ) {
     return Err(
       makeSwapErrorRight({
         message: `[OneInch: assertValidTrade] - unsupported chainId`,
-        code: TradeQuoteError.UnknownError,
-        details: { chainId: sellAsset.chainId },
+        code: TradeQuoteError.UnsupportedChain,
+        details: { buyAsset, sellAsset },
       }),
     )
   }
@@ -44,17 +45,8 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[OneInch: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.CrossChainNotSupported,
         details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[OneInch: assertValidTrade] - receive address is required',
-        code: TradeQuoteError.UnknownError,
       }),
     )
   }

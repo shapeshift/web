@@ -45,7 +45,7 @@ export async function getTradeQuote(
   const affiliateBps = isKeepKey && isFromEvm ? '0' : _affiliateBps
   const potentialAffiliateBps = isKeepKey && isFromEvm ? '0' : _potentialAffiliateBps
 
-  const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
+  const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const maybeTreasuryAddress = (() => {
@@ -132,7 +132,7 @@ export async function getTradeQuote(
       makeSwapErrorRight({
         message: '[OneInch: tradeQuote] - failed to get fee data',
         cause: err,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
       }),
     )
   }

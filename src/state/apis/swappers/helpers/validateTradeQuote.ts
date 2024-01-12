@@ -54,10 +54,16 @@ export const validateTradeQuote = async (
     const tradeQuoteError = (() => {
       const errorCode = error?.code
       switch (errorCode) {
+        case SwapperTradeQuoteError.UnsupportedChain:
+        case SwapperTradeQuoteError.CrossChainNotSupported:
+        case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
+        case SwapperTradeQuoteError.QueryFailed:
+        case SwapperTradeQuoteError.InternalError:
         case SwapperTradeQuoteError.UnsupportedTradePair:
-          return { error: SwapperTradeQuoteError.UnsupportedTradePair }
         case SwapperTradeQuoteError.TradingHalted:
-          return { error: SwapperTradeQuoteError.TradingHalted }
+        case SwapperTradeQuoteError.SellAmountBelowTradeFee:
+          // no metadata associated with this error
+          return { error: errorCode }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {
           const {
             minAmountCryptoBaseUnit,
@@ -85,8 +91,6 @@ export const validateTradeQuote = async (
             meta: { minLimit: minimumAmountUserMessage },
           }
         }
-        case SwapperTradeQuoteError.SellAmountBelowTradeFee:
-          return { error: SwapperTradeQuoteError.SellAmountBelowTradeFee }
         case SwapperTradeQuoteError.UnknownError:
         case undefined:
           // We didn't recognize the error, use a generic error message
@@ -226,15 +230,17 @@ export const validateTradeQuote = async (
       !isTradingActiveOnSellPool && {
         error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {
-          assetSymbol: firstHop.sellAsset.symbol,
-          chainSymbol: getChainShortName(firstHop.sellAsset.chainId as KnownChainIds),
+          chainName: assertGetChainAdapter(
+            firstHop.sellAsset.chainId as KnownChainIds,
+          ).getDisplayName(),
         },
       },
       !isTradingActiveOnBuyPool && {
         error: TradeQuoteValidationError.TradingInactiveOnBuyChain,
         meta: {
-          assetSymbol: lastHop.buyAsset.symbol,
-          chainSymbol: getChainShortName(lastHop.buyAsset.chainId as KnownChainIds),
+          chainName: assertGetChainAdapter(
+            firstHop.buyAsset.chainId as KnownChainIds,
+          ).getDisplayName(),
         },
       },
       !walletSupportsIntermediaryAssetChain && {

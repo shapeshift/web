@@ -12,12 +12,11 @@ export const getInboundAddressDataForChain = async (
   assetId: AssetId | undefined,
   excludeHalted = true,
 ): Promise<Result<InboundAddressResponse, SwapErrorRight>> => {
-  // TODO: Is this actually ok? Maybe return None, or Err?
   if (!assetId)
     return Err(
       makeSwapErrorRight({
         message: '[getInboundAddressDataForChain]: AssetId is required',
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.InternalError,
       }),
     )
   const assetPoolId = assetIdToPoolAssetId({ assetId })
@@ -45,7 +44,7 @@ export const getInboundAddressDataForChain = async (
         return Err(
           makeSwapErrorRight({
             message: `[getInboundAddressDataForChain]: No inbound address found for asset ${assetId}`,
-            code: TradeQuoteError.UnknownError,
+            code: TradeQuoteError.QueryFailed,
           }),
         )
 

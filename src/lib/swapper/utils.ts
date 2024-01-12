@@ -73,7 +73,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
             makeSwapErrorRight({
               message: 'makeSwapperAxiosServiceMonadic',
               cause: e,
-              code: TradeQuoteError.UnknownError,
+              code: TradeQuoteError.QueryFailed,
             }),
           )
           .andThen<AxiosResponse>(result => {
@@ -82,7 +82,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
                 makeSwapErrorRight({
                   message: 'makeSwapperAxiosServiceMonadic: no data was returned',
                   cause: result,
-                  code: TradeQuoteError.UnknownError,
+                  code: TradeQuoteError.QueryFailed,
                 }),
               )
 

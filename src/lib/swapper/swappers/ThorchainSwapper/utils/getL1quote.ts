@@ -255,7 +255,7 @@ export const getL1quote = async (
         return Err(
           makeSwapErrorRight({
             message: 'Unable to create any routes',
-            code: TradeQuoteError.UnknownError,
+            code: TradeQuoteError.UnsupportedTradePair,
             cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
           }),
         )
@@ -348,7 +348,7 @@ export const getL1quote = async (
         return Err(
           makeSwapErrorRight({
             message: 'Unable to create any routes',
-            code: TradeQuoteError.UnknownError,
+            code: TradeQuoteError.UnsupportedTradePair,
             cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
           }),
         )

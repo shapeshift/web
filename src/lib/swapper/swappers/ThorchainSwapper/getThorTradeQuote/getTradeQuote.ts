@@ -1,10 +1,9 @@
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 
@@ -35,32 +34,7 @@ export const getThorTradeQuote = async (
   assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
-  const { sellAsset, buyAsset, chainId, receiveAddress } = input
-
-  const buyAssetChainId = buyAsset.chainId
-
-  const chainAdapterManager = getChainAdapterManager()
-  const sellAdapter = chainAdapterManager.get(chainId)
-  const buyAdapter = chainAdapterManager.get(buyAssetChainId)
-
-  if (!sellAdapter || !buyAdapter) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
-        code: TradeQuoteError.UnknownError,
-        details: { sellAssetChainId: chainId, buyAssetChainId },
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getThorTradeQuote]: receiveAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const { sellAsset, buyAsset } = input
 
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybePoolsResponse = await thorService.get<ThornodePoolResponse[]>(

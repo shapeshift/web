@@ -48,7 +48,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `unsupported chainId`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -58,7 +58,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `unsupported chainId`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -68,7 +68,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.CrossChainNotSupported,
         details: { buyAsset, sellAsset },
       }),
     )
@@ -150,7 +150,7 @@ export async function getZrxTradeQuote(
       makeSwapErrorRight({
         message: 'failed to get fee data',
         cause: err,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
       }),
     )
   }

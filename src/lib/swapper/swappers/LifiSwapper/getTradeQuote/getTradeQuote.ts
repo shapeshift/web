@@ -107,12 +107,12 @@ export async function getTradeQuote(
       const code = (() => {
         switch (e.code) {
           case LifiErrorCode.ValidationError:
-            return TradeQuoteError.UnknownError
+            // our input was incorrect - the error is internal to us
+            return TradeQuoteError.InternalError
           case LifiErrorCode.InternalError:
           case LifiErrorCode.Timeout:
-            return TradeQuoteError.UnknownError
           default:
-            return TradeQuoteError.UnknownError
+            return TradeQuoteError.QueryFailed
         }
       })()
       return Err(

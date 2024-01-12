@@ -35,8 +35,16 @@ export const getQuoteErrorTranslation = (
         return tradeQuoteError.meta
           ? 'trade.errors.amountTooSmall'
           : 'trade.errors.amountTooSmallUnknownMinimum'
+      case SwapperTradeQuoteError.UnsupportedChain:
+        return 'trade.errors.quoteUnsupportedChain'
+      case SwapperTradeQuoteError.CrossChainNotSupported:
+        return 'trade.errors.quoteCrossChainNotSupported'
+      case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
+        return 'trade.errors.networkFeeEstimateFailed'
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:
+      case SwapperTradeQuoteError.InternalError:
+      case SwapperTradeQuoteError.QueryFailed:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

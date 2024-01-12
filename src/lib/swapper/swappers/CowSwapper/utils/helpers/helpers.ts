@@ -66,7 +66,7 @@ export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErro
       return Err(
         makeSwapErrorRight({
           message: '[getCowswapNetwork]',
-          code: TradeQuoteError.UnknownError,
+          code: TradeQuoteError.UnsupportedChain,
         }),
       )
   }
@@ -126,7 +126,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - unsupported chainId`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -136,7 +136,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.CrossChainNotSupported,
         details: { buyAsset, sellAsset },
       }),
     )
@@ -146,7 +146,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.UnsupportedTradePair,
         details: { sellAsset },
       }),
     )

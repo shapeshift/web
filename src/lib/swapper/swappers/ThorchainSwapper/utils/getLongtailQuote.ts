@@ -40,7 +40,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - Unsupported chainId ${input.sellAsset.chainId}.`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.UnsupportedChain,
         details: { sellAssetChainId: input.sellAsset.chainId },
       }),
     )
@@ -54,7 +54,7 @@ export const getLongtailToL1Quote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.InternalError,
         details: { sellAssetChainId: sellChainId },
       }),
     )

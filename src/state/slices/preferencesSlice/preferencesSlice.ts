@@ -45,6 +45,7 @@ export type FeatureFlags = {
   CustomSendNonce: boolean
   Snaps: boolean
   ThorchainLending: boolean
+  ThorchainLP: boolean
   LedgerWallet: boolean
   MultiHopTrades: boolean
   ThorchainSwapLongtail: boolean
@@ -110,6 +111,7 @@ const initialState: Preferences = {
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    ThorchainLP: getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,

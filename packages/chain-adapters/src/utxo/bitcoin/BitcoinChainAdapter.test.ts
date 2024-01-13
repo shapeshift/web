@@ -10,11 +10,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Account, BuildSendTxInput, GetFeeDataInput, TxHistoryResponse } from '../../types'
 import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as bitcoin from './BitcoinChainAdapter'
-import manyInputsSingleOutputNoChange from './mockData/manyInputsSingleOutputNoChange'
+import manyInputsManyOutputReceive from './mockData/manyInputsManyOutputReceive'
+import manyInputsManyOutputSendNoChange from './mockData/manyInputsManyOutputSendNoChange'
+import manyInputsManyOutputSendWithChange from './mockData/manyInputsManyOutputSendWithChange'
+import manyInputsSingleOutputReceive from './mockData/manyInputsSingleOutputReceive'
+import manyInputsSingleOutputSelfSendNoChange from './mockData/manyInputsSingleOutputSelfSendNoChange'
+import manyInputsSingleOutputSelfSendWithChange from './mockData/manyInputsSingleOutputSelfSendWithChange'
+import manyInputsSingleOutputSendNoChange from './mockData/manyInputsSingleOutputSendNoChange'
+import manyInputsSingleOutputSendWithChange from './mockData/manyInputsSingleOutputSendWithChange'
 import singleInputsMultipleOutputReceive from './mockData/singleInputMultipleOutputReceive'
 import singleInputsMultipleOutputSendNoChange from './mockData/singleInputMultipleOutputSendNoChange'
 import singleInputsMultipleOutputSendWithChange from './mockData/singleInputMultipleOutputSendWithChange'
 import singleInputsSingleOutputReceive from './mockData/singleInputSingleOutputReceive'
+import singleInputSingleOutputSelfSendNoChange from './mockData/singleInputSingleOutputSelfSendNoChange'
+import singleInputSingleOutputSelfSendWithChange from './mockData/singleInputSingleOutputSelfSendWithChange'
 import singleInputsSingleOutputSendNoChange from './mockData/singleInputSingleOutputSendNoChange'
 import singleInputsSingleOutputSendWithChange from './mockData/singleInputSingleOutputSendWithChange'
 
@@ -207,10 +216,10 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  describe('getTxHistory', () => {
+  describe.only('getTxHistory', () => {
     describe('single input', () => {
       describe('send', () => {
-        it.only('should handle one output (no change)', async () => {
+        it('should handle one output (no change)', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsSingleOutputSendNoChange.account),
             getTxHistory: vi.fn().mockResolvedValue(singleInputsSingleOutputSendNoChange.txHistory),
@@ -225,7 +234,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: 'bc1q2eh0lqu8rerhqzrg8rq04wgxahvx6ly3vxuuqm',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -252,10 +261,10 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
         })
 
-        it.only('should handle one output (with change)', async () => {
+        it('should handle one output (with change)', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsSingleOutputSendWithChange.account),
             getTxHistory: vi
@@ -272,7 +281,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: 'bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -299,10 +308,10 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
         })
 
-        it.only('should handle multiple unowned outputs (no change)', async () => {
+        it('should handle many unowned outputs (no change)', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsMultipleOutputSendNoChange.account),
             getTxHistory: vi
@@ -319,7 +328,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: 'bc1qr35hws365juz5rtlsjtvmulu97957kqvr3zpw3',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -350,10 +359,10 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
         })
 
-        it.only('should handle multiple unowned outputs (with change)', async () => {
+        it('should handle many unowned outputs (with change)', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsMultipleOutputSendWithChange.account),
             getTxHistory: vi
@@ -370,7 +379,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: 'bc1qr35hws365juz5rtlsjtvmulu97957kqvr3zpw3',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -400,12 +409,12 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
         })
       })
 
       describe('receive', () => {
-        it.only('should handle one output', async () => {
+        it('should handle one output', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsSingleOutputReceive.account),
             getTxHistory: vi.fn().mockResolvedValue(singleInputsSingleOutputReceive.txHistory),
@@ -420,7 +429,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: 'bc1q4rdl57tx0erk3fmcenex3xf3u0lsa9zy5henaj',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -443,10 +452,10 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
         })
 
-        it.only('should handle multiple outputs', async () => {
+        it('should handle many outputs', async () => {
           args.providers.http = {
             getAccount: vi.fn().mockResolvedValue(singleInputsMultipleOutputReceive.account),
             getTxHistory: vi.fn().mockResolvedValue(singleInputsMultipleOutputReceive.txHistory),
@@ -461,7 +470,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: '1MJoEN3HLBRVR2anX6L95MRTpSuPNQHxTh',
+                address: pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -491,57 +500,571 @@ describe('BitcoinChainAdapter', () => {
 
           const actual = await adapter.getTxHistory({ pubkey })
 
-          expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
+        })
+      })
+
+      describe('self send', () => {
+        it('should handle one output (no change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(singleInputSingleOutputSelfSendNoChange.account),
+            getTxHistory: vi
+              .fn()
+              .mockResolvedValue(singleInputSingleOutputSelfSendNoChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = singleInputSingleOutputSelfSendNoChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '26688',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: ['bc1qrgug46lmgumeksd277x9tuy4fq2gajvzw3z06n'],
+                    to: ['bc1q694669rvzchjhtqgec77t2h25hsmh7kw33ywj3'],
+                    type: TransferType.Send,
+                    value: '177347',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: ['bc1qrgug46lmgumeksd277x9tuy4fq2gajvzw3z06n'],
+                    to: ['bc1q694669rvzchjhtqgec77t2h25hsmh7kw33ywj3'],
+                    type: TransferType.Receive,
+                    value: '177347',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle one output (with change)', async () => {
+          args.providers.http = {
+            getAccount: vi
+              .fn()
+              .mockResolvedValue(singleInputSingleOutputSelfSendWithChange.account),
+            getTxHistory: vi
+              .fn()
+              .mockResolvedValue(singleInputSingleOutputSelfSendWithChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = singleInputSingleOutputSelfSendWithChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '29610',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: ['bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7'],
+                    to: [
+                      'bc1q4rdl57tx0erk3fmcenex3xf3u0lsa9zy5henaj',
+                      'bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7',
+                    ],
+                    type: TransferType.Send,
+                    value: '3330841',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: ['bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7'],
+                    to: ['bc1q4rdl57tx0erk3fmcenex3xf3u0lsa9zy5henaj'],
+                    type: TransferType.Receive,
+                    value: '460729',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: ['bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7'],
+                    to: ['bc1qnd7dwpefxtyajcf083hsa2jyt4064ujckuudw7'],
+                    type: TransferType.Receive,
+                    value: '2870112',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
         })
       })
     })
 
-    it('should handle many owned inputs to one output (no change)', async () => {
-      args.providers.http = {
-        getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputNoChange.account),
-        getTxHistory: vi.fn().mockResolvedValue(manyInputsSingleOutputNoChange.txHistory),
-      } as any
+    describe('many inputs', () => {
+      describe('send', () => {
+        it('should handle one output (no change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputSendNoChange.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsSingleOutputSendNoChange.txHistory),
+          } as any
 
-      const pubkey = 'testKey'
-      const adapter = new bitcoin.ChainAdapter(args)
-      const tx = manyInputsSingleOutputNoChange.txHistory.txs[0]
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsSingleOutputSendNoChange.txHistory.txs[0]
 
-      const expected: TxHistoryResponse = {
-        cursor: '',
-        pubkey,
-        transactions: [
-          {
-            address: 'bc1qe2n2sy9p9eapepktavmd5jzup9uz49l3wm78ur',
-            blockHash: tx.blockHash,
-            blockHeight: tx.blockHeight,
-            blockTime: tx.timestamp,
-            chainId: btcChainId,
-            confirmations: tx.confirmations,
-            fee: {
-              assetId: btcAssetId,
-              value: '30081',
-            },
-            status: TxStatus.Confirmed,
-            transfers: [
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
               {
-                assetId: btcAssetId,
-                from: [
-                  'bc1qe2n2sy9p9eapepktavmd5jzup9uz49l3wm78ur',
-                  'bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a',
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '30081',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qe2n2sy9p9eapepktavmd5jzup9uz49l3wm78ur',
+                      'bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a',
+                    ],
+                    to: ['18dcXpWE2qZLNnbSa7z9RbPu618CfCSriL'],
+                    type: TransferType.Send,
+                    value: '27508',
+                  },
                 ],
-                to: ['18dcXpWE2qZLNnbSa7z9RbPu618CfCSriL'],
-                type: TransferType.Send,
-                value: '27508',
+                txid: tx.txid,
               },
             ],
-            txid: tx.txid,
-          },
-        ],
-      }
+          }
 
-      const actual = await adapter.getTxHistory({ pubkey })
+          const actual = await adapter.getTxHistory({ pubkey })
 
-      expect(expected).toEqual(actual)
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle one output (with change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputSendWithChange.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsSingleOutputSendWithChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsSingleOutputSendWithChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '45705',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: ['bc1qzwqpxvfyl539ll8nw56xy9jn3flpx53nnm5zyw'],
+                    type: TransferType.Send,
+                    value: '1842915',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle many outputs (no change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsManyOutputSendNoChange.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsManyOutputSendNoChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsManyOutputSendNoChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '45705',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: [
+                      'bc1qzwqpxvfyl539ll8nw56xy9jn3flpx53nnm5zyw',
+                      'bc1qecwsar98zpf7jma63qvfc2f586k9fn9kyvznr8',
+                    ],
+                    type: TransferType.Send,
+                    value: '1863176',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle many outputs (with change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsManyOutputSendWithChange.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsManyOutputSendWithChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsManyOutputSendWithChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '68250',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qg4tyzkzk55nfzln6a86ulsetqa9g3rynd6y06mm0zvpkmwgzzpuqxjll78',
+                      'bc1q3lr33srfqzr2dqpthcp9ehlf0wxfnvks0r6szzkaqgpf5xck9uzsgryjmc',
+                      'bc1qsm0vz7v96dt9pmmall4rq2e2yql0d0ppjedxfq5zyz35r4rvma4scaw3vm',
+                    ],
+                    to: [
+                      'bc1qary3ng3wtlqvglqx3vdkqlw0d7j92qvcapdzekrsg8g9p3hve5us9w2snm',
+                      'bc1qj22y0r5n73lk5fd7fzddv6kd7kaj78hlkqxslvuguhdvt6gu2tusxnqfjq',
+                    ],
+                    type: TransferType.Send,
+                    value: '22513927',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+      })
+
+      describe('receive', () => {
+        it('should handle one output', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputReceive.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsSingleOutputReceive.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsSingleOutputReceive.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: ['bc1qzwqpxvfyl539ll8nw56xy9jn3flpx53nnm5zyw'],
+                    type: TransferType.Receive,
+                    value: '1842915',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle many outputs', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsManyOutputReceive.account),
+            getTxHistory: vi.fn().mockResolvedValue(manyInputsManyOutputReceive.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsManyOutputReceive.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qg4tyzkzk55nfzln6a86ulsetqa9g3rynd6y06mm0zvpkmwgzzpuqxjll78',
+                      'bc1q3lr33srfqzr2dqpthcp9ehlf0wxfnvks0r6szzkaqgpf5xck9uzsgryjmc',
+                      'bc1qsm0vz7v96dt9pmmall4rq2e2yql0d0ppjedxfq5zyz35r4rvma4scaw3vm',
+                    ],
+                    to: ['bc1qary3ng3wtlqvglqx3vdkqlw0d7j92qvcapdzekrsg8g9p3hve5us9w2snm'],
+                    type: TransferType.Receive,
+                    value: '1118542',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qg4tyzkzk55nfzln6a86ulsetqa9g3rynd6y06mm0zvpkmwgzzpuqxjll78',
+                      'bc1q3lr33srfqzr2dqpthcp9ehlf0wxfnvks0r6szzkaqgpf5xck9uzsgryjmc',
+                      'bc1qsm0vz7v96dt9pmmall4rq2e2yql0d0ppjedxfq5zyz35r4rvma4scaw3vm',
+                    ],
+                    to: ['bc1qj22y0r5n73lk5fd7fzddv6kd7kaj78hlkqxslvuguhdvt6gu2tusxnqfjq'],
+                    type: TransferType.Receive,
+                    value: '21395385',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+      })
+
+      describe('self send', () => {
+        it('should handle one output (no change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputSelfSendNoChange.account),
+            getTxHistory: vi
+              .fn()
+              .mockResolvedValue(manyInputsSingleOutputSelfSendNoChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsSingleOutputSelfSendNoChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '30081',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qe2n2sy9p9eapepktavmd5jzup9uz49l3wm78ur',
+                      'bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a',
+                    ],
+                    to: ['bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a'],
+                    type: TransferType.Send,
+                    value: '27508',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1qe2n2sy9p9eapepktavmd5jzup9uz49l3wm78ur',
+                      'bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a',
+                    ],
+                    to: ['bc1qgx9p5sratw7xm54f7cwjgkzmkm8pnm58xnc00a'],
+                    type: TransferType.Receive,
+                    value: '27508',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+
+        it('should handle one output (with change)', async () => {
+          args.providers.http = {
+            getAccount: vi.fn().mockResolvedValue(manyInputsSingleOutputSelfSendWithChange.account),
+            getTxHistory: vi
+              .fn()
+              .mockResolvedValue(manyInputsSingleOutputSelfSendWithChange.txHistory),
+          } as any
+
+          const pubkey = 'testKey'
+          const adapter = new bitcoin.ChainAdapter(args)
+          const tx = manyInputsSingleOutputSelfSendWithChange.txHistory.txs[0]
+
+          const expected: TxHistoryResponse = {
+            cursor: '',
+            pubkey,
+            transactions: [
+              {
+                address: pubkey,
+                blockHash: tx.blockHash,
+                blockHeight: tx.blockHeight,
+                blockTime: tx.timestamp,
+                chainId: btcChainId,
+                confirmations: tx.confirmations,
+                fee: {
+                  assetId: btcAssetId,
+                  value: '45705',
+                },
+                status: TxStatus.Confirmed,
+                transfers: [
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: [
+                      'bc1qzwqpxvfyl539ll8nw56xy9jn3flpx53nnm5zyw',
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                    ],
+                    type: TransferType.Send,
+                    value: '1863176',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: ['bc1qzwqpxvfyl539ll8nw56xy9jn3flpx53nnm5zyw'],
+                    type: TransferType.Receive,
+                    value: '1842915',
+                  },
+                  {
+                    assetId: btcAssetId,
+                    from: [
+                      'bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd',
+                      'bc1q58ar8thgtxagewupgk2mremryvvq7wr87tw6ga',
+                    ],
+                    to: ['bc1q5ahw788dkrqlukawnymvpp9vz72qmu074tr4kd'],
+                    type: TransferType.Receive,
+                    value: '20261',
+                  },
+                ],
+                txid: tx.txid,
+              },
+            ],
+          }
+
+          const actual = await adapter.getTxHistory({ pubkey })
+
+          expect(actual).toEqual(expected)
+        })
+      })
     })
   })
 

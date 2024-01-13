@@ -1,5 +1,5 @@
 import type { StackDirection } from '@chakra-ui/react'
-import { Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Stack, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
@@ -40,7 +40,9 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         {transfer.from.length ? (
           (transfer.from as string[]).map(address => (
-            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+            <Box key={address}>
+              <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+            </Box>
           ))
         ) : (
           <Address
@@ -52,7 +54,9 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       <Row title='to' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         {transfer.to.length ? (
           (transfer.to as string[]).map(address => (
-            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+            <Box key={address}>
+              <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+            </Box>
           ))
         ) : (
           <Address

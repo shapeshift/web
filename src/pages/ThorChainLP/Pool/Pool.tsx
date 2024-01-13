@@ -28,7 +28,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
+import { calculateTVL, getAllTimeVolume, getVolume } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -120,9 +120,13 @@ export const Pool = () => {
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: volume24h } = useQuery({
-    queryKey: ['thorchainPoolData24h', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool ? getVolume('24h', foundPool.assetId ?? '', runeMarketData.price) : '',
+    queryKey: ['thorchainPoolVolume24h', foundPool?.assetId ?? ''],
+    queryFn: () => (foundPool ? getVolume('24h', foundPool.assetId, runeMarketData.price) : ''),
+  })
+
+  const { data: allTimeVolume } = useQuery({
+    queryKey: ['thorchainPoolVolumeAllTime', foundPool?.assetId ?? ''],
+    queryFn: () => (foundPool ? getAllTimeVolume(foundPool.assetId, runeMarketData.price) : ''),
   })
 
   const tvl = useMemo(() => {
@@ -171,6 +175,21 @@ export const Pool = () => {
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
+                      <Flex
+                        fontSize='sm'
+                        justifyContent='space-between'
+                        alignItems='center'
+                        fontWeight='medium'
+                      >
+                        <Flex alignItems='center' gap={2}>
+                          <AssetIcon size='xs' assetId={poolAssetIds[1]} />
+                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
+                        </Flex>
+                        <Amount.Crypto
+                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          symbol={runeAsset?.symbol ?? ''}
+                        />
+                      </Flex>
                     </Stack>
                   </Card>
                 </Stack>
@@ -212,7 +231,12 @@ export const Pool = () => {
               borderTopWidth={1}
               borderColor='border.base'
             >
-              <PoolInfo volume24h={volume24h} apy={foundPool.poolAPY} tvl={tvl} />
+              <PoolInfo
+                volume24h={volume24h}
+                allTimeVolume={allTimeVolume}
+                apy={foundPool.poolAPY}
+                tvl={tvl}
+              />
             </CardFooter>
           </Card>
           <Faq />

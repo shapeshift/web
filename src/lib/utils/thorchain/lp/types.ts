@@ -36,6 +36,44 @@ export type MidgardLiquidityProvider = {
   pools: MidgardPool[]
 }
 
+export type MidgardPoolStats = {
+  addAssetLiquidityVolume: string
+  addLiquidityCount: string
+  addLiquidityVolume: string
+  addRuneLiquidityVolume: string
+  annualPercentageRate: string
+  asset: string
+  assetDepth: string
+  assetPrice: string
+  assetPriceUSD: string
+  averageSlip: string
+  impermanentLossProtectionPaid: string
+  liquidityUnits: string
+  poolAPY: string
+  runeDepth: string
+  status: string
+  swapCount: string
+  swapVolume: string
+  synthSupply: string
+  synthUnits: string
+  toAssetAverageSlip: string
+  toAssetCount: string
+  toAssetFees: string
+  toAssetVolume: string
+  toRuneAverageSlip: string
+  toRuneCount: string
+  toRuneFees: string
+  toRuneVolume: string
+  totalFees: string
+  uniqueMemberCount: string
+  uniqueSwapperCount: string
+  units: string
+  withdrawAssetVolume: string
+  withdrawCount: string
+  withdrawRuneVolume: string
+  withdrawVolume: string
+}
+
 type MidgardInterval = {
   averageSlip: string
   endTime: string

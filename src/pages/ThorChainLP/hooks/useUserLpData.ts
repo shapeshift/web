@@ -12,7 +12,6 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getCurrentValue, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
 import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -46,7 +45,7 @@ type UseUserLpDataReturn = {
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
   opportunityId: string
-  currentValue: {
+  redeemableFees: {
     asset: string
     rune: string
   }
@@ -140,7 +139,7 @@ export const useUserLpData = ({
         totalValueFiatUserCurrency,
         poolOwnershipPercentage,
         opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
-        currentValue,
+        redeemableFees: currentValue, // TODO(gomes): FIXME, dis wrong
         accountId: position.accountId,
         assetId,
       }

@@ -85,7 +85,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
 
   const totalRedeemableValue = useMemo(() => {
     if (!foundPool) return '0'
-    const { asset, rune } = foundPool.currentValue
+    const { asset, rune } = foundPool.redeemableFees
 
     const assetValueFiatUserCurrency = bn(asset).times(assetMarketData.price)
     const runeValueFiatUserCurrency = bn(rune).times(runeMarketData.price)
@@ -141,7 +141,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.currentValue.asset}
+              value={foundPool.redeemableFees.asset}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -149,7 +149,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.currentValue.rune}
+              value={foundPool.redeemableFees.rune}
               symbol={'RUNE'}
               fontSize='sm'
               color='text.subtle'

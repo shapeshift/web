@@ -8,12 +8,13 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 
 type PoolInfoProps = {
+  allTimeVolume?: string
   volume24h?: string
   apy?: string
   tvl?: string
 }
 
-export const PoolInfo = ({ volume24h, apy, tvl }: PoolInfoProps) => {
+export const PoolInfo = ({ allTimeVolume, volume24h, apy, tvl }: PoolInfoProps) => {
   return (
     <>
       <Flex gap={4} alignItems='center'>
@@ -54,7 +55,7 @@ export const PoolInfo = ({ volume24h, apy, tvl }: PoolInfoProps) => {
         </Stack>
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value={tvl ?? '0'} fontWeight='medium' />
+            <Amount.Fiat fontSize='xl' value={allTimeVolume ?? '0'} fontWeight='medium' />
             <Tag colorScheme='green' size='sm' gap={0}>
               <TagLeftIcon as={ArrowUpIcon} mr={1} />
               <Amount.Percent value='0.02' autoColor fontWeight='medium' />

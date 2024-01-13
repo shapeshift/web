@@ -15,6 +15,7 @@ import type {
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
   MidgardPool,
+  MidgardPoolStats,
   MidgardSwapHistoryResponse,
   PoolShareDetail,
   ThorchainLiquidityProvidersResponseSuccess,
@@ -143,6 +144,24 @@ export const getVolume = async (
   )
 
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
+}
+
+export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const { data } = await axios.get<MidgardPoolStats>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=all`,
+  )
+
+  const swapVolume = fromThorBaseUnit(data?.swapVolume ?? '0')
+  const toAssetVolume = fromThorBaseUnit(data?.toAssetVolume ?? '0')
+  const toRuneVolume = fromThorBaseUnit(data?.toRuneVolume ?? '0')
+
+  const totalVolume = swapVolume.plus(toAssetVolume).plus(toRuneVolume)
+
+  const totalVolumeFiatUserCurrency = totalVolume.times(runePrice)
+
+  return totalVolumeFiatUserCurrency.toFixed()
 }
 
 // Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
@@ -333,10 +352,10 @@ export const calculateTotalVolumeFiatUserCurrency = (
   const toAssetVolumeCryptoPrecision = fromThorBaseUnit(toAssetVolume)
   const toRuneVolumeCryptoPrecision = fromThorBaseUnit(toRuneVolume)
 
-  const tAassetTotalVolumeFiatUserCurrency = toAssetVolumeCryptoPrecision.times(btcPrice)
+  const toAassetTotalVolumeFiatUserCurrency = toAssetVolumeCryptoPrecision.times(btcPrice)
   const toRuneTotalVolumeRuneFiatUserCurrency = toRuneVolumeCryptoPrecision.times(runePrice)
 
-  const totalVolumeFiatUserCurrency = tAassetTotalVolumeFiatUserCurrency.plus(
+  const totalVolumeFiatUserCurrency = toAassetTotalVolumeFiatUserCurrency.plus(
     toRuneTotalVolumeRuneFiatUserCurrency,
   )
 

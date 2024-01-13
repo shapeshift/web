@@ -171,35 +171,39 @@ export const YourPositions = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
 
-  const { data: parsedPools } = usePools()
+  const { data: parsedPools, isLoading } = usePools()
 
-  const isActive = true
+  const isEmpty = false
 
   const positionRows = useMemo(() => {
-    if (isActive) {
-      return parsedPools?.map(pool => {
-        return (
-          <PositionButton
-            assetId={pool.assetId}
-            name={pool.name}
-            opportunityId={pool.opportunityId}
-            apy={pool.poolAPY}
-          />
-        )
-      })
+    if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    const rows = parsedPools?.map(pool => {
+      return (
+        <PositionButton
+          assetId={pool.assetId}
+          name={pool.name}
+          opportunityId={pool.opportunityId}
+          apy={pool.poolAPY}
+          key={pool.opportunityId}
+        />
+      )
+    })
+
+    if (isEmpty) {
+      return (
+        <ResultsEmpty
+          title='pools.yourPositions.emptyTitle'
+          body='pools.yourPositions.emptyBody'
+          icon={emptyIcon}
+        />
+      )
     }
 
-    return (
-      <ResultsEmpty
-        title='pools.yourPositions.emptyTitle'
-        body='pools.yourPositions.emptyBody'
-        icon={emptyIcon}
-      />
-    )
-  }, [emptyIcon, isActive, parsedPools])
+    return rows
+  }, [emptyIcon, isEmpty, isLoading, parsedPools])
 
   const renderHeader = useMemo(() => {
-    if (isActive) {
+    if (!isEmpty) {
       return (
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}
@@ -221,7 +225,7 @@ export const YourPositions = () => {
         </SimpleGrid>
       )
     }
-  }, [isActive])
+  }, [isEmpty])
 
   return (
     <Main headerComponent={headerComponent}>

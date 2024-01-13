@@ -154,10 +154,7 @@ export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Pro
   )
 
   const swapVolume = fromThorBaseUnit(data?.swapVolume ?? '0')
-  const toAssetVolume = fromThorBaseUnit(data?.toAssetVolume ?? '0')
-  const toRuneVolume = fromThorBaseUnit(data?.toRuneVolume ?? '0')
-
-  const totalVolume = swapVolume.plus(toAssetVolume).plus(toRuneVolume)
+  const totalVolume = swapVolume
 
   const totalVolumeFiatUserCurrency = totalVolume.times(runePrice)
 

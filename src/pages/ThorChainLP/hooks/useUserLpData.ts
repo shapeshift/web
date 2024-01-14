@@ -145,12 +145,12 @@ export const useUserLpData = ({
       }
     })
 
-    console.log({ parsedPositions })
     return parsedPositions
   }
 
   const liquidityPoolPositionData = useQuery({
     queryKey: lpPositionQueryKey,
+    staleTime: Infinity,
     queryFn: async ({ queryKey }) => {
       const [, { assetId }] = queryKey
 

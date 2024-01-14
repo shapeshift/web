@@ -122,7 +122,7 @@
     "showAll": "Показать больше",
     "showLess": "Показать меньше",
     "yourBalance": "Ваш баланс",
-    "signMessage": "Подписать сообщение",
+    "signTransaction": "Подписать транзакцию",
     "carousel": {
       "next": "Далее",
       "prev": "Предыдущий",
@@ -135,7 +135,8 @@
       "sortedAsc": "Сортировка по возрастанию",
       "sortedDesc": "Сортировка по убыванию",
       "expandRow": "Развернуть ряд"
-    }
+    },
+    "featureDisabled": "Эта функция временно отключена."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Расчетное время для покрытия комиссионных по вкладу и заработка."
         },
         "cannotDepositWhilePendingTx": "Невозможно пополнить счет, пока транзакция  находится на рассмотрении",
-        "cannotWithdrawWhilePendingTx": "Невозможно снять средства, пока транзакция находится на рассмотрении"
+        "cannotWithdrawWhilePendingTx": "Невозможно снять средства, пока транзакция находится на рассмотрении",
+        "dangerousWithdrawWarning": "Вывод средств отключен, так как комиссия THORChain может привести к полной потере выводимых средств. Рассмотрите возможность вывода большей суммы, чтобы избежать этой проблемы."
       }
     },
     "memoNote": {
@@ -818,7 +820,32 @@
     "enableMetaMaskSnap": "используйте multichain snap",
     "approvalGasFee": "Размер платы за газ %{fee}",
     "approvalFailed": "Возникла проблема при утверждении разрешения",
-    "swapFailed": "Возникла проблема при выполнении %{tradeType}"
+    "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
+    "doAnotherTrade": "Совершите еще одну сделку",
+    "showDetails": "Показать детали",
+    "transactionSuccessful": "Транзакция прошла успешно, ожидаем подтверждений",
+    "temp": {
+      "tradeSuccess": "Трейд завершен",
+      "tradeComplete": "Успешно получен %{symbol} на %{chainName}."
+    },
+    "hopTitle": {
+      "bridge": "Бридж через %{swapperName}",
+      "swap": "Обмен через %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "Возникла проблема при выполнении моста",
+      "swap": "Возникла проблема при выполнении обмена"
+    },
+    "transactionTitle": {
+      "bridge": "Бридж с %{sellChainName} на %{buyChainName} через %{swapperName}",
+      "swap": "Обмен на %{sellChainName} через %{swapperName}"
+    },
+    "approvalTitle": "Согласие на использование токенов",
+    "assetSummaryDescription": "%{amountFiatFormatted} на %{chainName}",
+    "quote": {
+      "cantSetSlippage": "Мы не можем установить пользовательское проскальзывание (%{userSlippageFormatted}) для %{swapperName}",
+      "slippage": "Проскальзывание: %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1327,7 +1354,8 @@
         "header": "Ошибка",
         "body": "Невозможно подключить кошелек Ledger"
       },
-      "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение."
+      "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение.",
+      "signWarning": "Перед подписанием убедитесь, что на вашем устройстве открыто приложение %{chain}."
     },
     "metaMask": {
       "errors": {

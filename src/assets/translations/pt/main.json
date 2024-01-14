@@ -122,7 +122,7 @@
     "showAll": "Mostrar tudo",
     "showLess": "Mostrar menos",
     "yourBalance": "Seu saldo",
-    "signMessage": "Assinar mensagem",
+    "signTransaction": "Assinar transação",
     "carousel": {
       "next": "Próximo",
       "prev": "Anterior",
@@ -135,7 +135,8 @@
       "sortedAsc": "Ordem crescente",
       "sortedDesc": "Ordem decrescente",
       "expandRow": "Expandir"
-    }
+    },
+    "featureDisabled": "Este recurso está temporariamente desativado."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Tempo estimado para cobrir taxas de depósito e ganhos."
         },
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
-        "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes"
+        "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
+        "dangerousWithdrawWarning": "Saque desativada porque a taxa THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
       }
     },
     "memoNote": {
@@ -818,7 +820,32 @@
     "enableMetaMaskSnap": "use o snap multichain",
     "approvalGasFee": "Taxa para aprovação %{fee}",
     "approvalFailed": "Um problema ocorreu durante a aprovação dos tokens",
-    "swapFailed": "Um problema ocorreu ao executar %{tradeType}"
+    "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
+    "doAnotherTrade": "Faça outra negociação",
+    "showDetails": "Mostrar detalhes",
+    "transactionSuccessful": "Transação bem-sucedida, aguardando confirmações",
+    "temp": {
+      "tradeSuccess": "Negociação concluída",
+      "tradeComplete": "%{symbol} recebido com sucesso em %{chainName}."
+    },
+    "hopTitle": {
+      "bridge": "Bridge via %{swapperName}",
+      "swap": "Swap via %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "Ocorreu um problema ao executar a bridge",
+      "swap": "Ocorreu um problema ao executar o swap"
+    },
+    "transactionTitle": {
+      "bridge": "Bridge da %{sellChainName} para %{buyChainName} via %{swapperName}",
+      "swap": "Swap na %{sellChainName} via %{swapperName}"
+    },
+    "approvalTitle": "Aprovação de permissão de token",
+    "assetSummaryDescription": "%{amountFiatFormatted} na %{chainName}",
+    "quote": {
+      "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}",
+      "slippage": "Slippage: %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1327,7 +1354,8 @@
         "header": "Erro",
         "body": "Não foi possível conectar a Ledger"
       },
-      "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo."
+      "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
+      "signWarning": "Antes de assinar, certifique-se de ter o aplicativo %{chain} aberto no seu dispositivo."
     },
     "metaMask": {
       "errors": {

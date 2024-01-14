@@ -146,6 +146,28 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
+// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
+export const getCurrentValue = (
+  liquidityUnits: string,
+  poolUnits: string,
+  assetDepth: string,
+  runeDepth: string,
+): { rune: string; asset: string } => {
+  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
+  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
+
+  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
+  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
+  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
+
+  return {
+    rune: redeemableRune,
+    asset: redeemableAsset,
+  }
+}
+
 export const getFees = async (
   timeframe: '24h' | 'all',
   assetId: string,
@@ -180,28 +202,6 @@ export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Pro
   const totalVolumeFiatUserCurrency = totalVolume.times(runePrice)
 
   return totalVolumeFiatUserCurrency.toFixed()
-}
-
-// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
-export const getCurrentValue = (
-  liquidityUnits: string,
-  poolUnits: string,
-  assetDepth: string,
-  runeDepth: string,
-): { rune: string; asset: string } => {
-  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
-  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
-  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
-  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
-
-  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
-  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
-  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
-
-  return {
-    rune: redeemableRune,
-    asset: redeemableAsset,
-  }
 }
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/math#lp-units-add

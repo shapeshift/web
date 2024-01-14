@@ -1,20 +1,21 @@
 import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { getAddress, isAddress } from 'viem'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  MidgardPoolResponse,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
-import { getAccountAddresses } from '.'
+import { fromThorBaseUnit, getAccountAddresses } from '.'
 import type {
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
   MidgardPool,
+  MidgardSwapHistoryResponse,
   PoolShareDetail,
   ThorchainLiquidityProvidersResponseSuccess,
 } from './lp/types'
@@ -50,13 +51,24 @@ export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidit
 }
 
 export const getThorchainLiquidityMember = async (
-  address: string,
+  _address: string,
 ): Promise<MidgardLiquidityProvider | null> => {
-  const { data } = await axios.get<MidgardLiquidityProvider>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
-  )
+  // Ensure Ethereum addresses are checksummed
+  const address = isAddress(_address) ? getAddress(_address) : _address
+  try {
+    const { data } = await axios.get<MidgardLiquidityProvider>(
+      `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
+    )
 
-  return data
+    return data
+  } catch (e) {
+    // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
+    // We only want to log errors to the console if they're actual errors, not 404s
+    if ((e as AxiosError).isAxiosError && (e as AxiosError).response?.status !== 404)
+      console.error(e)
+
+    return null
+  }
 }
 
 export const getThorchainLiquidityProviderPosition = async ({
@@ -65,12 +77,7 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<{
-  positions: MidgardPool[]
-  poolData: ThornodePoolResponse
-} | null> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
+}): Promise<MidgardPool[] | null> => {
   const accountPosition = await (async () => {
     if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
       const address = fromAccountId(accountId).account
@@ -92,14 +99,70 @@ export const getThorchainLiquidityProviderPosition = async ({
   })()
   if (!accountPosition) return null
 
-  const positions = accountPosition.pools
-
-  const { data: poolData } = await axios.get<ThornodePoolResponse>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+  // An address may be shared across multiple pools for EVM chains, which could produce wrong results
+  const positions = accountPosition.pools.filter(
+    pool => pool.pool === assetIdToPoolAssetId({ assetId }),
   )
+
+  return positions
+}
+
+export const calculateTVL = (
+  assetDepthCryptoBaseUnit: string,
+  runeDepthCryptoBaseUnit: string,
+  runePrice: string,
+): string => {
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepthCryptoBaseUnit)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepthCryptoBaseUnit)
+
+  const assetValueFiatUserCurrency = assetDepthCryptoPrecision.times(runePrice)
+  const runeValueFiatUserCurrency = runeDepthCryptoPrecision.times(runePrice)
+
+  const tvl = assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).times(2)
+
+  return tvl.toFixed()
+}
+
+export const getVolume = async (
+  timeframe: '24h' | '7d',
+  assetId: AssetId,
+  runePrice: string,
+): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const days = timeframe === '24h' ? '1' : '7'
+
+  const { data } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?interval=day&count=${days}&pool=${poolAssetId}`,
+  )
+
+  const volume = (data?.intervals ?? []).reduce(
+    (acc, { totalVolume }) => acc.plus(totalVolume),
+    bn(0),
+  )
+
+  return fromThorBaseUnit(volume).times(runePrice).toFixed()
+}
+
+export const getRedeemable = (
+  liquidityUnits: string,
+  poolUnits: string,
+  assetDepth: string,
+  runeDepth: string,
+): { rune: string; asset: string } => {
+  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
+  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
+
+  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
+  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
+  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
+
   return {
-    positions,
-    poolData,
+    rune: redeemableRune,
+    asset: redeemableAsset,
   }
 }
 
@@ -218,10 +281,14 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   accountId: AccountId
   assetId: AssetId
   assetAmountCryptoThorPrecision: string
+  asymSide: AsymSide | null
 }) => {
-  const lpPosition = await getThorchainLiquidityProviderPosition({ accountId, assetId })
+  const lpPositions = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const liquidityUnitsCryptoThorPrecision = lpPosition?.poolData.LP_units
+  // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
+  // and get the right position for the user depending on the asymSide
+  const lpPosition = lpPositions?.[0]
+  const liquidityUnitsCryptoThorPrecision = lpPosition?.liquidityUnits
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data

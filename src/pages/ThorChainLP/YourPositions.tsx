@@ -164,8 +164,6 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
         </Skeleton>
       </Button>
     </Stack>
-      </Button>
-    </Stack>
   )
 }
 

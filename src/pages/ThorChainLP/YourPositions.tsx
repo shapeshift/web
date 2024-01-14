@@ -2,6 +2,7 @@ import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { useIsFetching } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -171,9 +172,10 @@ export const YourPositions = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
 
-  const { data: parsedPools, isLoading } = usePools()
+  const { data: parsedPools } = usePools()
 
   const isEmpty = false
+  const isLoading = useIsFetching({ queryKey: ['thorchainUserLpData'] })
 
   const positionRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)

@@ -146,6 +146,27 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
+export const getFees = async (
+  timeframe: '24h' | 'all',
+  assetId: string,
+  runePrice: string,
+  assetPrice: string,
+): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const { data } = await axios.get<MidgardPoolStats>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=${timeframe}`,
+  )
+
+  const toAssetFeesCryptoPrecision = fromThorBaseUnit(data.toAssetFees)
+  const toRuneFeesCryptoPrecision = fromThorBaseUnit(data.toRuneFees)
+  const toAssetFeesFiatUserCurrency = toAssetFeesCryptoPrecision.times(assetPrice)
+  const toRuneFeesFiatUserCurrency = toRuneFeesCryptoPrecision.times(runePrice)
+
+  const feesFiatUserCurrency = toAssetFeesFiatUserCurrency.plus(toRuneFeesFiatUserCurrency)
+  return feesFiatUserCurrency.toFixed()
+}
+
 export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Promise<string> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 

@@ -158,7 +158,7 @@ export const TradeInput = memo(() => {
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
       case !!tradeQuoteError:
-        // this should never occur because users shouldn't be able to select and errored quote
+        // this should never occur because users shouldn't be able to select an errored quote
         // but just in case
         return getQuoteErrorTranslation(tradeQuoteError!)
       default:

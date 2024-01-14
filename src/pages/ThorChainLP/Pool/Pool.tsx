@@ -256,11 +256,12 @@ export const Pool = () => {
               borderColor='border.base'
             >
               <PoolInfo
-                volume24h={volume24h}
-                fees24h={fees24h}
-                allTimeVolume={allTimeVolume}
-                apy={foundPool.poolAPY}
+                volume24h={volume24h ?? '0'}
+                fees24h={fees24h ?? '0'}
+                allTimeVolume={allTimeVolume ?? '0'}
+                apy={foundPool.poolAPY ?? '0'}
                 tvl={tvl}
+                assetIds={poolAssetIds}
               />
             </CardFooter>
           </Card>

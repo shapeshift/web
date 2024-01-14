@@ -103,10 +103,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!wallet) return
-    const walletSupportedChains = Object.values(KnownChainIds).filter(chainId =>
+    const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId =>
       walletSupportsChain({ chainId, wallet, isSnapInstalled }),
     )
-    dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChains))
+    dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
   }, [dispatch, isSnapInstalled, wallet])
 
   useEffect(() => {

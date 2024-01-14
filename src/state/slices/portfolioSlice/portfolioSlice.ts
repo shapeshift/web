@@ -25,7 +25,7 @@ import { accountToPortfolio } from './utils'
 type WalletMetaPayload = {
   walletId: WalletId
   walletName: string
-  walletSupportedChains: ChainId[]
+  walletSupportedChainIds: ChainId[]
 }
 
 export const portfolio = createSlice({
@@ -37,7 +37,7 @@ export const portfolio = createSlice({
     },
     setWalletMeta: (
       state,
-      { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChains'> | undefined },
+      { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChainIds'> | undefined },
     ) => {
       // don't fire and rerender with same action
       if (state.connectedWallet?.id === payload?.walletId) return

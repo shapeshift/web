@@ -10,13 +10,13 @@ import { TradeQuoteRequestError } from '../types'
 
 export const validateQuoteRequest = ({
   isWalletConnected,
-  walletSupportedChains,
+  walletSupportedChainIds,
   manualReceiveAddress,
   sellAssetBalanceCryptoBaseUnit,
   tradeQuoteInput,
 }: {
   isWalletConnected: boolean
-  walletSupportedChains: ChainId[]
+  walletSupportedChainIds: ChainId[]
   manualReceiveAddress: string | undefined
   sellAssetBalanceCryptoBaseUnit: string
   tradeQuoteInput: GetTradeQuoteInput
@@ -26,10 +26,10 @@ export const validateQuoteRequest = ({
     return [{ error: TradeQuoteRequestError.NoConnectedWallet }]
   }
 
-  const walletSupportsSellAssetChain = walletSupportedChains.includes(
+  const walletSupportsSellAssetChain = walletSupportedChainIds.includes(
     tradeQuoteInput.sellAsset.chainId,
   )
-  const walletSupportsBuyAssetChain = walletSupportedChains.includes(
+  const walletSupportsBuyAssetChain = walletSupportedChainIds.includes(
     tradeQuoteInput.buyAsset.chainId,
   )
   const hasSufficientSellAssetBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(

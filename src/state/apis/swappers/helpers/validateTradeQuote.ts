@@ -99,7 +99,7 @@ export const validateTradeQuote = async (
   const firstHop = quote.steps[0]
   const secondHop = quote.steps[1]
   const lastHop = isMultiHopTrade ? secondHop : firstHop
-  const walletSupportedChains = selectWalletSupportedChainIds(state)
+  const walletSupportedChainIds = selectWalletSupportedChainIds(state)
   const sellAmountCryptoPrecision = selectSellAmountCryptoPrecision(state)
   const sellAmountCryptoBaseUnit = selectSellAmountCryptoBaseUnit(state)
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
@@ -151,7 +151,7 @@ export const validateTradeQuote = async (
       : bn(0).toFixed()
 
   const walletSupportsIntermediaryAssetChain =
-    !isMultiHopTrade || walletSupportedChains.includes(firstHop.buyAsset.chainId)
+    !isMultiHopTrade || walletSupportedChainIds.includes(firstHop.buyAsset.chainId)
 
   const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)

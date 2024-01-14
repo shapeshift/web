@@ -63,7 +63,7 @@ export const swappersApi = createApi({
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
         const isWalletConnected = selectIsWalletConnected(state)
-        const walletSupportedChains = selectWalletSupportedChainIds(state)
+        const walletSupportedChainIds = selectWalletSupportedChainIds(state)
         const manualReceiveAddress = selectManualReceiveAddress(state)
         const firstHopSellAccountId = selectFirstHopSellAccountId(state)
         const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
@@ -74,7 +74,7 @@ export const swappersApi = createApi({
         const topLevelValidationErrors = validateQuoteRequest({
           tradeQuoteInput,
           isWalletConnected,
-          walletSupportedChains,
+          walletSupportedChainIds,
           manualReceiveAddress,
           sellAssetBalanceCryptoBaseUnit,
         })
@@ -219,13 +219,13 @@ export const swappersApi = createApi({
         supportedSellAssetIds: AssetId[]
         supportedBuyAssetIds: AssetId[]
       },
-      { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] }
+      { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] }
     >({
       queryFn: async (
         {
-          walletSupportedChains,
+          walletSupportedChainIds,
           sortedAssetIds,
-        }: { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] },
+        }: { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] },
         { getState },
       ) => {
         const state = getState() as ReduxState
@@ -240,7 +240,7 @@ export const swappersApi = createApi({
           .filter(assetId => supportedSellAssetsSet.has(assetId))
           .filter(assetId => {
             const chainId = fromAssetId(assetId).chainId
-            return walletSupportedChains.includes(chainId)
+            return walletSupportedChainIds.includes(chainId)
           })
 
         const supportedBuyAssetsSet = await getSupportedBuyAssetIds(

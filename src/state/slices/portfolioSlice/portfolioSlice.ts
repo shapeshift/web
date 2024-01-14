@@ -20,7 +20,7 @@ import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-import { accountToPortfolio } from './utils'
+import { accountToPortfolio, haveSameElements } from './utils'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -64,7 +64,12 @@ export const portfolio = createSlice({
       }
     },
     setWalletSupportedChainIds: (state, { payload }: { payload: ChainId[] }) => {
+      // should never happen as connectedWallet is set in the wallet provider before other actions can be fired
       if (state.connectedWallet === undefined) return
+
+      // don't modify state if it's the same by value
+      if (haveSameElements(payload, state.connectedWallet.supportedChainIds)) return
+
       Object.assign(state.connectedWallet, { supportedChainIds: payload })
     },
     upsertAccountMetadata: {

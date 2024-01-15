@@ -67,7 +67,7 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   // If there are four parts, the fourth is the data, and we know it's a thorchain transaction with a memo
   if (parts.length === 4) {
     result.data = {
-      parser: 'thorchain',
+      parser: 'swap',
       memo: parts[3],
     }
   }

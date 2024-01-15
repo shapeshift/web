@@ -84,6 +84,7 @@ export const TransactionMethod = ({
       case Method.LoanOut:
       case Method.LoanRepaymentRefund:
       case Method.Out:
+      case Method.Outbound:
       case Method.RecvPacket:
       case Method.Refund:
       case Method.RemoveLiquidityEth:

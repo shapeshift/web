@@ -42,6 +42,7 @@ export enum Method {
   LoanRepayment = 'loanRepayment',
   LoanRepaymentRefund = 'loanRepaymentRefund',
   Out = 'out',
+  Outbound = 'outbound',
   RecvPacket = 'recv_packet',
   Refund = 'refund',
   RemoveLiquidityEth = 'removeLiquidityETH',

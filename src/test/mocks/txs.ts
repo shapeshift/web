@@ -17,8 +17,8 @@ export const EthSend: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
-      to: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
+      from: ['0x9124248f2AD8c94fC4a403588BE7a77984B34bb8'],
+      to: ['0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6'],
       value: '250923588302732',
       type: TransferType.Send,
     },
@@ -38,8 +38,8 @@ export const EthReceive: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
-      to: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
+      from: ['0x9124248f2AD8c94fC4a403588BE7a77984B34bb8'],
+      to: ['0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6'],
       value: '250923588302732',
       type: TransferType.Receive,
     },
@@ -60,15 +60,15 @@ export const BtcSend: Tx = {
   transfers: [
     {
       assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      from: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
-      to: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
+      from: ['bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w'],
+      to: ['bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w'],
       value: '250923588302732',
       type: TransferType.Send,
     },
     {
       assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      from: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
-      to: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
+      from: ['bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w'],
+      to: ['bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w'],
       value: '250923588302732',
       type: TransferType.Receive,
     },
@@ -92,8 +92,8 @@ export const FOXSend: Tx = {
   transfers: [
     {
       assetId: foxAssetId,
-      from: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
-      to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+      from: ['0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6'],
+      to: ['0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'],
       value: '4448382624806275089213',
       type: TransferType.Send,
     },
@@ -119,15 +119,15 @@ export const TradeTx: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: AddressZero,
-      to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+      from: [AddressZero],
+      to: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
       type: TransferType.Receive,
       value: '9178352',
     },
     {
       assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-      to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+      from: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
+      to: ['0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'],
       type: TransferType.Send,
       value: '10000000',
     },
@@ -152,8 +152,8 @@ const test1: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0x67ffc0d460c38CeEe3a29A94def9Ff828E92E165',
+      from: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+      to: ['0x67ffc0d460c38CeEe3a29A94def9Ff828E92E165'],
       value: '230757160394687',
       type: TransferType.Send,
     },
@@ -176,8 +176,8 @@ const test2: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741',
+      from: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+      to: ['0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741'],
       value: '11746823071700259',
       type: TransferType.Send,
     },
@@ -196,8 +196,8 @@ const test3: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0x2ee5e455454d0ba78C337a918C6E5ff80345c1e0',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: ['0x2ee5e455454d0ba78C337a918C6E5ff80345c1e0'],
+      to: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
       value: '8559800000000000',
       type: TransferType.Receive,
     },
@@ -220,8 +220,8 @@ const test4: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0xf9F6c86877C2Cf13f93B29FDa3c66d361A463Ab5',
+      from: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+      to: ['0xf9F6c86877C2Cf13f93B29FDa3c66d361A463Ab5'],
       value: '70000000000000000',
       type: TransferType.Send,
     },
@@ -240,8 +240,8 @@ const test5: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0xD3273EBa07248020bf98A8B560ec1576a612102F',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: ['0xD3273EBa07248020bf98A8B560ec1576a612102F'],
+      to: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
       value: '100000000000000000',
       type: TransferType.Receive,
     },
@@ -260,8 +260,8 @@ const test6: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0x563b377A956c80d77A7c613a9343699Ad6123911',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: ['0x563b377A956c80d77A7c613a9343699Ad6123911'],
+      to: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
       value: '42000000000000000',
       type: TransferType.Receive,
     },
@@ -285,15 +285,15 @@ const test7: Tx = {
   transfers: [
     {
       assetId: ethAssetId,
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+      to: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
       value: '900000000000000000000',
       type: TransferType.Send,
     },
     {
       assetId: ethAssetId,
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+      to: ['0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
       value: '900000000000000000000',
       type: TransferType.Receive,
     },
@@ -315,15 +315,15 @@ export const yearnVaultDeposit: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: AddressZero,
-      to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+      from: [AddressZero],
+      to: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
       type: TransferType.Receive,
       value: '9178352',
     },
     {
       assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-      to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+      from: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
+      to: ['0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'],
       type: TransferType.Send,
       value: '10000000',
     },
@@ -346,15 +346,15 @@ export const createMockEthTxs = (account: string): Tx[] => {
     transfers: [
       {
         assetId: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
-        from: account,
-        to: '0x6a1e73f12018D8e5f966ce794aa2921941feB17E',
+        from: [account],
+        to: ['0x6a1e73f12018D8e5f966ce794aa2921941feB17E'],
         type: TransferType.Send,
         value: '5512963958946523122',
       },
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
-        from: AddressZero,
-        to: account,
+        from: [AddressZero],
+        to: [account],
         type: TransferType.Receive,
         value: '5481290118862792961',
       },
@@ -377,15 +377,15 @@ export const createMockEthTxs = (account: string): Tx[] => {
     transfers: [
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
-        from: account,
-        to: AddressZero,
+        from: [account],
+        to: [AddressZero],
         type: TransferType.Send,
         value: '5481290118862792961',
       },
       {
         assetId: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
-        from: '0xd9788f3931ede4d5018184e198699dc6d66c1915',
-        to: account,
+        from: ['0xd9788f3931ede4d5018184e198699dc6d66c1915'],
+        to: [account],
         type: TransferType.Receive,
         value: '5512963958946523122',
       },

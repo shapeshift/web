@@ -153,7 +153,7 @@ export const getCurrentValue = (
   poolUnits: string,
   assetDepth: string,
   runeDepth: string,
-): { rune: string; asset: string } => {
+): { rune: string; asset: string; poolShare: string } => {
   const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
   const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
   const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
@@ -166,6 +166,7 @@ export const getCurrentValue = (
   return {
     rune: redeemableRune,
     asset: redeemableAsset,
+    poolShare: poolShare.toFixed(),
   }
 }
 
@@ -387,4 +388,19 @@ export const getEarnings = async ({ from }: { from: string }) => {
   )
 
   return data
+}
+
+export const calculateEarnings = (
+  _assetLiquidityFees: string,
+  _runeLiquidityFees: string,
+  userPoolShare: string,
+) => {
+  const assetLiquidityFees = fromThorBaseUnit(_assetLiquidityFees)
+  const runeLiquidityFees = fromThorBaseUnit(_runeLiquidityFees)
+
+  const userShare = bn(userPoolShare)
+  const assetEarnings = userShare.times(assetLiquidityFees).toFixed()
+  const runeEarnings = userShare.times(runeLiquidityFees).toFixed()
+
+  return { assetEarnings, runeEarnings }
 }

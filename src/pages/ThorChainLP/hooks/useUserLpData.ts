@@ -47,6 +47,7 @@ type UseUserLpDataReturn = {
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
   opportunityId: string
+  poolShare: string
   redeemableFees: {
     asset: string
     rune: string
@@ -150,7 +151,7 @@ export const useUserLpData = ({
         totalValueFiatUserCurrency,
         poolOwnershipPercentage,
         opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
-        redeemableFees: currentValue, // TODO(gomes): FIXME, dis wrong
+        poolShare: currentValue.poolShare,
         accountId: position.accountId,
         assetId,
       }

@@ -32,8 +32,8 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import {
+  calculateEarnings,
   calculateTVL,
   getAllTimeVolume,
   getEarnings,
@@ -173,22 +173,11 @@ export const Pool = () => {
       const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!foundHistoryPool) return null
 
-      // TODO(gomes): extract the below to its own fn
-      //
-      const assetLiquidityFees = fromThorBaseUnit(foundHistoryPool.assetLiquidityFees)
-      const runeLiquidityFees = fromThorBaseUnit(foundHistoryPool.runeLiquidityFees)
-      const poolUnits = fromThorBaseUnit(thornodePoolData.pool_units)
-      const liquidityUnits = fromThorBaseUnit(foundUserData.liquidityUnits)
-
-      // TODO(gomes): surely we already have this?
-      const userShare = liquidityUnits.div(poolUnits)
-      const assetEarnings = userShare.times(assetLiquidityFees).toFixed()
-      const runeEarnings = userShare.times(runeLiquidityFees).toFixed()
-
-      return {
-        assetEarnings,
-        runeEarnings,
-      }
+      return calculateEarnings(
+        foundHistoryPool.assetLiquidityFees,
+        foundHistoryPool.runeLiquidityFees,
+        foundUserData.poolShare,
+      )
     },
   })
 

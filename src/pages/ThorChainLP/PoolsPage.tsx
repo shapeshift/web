@@ -21,10 +21,10 @@ export const PoolsPage = () => {
       <Route exact path={`${path}/positions`}>
         <YourPositions />
       </Route>
-      <Route path={`${path}/poolAccount/:poolAccountId/:poolAssetId`}>
+      <Route path={`${path}/poolAccount/:poolAccountId/:poolOpportunityId`}>
         <Pool />
       </Route>
-      <Route path={`${path}/pool/:poolAssetId`}>
+      <Route path={`${path}/poolAccount/:poolOpportunityId`}>
         <Pool />
       </Route>
     </Switch>

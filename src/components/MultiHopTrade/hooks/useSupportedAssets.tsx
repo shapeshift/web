@@ -17,7 +17,7 @@ export const useSupportedAssets = () => {
 
   const queryParams = useMemo(() => {
     return {
-      walletSupportedChains: Object.values(KnownChainIds).filter(chainId =>
+      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId =>
         walletSupportsChain({ chainId, wallet, isSnapInstalled }),
       ),
       sortedAssetIds: sortedAssets.map(asset => asset.assetId),

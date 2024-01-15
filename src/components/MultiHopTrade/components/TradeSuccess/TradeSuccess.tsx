@@ -19,7 +19,7 @@ import { selectEquityTotalBalance } from 'state/slices/selectors'
 import { selectLastHop, selectLastHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TwirlyToggle } from '../MultiHopTradeConfirm/components/TwirlyToggle'
+import { TwirlyToggle } from '../TwirlyToggle'
 
 export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
 

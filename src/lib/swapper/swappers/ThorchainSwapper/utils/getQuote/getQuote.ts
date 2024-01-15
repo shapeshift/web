@@ -4,7 +4,7 @@ import {
   createTradeAmountTooSmallErr,
   makeSwapErrorRight,
   type SwapErrorRight,
-  SwapErrorType,
+  TradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -101,7 +101,7 @@ const _getQuote = async ({
     return Err(
       makeSwapErrorRight({
         message: `[getTradeRate]: Trading is halted, cannot process swap`,
-        code: SwapErrorType.TRADING_HALTED,
+        code: TradeQuoteError.TradingHalted,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
@@ -109,7 +109,7 @@ const _getQuote = async ({
     return Err(
       makeSwapErrorRight({
         message: data.error,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        code: TradeQuoteError.UnknownError,
       }),
     )
   } else {

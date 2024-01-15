@@ -345,3 +345,14 @@ export const getFirstAccountIdByChainId = (
   chainId: ChainId,
 ): AccountId | undefined =>
   accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0]
+
+export const haveSameElements = <T>(arr1: T[], arr2: T[]) => {
+  if (arr1.length !== arr2.length) {
+    return false
+  }
+
+  const sortedArr1 = [...arr1].sort()
+  const sortedArr2 = [...arr2].sort()
+
+  return sortedArr1.every((el1, i) => el1 === sortedArr2[i])
+}

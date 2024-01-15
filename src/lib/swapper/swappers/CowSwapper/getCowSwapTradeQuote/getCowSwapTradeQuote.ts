@@ -39,7 +39,7 @@ export async function getCowSwapTradeQuote(
   const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-  const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds, receiveAddress })
+  const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)

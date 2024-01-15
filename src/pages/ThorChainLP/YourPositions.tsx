@@ -1,17 +1,22 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
+import { bn } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
+import { usePools } from './hooks/usePools'
+import { useUserLpData } from './hooks/useUserLpData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -44,84 +49,161 @@ const alignItems = {
   lg: 'flex-start',
 }
 
-const PositionButton = () => {
+type PositionButtonProps = {
+  assetId: AssetId
+  name: string
+  opportunityId: string
+  apy: string
+}
+
+const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
   const history = useHistory()
-  const isLoaded = true
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const { data, isLoading } = useUserLpData({ assetId })
+
+  const foundPool = (data ?? []).find(pool => pool.opportunityId === opportunityId)
 
   const handlePoolClick = useCallback(() => {
-    history.push('/pools/pool/1')
-  }, [history])
+    if (!foundPool) return
 
-  const poolAssetIds = useMemo(() => [ethAssetId, usdcAssetId], [])
+    const { opportunityId, accountId } = foundPool
+    history.push(
+      generatePath('/pools/poolAccount/:accountId/:opportunityId', { accountId, opportunityId }),
+    )
+  }, [foundPool, history])
+
+  const poolAssetIds = useMemo(() => {
+    if (!foundPool) return []
+
+    return [assetId, thorchainAssetId]
+  }, [assetId, foundPool])
+
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
+  const totalRedeemableValue = useMemo(() => {
+    if (!foundPool) return '0'
+    const { asset, rune } = foundPool.redeemableFees
+
+    const assetValueFiatUserCurrency = bn(asset).times(assetMarketData.price)
+    const runeValueFiatUserCurrency = bn(rune).times(runeMarketData.price)
+    return assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).toFixed()
+  }, [foundPool, assetMarketData, runeMarketData])
+
+  if (!foundPool || !asset || !runeAsset) return null
 
   return (
-    <Button
-      variant='ghost'
-      display='grid'
-      gridTemplateColumns={lendingRowGrid}
-      columnGap={4}
-      alignItems='center'
-      textAlign='left'
-      py={4}
-      width='full'
-      height='auto'
-      color='text.base'
-      onClick={handlePoolClick}
-    >
-      <Flex gap={4} alignItems='center'>
-        <PoolIcon assetIds={poolAssetIds} size='sm' />
-        <RawText>USDC LP</RawText>
-        <Tag size='sm'>
-          <Amount.Percent value='0.1' />
-        </Tag>
-      </Flex>
-      <Stack spacing={0} alignItems={alignItems}>
-        <Skeleton isLoaded={isLoaded}>
-          <Amount.Fiat value='1000000' />
+    <Stack mx={listMargin}>
+      <Button
+        variant='ghost'
+        display='grid'
+        gridTemplateColumns={lendingRowGrid}
+        columnGap={4}
+        alignItems='center'
+        textAlign='left'
+        py={4}
+        width='full'
+        height='auto'
+        color='text.base'
+        onClick={handlePoolClick}
+      >
+        <Flex gap={4} alignItems='center'>
+          <PoolIcon assetIds={poolAssetIds} size='sm' />
+          <RawText>{name}</RawText>
+          <Tag size='sm'>
+            <Amount.Percent value={apy} />
+          </Tag>
+        </Flex>
+        <Stack spacing={0} alignItems={alignItems}>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Fiat value={foundPool.totalValueFiatUserCurrency} />
+          </Skeleton>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Crypto
+              value={foundPool.underlyingAssetAmountCryptoPrecision}
+              symbol={asset.symbol}
+              fontSize='sm'
+              color='text.subtle'
+            />
+            <Amount.Crypto
+              value={foundPool.underlyingRuneAmountCryptoPrecision}
+              symbol={runeAsset.symbol}
+              fontSize='sm'
+              color='text.subtle'
+            />
+          </Skeleton>
+        </Stack>
+        <Stack display={mobileDisplay} spacing={0}>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Fiat value={totalRedeemableValue} />
+          </Skeleton>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Crypto
+              value={foundPool.redeemableFees.asset}
+              symbol={asset.symbol}
+              fontSize='sm'
+              color='text.subtle'
+            />
+          </Skeleton>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Crypto
+              value={foundPool.redeemableFees.rune}
+              symbol={'RUNE'}
+              fontSize='sm'
+              color='text.subtle'
+            />
+          </Skeleton>
+        </Stack>
+        <Skeleton isLoaded={!isLoading} display={largeDisplay}>
+          <Amount.Percent
+            options={{ maximumFractionDigits: 8 }}
+            value={bn(foundPool.poolOwnershipPercentage).div(100).toFixed()}
+          />
         </Skeleton>
-        <Skeleton isLoaded={isLoaded}>
-          <Amount.Crypto value='100' symbol='USDC' fontSize='sm' color='text.subtle' />
-        </Skeleton>
-      </Stack>
-      <Stack display={mobileDisplay} spacing={0}>
-        <Skeleton isLoaded={isLoaded}>
-          <Amount.Fiat value='1000000' />
-        </Skeleton>
-        <Skeleton isLoaded={isLoaded}>
-          <Amount.Crypto value='100' symbol='USDC' fontSize='sm' color='text.subtle' />
-        </Skeleton>
-      </Stack>
-      <Skeleton isLoaded={isLoaded} display={largeDisplay}>
-        <Amount.Percent value='0.02' />
-      </Skeleton>
-    </Button>
+      </Button>
+    </Stack>
   )
 }
 
 export const YourPositions = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
-  const isActive = true
+
+  const { data: parsedPools, isLoading } = usePools()
+
+  const isEmpty = false
 
   const positionRows = useMemo(() => {
-    if (isActive) {
+    if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
+    const rows = parsedPools?.map(pool => {
       return (
-        <Stack mx={listMargin}>
-          <PositionButton />
-        </Stack>
+        <PositionButton
+          assetId={pool.assetId}
+          name={pool.name}
+          opportunityId={pool.opportunityId}
+          apy={pool.poolAPY}
+          key={pool.opportunityId}
+        />
+      )
+    })
+
+    if (isEmpty) {
+      return (
+        <ResultsEmpty
+          title='pools.yourPositions.emptyTitle'
+          body='pools.yourPositions.emptyBody'
+          icon={emptyIcon}
+        />
       )
     }
-    return (
-      <ResultsEmpty
-        title='pools.yourPositions.emptyTitle'
-        body='pools.yourPositions.emptyBody'
-        icon={emptyIcon}
-      />
-    )
-  }, [emptyIcon, isActive])
+
+    return rows
+  }, [emptyIcon, isEmpty, isLoading, parsedPools])
 
   const renderHeader = useMemo(() => {
-    if (isActive) {
+    if (!isEmpty) {
       return (
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}
@@ -143,7 +225,7 @@ export const YourPositions = () => {
         </SimpleGrid>
       )
     }
-  }, [isActive])
+  }, [isEmpty])
 
   return (
     <Main headerComponent={headerComponent}>

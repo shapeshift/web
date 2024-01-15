@@ -122,7 +122,7 @@
     "showAll": "Zeige alles",
     "showLess": "Zeige weniger",
     "yourBalance": "Ihr Kontostand",
-    "signMessage": "Nachricht unterschreiben",
+    "signTransaction": "Transaktion unterzeichnen",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -135,7 +135,8 @@
       "sortedAsc": "Aufsteigend sortiert",
       "sortedDesc": "Absteigend sortiert",
       "expandRow": "Zeile erweitern"
-    }
+    },
+    "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Geschätzte Zeit zur Deckung von Einzahlungsgebühren und Einnahmen."
         },
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
-        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen"
+        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
+        "dangerousWithdrawWarning": "Die Auszahlung ist deaktiviert, da die THORChain-Gebühr zum Totalverlust der abgehobenen Gelder führen könnte. Erwägen Sie, einen höheren Betrag abzuheben, um dieses Problem zu vermeiden."
       }
     },
     "memoNote": {
@@ -818,7 +820,32 @@
     "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap",
     "approvalGasFee": "Genehmigungsgasgebühr %{fee}",
     "approvalFailed": "Bei der Genehmigung ist ein Problem aufgetreten",
-    "swapFailed": "Beim Ausführen von %{tradeType} ist ein Problem aufgetreten."
+    "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
+    "doAnotherTrade": "Einen weiteren Handel tätigen",
+    "showDetails": "Zeige Details",
+    "transactionSuccessful": "Transaktion erfolgreich, Warte auf Bestätigungen",
+    "temp": {
+      "tradeSuccess": "Handel abgeschlossen",
+      "tradeComplete": "%{symbol} wurde erfolgreich auf %{chainName} empfangen."
+    },
+    "hopTitle": {
+      "bridge": "Bridge über %{swapperName}",
+      "swap": "Tauschen über %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "Beim Ausführen der Bridge ist ein Problem aufgetreten",
+      "swap": "Beim Ausführen des Tausches ist ein Problem aufgetreten"
+    },
+    "transactionTitle": {
+      "bridge": "Bridge von %{sellChainName} zu %{buyChainName} über %{swapperName}",
+      "swap": "Tauschen Sie %{sellChainName} über %{swapperName}"
+    },
+    "approvalTitle": "Genehmigung der Token-Zulage",
+    "assetSummaryDescription": "%{amountFiatFormatted} auf %{chainName}",
+    "quote": {
+      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
+      "slippage": "Slippage: %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1327,7 +1354,8 @@
         "header": "Fehler",
         "body": "Ledger Wallet kann nicht verbunden werden"
       },
-      "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist."
+      "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
+      "signWarning": "Stellen Sie vor dem Signieren sicher, dass die %{chain} App auf Ihrem Gerät geöffnet ist."
     },
     "metaMask": {
       "errors": {

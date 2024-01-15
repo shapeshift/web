@@ -1,6 +1,6 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
+import { type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -157,7 +157,7 @@ describe('getZrxTradeQuote', () => {
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
-      code: 'UNSUPPORTED_CHAIN',
+      code: TradeQuoteError.UnsupportedChain,
       message: 'unsupported chainId',
       name: 'SwapError',
     })
@@ -176,7 +176,7 @@ describe('getZrxTradeQuote', () => {
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
-      code: 'UNSUPPORTED_CHAIN',
+      code: TradeQuoteError.UnsupportedChain,
       details: {
         chainId: 'bip122:000000000019d6689c085ae165831e93',
       },

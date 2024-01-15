@@ -80,6 +80,7 @@ export interface ChainAdapterArgs {
       | unchained.litecoin.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
+  midgardUrl: string
 }
 
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
@@ -503,7 +504,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       subscriptionId,
       { topic: 'txs', addresses },
       async msg => onMessage(await this.parseTx(msg.data, account.pubkey)),
-
       err => onError({ message: err.message }),
     )
   }

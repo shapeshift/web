@@ -1,3 +1,5 @@
+import type { BN } from 'lib/bignumber/bignumber'
+
 export type ThorNodeLiquidityProvider = {
   asset: string
   asset_address?: string
@@ -28,8 +30,78 @@ export type MidgardPool = {
   runePending: string
   runeWithdrawn: string
 }
+
+export type MidgardLiquidityProvidersList = string[]
 export type MidgardLiquidityProvider = {
   pools: MidgardPool[]
+}
+
+export type MidgardPoolStats = {
+  addAssetLiquidityVolume: string
+  addLiquidityCount: string
+  addLiquidityVolume: string
+  addRuneLiquidityVolume: string
+  annualPercentageRate: string
+  asset: string
+  assetDepth: string
+  assetPrice: string
+  assetPriceUSD: string
+  averageSlip: string
+  impermanentLossProtectionPaid: string
+  liquidityUnits: string
+  poolAPY: string
+  runeDepth: string
+  status: string
+  swapCount: string
+  swapVolume: string
+  synthSupply: string
+  synthUnits: string
+  toAssetAverageSlip: string
+  toAssetCount: string
+  toAssetFees: string
+  toAssetVolume: string
+  toRuneAverageSlip: string
+  toRuneCount: string
+  toRuneFees: string
+  toRuneVolume: string
+  totalFees: string
+  uniqueMemberCount: string
+  uniqueSwapperCount: string
+  units: string
+  withdrawAssetVolume: string
+  withdrawCount: string
+  withdrawRuneVolume: string
+  withdrawVolume: string
+}
+
+type MidgardInterval = {
+  averageSlip: string
+  endTime: string
+  runePriceUSD: string
+  startTime: string
+  synthMintAverageSlip: string
+  synthMintCount: string
+  synthMintFees: string
+  synthMintVolume: string
+  synthRedeemAverageSlip: string
+  synthRedeemCount: string
+  synthRedeemFees: string
+  synthRedeemVolume: string
+  toAssetAverageSlip: string
+  toAssetCount: string
+  toAssetFees: string
+  toAssetVolume: string
+  toRuneAverageSlip: string
+  toRuneCount: string
+  toRuneFees: string
+  toRuneVolume: string
+  totalCount: string
+  totalFees: string
+  totalVolume: string
+}
+
+export type MidgardSwapHistoryResponse = {
+  intervals: MidgardInterval[]
 }
 
 // TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/
@@ -44,3 +116,9 @@ export type ExtendedThorNodeLiquidityProvider = ThorNodeLiquidityProvider & {
 }
 
 export type ThorchainLiquidityProvidersResponseSuccess = ThorNodeLiquidityProvider[]
+
+export type PoolShareDetail = {
+  assetShare: BN
+  runeShare: BN
+  poolShareDecimalPercent: string
+}

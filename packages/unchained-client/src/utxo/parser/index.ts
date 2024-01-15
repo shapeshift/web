@@ -2,9 +2,12 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { utxo } from '@shapeshiftoss/common-api'
 import { BigNumber } from 'bignumber.js'
 
-import type { ParsedTx } from '../../types'
 import { TransferType, TxStatus } from '../../types'
 import { aggregateTransfer } from '../../utils'
+import type { ParsedTx } from '../parser'
+import type { SubParser } from './types'
+
+export * from './types'
 
 export interface BaseTransactionParserArgs {
   chainId: ChainId
@@ -15,12 +18,34 @@ export class BaseTransactionParser<T extends utxo.Tx> {
   chainId: ChainId
   assetId: AssetId
 
+  private parsers: SubParser<T>[] = []
+
   constructor(args: BaseTransactionParserArgs) {
     this.chainId = args.chainId
     this.assetId = args.assetId
   }
 
-  parse(tx: T, address: string): Promise<ParsedTx> {
+  /**
+   * Register custom transaction sub parser to parse custom op return data
+   *
+   * _parsers should be registered from most generic first to most specific last_
+   */
+  registerParser(parser: SubParser<T>): void {
+    this.parsers.unshift(parser)
+  }
+
+  protected registerParsers(parsers: SubParser<T>[]): void {
+    parsers.forEach(parser => this.registerParser(parser))
+  }
+
+  async parse(tx: T, address: string): Promise<ParsedTx> {
+    const parserResults = await (async () => {
+      for (const parser of this.parsers) {
+        const result = await parser.parse(tx, address)
+        if (result) return result
+      }
+    })()
+
     const parsedTx: ParsedTx = {
       address,
       blockHash: tx.blockHash,
@@ -29,8 +54,10 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       chainId: this.chainId,
       confirmations: tx.confirmations,
       status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending,
-      transfers: [],
+      transfers: parserResults?.transfers ?? [],
       txid: tx.txid,
+      trade: parserResults?.trade,
+      data: parserResults?.data,
     }
 
     tx.vin.forEach(vin => {

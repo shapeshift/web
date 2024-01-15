@@ -31,6 +31,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
       parser: new unchained.dogecoin.TransactionParser({
         assetId: dogeAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        midgardUrl: args.midgardUrl,
       }),
       supportedAccountTypes: SUPPORTED_ACCOUNT_TYPES,
       supportedChainIds: SUPPORTED_CHAIN_IDS,

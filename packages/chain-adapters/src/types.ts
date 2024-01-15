@@ -114,10 +114,8 @@ export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
 }
 
 export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue' | 'from' | 'to'> & {
-  // TODO: array only
-  from: string | string[]
-  // TODO: array only
-  to: string | string[]
+  from: string[]
+  to: string[]
   value: string
 }
 

@@ -14,8 +14,6 @@ type TransferColumnProps = {
   compactMode?: boolean
 } & Transfer
 
-// TODO: address array only
-
 export const TransferColumn = (transfer: TransferColumnProps) => {
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
   const stackDirection: StackDirection = useMemo(
@@ -38,32 +36,18 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       py={2}
     >
       <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        {transfer.from.length ? (
-          (transfer.from as string[]).map(address => (
-            <Box key={address}>
-              <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
-            </Box>
-          ))
-        ) : (
-          <Address
-            explorerAddressLink={transfer.asset.explorerAddressLink}
-            address={transfer.from as string}
-          />
-        )}
+        {transfer.from.map(address => (
+          <Box key={address}>
+            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+          </Box>
+        ))}
       </Row>
       <Row title='to' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        {transfer.to.length ? (
-          (transfer.to as string[]).map(address => (
-            <Box key={address}>
-              <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
-            </Box>
-          ))
-        ) : (
-          <Address
-            explorerAddressLink={transfer.asset.explorerAddressLink}
-            address={transfer.to as string}
-          />
-        )}
+        {transfer.to.map(address => (
+          <Box key={address}>
+            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
+          </Box>
+        ))}
       </Row>
       <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>

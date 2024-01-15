@@ -86,9 +86,7 @@ export const selectSellAssetUsdRate = createSelector(
   selectCryptoMarketData,
   (sellAsset, cryptoMarketData) => {
     const sellAssetMarketData = cryptoMarketData[sellAsset.assetId]
-    if (!sellAssetMarketData)
-      throw Error(`missing market data for sellAsset.assetId ${sellAsset.assetId}`)
-    return sellAssetMarketData.price
+    return sellAssetMarketData?.price
   },
 )
 
@@ -97,9 +95,7 @@ export const selectBuyAssetUsdRate = createSelector(
   selectCryptoMarketData,
   (buyAsset, cryptoMarketData) => {
     const buyAssetMarketData = cryptoMarketData[buyAsset.assetId]
-    if (!buyAssetMarketData)
-      throw Error(`missing market data for buyAsset.assetId ${buyAsset.assetId}`)
-    return buyAssetMarketData.price
+    return buyAssetMarketData?.price
   },
 )
 
@@ -117,6 +113,7 @@ export const selectSellAmountUsd = createSelector(
   selectSellAmountCryptoPrecision,
   selectSellAssetUsdRate,
   (sellAmountCryptoPrecision, sellAssetUsdRate) => {
+    if (!sellAssetUsdRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
   },
 )

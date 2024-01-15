@@ -54,7 +54,7 @@ type GetMixPanelDataFromApiQuotesReturn = {
   buyAssetId: string
   sellAssetChainId: string
   buyAssetChainId: string
-  sellAmountUsd: string
+  sellAmountUsd: string | undefined
   version: string // ISO 8601 standard basic format date
   isActionable: boolean // is any quote in the request actionable
 }

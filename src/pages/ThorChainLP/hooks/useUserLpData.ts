@@ -36,6 +36,8 @@ export enum AsymSide {
 }
 
 type UseUserLpDataReturn = {
+  dateFirstAdded: string
+  liquidityUnits: string
   underlyingAssetAmountCryptoPrecision: string
   underlyingRuneAmountCryptoPrecision: string
   isAsymmetric: boolean
@@ -137,6 +139,8 @@ export const useUserLpData = ({
       })
 
       return {
+        dateFirstAdded: position.dateFirstAdded,
+        liquidityUnits: position.liquidityUnits,
         underlyingAssetAmountCryptoPrecision: currentValue.asset,
         underlyingRuneAmountCryptoPrecision: currentValue.rune,
         isAsymmetric,

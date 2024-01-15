@@ -18,6 +18,7 @@ import type {
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
   PoolShareDetail,
+  ThorchainEarningsHistoryResponse,
   ThorchainLiquidityProvidersResponseSuccess,
 } from './lp/types'
 
@@ -378,4 +379,12 @@ export const calculateTotalVolumeFiatUserCurrency = (
   )
 
   return totalVolumeFiatUserCurrency.toFixed()
+}
+
+export const getEarnings = async ({ from }: { from: string }) => {
+  const { data } = await axios.get<ThorchainEarningsHistoryResponse>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/history/earnings?from=${from}`,
+  )
+
+  return data
 }

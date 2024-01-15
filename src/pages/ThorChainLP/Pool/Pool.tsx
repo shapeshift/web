@@ -19,6 +19,8 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +30,16 @@ import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { calculateTVL, getAllTimeVolume, getFees, getVolume } from 'lib/utils/thorchain/lp'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import {
+  calculateTVL,
+  getAllTimeVolume,
+  getEarnings,
+  getFees,
+  getVolume,
+} from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -138,6 +149,49 @@ export const Pool = () => {
     queryFn: () => (foundPool ? getAllTimeVolume(foundPool.assetId, runeMarketData.price) : ''),
   })
 
+  const { data: thornodePoolData } = useQuery({
+    enabled: Boolean(foundPool),
+    queryKey: ['thornodePoolData', foundPool?.assetId ?? ''],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
+      const { data: poolData } = await axios.get<ThornodePoolResponse>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+      )
+
+      return poolData
+    },
+  })
+
+  const { data: feesHistory } = useQuery({
+    enabled: Boolean(foundUserData && thornodePoolData),
+    queryKey: ['thorchainFeesHistory', foundUserData?.dateFirstAdded ?? ''],
+    queryFn: () =>
+      foundUserData ? getEarnings({ from: foundUserData.dateFirstAdded }) : undefined,
+    select: data => {
+      if (!data || !foundUserData || !thornodePoolData) return null
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserData.assetId })
+      const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      if (!foundHistoryPool) return null
+
+      // TODO(gomes): extract the below to its own fn
+      //
+      const assetLiquidityFees = fromThorBaseUnit(foundHistoryPool.assetLiquidityFees)
+      const runeLiquidityFees = fromThorBaseUnit(foundHistoryPool.runeLiquidityFees)
+      const poolUnits = fromThorBaseUnit(thornodePoolData.pool_units)
+      const liquidityUnits = fromThorBaseUnit(foundUserData.liquidityUnits)
+
+      // TODO(gomes): surely we already have this?
+      const userShare = liquidityUnits.div(poolUnits)
+      const assetEarnings = userShare.times(assetLiquidityFees).toFixed()
+      const runeEarnings = userShare.times(runeLiquidityFees).toFixed()
+
+      return {
+        assetEarnings,
+        runeEarnings,
+      }
+    },
+  })
+
   const tvl = useMemo(() => {
     if (!foundPool) return '0'
 
@@ -219,10 +273,10 @@ export const Pool = () => {
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
-                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
+                          <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                          value={feesHistory?.assetEarnings ?? '0'}
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
@@ -237,7 +291,7 @@ export const Pool = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          value={feesHistory?.runeEarnings ?? '0'}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>

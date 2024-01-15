@@ -792,8 +792,8 @@
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
       "sellAssetNotSupportedByWallet": "Sell asset not supported by wallet",
       "intermediaryAssetNotSupportedByWallet": "Intermediary not supported by wallet",
-      "noReceiveAddress": "No receive address for %{assetSymbol}",
-      "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
+      "noReceiveAddress": "No receive address for %{assetSymbol} on %{chainName}",
+      "tradingNotActive": "Trades temporarily halted for %{assetSymbol} on %{chainSymbol}",
       "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
       "signing": {
         "failed": "An error occurred signing the transaction",

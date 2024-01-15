@@ -193,7 +193,10 @@ export const selectPortfolioUserCurrencyBalanceByAssetId = createCachedSelector(
   selectAssetIdParamFromFilter,
   (portfolioUserCurrencyBalances, assetId): string | undefined =>
     assetId && portfolioUserCurrencyBalances[assetId],
-)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
+)(
+  (state: ReduxState, filter) =>
+    `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
+)
 
 export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
   selectPortfolioUserCurrencyBalances,
@@ -241,7 +244,10 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)((state, paramFilter) => `${state.portfolio.walletId}-${paramFilter?.assetId}` ?? 'assetId')
+)(
+  (state, paramFilter) =>
+    `${state.portfolio.connectedWallet?.id}-${paramFilter?.assetId}` ?? 'assetId',
+)
 
 /**
  * this selector is very specific; we need to consider
@@ -343,7 +349,10 @@ export const selectHighestUserCurrencyBalanceAccountByAssetId = createCachedSele
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectAssetIdParamFromFilter,
   getHighestUserCurrencyBalanceAccountByAssetId,
-)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
+)(
+  (state: ReduxState, filter) =>
+    `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
+)
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioUserCurrencyBalances,
@@ -649,7 +658,10 @@ export const selectAccountIdsByAssetId = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   findAccountsByAssetId,
-)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
+)(
+  (state: ReduxState, filter) =>
+    `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
+)
 
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
@@ -676,7 +688,10 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     )
     return aboveThreshold
   },
-)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
+)(
+  (state: ReduxState, filter) =>
+    `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
+)
 
 export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThreshold,

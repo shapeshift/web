@@ -616,7 +616,7 @@
         "swapOut": "Swap Received",
         "swapRefund": "Swap Refund",
         "transferOut": "Transfer Out",
-        "withdraw": "Withdraw Request",
+        "withdraw": "Withdraw Requested",
         "withdrawOut": "Withdraw Received"
       },
       "swap": {

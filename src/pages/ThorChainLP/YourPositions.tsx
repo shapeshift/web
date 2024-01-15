@@ -176,7 +176,7 @@ export const YourPositions = () => {
   const isEmpty = false
 
   const positionRows = useMemo(() => {
-    if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
     const rows = parsedPools?.map(pool => {
       return (
         <PositionButton

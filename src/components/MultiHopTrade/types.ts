@@ -36,5 +36,4 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'potentialAffiliateBps'
   | 'allowMultiHop'
   | 'slippageTolerancePercentageDecimal'
-  | 'isKeepKey'
 >

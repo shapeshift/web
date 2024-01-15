@@ -1,5 +1,4 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -32,18 +31,13 @@ export async function getTradeQuote(
     sellAsset,
     buyAsset,
     accountNumber,
-    affiliateBps: _affiliateBps,
-    potentialAffiliateBps: _potentialAffiliateBps,
+    affiliateBps,
+    potentialAffiliateBps,
     supportsEIP1559,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    isKeepKey,
   } = input
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
-
-  const isFromEvm = isEvmChainId(sellAsset.chainId)
-  const affiliateBps = isKeepKey && isFromEvm ? '0' : _affiliateBps
-  const potentialAffiliateBps = isKeepKey && isFromEvm ? '0' : _potentialAffiliateBps
 
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())

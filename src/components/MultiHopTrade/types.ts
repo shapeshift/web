@@ -1,8 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
-import type { InterpolationOptions } from 'node-polyglot'
-import type { ErrorWithMeta, TradeQuoteError, TradeQuoteRequestError } from 'state/apis/swappers'
 
 export type StepperStep = {
   title: string
@@ -10,32 +8,6 @@ export type StepperStep = {
   stepIndicator: JSX.Element
   content?: JSX.Element
   key: string
-}
-
-export enum ActiveQuoteStatus {
-  SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
-  InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
-  InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
-  InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
-  InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
-  NoConnectedWallet = 'NoConnectedWallet',
-  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
-  SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
-  IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
-  BuyAssetNotNotSupportedByWallet = 'BuyAssetNotNotSupportedByWallet',
-  NoReceiveAddress = 'NoReceiveAddress',
-  NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair',
-  NoQuotesAvailableForSellAmount = 'NoQuotesAvailableForSellAmount',
-  TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
-  TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
-  NoQuotesAvailable = 'NoQuotesAvailable',
-  UnsafeQuote = 'UnsafeQuote',
-  UnknownError = 'UnknownError',
-}
-
-export type QuoteStatus = {
-  quoteErrors: ErrorWithMeta<TradeQuoteError | TradeQuoteRequestError>[]
-  quoteStatusTranslation: string | [string, InterpolationOptions]
 }
 
 export enum TradeRoutePaths {

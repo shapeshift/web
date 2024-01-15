@@ -7,8 +7,8 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ApiQuote, ErrorWithMeta } from 'state/apis/swappers'
-import { TradeQuoteError } from 'state/apis/swappers'
+import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swappers'
+import { TradeQuoteWarning } from 'state/apis/swappers'
 import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -105,7 +105,7 @@ export const selectActiveQuoteErrors: Selector<
 
 export const selectActiveQuoteWarnings: Selector<
   ReduxState,
-  ErrorWithMeta<TradeQuoteError>[] | undefined
+  ErrorWithMeta<TradeQuoteWarning>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.warnings)
 
 /*
@@ -199,7 +199,7 @@ export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undef
 export const selectIsUnsafeActiveQuote: Selector<ReduxState, boolean> = createSelector(
   selectActiveQuoteWarnings,
   activeQuoteWarnings => {
-    return !!activeQuoteWarnings?.some(({ error }) => error === TradeQuoteError.UnsafeQuote)
+    return !!activeQuoteWarnings?.some(({ error }) => error === TradeQuoteWarning.UnsafeQuote)
   },
 )
 

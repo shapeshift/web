@@ -1,7 +1,8 @@
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { assertUnreachable } from 'lib/utils'
 import type { ErrorWithMeta } from 'state/apis/swappers'
-import { TradeQuoteError } from 'state/apis/swappers'
+import { type TradeQuoteError, TradeQuoteValidationError } from 'state/apis/swappers'
 
 export const getQuoteErrorTranslation = (
   tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
@@ -9,34 +10,44 @@ export const getQuoteErrorTranslation = (
   const error = tradeQuoteError.error
   const translationKey = (() => {
     switch (error) {
-      case TradeQuoteError.NoQuotesAvailableForTradePair:
+      case SwapperTradeQuoteError.UnsupportedTradePair:
         return 'trade.errors.unsupportedTradePair'
-      case TradeQuoteError.SmartContractWalletNotSupported:
+      case SwapperTradeQuoteError.NoRouteFound:
+        return 'trade.errors.noRouteFound'
+      case TradeQuoteValidationError.SmartContractWalletNotSupported:
         return 'trade.errors.smartContractWalletNotSupported'
-      case TradeQuoteError.TradingHalted:
+      case SwapperTradeQuoteError.TradingHalted:
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
-      case TradeQuoteError.TradingInactiveOnSellChain:
+      case TradeQuoteValidationError.TradingInactiveOnSellChain:
         return 'trade.errors.tradingNotActiveForChain'
-      case TradeQuoteError.TradingInactiveOnBuyChain:
+      case TradeQuoteValidationError.TradingInactiveOnBuyChain:
         return 'trade.errors.tradingNotActiveForChain'
-      case TradeQuoteError.SellAmountBelowTradeFee:
+      case TradeQuoteValidationError.SellAmountBelowTradeFee:
+      case SwapperTradeQuoteError.SellAmountBelowTradeFee:
         return 'trade.errors.sellAmountDoesNotCoverFee'
-      case TradeQuoteError.InsufficientFirstHopFeeAssetBalance:
+      case TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
-      case TradeQuoteError.InsufficientSecondHopFeeAssetBalance:
+      case TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
-      case TradeQuoteError.InsufficientFundsForProtocolFee:
+      case TradeQuoteValidationError.InsufficientFundsForProtocolFee:
         return 'trade.errors.insufficientFundsForProtocolFee'
-      case TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet:
-        return 'trade.errors.assetNotSupportedByWallet'
-      case TradeQuoteError.SellAmountBelowMinimum:
-        return 'trade.errors.amountTooSmall'
-      case TradeQuoteError.InputAmountTooSmallUnknownMinimum:
-        return 'trade.errors.amountTooSmallUnknownMinimum'
-      case TradeQuoteError.UnsafeQuote:
-        console.error('TradeQuoteError.UnsafeQuote should be a warning')
-        return 'trade.errors.quoteError'
-      case TradeQuoteError.UnknownError:
+      case TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet:
+        return 'trade.errors.intermediaryAssetNotSupportedByWallet'
+      case SwapperTradeQuoteError.SellAmountBelowMinimum:
+        return tradeQuoteError.meta
+          ? 'trade.errors.amountTooSmall'
+          : 'trade.errors.amountTooSmallUnknownMinimum'
+      case SwapperTradeQuoteError.UnsupportedChain:
+        return 'trade.errors.quoteUnsupportedChain'
+      case SwapperTradeQuoteError.CrossChainNotSupported:
+        return 'trade.errors.quoteCrossChainNotSupported'
+      case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
+        return 'trade.errors.networkFeeEstimateFailed'
+      case TradeQuoteValidationError.UnknownError:
+      case SwapperTradeQuoteError.UnknownError:
+      case SwapperTradeQuoteError.InternalError:
+      case TradeQuoteValidationError.QueryFailed:
+      case SwapperTradeQuoteError.QueryFailed:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

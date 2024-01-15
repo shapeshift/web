@@ -13,6 +13,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -27,7 +28,7 @@ import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingA
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { type ApiQuote, TradeQuoteError } from 'state/apis/swappers'
+import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swappers'
 import {
   selectBuyAsset,
   selectFeeAssetByChainId,
@@ -166,7 +167,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const tag: JSX.Element = useMemo(() => {
     const error = errors?.[0]
-    const defaultError = { error: TradeQuoteError.UnknownError }
+    const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
     switch (true) {
       case !quote || error !== undefined:
@@ -208,7 +209,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const isDisabled = !quote || errors?.length > 0
-  const showSwapperError = errors?.[0]?.error !== TradeQuoteError.UnknownError
+  const showSwapperError = ![
+    TradeQuoteValidationError.UnknownError,
+    SwapperTradeQuoteError.UnknownError,
+  ].includes(errors?.[0]?.error)
   const showSwapper = !!quote || showSwapperError
 
   const totalEstimatedExecutionTimeMs = useMemo(

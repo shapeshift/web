@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 // import { isTradingActive } from 'components/MultiHopTrade/utils'
@@ -8,7 +8,7 @@ import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { assertGetChainAdapter, isTruthy } from 'lib/utils'
+import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
@@ -29,7 +29,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
-import { TradeQuoteError } from '../types'
+import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 export const validateTradeQuote = async (
   state: ReduxState,
@@ -48,16 +48,24 @@ export const validateTradeQuote = async (
   },
 ): Promise<{
   errors: ErrorWithMeta<TradeQuoteError>[]
-  warnings: ErrorWithMeta<TradeQuoteError>[]
+  warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }> => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
-      switch (error?.code) {
-        case SwapErrorType.UNSUPPORTED_PAIR:
-          return { error: TradeQuoteError.NoQuotesAvailableForTradePair }
-        case SwapErrorType.TRADING_HALTED:
-          return { error: TradeQuoteError.TradingHalted }
-        case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL: {
+      const errorCode = error?.code
+      switch (errorCode) {
+        case SwapperTradeQuoteError.UnsupportedChain:
+        case SwapperTradeQuoteError.CrossChainNotSupported:
+        case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
+        case SwapperTradeQuoteError.QueryFailed:
+        case SwapperTradeQuoteError.InternalError:
+        case SwapperTradeQuoteError.UnsupportedTradePair:
+        case SwapperTradeQuoteError.NoRouteFound:
+        case SwapperTradeQuoteError.TradingHalted:
+        case SwapperTradeQuoteError.SellAmountBelowTradeFee:
+          // no metadata associated with this error
+          return { error: errorCode }
+        case SwapperTradeQuoteError.SellAmountBelowMinimum: {
           const {
             minAmountCryptoBaseUnit,
             assetId,
@@ -68,7 +76,7 @@ export const validateTradeQuote = async (
 
           if (!minAmountCryptoBaseUnit || !asset) {
             return {
-              error: TradeQuoteError.InputAmountTooSmallUnknownMinimum,
+              error: SwapperTradeQuoteError.SellAmountBelowMinimum,
             }
           }
 
@@ -80,15 +88,16 @@ export const validateTradeQuote = async (
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {
-            error: TradeQuoteError.SellAmountBelowMinimum,
+            error: SwapperTradeQuoteError.SellAmountBelowMinimum,
             meta: { minLimit: minimumAmountUserMessage },
           }
         }
-        case SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES:
-          return { error: TradeQuoteError.SellAmountBelowTradeFee }
-        default:
+        case SwapperTradeQuoteError.UnknownError:
+        case undefined:
           // We didn't recognize the error, use a generic error message
-          return { error: TradeQuoteError.UnknownError }
+          return { error: SwapperTradeQuoteError.UnknownError }
+        default:
+          assertUnreachable(errorCode)
       }
     })()
 
@@ -187,7 +196,7 @@ export const validateTradeQuote = async (
     })
     .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
       return {
-        error: TradeQuoteError.InsufficientFundsForProtocolFee,
+        error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
         meta: {
           symbol: protocolFee.asset.symbol,
           chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
@@ -217,31 +226,33 @@ export const validateTradeQuote = async (
   return {
     errors: [
       !!disableSmartContractSwap && {
-        error: TradeQuoteError.SmartContractWalletNotSupported,
+        error: TradeQuoteValidationError.SmartContractWalletNotSupported,
       },
       !isTradingActiveOnSellPool && {
-        error: TradeQuoteError.TradingInactiveOnSellChain,
+        error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {
-          assetSymbol: firstHop.sellAsset.symbol,
-          chainSymbol: getChainShortName(firstHop.sellAsset.chainId as KnownChainIds),
+          chainName: assertGetChainAdapter(
+            firstHop.sellAsset.chainId as KnownChainIds,
+          ).getDisplayName(),
         },
       },
       !isTradingActiveOnBuyPool && {
-        error: TradeQuoteError.TradingInactiveOnBuyChain,
+        error: TradeQuoteValidationError.TradingInactiveOnBuyChain,
         meta: {
-          assetSymbol: lastHop.buyAsset.symbol,
-          chainSymbol: getChainShortName(lastHop.buyAsset.chainId as KnownChainIds),
+          chainName: assertGetChainAdapter(
+            firstHop.buyAsset.chainId as KnownChainIds,
+          ).getDisplayName(),
         },
       },
       !walletSupportsIntermediaryAssetChain && {
-        error: TradeQuoteError.IntermediaryAssetNotNotSupportedByWallet,
+        error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
         meta: {
           assetSymbol: secondHop.sellAsset.symbol,
           chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
         },
       },
       !firstHopHasSufficientBalanceForGas && {
-        error: TradeQuoteError.InsufficientFirstHopFeeAssetBalance,
+        error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
         meta: {
           assetSymbol: firstHopSellFeeAsset?.symbol,
           chainSymbol: firstHopSellFeeAsset
@@ -250,7 +261,7 @@ export const validateTradeQuote = async (
         },
       },
       !secondHopHasSufficientBalanceForGas && {
-        error: TradeQuoteError.InsufficientSecondHopFeeAssetBalance,
+        error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
         meta: {
           assetSymbol: secondHopSellFeeAsset?.symbol,
           chainSymbol: secondHopSellFeeAsset
@@ -258,10 +269,10 @@ export const validateTradeQuote = async (
             : '',
         },
       },
-      feesExceedsSellAmount && { error: TradeQuoteError.SellAmountBelowTradeFee },
+      feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),
-    warnings: [isUnsafeQuote && { error: TradeQuoteError.UnsafeQuote }].filter(isTruthy),
+    warnings: [isUnsafeQuote && { error: TradeQuoteWarning.UnsafeQuote }].filter(isTruthy),
   }
 }

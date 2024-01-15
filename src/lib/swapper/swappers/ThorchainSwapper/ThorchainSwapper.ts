@@ -13,7 +13,7 @@ import {
   buySupportedChainIds,
   sellSupportedChainIds,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { ThorChainId, ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isSome } from 'lib/utils'
@@ -45,7 +45,7 @@ const getSupportedAssets = async (): Promise<{
   const allTokens = thorchainSwapLongtailEnabled ? [...longtailTokens, ...l1Tokens] : l1Tokens
 
   allTokens.forEach(assetId => {
-    const chainId = fromAssetId(assetId).chainId as ThorChainId
+    const chainId = fromAssetId(assetId).chainId
     sellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
     buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
   })

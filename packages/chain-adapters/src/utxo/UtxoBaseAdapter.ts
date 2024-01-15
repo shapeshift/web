@@ -77,6 +77,7 @@ export interface ChainAdapterArgs {
       | unchained.litecoin.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
+  midgardUrl: string
 }
 
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
@@ -491,10 +492,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
               blockHash: parsedTx.blockHash,
               blockHeight: parsedTx.blockHeight,
               blockTime: parsedTx.blockTime,
-              chainId: parsedTx.chainId,
               chain: this.getType(),
+              chainId: parsedTx.chainId,
               confirmations: parsedTx.confirmations,
-              txid: parsedTx.txid,
+              data: parsedTx.data,
               fee: parsedTx.fee,
               status: parsedTx.status,
               trade: parsedTx.trade,
@@ -505,6 +506,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
                 type: transfer.type,
                 value: transfer.totalValue,
               })),
+              txid: parsedTx.txid,
             }
           }),
         )
@@ -558,6 +560,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           blockTime: tx.blockTime,
           chainId: tx.chainId,
           confirmations: tx.confirmations,
+          data: tx.data,
           fee: tx.fee,
           status: tx.status,
           trade: tx.trade,

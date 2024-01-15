@@ -112,7 +112,7 @@ export const AvailablePools = () => {
   const { data: parsedPools, isLoading } = usePools()
   const renderRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
-    return parsedPools?.map(pool => <PoolButton key={pool.assetId} pool={pool} />)
+    return parsedPools?.map(pool => <PoolButton key={pool.opportunityId} pool={pool} />)
   }, [isLoading, parsedPools])
   return (
     <Main headerComponent={headerComponent}>

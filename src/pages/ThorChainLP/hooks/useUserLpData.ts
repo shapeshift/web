@@ -164,9 +164,7 @@ export const useUserLpData = ({
         .flat()
         .filter(isSome)
 
-      if (!allPositions.length) return
-
-      return allPositions
+      return allPositions.length ? allPositions : []
     },
     select: selectLiquidityPositionsData,
     enabled: Boolean(assetId && thornodePoolData),

@@ -1,7 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
-import { Box, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
@@ -9,6 +9,38 @@ import { Address } from './Address'
 import { Amount } from './Amount'
 import { NftId } from './NftId'
 import { Row } from './Row'
+
+type AddressesProps = {
+  addresses: string[]
+  explorerAddressLink: string
+}
+
+const defaultAddressesToShow = 3
+
+const Addresses = ({ addresses, explorerAddressLink }: AddressesProps) => {
+  const [showAll, setShowAll] = useState(false)
+
+  const visibleAddresses = showAll ? addresses : addresses.slice(0, defaultAddressesToShow)
+
+  const handleShowMore = useCallback(() => setShowAll(prevState => !prevState), [setShowAll])
+
+  return (
+    <Box>
+      <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
+        {visibleAddresses.map(address => (
+          <Box key={address}>
+            <Address explorerAddressLink={explorerAddressLink} address={address} />
+          </Box>
+        ))}
+        {addresses.length > defaultAddressesToShow && (
+          <Button size='sm' mt={1} width='100%' onClick={handleShowMore}>
+            {showAll ? 'Show Less' : 'Show More'}
+          </Button>
+        )}
+      </Row>
+    </Box>
+  )
+}
 
 type TransferColumnProps = {
   compactMode?: boolean
@@ -35,20 +67,11 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       px={4}
       py={2}
     >
-      <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        {transfer.from.map(address => (
-          <Box key={address}>
-            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
-          </Box>
-        ))}
-      </Row>
-      <Row title='to' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
-        {transfer.to.map(address => (
-          <Box key={address}>
-            <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={address} />
-          </Box>
-        ))}
-      </Row>
+      <Addresses
+        addresses={transfer.from}
+        explorerAddressLink={transfer.asset.explorerAddressLink}
+      />
+      <Addresses addresses={transfer.to} explorerAddressLink={transfer.asset.explorerAddressLink} />
       <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
           <AssetIcon src={transfer.asset.icon} boxSize='4' />

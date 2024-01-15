@@ -92,6 +92,9 @@ export const Pool = () => {
   const foundUserData = useMemo(() => {
     if (!userData) return undefined
 
+    // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
+    // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
+    // or, probably better from an architectural standpoint, have each account position be its separate row
     return userData?.find(data => data.opportunityId === foundPool?.opportunityId)
   }, [foundPool?.opportunityId, userData])
 

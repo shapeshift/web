@@ -3,6 +3,7 @@ import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
@@ -46,9 +47,12 @@ type PoolButtonProps = {
 }
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
+  const history = useHistory()
+
   const handlePoolClick = useCallback(() => {
-    console.info('pool click')
-  }, [])
+    const { opportunityId } = pool
+    history.push(generatePath('/pools/poolAccount/:opportunityId', { opportunityId }))
+  }, [history, pool])
 
   const poolAssetIds = useMemo(() => {
     return [pool.assetId, thorchainAssetId]

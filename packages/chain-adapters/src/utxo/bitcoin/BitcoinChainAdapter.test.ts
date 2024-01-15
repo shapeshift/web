@@ -217,7 +217,7 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  describe.only('getTxHistory', () => {
+  describe('getTxHistory', () => {
     describe('single input', () => {
       describe('send', () => {
         it('should handle one output (no change)', async () => {

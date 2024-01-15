@@ -91,12 +91,13 @@ interface ExtraMetadata {
   swap?: Swap
 }
 
+const streamingSwapRegex = /:\d+\/\d+\/\d+:/
+const opReturnRegex = /OP_RETURN \((?<memo>[^)]+)\)/
+
 const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 'Savers' : 'LP')
 
-const getSwapType = (memo: string): SwapType => {
-  const regex = /:\d+\/\d+\/\d+:/
-  return regex.test(memo) ? 'Streaming' : 'Standard'
-}
+const getSwapType = (memo: string): SwapType =>
+  streamingSwapRegex.test(memo) ? 'Streaming' : 'Standard'
 
 export interface ParserArgs {
   midgardUrl: string
@@ -113,9 +114,7 @@ export class Parser implements SubParser<Tx> {
     const opReturn = tx.vout.find(vout => vout.opReturn)?.opReturn
     if (!opReturn) return
 
-    const regex = /OP_RETURN \(([^)]+)\)/
-
-    const [, memo] = opReturn.match(regex) ?? [undefined, undefined]
+    const memo = opReturn.match(opReturnRegex)?.groups?.memo
 
     if (!memo) return
 

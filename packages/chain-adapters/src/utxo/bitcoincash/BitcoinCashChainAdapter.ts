@@ -29,6 +29,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinCashMainn
       parser: new unchained.bitcoincash.TransactionParser({
         assetId: bchAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        midgardUrl: args.midgardUrl,
       }),
       supportedAccountTypes: SUPPORTED_ACCOUNT_TYPES,
       supportedChainIds: SUPPORTED_CHAIN_IDS,

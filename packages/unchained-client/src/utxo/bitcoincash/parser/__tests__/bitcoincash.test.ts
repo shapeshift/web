@@ -1,5 +1,5 @@
 import { bchAssetId, bchChainId } from '@shapeshiftoss/caip'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { ParsedTx } from '../../../../types'
 import { TransferType, TxStatus } from '../../../../types'
@@ -7,7 +7,23 @@ import { TransactionParser } from '../index'
 import standardNoChange from './mockData/standardNoChange'
 import standardWithChange from './mockData/standardWithChange'
 
-const txParser = new TransactionParser({ chainId: bchChainId, assetId: bchAssetId })
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+}))
+
+vi.mock('axios', () => {
+  const mockAxios = {
+    create: vi.fn(() => ({
+      get: mocks.get,
+    })),
+  }
+
+  return {
+    default: mockAxios,
+  }
+})
+
+const txParser = new TransactionParser({ chainId: bchChainId, assetId: bchAssetId, midgardUrl: '' })
 
 describe('parseTx', () => {
   describe('standard', () => {

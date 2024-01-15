@@ -136,6 +136,7 @@ describe('BitcoinChainAdapter', () => {
       },
       coinName: 'Bitcoin',
       chainId: KnownChainIds.BitcoinMainnet,
+      midgardUrl: '',
     }
   })
 

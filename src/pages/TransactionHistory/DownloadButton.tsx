@@ -26,10 +26,10 @@ type ReportRow = {
   minerFeeCurrency: string
   inputAmount: string
   inputCurrency: string
-  inputAddress: string
+  inputAddresses: string
   outputAmount: string
   outputCurrency: string
-  outputAddress: string
+  outputAddresses: string
 }
 
 const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
@@ -93,25 +93,25 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       })()
 
       report.push({
-        txid: tx.txid,
+        txid: `"${tx.txid}"`,
         type: translate(typeLabel),
         status: translate(`transactionRow.${tx.status.toLowerCase()}`),
         timestamp: dayjs(tx.blockTime * 1000).toISOString(),
         minerFee:
           tx.fee && feeAsset
-            ? bnOrZero(fromBaseUnit(tx.fee.value, feeAsset.precision)).toString()
+            ? bnOrZero(fromBaseUnit(tx.fee.value, feeAsset.precision)).toFixed()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
         inputAmount: send
-          ? bnOrZero(fromBaseUnit(send.value, send.asset?.precision ?? 18)).toString()
+          ? bnOrZero(fromBaseUnit(send.value, send.asset?.precision ?? 18)).toFixed()
           : '-',
         inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
-        inputAddress: send?.from ?? '-',
+        inputAddresses: `"${send?.from.join('\n')}"` ?? '-',
         outputAmount: receive
-          ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toString()
+          ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
-        outputAddress: receive?.to ?? '-',
+        outputAddresses: `"${receive?.from.join('\n')}"` ?? '-',
       })
     }
 

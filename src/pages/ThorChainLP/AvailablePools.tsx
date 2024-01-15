@@ -1,14 +1,19 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText, Text } from 'components/Text'
+import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
+import type { ParsedPool } from './hooks/usePools'
+import { usePools } from './hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -36,14 +41,35 @@ const listMargin = {
   xl: -4,
 }
 
-const PoolButton = () => {
-  const isLoaded = true
+type PoolButtonProps = {
+  pool: ParsedPool
+}
 
+const PoolButton = ({ pool }: PoolButtonProps) => {
   const handlePoolClick = useCallback(() => {
     console.info('pool click')
   }, [])
 
-  const poolAssetIds = useMemo(() => [ethAssetId, usdcAssetId], [])
+  const poolAssetIds = useMemo(() => {
+    return [pool.assetId, thorchainAssetId]
+  }, [pool.assetId])
+
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
+  const tvl = useMemo(
+    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price),
+    [pool.assetDepth, pool.runeDepth, runeMarketData.price],
+  )
+
+  const { data: volume24H, isLoading: isVolume24HLoading } = useQuery({
+    queryKey: ['thorchainPoolData24h', pool.assetId],
+    queryFn: () => getVolume('24h', pool.assetId, runeMarketData.price),
+  })
+
+  const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
+    queryKey: ['thorchainPoolData7d', pool.assetId],
+    queryFn: () => getVolume('7d', pool.assetId, runeMarketData.price),
+  })
 
   return (
     <Button
@@ -60,20 +86,22 @@ const PoolButton = () => {
       onClick={handlePoolClick}
     >
       <Flex gap={4} alignItems='center'>
-        <PoolIcon assetIds={poolAssetIds} size='sm' />
-        <RawText>ETH/USDC</RawText>
+        <Box minWidth='58px'>
+          <PoolIcon assetIds={poolAssetIds} size='sm' />
+        </Box>
+        <RawText>{pool.name}</RawText>
         <Tag size='sm'>
-          <Amount.Percent value='0.1' />
+          <Amount.Percent value={pool.poolAPY} />
         </Tag>
       </Flex>
-      <Skeleton isLoaded={isLoaded}>
-        <Amount.Fiat value='1000000' />
+      <Skeleton isLoaded={!!tvl}>
+        <Amount.Fiat value={tvl} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
-        <Amount.Fiat value='1000000' />
+      <Skeleton isLoaded={!isVolume24HLoading} display={mobileDisplay}>
+        <Amount.Fiat value={volume24H ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} display={largeDisplay}>
-        <Amount.Fiat value='1000000' />
+      <Skeleton isLoaded={!isVolume7DLoading} display={largeDisplay}>
+        <Amount.Fiat value={volume7D ?? '0'} />
       </Skeleton>
     </Button>
   )
@@ -81,6 +109,11 @@ const PoolButton = () => {
 
 export const AvailablePools = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
+  const { data: parsedPools, isLoading } = usePools()
+  const renderRows = useMemo(() => {
+    if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    return parsedPools?.map(pool => <PoolButton key={pool.opportunityId} pool={pool} />)
+  }, [isLoading, parsedPools])
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
@@ -102,9 +135,7 @@ export const AvailablePools = () => {
             <Text translation='pools.volume7d' />
           </Flex>
         </SimpleGrid>
-        <Stack mx={listMargin}>
-          <PoolButton />
-        </Stack>
+        <Stack mx={listMargin}>{renderRows}</Stack>
       </Stack>
     </Main>
   )

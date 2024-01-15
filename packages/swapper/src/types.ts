@@ -28,38 +28,32 @@ export type SwapErrorRight = {
   message: string
   cause?: unknown
   details?: unknown
-  code?: SwapErrorType
+  code?: TradeQuoteError
 }
 
-// Swap Errors
-export enum SwapErrorType {
-  BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
-  EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
-  MANAGER_ERROR = 'MANAGER_ERROR',
-  MIN_MAX_FAILED = 'MIN_MAX_FAILED',
-  RESPONSE_ERROR = 'RESPONSE_ERROR',
-  SIGN_AND_BROADCAST_FAILED = 'SIGN_AND_BROADCAST_FAILED',
-  TRADE_QUOTE_FAILED = 'TRADE_QUOTE_FAILED',
-  TRADE_QUOTE_AMOUNT_TOO_SMALL = 'TRADE_QUOTE_AMOUNT_TOO_SMALL',
-  TRADE_QUOTE_INPUT_LOWER_THAN_FEES = 'TRADE_QUOTE_INPUT_LOWER_THAN_FEES',
-  UNSUPPORTED_PAIR = 'UNSUPPORTED_PAIR',
-  USD_RATE_FAILED = 'USD_RATE_FAILED',
-  UNSUPPORTED_CHAIN = 'UNSUPPORTED_CHAIN',
-  UNSUPPORTED_NAMESPACE = 'UNSUPPORTED_NAMESPACE',
-  VALIDATION_FAILED = 'VALIDATION_FAILED',
-  MAKE_MEMO_FAILED = 'MAKE_MEMO_FAILED',
-  PRICE_RATIO_FAILED = 'PRICE_RATIO_FAILED',
-  POOL_NOT_FOUND = 'POOL_NOT_FOUND',
-  GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
-  TRADE_FAILED = 'TRADE_FAILED',
-  RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
-  // Catch-all for XHRs that can fail
-  QUERY_FAILED = 'QUERY_FAILED',
-  // Catch-all for missing input e.g AssetId missing when making a request
-  MISSING_INPUT = 'MISSING_INPUT',
-  // Catch-all for happy responses, but entity not found according to our criteria
-  NOT_FOUND = 'NOT_FOUND',
-  TRADING_HALTED = 'TRADING_HALTED',
+export enum TradeQuoteError {
+  // the swapper was unable to find a quote for this pair
+  UnsupportedTradePair = 'UnsupportedTradePair',
+  // the swapper does support the pair buy couldn't find a route for the amount specified
+  NoRouteFound = 'NoRouteFound',
+  // the swapper doesn't support the chain
+  UnsupportedChain = 'UnsupportedChain',
+  // the swapper can't swap across chains
+  CrossChainNotSupported = 'CrossChainNotSupported',
+  // the swapper wasn't able to get a network fee estimate
+  NetworkFeeEstimationFailed = 'NetworkFeeEstimationFailed',
+  // trading has been halted upstream
+  TradingHalted = 'TradingHalted',
+  // the sell amount was lower than the minimum defined upstream
+  SellAmountBelowMinimum = 'SellAmountBelowMinimum',
+  // the fees exceed the sell amount
+  SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  // catch-all for XHRs that can fail
+  QueryFailed = 'QueryFailed',
+  // an assertion triggered, indicating a bug
+  InternalError = 'InternalError',
+  // catch-all for unknown issues
+  UnknownError = 'UnknownError',
 }
 
 export type UtxoFeeData = {

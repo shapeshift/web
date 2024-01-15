@@ -22,19 +22,19 @@ import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
-  selectHopTotalNetworkFeeFiatPrecision,
+  selectHopNetworkFeeUserCurrencyPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
+import { TwirlyToggle } from '../../TwirlyToggle'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
-import { TwirlyToggle } from './TwirlyToggle'
 
 const collapseWidth = { width: '100%' }
 
@@ -55,7 +55,7 @@ export const Hop = ({
 }) => {
   const translate = useTranslate()
   const networkFeeFiatPrecision = useAppSelector(state =>
-    selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
+    selectHopNetworkFeeUserCurrencyPrecision(state, hopIndex),
   )
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),

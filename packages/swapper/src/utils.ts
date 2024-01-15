@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 
 import type { SwapErrorRight } from './types'
-import { SwapErrorType } from './types'
+import { TradeQuoteError } from './types'
 
 export const makeSwapErrorRight = ({
   details,
@@ -12,7 +12,7 @@ export const makeSwapErrorRight = ({
   message: string
   details?: unknown
   cause?: unknown
-  code?: SwapErrorType
+  code?: TradeQuoteError
 }): SwapErrorRight => ({
   name: 'SwapError',
   message,
@@ -26,7 +26,7 @@ export const createTradeAmountTooSmallErr = (details?: {
   assetId: AssetId
 }) =>
   makeSwapErrorRight({
-    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    code: TradeQuoteError.SellAmountBelowMinimum,
     message: 'Sell amount is too small',
     details,
   })

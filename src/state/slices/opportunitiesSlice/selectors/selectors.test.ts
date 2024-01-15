@@ -41,7 +41,11 @@ describe('opportunitiesSlice selectors', () => {
     opportunities: initialState,
     portfolio: {
       ...mockStore.portfolio,
-      walletId,
+      connectedWallet: {
+        id: walletId,
+        name: '',
+        supportedChainIds: [],
+      },
       wallet,
     },
   }

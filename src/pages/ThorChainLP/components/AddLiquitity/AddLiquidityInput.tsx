@@ -19,7 +19,7 @@ import {
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -36,6 +36,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { AddLiquidityProps } from './AddLiquidity'
 import { DepositType } from './components/DepositType'
 import { PoolSummary } from './components/PoolSummary'
 import { ReadOnlyAsset } from './components/ReadOnlyAsset'
@@ -56,7 +57,7 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput = () => {
+export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -86,7 +87,8 @@ export const AddLiquidityInput = () => {
 
   const pairDivider = useMemo(() => {
     return (
-      <Flex alignItems='center' display='flex' style={dividerStyle} pl={6}>
+      <Flex alignItems='center' display='flex' style={dividerStyle}>
+        <Divider borderColor='border.base' />
         <Center
           boxSize='32px'
           borderWidth={1}
@@ -103,8 +105,9 @@ export const AddLiquidityInput = () => {
     )
   }, [])
 
-  return (
-    <SlideTransition>
+  const renderHeader = useMemo(() => {
+    if (headerComponent) return headerComponent
+    return (
       <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
         <IconButton
           onClick={handleBackClick}
@@ -112,13 +115,19 @@ export const AddLiquidityInput = () => {
           icon={backIcon}
           aria-label='go back'
         />
-        Add Liquidity
+        {translate('pools.addLiquidity')}
         <SlippagePopover />
       </CardHeader>
+    )
+  }, [backIcon, handleBackClick, headerComponent, translate])
+
+  return (
+    <SlideTransition>
+      {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
         <Stack>
           <FormLabel px={6} mb={0} fontSize='sm'>
-            Select pair
+            {translate('pools.selectPair')}
           </FormLabel>
           <TradeAssetSelect
             assetId={ethAssetId}
@@ -137,7 +146,7 @@ export const AddLiquidityInput = () => {
         </Stack>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
-            Deposit amounts
+            {translate('pools.depositAmounts')}
           </FormLabel>
           <DepositType />
           <Stack divider={pairDivider} spacing={0}>
@@ -223,7 +232,7 @@ export const AddLiquidityInput = () => {
           </AlertDescription>
         </Alert>
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
-          Add Liquidity
+          {translate('pools.addLiquidity')}
         </Button>
       </CardFooter>
     </SlideTransition>

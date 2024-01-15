@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
+  Button,
   Card,
   CardBody,
   CardFooter,
@@ -10,15 +11,14 @@ import {
   Heading,
   IconButton,
   Stack,
-  Tab,
-  TabList,
   TabPanel,
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
-import { useCallback, useMemo, useState } from 'react'
+import type { PropsWithChildren } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -35,7 +35,6 @@ import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
 
 const containerPadding = { base: 6, '2xl': 8 }
-const tabSelected = { color: 'text.base' }
 const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 const PoolHeader = () => {
@@ -63,18 +62,70 @@ const PoolHeader = () => {
   )
 }
 
+type FormHeaderProps = {
+  setStepIndex: (index: number) => void
+  activeIndex: number
+}
+type FormHeaderTabProps = {
+  index: number
+  onClick: (index: number) => void
+  isActive?: boolean
+} & PropsWithChildren
+
+const activeStyle = { color: 'text.base' }
+
+const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
+  const handleClick = useCallback(() => {
+    onClick(index)
+  }, [index, onClick])
+  return (
+    <Button
+      onClick={handleClick}
+      isActive={isActive}
+      variant='unstyled'
+      color='text.subtle'
+      _active={activeStyle}
+    >
+      {children}
+    </Button>
+  )
+}
+
+const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
+  const translate = useTranslate()
+  const handleClick = useCallback(
+    (index: number) => {
+      setStepIndex(index)
+    },
+    [setStepIndex],
+  )
+  return (
+    <Flex px={6} py={4} gap={4}>
+      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
+        {translate('pools.addLiquidity')}
+      </FormHeaderTab>
+      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
+        {translate('pools.removeLiquidity')}
+      </FormHeaderTab>
+    </Flex>
+  )
+}
+
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
 export const Pool = () => {
   const [stepIndex, setStepIndex] = useState<number>(0)
-
-  const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
 
   const poolAssetIds = useMemo(() => [usdcAssetId, ethAssetId], [])
 
   const liquidityValueComponent = useMemo(() => <Amount.Fiat value='200' fontSize='2xl' />, [])
+
+  const TabHeader = useMemo(
+    () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
+    [stepIndex],
+  )
 
   return (
     <Main headerComponent={headerComponent}>
@@ -157,20 +208,12 @@ export const Pool = () => {
         <Stack flex={1} maxWidth={maxWidth}>
           <Card>
             <Tabs onChange={setStepIndex} variant='unstyled' index={stepIndex}>
-              <TabList px={2} py={4}>
-                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  {translate('pools.addLiquidity')}
-                </Tab>
-                <Tab color='text.subtle' fontWeight='bold' _selected={tabSelected}>
-                  {translate('pools.removeLiquidity')}
-                </Tab>
-              </TabList>
               <TabPanels>
                 <TabPanel px={0} py={0}>
-                  <AddLiquidity />
+                  <AddLiquidity headerComponent={TabHeader} />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
-                  <RemoveLiquidity />
+                  <RemoveLiquidity headerComponent={TabHeader} />
                 </TabPanel>
               </TabPanels>
             </Tabs>

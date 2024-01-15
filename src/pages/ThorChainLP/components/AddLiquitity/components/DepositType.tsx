@@ -44,7 +44,7 @@ const TypeRadio: React.FC<RadioProps> = props => {
       <input {...input} />
       <Box
         bg='background.surface.raised.base'
-        borderRadius='lg'
+        borderRadius='xl'
         width='full'
         borderWidth={2}
         borderColor='transparent'
@@ -84,7 +84,7 @@ export const DepositType = () => {
   })
   const group = getRootProps()
   return (
-    <Flex px={4} gap={4} {...group}>
+    <Flex px={4} gap={2} {...group}>
       {options.map((value, index) => {
         const radio = getRadioProps({ value: value.value })
         return (

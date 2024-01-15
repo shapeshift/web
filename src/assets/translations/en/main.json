@@ -2214,6 +2214,8 @@
     "fees24h": "Fees 24H",
     "estimatedTime": "Estimated Time",
     "liquidityValue": "Liquidity Value",
+    "selectPair": "Select Pair",
+    "depositAmounts": "Deposit Amounts",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

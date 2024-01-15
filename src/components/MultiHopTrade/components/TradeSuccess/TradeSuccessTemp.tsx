@@ -16,7 +16,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TwirlyToggle } from '../MultiHopTradeConfirm/components/TwirlyToggle'
+import { TwirlyToggle } from '../TwirlyToggle'
 import type { TradeSuccessProps } from './TradeSuccess'
 
 export const TradeSuccessTemp = ({ handleBack, children }: TradeSuccessProps) => {

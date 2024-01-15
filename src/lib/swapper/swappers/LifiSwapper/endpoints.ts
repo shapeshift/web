@@ -10,7 +10,7 @@ import type {
   SwapperApi,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
@@ -38,7 +38,7 @@ export const lifiApi: SwapperApi = {
       return Err(
         makeSwapErrorRight({
           message: 'sell amount too low',
-          code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+          code: TradeQuoteError.SellAmountBelowMinimum,
         }),
       )
     }

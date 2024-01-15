@@ -1,5 +1,5 @@
 import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -265,7 +265,7 @@ describe('getCowTradeQuote', () => {
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
-      code: 'UNSUPPORTED_PAIR',
+      code: TradeQuoteError.UnsupportedTradePair,
       details: { sellAsset: ETH },
       message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
       name: 'SwapError',

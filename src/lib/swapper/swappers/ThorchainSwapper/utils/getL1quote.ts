@@ -10,8 +10,8 @@ import type {
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
-  SwapErrorType,
   SwapperName,
+  TradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -255,7 +255,7 @@ export const getL1quote = async (
         return Err(
           makeSwapErrorRight({
             message: 'Unable to create any routes',
-            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            code: TradeQuoteError.UnsupportedTradePair,
             cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
           }),
         )
@@ -348,7 +348,7 @@ export const getL1quote = async (
         return Err(
           makeSwapErrorRight({
             message: 'Unable to create any routes',
-            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            code: TradeQuoteError.UnsupportedTradePair,
             cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
           }),
         )

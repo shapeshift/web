@@ -5,7 +5,7 @@ import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-si
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { CowSwapOrder } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, type SwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -66,7 +66,7 @@ export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErro
       return Err(
         makeSwapErrorRight({
           message: '[getCowswapNetwork]',
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
+          code: TradeQuoteError.UnsupportedChain,
         }),
       )
   }
@@ -117,18 +117,16 @@ export const assertValidTrade = ({
   buyAsset,
   sellAsset,
   supportedChainIds,
-  receiveAddress,
 }: {
   buyAsset: Asset
   sellAsset: Asset
   supportedChainIds: ChainId[]
-  receiveAddress?: string
 }): Result<boolean, SwapErrorRight> => {
   if (!supportedChainIds.includes(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - unsupported chainId`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -138,7 +136,7 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.CrossChainNotSupported,
         details: { buyAsset, sellAsset },
       }),
     )
@@ -148,17 +146,8 @@ export const assertValidTrade = ({
     return Err(
       makeSwapErrorRight({
         message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.UnsupportedTradePair,
         details: { sellAsset },
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[CowSwap: assertValidTrade] - Receive address is required',
-        code: SwapErrorType.MISSING_INPUT,
       }),
     )
   }

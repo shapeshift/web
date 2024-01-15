@@ -29,6 +29,7 @@ export default function register(): Plugins {
                 return new bitcoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Bitcoin',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

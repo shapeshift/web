@@ -122,7 +122,7 @@
     "showAll": "Montrer tout",
     "showLess": "Montrer moins",
     "yourBalance": "Votre solde",
-    "signMessage": "Signer le message",
+    "signTransaction": "Signer la transaction",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -135,7 +135,8 @@
       "sortedAsc": "Trié par ordre croissant",
       "sortedDesc": "Trié par ordre décroissant",
       "expandRow": "Développer la ligne"
-    }
+    },
+    "featureDisabled": "Cette fonctionnalité est temporairement désactivée."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Temps estimé pour couvrir les frais de dépôt et les gains."
         },
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
-        "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente"
+        "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
+        "dangerousWithdrawWarning": "Retrait désactivé car les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème."
       }
     },
     "memoNote": {
@@ -818,7 +820,32 @@
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
     "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
     "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
-    "swapFailed": "Un problème est survenu lors de l'exécution du %{tradeType}"
+    "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
+    "doAnotherTrade": "Faire un autre échange",
+    "showDetails": "Afficher les détails",
+    "transactionSuccessful": "Transaction réussie, en attente de confirmations",
+    "temp": {
+      "tradeSuccess": "Échange terminé",
+      "tradeComplete": "%{symbol} reçus avec succès sur %{chainName}."
+    },
+    "hopTitle": {
+      "bridge": "Transfert via %{swapperName}",
+      "swap": "Échange via %{swapperName}"
+    },
+    "transactionFailed": {
+      "bridge": "Un problème est survenu lors de l'exécution du transfert",
+      "swap": "Un problème est survenu lors de l'exécution de l'échange"
+    },
+    "transactionTitle": {
+      "bridge": "Transfert en %{sellChainName} vers %{buyChainName} via %{swapperName}",
+      "swap": "Échange sur %{sellChainName} via %{swapperName}"
+    },
+    "approvalTitle": "Autorisation d'allocation de jetons",
+    "assetSummaryDescription": "%{amountFiatFormatted} sur %{chainName}",
+    "quote": {
+      "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userslippageFormatted}) pour %{swapperName}",
+      "slippage": "Glissement/Slippage : %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1327,7 +1354,8 @@
         "header": "Erreur",
         "body": "Impossible de connecter le porte-monnaie Ledger"
       },
-      "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil."
+      "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
+      "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."
     },
     "metaMask": {
       "errors": {

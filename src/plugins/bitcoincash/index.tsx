@@ -29,6 +29,7 @@ export default function register(): Plugins {
                 return new bitcoincash.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'BitcoinCash',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

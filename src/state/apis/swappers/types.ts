@@ -3,8 +3,10 @@ import type {
   SwapErrorRight,
   SwapperName,
   TradeQuote,
+  TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { ReduxState } from 'state/reducer'
 
 export type QuoteHelperType = (
@@ -12,10 +14,50 @@ export type QuoteHelperType = (
   state: ReduxState,
 ) => Promise<Result<TradeQuote, SwapErrorRight>>
 
+// The following are errors that affect all quotes.
+export enum TradeQuoteRequestError {
+  InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
+  NoConnectedWallet = 'NoConnectedWallet',
+  NoQuotesAvailable = 'NoQuotesAvailable',
+  SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
+  BuyAssetNotNotSupportedByWallet = 'BuyAssetNotNotSupportedByWallet',
+  NoReceiveAddress = 'NoReceiveAddress',
+}
+
+// The following affect individual trade quotes.
+// These errors affect the ability to execute an individual quote as opposed to inability to get an individual quote.
+export enum TradeQuoteValidationError {
+  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
+  TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
+  TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
+  SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
+  InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
+  InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
+  IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
+  QueryFailed = 'QueryFailed',
+  UnknownError = 'UnknownError',
+}
+
+// The following affect individual trade quotes.
+export type TradeQuoteError = TradeQuoteValidationError | SwapperTradeQuoteError
+
+export enum TradeQuoteWarning {
+  UnsafeQuote = 'UnsafeQuote', // TODO: make swappers compute this, not swappersApi
+}
+
+export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
+
 export type ApiQuote = {
   index: number
   quote: TradeQuote | undefined
-  error: SwapErrorRight | undefined
   swapperName: SwapperName
   inputOutputRatio: number
+  errors: ErrorWithMeta<TradeQuoteError | TradeQuoteError>[]
+  warnings: ErrorWithMeta<TradeQuoteWarning>[]
+}
+
+export type TradeQuoteResponse = {
+  errors: ErrorWithMeta<TradeQuoteRequestError>[]
+  quotes: ApiQuote[]
 }

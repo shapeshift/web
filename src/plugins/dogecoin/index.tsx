@@ -29,6 +29,7 @@ export default function register(): Plugins {
                 return new dogecoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Dogecoin',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

@@ -56,7 +56,14 @@ type UseUserLpDataReturn = {
 export const useUserLpData = ({
   assetId,
 }: UseUserLpDataProps): UseQueryResult<UseUserLpDataReturn | null> => {
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const thorchainAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+  const accountIds = [
+    ...useAppSelector(state => selectAccountIdsByAssetId(state, { assetId })),
+    ...thorchainAccountIds,
+  ]
+
   const lpPositionQueryKey: [string, { assetId: AssetId }] = useMemo(
     () => ['thorchainUserLpData', { assetId }],
     [assetId],

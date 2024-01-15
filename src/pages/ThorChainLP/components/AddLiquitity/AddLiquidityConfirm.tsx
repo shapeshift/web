@@ -1,9 +1,11 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Button,
+  Card,
   CardBody,
   CardFooter,
   CardHeader,
+  Center,
   Flex,
   IconButton,
   Skeleton,
@@ -12,16 +14,30 @@ import {
 import { ethAssetId } from '@shapeshiftoss/caip'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useMemo } from 'react'
+import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { usdcAssetId } from 'test/mocks/accounts'
 import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 
 import { PoolIcon } from '../PoolIcon'
 import { AddLiquidityRoutePaths } from './types'
+
+const dividerStyle = {
+  marginLeft: '-1.2em',
+  marginRight: '-1.2rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 0,
+  opacity: 1,
+  zIndex: 4,
+}
 
 export const AddLiquidityConfirm = () => {
   const translate = useTranslate()
@@ -31,32 +47,102 @@ export const AddLiquidityConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
+  const divider = useMemo(() => {
+    return (
+      <Flex style={dividerStyle}>
+        <Center borderRadius='full' bg='background.surface.base' boxSize='42px'>
+          <Center boxSize='42px' borderRadius='full' bg='background.surface.raised.base'>
+            <Card
+              display='flex'
+              boxSize='35px'
+              alignItems='center'
+              justifyContent='center'
+              borderRadius='full'
+              color='text.subtle'
+              flexShrink={0}
+              fontSize='xs'
+            >
+              <FaPlus />
+            </Card>
+          </Center>
+        </Center>
+      </Flex>
+    )
+  }, [])
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
-        <IconButton onClick={handleBack} variant='ghost' aria-label='back' icon={backIcon} />
-        {translate('common.confirm')}
+        <Flex flex={1}>
+          <IconButton onClick={handleBack} variant='ghost' aria-label='back' icon={backIcon} />
+        </Flex>
+        <Flex textAlign='center'>{translate('common.confirm')}</Flex>
+        <Flex flex={1}></Flex>
       </CardHeader>
-      <CardBody>
+      <CardBody pt={0}>
         <Stack spacing={8}>
-          <Flex gap={2} alignItems='center' justifyContent='center'>
-            <PoolIcon size='sm' assetIds={assetIds} />
-            <RawText fontWeight='medium'>ETH/USDC</RawText>
-          </Flex>
-          <Stack fontSize='sm' fontWeight='medium'>
-            <Row>
-              <Row.Label>{translate('pools.assetDepositAmount', { asset: 'USDC' })}</Row.Label>
-              <Row.Value>
-                <Amount.Crypto value='100' symbol='USDC' />
-              </Row.Value>
-            </Row>
-            <Row>
-              <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
-              <Row.Value>
-                <Amount.Percent value='0.2' />
-              </Row.Value>
-            </Row>
+          <Stack direction='row' divider={divider} position='relative'>
+            <Card
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              flexDir='column'
+              gap={4}
+              py={6}
+              px={4}
+              flex={1}
+            >
+              <AssetIcon size='sm' assetId={usdcAssetId} />
+              <Stack textAlign='center' spacing={0}>
+                <Amount.Crypto fontWeight='bold' value='100' symbol='USDC' />
+                <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
+              </Stack>
+            </Card>
+            <Card
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              flexDir='column'
+              gap={4}
+              py={6}
+              px={4}
+              flex={1}
+            >
+              <AssetIcon size='sm' assetId={ethAssetId} />
+              <Stack textAlign='center' spacing={0}>
+                <Amount.Crypto fontWeight='bold' value='100' symbol='ETH' />
+                <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
+              </Stack>
+            </Card>
           </Stack>
+          <Timeline>
+            <TimelineItem>
+              <Row fontSize='sm' fontWeight='medium'>
+                <Row.Label>ShapeShift Fee</Row.Label>
+                <Row.Value>Free</Row.Value>
+              </Row>
+            </TimelineItem>
+            <TimelineItem>
+              <Row fontSize='sm' fontWeight='medium'>
+                <Row.Label>Ethereum Fee</Row.Label>
+                <Row.Value display='flex' gap={1}>
+                  <Amount.Crypto value='0.02' symbol='ETH' />
+                  <Flex color='text.subtle'>
+                    {'('}
+                    <Amount.Fiat value='10.00' />
+                    {')'}
+                  </Flex>
+                </Row.Value>
+              </Row>
+            </TimelineItem>
+            <TimelineItem>
+              <Row fontSize='sm'>
+                <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
+                <Row.Value>
+                  <Amount.Percent value='0.2' />
+                </Row.Value>
+              </Row>
+            </TimelineItem>
+          </Timeline>
         </Stack>
       </CardBody>
       <CardFooter
@@ -68,27 +154,20 @@ export const AddLiquidityConfirm = () => {
         py={4}
         bg='background.surface.raised.accent'
       >
+        <Row fontSize='sm'>
+          <Row.Label>{translate('pools.pool')}</Row.Label>
+          <Row.Value>
+            <Flex gap={2} alignItems='center' justifyContent='center'>
+              <PoolIcon size='xs' assetIds={assetIds} />
+              <RawText fontWeight='medium'>ETH/USDC</RawText>
+            </Flex>
+          </Row.Value>
+        </Row>
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
               <Amount.Crypto value={'0'} symbol={'USDC'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Fiat value={'0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Fiat value={'0'} />
             </Skeleton>
           </Row.Value>
         </Row>

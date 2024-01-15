@@ -601,18 +601,21 @@
         "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
+      "thor": {
+        "transferOut": "Transfer out"
+      },
       "thorchain": {
         "deposit": "Deposit",
         "depositRefund": "Deposit Refund",
-        "loanOpen": "Open Loan",
-        "loanOpenRefund": "Open Loan Refund",
+        "loanOpen": "Loan Open",
+        "loanOpenRefund": "Loan Open Refund",
         "loanOut": "Loan Collateral Received",
-        "loanRepayment": "Repay Loan",
-        "loanRepaymentRefund": "Repay Loan Refund",
+        "loanRepayment": "Loan Repayment",
+        "loanRepaymentRefund": "Loan Repayment Refund",
         "out": "Outbound Received",
         "swapOut": "Swap Received",
         "swapRefund": "Swap Refund",
-        "transferOut": "Transfer out",
+        "transferOut": "Transfer Out",
         "withdraw": "Withdraw Request",
         "withdrawOut": "Withdraw Received"
       },

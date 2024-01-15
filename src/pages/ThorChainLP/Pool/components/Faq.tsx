@@ -14,30 +14,46 @@ export const Faq = () => {
   return (
     <Card>
       <CardBody px={8} py={8} display='flex' flexDir='column' gap={6}>
-        <Text fontWeight='bold' fontSize='xl' translation='lending.faq.title' />
+        <Text fontWeight='bold' fontSize='xl' translation='pools.faq.title' />
         <Accordion variant='default' defaultIndex={defaultIndex}>
           <AccordionItem px={0}>
             <AccordionButton px={0}>
-              <Text fontWeight='bold' translation='lending.faq.lending.title' />
+              <Text fontWeight='bold' translation='pools.faq.what.title' />
             </AccordionButton>
             <AccordionPanel px={0}>
-              <Text color='text.subtle' translation='lending.faq.lending.body' />
+              <Text color='text.subtle' translation='pools.faq.what.body' />
             </AccordionPanel>
           </AccordionItem>
           <AccordionItem px={0}>
             <AccordionButton px={0}>
-              <Text fontWeight='bold' translation='lending.faq.borrowing.title' />
+              <Text fontWeight='bold' translation='pools.faq.how.title' />
             </AccordionButton>
             <AccordionPanel px={0}>
-              <Text color='text.subtle' translation='lending.faq.borrowing.body' />
+              <Text color='text.subtle' translation='pools.faq.how.body' />
             </AccordionPanel>
           </AccordionItem>
           <AccordionItem px={0}>
             <AccordionButton px={0}>
-              <Text fontWeight='bold' translation='lending.faq.repayments.title' />
+              <Text fontWeight='bold' translation='pools.faq.amm.title' />
             </AccordionButton>
             <AccordionPanel px={0}>
-              <Text color='text.subtle' translation='lending.faq.repayments.body' />
+              <Text color='text.subtle' translation='pools.faq.amm.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='pools.faq.rewards.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='pools.faq.rewards.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='pools.faq.risks.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='pools.faq.risks.body' />
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

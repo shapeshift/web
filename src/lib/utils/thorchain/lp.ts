@@ -15,6 +15,7 @@ import type {
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
   MidgardPool,
+  MidgardPoolStats,
   MidgardSwapHistoryResponse,
   PoolShareDetail,
   ThorchainLiquidityProvidersResponseSuccess,
@@ -77,7 +78,7 @@ export const getThorchainLiquidityProviderPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<MidgardPool[] | null> => {
+}): Promise<(MidgardPool & { accountId: AccountId })[] | null> => {
   const accountPosition = await (async () => {
     if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
       const address = fromAccountId(accountId).account
@@ -100,9 +101,9 @@ export const getThorchainLiquidityProviderPosition = async ({
   if (!accountPosition) return null
 
   // An address may be shared across multiple pools for EVM chains, which could produce wrong results
-  const positions = accountPosition.pools.filter(
-    pool => pool.pool === assetIdToPoolAssetId({ assetId }),
-  )
+  const positions = accountPosition.pools
+    .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
+    .map(position => ({ ...position, accountId }))
 
   return positions
 }
@@ -145,7 +146,8 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
-export const getRedeemable = (
+// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
+export const getCurrentValue = (
   liquidityUnits: string,
   poolUnits: string,
   assetDepth: string,
@@ -164,6 +166,42 @@ export const getRedeemable = (
     rune: redeemableRune,
     asset: redeemableAsset,
   }
+}
+
+export const getFees = async (
+  timeframe: '24h' | 'all',
+  assetId: string,
+  runePrice: string,
+  assetPrice: string,
+): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const { data } = await axios.get<MidgardPoolStats>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=${timeframe}`,
+  )
+
+  const toAssetFeesCryptoPrecision = fromThorBaseUnit(data.toAssetFees)
+  const toRuneFeesCryptoPrecision = fromThorBaseUnit(data.toRuneFees)
+  const toAssetFeesFiatUserCurrency = toAssetFeesCryptoPrecision.times(assetPrice)
+  const toRuneFeesFiatUserCurrency = toRuneFeesCryptoPrecision.times(runePrice)
+
+  const feesFiatUserCurrency = toAssetFeesFiatUserCurrency.plus(toRuneFeesFiatUserCurrency)
+  return feesFiatUserCurrency.toFixed()
+}
+
+export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Promise<string> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const { data } = await axios.get<MidgardPoolStats>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=all`,
+  )
+
+  const swapVolume = fromThorBaseUnit(data?.swapVolume ?? '0')
+  const totalVolume = swapVolume
+
+  const totalVolumeFiatUserCurrency = totalVolume.times(runePrice)
+
+  return totalVolumeFiatUserCurrency.toFixed()
 }
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/math#lp-units-add
@@ -320,4 +358,24 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
       },
     },
   }
+}
+
+// Calculates all-time volume from the stats endpoint
+export const calculateTotalVolumeFiatUserCurrency = (
+  toAssetVolume: string,
+  toRuneVolume: string,
+  btcPrice: number,
+  runePrice: number,
+): string => {
+  const toAssetVolumeCryptoPrecision = fromThorBaseUnit(toAssetVolume)
+  const toRuneVolumeCryptoPrecision = fromThorBaseUnit(toRuneVolume)
+
+  const toAassetTotalVolumeFiatUserCurrency = toAssetVolumeCryptoPrecision.times(btcPrice)
+  const toRuneTotalVolumeRuneFiatUserCurrency = toRuneVolumeCryptoPrecision.times(runePrice)
+
+  const totalVolumeFiatUserCurrency = toAassetTotalVolumeFiatUserCurrency.plus(
+    toRuneTotalVolumeRuneFiatUserCurrency,
+  )
+
+  return totalVolumeFiatUserCurrency.toFixed()
 }

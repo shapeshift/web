@@ -3,7 +3,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router'
+import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
@@ -59,14 +59,21 @@ type PositionButtonProps = {
 const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const handlePoolClick = useCallback(() => {
-    // TODO(gomes): programmatic
-    history.push('/pools/pool/1')
-  }, [history])
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const { data, isLoading } = useUserLpData({ assetId })
 
   const foundPool = (data ?? []).find(pool => pool.opportunityId === opportunityId)
+
+  const handlePoolClick = useCallback(() => {
+    if (!foundPool) return
+
+    const { opportunityId, accountId } = foundPool
+    history.push(
+      generatePath('/pools/poolAccount/:accountId/:opportunityId', { accountId, opportunityId }),
+    )
+  }, [foundPool, history])
+
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
 
@@ -78,14 +85,14 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
 
   const totalRedeemableValue = useMemo(() => {
     if (!foundPool) return '0'
-    const { asset, rune } = foundPool.redeemable
+    const { asset, rune } = foundPool.redeemableFees
 
     const assetValueFiatUserCurrency = bn(asset).times(assetMarketData.price)
     const runeValueFiatUserCurrency = bn(rune).times(runeMarketData.price)
     return assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).toFixed()
   }, [foundPool, assetMarketData, runeMarketData])
 
-  if (!foundPool || !asset) return null
+  if (!foundPool || !asset || !runeAsset) return null
 
   return (
     <Stack mx={listMargin}>
@@ -120,6 +127,12 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
               fontSize='sm'
               color='text.subtle'
             />
+            <Amount.Crypto
+              value={foundPool.underlyingRuneAmountCryptoPrecision}
+              symbol={runeAsset.symbol}
+              fontSize='sm'
+              color='text.subtle'
+            />
           </Skeleton>
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
@@ -128,7 +141,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.redeemable.asset}
+              value={foundPool.redeemableFees.asset}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -136,7 +149,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.redeemable.rune}
+              value={foundPool.redeemableFees.rune}
               symbol={'RUNE'}
               fontSize='sm'
               color='text.subtle'

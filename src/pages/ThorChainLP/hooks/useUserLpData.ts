@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
@@ -11,8 +12,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { getRedeemable, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
+import { getCurrentValue, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
 import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
@@ -45,10 +45,12 @@ type UseUserLpDataReturn = {
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
   opportunityId: string
-  redeemable: {
+  redeemableFees: {
     asset: string
     rune: string
   }
+  accountId: AccountId
+  assetId: AssetId
 }[]
 
 export const useUserLpData = ({
@@ -87,16 +89,29 @@ export const useUserLpData = ({
     },
   })
 
-  const selectLiquidityPositionsData = (positions: MidgardPool[] | undefined) => {
+  const selectLiquidityPositionsData = (
+    positions:
+      | (MidgardPool & {
+          accountId: AccountId
+        })[]
+      | undefined,
+  ) => {
     if (!positions || !thornodePoolData || !midgardPoolData) return null
 
-    return positions.map(position => {
-      const underlyingAssetValueFiatUserCurrency = fromThorBaseUnit(
-        position?.assetDeposit || '0',
-      ).times(poolAssetMarketData?.price || 0)
-      const underlyingRuneValueFiatUserCurrency = fromThorBaseUnit(
-        position?.runeDeposit || '0',
-      ).times(runeMarketData?.price || 0)
+    const parsedPositions = positions.map(position => {
+      const currentValue = getCurrentValue(
+        position.liquidityUnits,
+        thornodePoolData.pool_units,
+        midgardPoolData.assetDepth,
+        midgardPoolData.runeDepth,
+      )
+
+      const underlyingAssetValueFiatUserCurrency = bn(currentValue.asset).times(
+        poolAssetMarketData?.price || 0,
+      )
+      const underlyingRuneValueFiatUserCurrency = bn(currentValue.rune).times(
+        runeMarketData?.price || 0,
+      )
 
       const isAsymmetric = position.runeAddress === '' || position.assetAddress === ''
       const asymSide = (() => {
@@ -114,16 +129,9 @@ export const useUserLpData = ({
         totalPoolUnits: thornodePoolData.pool_units,
       })
 
-      const redeemable = getRedeemable(
-        position.liquidityUnits,
-        thornodePoolData.pool_units,
-        midgardPoolData.assetDepth,
-        midgardPoolData.runeDepth,
-      )
-
       return {
-        underlyingAssetAmountCryptoPrecision: fromThorBaseUnit(position.assetDeposit).toFixed(),
-        underlyingRuneAmountCryptoPrecision: fromThorBaseUnit(position.runeDeposit).toFixed(),
+        underlyingAssetAmountCryptoPrecision: currentValue.asset,
+        underlyingRuneAmountCryptoPrecision: currentValue.rune,
         isAsymmetric,
         asymSide: isAsymmetric ? asymSide : null,
         underlyingAssetValueFiatUserCurrency: underlyingAssetValueFiatUserCurrency.toFixed(),
@@ -131,15 +139,18 @@ export const useUserLpData = ({
         totalValueFiatUserCurrency,
         poolOwnershipPercentage,
         opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
-        redeemable,
+        redeemableFees: currentValue, // TODO(gomes): FIXME, dis wrong
+        accountId: position.accountId,
+        assetId,
       }
     })
+
+    return parsedPositions
   }
 
   const liquidityPoolPositionData = useQuery({
-    // TODO(gomes): remove me, this avoids spamming the API during development
-    staleTime: Infinity,
     queryKey: lpPositionQueryKey,
+    staleTime: Infinity,
     queryFn: async ({ queryKey }) => {
       const [, { assetId }] = queryKey
 
@@ -154,10 +165,11 @@ export const useUserLpData = ({
         .filter(isSome)
 
       if (!allPositions.length) return
+
       return allPositions
     },
     select: selectLiquidityPositionsData,
-    enabled: Boolean(thornodePoolData),
+    enabled: Boolean(assetId && thornodePoolData),
   })
 
   return liquidityPoolPositionData

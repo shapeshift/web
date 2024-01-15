@@ -117,6 +117,47 @@ export type ExtendedThorNodeLiquidityProvider = ThorNodeLiquidityProvider & {
 
 export type ThorchainLiquidityProvidersResponseSuccess = ThorNodeLiquidityProvider[]
 
+type ThorchainEarningsHistoryPoolItem = {
+  pool: string
+  assetLiquidityFees: string
+  runeLiquidityFees: string
+  totalLiquidityFeesRune: string
+  saverEarning: string
+  rewards: string
+  earnings: string
+}
+
+type ThorchainEarningsHistoryItem = {
+  startTime: string
+  endTime: string
+  liquidityFees: string
+  blockRewards: string
+  earnings: string
+  bondingEarnings: string
+  liquidityEarnings: string
+  avgNodeCount: string
+  runePriceUSD: string
+  pools: ThorchainEarningsHistoryPoolItem[]
+}
+
+type ThorchainEarningsHistoryIntervals = {
+  startTime: string
+  endTime: string
+  liquidityFees: string
+  blockRewards: string
+  earnings: string
+  bondingEarnings: string
+  liquidityEarnings: string
+  avgNodeCount: string
+  runePriceUSD: string
+  pools: ThorchainEarningsHistoryPoolItem[]
+}
+
+export type ThorchainEarningsHistoryResponse = {
+  meta: ThorchainEarningsHistoryItem
+  intervals: ThorchainEarningsHistoryIntervals[]
+}
+
 export type PoolShareDetail = {
   assetShare: BN
   runeShare: BN

@@ -67,6 +67,7 @@ const TransactionType = ({
     case TransferType.Receive:
       return <TransactionReceive {...props} />
     case TradeType.Trade:
+    case TradeType.Swap:
     case TradeType.Refund:
       return <TransactionTrade {...props} />
     case 'method':

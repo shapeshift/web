@@ -18,13 +18,6 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
-const isStreamingSwapMemo = (memo: string | undefined): boolean => {
-  if (!memo) return false
-
-  const regex = /:\d+\/\d+\/\d+:/
-  return regex.test(memo)
-}
-
 export const TransactionMethod = ({
   txDetails,
   showDateAndGuide,
@@ -35,8 +28,6 @@ export const TransactionMethod = ({
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
-  const memo = 'memo' in txMetadata ? txMetadata.memo : undefined
-  const isStreamingSwap = useMemo(() => isStreamingSwapMemo(memo), [memo])
   const { method, parser } = txMetadata
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
@@ -53,8 +44,6 @@ export const TransactionMethod = ({
     const symbol = asset?.symbol
     const titlePrefix = (() => {
       switch (true) {
-        case isStreamingSwap:
-          return 'transactionRow.parser.swap.streamingSwap'
         case method !== undefined && parser !== undefined:
           return `transactionRow.parser.${parser}.${method}`
         default:
@@ -70,7 +59,7 @@ export const TransactionMethod = ({
       default:
         return translate(titlePrefix)
     }
-  }, [asset?.symbol, method, isStreamingSwap, parser, translate])
+  }, [asset?.symbol, method, parser, translate])
 
   const type = useMemo(() => {
     switch (method) {
@@ -79,23 +68,32 @@ export const TransactionMethod = ({
       case Method.Delegate:
       case Method.Deposit:
       case Method.JoinPool:
+      case Method.LoanOpen:
+      case Method.LoanRepayment:
       case Method.Stake:
       case Method.Transfer:
       case Method.TransferOut:
         return TransferType.Send
       case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
+      case Method.DepositRefund:
       case Method.Exit:
       case Method.ExitPool:
       case Method.InstantUnstake:
+      case Method.LoanOpenRefund:
+      case Method.LoanOut:
+      case Method.LoanRepaymentRefund:
       case Method.Out:
       case Method.Outbound:
       case Method.RecvPacket:
       case Method.Refund:
       case Method.RemoveLiquidityEth:
+      case Method.SwapOut:
+      case Method.SwapRefund:
       case Method.Unstake:
       case Method.Withdraw:
       case Method.WithdrawDelegatorReward:
+      case Method.WithdrawOut:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:
@@ -121,7 +119,7 @@ export const TransactionMethod = ({
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
-        txData={txMetadataWithAssetId}
+        txData={txMetadata}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
       />

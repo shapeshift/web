@@ -16,7 +16,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
+import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
@@ -198,7 +198,6 @@ export const useGetTradeQuotes = () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
-        const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
         const potentialAffiliateBps = DEFAULT_SWAPPER_AFFILIATE_BPS
@@ -229,7 +228,6 @@ export const useGetTradeQuotes = () => {
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
-          isKeepKey: walletIsKeepKey,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args

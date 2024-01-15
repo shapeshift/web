@@ -37,6 +37,7 @@ import { PoolInfo } from './components/PoolInfo'
 const containerPadding = { base: 6, '2xl': 8 }
 const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
+
 const PoolHeader = () => {
   const translate = useTranslate()
   const history = useHistory()

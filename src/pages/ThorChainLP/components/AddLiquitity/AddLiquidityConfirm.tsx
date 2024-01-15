@@ -11,7 +11,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
@@ -107,9 +107,9 @@ export const AddLiquidityConfirm = () => {
               px={4}
               flex={1}
             >
-              <AssetIcon size='sm' assetId={ethAssetId} />
+              <AssetIcon size='sm' assetId={thorchainAssetId} />
               <Stack textAlign='center' spacing={0}>
-                <Amount.Crypto fontWeight='bold' value='100' symbol='ETH' />
+                <Amount.Crypto fontWeight='bold' value='100' symbol='RUNE' />
                 <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
               </Stack>
             </Card>
@@ -119,6 +119,19 @@ export const AddLiquidityConfirm = () => {
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>ShapeShift Fee</Row.Label>
                 <Row.Value>Free</Row.Value>
+              </Row>
+            </TimelineItem>
+            <TimelineItem>
+              <Row fontSize='sm' fontWeight='medium'>
+                <Row.Label>THORChain Fee</Row.Label>
+                <Row.Value display='flex' gap={1}>
+                  <Amount.Crypto value='0.02' symbol='RUNE' />
+                  <Flex color='text.subtle'>
+                    {'('}
+                    <Amount.Fiat value='10.00' />
+                    {')'}
+                  </Flex>
+                </Row.Value>
               </Row>
             </TimelineItem>
             <TimelineItem>

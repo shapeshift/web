@@ -25,7 +25,7 @@ const Addresses = ({ addresses, explorerAddressLink }: AddressesProps) => {
   const handleShowMore = useCallback(() => setShowAll(prevState => !prevState), [setShowAll])
 
   return (
-    <Box>
+    <>
       <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         {visibleAddresses.map(address => (
           <Box key={address}>
@@ -38,7 +38,7 @@ const Addresses = ({ addresses, explorerAddressLink }: AddressesProps) => {
           </Button>
         )}
       </Row>
-    </Box>
+    </>
   )
 }
 

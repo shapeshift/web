@@ -394,13 +394,20 @@ export const calculateEarnings = (
   _assetLiquidityFees: string,
   _runeLiquidityFees: string,
   userPoolShare: string,
+  runePrice: string,
+  assetPrice: string,
 ) => {
   const assetLiquidityFees = fromThorBaseUnit(_assetLiquidityFees)
   const runeLiquidityFees = fromThorBaseUnit(_runeLiquidityFees)
 
   const userShare = bn(userPoolShare)
-  const assetEarnings = userShare.times(assetLiquidityFees).toFixed()
-  const runeEarnings = userShare.times(runeLiquidityFees).toFixed()
+  const assetEarnings = userShare.times(assetLiquidityFees).times(2).toFixed()
+  const runeEarnings = userShare.times(runeLiquidityFees).times(2).toFixed()
 
-  return { assetEarnings, runeEarnings }
+  const totalEarningsFiatUserCurrency = bn(assetEarnings)
+    .times(assetPrice)
+    .plus(bn(runeEarnings).times(runePrice))
+    .toFixed()
+
+  return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
 }

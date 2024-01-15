@@ -118,11 +118,6 @@ export const Pool = () => {
     return [foundPool.assetId, thorchainAssetId]
   }, [foundPool])
 
-  const liquidityValueComponent = useMemo(
-    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [foundUserData?.totalValueFiatUserCurrency],
-  )
-
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
 
@@ -162,9 +157,9 @@ export const Pool = () => {
     },
   })
 
-  const { data: feesHistory } = useQuery({
+  const { data: earnings } = useQuery({
     enabled: Boolean(foundUserData && thornodePoolData),
-    queryKey: ['thorchainFeesHistory', foundUserData?.dateFirstAdded ?? ''],
+    queryKey: ['thorchainearnings', foundUserData?.dateFirstAdded ?? ''],
     queryFn: () =>
       foundUserData ? getEarnings({ from: foundUserData.dateFirstAdded }) : undefined,
     select: data => {
@@ -177,9 +172,21 @@ export const Pool = () => {
         foundHistoryPool.assetLiquidityFees,
         foundHistoryPool.runeLiquidityFees,
         foundUserData.poolShare,
+        runeMarketData.price,
+        assetMarketData.price,
       )
     },
   })
+
+  const liquidityValueComponent = useMemo(
+    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
+    [foundUserData?.totalValueFiatUserCurrency],
+  )
+
+  const unclaimedFeesComponent = useMemo(
+    () => <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} fontSize='2xl' />,
+    [earnings?.totalEarningsFiatUserCurrency],
+  )
 
   const tvl = useMemo(() => {
     if (!foundPool) return '0'
@@ -248,7 +255,7 @@ export const Pool = () => {
                 <Stack flex={1}>
                   <DynamicComponent
                     label='pools.unclaimedFees'
-                    component={liquidityValueComponent}
+                    component={unclaimedFeesComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'
                   />
@@ -265,7 +272,7 @@ export const Pool = () => {
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={feesHistory?.assetEarnings ?? '0'}
+                          value={earnings?.assetEarnings ?? '0'}
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
@@ -280,7 +287,7 @@ export const Pool = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={feesHistory?.runeEarnings ?? '0'}
+                          value={earnings?.runeEarnings ?? '0'}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>

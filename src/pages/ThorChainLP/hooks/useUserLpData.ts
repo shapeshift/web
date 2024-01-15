@@ -48,10 +48,6 @@ type UseUserLpDataReturn = {
   poolOwnershipPercentage: string
   opportunityId: string
   poolShare: string
-  redeemableFees: {
-    asset: string
-    rune: string
-  }
   accountId: AccountId
   assetId: AssetId
 }[]

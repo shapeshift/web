@@ -1,32 +1,30 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Button,
+  ButtonGroup,
   CardFooter,
   CardHeader,
   Center,
-  Collapse,
   Divider,
   Flex,
   FormLabel,
   IconButton,
   Skeleton,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useMemo } from 'react'
-import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -38,11 +36,8 @@ import { useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
-import type { AddLiquidityProps } from './AddLiquidity'
-import { PoolSummary } from './components/PoolSummary'
-import { AddLiquidityRoutePaths } from './types'
-
-const buttonProps = { flex: 1, justifyContent: 'space-between' }
+import type { RemoveLiquidityProps } from './RemoveLiquidity'
+import { RemoveLiquidityRoutePaths } from './types'
 
 const formControlProps = {
   borderRadius: 0,
@@ -57,17 +52,13 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const asset2 = useAppSelector(state => selectAssetById(state, usdcAssetId))
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
-
-  const handleAssetChange = useCallback((asset: Asset) => {
-    console.info(asset)
-  }, [])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -78,7 +69,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
   }, [])
 
   const handleSubmit = useCallback(() => {
-    history.push(AddLiquidityRoutePaths.Confirm)
+    history.push(RemoveLiquidityRoutePaths.Confirm)
   }, [history])
 
   const percentOptions = useMemo(() => [], [])
@@ -126,29 +117,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
       {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
         <Stack>
-          <FormLabel px={6} mb={0} fontSize='sm'>
-            {translate('pools.selectPair')}
-          </FormLabel>
-          <TradeAssetSelect
-            assetId={ethAssetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
-          <TradeAssetSelect
-            assetId={usdcAssetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
-        </Stack>
-        <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
-            {translate('pools.depositAmounts')}
+            {translate('pools.removeAmounts')}
           </FormLabel>
           <LpType />
+          <Stack px={6} py={4} spacing={4}>
+            <Amount.Percent value='0.02' fontSize='2xl' />
+            <Slider>
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb />
+            </Slider>
+            <ButtonGroup size='sm' justifyContent='space-between'>
+              <Button flex={1}>25%</Button>
+              <Button flex={1}>50%</Button>
+              <Button flex={1}>75%</Button>
+              <Button flex={1}>Max</Button>
+            </ButtonGroup>
+          </Stack>
+          <Divider borderColor='border.base' />
           <Stack divider={pairDivider} spacing={0}>
             <TradeAssetInput
               assetId={ethAssetId}
@@ -170,9 +158,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
             />
           </Stack>
         </Stack>
-        <Collapse in={true}>
-          <PoolSummary />
-        </Collapse>
       </Stack>
       <CardFooter
         borderTopWidth={1}
@@ -225,14 +210,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Alert status='info' mx={-2} width='auto'>
-          <AlertIcon as={BiSolidBoltCircle} />
-          <AlertDescription fontSize='sm' fontWeight='medium'>
-            {translate('pools.symAlert', { from: 'USDC', to: 'ETH' })}
-          </AlertDescription>
-        </Alert>
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
-          {translate('pools.addLiquidity')}
+          {translate('pools.removeLiquidity')}
         </Button>
       </CardFooter>
     </SlideTransition>

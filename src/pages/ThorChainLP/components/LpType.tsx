@@ -8,7 +8,7 @@ import { AssetSymbol } from 'components/AssetSymbol'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText } from 'components/Text'
 
-import { PoolIcon } from '../../PoolIcon'
+import { PoolIcon } from './PoolIcon'
 
 const checked = {
   bg: 'background.surface.raised.pressed',
@@ -76,7 +76,7 @@ const options = [
   },
 ]
 
-export const DepositType = () => {
+export const LpType = () => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
     defaultValue: 'one',

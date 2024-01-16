@@ -1,6 +1,7 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Route, Switch, useRouteMatch } from 'react-router'
 
+import { AddLiquidityPage } from './AddLiquidityPage'
 import { AvailablePools } from './AvailablePools'
 import { Pool } from './Pool/Pool'
 import { YourPositions } from './YourPositions'
@@ -26,6 +27,9 @@ export const PoolsPage = () => {
       </Route>
       <Route path={`${path}/poolAccount/:poolOpportunityId`}>
         <Pool />
+      </Route>
+      <Route path={`${path}/add`}>
+        <AddLiquidityPage />
       </Route>
     </Switch>
   )

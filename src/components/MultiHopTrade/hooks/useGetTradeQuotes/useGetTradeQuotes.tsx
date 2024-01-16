@@ -18,7 +18,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import type { ApiQuote } from 'state/apis/swappers'
+import type { ApiQuote, TradeQuoteError } from 'state/apis/swappers'
 import {
   GET_TRADE_QUOTE_POLLING_INTERVAL,
   swappersApi,
@@ -30,15 +30,11 @@ import {
   selectLastHopBuyAccountId,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAmountCryptoPrecision,
+  selectSellAmountUsd,
   selectSellAsset,
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
-import {
-  selectFirstHopSellAsset,
-  selectLastHopBuyAsset,
-  selectSellAmountUsd,
-} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -48,23 +44,29 @@ type MixPanelQuoteMeta = {
   quoteReceived: boolean
   isStreaming: boolean
   isLongtail: boolean
+  errors: TradeQuoteError[]
+  isActionable: boolean // is the individual quote actionable
 }
 
 type GetMixPanelDataFromApiQuotesReturn = {
   quoteMeta: MixPanelQuoteMeta[]
-  sellAssetId: string | undefined
-  buyAssetId: string | undefined
+  sellAssetId: string
+  buyAssetId: string
+  sellAssetChainId: string
+  buyAssetChainId: string
   sellAmountUsd: string | undefined
   version: string // ISO 8601 standard basic format date
+  isActionable: boolean // is any quote in the request actionable
 }
 
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
-  const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
-  const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
-  const sellAmountUsd = selectSellAmountUsd(store.getState())
+  const state = store.getState()
+  const { assetId: sellAssetId, chainId: sellAssetChainId } = selectSellAsset(state)
+  const { assetId: buyAssetId, chainId: buyAssetChainId } = selectBuyAsset(state)
+  const sellAmountUsd = selectSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote, swapperName, inputOutputRatio }) => {
+    .map(({ quote, errors, swapperName, inputOutputRatio }) => {
       const differenceFromBestQuoteDecimalPercentage =
         (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
@@ -73,14 +75,27 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,
+        errors: errors.map(({ error }) => error),
+        isActionable: !!quote && !errors.length,
       }
     })
     .filter(isSome)
 
-  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
-  const version = '20231220'
+  const isActionable = quoteMeta.some(({ isActionable }) => isActionable)
 
-  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, version }
+  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
+  const version = '20240115'
+
+  return {
+    quoteMeta,
+    sellAssetId,
+    buyAssetId,
+    sellAmountUsd,
+    sellAssetChainId,
+    buyAssetChainId,
+    version,
+    isActionable,
+  }
 }
 
 const isEqualExceptAffiliateBpsAndSlippage = (
@@ -281,17 +296,20 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
-  // This ensures we never return cached data, if skip has been set after the initial query load
-  const { currentData } = useGetTradeQuoteQuery(tradeQuoteInput, {
+  useGetTradeQuoteQuery(tradeQuoteInput, {
     skip: !shouldRefetchTradeQuotes,
     pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
     /*
-      If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
-      We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
-     */
+    If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
+    We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
+    */
     refetchOnMountOrArgChange: true,
   })
+
+  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
+  // This ensures we never return cached data, if skip has been set after the initial query load
+  // currentData is always undefined when skip === true, so we have to access it like so:
+  const { currentData } = swappersApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
 
   useEffect(() => {
     if (currentData && mixpanel) {

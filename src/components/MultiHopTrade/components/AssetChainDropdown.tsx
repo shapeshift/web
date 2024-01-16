@@ -25,7 +25,7 @@ import { useAppSelector } from 'state/store'
 const disabled = { opacity: 1 }
 const hover = { color: 'text.base' }
 
-type ChainDropdownProps = {
+export type ChainDropdownProps = {
   assetId?: AssetId
   onClick: (arg: AssetId) => void
   assetIds?: AssetId[]

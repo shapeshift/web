@@ -2,6 +2,9 @@ import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -10,6 +13,9 @@ import { Main } from 'components/Layout/Main'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { calculateEarnings, getEarnings } from 'lib/utils/thorchain/lp'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -61,38 +67,63 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
-  const { data, isLoading } = useUserLpData({ assetId })
+  const { data: userData, isLoading } = useUserLpData({ assetId })
 
-  const foundPool = (data ?? []).find(pool => pool.opportunityId === opportunityId)
+  const foundUserPool = (userData ?? []).find(pool => pool.opportunityId === opportunityId)
 
   const handlePoolClick = useCallback(() => {
-    if (!foundPool) return
+    if (!foundUserPool) return
 
-    const { opportunityId, accountId } = foundPool
+    const { opportunityId, accountId } = foundUserPool
     history.push(
       generatePath('/pools/poolAccount/:accountId/:opportunityId', { accountId, opportunityId }),
     )
-  }, [foundPool, history])
+  }, [foundUserPool, history])
 
   const poolAssetIds = useMemo(() => {
-    if (!foundPool) return []
+    if (!foundUserPool) return []
 
     return [assetId, thorchainAssetId]
-  }, [assetId, foundPool])
+  }, [assetId, foundUserPool])
 
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const totalRedeemableValue = useMemo(() => {
-    if (!foundPool) return '0'
-    const { asset, rune } = foundPool.redeemableFees
+  const { data: thornodePoolData } = useQuery({
+    enabled: Boolean(foundUserPool),
+    queryKey: ['thornodePoolData', foundUserPool?.assetId ?? ''],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserPool?.assetId ?? '' })
+      const { data: poolData } = await axios.get<ThornodePoolResponse>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+      )
 
-    const assetValueFiatUserCurrency = bn(asset).times(assetMarketData.price)
-    const runeValueFiatUserCurrency = bn(rune).times(runeMarketData.price)
-    return assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).toFixed()
-  }, [foundPool, assetMarketData, runeMarketData])
+      return poolData
+    },
+  })
 
-  if (!foundPool || !asset || !runeAsset) return null
+  const { data: earnings } = useQuery({
+    enabled: Boolean(foundUserPool && thornodePoolData),
+    queryKey: ['thorchainearnings', foundUserPool?.dateFirstAdded ?? ''],
+    queryFn: () =>
+      foundUserPool ? getEarnings({ from: foundUserPool.dateFirstAdded }) : undefined,
+    select: data => {
+      if (!data || !foundUserPool || !thornodePoolData) return null
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserPool.assetId })
+      const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      if (!foundHistoryPool) return null
+
+      return calculateEarnings(
+        foundHistoryPool.assetLiquidityFees,
+        foundHistoryPool.runeLiquidityFees,
+        foundUserPool.poolShare,
+        runeMarketData.price,
+        assetMarketData.price,
+      )
+    },
+  })
+
+  if (!foundUserPool || !asset || !runeAsset) return null
 
   return (
     <Stack mx={listMargin}>
@@ -118,17 +149,17 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
         </Flex>
         <Stack spacing={0} alignItems={alignItems}>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Fiat value={foundPool.totalValueFiatUserCurrency} />
+            <Amount.Fiat value={foundUserPool.totalValueFiatUserCurrency} />
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.underlyingAssetAmountCryptoPrecision}
+              value={foundUserPool.underlyingAssetAmountCryptoPrecision}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
             />
             <Amount.Crypto
-              value={foundPool.underlyingRuneAmountCryptoPrecision}
+              value={foundUserPool.underlyingRuneAmountCryptoPrecision}
               symbol={runeAsset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -137,11 +168,11 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Fiat value={totalRedeemableValue} />
+            <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} />
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.redeemableFees.asset}
+              value={earnings?.assetEarnings ?? '0'}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -149,7 +180,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
-              value={foundPool.redeemableFees.rune}
+              value={earnings?.runeEarnings ?? '0'}
               symbol={'RUNE'}
               fontSize='sm'
               color='text.subtle'
@@ -159,7 +190,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
         <Skeleton isLoaded={!isLoading} display={largeDisplay}>
           <Amount.Percent
             options={{ maximumFractionDigits: 8 }}
-            value={bn(foundPool.poolOwnershipPercentage).div(100).toFixed()}
+            value={bn(foundUserPool.poolOwnershipPercentage).div(100).toFixed()}
           />
         </Skeleton>
       </Button>

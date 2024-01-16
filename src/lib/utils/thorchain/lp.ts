@@ -158,7 +158,7 @@ export const get24hSwapChangePercentage = async (
   const twentyFourHoursAgo = now - 24 * 60 * 60
   const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
 
-  const { data: last24hData } = await axios.get<MidgardSwapHistoryResponse>(
+  const { data: current24hData } = await axios.get<MidgardSwapHistoryResponse>(
     `${
       getConfig().REACT_APP_MIDGARD_URL
     }/history/swaps?pool=${poolAssetId}&from=${twentyFourHoursAgo}&to=${now}`,
@@ -180,8 +180,8 @@ export const get24hSwapChangePercentage = async (
   )
 
   // Get current 24h fees
-  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(last24hData.meta.toAssetFees)
-  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(last24hData.meta.toRuneFees)
+  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toAssetFees)
+  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toRuneFees)
   const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
   const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
   const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
@@ -194,7 +194,7 @@ export const get24hSwapChangePercentage = async (
     : feeChange.div(previousFeesFiatUserCurrency).toNumber()
 
   const previousVolume = bnOrZero(previous24hData.meta.totalVolume)
-  const currentVolume = last24hData.meta.totalVolume
+  const currentVolume = current24hData.meta.totalVolume
   const volumeChange = bnOrZero(currentVolume).minus(previousVolume)
   const volumeChangePercentage = previousVolume.isZero()
     ? 0

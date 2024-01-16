@@ -33,6 +33,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -133,6 +134,30 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
+  const tradeAssetInputs = useMemo(() => {
+    if (!(asset && rune && foundPool)) return null
+
+    const assets: Asset[] = (() => {
+      if (foundPool.asymSide === null) return [asset, rune]
+      if (foundPool.asymSide === AsymSide.Rune) return [rune]
+      if (foundPool.asymSide === AsymSide.Asset) return [asset]
+
+      throw new Error('Invalid asym side')
+    })()
+
+    return assets.map(_asset => (
+      <TradeAssetInput
+        assetId={_asset?.assetId}
+        assetIcon={_asset?.icon ?? ''}
+        assetSymbol={_asset?.symbol ?? ''}
+        onAccountIdChange={handleAccountIdChange}
+        percentOptions={percentOptions}
+        rightComponent={ReadOnlyAsset}
+        formControlProps={formControlProps}
+      />
+    ))
+  }, [asset, foundPool, handleAccountIdChange, percentOptions, rune])
+
   if (!foundPool || !asset || !rune) return null
 
   return (
@@ -164,24 +189,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           </FormLabel>
           <DepositType assetId={asset.assetId} asymSide={foundPool.asymSide} />
           <Stack divider={pairDivider} spacing={0}>
-            <TradeAssetInput
-              assetId={asset?.assetId}
-              assetIcon={asset?.icon ?? ''}
-              assetSymbol={asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
-            <TradeAssetInput
-              assetId={thorchainAssetId}
-              assetIcon={rune?.icon ?? ''}
-              assetSymbol={rune?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
+            {tradeAssetInputs}
           </Stack>
         </Stack>
         <Collapse in={true}>

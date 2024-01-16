@@ -88,8 +88,8 @@ export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | null): AssetId[] => {
       if (value === null) return assetIds
-      if (value === 'rune') return [thorchainAssetId]
-      if (value === 'asset') return [assetId]
+      if (value === AsymSide.Rune) return [thorchainAssetId]
+      if (value === AsymSide.Asset) return [assetId]
 
       throw new Error(`Invalid value ${value}`)
     },

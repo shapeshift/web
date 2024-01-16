@@ -17,22 +17,26 @@ const AddLiquidityEntries = [
 
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
+  opportunityId: string
 }
 
-export const AddLiquidity: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <AddLiquidityRoutes headerComponent={headerComponent} />
+      <AddLiquidityRoutes opportunityId={opportunityId} headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+}) => {
   const location = useLocation()
 
   const renderAddLiquidityInput = useCallback(
-    () => <AddLiquidityInput headerComponent={headerComponent} />,
-    [headerComponent],
+    () => <AddLiquidityInput opportunityId={opportunityId} headerComponent={headerComponent} />,
+    [headerComponent, opportunityId],
   )
   const renderAddLiquidityConfirm = useCallback(() => <AddLiquidityConfirm />, [])
 

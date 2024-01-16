@@ -398,7 +398,10 @@ export const Pool = () => {
             <Tabs onChange={setStepIndex} variant='unstyled' index={stepIndex}>
               <TabPanels>
                 <TabPanel px={0} py={0}>
-                  <AddLiquidity headerComponent={TabHeader} />
+                  <AddLiquidity
+                    headerComponent={TabHeader}
+                    opportunityId={foundPool.opportunityId}
+                  />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
                   <RemoveLiquidity headerComponent={TabHeader} />

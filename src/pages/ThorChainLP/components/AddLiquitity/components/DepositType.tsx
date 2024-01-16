@@ -1,12 +1,12 @@
 import type { RadioProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import React, { useMemo } from 'react'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import React, { useCallback, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { AssetSymbol } from 'components/AssetSymbol'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { RawText } from 'components/Text'
+import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 
 import { PoolIcon } from '../../PoolIcon'
 
@@ -63,44 +63,73 @@ const TypeRadio: React.FC<RadioProps> = props => {
 
 const options = [
   {
-    value: 'one',
-    assetIds: [ethAssetId],
+    value: AsymSide.Asset,
   },
   {
-    value: 'two',
-    assetIds: [ethAssetId, usdcAssetId],
+    value: AsymSide.Rune,
   },
   {
-    value: 'three',
-    assetIds: [usdcAssetId],
+    value: null,
   },
 ]
 
-export const DepositType = () => {
+type DepositTypeProps = {
+  assetId: AssetId
+  // If undefined/not passed, we're not locking the user in any kind of symmetrical/asymmetrical deposit type, i.e they can choose any of the three
+  // If null, user can only deposit symmetrical
+  // If AsymSide, user can only deposit asymmetrical on said Asymside
+  asymSide?: AsymSide | null
+}
+export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
+  const assetIds = useMemo(() => {
+    return [assetId, thorchainAssetId]
+  }, [assetId])
+
+  const makeAssetIdsOption = useCallback(
+    (value: AsymSide | null): AssetId[] => {
+      if (value === null) return assetIds
+      if (value === 'rune') return [thorchainAssetId]
+      if (value === 'asset') return [assetId]
+
+      throw new Error(`Invalid value ${value}`)
+    },
+    [assetId, assetIds],
+  )
+
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
     defaultValue: 'one',
     onChange: console.log,
   })
+
+  const radioOptions = useMemo(() => {
+    const _options = asymSide ? [{ value: asymSide }] : options
+    if (_options.length === 1) return null
+
+    return _options.map((option, index) => {
+      const radio = getRadioProps({ value: option.value })
+
+      const optionAssetIds = makeAssetIdsOption(option.value)
+      return (
+        <TypeRadio key={`type-${index}`} {...radio}>
+          <PoolIcon assetIds={optionAssetIds} size='xs' />
+          <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
+            <TypeLabel assetIds={optionAssetIds} />
+            {optionAssetIds.length === 1 && (
+              <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
+                <BiSolidBoltCircle />
+              </Box>
+            )}
+          </Flex>
+        </TypeRadio>
+      )
+    })
+  }, [asymSide, getRadioProps, makeAssetIdsOption])
+
   const group = getRootProps()
   return (
     <Flex px={4} gap={2} {...group}>
-      {options.map((value, index) => {
-        const radio = getRadioProps({ value: value.value })
-        return (
-          <TypeRadio key={`type-${index}`} {...radio}>
-            <PoolIcon assetIds={value.assetIds} size='xs' />
-            <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
-              <TypeLabel assetIds={value.assetIds} />
-              {value.assetIds.length === 1 && (
-                <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
-                  <BiSolidBoltCircle />
-                </Box>
-              )}
-            </Flex>
-          </TypeRadio>
-        )
-      })}
+      {radioOptions}
     </Flex>
   )
 }

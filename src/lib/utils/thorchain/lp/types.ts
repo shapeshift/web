@@ -164,3 +164,23 @@ export type PoolShareDetail = {
   runeShare: BN
   poolShareDecimalPercent: string
 }
+
+export type PoolDepth = {
+  pool: string
+  totalDepth: string
+}
+
+export type MidgardTvlHistoryItem = {
+  startTime: string
+  endTime: string
+  totalValuePooled: string
+  poolDepth: PoolDepth[]
+  totalValueBonded: string
+  totalValueLocked: string
+  runePriceUSD: string
+}
+
+export type MidgardTvlHistoryResponse = {
+  meta: MidgardTvlHistoryItem
+  intervals: MidgardTvlHistoryItem[]
+}

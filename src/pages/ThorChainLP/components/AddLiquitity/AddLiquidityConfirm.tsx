@@ -24,6 +24,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -61,6 +62,11 @@ export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps)
   }, [opportunityId, parsedPools])
 
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const assetNetwork = useMemo(() => {
+    if (!asset) return undefined
+    return getChainAdapterManager().get(asset.chainId)?.getDisplayName()
+  }, [asset])
+
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const assetIds = useMemo(() => {
@@ -172,7 +178,7 @@ export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps)
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('pools.chainFee', { chain: 'Ethereum' })}</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: assetNetwork })}</Row.Label>
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='ETH' />
                   <Flex color='text.subtle'>

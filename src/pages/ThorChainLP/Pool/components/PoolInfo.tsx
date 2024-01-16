@@ -19,6 +19,7 @@ type PoolInfoProps = {
   fee24hChange: number
   apy: string
   tvl?: string
+  tvl24hChange?: number
 }
 
 export const PoolInfo = ({
@@ -30,6 +31,7 @@ export const PoolInfo = ({
   fee24hChange,
   apy,
   tvl,
+  tvl24hChange,
 }: PoolInfoProps) => {
   const asset0 = useAppSelector(state => selectAssetById(state, assetIds[0]))
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))
@@ -57,6 +59,18 @@ export const PoolInfo = ({
       </Tag>
     )
   }, [fee24hChange])
+
+  const tvlChangeTag: JSX.Element | null = useMemo(() => {
+    if (tvl24hChange === undefined) return null
+    const icon = tvl24hChange >= 0 ? ArrowUpIcon : ArrowDownIcon
+    const colorScheme = tvl24hChange >= 0 ? 'green' : 'red'
+    return (
+      <Tag colorScheme={colorScheme} size='sm' gap={0}>
+        <TagLeftIcon as={icon} mr={1} />
+        <Amount.Percent value={tvl24hChange} autoColor fontWeight='medium' />
+      </Tag>
+    )
+  }, [tvl24hChange])
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {
     return null
@@ -98,10 +112,7 @@ export const PoolInfo = ({
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
             <Amount.Fiat fontSize='xl' value={tvl ?? 0} fontWeight='medium' />
-            <Tag colorScheme='green' size='sm' gap={0}>
-              <TagLeftIcon as={ArrowUpIcon} mr={1} />
-              <Amount.Percent value='0.02' autoColor fontWeight='medium' />
-            </Tag>
+            {tvlChangeTag}
           </Flex>
           <Text
             fontSize='sm'

@@ -36,6 +36,7 @@ import {
   calculateEarnings,
   calculateTVL,
   get24hSwapChangePercentage,
+  get24hTvlChangePercentage,
   getAllTimeVolume,
   getEarnings,
   getFees,
@@ -141,6 +142,12 @@ export const Pool = () => {
       foundPool
         ? get24hSwapChangePercentage(foundPool.assetId, runeMarketData.price, assetMarketData.price)
         : null,
+  })
+
+  const { data: tvl24hChange } = useQuery({
+    queryKey: ['get24hTvlChangePercentage', foundPool?.assetId ?? ''],
+    queryFn: () =>
+      foundPool ? get24hTvlChangePercentage(foundPool.assetId) : Promise.resolve(null),
   })
 
   const { data: fees24h } = useQuery({
@@ -325,6 +332,7 @@ export const Pool = () => {
                 allTimeVolume={allTimeVolume ?? '0'}
                 apy={foundPool.poolAPY ?? '0'}
                 tvl={tvl}
+                tvl24hChange={tvl24hChange ?? 0}
                 assetIds={poolAssetIds}
               />
             </CardFooter>

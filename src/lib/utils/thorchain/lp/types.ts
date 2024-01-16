@@ -141,7 +141,7 @@ type ThorchainEarningsHistoryItem = {
   pools: ThorchainEarningsHistoryPoolItem[]
 }
 
-type ThorchainEarningsHistoryIntervals = {
+type ThorchainEarningsHistoryInterval = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -156,7 +156,7 @@ type ThorchainEarningsHistoryIntervals = {
 
 export type ThorchainEarningsHistoryResponse = {
   meta: ThorchainEarningsHistoryItem
-  intervals: ThorchainEarningsHistoryIntervals[]
+  intervals: ThorchainEarningsHistoryInterval[]
 }
 
 export type PoolShareDetail = {
@@ -174,7 +174,7 @@ export type MidgardTvlHistoryItem = {
   startTime: string
   endTime: string
   totalValuePooled: string
-  poolDepth: PoolDepth[]
+  poolsDepth: PoolDepth[]
   totalValueBonded: string
   totalValueLocked: string
   runePriceUSD: string

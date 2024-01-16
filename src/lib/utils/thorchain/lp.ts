@@ -289,9 +289,8 @@ export const getFees = async (
 
     if (timeframe === 'all') {
       const genesis = '1647907200'
-      const nowMinusGenesis = bnOrZero(now).minus(genesis)
 
-      return { from: nowMinusGenesis, to: now }
+      return { from: genesis, to: now }
     }
 
     throw new Error(`Invalid timeframe ${timeframe}`)

@@ -17,6 +17,7 @@ import type {
   MidgardPool,
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
+  MidgardTvlHistoryResponse,
   PoolShareDetail,
   ThorchainEarningsHistoryResponse,
   ThorchainLiquidityProvidersResponseSuccess,
@@ -145,6 +146,94 @@ export const getVolume = async (
   )
 
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
+}
+
+export const get24hSwapChangePercentage = async (
+  assetId: AssetId,
+  runePrice: string,
+  assetPrice: string,
+): Promise<{ volumeChangePercentage: number; feeChangePercentage: number } | null> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const now = Math.floor(Date.now() / 1000)
+  const twentyFourHoursAgo = now - 24 * 60 * 60
+  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
+
+  const { data: current24hData } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?pool=${poolAssetId}&from=${twentyFourHoursAgo}&to=${now}`,
+  )
+
+  const { data: previous24hData } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?pool=${poolAssetId}&from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
+  )
+
+  // Get previous 24h fees
+  const previousToAssetFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toAssetFees)
+  const previousToRuneFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toRuneFees)
+  const previousToAssetFeesFiatUserCurrency = previousToAssetFeesCryptoPrecision.times(assetPrice)
+  const previousToRuneFeesFiatUserCurrency = previousToRuneFeesCryptoPrecision.times(runePrice)
+  const previousFeesFiatUserCurrency = previousToAssetFeesFiatUserCurrency.plus(
+    previousToRuneFeesFiatUserCurrency,
+  )
+
+  // Get current 24h fees
+  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toAssetFees)
+  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toRuneFees)
+  const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
+  const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
+  const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
+    currentToRuneFeesFiatUserCurrency,
+  )
+
+  const feeChange = currentFeesFiatUserCurrency.minus(previousFeesFiatUserCurrency)
+  const feeChangePercentage = previousFeesFiatUserCurrency.isZero()
+    ? 0
+    : feeChange.div(previousFeesFiatUserCurrency).toNumber()
+
+  const previousVolume = bnOrZero(previous24hData.meta.totalVolume)
+  const currentVolume = current24hData.meta.totalVolume
+  const volumeChange = bnOrZero(currentVolume).minus(previousVolume)
+  const volumeChangePercentage = previousVolume.isZero()
+    ? 0
+    : volumeChange.div(previousVolume).toNumber()
+
+  return {
+    volumeChangePercentage,
+    feeChangePercentage,
+  }
+}
+
+export const get24hTvlChangePercentage = async (assetId: AssetId): Promise<number | null> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const now = Math.floor(Date.now() / 1000)
+  const twentyFourHoursAgo = now - 24 * 60 * 60
+  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
+
+  const { data: current24hData } = await axios.get<MidgardTvlHistoryResponse>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/history/tvl?from=${twentyFourHoursAgo}&to=${now}`,
+  )
+
+  const currentPool24hDepth = current24hData.meta.poolsDepth.find(pool => pool.pool === poolAssetId)
+    ?.totalDepth
+
+  const { data: previous24hData } = await axios.get<MidgardTvlHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/tvl?from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
+  )
+
+  const previousPool24hDepth = bnOrZero(
+    previous24hData.meta.poolsDepth.find(pool => pool.pool === poolAssetId)?.totalDepth,
+  )
+
+  const change =
+    currentPool24hDepth !== undefined && previousPool24hDepth !== undefined
+      ? bnOrZero(currentPool24hDepth).minus(previousPool24hDepth)
+      : bn(0)
+  return previousPool24hDepth.isZero() ? 0 : change.div(previousPool24hDepth).toNumber()
 }
 
 // Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset

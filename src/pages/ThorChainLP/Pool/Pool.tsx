@@ -35,6 +35,8 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import {
   calculateEarnings,
   calculateTVL,
+  get24hSwapChangePercentage,
+  get24hTvlChangePercentage,
   getAllTimeVolume,
   getEarnings,
   getFees,
@@ -181,6 +183,20 @@ export const Pool = () => {
   const { data: volume24h } = useQuery({
     queryKey: ['thorchainPoolVolume24h', foundPool?.assetId ?? ''],
     queryFn: () => (foundPool ? getVolume('24h', foundPool.assetId, runeMarketData.price) : ''),
+  })
+
+  const { data: swap24hChange } = useQuery({
+    queryKey: ['get24hSwapChangePercentage', foundPool?.assetId ?? ''],
+    queryFn: () =>
+      foundPool
+        ? get24hSwapChangePercentage(foundPool.assetId, runeMarketData.price, assetMarketData.price)
+        : null,
+  })
+
+  const { data: tvl24hChange } = useQuery({
+    queryKey: ['get24hTvlChangePercentage', foundPool?.assetId ?? ''],
+    queryFn: () =>
+      foundPool ? get24hTvlChangePercentage(foundPool.assetId) : Promise.resolve(null),
   })
 
   const { data: fees24h } = useQuery({
@@ -364,10 +380,13 @@ export const Pool = () => {
             >
               <PoolInfo
                 volume24h={volume24h ?? '0'}
+                volume24hChange={swap24hChange?.volumeChangePercentage ?? 0}
+                fee24hChange={swap24hChange?.feeChangePercentage ?? 0}
                 fees24h={fees24h ?? '0'}
                 allTimeVolume={allTimeVolume ?? '0'}
                 apy={foundPool.poolAPY ?? '0'}
                 tvl={tvl}
+                tvl24hChange={tvl24hChange ?? 0}
                 assetIds={poolAssetIds}
               />
             </CardFooter>

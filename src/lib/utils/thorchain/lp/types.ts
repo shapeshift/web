@@ -102,6 +102,7 @@ type MidgardInterval = {
 
 export type MidgardSwapHistoryResponse = {
   intervals: MidgardInterval[]
+  meta: MidgardInterval
 }
 
 // TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/
@@ -140,7 +141,7 @@ type ThorchainEarningsHistoryItem = {
   pools: ThorchainEarningsHistoryPoolItem[]
 }
 
-type ThorchainEarningsHistoryIntervals = {
+type ThorchainEarningsHistoryInterval = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -155,11 +156,31 @@ type ThorchainEarningsHistoryIntervals = {
 
 export type ThorchainEarningsHistoryResponse = {
   meta: ThorchainEarningsHistoryItem
-  intervals: ThorchainEarningsHistoryIntervals[]
+  intervals: ThorchainEarningsHistoryInterval[]
 }
 
 export type PoolShareDetail = {
   assetShare: BN
   runeShare: BN
   poolShareDecimalPercent: string
+}
+
+export type PoolDepth = {
+  pool: string
+  totalDepth: string
+}
+
+export type MidgardTvlHistoryItem = {
+  startTime: string
+  endTime: string
+  totalValuePooled: string
+  poolsDepth: PoolDepth[]
+  totalValueBonded: string
+  totalValueLocked: string
+  runePriceUSD: string
+}
+
+export type MidgardTvlHistoryResponse = {
+  meta: MidgardTvlHistoryItem
+  intervals: MidgardTvlHistoryItem[]
 }

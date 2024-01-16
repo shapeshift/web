@@ -16,6 +16,7 @@ type PoolInfoProps = {
   volume24h: string
   volume24hChange: number
   fees24h: string
+  fee24hChange: number
   apy: string
   tvl?: string
 }
@@ -26,6 +27,7 @@ export const PoolInfo = ({
   volume24h,
   volume24hChange,
   fees24h,
+  fee24hChange,
   apy,
   tvl,
 }: PoolInfoProps) => {
@@ -44,6 +46,17 @@ export const PoolInfo = ({
       </Tag>
     )
   }, [volume24hChange])
+
+  const feeChangeTag: JSX.Element = useMemo(() => {
+    const icon = fee24hChange >= 0 ? ArrowUpIcon : ArrowDownIcon
+    const colorScheme = fee24hChange >= 0 ? 'green' : 'red'
+    return (
+      <Tag colorScheme={colorScheme} size='sm' gap={0}>
+        <TagLeftIcon as={icon} mr={1} />
+        <Amount.Percent value={fee24hChange} autoColor fontWeight='medium' />
+      </Tag>
+    )
+  }, [fee24hChange])
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {
     return null
@@ -129,10 +142,7 @@ export const PoolInfo = ({
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
             <Amount.Fiat fontSize='xl' value={fees24h ?? 0} fontWeight='medium' />
-            <Tag colorScheme='green' size='sm' gap={0}>
-              <TagLeftIcon as={ArrowUpIcon} mr={1} />
-              <Amount.Percent value='0.02' autoColor fontWeight='medium' />
-            </Tag>
+            {feeChangeTag}
           </Flex>
           <Text fontSize='sm' color='text.subtle' fontWeight='medium' translation='pools.fees24h' />
         </Stack>

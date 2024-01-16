@@ -147,7 +147,11 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
-export const get24hVolumeChangePercentage = async (assetId: AssetId): Promise<number | null> => {
+export const get24hSwapChangePercentage = async (
+  assetId: AssetId,
+  runePrice: string,
+  assetPrice: string,
+): Promise<{ volumeChangePercentage: number; feeChangePercentage: number } | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   const now = Math.floor(Date.now() / 1000)
   const twentyFourHoursAgo = now - 24 * 60 * 60
@@ -165,11 +169,40 @@ export const get24hVolumeChangePercentage = async (assetId: AssetId): Promise<nu
     }/history/swaps?pool=${poolAssetId}&from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
   )
 
-  const initialVolume = bnOrZero(previous24hData.meta.totalVolume)
-  const finalVolume = last24hData.meta.totalVolume
-  const change = bnOrZero(finalVolume).minus(initialVolume)
+  // Get previous 24h fees
+  const previousToAssetFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toAssetFees)
+  const previousToRuneFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toRuneFees)
+  const previousToAssetFeesFiatUserCurrency = previousToAssetFeesCryptoPrecision.times(assetPrice)
+  const previousToRuneFeesFiatUserCurrency = previousToRuneFeesCryptoPrecision.times(runePrice)
+  const previousFeesFiatUserCurrency = previousToAssetFeesFiatUserCurrency.plus(
+    previousToRuneFeesFiatUserCurrency,
+  )
 
-  return initialVolume.isZero() ? 0 : change.div(initialVolume).toNumber()
+  // Get current 24h fees
+  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(last24hData.meta.toAssetFees)
+  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(last24hData.meta.toRuneFees)
+  const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
+  const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
+  const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
+    currentToRuneFeesFiatUserCurrency,
+  )
+
+  const feeChange = currentFeesFiatUserCurrency.minus(previousFeesFiatUserCurrency)
+  const feeChangePercentage = previousFeesFiatUserCurrency.isZero()
+    ? 0
+    : feeChange.div(previousFeesFiatUserCurrency).toNumber()
+
+  const previousVolume = bnOrZero(previous24hData.meta.totalVolume)
+  const currentVolume = last24hData.meta.totalVolume
+  const volumeChange = bnOrZero(currentVolume).minus(previousVolume)
+  const volumeChangePercentage = previousVolume.isZero()
+    ? 0
+    : volumeChange.div(previousVolume).toNumber()
+
+  return {
+    volumeChangePercentage,
+    feeChangePercentage,
+  }
 }
 
 // Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset

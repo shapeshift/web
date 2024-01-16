@@ -5,12 +5,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swappers/swappersApi'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
+import { selectAssetsSortedByUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
+  // We select assets sorted by balance and name so we don't have to wait for market data to arrive.
+  // This results in faster initial load times and doesn't require loading adding state for market data
+  const sortedAssets = useAppSelector(selectAssetsSortedByUserCurrencyBalanceAndName)
   const assets = useAppSelector(selectAssets)
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
@@ -24,7 +26,7 @@ export const useSupportedAssets = () => {
     }
   }, [isSnapInstalled, sortedAssets, wallet])
 
-  const { data, isLoading } = useGetSupportedAssetsQuery(queryParams)
+  const { data, isFetching } = useGetSupportedAssetsQuery(queryParams)
 
   const supportedSellAssets = useMemo(() => {
     if (!data) return []
@@ -37,7 +39,7 @@ export const useSupportedAssets = () => {
   }, [assets, data])
 
   return {
-    isLoading,
+    isLoading: isFetching,
     supportedSellAssets,
     supportedBuyAssets,
   }

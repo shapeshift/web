@@ -4,11 +4,16 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
+import { AddLiquidityStatus } from './AddLiquityStatus'
 import { AddLiquidityRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 
-const AddLiquidityEntries = [AddLiquidityRoutePaths.Input, AddLiquidityRoutePaths.Confirm]
+const AddLiquidityEntries = [
+  AddLiquidityRoutePaths.Input,
+  AddLiquidityRoutePaths.Confirm,
+  AddLiquidityRoutePaths.Status,
+]
 
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
@@ -31,6 +36,8 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({ headerComponen
   )
   const renderAddLiquidityConfirm = useCallback(() => <AddLiquidityConfirm />, [])
 
+  const renderAddLiquidityStatus = useCallback(() => <AddLiquidityStatus />, [])
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location}>
@@ -44,6 +51,11 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({ headerComponen
             key={AddLiquidityRoutePaths.Confirm}
             path={AddLiquidityRoutePaths.Confirm}
             render={renderAddLiquidityConfirm}
+          />
+          <Route
+            key={AddLiquidityRoutePaths.Status}
+            path={AddLiquidityRoutePaths.Status}
+            render={renderAddLiquidityStatus}
           />
         </Suspense>
       </Switch>

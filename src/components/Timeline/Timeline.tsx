@@ -24,8 +24,14 @@ export const TimelineItem: React.FC<PropsWithChildren> = ({ children }) => {
         pt='0.25rem'
         gap='0.25rem'
       >
-        <Center borderRadius='full' boxSize='0.85rem' bg='border.base' className='marker' />
-        <Flex minHeight='14px' alignItems='center' className='seperator'>
+        <Center
+          flexShrink={0}
+          borderRadius='full'
+          boxSize='0.85rem'
+          bg='border.base'
+          className='marker'
+        />
+        <Flex minHeight='14px' alignItems='center' className='seperator' height='100%'>
           <Flex height='100%' borderLeftWidth={2} borderColor='border.bold' borderStyle='dotted' />
         </Flex>
       </Flex>

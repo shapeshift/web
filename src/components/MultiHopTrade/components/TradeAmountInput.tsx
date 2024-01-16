@@ -29,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
-const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto' }
+const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: 'normal' }
 const boxProps = { px: 0, m: 0 }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 

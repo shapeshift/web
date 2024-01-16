@@ -47,6 +47,9 @@ export const AddLiquidityConfirm = () => {
   const handleBack = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
+  const handleConfirm = useCallback(() => {
+    history.push(AddLiquidityRoutePaths.Status)
+  }, [history])
   const divider = useMemo(() => {
     return (
       <Flex style={dividerStyle}>
@@ -202,7 +205,7 @@ export const AddLiquidityConfirm = () => {
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button mx={-2} size='lg' colorScheme='blue'>
+        <Button mx={-2} size='lg' colorScheme='blue' onClick={handleConfirm}>
           Confirm and Deposit
         </Button>
       </CardFooter>

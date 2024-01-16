@@ -113,10 +113,6 @@ export const PoolInfo = ({
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
             <Amount.Fiat fontSize='xl' value={allTimeVolume ?? '0'} fontWeight='medium' />
-            <Tag colorScheme='green' size='sm' gap={0}>
-              <TagLeftIcon as={ArrowUpIcon} mr={1} />
-              <Amount.Percent value='0.02' autoColor fontWeight='medium' />
-            </Tag>
           </Flex>
           <Text
             fontSize='sm'

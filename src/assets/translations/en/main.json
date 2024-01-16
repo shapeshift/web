@@ -2211,7 +2211,9 @@
     "awaitingConfirmation": "Awaiting confirmation",
     "transactionSubmitted": "Transaction submitted",
     "waitingForConfirmation": "Waiting for Confirmation",
+    "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
+    "confirmAndDeposit": "Confirm and Deposit",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

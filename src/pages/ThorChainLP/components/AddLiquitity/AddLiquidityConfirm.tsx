@@ -120,13 +120,13 @@ export const AddLiquidityConfirm = () => {
           <Timeline>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>ShapeShift Fee</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: 'ShapeShift' })}</Row.Label>
                 <Row.Value>Free</Row.Value>
               </Row>
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>THORChain Fee</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: 'THORChain' })}</Row.Label>
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='RUNE' />
                   <Flex color='text.subtle'>
@@ -139,7 +139,7 @@ export const AddLiquidityConfirm = () => {
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>Ethereum Fee</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: 'Ethereum' })}</Row.Label>
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='ETH' />
                   <Flex color='text.subtle'>
@@ -206,7 +206,7 @@ export const AddLiquidityConfirm = () => {
         borderBottomRadius='xl'
       >
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleConfirm}>
-          Confirm and Deposit
+          {translate('pools.confirmAndDeposit')}
         </Button>
       </CardFooter>
     </SlideTransition>

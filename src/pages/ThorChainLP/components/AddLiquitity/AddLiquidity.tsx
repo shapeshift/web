@@ -17,7 +17,7 @@ const AddLiquidityEntries = [
 
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
-  opportunityId: string
+  opportunityId?: string
 }
 
 export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {

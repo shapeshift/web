@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip/src/assetId/assetId'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'

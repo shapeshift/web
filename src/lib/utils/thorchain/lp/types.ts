@@ -102,6 +102,7 @@ type MidgardInterval = {
 
 export type MidgardSwapHistoryResponse = {
   intervals: MidgardInterval[]
+  meta: MidgardInterval
 }
 
 // TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/

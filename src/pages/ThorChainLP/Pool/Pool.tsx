@@ -35,7 +35,7 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import {
   calculateEarnings,
   calculateTVL,
-  get24hChangePercentage,
+  get24hVolumeChangePercentage,
   getAllTimeVolume,
   getEarnings,
   getFees,
@@ -137,7 +137,7 @@ export const Pool = () => {
 
   const { data: volume24hChange } = useQuery({
     queryKey: ['thorchainPoolVolume24hChange', foundPool?.assetId ?? ''],
-    queryFn: () => (foundPool ? get24hChangePercentage(foundPool.assetId) : 0),
+    queryFn: () => (foundPool ? get24hVolumeChangePercentage(foundPool.assetId) : 0),
   })
 
   const { data: fees24h } = useQuery({

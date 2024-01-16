@@ -147,29 +147,28 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
-export const get24hChangePercentage = async (assetId: AssetId): Promise<number | null> => {
+export const get24hVolumeChangePercentage = async (assetId: AssetId): Promise<number | null> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const days = 2
-  // 24 hours ago
-  const fromTime = Math.floor(new Date().getTime() / 1000) - 24 * 60 * 60 // Convert to UNIX timestamp
+  const now = Math.floor(Date.now() / 1000)
+  const twentyFourHoursAgo = now - 24 * 60 * 60
+  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
 
-  const { data } = await axios.get<MidgardSwapHistoryResponse>(
+  const { data: last24hData } = await axios.get<MidgardSwapHistoryResponse>(
     `${
       getConfig().REACT_APP_MIDGARD_URL
-    }/history/swaps?interval=day&count=${days}&pool=${poolAssetId}&from=${fromTime}`,
+    }/history/swaps?pool=${poolAssetId}&from=${twentyFourHoursAgo}&to=${now}`,
   )
 
-  const intervals = data?.intervals ?? []
-  const totalVolumes = intervals.map(interval => bn(interval.totalVolume))
+  const { data: previous24hData } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?pool=${poolAssetId}&from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
+  )
 
-  // Return null if not enough data to calculate change percentage
-  if (intervals.length < 2) {
-    return null
-  }
+  const initialVolume = bnOrZero(previous24hData.meta.totalVolume)
+  const finalVolume = last24hData.meta.totalVolume
+  const change = bnOrZero(finalVolume).minus(initialVolume)
 
-  const initialVolume = totalVolumes[0] || bn(0)
-  const finalVolume = totalVolumes[totalVolumes.length - 1] || bn(0)
-  const change = finalVolume.minus(initialVolume)
   return initialVolume.isZero() ? 0 : change.div(initialVolume).toNumber()
 }
 

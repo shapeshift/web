@@ -147,6 +147,32 @@ export const getVolume = async (
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
+export const get24hChangePercentage = async (assetId: AssetId): Promise<number | null> => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const days = 2
+  // 24 hours ago
+  const fromTime = Math.floor(new Date().getTime() / 1000) - 24 * 60 * 60 // Convert to UNIX timestamp
+
+  const { data } = await axios.get<MidgardSwapHistoryResponse>(
+    `${
+      getConfig().REACT_APP_MIDGARD_URL
+    }/history/swaps?interval=day&count=${days}&pool=${poolAssetId}&from=${fromTime}`,
+  )
+
+  const intervals = data?.intervals ?? []
+  const totalVolumes = intervals.map(interval => bn(interval.totalVolume))
+
+  // Return null if not enough data to calculate change percentage
+  if (intervals.length < 2) {
+    return null
+  }
+
+  const initialVolume = totalVolumes[0] || bn(0)
+  const finalVolume = totalVolumes[totalVolumes.length - 1] || bn(0)
+  const change = finalVolume.minus(initialVolume)
+  return initialVolume.isZero() ? 0 : change.div(initialVolume).toNumber()
+}
+
 // Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
 export const getCurrentValue = (
   liquidityUnits: string,

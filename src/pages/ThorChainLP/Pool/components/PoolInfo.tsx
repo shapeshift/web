@@ -1,7 +1,8 @@
-import { ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Card, Flex, Stack } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
@@ -13,6 +14,7 @@ type PoolInfoProps = {
   assetIds: AssetId[]
   allTimeVolume: string
   volume24h: string
+  volume24hChange: number
   fees24h: string
   apy: string
   tvl?: string
@@ -22,6 +24,7 @@ export const PoolInfo = ({
   assetIds,
   allTimeVolume,
   volume24h,
+  volume24hChange,
   fees24h,
   apy,
   tvl,
@@ -30,6 +33,17 @@ export const PoolInfo = ({
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))
   const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[0]))
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[1]))
+
+  const volumeChangeTag: JSX.Element = useMemo(() => {
+    const icon = volume24hChange >= 0 ? ArrowUpIcon : ArrowDownIcon
+    const colorScheme = volume24hChange >= 0 ? 'green' : 'red'
+    return (
+      <Tag colorScheme={colorScheme} size='sm' gap={0}>
+        <TagLeftIcon as={icon} mr={1} />
+        <Amount.Percent value={volume24hChange} autoColor fontWeight='medium' />
+      </Tag>
+    )
+  }, [volume24hChange])
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {
     return null
@@ -103,10 +117,7 @@ export const PoolInfo = ({
         <Stack spacing={0} flex={1}>
           <Flex alignItems='center' gap={2}>
             <Amount.Fiat fontSize='xl' value={volume24h ?? 0} fontWeight='medium' />
-            <Tag colorScheme='green' size='sm' gap={0}>
-              <TagLeftIcon as={ArrowUpIcon} mr={1} />
-              <Amount.Percent value='0.02' autoColor fontWeight='medium' />
-            </Tag>
+            {volumeChangeTag}
           </Flex>
           <Text
             fontSize='sm'

@@ -35,6 +35,7 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import {
   calculateEarnings,
   calculateTVL,
+  get24hChangePercentage,
   getAllTimeVolume,
   getEarnings,
   getFees,
@@ -132,6 +133,11 @@ export const Pool = () => {
   const { data: volume24h } = useQuery({
     queryKey: ['thorchainPoolVolume24h', foundPool?.assetId ?? ''],
     queryFn: () => (foundPool ? getVolume('24h', foundPool.assetId, runeMarketData.price) : ''),
+  })
+
+  const { data: volume24hChange } = useQuery({
+    queryKey: ['thorchainPoolVolume24hChange', foundPool?.assetId ?? ''],
+    queryFn: () => (foundPool ? get24hChangePercentage(foundPool.assetId) : 0),
   })
 
   const { data: fees24h } = useQuery({
@@ -310,6 +316,7 @@ export const Pool = () => {
             >
               <PoolInfo
                 volume24h={volume24h ?? '0'}
+                volume24hChange={volume24hChange ?? 0}
                 fees24h={fees24h ?? '0'}
                 allTimeVolume={allTimeVolume ?? '0'}
                 apy={foundPool.poolAPY ?? '0'}

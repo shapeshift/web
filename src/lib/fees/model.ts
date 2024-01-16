@@ -34,11 +34,13 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
 
+  const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
+
   // the following raw values are before the realities of integer bps on-chain
-  const foxDiscountPercentRaw = BigNumber.minimum(
-    bn(100),
-    foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
-  )
+  const foxDiscountPercentRaw = isFree
+    ? bn(100)
+    : BigNumber.minimum(bn(100), foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)))
+
   const feeBpsBeforeDiscountRaw = minFeeBps.plus(
     maxFeeBps
       .minus(minFeeBps)
@@ -63,19 +65,6 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
     .minus(feeBpsRaw)
     .div(feeBpsBeforeDiscountRaw)
     .times(100)
-
-  if (tradeAmountUsd.lt(noFeeThresholdUsd)) {
-    return {
-      feeBps: bn(0),
-      feeBpsRaw: bn(0),
-      feeUsd: bn(0),
-      feeUsdDiscount: bn(0),
-      foxDiscountPercent,
-      foxDiscountUsd: bn(0),
-      feeUsdBeforeDiscount: bn(0),
-      feeBpsBeforeDiscount: bn(0),
-    }
-  }
 
   const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))

@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
+import { FEE_CURVE_MAX_FEE_BPS } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
@@ -40,9 +40,9 @@ type FeeChartProps = {
 const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
 
 // how many points to generate for the chart, higher is more accurate but slower
-const CHART_GRANULARITY = 100
+const CHART_GRANULARITY = 200
 const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
-  i => FEE_CURVE_NO_FEE_THRESHOLD_USD + i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
+  i => i * (CHART_TRADE_SIZE_MAX_USD / (CHART_GRANULARITY - 1)),
 )
 
 const accessors = {
@@ -50,7 +50,7 @@ const accessors = {
   yAccessor: (data?: { y: number }) => data?.y,
 }
 
-const xTickValues = [1001, 100_000, 200_000, 300_000, 400_000]
+const xTickValues = [0, 100_000, 200_000, 300_000, 400_000]
 
 type ChartData = {
   x: number
@@ -107,7 +107,7 @@ const lineProps = {
 
 const xScale = {
   type: 'linear' as const,
-  domain: [FEE_CURVE_NO_FEE_THRESHOLD_USD, CHART_TRADE_SIZE_MAX_USD],
+  domain: [0, CHART_TRADE_SIZE_MAX_USD],
 }
 const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
@@ -282,13 +282,15 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
     [feeUserCurrencyBeforeDiscount, feeBpsBeforeDiscount],
   )
 
+  const isFree = useMemo(() => bnOrZero(feeUserCurrency).lte(0), [feeUserCurrency])
+
   return (
     <Flex fontWeight='medium' pb={0}>
       <Stack width='full'>
         <Flex gap={4}>
           <Box flex={1} textAlign='center'>
             <Text color='text.subtle' translation='foxDiscounts.totalFee' />
-            {feeUserCurrency.lte(0) ? (
+            {isFree ? (
               <Text fontSize='3xl' translation='common.free' color='green.500' />
             ) : (
               <Flex gap={2} align='center'>

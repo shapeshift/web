@@ -36,6 +36,11 @@ export const FeeBreakdown = () => {
   // use the fee from the actual quote in case it varies from the theoretical calculation
   const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
 
+  const isFree = useMemo(
+    () => bnOrZero(affiliateFeeAmountUserCurrency).eq(0),
+    [affiliateFeeAmountUserCurrency],
+  )
+
   return (
     <Stack spacing={0}>
       <Stack spacing={2} px={8} pt={8} mb={8}>
@@ -56,7 +61,7 @@ export const FeeBreakdown = () => {
             <Amount.Fiat value={feeDiscountUserCurrency} />
             <Amount.Percent
               fontSize='sm'
-              value={foxDiscountPercent.div(100).toNumber()}
+              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
               color='text.success'
             />
           </Row.Value>
@@ -66,7 +71,7 @@ export const FeeBreakdown = () => {
       <Row px={8} py={4}>
         <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
-          {bnOrZero(affiliateFeeAmountUserCurrency).eq(0) ? (
+          {isFree ? (
             <Text translation='common.free' color='text.success' />
           ) : (
             <Amount.Fiat value={affiliateFeeAmountUserCurrency} />

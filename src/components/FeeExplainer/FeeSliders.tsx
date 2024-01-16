@@ -91,12 +91,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           <Amount.Fiat value={tradeSize} fontWeight='bold' />
         </Flex>
         <Stack width='100%' pb={8}>
-          <Slider
-            min={FEE_CURVE_NO_FEE_THRESHOLD_USD}
-            max={CHART_TRADE_SIZE_MAX_USD}
-            value={tradeSize}
-            onChange={setTradeSize}
-          >
+          <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
             </SliderMark>

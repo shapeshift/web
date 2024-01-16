@@ -132,18 +132,29 @@ export const getVolume = async (
   runePrice: string,
 ): Promise<string> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const days = timeframe === '24h' ? '1' : '7'
+
+  const { from, to } = (() => {
+    const now = Math.floor(Date.now() / 1000)
+    if (timeframe === '24h') {
+      const twentyFourHoursAgo = now - 24 * 60 * 60
+
+      return { from: twentyFourHoursAgo, to: now }
+    }
+
+    if (timeframe === '7d') {
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60
+
+      return { from: sevenDaysAgo, to: now }
+    }
+
+    throw new Error(`Invalid timeframe ${timeframe}`)
+  })()
 
   const { data } = await axios.get<MidgardSwapHistoryResponse>(
-    `${
-      getConfig().REACT_APP_MIDGARD_URL
-    }/history/swaps?interval=day&count=${days}&pool=${poolAssetId}`,
+    `${getConfig().REACT_APP_MIDGARD_URL}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
   )
 
-  const volume = (data?.intervals ?? []).reduce(
-    (acc, { totalVolume }) => acc.plus(totalVolume),
-    bn(0),
-  )
+  const volume = data.meta.totalVolume
 
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
@@ -195,6 +206,7 @@ export const get24hSwapChangePercentage = async (
 
   const previousVolume = bnOrZero(previous24hData.meta.totalVolume)
   const currentVolume = current24hData.meta.totalVolume
+
   const volumeChange = bnOrZero(currentVolume).minus(previousVolume)
   const volumeChangePercentage = previousVolume.isZero()
     ? 0
@@ -267,17 +279,37 @@ export const getFees = async (
 ): Promise<string> => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
-  const { data } = await axios.get<MidgardPoolStats>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=${timeframe}`,
+  const { from, to } = (() => {
+    const now = Math.floor(Date.now() / 1000)
+    if (timeframe === '24h') {
+      const twentyFourHoursAgo = now - 24 * 60 * 60
+
+      return { from: twentyFourHoursAgo, to: now }
+    }
+
+    if (timeframe === 'all') {
+      const genesis = '1647907200'
+      const nowMinusGenesis = bnOrZero(now).minus(genesis)
+
+      return { from: nowMinusGenesis, to: now }
+    }
+
+    throw new Error(`Invalid timeframe ${timeframe}`)
+  })()
+
+  const { data: currentData } = await axios.get<MidgardSwapHistoryResponse>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
   )
 
-  const toAssetFeesCryptoPrecision = fromThorBaseUnit(data.toAssetFees)
-  const toRuneFeesCryptoPrecision = fromThorBaseUnit(data.toRuneFees)
-  const toAssetFeesFiatUserCurrency = toAssetFeesCryptoPrecision.times(assetPrice)
-  const toRuneFeesFiatUserCurrency = toRuneFeesCryptoPrecision.times(runePrice)
+  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(currentData.meta.toAssetFees)
+  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(currentData.meta.toRuneFees)
+  const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
+  const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
+  const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
+    currentToRuneFeesFiatUserCurrency,
+  )
 
-  const feesFiatUserCurrency = toAssetFeesFiatUserCurrency.plus(toRuneFeesFiatUserCurrency)
-  return feesFiatUserCurrency.toFixed()
+  return currentFeesFiatUserCurrency.toFixed()
 }
 
 export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Promise<string> => {

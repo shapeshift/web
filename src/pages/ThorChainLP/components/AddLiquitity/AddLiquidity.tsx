@@ -38,7 +38,10 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
     () => <AddLiquidityInput opportunityId={opportunityId} headerComponent={headerComponent} />,
     [headerComponent, opportunityId],
   )
-  const renderAddLiquidityConfirm = useCallback(() => <AddLiquidityConfirm />, [])
+  const renderAddLiquidityConfirm = useCallback(
+    () => <AddLiquidityConfirm opportunityId={opportunityId} />,
+    [opportunityId],
+  )
 
   const renderAddLiquidityStatus = useCallback(() => <AddLiquidityStatus />, [])
 

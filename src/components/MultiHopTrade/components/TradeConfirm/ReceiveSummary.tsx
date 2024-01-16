@@ -21,14 +21,18 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { ShapeShiftFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { isSome } from 'lib/utils'
 import {
+  selectActiveQuoteAffiliateBps,
+  selectQuoteAffiliateFeeUserCurrency,
+} from 'state/slices/tradeQuoteSlice/selectors'
+import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
+import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../FeeModal/FeeModal'
 
@@ -40,7 +44,6 @@ type ReceiveSummaryProps = {
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
   protocolFees?: PartialRecord<AssetId, ProtocolFee>
-  shapeShiftFee?: ShapeShiftFee
   slippageDecimalPercentage: string
   swapperName: string
   defaultIsOpen?: boolean
@@ -62,7 +65,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     fiatAmount,
     amountBeforeFeesCryptoPrecision,
     protocolFees,
-    shapeShiftFee,
     slippageDecimalPercentage,
     swapperName,
     isLoading,
@@ -77,6 +79,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
+
+    // use the fee data from the actual quote in case it varies from the theoretical calculation
+    const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
+    const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -220,16 +226,16 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row>
               <Row.Label display='flex'>
                 <Text translation={tradeFeeSourceTranslation} />
-                {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' && (
-                  <RawText>&nbsp;{`(${shapeShiftFee.affiliateBps} bps)`}</RawText>
+                {amountAfterDiscountUserCurrency !== '0' && (
+                  <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
                 )}
               </Row.Label>
               <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
                 <Skeleton isLoaded={!isLoading}>
                   <Flex alignItems='center' gap={2}>
-                    {shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0' ? (
+                    {amountAfterDiscountUserCurrency !== '0' ? (
                       <>
-                        <Amount.Fiat value={shapeShiftFee.amountAfterDiscountUserCurrency} />
+                        <Amount.Fiat value={amountAfterDiscountUserCurrency} />
                         <QuestionIcon />
                       </>
                     ) : (
@@ -281,7 +287,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             )}
           </Stack>
         </Collapse>
-        <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} shapeShiftFee={shapeShiftFee} />
+        <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} />
       </>
     )
   },

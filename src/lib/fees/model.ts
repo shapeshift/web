@@ -17,9 +17,11 @@ type CalculateFeeBpsArgs = {
 
 type CalculateFeeBpsReturn = {
   feeBps: BigNumber
+  feeBpsRaw: BigNumber
   feeUsd: BigNumber
   feeUsdDiscount: BigNumber
   foxDiscountPercent: BigNumber
+  foxDiscountUsd: BigNumber
   feeUsdBeforeDiscount: BigNumber
   feeBpsBeforeDiscount: BigNumber
 }
@@ -32,23 +34,12 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
 
-  const foxDiscountPercent = BigNumber.minimum(
+  // the following raw values are before the realities of integer bps on-chain
+  const foxDiscountPercentRaw = BigNumber.minimum(
     bn(100),
     foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
   )
-
-  if (tradeAmountUsd.lt(noFeeThresholdUsd)) {
-    return {
-      feeBps: bn(0),
-      feeUsd: bn(0),
-      feeUsdDiscount: bn(0),
-      foxDiscountPercent,
-      feeUsdBeforeDiscount: bn(0),
-      feeBpsBeforeDiscount: bn(0),
-    }
-  }
-
-  const feeBpsBeforeDiscount = minFeeBps.plus(
+  const feeBpsBeforeDiscountRaw = minFeeBps.plus(
     maxFeeBps
       .minus(minFeeBps)
       .div(
@@ -61,20 +52,44 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
         ),
       ),
   )
-
-  const feeBps = BigNumber.maximum(
-    feeBpsBeforeDiscount.multipliedBy(bn(1).minus(foxDiscountPercent.div(100))),
+  const feeBpsRaw = BigNumber.maximum(
+    feeBpsBeforeDiscountRaw.multipliedBy(bn(1).minus(foxDiscountPercentRaw.div(100))),
     bn(0),
   )
+
+  const feeBpsBeforeDiscount = feeBpsBeforeDiscountRaw.decimalPlaces(0)
+  const feeBpsAfterDiscount = feeBpsRaw.decimalPlaces(0)
+  const foxDiscountPercent = feeBpsBeforeDiscountRaw
+    .minus(feeBpsRaw)
+    .div(feeBpsBeforeDiscountRaw)
+    .times(100)
+
+  if (tradeAmountUsd.lt(noFeeThresholdUsd)) {
+    return {
+      feeBps: bn(0),
+      feeBpsRaw: bn(0),
+      feeUsd: bn(0),
+      feeUsdDiscount: bn(0),
+      foxDiscountPercent,
+      foxDiscountUsd: bn(0),
+      feeUsdBeforeDiscount: bn(0),
+      feeBpsBeforeDiscount: bn(0),
+    }
+  }
+
+  const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))
   const feeUsdDiscount = feeUsdBeforeDiscount.multipliedBy(foxDiscountPercent.div(100))
   const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
+  const foxDiscountUsd = feeUsdBeforeDiscount.times(foxDiscountPercent.div(100))
 
   return {
     feeBps,
+    feeBpsRaw,
     feeUsd,
     feeUsdDiscount,
     foxDiscountPercent,
+    foxDiscountUsd,
     feeUsdBeforeDiscount,
     feeBpsBeforeDiscount,
   }

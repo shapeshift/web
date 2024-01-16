@@ -5,11 +5,8 @@ import { RiMoneyDollarCircleFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { calculateShapeShiftFee } from 'lib/fees/utils'
 import {
   selectActiveQuoteAffiliateBps,
-  selectActiveQuotePotentialAffiliateBps,
-  selectPotentialAffiliateFeeAmountUserCurrency,
   selectQuoteAffiliateFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -29,31 +26,13 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   } = useLocaleFormatter()
   const translate = useTranslate()
   const [showFeeModal, setShowFeeModal] = useState(false)
-  const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
-  const amountBeforeDiscountUserCurrency = useAppSelector(
-    selectPotentialAffiliateFeeAmountUserCurrency,
-  )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialAffiliateBps)
+
+  // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
+  const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
 
   const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])
   const handleCloseFeeModal = useCallback(() => setShowFeeModal(false), [])
-
-  const shapeShiftFee = useMemo(
-    () =>
-      calculateShapeShiftFee({
-        amountBeforeDiscountUserCurrency,
-        amountAfterDiscountUserCurrency,
-        affiliateBps,
-        potentialAffiliateBps,
-      }),
-    [
-      affiliateBps,
-      amountAfterDiscountUserCurrency,
-      amountBeforeDiscountUserCurrency,
-      potentialAffiliateBps,
-    ],
-  )
 
   const stepIndicator = useMemo(() => {
     return (
@@ -64,23 +43,23 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   }, [])
 
   const { title, titleProps } = useMemo(() => {
-    return shapeShiftFee && shapeShiftFee.amountAfterDiscountUserCurrency !== '0'
-      ? { title: toFiat(shapeShiftFee.amountAfterDiscountUserCurrency) }
+    return amountAfterDiscountUserCurrency !== '0'
+      ? { title: toFiat(amountAfterDiscountUserCurrency) }
       : { title: translate('trade.free'), titleProps: { color: 'text.success' } }
-  }, [shapeShiftFee, toFiat, translate])
+  }, [amountAfterDiscountUserCurrency, toFiat, translate])
 
   const description = useMemo(() => {
     return (
       <Flex alignItems='center' gap={2}>
         <RawText>
-          {`${translate('trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' })} (${
-            shapeShiftFee.affiliateBps
-          } bps)`}
+          {`${translate('trade.tradeFeeSource', {
+            tradeFeeSource: 'ShapeShift',
+          })} (${affiliateBps} bps)`}
         </RawText>
         <QuestionIcon />
       </Flex>
     )
-  }, [shapeShiftFee.affiliateBps, translate])
+  }, [affiliateBps, translate])
 
   const descriptionProps: BoxProps = useMemo(
     () => ({ onClick: handleOpenFeeModal, _hover: shapeShiftFeeModalRowHover }),
@@ -97,7 +76,7 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
         titleProps={titleProps}
         descriptionProps={descriptionProps}
       />
-      <FeeModal isOpen={showFeeModal} onClose={handleCloseFeeModal} shapeShiftFee={shapeShiftFee} />
+      <FeeModal isOpen={showFeeModal} onClose={handleCloseFeeModal} />
     </>
   )
 }

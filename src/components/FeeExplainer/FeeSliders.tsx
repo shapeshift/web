@@ -79,9 +79,8 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               }
               top='-14px !important'
               color='yellow.500'
-              left='-2.5'
             >
-              <TriangleDownIcon />
+              <TriangleDownIcon position='absolute' left='-2' />
             </SliderMark>
           </Slider>
         </Stack>

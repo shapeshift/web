@@ -26,6 +26,7 @@ import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -45,8 +46,8 @@ const tradeSizeData = [...Array(CHART_GRANULARITY).keys()].map(
 )
 
 const accessors = {
-  xAccessor: (data: { x: number }) => data.x,
-  yAccessor: (data: { y: number }) => data.y,
+  xAccessor: (data?: { x: number }) => data?.x,
+  yAccessor: (data?: { y: number }) => data?.y,
 }
 
 const xTickValues = [1001, 100_000, 200_000, 300_000, 400_000]
@@ -135,7 +136,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
           foxHeld: bn(debouncedFoxHolding),
-        }).feeBps.toNumber()
+        }).feeBpsRaw.toNumber()
         return { x: trade, y: feeBps }
       })
       .filter(isSome)
@@ -145,7 +146,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
     const feeBps = calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(debouncedFoxHolding),
-    }).feeBps.toNumber()
+    }).feeBpsRaw.toNumber()
 
     return [{ x: tradeSize, y: feeBps }]
   }, [tradeSize, debouncedFoxHolding])
@@ -253,17 +254,32 @@ type FeeOutputProps = {
 }
 
 export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
-  const { feeUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } = calculateFees({
-    tradeAmountUsd: bn(tradeSize),
-    foxHeld: bn(foxHolding),
-  })
+  const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
+    calculateFees({
+      tradeAmountUsd: bn(tradeSize),
+      foxHeld: bn(foxHolding),
+    })
+
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  const feeUserCurrency = useMemo(() => {
+    return feeUsd.times(userCurrencyToUsdRate)
+  }, [feeUsd, userCurrencyToUsdRate])
+
+  const feeUserCurrencyBeforeDiscount = useMemo(() => {
+    return feeUsdBeforeDiscount.times(userCurrencyToUsdRate)
+  }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
 
   const basedOnFeeTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       'foxDiscounts.basedOnFee',
-      { fee: `$${feeUsdBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(2)} bps)` },
+      {
+        fee: `$${feeUserCurrencyBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(
+          0,
+        )} bps)`,
+      },
     ],
-    [feeUsdBeforeDiscount, feeBpsBeforeDiscount],
+    [feeUserCurrencyBeforeDiscount, feeBpsBeforeDiscount],
   )
 
   return (
@@ -272,10 +288,23 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) =
         <Flex gap={4}>
           <Box flex={1} textAlign='center'>
             <Text color='text.subtle' translation='foxDiscounts.totalFee' />
-            {feeUsd.lte(0) ? (
+            {feeUserCurrency.lte(0) ? (
               <Text fontSize='3xl' translation='common.free' color='green.500' />
             ) : (
-              <Amount.Fiat fontSize='3xl' value={feeUsd.toFixed(2)} color={'green.500'} />
+              <Flex gap={2} align='center'>
+                <Amount.Fiat
+                  fontSize='3xl'
+                  value={feeUserCurrency.toString()}
+                  color={'green.500'}
+                />
+                <Amount
+                  fontSize='m'
+                  value={feeBps.toFixed(0)}
+                  color={'green.500'}
+                  prefix='('
+                  suffix=' bps)'
+                />
+              </Flex>
             )}
           </Box>
           <Box flex={1} textAlign='center'>
@@ -305,8 +334,9 @@ type FeeExplainerProps = CardProps
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const votingPower = useAppSelector(selectVotingPower)
+  const sellAmountUsd = useAppSelector(selectSellAmountUsd)
 
-  const [tradeSize, setTradeSize] = useState(FEE_CURVE_NO_FEE_THRESHOLD_USD) // default to max below free so we have a value
+  const [tradeSize, setTradeSize] = useState(Number.parseFloat(sellAmountUsd ?? '0'))
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
   const translate = useTranslate()
 

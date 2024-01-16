@@ -46,7 +46,6 @@ import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIs
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -68,17 +67,13 @@ import {
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuote,
-  selectActiveQuoteAffiliateBps,
   selectActiveQuoteErrors,
-  selectActiveQuotePotentialAffiliateBps,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
-  selectPotentialAffiliateFeeAmountUserCurrency,
-  selectQuoteAffiliateFeeUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -336,33 +331,6 @@ export const TradeInput = memo(() => {
     [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
-  const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
-  const potentialAffiliateFeeAmountUserCurrency = useAppSelector(
-    selectPotentialAffiliateFeeAmountUserCurrency,
-  )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialAffiliateBps)
-  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-
-  const { shapeShiftFee } = useMemo(
-    () =>
-      calculateShapeShiftAndAffiliateFee({
-        quote: activeQuote,
-        potentialAffiliateFeeAmountUserCurrency,
-        affiliateFeeAmountUserCurrency,
-        affiliateBps,
-        potentialAffiliateBps,
-        swapperName: activeSwapperName,
-      }),
-    [
-      affiliateFeeAmountUserCurrency,
-      activeQuote,
-      activeSwapperName,
-      affiliateBps,
-      potentialAffiliateBps,
-      potentialAffiliateFeeAmountUserCurrency,
-    ],
-  )
-
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
@@ -421,6 +389,14 @@ export const TradeInput = memo(() => {
     )
   }, [activeQuote, isUnsafeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
+  const handleAcknowledgeUnsafeQuote = useCallback(() => {
+    // We don't want to *immediately* set this or there will be a "click-through"
+    // i.e the regular continue button will render immediately, and click will bubble to it
+    setTimeout(() => {
+      setIsUnsafeQuoteNoticeDismissed(true)
+    }, 100)
+  }, [])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <CardFooter
@@ -450,7 +426,6 @@ export const TradeInput = memo(() => {
                 amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
                 amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                 protocolFees={totalProtocolFees}
-                shapeShiftFee={shapeShiftFee}
                 slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
                 defaultIsOpen={true}
@@ -470,14 +445,7 @@ export const TradeInput = memo(() => {
             colorScheme='red'
             size='lg-multiline'
             mx={-2}
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => {
-              // We don't want to *immediately* set this or there will be a "click-through"
-              // i.e the regular continue button will render immediately, and click will bubble to it
-              setTimeout(() => {
-                setIsUnsafeQuoteNoticeDismissed(true)
-              }, 100)
-            }}
+            onClick={handleAcknowledgeUnsafeQuote}
           >
             <Text translation={'defi.modals.saversVaults.understand'} />
           </Button>
@@ -497,29 +465,29 @@ export const TradeInput = memo(() => {
       </CardFooter>
     ),
     [
-      activeQuote,
+      hasUserEnteredAmount,
+      sellAsset.symbol,
+      buyAsset.symbol,
+      totalNetworkFeeFiatPrecision,
+      rate,
+      isLoading,
       tradeQuoteRequestFailed,
-      quoteStatusTranslation,
-      activeSwapperName,
+      activeQuote,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
-      buyAsset.symbol,
-      hasUserEnteredAmount,
-      isLoading,
+      totalProtocolFees,
+      slippageDecimal,
+      activeSwapperName,
+      tradeQuoteStep?.source,
       isModeratePriceImpact,
+      priceImpactPercentage,
+      maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
-      maybeUnsafeTradeWarning,
-      priceImpactPercentage,
+      handleAcknowledgeUnsafeQuote,
       quoteHasError,
-      rate,
-      sellAsset.symbol,
-      shapeShiftFee,
       shouldDisablePreviewButton,
-      slippageDecimal,
-      totalNetworkFeeFiatPrecision,
-      totalProtocolFees,
-      tradeQuoteStep?.source,
+      quoteStatusTranslation,
     ],
   )
 

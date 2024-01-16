@@ -18,6 +18,8 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -28,7 +30,16 @@ import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { calculateTVL, getAllTimeVolume, getFees, getVolume } from 'lib/utils/thorchain/lp'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import {
+  calculateEarnings,
+  calculateTVL,
+  getAllTimeVolume,
+  getEarnings,
+  getFees,
+  getVolume,
+} from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -143,6 +154,9 @@ export const Pool = () => {
   const foundUserData = useMemo(() => {
     if (!userData) return undefined
 
+    // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
+    // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
+    // or, probably better from an architectural standpoint, have each account position be its separate row
     return userData?.find(data => data.opportunityId === foundPool?.opportunityId)
   }, [foundPool?.opportunityId, userData])
 
@@ -155,11 +169,6 @@ export const Pool = () => {
 
     return [foundPool.assetId, thorchainAssetId]
   }, [foundPool])
-
-  const liquidityValueComponent = useMemo(
-    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [foundUserData?.totalValueFiatUserCurrency],
-  )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
@@ -186,6 +195,50 @@ export const Pool = () => {
     queryKey: ['thorchainPoolVolumeAllTime', foundPool?.assetId ?? ''],
     queryFn: () => (foundPool ? getAllTimeVolume(foundPool.assetId, runeMarketData.price) : ''),
   })
+
+  const { data: thornodePoolData } = useQuery({
+    enabled: Boolean(foundPool),
+    queryKey: ['thornodePoolData', foundPool?.assetId ?? ''],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
+      const { data: poolData } = await axios.get<ThornodePoolResponse>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+      )
+
+      return poolData
+    },
+  })
+
+  const { data: earnings } = useQuery({
+    enabled: Boolean(foundUserData && thornodePoolData),
+    queryKey: ['thorchainearnings', foundUserData?.dateFirstAdded ?? ''],
+    queryFn: () =>
+      foundUserData ? getEarnings({ from: foundUserData.dateFirstAdded }) : undefined,
+    select: data => {
+      if (!data || !foundUserData || !thornodePoolData) return null
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserData.assetId })
+      const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      if (!foundHistoryPool) return null
+
+      return calculateEarnings(
+        foundHistoryPool.assetLiquidityFees,
+        foundHistoryPool.runeLiquidityFees,
+        foundUserData.poolShare,
+        runeMarketData.price,
+        assetMarketData.price,
+      )
+    },
+  })
+
+  const liquidityValueComponent = useMemo(
+    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
+    [foundUserData?.totalValueFiatUserCurrency],
+  )
+
+  const unclaimedFeesComponent = useMemo(
+    () => <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} fontSize='2xl' />,
+    [earnings?.totalEarningsFiatUserCurrency],
+  )
 
   const tvl = useMemo(() => {
     if (!foundPool) return '0'
@@ -259,7 +312,7 @@ export const Pool = () => {
                 <Stack flex={1}>
                   <DynamicComponent
                     label='pools.unclaimedFees'
-                    component={liquidityValueComponent}
+                    component={unclaimedFeesComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'
                   />
@@ -273,10 +326,10 @@ export const Pool = () => {
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
-                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
+                          <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                          value={earnings?.assetEarnings ?? '0'}
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
@@ -291,7 +344,7 @@ export const Pool = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          value={earnings?.runeEarnings ?? '0'}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>

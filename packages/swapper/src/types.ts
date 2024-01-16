@@ -95,9 +95,6 @@ type CommonTradeInput = {
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
-  // KeepKey is rugged and requires a bandaid to disable affiliate fee for EVM sell assets, see https://github.com/shapeshift/web/issues/4518
-  // Since we have a single shared input across all swappers, we need to pass this as feature detection to monkey patch affiliate bps to 0
-  isKeepKey: boolean
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {

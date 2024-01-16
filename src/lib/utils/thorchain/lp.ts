@@ -18,6 +18,7 @@ import type {
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
   PoolShareDetail,
+  ThorchainEarningsHistoryResponse,
   ThorchainLiquidityProvidersResponseSuccess,
 } from './lp/types'
 
@@ -152,7 +153,7 @@ export const getCurrentValue = (
   poolUnits: string,
   assetDepth: string,
   runeDepth: string,
-): { rune: string; asset: string } => {
+): { rune: string; asset: string; poolShare: string } => {
   const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
   const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
   const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
@@ -165,6 +166,7 @@ export const getCurrentValue = (
   return {
     rune: redeemableRune,
     asset: redeemableAsset,
+    poolShare: poolShare.toFixed(),
   }
 }
 
@@ -378,4 +380,34 @@ export const calculateTotalVolumeFiatUserCurrency = (
   )
 
   return totalVolumeFiatUserCurrency.toFixed()
+}
+
+export const getEarnings = async ({ from }: { from: string }) => {
+  const { data } = await axios.get<ThorchainEarningsHistoryResponse>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/history/earnings?from=${from}`,
+  )
+
+  return data
+}
+
+export const calculateEarnings = (
+  _assetLiquidityFees: string,
+  _runeLiquidityFees: string,
+  userPoolShare: string,
+  runePrice: string,
+  assetPrice: string,
+) => {
+  const assetLiquidityFees = fromThorBaseUnit(_assetLiquidityFees)
+  const runeLiquidityFees = fromThorBaseUnit(_runeLiquidityFees)
+
+  const userShare = bn(userPoolShare)
+  const assetEarnings = userShare.times(assetLiquidityFees).times(2).toFixed()
+  const runeEarnings = userShare.times(runeLiquidityFees).times(2).toFixed()
+
+  const totalEarningsFiatUserCurrency = bn(assetEarnings)
+    .times(assetPrice)
+    .plus(bn(runeEarnings).times(runePrice))
+    .toFixed()
+
+  return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
 }

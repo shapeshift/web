@@ -36,6 +36,8 @@ export enum AsymSide {
 }
 
 type UseUserLpDataReturn = {
+  dateFirstAdded: string
+  liquidityUnits: string
   underlyingAssetAmountCryptoPrecision: string
   underlyingRuneAmountCryptoPrecision: string
   isAsymmetric: boolean
@@ -45,10 +47,7 @@ type UseUserLpDataReturn = {
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
   opportunityId: string
-  redeemableFees: {
-    asset: string
-    rune: string
-  }
+  poolShare: string
   accountId: AccountId
   assetId: AssetId
 }[]
@@ -137,6 +136,8 @@ export const useUserLpData = ({
       })
 
       return {
+        dateFirstAdded: position.dateFirstAdded,
+        liquidityUnits: position.liquidityUnits,
         underlyingAssetAmountCryptoPrecision: currentValue.asset,
         underlyingRuneAmountCryptoPrecision: currentValue.rune,
         isAsymmetric,
@@ -146,7 +147,7 @@ export const useUserLpData = ({
         totalValueFiatUserCurrency,
         poolOwnershipPercentage,
         opportunityId: `${assetId}*${asymSide ?? 'sym'}`,
-        redeemableFees: currentValue, // TODO(gomes): FIXME, dis wrong
+        poolShare: currentValue.poolShare,
         accountId: position.accountId,
         assetId,
       }

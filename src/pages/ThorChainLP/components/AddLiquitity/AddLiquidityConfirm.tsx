@@ -44,12 +44,15 @@ export const AddLiquidityConfirm = () => {
   const history = useHistory()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
   const assetIds = useMemo(() => [ethAssetId, usdcAssetId], [])
+
   const handleBack = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
+
   const handleConfirm = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Status)
   }, [history])
+
   const divider = useMemo(() => {
     return (
       <Flex style={dividerStyle}>
@@ -72,6 +75,7 @@ export const AddLiquidityConfirm = () => {
       </Flex>
     )
   }, [])
+
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>

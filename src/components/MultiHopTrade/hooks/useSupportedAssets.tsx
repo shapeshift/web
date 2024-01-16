@@ -5,14 +5,22 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swappers/swappersApi'
-import { selectAssetsSortedByUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
+  selectAssetsSortedByName,
+} from 'state/slices/common-selectors'
+import { selectAssets, selectMarketDataDidLoad } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
-  // We select assets sorted by balance and name so we don't have to wait for market data to arrive.
-  // This results in faster initial load times and doesn't require loading adding state for market data
-  const sortedAssets = useAppSelector(selectAssetsSortedByUserCurrencyBalanceAndName)
+  const sortedAssets = useMemo(() => {
+    const state = store.getState()
+    const marketDataDidLoad = selectMarketDataDidLoad(state)
+
+    // if the market data has not yet loaded once, return a simplified sorting of assets
+    if (!marketDataDidLoad) return selectAssetsSortedByName(state)
+    else return selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state)
+  }, [])
   const assets = useAppSelector(selectAssets)
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()

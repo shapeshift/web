@@ -165,18 +165,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
     },
   )
 
-export const selectAssetsSortedByUserCurrencyBalanceAndName = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioUserCurrencyBalances,
-  (assets, portfolioUserCurrencyBalances) => {
-    const getAssetUserCurrencyBalance = (asset: Asset) =>
-      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
-    const getAssetName = (asset: Asset) => asset.name
-
-    return orderBy(
-      Object.values(assets).filter(isSome),
-      [getAssetUserCurrencyBalance, getAssetName],
-      ['desc', 'asc'],
-    )
-  },
-)
+export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
+  const getAssetName = (asset: Asset) => asset.name
+  return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
+})

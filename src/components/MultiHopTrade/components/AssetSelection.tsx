@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Button, Flex, Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -34,7 +35,8 @@ type TradeAssetSelectProps = {
   isLoading: boolean
   onAssetClick?: () => void
   onAssetChange: (asset: Asset) => void
-}
+  buttonProps?: ButtonProps
+} & FlexProps
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
@@ -42,6 +44,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   assetId,
   isReadOnly,
   isLoading,
+  buttonProps,
+  ...rest
 }) => {
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -71,10 +75,10 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
 
   return (
-    <Flex px={4} mb={4} alignItems='center' gap={2}>
+    <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
       <Button
+        height='40px'
         justifyContent='flex-end'
-        height='auto'
         px={2}
         py={2}
         gap={2}
@@ -87,9 +91,12 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         _disabled={disabledStyle}
         rightIcon={rightIcon}
         isLoading={isLoading || isRelatedAssetsLoading}
+        {...buttonProps}
       >
-        {icon}
-        {asset?.symbol}
+        <Flex alignItems='center' gap={2}>
+          {icon}
+          {asset?.symbol}
+        </Flex>
       </Button>
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
@@ -98,6 +105,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         onClick={handleAssetChange}
         isLoading={isLoading || isRelatedAssetsLoading}
         isError={isError}
+        buttonProps={buttonProps}
       />
     </Flex>
   )

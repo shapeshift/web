@@ -158,6 +158,23 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     ))
   }, [asset, foundPool, handleAccountIdChange, percentOptions, rune])
 
+  const symAlert = useMemo(() => {
+    if (!(foundPool && rune && asset)) return null
+    if (!foundPool.asymSide) return null
+
+    const from = foundPool.asymSide === AsymSide.Rune ? rune.symbol : asset?.symbol
+    const to = foundPool.asymSide === AsymSide.Rune ? asset?.symbol : rune.symbol
+
+    return (
+      <Alert status='info' mx={-2} width='auto'>
+        <AlertIcon as={BiSolidBoltCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translate('pools.symAlert', { from, to })}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [asset, foundPool, rune, translate])
+
   if (!foundPool || !asset || !rune) return null
 
   return (
@@ -247,12 +264,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Alert status='info' mx={-2} width='auto'>
-          <AlertIcon as={BiSolidBoltCircle} />
-          <AlertDescription fontSize='sm' fontWeight='medium'>
-            {translate('pools.symAlert', { from: rune.symbol, to: asset.symbol })}
-          </AlertDescription>
-        </Alert>
+        {symAlert}
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
           {translate('pools.addLiquidity')}
         </Button>

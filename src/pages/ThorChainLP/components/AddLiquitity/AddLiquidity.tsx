@@ -43,7 +43,10 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
     [opportunityId],
   )
 
-  const renderAddLiquidityStatus = useCallback(() => <AddLiquidityStatus />, [])
+  const renderAddLiquidityStatus = useCallback(
+    () => <AddLiquidityStatus opportunityId={opportunityId} />,
+    [opportunityId],
+  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

@@ -338,6 +338,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   }, [buyAssetSearch, poolAssets])
 
   const pairSelect = useMemo(() => {
+    // We only want to show the pair select on standalone "Add Liquidity" - not on the pool page
+    if (!defaultOpportunityId) return null
     return (
       <>
         <TradeAssetSelect
@@ -357,7 +359,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         />
       </>
     )
-  }, [asset?.assetId, handleAssetChange, handlePoolAssetClick])
+  }, [asset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick])
 
   const handleAsymSideChange = useCallback(
     (asymSide: AsymSide | null) => {

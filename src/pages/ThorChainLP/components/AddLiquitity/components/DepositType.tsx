@@ -110,8 +110,7 @@ export const DepositType = ({
   })
 
   const radioOptions = useMemo(() => {
-    const _options = asymSide && !defaultOpportunityId ? [{ value: asymSide }] : options
-    if (_options.length === 1) return null
+    const _options = defaultOpportunityId ? options : []
 
     return _options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
@@ -131,7 +130,7 @@ export const DepositType = ({
         </TypeRadio>
       )
     })
-  }, [asymSide, defaultOpportunityId, getRadioProps, makeAssetIdsOption])
+  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption])
 
   const group = getRootProps()
   return (

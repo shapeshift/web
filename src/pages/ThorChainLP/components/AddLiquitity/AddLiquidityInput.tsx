@@ -393,6 +393,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           <DepositType
             assetId={asset.assetId}
             asymSide={foundPool.asymSide}
+            defaultOpportunityId={defaultOpportunityId}
             onAsymSideChange={handleAsymSideChange}
           />
           <Stack divider={pairDivider} spacing={0}>

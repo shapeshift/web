@@ -139,7 +139,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 
-export const Pool = () => {
+export const Position = () => {
   const params = useParams<MatchParams>()
 
   const { data: parsedPools } = usePools()

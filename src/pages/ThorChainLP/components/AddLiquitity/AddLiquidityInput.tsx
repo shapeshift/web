@@ -147,6 +147,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     string | undefined
   >()
   const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
+  const runePerAsset = useMemo(() => {
+    if (!assetMarketData || !runeMarketData) return undefined
+    return bn(assetMarketData.price).div(bn(runeMarketData.price)).toFixed()
+  }, [assetMarketData, runeMarketData])
 
   const createHandleAddLiquidityInputChange = useCallback(
     (marketData: MarketData, isRune: boolean) => {
@@ -273,7 +277,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           </Stack>
         </Stack>
         <Collapse in={true}>
-          <PoolSummary assetId={foundPool.assetId} />
+          <PoolSummary assetId={foundPool.assetId} runePerAsset={runePerAsset} />
         </Collapse>
       </Stack>
       <CardFooter

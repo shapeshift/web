@@ -9,9 +9,10 @@ import { useAppSelector } from 'state/store'
 
 type PoolSummaryProps = {
   assetId: AssetId
+  runePerAsset: string | undefined
 }
 
-export const PoolSummary = ({ assetId }: PoolSummaryProps) => {
+export const PoolSummary = ({ assetId, runePerAsset }: PoolSummaryProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -25,7 +26,7 @@ export const PoolSummary = ({ assetId }: PoolSummaryProps) => {
           {translate('pools.pricePerAsset', { from: 'RUNE', to: asset.symbol })}
         </Row.Label>
         <Row.Value>
-          <Amount value='5.39' />
+          <Amount value={runePerAsset} />
         </Row.Value>
       </Row>
       <Row>

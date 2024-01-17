@@ -58,7 +58,7 @@ import {
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
-import { swappersApi } from 'state/apis/swappers/swappersApi'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   getMaybeThorchainSaversDepositQuote,
   getThorchainSaversPosition,
@@ -561,7 +561,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
-      const { getIsTradingActive } = swappersApi.endpoints
+      const { getIsTradingActive } = swapperApi.endpoints
       const { data: isTradingActive } = await appDispatch(
         getIsTradingActive.initiate({
           assetId,

@@ -9,7 +9,7 @@ import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nft, nftApi } from './apis/nft/nftApi'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
-import { swappersApi } from './apis/swappers/swappersApi'
+import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -61,7 +61,7 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  swappersApi,
+  swappersApi: swapperApi,
   foxyApi,
   fiatRampApi,
   snapshotApi,
@@ -79,7 +79,7 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [swappersApi.reducerPath]: swappersApi.reducer,
+  [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [snapshotApi.reducerPath]: snapshotApi.reducer,

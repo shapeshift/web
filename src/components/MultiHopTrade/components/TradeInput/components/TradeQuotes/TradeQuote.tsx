@@ -28,7 +28,7 @@ import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingA
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swappers'
+import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper'
 import {
   selectBuyAsset,
   selectFeeAssetByChainId,

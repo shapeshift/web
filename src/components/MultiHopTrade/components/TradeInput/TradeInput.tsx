@@ -57,7 +57,7 @@ import {
   selectSwappersApiTradeQuotes,
   selectTradeQuoteRequestErrors,
   selectTradeQuoteRequestFailed,
-} from 'state/apis/swappers/selectors'
+} from 'state/apis/swapper/selectors'
 import {
   selectBuyAsset,
   selectManualReceiveAddressIsValidating,

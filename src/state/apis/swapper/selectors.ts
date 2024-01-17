@@ -6,12 +6,12 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import type { ApiQuote, ErrorWithMeta, TradeQuoteRequestError, TradeQuoteResponse } from './types'
 
-const selectSwappersApi = (state: ReduxState) => state.swappersApi
+const selectSwappersApi = (state: ReduxState) => state.swapperApi
 
 const selectMostRecentTradeQuoteQuery = createDeepEqualOutputSelector(
   selectSwappersApi,
-  swappersApi => {
-    const getTradeQuoteQueries = Object.values(swappersApi.queries).filter(
+  swapperApi => {
+    const getTradeQuoteQueries = Object.values(swapperApi.queries).filter(
       query => query?.endpointName === 'getTradeQuote',
     )
 
@@ -52,6 +52,6 @@ export const selectSwappersApiTradeQuotePending = createSelector(
 )
 
 export const selectSwapperApiTradingActivePending = (state: ReduxState) =>
-  Object.values(state.swappersApi.queries).some(
+  Object.values(state.swapperApi.queries).some(
     query => query?.endpointName === 'getIsTradingActive' && query?.status === QueryStatus.pending,
   )

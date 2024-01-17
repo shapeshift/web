@@ -36,8 +36,8 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { selectSwapperApiTradingActivePending } from 'state/apis/swappers/selectors'
-import { swappersApi } from 'state/apis/swappers/swappersApi'
+import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -134,7 +134,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      const { getIsTradingActive } = swappersApi.endpoints
+      const { getIsTradingActive } = swapperApi.endpoints
       const { data: isTradingActive } = await appDispatch(
         getIsTradingActive.initiate({
           assetId,

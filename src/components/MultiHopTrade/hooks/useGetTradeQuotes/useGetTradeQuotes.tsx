@@ -17,12 +17,12 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import type { ApiQuote, TradeQuoteError } from 'state/apis/swappers'
+import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
 import {
   GET_TRADE_QUOTE_POLLING_INTERVAL,
-  swappersApi,
+  swapperApi,
   useGetTradeQuoteQuery,
-} from 'state/apis/swappers/swappersApi'
+} from 'state/apis/swapper/swapperApi'
 import {
   selectBuyAsset,
   selectFirstHopSellAccountId,
@@ -205,7 +205,7 @@ export const useGetTradeQuotes = () => {
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swappersApi.util.invalidateTags(['TradeQuote']))
+    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
@@ -304,7 +304,7 @@ export const useGetTradeQuotes = () => {
   // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
   // This ensures we never return cached data, if skip has been set after the initial query load
   // currentData is always undefined when skip === true, so we have to access it like so:
-  const { currentData } = swappersApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
+  const { currentData } = swapperApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
 
   useEffect(() => {
     if (currentData && mixpanel) {

@@ -11,9 +11,9 @@ import {
   getTradeQuotes,
 } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
-import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
-import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swappers/types'
+import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
+import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swapper/types'
+import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
@@ -48,9 +48,9 @@ const getIsTradingActiveErrorHandler = apiErrorHandler(
 )
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
-export const _swappersApi = createApi({
+export const _swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'swappersApi',
+  reducerPath: 'swapperApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
@@ -71,7 +71,7 @@ export const _swappersApi = createApi({
   }),
 })
 
-export const swappersApi = _swappersApi.injectEndpoints({
+export const swapperApi = _swapperApi.injectEndpoints({
   endpoints: build => ({
     getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
@@ -173,7 +173,7 @@ export const swappersApi = _swappersApi.injectEndpoints({
                 await Promise.all(
                   [sellAsset.assetId, buyAsset.assetId].map(assetId => {
                     return dispatch(
-                      _swappersApi.endpoints.getIsTradingActive.initiate({
+                      _swapperApi.endpoints.getIsTradingActive.initiate({
                         assetId,
                         swapperName,
                       }),
@@ -289,4 +289,4 @@ export const swappersApi = _swappersApi.injectEndpoints({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swappersApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi

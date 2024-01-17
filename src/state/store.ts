@@ -12,7 +12,7 @@ import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
-import { swappersApi } from './apis/swappers/swappersApi'
+import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
@@ -42,7 +42,7 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   foxyApi.middleware,
-  swappersApi.middleware,
+  swapperApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,
   zapper.middleware,

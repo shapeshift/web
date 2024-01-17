@@ -3,6 +3,7 @@ import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { mockMarketData } from 'test/mocks/marketData'
+import { describe, expect, it } from 'vitest'
 
 import { makeAmountOrDefault } from './utils'
 

@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { AccountMetadataById, PartialRecord } from '@shapeshiftoss/types'
 import type { Nominal } from 'types/common'
 
@@ -44,6 +44,15 @@ export type PortfolioWallet = {
   ids: WalletId[]
 }
 
+export type ConnectWallet = {
+  /**
+   * the currently connected wallet id, used to determine which accounts to index into
+   */
+  id: WalletId
+  name: string
+  supportedChainIds: ChainId[]
+}
+
 export type Portfolio = {
   /**
    * lookup of accountId -> accountMetadata
@@ -55,11 +64,7 @@ export type Portfolio = {
    * 1:many mapping of a unique wallet id -> multiple account ids
    */
   wallet: PortfolioWallet
-  /**
-   * the currently connected wallet id, used to determine which accounts to index into
-   */
-  walletId?: WalletId
-  walletName?: string
+  connectedWallet?: ConnectWallet
 }
 
 export const initialState: Portfolio = {

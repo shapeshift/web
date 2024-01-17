@@ -3,15 +3,15 @@ import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
-  SwapErrorType,
   SwapperName,
+  TradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
-import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import {
   addBasisPointAmount,
   convertBasisPointsToPercentage,
@@ -19,7 +19,7 @@ import {
 
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { assertValidTrade, getAdapter, getOneInchTokenAddress, getRate } from '../utils/helpers'
+import { assertValidTrade, getOneInchTokenAddress, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
@@ -39,7 +39,7 @@ export async function getTradeQuote(
   } = input
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
-  const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
+  const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const maybeTreasuryAddress = (() => {
@@ -81,11 +81,9 @@ export async function getTradeQuote(
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
   const allowanceContract = maybeAllowanceContract.unwrap()
 
-  const maybeAdapter = getAdapter(chainId)
-  if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
-  const adapter = maybeAdapter.unwrap()
-
   try {
+    // assert get is allowed because we chain chainId is an EVM chainId above in assertValidTrade
+    const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
@@ -128,7 +126,7 @@ export async function getTradeQuote(
       makeSwapErrorRight({
         message: '[OneInch: tradeQuote] - failed to get fee data',
         cause: err,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
       }),
     )
   }

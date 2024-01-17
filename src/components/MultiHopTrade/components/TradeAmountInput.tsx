@@ -11,7 +11,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { FocusEvent, PropsWithChildren } from 'react'
+import noop from 'lodash/noop'
+import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
@@ -28,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
-const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto' }
+const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: 'normal' }
 const boxProps = { px: 0, m: 0 }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
@@ -58,7 +59,7 @@ export type TradeAmountInputProps = {
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
-  onMaxClick?: () => Promise<void>
+  onMaxClick: (isFiat: boolean) => Promise<void>
   onPercentOptionClick?: (args: number) => void
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
@@ -75,7 +76,7 @@ export type TradeAmountInputProps = {
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
   label?: string
-  rightRegion?: JSX.Element
+  rightComponent?: ElementType<{ assetId: AssetId }>
   labelPostFix?: JSX.Element
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
@@ -108,7 +109,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatSkeleton,
     formControlProps,
     label,
-    rightRegion,
+    rightComponent: RightComponent,
     labelPostFix,
     hideAmounts,
     layout = 'stacked',
@@ -176,6 +177,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [assetSymbol, balance, fiatBalance, isFiat, translate],
     )
 
+    const handleOnMaxClick = useMemo(() => () => onMaxClick(isFiat), [isFiat, onMaxClick])
+
     return (
       <FormControl
         borderWidth={1}
@@ -195,7 +198,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </FormLabel>
             </Flex>
           )}
-          {balance && assetId && (
+          {balance && assetId && label && (
             <AccountDropdown
               defaultAccountId={accountId}
               assetId={assetId}
@@ -230,7 +233,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 onFocus={handleOnFocus}
               />
             </Skeleton>
-            {rightRegion}
+            {RightComponent && <RightComponent assetId={assetId ?? ''} />}
             {layout === 'inline' && showFiatAmount && !hideAmounts && (
               <Button
                 onClick={toggleIsFiat}
@@ -269,12 +272,23 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
               </Button>
             )}
-            {onPercentOptionClick && (
-              <PercentOptionsButtonGroup
-                options={percentOptions}
-                isDisabled={isReadOnly || isSendMaxDisabled}
-                onMaxClick={onMaxClick}
-                onClick={onPercentOptionClick}
+            <PercentOptionsButtonGroup
+              options={percentOptions}
+              isDisabled={isReadOnly || isSendMaxDisabled}
+              onMaxClick={handleOnMaxClick}
+              onClick={onPercentOptionClick ?? noop}
+            />
+            {balance && assetId && !label && (
+              <AccountDropdown
+                defaultAccountId={accountId}
+                assetId={assetId}
+                onChange={onAccountIdChange}
+                disabled={isAccountSelectionDisabled}
+                autoSelectHighestBalance
+                buttonProps={buttonProps}
+                boxProps={boxProps}
+                showLabel={false}
+                label={accountDropdownLabel}
               />
             )}
           </Flex>

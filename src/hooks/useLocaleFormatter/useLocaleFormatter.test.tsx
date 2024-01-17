@@ -5,6 +5,7 @@ import { renderHook } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
+import { describe, expect, it } from 'vitest'
 
 import type { FiatParts, NumberFormatter, NumberValue } from './useLocaleFormatter'
 import { useLocaleFormatter } from './useLocaleFormatter'

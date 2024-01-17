@@ -2,8 +2,8 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import orderBy from 'lodash/orderBy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -11,21 +11,36 @@ import {
 } from 'lib/swapper/swapper'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote } from 'state/apis/swappers/types'
+import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swappers/types'
+import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import {
+  selectIsWalletConnected,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectWalletSupportedChainIds,
+} from 'state/slices/common-selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectManualReceiveAddress,
+  selectSellAsset,
+} from 'state/slices/swappersSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { getIsDonationAmountBelowMinimum } from './helpers/getIsDonationAmountBelowMinimum'
+import { getIsTradingActiveApi } from '../swapper/getIsTradingActiveApi'
+import { validateQuoteRequest } from './helpers/validateQuoteRequest'
+import { validateTradeQuote } from './helpers/validateTradeQuote'
 
-// these are the swappers with special logic regarding minimum donations
-const evmDonationSwappers = [SwapperName.OneInch, SwapperName.Zrx, SwapperName.LIFI]
+const sortQuotes = (unorderedQuotes: Omit<ApiQuote, 'index'>[], startingIndex: number) => {
+  return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc']).map(
+    (apiQuote, i) => Object.assign(apiQuote, { index: startingIndex + i }),
+  )
+}
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swappersApi = createApi({
@@ -34,56 +49,67 @@ export const swappersApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
-    getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
-      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+    getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
+      queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+        if (bnOrZero(tradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit).isZero()) {
+          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
+          return { data: { errors: [], quotes: [] } }
+        }
+
         const state = getState() as ReduxState
-        const {
-          sendAddress,
-          receiveAddress,
-          sellAsset,
-          buyAsset,
-          affiliateBps,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        } = getTradeQuoteInput
+        const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
+        const isWalletConnected = selectIsWalletConnected(state)
+        const walletSupportedChainIds = selectWalletSupportedChainIds(state)
+        const manualReceiveAddress = selectManualReceiveAddress(state)
+        const firstHopSellAccountId = selectFirstHopSellAccountId(state)
+        const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+          accountId: firstHopSellAccountId,
+          assetId: tradeQuoteInput.sellAsset.assetId,
+        })
+
+        const topLevelValidationErrors = validateQuoteRequest({
+          tradeQuoteInput,
+          isWalletConnected,
+          walletSupportedChainIds,
+          manualReceiveAddress,
+          sellAssetBalanceCryptoBaseUnit,
+        })
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
           marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
         )
 
-        const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, tradeQuoteInput.sellAsset.assetId)
 
         // this should never be needed but here for paranoia
         if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
 
-        // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
-        const isDonationAmountBelowMinimum = getIsDonationAmountBelowMinimum(
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sellAsset,
-          sellAssetUsdRate,
+        const quoteResults = await getTradeQuotes(
+          {
+            ...tradeQuoteInput,
+            affiliateBps,
+          },
+          enabledSwappers,
+          selectAssets(state),
         )
 
-        const quoteResults = await Promise.all([
-          getTradeQuotes(
-            {
-              ...getTradeQuoteInput,
-              affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+        if (quoteResults.length === 0) {
+          return {
+            data: {
+              errors: [
+                { error: TradeQuoteRequestError.NoQuotesAvailable },
+                ...topLevelValidationErrors,
+              ],
+              quotes: [],
             },
-            enabledSwappers.filter(swapperName => evmDonationSwappers.includes(swapperName)),
-            selectAssets(state),
-          ),
-          getTradeQuotes(
-            getTradeQuoteInput,
-            enabledSwappers.filter(swapperName => !evmDonationSwappers.includes(swapperName)),
-            selectAssets(state),
-          ),
-        ])
+          }
+        }
 
         const quotesWithInputOutputRatios = quoteResults
-          .flat()
           .map(result => {
             if (result.isErr()) {
               const error = result.unwrapErr()
@@ -109,15 +135,82 @@ export const swappersApi = createApi({
           })
           .flat()
 
-        const orderedQuotes: ApiQuote[] = orderBy(
-          quotesWithInputOutputRatios,
-          ['inputOutputRatio', 'swapperName'],
-          ['desc', 'asc'],
-        ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
+        const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
+          quotesWithInputOutputRatios.map(async quoteData => {
+            const { quote, swapperName, inputOutputRatio, error } = quoteData
 
-        // Ensures we autoselect the first quote on quotes received
-        dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(0))
-        return { data: orderedQuotes }
+            const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
+              // allow swapper errors to flow through
+              if (error !== undefined) {
+                return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
+              }
+
+              const [{ data: isTradingActiveOnSellPool }, { data: isTradingActiveOnBuyPool }] =
+                await Promise.all(
+                  [sellAsset.assetId, buyAsset.assetId].map(assetId => {
+                    return dispatch(
+                      getIsTradingActiveApi.endpoints.getIsTradingActive.initiate({
+                        assetId,
+                        swapperName,
+                      }),
+                    )
+                  }),
+                )
+              return {
+                isTradingActiveOnSellPool,
+                isTradingActiveOnBuyPool,
+              }
+            })()
+
+            if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
+              return {
+                quote,
+                swapperName,
+                inputOutputRatio,
+                errors: [{ error: TradeQuoteValidationError.QueryFailed }],
+                warnings: [],
+              }
+            }
+
+            const { errors, warnings } = await validateTradeQuote(state, {
+              swapperName,
+              quote,
+              error,
+              isTradingActiveOnSellPool,
+              isTradingActiveOnBuyPool,
+            })
+            return {
+              quote,
+              swapperName,
+              inputOutputRatio,
+              errors,
+              warnings,
+            }
+          }),
+        )
+
+        // ensure quotes with errors are placed below actionable quotes
+        const happyQuotes = sortQuotes(
+          unorderedQuotes.filter(({ errors }) => errors.length === 0),
+          0,
+        )
+        const errorQuotes = sortQuotes(
+          unorderedQuotes.filter(({ errors }) => errors.length > 0),
+          happyQuotes.length,
+        )
+        const orderedQuotes: ApiQuote[] = [...happyQuotes, ...errorQuotes]
+
+        // Ensure we auto-select the first actionable quote, or nothing otherwise
+        dispatch(
+          tradeQuoteSlice.actions.setActiveQuoteIndex(happyQuotes.length > 0 ? 0 : undefined),
+        )
+
+        return {
+          data: {
+            errors: topLevelValidationErrors,
+            quotes: orderedQuotes,
+          },
+        }
       },
       providesTags: ['TradeQuote'],
     }),
@@ -126,13 +219,13 @@ export const swappersApi = createApi({
         supportedSellAssetIds: AssetId[]
         supportedBuyAssetIds: AssetId[]
       },
-      { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] }
+      { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] }
     >({
       queryFn: async (
         {
-          walletSupportedChains,
+          walletSupportedChainIds,
           sortedAssetIds,
-        }: { walletSupportedChains: ChainId[]; sortedAssetIds: AssetId[] },
+        }: { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] },
         { getState },
       ) => {
         const state = getState() as ReduxState
@@ -147,7 +240,7 @@ export const swappersApi = createApi({
           .filter(assetId => supportedSellAssetsSet.has(assetId))
           .filter(assetId => {
             const chainId = fromAssetId(assetId).chainId
-            return walletSupportedChains.includes(chainId)
+            return walletSupportedChainIds.includes(chainId)
           })
 
         const supportedBuyAssetsSet = await getSupportedBuyAssetIds(

@@ -1,10 +1,11 @@
 import { renderHook } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 
 import { useEvent } from './useEvent'
 
 describe('useEvent', () => {
   it('should call the callback provided when current result of the render is called', () => {
-    const callback = jest.fn()
+    const callback = vi.fn()
     const { result } = renderHook(value => useEvent(() => callback(value)), {
       initialProps: { value: '1' },
     })
@@ -16,7 +17,7 @@ describe('useEvent', () => {
   })
 
   it('should not fire callback when callback changes', () => {
-    const callback = jest.fn()
+    const callback = vi.fn()
     const { result, rerender } = renderHook(value => useEvent(() => callback(value)), {
       initialProps: { value: '1' },
     })
@@ -40,7 +41,7 @@ describe('useEvent', () => {
   })
 
   it('should return a referentially stable event handler identity', () => {
-    const callback = jest.fn()
+    const callback = vi.fn()
     const { result, rerender } = renderHook(value => useEvent(() => callback(value)), {
       initialProps: { value: '1' },
     })

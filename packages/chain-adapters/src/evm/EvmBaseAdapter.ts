@@ -413,40 +413,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       cursor: input.cursor,
     })
 
-    const txs = await Promise.all(
-      data.txs.map(async tx => {
-        const parsedTx = await this.parser.parse(tx, input.pubkey)
-
-        return {
-          address: input.pubkey,
-          blockHash: parsedTx.blockHash,
-          blockHeight: parsedTx.blockHeight,
-          blockTime: parsedTx.blockTime,
-          chainId: parsedTx.chainId,
-          chain: this.getType(),
-          confirmations: parsedTx.confirmations,
-          txid: parsedTx.txid,
-          fee: parsedTx.fee,
-          status: parsedTx.status,
-          trade: parsedTx.trade,
-          transfers: parsedTx.transfers.map(transfer => ({
-            assetId: transfer.assetId,
-            from: transfer.from,
-            to: transfer.to,
-            type: transfer.type,
-            value: transfer.totalValue,
-            id: transfer.id,
-            token: transfer.token,
-          })),
-          data: parsedTx.data,
-        }
-      }),
-    )
+    const transactions = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: txs,
+      transactions,
     }
   }
 
@@ -585,32 +557,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     await this.providers.ws.subscribeTxs(
       subscriptionId,
       { topic: 'txs', addresses: [address] },
-      async msg => {
-        const tx = await this.parser.parse(msg.data, msg.address)
-
-        onMessage({
-          address: tx.address,
-          blockHash: tx.blockHash,
-          blockHeight: tx.blockHeight,
-          blockTime: tx.blockTime,
-          chainId: tx.chainId,
-          confirmations: tx.confirmations,
-          fee: tx.fee,
-          status: tx.status,
-          trade: tx.trade,
-          transfers: tx.transfers.map(transfer => ({
-            assetId: transfer.assetId,
-            from: transfer.from,
-            to: transfer.to,
-            type: transfer.type,
-            value: transfer.totalValue,
-            id: transfer.id,
-            token: transfer.token,
-          })),
-          txid: tx.txid,
-          data: tx.data,
-        })
-      },
+      async msg => onMessage(await this.parseTx(msg.data, msg.address)),
       err => onError({ message: err.message }),
     )
   }
@@ -711,6 +658,23 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         chainSpecific: { gasLimit, ...slow },
       },
     } as FeeDataEstimate<T>
+  }
+
+  private async parseTx(tx: unchained.evm.types.Tx, pubkey: string): Promise<Transaction> {
+    const parsedTx = await this.parser.parse(tx, pubkey)
+
+    return {
+      ...parsedTx,
+      transfers: parsedTx.transfers.map(transfer => ({
+        assetId: transfer.assetId,
+        from: [transfer.from],
+        to: [transfer.to],
+        type: transfer.type,
+        value: transfer.totalValue,
+        id: transfer.id,
+        token: transfer.token,
+      })),
+    }
   }
 
   get httpProvider(): unchained.evm.Api {

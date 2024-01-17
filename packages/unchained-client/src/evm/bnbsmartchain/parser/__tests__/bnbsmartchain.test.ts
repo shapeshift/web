@@ -1,5 +1,6 @@
 import { bscAssetId, bscChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
@@ -18,7 +19,7 @@ import zrxTradeBnbToBusd from './mockData/zrxTradeBnbToBusd'
 import zrxTradeBusdToBnb from './mockData/zrxTradeBusdToBnb'
 import zrxTradeUsdtToBusd from './mockData/zrxTradeUsdtToBusd'
 
-const mockedApi = jest.mocked(new V1Api())
+const mockedApi = vi.mocked(new V1Api())
 
 const tokenMetadata: evm.TokenMetadata = {
   name: 'Foxy',
@@ -26,7 +27,7 @@ const tokenMetadata: evm.TokenMetadata = {
   media: { url: 'http://foxy.fox', type: 'image' },
 }
 
-mockedApi.getTokenMetadata = jest.fn().mockResolvedValue(tokenMetadata)
+mockedApi.getTokenMetadata = vi.fn().mockResolvedValue(tokenMetadata)
 
 const txParser = new TransactionParser({
   rpcUrl: '',

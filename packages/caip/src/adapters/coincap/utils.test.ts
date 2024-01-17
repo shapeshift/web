@@ -1,4 +1,9 @@
+/**
+ * @vitest-environment node
+ */
+
 import realFs from 'fs'
+import { describe, expect, it, vi } from 'vitest'
 
 import { bitcoinAssetMap, cosmosAssetMap } from '../../utils'
 import { parseData, parseEthData, writeFiles } from './utils'
@@ -78,9 +83,11 @@ const makeCosmosMockCoincapResponse = () => ({
   explorer: 'https://www.mintscan.io/cosmos',
 })
 
-jest.mock('fs', () => ({
-  promises: {
-    writeFile: jest.fn(() => undefined),
+vi.mock('fs', () => ({
+  default: {
+    promises: {
+      writeFile: vi.fn(() => undefined),
+    },
   },
 }))
 
@@ -159,7 +166,7 @@ describe('adapters:coincap:utils', () => {
       }
       const fooAssetIds = JSON.stringify(data.foo)
       const barAssetIds = JSON.stringify(data.bar)
-      console.info = jest.fn()
+      console.info = vi.fn()
       await writeFiles(data)
       expect(realFs.promises.writeFile).toBeCalledWith(
         './src/adapters/coincap/generated/foo/adapter.json',

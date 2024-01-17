@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest'
 import {
   BTC,
   ETH,
@@ -10,11 +11,11 @@ import {
 
 import { cowSwapper } from './CowSwapper'
 
-jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
-  getCowSwapTradeQuote: jest.fn(),
+vi.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
+  getCowSwapTradeQuote: vi.fn(),
 }))
 
-jest.mock('state/slices/assetsSlice/selectors', () => {
+vi.mock('state/slices/assetsSlice/selectors', async () => {
   const {
     BTC,
     ETH,
@@ -25,9 +26,10 @@ jest.mock('state/slices/assetsSlice/selectors', () => {
     XDAI,
   } = require('lib/swapper/swappers/utils/test-data/assets')
 
+  const actual = await vi.importActual('state/slices/assetsSlice/selectors')
   return {
-    ...jest.requireActual('state/slices/assetsSlice/selectors'),
-    selectAssets: jest.fn(() => ({
+    ...actual,
+    selectAssets: vi.fn(() => ({
       [BTC.assetId]: BTC,
       [ETH.assetId]: ETH,
       [FOX_GNOSIS.assetId]: FOX_GNOSIS,

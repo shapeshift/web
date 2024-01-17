@@ -20,6 +20,7 @@ import {
 import { mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
@@ -37,12 +38,12 @@ import {
   selectPortfolioUserCurrencyBalanceByFilter,
 } from './selectors'
 
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
 
 describe('portfolioSlice', () => {
-  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
+  const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)
   afterAll(() => consoleInfoSpy.mockRestore())
   const bip44Params: BIP44Params = {
     purpose: 0,

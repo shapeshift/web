@@ -4,21 +4,25 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
+import type { DeepPartialSkipArrayKey, UseFormReturn } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { IWalletContext } from 'context/WalletProvider/WalletContext'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
-jest.mock('react-hook-form')
-jest.mock('hooks/useWallet/useWallet')
-jest.mock('state/slices/selectors', () => ({
-  ...jest.requireActual('state/slices/selectors'),
+vi.mock('react-hook-form')
+vi.mock('hooks/useWallet/useWallet')
+vi.mock('state/slices/selectors', () => ({
+  ...vi.importActual('state/slices/selectors'),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectMarketDataById: () => ({ price: '3500' }),
+  selectPortfolioAssetIds: () => [],
 }))
 
 const fees = {
@@ -48,14 +52,19 @@ const fees = {
 type SetupProps = {
   assetId: AssetId
   estimatedFees: Record<string, unknown>
-  wallet: HDWallet | null | undefined
+  wallet: HDWallet | null
 }
 
 const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps) => {
-  ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-    state: { wallet },
-  }))
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ assetId, estimatedFees }))
+  vi.mocked(useWallet).mockImplementation(
+    () =>
+      ({
+        state: { wallet },
+      }) as IWalletContext,
+  )
+  vi.mocked(useWatch).mockImplementation(
+    () => ({ assetId, estimatedFees }) as unknown as DeepPartialSkipArrayKey<any>,
+  )
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -66,7 +75,12 @@ const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps)
 
 describe('useSendFees', () => {
   beforeEach(() => {
-    ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
+    vi.mocked(useFormContext).mockImplementation(
+      () =>
+        ({
+          control: {},
+        }) as UseFormReturn<any, any>,
+    )
   })
 
   it('returns the fees with market data', async () => {

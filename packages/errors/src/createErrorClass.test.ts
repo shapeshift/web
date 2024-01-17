@@ -1,4 +1,8 @@
+/**
+ * @vitest-environment node
+ */
 import { inspect } from 'util'
+import { describe, expect, it } from 'vitest'
 
 import { createErrorClass } from './createErrorClass'
 

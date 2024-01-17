@@ -1,27 +1,34 @@
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { ISetupCache } from 'axios-cache-adapter'
-import { setupCache } from 'axios-cache-adapter'
+import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import { setupCache } from 'axios-cache-interceptor'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
 import { AsyncResultOf, isTruthy } from '../utils'
 
-const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
-  !cachedUrls.some(url => request.url.includes(url))
+const getRequestFilter = (cachedUrls: string[]) => (request: AxiosRequestConfig) =>
+  !cachedUrls.some(url => request.url?.includes(url))
 
-export const createCache = (maxAge: number, cachedUrls: string[]): ISetupCache => {
+export const createCache = (
+  maxAge: number,
+  cachedUrls: string[],
+  axiosConfig: AxiosRequestConfig,
+): AxiosInstance => {
   const filter = getRequestFilter(cachedUrls)
-  return setupCache({
-    maxAge,
-    exclude: { filter, query: false },
-    clearOnStale: true,
-    readOnError: false,
-    readHeaders: false,
+  const axiosInstance = Axios.create(axiosConfig)
+
+  setupCache(axiosInstance, {
+    ttl: maxAge,
+    cachePredicate: cacheResponse => filter(cacheResponse.config),
+    interpretHeader: false,
+    staleIfError: true,
+    cacheTakeover: false,
   })
+
+  return axiosInstance
 }
 
 // https://github.com/microsoft/TypeScript/issues/20846#issuecomment-353412767
@@ -66,7 +73,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
             makeSwapErrorRight({
               message: 'makeSwapperAxiosServiceMonadic',
               cause: e,
-              code: SwapErrorType.QUERY_FAILED,
+              code: TradeQuoteError.QueryFailed,
             }),
           )
           .andThen<AxiosResponse>(result => {
@@ -75,7 +82,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
                 makeSwapErrorRight({
                   message: 'makeSwapperAxiosServiceMonadic: no data was returned',
                   cause: result,
-                  code: SwapErrorType.QUERY_FAILED,
+                  code: TradeQuoteError.QueryFailed,
                 }),
               )
 

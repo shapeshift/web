@@ -1,4 +1,3 @@
-import type { Config } from '@jest/types'
 import CircularDependencyPlugin from 'circular-dependency-plugin'
 import stableStringify from 'fast-json-stable-stringify'
 import * as fs from 'fs'
@@ -23,8 +22,6 @@ type DevServerConfigFunction = (
 const buildPath = path.resolve(__dirname, '..')
 
 process.env.REACT_APP_CSP_META = serializeCsp(cspMeta)
-console.info('Headers:', headers)
-console.info('Meta CSP:', cspMeta)
 
 // The HTML template can pull in static assets from outside of the Webpack
 // pipeline; these need SRI too. This generates SRI attributes for each static
@@ -308,14 +305,14 @@ const reactAppRewireConfig = {
                 },
               ],
             },
-            // We can't use `fetch()` to load `env.json` when running tests because Jest doesn't do top-level await.
+            // We can't use `fetch()` to load `env.json` when running tests because vitest doesn't do top-level await.
             // We can't manually mock out the fetch because we'd either have to turn on automock, which mocks *everything*
-            // and breaks a lot of stuff, or call `jest.mock()`, which doesn't exist in the browser. It can't be called
-            // conditionally because that breaks Jest's magic hoisting BS, and we can't polyfill it because the existence
-            // of a global `jest` object causes various things to think they're being tested and complain that their
+            // and breaks a lot of stuff, or call `vi.mock()`, which doesn't exist in the browser. It can't be called
+            // conditionally because that breaks vitest's magic hoisting BS, and we can't polyfill it because the existence
+            // of a global `vi` object causes various things to think they're being tested and complain that their
             // "test harnesses" aren't set up correctly.
             //
-            // Instead, we leave the jest-friendly behavior as the "default", and use this alias to swap in the behavior
+            // Instead, we leave the vitest-friendly behavior as the "default", and use this alias to swap in the behavior
             // we want to happen in the browser during the build of the webpack bundle.
             resolve: {
               alias: {
@@ -394,17 +391,6 @@ const reactAppRewireConfig = {
       }
     }
 
-    return config
-  },
-  jest: (config: Config.InitialOptions) => {
-    config.transformIgnorePatterns = [
-      '/node_modules/(?!(viem|@wagmi|pretty-ms|parse-ms)/)',
-      '^.+\\.module\\.(css|sass|scss)$',
-    ]
-    // allows jest to not crash when our deps import different versions of axios
-    config.moduleNameMapper = {
-      '^axios$': require.resolve('axios'),
-    }
     return config
   },
   devServer: (configFunction: DevServerConfigFunction): DevServerConfigFunction => {

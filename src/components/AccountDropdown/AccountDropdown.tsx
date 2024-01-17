@@ -12,7 +12,6 @@ import {
   MenuOptionGroup,
   Portal,
   Text,
-  useColorModeValue,
   usePrevious,
 } from '@chakra-ui/react'
 import {
@@ -202,9 +201,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
-    const color = useColorModeValue('black', 'white')
-    const labelColor = useColorModeValue('gray.600', 'text.subtle')
-
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetId(s, filter),
@@ -328,7 +324,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             size='sm'
             rightIcon={rightIcon}
             variant='ghost'
-            color={color}
+            color='text.base'
             disabled={isDropdownDisabled}
             {...buttonProps}
           >
@@ -347,7 +343,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
                     {translate('accounts.accountNumber', { accountNumber })}
                   </RawText>
                   {showLabel && (
-                    <Text fontWeight='medium' color={labelColor}>
+                    <Text fontWeight='medium' color='text.subtle'>
                       {accountLabel}
                     </Text>
                   )}

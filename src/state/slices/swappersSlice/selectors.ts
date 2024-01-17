@@ -81,18 +81,23 @@ export const selectSellAmountCryptoPrecision = createSelector(
   swappers => swappers.sellAmountCryptoPrecision,
 )
 
+export const selectSellAssetUsdRate = createSelector(
+  selectSellAsset,
+  selectCryptoMarketData,
+  (sellAsset, cryptoMarketData) => {
+    const sellAssetMarketData = cryptoMarketData[sellAsset.assetId]
+    return sellAssetMarketData?.price
+  },
+)
+
 export const selectBuyAssetUsdRate = createSelector(
   selectBuyAsset,
   selectCryptoMarketData,
   (buyAsset, cryptoMarketData) => {
     const buyAssetMarketData = cryptoMarketData[buyAsset.assetId]
-    if (!buyAssetMarketData)
-      throw Error(`missing market data for buyAsset.assetId ${buyAsset.assetId}`)
-    return buyAssetMarketData.price
+    return buyAssetMarketData?.price
   },
 )
-
-export const selectWillDonate = createSelector(selectSwappers, swappers => swappers.willDonate)
 
 export const selectManualReceiveAddress = createSelector(
   selectSwappers,
@@ -102,4 +107,13 @@ export const selectManualReceiveAddress = createSelector(
 export const selectManualReceiveAddressIsValidating = createSelector(
   selectSwappers,
   swappers => swappers.manualReceiveAddressIsValidating,
+)
+
+export const selectSellAmountUsd = createSelector(
+  selectSellAmountCryptoPrecision,
+  selectSellAssetUsdRate,
+  (sellAmountCryptoPrecision, sellAssetUsdRate) => {
+    if (!sellAssetUsdRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
+  },
 )

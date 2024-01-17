@@ -1,29 +1,45 @@
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { YearnTokenMarketCapService } from './yearn-tokens'
 import { mockYearnTokenRestData } from './yearnMockData'
 
-jest.mock('@yfi/sdk')
+vi.mock('@yfi/sdk')
 
-const mockedYearnSdk = jest.fn(() => ({
-  vaults: {
-    tokens: jest.fn(() => {
+const mocks = vi.hoisted(() => ({
+  vaultsTokens: vi.fn(() => {
+    return Promise.resolve(mockYearnTokenRestData)
+  }),
+  tokensSupported: vi.fn(
+    vi.fn(() => {
       return Promise.resolve(mockYearnTokenRestData)
     }),
+  ),
+}))
+
+const mockedYearnSdk = vi.fn(() => ({
+  vaults: {
+    tokens: mocks.vaultsTokens,
   },
   tokens: {
-    supported: jest.fn(() => {
-      return Promise.resolve(mockYearnTokenRestData)
-    }),
+    supported: mocks.tokensSupported,
   },
 }))()
 
-// @ts-ignore
-const yearnTokenMarketCapService = new YearnTokenMarketCapService({ yearnSdk: mockedYearnSdk })
-
 describe('yearn token market service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('findAll', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
     it('can flatten multiple responses', async () => {
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       const result = await yearnTokenMarketCapService.findAll()
       expect(Object.keys(result).length).toEqual(2)
     })
@@ -31,6 +47,10 @@ describe('yearn token market service', () => {
     it('can handle api errors', async () => {
       mockedYearnSdk.vaults.tokens.mockResolvedValueOnce({ error: 'foo' } as never)
       mockedYearnSdk.tokens.supported.mockResolvedValueOnce({ error: 'foo' } as never)
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       const result = await yearnTokenMarketCapService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
@@ -38,25 +58,41 @@ describe('yearn token market service', () => {
     it('can handle rate limiting', async () => {
       mockedYearnSdk.vaults.tokens.mockResolvedValueOnce({ status: 429 } as never)
       mockedYearnSdk.tokens.supported.mockResolvedValueOnce({ status: 429 } as never)
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       const result = await yearnTokenMarketCapService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
 
     it('can use default args', async () => {
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       await yearnTokenMarketCapService.findAll()
-      expect(mockedYearnSdk.vaults.tokens).toHaveBeenCalledTimes(1)
-      expect(mockedYearnSdk.tokens.supported).toHaveBeenCalledTimes(1)
+      expect(mocks.vaultsTokens).toHaveBeenCalledTimes(1)
+      expect(mocks.tokensSupported).toHaveBeenCalledTimes(1)
     })
 
     it('can use override args', async () => {
       const count = 1
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       const result = await yearnTokenMarketCapService.findAll({ count })
-      expect(mockedYearnSdk.vaults.tokens).toHaveBeenCalledTimes(1)
-      expect(mockedYearnSdk.tokens.supported).toHaveBeenCalledTimes(1)
+      expect(mocks.vaultsTokens).toHaveBeenCalledTimes(1)
+      expect(mocks.tokensSupported).toHaveBeenCalledTimes(1)
       expect(Object.keys(result).length).toEqual(1)
     })
 
     it('can map yearn to assetIds', async () => {
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       const result = await yearnTokenMarketCapService.findAll()
       const yvBtcAssetId = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -77,6 +113,9 @@ describe('yearn token market service', () => {
   })
 
   describe('findByAssetId', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
     const args = {
       assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
     }
@@ -87,12 +126,20 @@ describe('yearn token market service', () => {
         changePercent24Hr: 0,
         volume: '0',
       }
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
       mockedYearnSdk.vaults.tokens.mockRejectedValueOnce(Error as never)
       mockedYearnSdk.tokens.supported.mockRejectedValueOnce(Error as never)
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(null)
     })
   })
@@ -100,6 +147,10 @@ describe('yearn token market service', () => {
   describe('findPriceHistoryByAssetId', () => {
     it('should return market empty array', async () => {
       const expected: [] = []
+      const yearnTokenMarketCapService = new YearnTokenMarketCapService({
+        // @ts-ignore
+        yearnSdk: mockedYearnSdk,
+      })
       expect(await yearnTokenMarketCapService.findPriceHistoryByAssetId()).toEqual(expected)
     })
   })

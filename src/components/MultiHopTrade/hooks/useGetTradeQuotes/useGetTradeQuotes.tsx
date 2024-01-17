@@ -1,26 +1,23 @@
 import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeepKeyHDWallet, isSkipToken, isSome } from 'lib/utils'
+import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import type { ApiQuote } from 'state/apis/swappers'
+import type { ApiQuote, TradeQuoteError } from 'state/apis/swappers'
 import {
   GET_TRADE_QUOTE_POLLING_INTERVAL,
   swappersApi,
@@ -32,16 +29,11 @@ import {
   selectLastHopBuyAccountId,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAmountCryptoPrecision,
+  selectSellAmountUsd,
   selectSellAsset,
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-  selectWillDonate,
 } from 'state/slices/selectors'
-import {
-  selectFirstHopSellAsset,
-  selectLastHopBuyAsset,
-  selectSellAmountUsd,
-} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -51,23 +43,29 @@ type MixPanelQuoteMeta = {
   quoteReceived: boolean
   isStreaming: boolean
   isLongtail: boolean
+  errors: TradeQuoteError[]
+  isActionable: boolean // is the individual quote actionable
 }
 
 type GetMixPanelDataFromApiQuotesReturn = {
   quoteMeta: MixPanelQuoteMeta[]
-  sellAssetId: string | undefined
-  buyAssetId: string | undefined
+  sellAssetId: string
+  buyAssetId: string
+  sellAssetChainId: string
+  buyAssetChainId: string
   sellAmountUsd: string | undefined
   version: string // ISO 8601 standard basic format date
+  isActionable: boolean // is any quote in the request actionable
 }
 
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
-  const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
-  const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
-  const sellAmountUsd = selectSellAmountUsd(store.getState())
+  const state = store.getState()
+  const { assetId: sellAssetId, chainId: sellAssetChainId } = selectSellAsset(state)
+  const { assetId: buyAssetId, chainId: buyAssetChainId } = selectBuyAsset(state)
+  const sellAmountUsd = selectSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote, swapperName, inputOutputRatio }) => {
+    .map(({ quote, errors, swapperName, inputOutputRatio }) => {
       const differenceFromBestQuoteDecimalPercentage =
         (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
@@ -76,14 +74,27 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,
+        errors: errors.map(({ error }) => error),
+        isActionable: !!quote && !errors.length,
       }
     })
     .filter(isSome)
 
-  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
-  const version = '20231220'
+  const isActionable = quoteMeta.some(({ isActionable }) => isActionable)
 
-  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, version }
+  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
+  const version = '20240115'
+
+  return {
+    quoteMeta,
+    sellAssetId,
+    buyAssetId,
+    sellAmountUsd,
+    sellAssetChainId,
+    buyAssetChainId,
+    version,
+    isActionable,
+  }
 }
 
 const isEqualExceptAffiliateBpsAndSlippage = (
@@ -110,7 +121,6 @@ const isEqualExceptAffiliateBpsAndSlippage = (
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -129,10 +139,6 @@ export const useGetTradeQuotes = () => {
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
-
-  // User *may* donate if the fox discounts flag is off and they kept the donation checkbox on
-  // or if the fox discounts flag is on and they don't hold enough fox to wave fees out fully
-  const userMayDonate = useAppSelector(selectWillDonate) || isFoxDiscountsEnabled
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
@@ -206,25 +212,16 @@ export const useGetTradeQuotes = () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
-        const walletIsKeepKey = wallet && isKeepKeyHDWallet(wallet)
-        const isFromEvm = isEvmChainId(sellAsset.chainId)
-        // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
-        const mayDonate = walletIsKeepKey ? userMayDonate && !isFromEvm : userMayDonate
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
-        const potentialAffiliateBps = mayDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0'
-        const affiliateBps = (() => {
-          if (!isFoxDiscountsEnabled) return potentialAffiliateBps
 
-          // free trades if there's an error getting foxHeld
-          if (votingPower === undefined) return '0'
+        const { feeBps, feeBpsBeforeDiscount } = calculateFees({
+          tradeAmountUsd,
+          foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        })
 
-          const affiliateBps = mayDonate
-            ? calculateFees({ tradeAmountUsd, foxHeld: bnOrZero(votingPower) }).feeBps.toFixed(0)
-            : '0'
-
-          return affiliateBps
-        })()
+        const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
+        const affiliateBps = feeBps.toFixed(0)
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -277,10 +274,8 @@ export const useGetTradeQuotes = () => {
     votingPower,
     tradeQuoteInput,
     wallet,
-    userMayDonate,
     receiveAccountMetadata?.bip44Params,
     userslippageTolerancePercentageDecimal,
-    isFoxDiscountsEnabled,
     sellAssetUsdRate,
     sellAccountId,
     isVotingPowerLoading,
@@ -296,21 +291,24 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
-  // This ensures we never return cached data, if skip has been set after the initial query load
-  const { currentData } = useGetTradeQuoteQuery(tradeQuoteInput, {
+  useGetTradeQuoteQuery(tradeQuoteInput, {
     skip: !shouldRefetchTradeQuotes,
     pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
     /*
-      If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
-      We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
-     */
+    If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
+    We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
+    */
     refetchOnMountOrArgChange: true,
   })
 
+  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
+  // This ensures we never return cached data, if skip has been set after the initial query load
+  // currentData is always undefined when skip === true, so we have to access it like so:
+  const { currentData } = swappersApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
+
   useEffect(() => {
     if (currentData && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(currentData)
+      const quoteData = getMixPanelDataFromApiQuotes(currentData.quotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [currentData, mixpanel])

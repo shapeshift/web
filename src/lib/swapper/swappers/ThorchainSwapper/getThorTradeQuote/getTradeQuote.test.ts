@@ -1,8 +1,9 @@
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Ok } from '@sniptt/monads'
-import type { AxiosResponse, AxiosStatic } from 'axios'
+import type { AxiosResponse } from 'axios'
 import { omit } from 'lodash'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -19,23 +20,37 @@ import { thorService } from '../utils/thorService'
 import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
-jest.mock('../evm/utils/getThorTxData')
-jest.mock('../utils/thorService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+const mockedGetThorTxInfo = vi.mocked(getThorTxInfo)
+const mockedThorService = vi.mocked(thorService)
+
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('../evm/utils/getThorTxData')
+vi.mock('../utils/thorService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    thorService: axios.create(),
+    thorService: mockAxios.default.create(),
   }
 })
 
-jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+vi.mock('context/PluginProvider/chainAdapterSingleton', () => {
   return {
     getChainAdapterManager: () => mockChainAdapterManager,
   }
 })
 
-jest.mock('config', () => {
+vi.mock('config', () => {
   return {
     getConfig: () => ({
       REACT_APP_THORCHAIN_NODE_URL: '',
@@ -122,14 +137,14 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
 ]
 
 describe('getTradeQuote', () => {
-  ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
+  mockedGetThorTxInfo.mockReturnValue(
     Promise.resolve({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' }),
   )
 
   const { quoteInput } = setupQuote()
 
   it('should get a thorchain quote for a thorchain trade', async () => {
-    ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
+    mockedThorService.get.mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve(
@@ -178,7 +193,9 @@ describe('getTradeQuote', () => {
               '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
           }
 
-          return Promise.resolve(Ok(mockThorQuote))
+          return Promise.resolve(
+            Ok(mockThorQuote as unknown as AxiosResponse<ThornodeQuoteResponseSuccess[]>),
+          )
         }
       }
     })

@@ -2,8 +2,8 @@ import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
-  SwapErrorType,
   SwapperName,
+  TradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -42,7 +42,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `unsupported chainId`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -52,7 +52,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `unsupported chainId`,
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        code: TradeQuoteError.UnsupportedChain,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -62,7 +62,7 @@ export async function getZrxTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.CrossChainNotSupported,
         details: { buyAsset, sellAsset },
       }),
     )
@@ -144,7 +144,7 @@ export async function getZrxTradeQuote(
       makeSwapErrorRight({
         message: 'failed to get fee data',
         cause: err,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
       }),
     )
   }

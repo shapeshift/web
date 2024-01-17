@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
@@ -21,7 +22,7 @@ import { breakpoints } from 'theme/theme'
 import { ApproveIcon } from './components/ApproveIcon'
 import { AssetsTransfers } from './components/AssetsTransfers'
 import { AssetTransfer } from './components/AssetTransfer'
-import type { getTxMetadataWithAssetId } from './utils'
+import { getTxMetadataWithAssetId } from './utils'
 
 const buttonPadding = { base: 2, md: 4 }
 const stackDivider = (
@@ -38,13 +39,13 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   let columns = '1fr'
 
   if (isLargerThanSm) {
-    columns = '1fr 2fr'
+    columns = '1.5fr 2fr'
   }
   if (isLargerThanMd) {
-    columns = '1fr 2fr'
+    columns = '1.5fr 2fr'
   }
   if (isLargerThanLg) {
-    columns = '1fr 2fr 1fr 1fr'
+    columns = '1.5fr 2fr 1fr 1fr'
   }
   return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
 }
@@ -72,6 +73,7 @@ const TransactionIcon = ({
     case TransferType.Receive:
       return <ArrowDownIcon color={green} />
     case TradeType.Trade:
+    case TradeType.Swap:
       return <FaExchangeAlt />
     case Method.Approve: {
       return assetId && value ? (
@@ -94,7 +96,7 @@ type TransactionGenericRowProps = {
   transfersByType: Record<TransferType, Transfer[]>
   fee?: Fee
   txid: TxId
-  txData?: ReturnType<typeof getTxMetadataWithAssetId>
+  txData?: TxMetadata
   blockTime: number
   explorerTxLink: string
   toggleOpen: () => void
@@ -120,6 +122,8 @@ export const TransactionGenericRow = ({
     dateFormat,
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
+
+  const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
   const transfers = useMemo(() => {
     return Object.values(transfersByType).map((transfersOfType, index) => {
@@ -214,8 +218,8 @@ export const TransactionGenericRow = ({
               <TransactionIcon
                 type={type}
                 status={status}
-                assetId={txData?.assetId}
-                value={txData?.value}
+                assetId={txMetadataWithAssetId?.assetId}
+                value={txMetadataWithAssetId?.value}
                 compactMode={compactMode}
               />
               {status === TxStatus.Pending && <CircularProgress position='absolute' size='100%' />}
@@ -252,6 +256,28 @@ export const TransactionGenericRow = ({
                     px={tagPx}
                   >
                     NFT
+                  </Tag>
+                )}
+                {txData && txData.parser === 'thorchain' && txData.liquidity && (
+                  <Tag
+                    size='sm'
+                    colorScheme='green'
+                    variant='subtle'
+                    minHeight={tagMinHeight}
+                    px={tagPx}
+                  >
+                    {txData.liquidity.type}
+                  </Tag>
+                )}
+                {txData && txData.parser === 'thorchain' && txData.swap?.type === 'Streaming' && (
+                  <Tag
+                    size='sm'
+                    colorScheme='green'
+                    variant='subtle'
+                    minHeight={tagMinHeight}
+                    px={tagPx}
+                  >
+                    {txData.swap.type}
                   </Tag>
                 )}
               </Flex>

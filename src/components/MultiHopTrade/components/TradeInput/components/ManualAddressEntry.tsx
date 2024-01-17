@@ -72,21 +72,26 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
       required: true,
       validate: {
         validateAddress: async (rawInput: string) => {
-          dispatch(swappers.actions.setManualReceiveAddress(undefined))
-          const value = rawInput.trim() // trim leading/trailing spaces
-          // this does not throw, everything inside is handled
-          const parseAddressInputWithChainIdArgs = {
-            assetId: buyAssetAssetId,
-            chainId: buyAssetChainId,
-            urlOrAddress: value,
-            disableUrlParsing: true,
+          try {
+            const value = rawInput.trim() // trim leading/trailing spaces
+            // this does not throw, everything inside is handled
+            const parseAddressInputWithChainIdArgs = {
+              assetId: buyAssetAssetId,
+              chainId: buyAssetChainId,
+              urlOrAddress: value,
+              disableUrlParsing: true,
+            }
+            const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+            dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
+            const invalidMessage = isYatSupported
+              ? 'common.invalidAddressOrYat'
+              : 'common.invalidAddress'
+            return address ? true : invalidMessage
+          } catch (e) {
+            // This function should never throw, but in case it ever does, we never want to have a stale manual receive address stored
+            console.error(e)
+            dispatch(swappers.actions.setManualReceiveAddress(undefined))
           }
-          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-          dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
-          const invalidMessage = isYatSupported
-            ? 'common.invalidAddressOrYat'
-            : 'common.invalidAddress'
-          return address ? true : invalidMessage
         },
       },
     }),

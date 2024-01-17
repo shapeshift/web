@@ -106,14 +106,19 @@ export type GetBIP44ParamsInput = {
 export type TransferType = unchained.TransferType
 export type TradeType = unchained.TradeType
 
-export type TxMetadata = unchained.evm.TxMetadata | unchained.cosmossdk.TxMetadata
+export type TxMetadata =
+  | unchained.evm.TxMetadata
+  | unchained.cosmossdk.TxMetadata
+  | unchained.utxo.TxMetadata
 
 export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
   transfers: TxTransfer[]
   data?: TxMetadata
 }
 
-export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue'> & {
+export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue' | 'from' | 'to'> & {
+  from: string[]
+  to: string[]
   value: string
 }
 

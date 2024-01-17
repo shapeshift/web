@@ -122,7 +122,7 @@
     "showAll": "Hepsini Göster",
     "showLess": "Daha Az",
     "yourBalance": "Bakiyeniz",
-    "signMessage": "Mesajı imzala",
+    "signTransaction": "İşlemi imzala",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -135,7 +135,8 @@
       "sortedAsc": "Artan şekilde sırala",
       "sortedDesc": "Azalan şekilde sırala",
       "expandRow": "Satırı Genişlet"
-    }
+    },
+    "featureDisabled": "Bu özellik geçici olarak devre dışıdır."
   },
   "consentBanner": {
     "body": {
@@ -379,7 +380,8 @@
           "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
         },
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
-        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
+        "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine yol açabileceğinden para çekme işlemi devre dışı bırakıldı. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün."
       }
     },
     "memoNote": {
@@ -699,7 +701,6 @@
     "expand": "Genişlet",
     "availableRoutes": "Mevcut Rotalar",
     "minerFee": "Madenci Ücreti",
-    "donation": "ShapeShift Bağışı",
     "protocolFee": "Protokol Ücreti",
     "protocol": "Protokol",
     "tradeFeeSource": "%{tradeFeeSource} Ücret",
@@ -735,7 +736,6 @@
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
       "priceImpact": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın yüksek bir fiyat etkisi olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
-      "donation": "ShapeShift'i desteklemeye yardımcı olun ve bizi çalışır durumda tutun.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
@@ -820,7 +820,32 @@
     "enableMetaMaskSnap": "Multichain snap'i kullan",
     "approvalGasFee": "Gaz ücreti onayı %{fee}",
     "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
-    "swapFailed": "%{tradeType} yürütülürken bir sorun oluştu"
+    "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
+    "doAnotherTrade": "Başka bir takas yap",
+    "showDetails": "Detayları göster",
+    "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
+    "temp": {
+      "tradeSuccess": "Takas tamamlandı",
+      "tradeComplete": "%{chainName} üzerinde %{symbol} başarıyla alındı."
+    },
+    "hopTitle": {
+      "bridge": "%{swapperName} aracılığıyla köprüle",
+      "swap": "%{swapperName} ile değiştir"
+    },
+    "transactionFailed": {
+      "bridge": "Köprü yürütülürken bir sorun oluştu",
+      "swap": "Takas yürütülürken bir sorun oluştu"
+    },
+    "transactionTitle": {
+      "bridge": "%{swapperName} aracılığıyla %{sellChainName} ile %{buyChainName} arasında köprü kurun",
+      "swap": "%{sellChainName} üzerinde %{swapperName} aracılığıyla takas yapın"
+    },
+    "approvalTitle": "Token ödeneği onayı",
+    "assetSummaryDescription": "%{chainName} üzerinde %{amountFiatFormatted}",
+    "quote": {
+      "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
+      "slippage": "Kayma: %{slippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1329,7 +1354,8 @@
         "header": "Hata",
         "body": "Ledger cüzdanına bağlanılamıyor"
       },
-      "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun."
+      "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
+      "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."
     },
     "metaMask": {
       "errors": {

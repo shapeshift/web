@@ -4,6 +4,7 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -15,6 +16,7 @@ import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { LendingPage } from 'pages/Lending/LendingPage'
+import { PoolsPage } from 'pages/ThorChainLP/PoolsPage'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -55,6 +57,16 @@ export const routes: NestedRoute[] = [
     priority: 4,
     mobileNav: false,
     disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+  },
+  {
+    path: '/pools',
+    label: 'navBar.pools',
+    icon: <PoolsIcon />,
+    main: PoolsPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
   },
   {
     path: '/earn',

@@ -2,6 +2,7 @@
   "common": {
     "free": "Free",
     "back": "Back",
+    "and": "and",
     "balance": "Balance",
     "next": "Next",
     "error": "Error",
@@ -16,8 +17,10 @@
     "claimable": "Claimable",
     "approve": "Approve",
     "confirm": "Confirm",
+    "seeDetails": "See details",
     "activity": "Activity",
     "reject": "Reject",
+    "goBack": "Go back",
     "connected": "Connected",
     "allocation": "Allocation",
     "value": "Value",
@@ -550,7 +553,8 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
-    "lending": "Lending"
+    "lending": "Lending",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Sent",
@@ -568,6 +572,7 @@
     "to": "To",
     "from": "From",
     "trade": "Trade",
+    "swap": "Swap",
     "amount": "Amount",
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Transfer out"
       },
+      "thorchain": {
+        "deposit": "Deposit",
+        "depositRefund": "Deposit Refund",
+        "loanOpen": "Loan Open",
+        "loanOpenRefund": "Loan Open Refund",
+        "loanOut": "Loan Collateral Received",
+        "loanRepayment": "Loan Repayment",
+        "loanRepaymentRefund": "Loan Repayment Refund",
+        "out": "Outbound Received",
+        "swapOut": "Swap Received",
+        "swapRefund": "Swap Refund",
+        "transferOut": "Transfer Out",
+        "withdraw": "Withdraw Requested",
+        "withdrawOut": "Withdraw Received"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "streamingSwap": "Streaming Swap",
+        "out": "Swap",
+        "refund": "Refund",
+        "outbound": "Outbound"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Unstake",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Undelegate",
         "begin_redelegate": "Redelegate",
         "withdraw_delegator_reward": "Claim Reward"
-      },
-      "swap": {
-        "deposit": "Swap",
-        "streamingSwap": "Streaming Swap",
-        "out": "Swap",
-        "refund": "Refund",
-        "outbound": "Outbound"
       },
       "ibc": {
         "transfer": "Sent",
@@ -701,7 +721,6 @@
     "expand": "Expand",
     "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
-    "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
@@ -737,7 +756,6 @@
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "priceImpact": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
-      "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
@@ -751,50 +769,22 @@
     },
     "errors": {
       "title": "Something went wrong",
-      "sellAssetMiddleSentence": "sell asset",
-      "buyAssetMiddleSentence": "buy asset",
-      "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "amountTooSmallUnknownMinimum": "Amount too low",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
-      "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
-      "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
       "transactionRejected": "User has rejected the transaction",
-      "broadcastFailed": "An error occurred while broadcasting the transaction",
-      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
-      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
-      "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
-      "invalidTradePairBtnText": "Invalid Trade Pair",
       "unsupportedTradePair": "Unsupported Trade Pair",
-      "noLiquidityError": "Not enough liquidity available",
-      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
-      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
-      "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade.",
+      "noRouteFound": "No routes found for this pair and amount",
       "quoteExpired": "Quote expired, try again.",
-      "failedQuoteExecuted": "Cannot execute a failed quote",
-      "sellAssetRequired": "Cannot execute a quote without an asset to sell",
-      "sellAmountRequired": "Cannot execute a quote without an amount to sell",
-      "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
-      "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
-      "hdwalletInvalidConfig": "An error occurred communicating with your hardware wallet",
-      "allowanceRequiredFailed": "An error occurred getting approving the allowance required to trade.",
-      "checkApprovalNeededFailed": "An error occurred checking the approval for your trade.",
-      "approveInfiniteFailed": "An error occurred approving your trade.",
-      "buildTradeFailed": "An error occurred building your trade.",
-      "grantAllowanceFailed": "An error occurred granting allowance.",
-      "minMaxError": "An error occurred getting min / max trade amount",
-      "executeTradeFailed": "An error occurred executing your trade.",
-      "unsupportedPair": "This trading pair is not currently supported.",
-      "unsupportedChain": "This chain is not currently supported.",
-      "rateError": "We're not able to get a quote for this pair",
+      "quoteUnsupportedChain": "Chain not supported",
+      "quoteCrossChainNotSupported": "Cross chain not supported",
+      "networkFeeEstimateFailed": "Failed to estimate network fee",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
-      "sellAssetNotSupportedByWallet": "Sell asset not supported by wallet",
-      "intermediaryAssetNotSupportedByWallet": "Intermediary not supported by wallet",
-      "noReceiveAddress": "No receive address for %{assetSymbol}",
-      "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
+      "intermediaryAssetNotSupportedByWallet": "Intermediary asset %{assetSymbol}.%{chainSymbol} not supported by wallet",
+      "noReceiveAddress": "No receive address for %{assetSymbol} on %{chainName}",
+      "tradingNotActiveForChain": "Trades temporarily halted on %{chainName}",
       "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
       "signing": {
         "failed": "An error occurred signing the transaction",
@@ -1760,6 +1750,7 @@
       "Send": "Send",
       "Receive": "Receive",
       "Trade": "Trade",
+      "Swap": "Swap",
       "Refund": "Refund"
     },
     "assets": "Assets",
@@ -2189,6 +2180,67 @@
     "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
     "tradeFee": "Trade Fee",
     "totalTradeFee": "Total Trade Fee"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volume 24H",
+    "volume7d": "Volume 7D",
+    "balance": "Balance",
+    "unclaimedFees": "Unclaimed Fees",
+    "poolShare": "Pool Share",
+    "yourPosition": "Your Position",
+    "poolInformation": "Pool Information",
+    "poolsBody": "Provide liquidity and earn fees on trades in that pool.",
+    "availablePools": "Available Pools",
+    "addLiquidity": "Add Liquidity",
+    "removeLiquidity": "Remove Liquidity",
+    "initialPricesAndPoolShare": "Initial Prices and Pool Share",
+    "pricePerAsset": "%{from} per %{to}",
+    "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
+    "shareOfPool": "Share of Pool",
+    "assetDepositAmount": "%{asset} Deposit Amount",
+    "totalLiquidity": "Total Liquidity",
+    "totalVolume": "Total Volume",
+    "fees24h": "Fees 24H",
+    "estimatedTime": "Estimated Time",
+    "liquidityValue": "Liquidity Value",
+    "selectPair": "Select Pair",
+    "depositAmounts": "Deposit Amounts",
+    "awaitingConfirmation": "Awaiting confirmation",
+    "transactionSubmitted": "Transaction submitted",
+    "waitingForConfirmation": "Waiting for Confirmation",
+    "chainFee": "%{chain} Fee",
+    "supplying": "Supplying",
+    "confirmAndDeposit": "Confirm and Deposit",
+    "yourPositions": {
+      "yourPositions": "Your Positions",
+      "emptyTitle": "No active positions",
+      "emptyBody": "Your active liquidity pool positions will appear here."
+    },
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "What is a Liquidity Pool?",
+        "body": "A liquidity pool is a decentralized fund pool that contains assets used to facilitate trading on a blockchain network. It plays a crucial role in decentralized finance (DeFi) by providing liquidity for various trading pairs."
+      },
+      "how": {
+        "title": "How do Liquidity Pools work?",
+        "body": "Liquidity pools work on the principle of users depositing their assets into a smart contract to create a pool. These assets are then utilized to enable decentralized exchanges, allowing users to trade against the pool. In return for providing liquidity, users receive a share of the trading fees generated by the platform."
+      },
+      "amm": {
+        "title": "Automated Market Makers (AMMs)",
+        "body": "Many liquidity pools operate as Automated Market Makers (AMMs), using algorithms to determine the price of assets based on the ratio of tokens in the pool. This allows for decentralized and continuous trading without the need for a traditional order book."
+      },
+      "rewards": {
+        "title": "Earning Rewards",
+        "body": "Liquidity providers earn rewards in the form of trading fees and, in some cases, additional governance tokens from the platform. These rewards are proportional to the amount of liquidity provided."
+      },
+      "risks": {
+        "title": "Risks and Considerations",
+        "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
+      }
+    }
   }
 }
-

@@ -5,7 +5,7 @@ Bug fixes and features should always come with tests.
 ### Testing Tools
 
 - Unit - test both frontend code in isolation
-  - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library](https://testing-library.com/docs/react-testing-library/api/#renderhook)
+  - [vitest](https://vitest.dev/guide/), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library](https://testing-library.com/docs/react-testing-library/api/#renderhook)
 - Workflows - tools and libraries for GitHub Workflows or any DevOps processes
   - [act](https://github.com/nektos/act) - Emulates GitHub Workflows virtual environment via Docker containers.
 
@@ -20,6 +20,7 @@ This is an example of how we structure our unit tests.
 ```js
 import mockAxios from 'axios'
 import { isLoggedIn } from './isLoggedIn'
+import { describe, it, expect } from 'vitest'
 
 const UserData = { id: 1, name: 'UserName' }
 

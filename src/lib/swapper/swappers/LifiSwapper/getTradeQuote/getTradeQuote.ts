@@ -6,8 +6,8 @@ import type { GetEvmTradeQuoteInput, SwapSource } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
-  SwapErrorType,
   SwapperName,
+  TradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -55,7 +55,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -63,7 +63,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -79,7 +79,7 @@ export async function getTradeQuote(
     toAddress: receiveAddress,
     fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     options: {
-      // used for analytics and donations - do not change this without considering impact
+      // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
@@ -101,12 +101,12 @@ export async function getTradeQuote(
       const code = (() => {
         switch (e.code) {
           case LifiErrorCode.ValidationError:
-            return SwapErrorType.VALIDATION_FAILED
+            // our input was incorrect - the error is internal to us
+            return TradeQuoteError.InternalError
           case LifiErrorCode.InternalError:
           case LifiErrorCode.Timeout:
-            return SwapErrorType.RESPONSE_ERROR
           default:
-            return SwapErrorType.TRADE_QUOTE_FAILED
+            return TradeQuoteError.QueryFailed
         }
       })()
       return Err(
@@ -125,7 +125,7 @@ export async function getTradeQuote(
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        code: TradeQuoteError.NoRouteFound,
       }),
     )
   }

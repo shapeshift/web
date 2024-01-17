@@ -1,9 +1,11 @@
-import { poll } from './poll' // Update this with your file path
+import { describe, expect, it, vi } from 'vitest'
+
+import { poll } from './poll'
 
 describe('poll', () => {
   it('should resolve if validate returns true on first attempt', async () => {
-    const fn = jest.fn().mockResolvedValue('data')
-    const validate = jest.fn().mockReturnValue(true)
+    const fn = vi.fn().mockResolvedValue('data')
+    const validate = vi.fn().mockReturnValue(true)
 
     const { promise } = poll({ fn, validate, interval: 100, maxAttempts: 3 })
     const result = await promise
@@ -14,8 +16,8 @@ describe('poll', () => {
   })
 
   it('should reject with "Exceeded max attempts" when maxAttempts is reached', async () => {
-    const fn = jest.fn().mockResolvedValue('data')
-    const validate = jest.fn().mockReturnValue(false)
+    const fn = vi.fn().mockResolvedValue('data')
+    const validate = vi.fn().mockReturnValue(false)
 
     const { promise } = poll({ fn, validate, interval: 100, maxAttempts: 3 })
 
@@ -25,8 +27,8 @@ describe('poll', () => {
   })
 
   it('should not resolve or reject after polling is cancelled', async () => {
-    const fn = jest.fn().mockImplementation(() => new Promise(() => {})) // Promise that doesn't resolve or reject
-    const validate = jest.fn().mockReturnValue(false)
+    const fn = vi.fn().mockImplementation(() => new Promise(() => {})) // Promise that doesn't resolve or reject
+    const validate = vi.fn().mockReturnValue(false)
 
     const { promise, cancelPolling } = poll({ fn, validate, interval: 100, maxAttempts: 3 })
 
@@ -50,13 +52,13 @@ describe('poll', () => {
   })
 
   it('should poll until validate function returns true', async () => {
-    const fn = jest
+    const fn = vi
       .fn()
       .mockResolvedValueOnce('data1')
       .mockResolvedValueOnce('data2')
       .mockResolvedValueOnce('data3')
       .mockResolvedValueOnce('data4')
-    const validate = jest
+    const validate = vi
       .fn()
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(false)
@@ -73,8 +75,8 @@ describe('poll', () => {
 
   it('should reject when the promise returned by fn rejects', async () => {
     const error = new Error('Error in fn')
-    const fn = jest.fn().mockRejectedValue(error)
-    const validate = jest.fn().mockReturnValue(false)
+    const fn = vi.fn().mockRejectedValue(error)
+    const validate = vi.fn().mockReturnValue(false)
 
     const { promise } = poll({ fn, validate, interval: 100, maxAttempts: 3 })
 

@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import React, { memo, useMemo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -28,7 +28,7 @@ const AssetInputAwaitingAsset = () => {
   )
 }
 
-type AssetInputLoadedProps = TradeAmountInputProps & { assetId: AssetId }
+type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & { assetId: AssetId }
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   const { assetId, accountId } = props
@@ -46,13 +46,29 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  return <TradeAmountInput balance={balance} fiatBalance={fiatBalance} {...props} />
+  const onMaxClick = useCallback(
+    (isFiat: boolean) => {
+      const value = isFiat ? fiatBalance : balance
+      if (props.onChange) props.onChange(value, isFiat)
+      return Promise.resolve()
+    },
+    [balance, fiatBalance, props],
+  )
+
+  return (
+    <TradeAmountInput
+      balance={balance}
+      fiatBalance={fiatBalance}
+      onMaxClick={onMaxClick}
+      {...props}
+    />
+  )
 }
 
 export type TradeAssetInputProps = {
   assetId?: AssetId
   hideAmounts?: boolean
-} & TradeAmountInputProps
+} & Omit<TradeAmountInputProps, 'onMaxClick'>
 
 export const TradeAssetInput: React.FC<TradeAssetInputProps> = memo(
   ({ assetId, accountId, ...restAssetInputProps }) => {

@@ -14,7 +14,7 @@ import {
   Stack,
   useToken,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -34,7 +34,6 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
@@ -47,16 +46,17 @@ import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIs
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { isKeplrHDWallet } from 'lib/utils'
+import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
+  selectTradeQuoteRequestErrors,
+  selectTradeQuoteRequestFailed,
 } from 'state/apis/swappers/selectors'
 import {
   selectBuyAsset,
@@ -67,17 +67,13 @@ import {
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuote,
-  selectActiveQuoteAffiliateBps,
-  selectActiveQuoteError,
-  selectActiveQuotePotentialDonationBps,
+  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
-  selectPotentialDonationAmountUserCurrency,
-  selectQuoteDonationAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -89,9 +85,10 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
-import { DonationCheckbox } from './components/DonationCheckbox'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
+import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
+import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 
 const formControlProps = {
   borderRadius: 0,
@@ -101,8 +98,7 @@ const formControlProps = {
 }
 
 const arrowDownIcon = <ArrowDownIcon />
-
-const percentOptions = [1]
+const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
   useGetTradeQuotes()
@@ -124,9 +120,13 @@ export const TradeInput = memo(() => {
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const percentOptions = useMemo(() => {
+    if (!sellAsset?.assetId) return []
+    if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
+
+    return [1]
+  }, [sellAsset.assetId])
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
-  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -138,12 +138,29 @@ export const TradeInput = memo(() => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
     [sellAmountCryptoPrecision],
   )
-  const activeQuoteStatus = useActiveQuoteStatus()
+  const quoteStatusTranslation = useMemo(() => {
+    const quoteRequestError = quoteRequestErrors[0]
+    const tradeQuoteError = activeQuoteErrors?.[0]
+    switch (true) {
+      case !!quoteRequestError:
+        return getQuoteRequestErrorTranslation(quoteRequestError)
+      case !!tradeQuoteError:
+        // this should never occur because users shouldn't be able to select an errored quote
+        // but just in case
+        return getQuoteErrorTranslation(tradeQuoteError!)
+      default:
+        return 'trade.previewTrade'
+    }
+  }, [activeQuoteErrors, quoteRequestErrors])
+
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
     [dispatch],
@@ -172,7 +189,7 @@ export const TradeInput = memo(() => {
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
-  const activeQuoteError = useAppSelector(selectActiveQuoteError)
+  const tradeQuoteRequestFailed = useAppSelector(selectTradeQuoteRequestFailed)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
@@ -254,10 +271,6 @@ export const TradeInput = memo(() => {
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
 
-  const quoteHasError = useMemo(() => {
-    return activeQuoteStatus.quoteErrors.length > 0
-  }, [activeQuoteStatus.quoteErrors])
-
   const onSubmit = useCallback(async () => {
     setIsConfirmationLoading(true)
     try {
@@ -318,64 +331,21 @@ export const TradeInput = memo(() => {
     [hasUserEnteredAmount, isLoading, sortedQuotes],
   )
 
-  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
-  const potentialDonationAmountUserCurrency = useAppSelector(
-    selectPotentialDonationAmountUserCurrency,
-  )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
-  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-
-  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(
-    () =>
-      calculateShapeShiftAndAffiliateFee({
-        quote: activeQuote,
-        isFoxDiscountsEnabled,
-        potentialDonationAmountUserCurrency,
-        donationAmountUserCurrency: _donationAmountUserCurrency,
-        affiliateBps,
-        potentialAffiliateBps,
-        applyThorSwapAffiliateFees,
-        swapperName: activeSwapperName,
-      }),
-    [
-      _donationAmountUserCurrency,
-      activeQuote,
-      activeSwapperName,
-      affiliateBps,
-      applyThorSwapAffiliateFees,
-      isFoxDiscountsEnabled,
-      potentialAffiliateBps,
-      potentialDonationAmountUserCurrency,
-    ],
-  )
-
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
-
-  const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
   useEffect(() => {
     if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
   }, [isUnsafeQuote])
 
-  const quoteHasErrorExcludeUnsafe = useMemo(() => {
-    // If the only error is an UnsafeQuote error and the user has dismissed the notice, don't consider it an error
-    // that should disable the preview button - the user understands the risks and wishes to proceed
-    if (isUnsafeQuote && activeQuoteStatus.quoteErrors.length === 1 && isUnsafeQuoteNoticeDismissed)
-      return false
-
-    return quoteHasError
-  }, [
-    activeQuoteStatus.quoteErrors.length,
-    isUnsafeQuote,
-    isUnsafeQuoteNoticeDismissed,
-    quoteHasError,
-  ])
+  const quoteHasError = useMemo(() => {
+    return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
+  }, [activeQuoteErrors?.length, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      quoteHasErrorExcludeUnsafe ||
+      quoteHasError ||
       manualReceiveAddressIsValidating ||
       isLoading ||
       !isSellAmountEntered ||
@@ -388,7 +358,7 @@ export const TradeInput = memo(() => {
     isLoading,
     isSellAmountEntered,
     manualReceiveAddressIsValidating,
-    quoteHasErrorExcludeUnsafe,
+    quoteHasError,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -419,6 +389,14 @@ export const TradeInput = memo(() => {
     )
   }, [activeQuote, isUnsafeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
+  const handleAcknowledgeUnsafeQuote = useCallback(() => {
+    // We don't want to *immediately* set this or there will be a "click-through"
+    // i.e the regular continue button will render immediately, and click will bubble to it
+    setTimeout(() => {
+      setIsUnsafeQuoteNoticeDismissed(true)
+    }, 100)
+  }, [])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <CardFooter
@@ -438,7 +416,7 @@ export const TradeInput = memo(() => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              isError={activeQuoteError !== undefined}
+              isError={tradeQuoteRequestFailed}
             />
 
             {activeQuote ? (
@@ -448,12 +426,6 @@ export const TradeInput = memo(() => {
                 amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
                 amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                 protocolFees={totalProtocolFees}
-                shapeShiftFee={shapeShiftFee}
-                donationAmountUserCurrency={
-                  shapeShiftFee?.amountAfterDiscountUserCurrency ??
-                  donationAmountUserCurrency ??
-                  '0'
-                }
                 slippageDecimalPercentage={slippageDecimal}
                 swapperName={activeSwapperName ?? ''}
                 defaultIsOpen={true}
@@ -473,63 +445,49 @@ export const TradeInput = memo(() => {
             colorScheme='red'
             size='lg-multiline'
             mx={-2}
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => {
-              // We don't want to *immediately* set this or there will be a "click-through"
-              // i.e the regular continue button will render immediately, and click will bubble to it
-              setTimeout(() => {
-                setIsUnsafeQuoteNoticeDismissed(true)
-              }, 100)
-            }}
+            onClick={handleAcknowledgeUnsafeQuote}
           >
             <Text translation={'defi.modals.saversVaults.understand'} />
           </Button>
         ) : (
           <Button
             type='submit'
-            colorScheme={quoteHasErrorExcludeUnsafe ? 'red' : 'blue'}
+            colorScheme={quoteHasError ? 'red' : 'blue'}
             size='lg-multiline'
             data-test='trade-form-preview-button'
             isDisabled={shouldDisablePreviewButton}
             isLoading={isLoading}
             mx={-2}
           >
-            <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+            <Text translation={quoteStatusTranslation} />
           </Button>
         )}
-        {hasUserEnteredAmount &&
-          activeSwapperName !== SwapperName.CowSwap &&
-          (!applyThorSwapAffiliateFees || activeSwapperName !== SwapperName.Thorchain) &&
-          !isFoxDiscountsEnabled && <DonationCheckbox isLoading={isLoading} />}
       </CardFooter>
     ),
     [
+      hasUserEnteredAmount,
+      sellAsset.symbol,
+      buyAsset.symbol,
+      totalNetworkFeeFiatPrecision,
+      rate,
+      isLoading,
+      tradeQuoteRequestFailed,
       activeQuote,
-      activeQuoteError,
-      activeQuoteStatus.quoteStatusTranslation,
-      activeSwapperName,
-      applyThorSwapAffiliateFees,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
-      buyAsset.symbol,
-      donationAmountUserCurrency,
-      hasUserEnteredAmount,
-      isFoxDiscountsEnabled,
-      isLoading,
+      totalProtocolFees,
+      slippageDecimal,
+      activeSwapperName,
+      tradeQuoteStep?.source,
       isModeratePriceImpact,
+      priceImpactPercentage,
+      maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
-      maybeUnsafeTradeWarning,
-      priceImpactPercentage,
-      quoteHasErrorExcludeUnsafe,
-      rate,
-      sellAsset.symbol,
-      shapeShiftFee,
+      handleAcknowledgeUnsafeQuote,
+      quoteHasError,
       shouldDisablePreviewButton,
-      slippageDecimal,
-      totalNetworkFeeFiatPrecision,
-      totalProtocolFees,
-      tradeQuoteStep?.source,
+      quoteStatusTranslation,
     ],
   )
 
@@ -605,6 +563,7 @@ export const TradeInput = memo(() => {
               label={translate('trade.payWith')}
               onAccountIdChange={setSellAssetAccountId}
               labelPostFix={sellTradeAssetSelect}
+              percentOptions={percentOptions}
             />
             <Flex alignItems='center' justifyContent='center' my={-2}>
               <Divider />
@@ -636,7 +595,7 @@ export const TradeInput = memo(() => {
               fiatAmount={
                 isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
               }
-              percentOptions={percentOptions}
+              percentOptions={emptyPercentOptions}
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}

@@ -1,21 +1,43 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import type { AxiosStatic } from 'axios'
-import axios from 'axios'
+import { describe, expect, it, vi } from 'vitest'
 import { AssetService } from 'lib/asset-service'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
 
-jest.mock('lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
-  const axios: AxiosStatic = jest.createMockFromModule('axios')
-  axios.create = jest.fn(() => axios)
+const mocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+}))
+
+vi.mock('lib/swapper/swappers/ThorchainSwapper/utils/thorService', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
 
   return {
-    thorService: axios.create(),
+    thorService: mockAxios.default.create(),
   }
 })
 
-jest.mock('axios')
-const mockAxios = axios as jest.Mocked<typeof axios>
+vi.mock('axios', () => {
+  const mockAxios = {
+    default: {
+      create: vi.fn(() => ({
+        get: mocks.get,
+        post: mocks.post,
+      })),
+    },
+  }
+
+  return {
+    default: mockAxios.default.create(),
+  }
+})
 
 const btcQuoteResponse = {
   expected_amount_out: '9997894',
@@ -50,7 +72,7 @@ const getAssetService = () => {
 describe('resolvers/thorchainSavers/utils', () => {
   describe('getThorchainSaversQuote', () => {
     it('gets a quote for a valid pool AssetId', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
+      mocks.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: btcQuoteResponse,
         }),
@@ -68,7 +90,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       expect(saversQuote).toMatchObject(thorchainSaversDepositQuote)
     })
     it('return an Err when deposit is over the max synth mint supply', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
+      mocks.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: thorchainErrorResponse,
         }),

@@ -19,24 +19,22 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
-  selectHopTotalNetworkFeeFiatPrecision,
+  selectHopNetworkFeeUserCurrencyPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
+import { TwirlyToggle } from '../../TwirlyToggle'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
-import { DonationStep } from './DonationStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
-import { TwirlyToggle } from './TwirlyToggle'
 
 const collapseWidth = { width: '100%' }
 
@@ -57,13 +55,12 @@ export const Hop = ({
 }) => {
   const translate = useTranslate()
   const networkFeeFiatPrecision = useAppSelector(state =>
-    selectHopTotalNetworkFeeFiatPrecision(state, hopIndex),
+    selectHopNetworkFeeUserCurrencyPrecision(state, hopIndex),
   )
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const {
     state: hopExecutionState,
@@ -191,7 +188,7 @@ export const Hop = ({
             hopIndex={hopIndex}
             isLastStep={!shouldRenderFinalSteps}
           />
-          {shouldRenderFinalSteps && isFoxDiscountsEnabled ? <FeeStep /> : <DonationStep />}
+          {shouldRenderFinalSteps ? <FeeStep /> : null}
           {shouldRenderFinalSteps && (
             <AssetSummaryStep
               asset={tradeQuoteStep.buyAsset}

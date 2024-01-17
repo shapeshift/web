@@ -96,21 +96,26 @@ export const useTradeExecution = (hopIndex: number) => {
       }
 
       const execution = new TradeExecution()
-      let txHash: string | undefined
+      let txHashReceived: boolean = false
 
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
-        txHash = sellTxHash
+        txHashReceived = true
         dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
       })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
         dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
         if (buyTxHash) {
-          txHash = buyTxHash
-          tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash })
+          txHashReceived = true
+          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
         }
       })
-      execution.on(TradeExecutionEvent.Success, () => {
-        if (!txHash) {
+      execution.on(TradeExecutionEvent.Success, ({ buyTxHash }) => {
+        if (buyTxHash) {
+          txHashReceived = true
+          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
+        }
+
+        if (!txHashReceived) {
           showErrorToast(Error('missing txHash'))
           resolve()
           return

@@ -42,11 +42,9 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -56,8 +54,6 @@ import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
-  selectActiveQuoteAffiliateBps,
-  selectActiveQuotePotentialDonationBps,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -69,8 +65,6 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectPotentialDonationAmountUserCurrency,
-  selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -90,7 +84,6 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
-  const applyThorSwapAffiliateFees = useFeatureFlag('ThorSwapAffiliateFees')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -157,7 +150,6 @@ export const TradeConfirm = () => {
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
-  const isFoxDiscountsEnabled = useFeatureFlag('FoxDiscounts')
 
   const { executeTrade, sellTxHash, buyTxHash, tradeStatus: status } = useTradeExecution()
 
@@ -199,37 +191,6 @@ export const TradeConfirm = () => {
     if (buyTxHash) return getBuyTxLink(buyTxHash)
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
-
-  const _donationAmountUserCurrency = useAppSelector(selectQuoteDonationAmountUserCurrency)
-  const potentialDonationAmountUserCurrency = useAppSelector(
-    selectPotentialDonationAmountUserCurrency,
-  )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialDonationBps)
-  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-
-  const { shapeShiftFee, donationAmountUserCurrency } = useMemo(
-    () =>
-      calculateShapeShiftAndAffiliateFee({
-        quote: tradeQuote,
-        isFoxDiscountsEnabled,
-        potentialDonationAmountUserCurrency,
-        donationAmountUserCurrency: _donationAmountUserCurrency,
-        affiliateBps,
-        potentialAffiliateBps,
-        applyThorSwapAffiliateFees,
-        swapperName,
-      }),
-    [
-      _donationAmountUserCurrency,
-      affiliateBps,
-      applyThorSwapAffiliateFees,
-      isFoxDiscountsEnabled,
-      potentialAffiliateBps,
-      potentialDonationAmountUserCurrency,
-      swapperName,
-      tradeQuote,
-    ],
-  )
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -399,8 +360,6 @@ export const TradeConfirm = () => {
           amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? ''}
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
-          shapeShiftFee={shapeShiftFee}
-          donationAmountUserCurrency={donationAmountUserCurrency}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
@@ -413,12 +372,10 @@ export const TradeConfirm = () => {
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       buyAsset?.symbol,
-      donationAmountUserCurrency,
       netBuyAmountUserCurrency,
       sellAmountBeforeFeesCryptoPrecision,
       sellAmountBeforeFeesUserCurrency,
       sellAsset?.symbol,
-      shapeShiftFee,
       slippageDecimal,
       swapperName,
       tradeQuoteStep?.feeData.protocolFees,

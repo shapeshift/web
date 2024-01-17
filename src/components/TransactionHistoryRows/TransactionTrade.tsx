@@ -42,6 +42,7 @@ export const TransactionTrade = ({
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
+        txData={txDetails.tx.data}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
       />

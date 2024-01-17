@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { calculateFees } from './model'
@@ -25,7 +26,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
     })
-    expect(feeBps.toNumber()).toEqual(28.552638367853532)
+    expect(feeBps.toNumber()).toEqual(29)
   })
 
   it('should return close to max bps for slightly above no fee threshold', () => {
@@ -35,7 +36,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
     })
-    expect(feeBps.toNumber()).toEqual(28.552638258646432)
+    expect(feeBps.toNumber()).toEqual(29)
   })
 
   it('should return close to min bps for huge amounts', () => {
@@ -45,7 +46,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
     })
-    expect(feeBps.toNumber()).toEqual(10.000000011220077)
+    expect(feeBps.toNumber()).toEqual(10)
   })
 
   it('should return close to midpoint for midpoint', () => {
@@ -55,7 +56,7 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
     })
-    expect(feeBps.toNumber()).toEqual(19.5)
+    expect(feeBps.toNumber()).toEqual(20)
   })
 
   it('should discount fees by 50% holding at midpoint holding half max fox discount limit', () => {
@@ -65,13 +66,24 @@ describe('calculateFees', () => {
       tradeAmountUsd,
       foxHeld,
     })
-    expect(feeBps.toNumber()).toEqual(9.75)
+    expect(feeBps.toNumber()).toEqual(10)
     expect(foxDiscountPercent).toEqual(bn(50))
   })
 
   it('should discount fees 100% holding max fox discount limit', () => {
     const tradeAmountUsd = bn(Infinity)
     const foxHeld = bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)
+    const { feeBps, foxDiscountPercent } = calculateFees({
+      tradeAmountUsd,
+      foxHeld,
+    })
+    expect(feeBps.toNumber()).toEqual(0)
+    expect(foxDiscountPercent).toEqual(bn(100))
+  })
+
+  it('should return 0 bps for missing foxHeld and above no fee threshold', () => {
+    const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD + 0.01)
+    const foxHeld = undefined
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,

@@ -64,17 +64,17 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     return coinSelect<unchained.bitcoin.Utxo>(utxos, outputs, Number(input.satoshiPerByte))
   })()
 
-  /**
-   * note - the 0-indexed output is the `to` address, and if `input.from` is included as an argument, the
-   * 1-indexed output will be the change address, which we overwrite below
-   */
-  if (input.from && result?.outputs?.[1]?.value) {
+  // Finds the change output index (if present), so we can replace it with the from address in case from is provided
+  const changeOutputIndex = (result.outputs ?? []).findIndex(
+    o => o.value && !o.address && !o.script,
+  )
+  if (input.from && result.outputs && changeOutputIndex !== -1) {
     // If input contains a `from` param, inputs will be filtered to only keep UTXOs from that address
     // The change address will be set to this from address, so that it can be reused
     // Reusing addresses is an xpub antipattern and totally voids UTXO privacy guarantees, thus input.from should only be used
     // when dealing with destinations that expect address reuse e.g THORChain savers
-    const { value } = result.outputs[1]
-    result.outputs[1] = { address: input.from, value }
+    const { value } = result.outputs[changeOutputIndex]
+    result.outputs[changeOutputIndex] = { address: input.from, value }
   }
 
   return { ...result, outputs: result.outputs?.filter(o => !o.script) }

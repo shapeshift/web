@@ -4,6 +4,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
 import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
@@ -12,9 +13,9 @@ import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
 
 describe('txHistorySlice', () => {
-  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
+  const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)
   beforeAll(() => {
-    jest.resetModules()
+    vi.resetModules()
   })
   afterAll(() => consoleInfoSpy.mockRestore())
 

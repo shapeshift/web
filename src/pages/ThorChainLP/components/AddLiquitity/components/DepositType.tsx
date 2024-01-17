@@ -75,12 +75,14 @@ const options = [
 
 type DepositTypeProps = {
   assetId: AssetId
-  // If undefined/not passed, we're not locking the user in any kind of symmetrical/asymmetrical deposit type, i.e they can choose any of the three
-  // If null, user can only deposit symmetrical
-  // If AsymSide, user can only deposit asymmetrical on said Asymside
-  asymSide?: AsymSide | null
+  onAsymSideChange: (asymSide: string | null) => void
+  defaultOpportunityId?: string
 }
-export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
+export const DepositType = ({
+  assetId,
+  defaultOpportunityId,
+  onAsymSideChange,
+}: DepositTypeProps) => {
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
   }, [assetId])
@@ -99,12 +101,11 @@ export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
     defaultValue: 'one',
-    onChange: console.log,
+    onChange: onAsymSideChange,
   })
 
   const radioOptions = useMemo(() => {
-    const _options = asymSide ? [{ value: asymSide }] : options
-    if (_options.length === 1) return null
+    const _options = defaultOpportunityId ? options : []
 
     return _options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
@@ -124,7 +125,7 @@ export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
         </TypeRadio>
       )
     })
-  }, [asymSide, getRadioProps, makeAssetIdsOption])
+  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption])
 
   const group = getRootProps()
   return (

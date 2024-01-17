@@ -192,4 +192,5 @@ export type ConfirmedQuote = {
   runeFiatLiquidityAmount: string
   shareOfPoolDecimalPercent: string
   slippageRune: string
+  opportunityId: string
 }

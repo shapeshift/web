@@ -46,17 +46,15 @@ const dividerStyle = {
 }
 
 type AddLiquidityConfirmProps = {
-  opportunityId?: string
   confirmedQuote: ConfirmedQuote
 }
 
-export const AddLiquidityConfirm = ({
-  confirmedQuote,
-  opportunityId,
-}: AddLiquidityConfirmProps) => {
+export const AddLiquidityConfirm = ({ confirmedQuote }: AddLiquidityConfirmProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
+
+  const { opportunityId } = confirmedQuote
 
   const { data: parsedPools } = usePools()
 

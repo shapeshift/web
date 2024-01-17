@@ -287,7 +287,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         runeCryptoLiquidityAmount &&
         runeFiatLiquidityAmount &&
         shareOfPoolDecimalPercent &&
-        slippageRune
+        slippageRune &&
+        activeOpportunityId
       )
     )
       return
@@ -299,8 +300,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       runeFiatLiquidityAmount,
       shareOfPoolDecimalPercent,
       slippageRune,
+      opportunityId: activeOpportunityId,
     })
   }, [
+    activeOpportunityId,
     assetCryptoLiquidityAmount,
     assetFiatLiquidityAmount,
     runeCryptoLiquidityAmount,

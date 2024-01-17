@@ -33,16 +33,17 @@ import { useAppSelector } from 'state/store'
 import { AddLiquidityRoutePaths } from './types'
 
 type AddLiquidityStatusProps = {
-  opportunityId?: string
   confirmedQuote: ConfirmedQuote
 }
 
-export const AddLiquidityStatus = ({ confirmedQuote, opportunityId }: AddLiquidityStatusProps) => {
+export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const [firstTx, setFirstTx] = useState(TxStatus.Unknown)
   const [secondTx, setSecondTx] = useState(TxStatus.Pending)
   const [isComplete, setIsComplete] = useState(false)
+
+  const { opportunityId } = confirmedQuote
 
   const { data: parsedPools } = usePools()
 

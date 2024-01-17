@@ -37,12 +37,12 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { AddLiquidityProps } from './AddLiquidity'
 import { DepositType } from './components/DepositType'
 import { PoolSummary } from './components/PoolSummary'
 import { ReadOnlyAsset } from './components/ReadOnlyAsset'
@@ -63,9 +63,18 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
+export type AddLiquidityInputProps = {
+  headerComponent?: JSX.Element
+  opportunityId?: string
+  setConfirmedQuote: (quote: ConfirmedQuote) => void
+  confirmedQuote: ConfirmedQuote | null
+}
+
+export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   headerComponent,
   opportunityId,
+  confirmedQuote,
+  setConfirmedQuote,
 }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -187,30 +196,23 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           variant='ghost'
           icon={backIcon}
           aria-label='go back'
+          disabled={!confirmedQuote}
         />
         {translate('pools.addLiquidity')}
         <SlippagePopover />
       </CardHeader>
     )
-  }, [backIcon, handleBackClick, headerComponent, translate])
+  }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
 
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
-  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
-  const [slippageRune, setSlippageRune] = React.useState<string | undefined>()
-  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = React.useState<
-    string | undefined
-  >()
+  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = useState<string | undefined>()
+  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = useState<string | undefined>()
+  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = useState<string | undefined>()
+  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = useState<string | undefined>()
+  const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -276,6 +278,40 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
+
+  useEffect(() => {
+    if (
+      !(
+        assetCryptoLiquidityAmount &&
+        assetFiatLiquidityAmount &&
+        runeCryptoLiquidityAmount &&
+        runeFiatLiquidityAmount &&
+        shareOfPoolDecimalPercent &&
+        slippageRune &&
+        activeOpportunityId
+      )
+    )
+      return
+
+    setConfirmedQuote({
+      assetCryptoLiquidityAmount,
+      assetFiatLiquidityAmount,
+      runeCryptoLiquidityAmount,
+      runeFiatLiquidityAmount,
+      shareOfPoolDecimalPercent,
+      slippageRune,
+      opportunityId: activeOpportunityId,
+    })
+  }, [
+    activeOpportunityId,
+    assetCryptoLiquidityAmount,
+    assetFiatLiquidityAmount,
+    runeCryptoLiquidityAmount,
+    runeFiatLiquidityAmount,
+    setConfirmedQuote,
+    shareOfPoolDecimalPercent,
+    slippageRune,
+  ])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(asset && rune && foundPool)) return null
@@ -473,7 +509,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         borderBottomRadius='xl'
       >
         {symAlert}
-        <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
+        <Button
+          mx={-2}
+          size='lg'
+          colorScheme='blue'
+          isDisabled={!confirmedQuote}
+          onClick={handleSubmit}
+        >
           {translate('pools.addLiquidity')}
         </Button>
       </CardFooter>

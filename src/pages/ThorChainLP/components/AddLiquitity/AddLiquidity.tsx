@@ -22,7 +22,7 @@ export type AddLiquidityProps = {
 }
 
 export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
-  const [confirmedQuote, setConfirmedQuote] = useState<any>(null)
+  const [confirmedQuote, setConfirmedQuote] = useState<ConfirmedQuote | null>(null)
 
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
@@ -37,7 +37,7 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, heade
 }
 
 type AddLiquidityRoutesProps = AddLiquidityProps & {
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: ConfirmedQuote | null
   setConfirmedQuote: (quote: ConfirmedQuote) => void
 }
 
@@ -55,9 +55,10 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
         opportunityId={opportunityId}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
+        confirmedQuote={confirmedQuote}
       />
     ),
-    [headerComponent, opportunityId, setConfirmedQuote],
+    [confirmedQuote, headerComponent, opportunityId, setConfirmedQuote],
   )
   const renderAddLiquidityConfirm = useCallback(
     () => <AddLiquidityConfirm opportunityId={opportunityId} confirmedQuote={confirmedQuote} />,

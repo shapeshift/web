@@ -34,7 +34,7 @@ import { AddLiquidityRoutePaths } from './types'
 
 type AddLiquidityStatusProps = {
   opportunityId?: string
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: ConfirmedQuote | null
 }
 
 export const AddLiquidityStatus = ({ confirmedQuote, opportunityId }: AddLiquidityStatusProps) => {

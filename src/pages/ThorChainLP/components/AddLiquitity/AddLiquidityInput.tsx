@@ -67,11 +67,13 @@ export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
   setConfirmedQuote: (quote: ConfirmedQuote) => void
+  confirmedQuote: ConfirmedQuote | null
 }
 
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   headerComponent,
   opportunityId,
+  confirmedQuote,
   setConfirmedQuote,
 }) => {
   const translate = useTranslate()
@@ -194,12 +196,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           variant='ghost'
           icon={backIcon}
           aria-label='go back'
+          disabled={!confirmedQuote}
         />
         {translate('pools.addLiquidity')}
         <SlippagePopover />
       </CardHeader>
     )
-  }, [backIcon, handleBackClick, headerComponent, translate])
+  }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
 
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))

@@ -25,6 +25,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -46,7 +47,7 @@ const dividerStyle = {
 
 type AddLiquidityConfirmProps = {
   opportunityId?: string
-  confirmedQuote: any
+  confirmedQuote: ConfirmedQuote | null
 }
 
 export const AddLiquidityConfirm = ({

@@ -5,7 +5,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectWalletAccountIds } from '../common-selectors'
-import { selectCryptoMarketData } from '../marketDataSlice/selectors'
+import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../portfolioSlice/selectors'
 import {
   getFirstAccountIdByChainId,
@@ -22,6 +22,42 @@ export const selectInputBuyAsset = createDeepEqualOutputSelector(
 export const selectInputSellAsset = createDeepEqualOutputSelector(
   selectTradeInput,
   tradeInput => tradeInput.sellAsset,
+)
+
+export const selectInputSellAssetUsdRate = createSelector(
+  selectInputSellAsset,
+  selectCryptoMarketData,
+  (sellAsset, cryptoMarketDataById) => {
+    if (sellAsset === undefined) return
+    return cryptoMarketDataById[sellAsset.assetId]?.price
+  },
+)
+
+export const selectInputBuyAssetUsdRate = createSelector(
+  selectInputBuyAsset,
+  selectCryptoMarketData,
+  (buyAsset, cryptoMarketDataById) => {
+    if (buyAsset === undefined) return
+    return cryptoMarketDataById[buyAsset.assetId]?.price
+  },
+)
+
+export const selectInputSellAssetUserCurrencyRate = createSelector(
+  selectInputSellAssetUsdRate,
+  selectUserCurrencyToUsdRate,
+  (sellAssetUsdRate, userCurrencyToUsdRate) => {
+    if (sellAssetUsdRate === undefined) return
+    return bn(sellAssetUsdRate).times(userCurrencyToUsdRate).toString()
+  },
+)
+
+export const selectInputBuyAssetUserCurrencyRate = createSelector(
+  selectInputBuyAssetUsdRate,
+  selectUserCurrencyToUsdRate,
+  (buyAssetUsdRate, userCurrencyToUsdRate) => {
+    if (buyAssetUsdRate === undefined) return
+    return bn(buyAssetUsdRate).times(userCurrencyToUsdRate).toString()
+  },
 )
 
 export const selectUserSlippagePercentage: Selector<ReduxState, string | undefined> =
@@ -55,6 +91,11 @@ export const selectFirstHopSellAccountId = createSelector(
   },
 )
 
+// selects the account ID we're selling from for the other hops
+// for posterity, every hop always sells from the same account as the first hop
+export const selectSecondHopSellAccountId = selectFirstHopSellAccountId
+export const selectLastHopSellAccountId = selectFirstHopSellAccountId
+
 // selects the account ID we're buying into for the last hop
 export const selectLastHopBuyAccountId = createSelector(
   selectTradeInput,
@@ -79,15 +120,6 @@ export const selectLastHopBuyAccountId = createSelector(
 export const selectInputSellAmountCryptoPrecision = createSelector(
   selectTradeInput,
   tradeInput => tradeInput.sellAmountCryptoPrecision,
-)
-
-export const selectInputSellAssetUsdRate = createSelector(
-  selectInputSellAsset,
-  selectCryptoMarketData,
-  (sellAsset, cryptoMarketData) => {
-    const sellAssetMarketData = cryptoMarketData[sellAsset.assetId]
-    return sellAssetMarketData?.price
-  },
 )
 
 export const selectManualReceiveAddress = createSelector(

@@ -21,12 +21,9 @@ import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
+  selectSecondHopSellAccountId,
 } from 'state/slices/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
-import {
-  selectSecondHopSellAccountId,
-  selectSellAmountCryptoBaseUnit,
-} from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
@@ -110,7 +107,7 @@ export const validateTradeQuote = async (
   const lastHop = isMultiHopTrade ? secondHop : firstHop
   const walletSupportedChainIds = selectWalletSupportedChainIds(state)
   const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
-  const sellAmountCryptoBaseUnit = selectSellAmountCryptoBaseUnit(state)
+  const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
 
   // the network fee asset for the first hop in the trade

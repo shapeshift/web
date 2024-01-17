@@ -16,7 +16,10 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
-  selectLastHopBuyAccountId,
+  selectInputBuyAssetUserCurrencyRate,
+  selectInputSellAssetUsdRate,
+  selectInputSellAssetUserCurrencyRate,
+  selectSecondHopSellAccountId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
@@ -25,17 +28,13 @@ import {
   getHopTotalProtocolFeesFiatPrecision,
   getTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/helpers'
-import {
-  convertBasisPointsToDecimalPercentage,
-  sumProtocolFeesToDenom,
-} from 'state/slices/tradeQuoteSlice/utils'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import {
   selectCryptoMarketData,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
-import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
@@ -191,7 +190,7 @@ export const selectLastHopSellAsset: Selector<ReduxState, Asset | undefined> =
 export const selectLastHopBuyAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectLastHop, lastHop => (lastHop ? lastHop.buyAsset : undefined))
 
-export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
+export const selectQuoteSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectFirstHop, firstHop =>
     firstHop ? firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit : undefined,
   )
@@ -203,10 +202,10 @@ export const selectIsUnsafeActiveQuote: Selector<ReduxState, boolean> = createSe
   },
 )
 
-export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
+export const selectQuoteSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectFirstHopSellAsset,
-    selectSellAmountCryptoBaseUnit,
+    selectQuoteSellAmountCryptoBaseUnit,
     (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
       firstHopSellAsset
         ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
@@ -237,7 +236,7 @@ export const selectFirstHopTradeDeductionCryptoPrecision: Selector<ReduxState, s
   createSelector(
     selectFirstHopSellFeeAsset,
     selectFirstHopSellAsset,
-    selectSellAmountCryptoPrecision,
+    selectQuoteSellAmountCryptoPrecision,
     (firstHopSellFeeAsset, firstHopSellAsset, sellAmountCryptoPrecision) =>
       firstHopSellFeeAsset?.assetId === firstHopSellAsset?.assetId
         ? bnOrZero(sellAmountCryptoPrecision).toFixed()
@@ -380,59 +379,7 @@ export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> 
   },
 )
 
-const selectSellAssetUsdRate = createSelector(
-  selectFirstHopSellAsset,
-  selectCryptoMarketData,
-  (sellAsset, cryptoMarketDataById) => {
-    if (sellAsset === undefined) return
-    return cryptoMarketDataById[sellAsset.assetId]?.price
-  },
-)
-
-const selectBuyAssetUsdRate = createSelector(
-  selectLastHopBuyAsset,
-  selectCryptoMarketData,
-  (buyAsset, cryptoMarketDataById) => {
-    if (buyAsset === undefined) return
-    return cryptoMarketDataById[buyAsset.assetId]?.price
-  },
-)
-
-const selectSellAssetUserCurrencyRate = createSelector(
-  selectSellAssetUsdRate,
-  selectUserCurrencyToUsdRate,
-  (sellAssetUsdRate, userCurrencyToUsdRate) => {
-    if (sellAssetUsdRate === undefined) return
-    return bn(sellAssetUsdRate).times(userCurrencyToUsdRate).toString()
-  },
-)
-
-const selectBuyAssetUserCurrencyRate = createSelector(
-  selectBuyAssetUsdRate,
-  selectUserCurrencyToUsdRate,
-  (buyAssetUsdRate, userCurrencyToUsdRate) => {
-    if (buyAssetUsdRate === undefined) return
-    return bn(buyAssetUsdRate).times(userCurrencyToUsdRate).toString()
-  },
-)
-
-export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
-  selectLastHop,
-  selectCryptoMarketData,
-  selectBuyAssetUsdRate,
-  (lastHop, cryptoMarketDataById, buyAssetUsdRate) => {
-    if (!lastHop || !buyAssetUsdRate) return '0'
-
-    return sumProtocolFeesToDenom({
-      cryptoMarketDataById,
-      protocolFees: lastHop.feeData.protocolFees,
-      outputAssetPriceUsd: buyAssetUsdRate,
-      outputExponent: lastHop.buyAsset.precision,
-    })
-  },
-)
-
-export const selectSellAmountIncludingProtocolFeesCryptoBaseUnit = createSelector(
+export const selectQuoteSellAmountIncludingProtocolFeesCryptoBaseUnit = createSelector(
   selectFirstHop,
   firstHop => firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
 )
@@ -442,8 +389,8 @@ export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
   lastHop => lastHop?.buyAmountBeforeFeesCryptoBaseUnit,
 )
 
-export const selectSellAmountBeforeFeesCryptoPrecision = createSelector(
-  selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
+export const selectQuoteSellAmountBeforeFeesCryptoPrecision = createSelector(
+  selectQuoteSellAmountIncludingProtocolFeesCryptoBaseUnit,
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
@@ -460,18 +407,9 @@ export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
   },
 )
 
-export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLastHop, lastHop => {
-  if (!lastHop) return '0'
-  const protocolFees = lastHop.feeData.protocolFees
-  return fromBaseUnit(
-    protocolFees[lastHop.buyAsset.assetId]?.amountCryptoBaseUnit ?? '0',
-    lastHop.buyAsset.precision,
-  )
-})
-
 export const selectBuyAmountAfterFeesUserCurrency = createSelector(
   selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAssetUserCurrencyRate,
+  selectInputBuyAssetUserCurrencyRate,
   (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
     if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
     return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
@@ -480,25 +418,25 @@ export const selectBuyAmountAfterFeesUserCurrency = createSelector(
 
 export const selectBuyAmountBeforeFeesUserCurrency = createSelector(
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectBuyAssetUserCurrencyRate,
+  selectInputBuyAssetUserCurrencyRate,
   (buyAmountBeforeFeesCryptoPrecision, buyAssetUserCurrencyRate) => {
     if (!buyAmountBeforeFeesCryptoPrecision || !buyAssetUserCurrencyRate) return
     return bn(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 
-export const selectSellAmountUsd = createSelector(
-  selectSellAmountCryptoPrecision,
-  selectSellAssetUsdRate,
+export const selectQuoteSellAmountUsd = createSelector(
+  selectQuoteSellAmountCryptoPrecision,
+  selectInputSellAssetUsdRate,
   (sellAmountCryptoPrecision, sellAssetUsdRate) => {
     if (!sellAmountCryptoPrecision || !sellAssetUsdRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
   },
 )
 
-export const selectSellAmountUserCurrency = createSelector(
-  selectSellAmountCryptoPrecision,
-  selectSellAssetUserCurrencyRate,
+export const selectQuoteSellAmountUserCurrency = createSelector(
+  selectQuoteSellAmountCryptoPrecision,
+  selectInputSellAssetUserCurrencyRate,
   (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
     if (!sellAmountCryptoPrecision || !sellAssetUserCurrencyRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
@@ -511,44 +449,9 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     return activeQuote.affiliateBps
   })
 
-export const selectActiveQuotePotentialAffiliateBps: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, activeQuote => {
-    if (!activeQuote) return
-    return activeQuote.potentialAffiliateBps
-  })
-
-export const selectPotentialAffiliateFeeAmountUserCurrency: Selector<
-  ReduxState,
-  string | undefined
-> = createSelector(
-  selectSellAmountUserCurrency,
-  selectActiveQuotePotentialAffiliateBps,
-  (sellAmountUserCurrency, potentialAffiliateBps) => {
-    if (potentialAffiliateBps === undefined) return undefined
-    else {
-      const affiliatePercentage = convertBasisPointsToDecimalPercentage(
-        potentialAffiliateBps ?? '0',
-      )
-      // The affiliate fee amount is a percentage of the sell amount
-      return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
-    }
-  },
-)
-
-export const selectPotentialAffiliateFeeAmountUsd: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectPotentialAffiliateFeeAmountUserCurrency,
-    selectUserCurrencyToUsdRate,
-    (affiliateFeeUserCurrency, userCurrencyToUsdRate) => {
-      if (affiliateFeeUserCurrency === undefined) return undefined
-
-      return bnOrZero(affiliateFeeUserCurrency).div(userCurrencyToUsdRate).toFixed()
-    },
-  )
-
 export const selectQuoteAffiliateFeeUserCurrency = createSelector(
   selectActiveQuote,
-  selectSellAmountUserCurrency,
+  selectQuoteSellAmountUserCurrency,
   selectActiveQuoteAffiliateBps,
   (activeQuote, sellAmountUserCurrency, affiliateBps) => {
     if (!activeQuote) return '0'
@@ -570,52 +473,6 @@ export const selectQuoteFeeAmountUsd = createSelector(
 export const selectTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
   swappers => swappers.tradeExecution.state,
-)
-
-// selects the account ID we're buying into for the first hop
-export const selectFirstHopBuyAccountId = createSelector(
-  selectIsActiveQuoteMultiHop,
-  selectLastHopBuyAccountId,
-  selectFirstHop,
-  selectFirstHopBuyAsset,
-  selectAccountIdByAccountNumberAndChainId,
-  (
-    isMultiHopTrade,
-    lastHopBuyAccountId,
-    firstHop,
-    buyAsset,
-    accountIdByAccountNumberAndChainId,
-  ) => {
-    // single hop trade - same as last hop
-    if (!isMultiHopTrade) return lastHopBuyAccountId
-
-    return buyAsset !== undefined && firstHop !== undefined
-      ? accountIdByAccountNumberAndChainId[firstHop.accountNumber]?.[buyAsset.chainId]
-      : undefined
-  },
-)
-
-// selects the account ID we're selling from for the second hop if it exists. This is different to "last hop"
-export const selectSecondHopSellAccountId = createSelector(
-  selectIsActiveQuoteMultiHop,
-  selectFirstHopBuyAccountId,
-  (isMultiHopTrade, firstHopBuyAccountId) => {
-    // single hop trade - no sell account id for this hop as it doesn't exist
-    if (!isMultiHopTrade) return undefined
-
-    // multi hop trade - the second hop sell account id is the same as the first hop buy account id
-    return firstHopBuyAccountId
-  },
-)
-
-// selects the account ID we're selling from for the last hop
-export const selectLastHopSellAccountId = createSelector(
-  selectIsActiveQuoteMultiHop,
-  selectFirstHopSellAccountId,
-  selectSecondHopSellAccountId,
-  (isMultiHopTrade, firstHopSellAccountId, secondHopSellAccountId) => {
-    return isMultiHopTrade ? firstHopSellAccountId : secondHopSellAccountId
-  },
 )
 
 // selects the account ID we're selling from for the given hop

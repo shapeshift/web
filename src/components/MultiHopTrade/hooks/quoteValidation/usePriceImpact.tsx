@@ -2,13 +2,13 @@ import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'
 import {
   selectBuyAmountBeforeFeesUserCurrency,
-  selectSellAmountUserCurrency,
+  selectQuoteSellAmountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const usePriceImpact = () => {
   const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
-  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
   const priceImpactPercentage = useMemo(() => {
     if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')

@@ -17,6 +17,7 @@ If applicable, please link to the github issue and put `closes #XXXX` in your co
 closes #
 
 ## Risk
+> High Risk PRs Require 2 approvals
 
 <!-----------------------------------------------------------------------------
 Outline the scope of your changes and the risk associated with them. You must use your discretion as an engineer to determine the potential impact of your changes.

@@ -184,3 +184,12 @@ export type MidgardTvlHistoryResponse = {
   meta: MidgardTvlHistoryItem
   intervals: MidgardTvlHistoryItem[]
 }
+
+export type ConfirmedQuote = {
+  assetCryptoLiquidityAmount: string
+  assetFiatLiquidityAmount: string
+  runeCryptoLiquidityAmount: string
+  runeFiatLiquidityAmount: string
+  shareOfPoolDecimalPercent: string
+  slippageRune: string
+}

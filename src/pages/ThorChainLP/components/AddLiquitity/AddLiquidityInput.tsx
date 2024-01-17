@@ -66,6 +66,7 @@ const dividerStyle = {
 export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   headerComponent,
   opportunityId,
+  setConfirmedQuote,
 }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -197,20 +198,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
-  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = React.useState<
-    string | undefined
-  >()
-  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
-  const [slippageRune, setSlippageRune] = React.useState<string | undefined>()
-  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = React.useState<
-    string | undefined
-  >()
+  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = useState<string | undefined>()
+  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = useState<string | undefined>()
+  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = useState<string | undefined>()
+  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = useState<string | undefined>()
+  const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -276,6 +269,37 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
+
+  useEffect(() => {
+    if (
+      !(
+        assetCryptoLiquidityAmount &&
+        assetFiatLiquidityAmount &&
+        runeCryptoLiquidityAmount &&
+        runeFiatLiquidityAmount &&
+        shareOfPoolDecimalPercent &&
+        slippageRune
+      )
+    )
+      return
+
+    setConfirmedQuote({
+      assetCryptoLiquidityAmount,
+      assetFiatLiquidityAmount,
+      runeCryptoLiquidityAmount,
+      runeFiatLiquidityAmount,
+      shareOfPoolDecimalPercent,
+      slippageRune,
+    })
+  }, [
+    assetCryptoLiquidityAmount,
+    assetFiatLiquidityAmount,
+    runeCryptoLiquidityAmount,
+    runeFiatLiquidityAmount,
+    setConfirmedQuote,
+    shareOfPoolDecimalPercent,
+    slippageRune,
+  ])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(asset && rune && foundPool)) return null

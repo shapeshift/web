@@ -24,6 +24,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/selectors'
@@ -33,9 +34,10 @@ import { AddLiquidityRoutePaths } from './types'
 
 type AddLiquidityStatusProps = {
   opportunityId?: string
+  confirmedQuote: ConfirmedQuote
 }
 
-export const AddLiquidityStatus = ({ opportunityId }: AddLiquidityStatusProps) => {
+export const AddLiquidityStatus = ({ confirmedQuote, opportunityId }: AddLiquidityStatusProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const [firstTx, setFirstTx] = useState(TxStatus.Unknown)
@@ -104,7 +106,13 @@ export const AddLiquidityStatus = ({ opportunityId }: AddLiquidityStatusProps) =
       )
     }
 
-    const supplyAssets = assets.map(_asset => <Amount.Crypto value='100' symbol={_asset.symbol} />)
+    const supplyAssets = assets.map(_asset => {
+      const amountCryptoPrecision =
+        _asset.assetId === thorchainAssetId
+          ? confirmedQuote.runeCryptoLiquidityAmount
+          : confirmedQuote.assetCryptoLiquidityAmount
+      return <Amount.Crypto value={amountCryptoPrecision} symbol={_asset.symbol} />
+    })
 
     return (
       <CardBody textAlign='center'>
@@ -123,55 +131,74 @@ export const AddLiquidityStatus = ({ opportunityId }: AddLiquidityStatusProps) =
         </Flex>
       </CardBody>
     )
-  }, [asset, assets, foundPool, hStackDivider, isComplete, rune, translate])
+  }, [asset, assets, confirmedQuote, foundPool, hStackDivider, isComplete, rune, translate])
 
   const assetCards = useMemo(() => {
-    return assets.map((asset, index) => (
-      <Card key={asset.assetId}>
-        <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
-          <AssetIcon size='xs' assetId={asset.assetId} />
-          <Amount.Crypto fontWeight='bold' value='100' symbol={asset.symbol} />{' '}
-          <Flex ml='auto' alignItems='center' gap={2}>
-            {(index === 0 && firstTx === TxStatus.Confirmed) ||
-            (index === 1 && secondTx === TxStatus.Confirmed) ? (
-              <>
-                <Button size='xs'>{translate('common.seeDetails')}</Button>
-                <Center
-                  bg='background.success'
-                  boxSize='24px'
-                  borderRadius='full'
-                  color='text.success'
-                  fontSize='xs'
-                >
-                  <FaCheck />
-                </Center>
-              </>
-            ) : (
-              <CircularProgress size='24px' />
-            )}
-          </Flex>
-        </CardHeader>
-        <Collapse in={index === 0 ? firstTx === TxStatus.Unknown : secondTx === TxStatus.Unknown}>
-          <CardBody display='flex' flexDir='column' gap={2}>
-            <Row fontSize='sm'>
-              <Row.Label>{translate('common.gasFee')}</Row.Label>
-              <Row.Value>
-                <Amount.Crypto value='0.02' symbol={asset.symbol} />
-              </Row.Value>
-            </Row>
-            <Button
-              mx={-2}
-              size='lg'
-              colorScheme='blue'
-              onClick={index === 0 ? handleNext : handleComplete}
-            >
-              {translate('common.signTransaction')}
-            </Button>
-          </CardBody>
-        </Collapse>
-      </Card>
-    ))
-  }, [assets, firstTx, secondTx, translate, handleNext, handleComplete])
+    return assets.map((asset, index) => {
+      const amountCryptoPrecision =
+        asset.assetId === thorchainAssetId
+          ? confirmedQuote.runeCryptoLiquidityAmount
+          : confirmedQuote.assetCryptoLiquidityAmount
+      return (
+        <Card key={asset.assetId}>
+          <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
+            <AssetIcon size='xs' assetId={asset.assetId} />
+            <Amount.Crypto
+              fontWeight='bold'
+              value={amountCryptoPrecision}
+              symbol={asset.symbol}
+            />{' '}
+            <Flex ml='auto' alignItems='center' gap={2}>
+              {(index === 0 && firstTx === TxStatus.Confirmed) ||
+              (index === 1 && secondTx === TxStatus.Confirmed) ? (
+                <>
+                  <Button size='xs'>{translate('common.seeDetails')}</Button>
+                  <Center
+                    bg='background.success'
+                    boxSize='24px'
+                    borderRadius='full'
+                    color='text.success'
+                    fontSize='xs'
+                  >
+                    <FaCheck />
+                  </Center>
+                </>
+              ) : (
+                <CircularProgress size='24px' />
+              )}
+            </Flex>
+          </CardHeader>
+          <Collapse in={index === 0 ? firstTx === TxStatus.Unknown : secondTx === TxStatus.Unknown}>
+            <CardBody display='flex' flexDir='column' gap={2}>
+              <Row fontSize='sm'>
+                <Row.Label>{translate('common.gasFee')}</Row.Label>
+                <Row.Value>
+                  <Amount.Crypto value='0.02' symbol={asset.symbol} />
+                </Row.Value>
+              </Row>
+              <Button
+                mx={-2}
+                size='lg'
+                colorScheme='blue'
+                onClick={index === 0 ? handleNext : handleComplete}
+              >
+                {translate('common.signTransaction')}
+              </Button>
+            </CardBody>
+          </Collapse>
+        </Card>
+      )
+    })
+  }, [
+    assets,
+    confirmedQuote.runeCryptoLiquidityAmount,
+    confirmedQuote.assetCryptoLiquidityAmount,
+    firstTx,
+    secondTx,
+    translate,
+    handleNext,
+    handleComplete,
+  ])
 
   if (!foundPool) return null
 

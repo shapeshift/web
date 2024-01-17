@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback } from 'react'
+import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
@@ -18,12 +19,25 @@ const AddLiquidityEntries = [
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
+  setConfirmedQuote: (quote: ConfirmedQuote) => void
+  confirmedQuote: ConfirmedQuote
 }
 
-export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
+// TODO(gomes): yeah no this is wrong - split the router prop types from the exposed API prop types
+export const AddLiquidity: React.FC<Omit<AddLiquidityProps, 'setConfirmedQuote'>> = ({
+  opportunityId,
+  headerComponent,
+}) => {
+  const [confirmedQuote, setConfirmedQuote] = useState<any>(null)
+
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <AddLiquidityRoutes opportunityId={opportunityId} headerComponent={headerComponent} />
+      <AddLiquidityRoutes
+        opportunityId={opportunityId}
+        headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
+        confirmedQuote={confirmedQuote}
+      />
     </MemoryRouter>
   )
 }
@@ -31,21 +45,29 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, heade
 export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
   headerComponent,
   opportunityId,
+  confirmedQuote,
+  setConfirmedQuote,
 }) => {
   const location = useLocation()
 
   const renderAddLiquidityInput = useCallback(
-    () => <AddLiquidityInput opportunityId={opportunityId} headerComponent={headerComponent} />,
-    [headerComponent, opportunityId],
+    () => (
+      <AddLiquidityInput
+        opportunityId={opportunityId}
+        headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
+      />
+    ),
+    [headerComponent, opportunityId, setConfirmedQuote],
   )
   const renderAddLiquidityConfirm = useCallback(
-    () => <AddLiquidityConfirm opportunityId={opportunityId} />,
-    [opportunityId],
+    () => <AddLiquidityConfirm opportunityId={opportunityId} confirmedQuote={confirmedQuote} />,
+    [confirmedQuote, opportunityId],
   )
 
   const renderAddLiquidityStatus = useCallback(
-    () => <AddLiquidityStatus opportunityId={opportunityId} />,
-    [opportunityId],
+    () => <AddLiquidityStatus opportunityId={opportunityId} confirmedQuote={confirmedQuote} />,
+    [confirmedQuote, opportunityId],
   )
 
   return (

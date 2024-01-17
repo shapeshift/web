@@ -46,9 +46,14 @@ const dividerStyle = {
 
 type AddLiquidityConfirmProps = {
   opportunityId?: string
+  confirmedQuote: any
 }
 
-export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps) => {
+export const AddLiquidityConfirm = ({
+  confirmedQuote,
+  opportunityId,
+}: AddLiquidityConfirmProps) => {
+  console.log({ confirmedQuote })
   const translate = useTranslate()
   const history = useHistory()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
@@ -120,27 +125,51 @@ export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps)
 
     return (
       <Stack direction='row' divider={divider} position='relative'>
-        {assets.map(_asset => (
-          <Card
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
-            flexDir='column'
-            gap={4}
-            py={6}
-            px={4}
-            flex={1}
-          >
-            <AssetIcon size='sm' assetId={_asset.assetId} />
-            <Stack textAlign='center' spacing={0}>
-              <Amount.Crypto fontWeight='bold' value='100' symbol={_asset.symbol} />
-              <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
-            </Stack>
-          </Card>
-        ))}
+        {assets.map(_asset => {
+          const amountCryptoPrecision =
+            _asset.assetId === thorchainAssetId
+              ? confirmedQuote.runeCryptoLiquidityAmount
+              : confirmedQuote.assetCryptoLiquidityAmount
+          const amountFiatUserCurrency =
+            _asset.assetId === thorchainAssetId
+              ? confirmedQuote.runeFiatLiquidityAmount
+              : confirmedQuote.assetFiatLiquidityAmount
+
+          return (
+            <Card
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              flexDir='column'
+              gap={4}
+              py={6}
+              px={4}
+              flex={1}
+            >
+              <AssetIcon size='sm' assetId={_asset.assetId} />
+              <Stack textAlign='center' spacing={0}>
+                <Amount.Crypto
+                  fontWeight='bold'
+                  value={amountCryptoPrecision}
+                  symbol={_asset.symbol}
+                />
+                <Amount.Fiat fontSize='sm' color='text.subtle' value={amountFiatUserCurrency} />
+              </Stack>
+            </Card>
+          )
+        })}
       </Stack>
     )
-  }, [asset, divider, foundPool, rune])
+  }, [
+    asset,
+    confirmedQuote.assetCryptoLiquidityAmount,
+    confirmedQuote.assetFiatLiquidityAmount,
+    confirmedQuote.runeCryptoLiquidityAmount,
+    confirmedQuote.runeFiatLiquidityAmount,
+    divider,
+    foundPool,
+    rune,
+  ])
 
   if (!(foundPool && asset && rune)) return null
 
@@ -193,7 +222,7 @@ export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps)
               <Row fontSize='sm'>
                 <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
                 <Row.Value>
-                  <Amount.Percent value='0.2' />
+                  <Amount.Percent value={confirmedQuote.shareOfPoolDecimalPercent} />
                 </Row.Value>
               </Row>
             </TimelineItem>
@@ -224,7 +253,10 @@ export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps)
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={asset.symbol} />
+              <Amount.Crypto
+                value={confirmedQuote.slippageRune ?? 'TODO - loading'}
+                symbol={rune.symbol}
+              />
             </Skeleton>
           </Row.Value>
         </Row>

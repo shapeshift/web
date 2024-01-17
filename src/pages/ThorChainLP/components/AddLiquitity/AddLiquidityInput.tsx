@@ -19,7 +19,7 @@ import {
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -32,12 +32,14 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { AddLiquidityProps } from './AddLiquidity'
@@ -72,11 +74,43 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
 
   const { data: parsedPools } = usePools()
 
+  const assets = useAppSelector(selectAssets)
+  const poolAssets = useMemo(() => {
+    if (!parsedPools) return []
+
+    return [...new Set(parsedPools.map(pool => assets[pool.assetId]).filter(isSome))]
+  }, [assets, parsedPools])
+
+  // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
+  // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
+  // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
+  // - When a user deposits asymetrically, no matter the side, they *can* deposit symetrically on the other side
+  //   - They can also deposit asymetrically after that, but with one caveat: they can do so only if they deposited asym on the *asset* side only
+  //     In other words, if they have an active asym. RUNE position, they can't deposit symetrically after that unless they withdraw
+  //     The reason for that is that the RUNE side memo performs a nameservice operation, registering the asset address (or a placeholder)
+  //
+  //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
+  //     and not allowing them to select the sure-to-fail deposit types
+  const defaultOpportunityId = useMemo(() => {
+    if (!parsedPools) return undefined
+    if (opportunityId) return undefined
+
+    // since we do asset/rune/sym ordering, we can assume the the third item is sym
+    return parsedPools[2].opportunityId
+  }, [opportunityId, parsedPools])
+
+  // TODO(gomes): find the *right* pool type depending on asym type when standalone
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
 
-    return parsedPools.find(pool => pool.opportunityId === opportunityId)
-  }, [opportunityId, parsedPools])
+    return parsedPools.find(pool =>
+      [opportunityId, defaultOpportunityId].includes(pool.opportunityId),
+    )
+  }, [defaultOpportunityId, opportunityId, parsedPools])
+
+  const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const [asset, setAsset] = useState<Asset | undefined>(_asset)
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)
@@ -134,9 +168,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
-  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
-  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
   const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
@@ -284,6 +316,38 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [asset, foundPool, rune, translate])
 
+  // TODO(gomes): obviously wrong
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const handlePoolAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onClick: setAsset,
+      title: 'lending.borrow',
+      assets: poolAssets,
+    })
+  }, [buyAssetSearch, poolAssets])
+
+  const pairSelect = useMemo(() => {
+    return (
+      <>
+        <TradeAssetSelect
+          assetId={asset?.assetId}
+          onAssetClick={handlePoolAssetClick}
+          onAssetChange={handleAssetChange}
+          isLoading={false}
+          mb={0}
+          buttonProps={buttonProps}
+        />
+        <TradeAssetSelect
+          assetId={thorchainAssetId}
+          onAssetChange={handleAssetChange}
+          isLoading={false}
+          mb={0}
+          buttonProps={buttonProps}
+        />
+      </>
+    )
+  }, [asset?.assetId, handleAssetChange, handlePoolAssetClick])
+
   if (!foundPool || !asset || !rune) return null
 
   return (
@@ -294,20 +358,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           <FormLabel px={6} mb={0} fontSize='sm'>
             {translate('pools.selectPair')}
           </FormLabel>
-          <TradeAssetSelect
-            assetId={asset?.assetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
-          <TradeAssetSelect
-            assetId={thorchainAssetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
+          {pairSelect}
         </Stack>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
@@ -320,7 +371,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         </Stack>
         <Collapse in={true}>
           <PoolSummary
-            assetId={foundPool.assetId}
+            assetId={asset.assetId}
             runePerAsset={runePerAsset}
             shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
           />

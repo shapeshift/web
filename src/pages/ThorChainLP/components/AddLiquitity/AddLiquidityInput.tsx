@@ -128,13 +128,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
 
   useEffect(() => {
     if (!(asset && parsedPools)) return
+    // We only want to run this effect in the standalone AddLiquidity page
+    if (!defaultOpportunityId) return
 
     const foundOpportunityId = (parsedPools ?? []).find(
       pool => pool.assetId === asset.assetId && pool.asymSide === null,
     )?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
-  }, [asset, parsedPools])
+  }, [asset, defaultOpportunityId, parsedPools])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)

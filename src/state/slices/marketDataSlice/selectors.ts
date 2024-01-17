@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
@@ -12,6 +13,11 @@ import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
+
+export const selectMarketDataDidLoad = (state: ReduxState) =>
+  Object.values(state.marketApi.queries).some(
+    query => query?.endpointName === 'findAll' && query?.status === QueryStatus.fulfilled,
+  )
 
 // TODO(woodenfurniture): rename this to clarify that prices are in USD not fiat
 export const selectCryptoMarketData = ((state: ReduxState) => state.marketData.crypto.byId) as (

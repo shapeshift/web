@@ -164,3 +164,8 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
       )
     },
   )
+
+export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
+  const getAssetName = (asset: Asset) => asset.name
+  return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
+})

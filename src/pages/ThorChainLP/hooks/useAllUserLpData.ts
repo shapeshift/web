@@ -11,8 +11,12 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getCurrentValue, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
-import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
+import {
+  calculatePoolOwnershipPercentage,
+  getCurrentValue,
+  getThorchainLiquidityProviderPosition,
+} from 'lib/utils/thorchain/lp'
+import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -22,15 +26,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-// TODO(gomes): this bad boi too in types
-export enum AsymSide {
-  Asset = 'asset',
-  Rune = 'rune',
-}
-
 type UseUserLpDataReturn = {
   assetId: AssetId
-  // TODO(gomes): abstract this bad boi as its own type
   positions: {
     dateFirstAdded: string
     liquidityUnits: string
@@ -48,15 +45,6 @@ type UseUserLpDataReturn = {
     assetId: AssetId
   }[]
 }
-
-// TODO(gomes): and that one
-const calculatePoolOwnershipPercentage = ({
-  userLiquidityUnits,
-  totalPoolUnits,
-}: {
-  userLiquidityUnits: string
-  totalPoolUnits: string
-}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
 export const useAllUserLpData = ({
   assetIds,

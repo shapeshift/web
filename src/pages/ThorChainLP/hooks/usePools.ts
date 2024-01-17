@@ -6,10 +6,9 @@ import { useCallback } from 'react'
 import { sellSupportedChainIds } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { MidgardPoolResponse, ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { AsymSide } from './useUserLpData'
 
 export type ParsedPool = MidgardPoolResponse & {
   isAsymmetric: boolean

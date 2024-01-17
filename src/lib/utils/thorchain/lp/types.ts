@@ -194,3 +194,7 @@ export type ConfirmedQuote = {
   slippageRune: string
   opportunityId: string
 }
+export enum AsymSide {
+  Asset = 'asset',
+  Rune = 'rune',
+}

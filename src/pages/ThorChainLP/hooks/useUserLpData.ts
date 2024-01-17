@@ -12,27 +12,19 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getCurrentValue, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
+import {
+  calculatePoolOwnershipPercentage,
+  getCurrentValue,
+  getThorchainLiquidityProviderPosition,
+} from 'lib/utils/thorchain/lp'
 import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseUserLpDataProps = {
   assetId: AssetId
-}
-
-const calculatePoolOwnershipPercentage = ({
-  userLiquidityUnits,
-  totalPoolUnits,
-}: {
-  userLiquidityUnits: string
-  totalPoolUnits: string
-}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
-
-export enum AsymSide {
-  Asset = 'asset',
-  Rune = 'rune',
 }
 
 type UseUserLpDataReturn = {

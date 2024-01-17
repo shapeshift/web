@@ -16,7 +16,7 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useMemo } from 'react'
@@ -25,7 +25,6 @@ import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -33,6 +32,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,13 +58,22 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+}) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
-  const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const asset2 = useAppSelector(state => selectAssetById(state, usdcAssetId))
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
+
+  const { data: parsedPools } = usePools()
+
+  const foundPool = useMemo(() => {
+    if (!parsedPools) return undefined
+
+    return parsedPools.find(pool => pool.opportunityId === opportunityId)
+  }, [opportunityId, parsedPools])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)
@@ -121,6 +131,52 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
+  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const tradeAssetInputs = useMemo(() => {
+    if (!(asset && rune && foundPool)) return null
+
+    const assets: Asset[] = (() => {
+      if (foundPool.asymSide === null) return [asset, rune]
+      if (foundPool.asymSide === AsymSide.Rune) return [rune]
+      if (foundPool.asymSide === AsymSide.Asset) return [asset]
+
+      throw new Error('Invalid asym side')
+    })()
+
+    return assets.map(_asset => (
+      <TradeAssetInput
+        assetId={_asset?.assetId}
+        assetIcon={_asset?.icon ?? ''}
+        assetSymbol={_asset?.symbol ?? ''}
+        onAccountIdChange={handleAccountIdChange}
+        percentOptions={percentOptions}
+        rightComponent={ReadOnlyAsset}
+        formControlProps={formControlProps}
+      />
+    ))
+  }, [asset, foundPool, handleAccountIdChange, percentOptions, rune])
+
+  const symAlert = useMemo(() => {
+    if (!(foundPool && rune && asset)) return null
+    if (!foundPool.asymSide) return null
+
+    const from = foundPool.asymSide === AsymSide.Rune ? rune.symbol : asset?.symbol
+    const to = foundPool.asymSide === AsymSide.Rune ? asset?.symbol : rune.symbol
+
+    return (
+      <Alert status='info' mx={-2} width='auto'>
+        <AlertIcon as={BiSolidBoltCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translate('pools.symAlert', { from, to })}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [asset, foundPool, rune, translate])
+
+  if (!foundPool || !asset || !rune) return null
+
   return (
     <SlideTransition>
       {renderHeader}
@@ -130,14 +186,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
             {translate('pools.selectPair')}
           </FormLabel>
           <TradeAssetSelect
-            assetId={ethAssetId}
+            assetId={asset?.assetId}
             onAssetChange={handleAssetChange}
             isLoading={false}
             mb={0}
             buttonProps={buttonProps}
           />
           <TradeAssetSelect
-            assetId={usdcAssetId}
+            assetId={thorchainAssetId}
             onAssetChange={handleAssetChange}
             isLoading={false}
             mb={0}
@@ -148,30 +204,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
           </FormLabel>
-          <DepositType />
+          <DepositType assetId={asset.assetId} asymSide={foundPool.asymSide} />
           <Stack divider={pairDivider} spacing={0}>
-            <TradeAssetInput
-              assetId={ethAssetId}
-              assetIcon={asset?.icon ?? ''}
-              assetSymbol={asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
-            <TradeAssetInput
-              assetId={usdcAssetId}
-              assetIcon={asset2?.icon ?? ''}
-              assetSymbol={asset2?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
+            {tradeAssetInputs}
           </Stack>
         </Stack>
         <Collapse in={true}>
-          <PoolSummary />
+          <PoolSummary assetId={foundPool.assetId} />
         </Collapse>
       </Stack>
       <CardFooter
@@ -187,7 +226,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={'USDC'} />
+              <Amount.Crypto value={'0'} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -225,12 +264,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Alert status='info' mx={-2} width='auto'>
-          <AlertIcon as={BiSolidBoltCircle} />
-          <AlertDescription fontSize='sm' fontWeight='medium'>
-            {translate('pools.symAlert', { from: 'USDC', to: 'ETH' })}
-          </AlertDescription>
-        </Alert>
+        {symAlert}
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
           {translate('pools.addLiquidity')}
         </Button>

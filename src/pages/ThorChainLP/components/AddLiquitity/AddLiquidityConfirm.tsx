@@ -11,19 +11,24 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { usdcAssetId } from 'test/mocks/accounts'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from '../PoolIcon'
 import { AddLiquidityRoutePaths } from './types'
@@ -39,11 +44,35 @@ const dividerStyle = {
   zIndex: 4,
 }
 
-export const AddLiquidityConfirm = () => {
+type AddLiquidityConfirmProps = {
+  opportunityId?: string
+}
+
+export const AddLiquidityConfirm = ({ opportunityId }: AddLiquidityConfirmProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
-  const assetIds = useMemo(() => [ethAssetId, usdcAssetId], [])
+
+  const { data: parsedPools } = usePools()
+
+  const foundPool = useMemo(() => {
+    if (!parsedPools) return undefined
+
+    return parsedPools.find(pool => pool.opportunityId === opportunityId)
+  }, [opportunityId, parsedPools])
+
+  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const assetNetwork = useMemo(() => {
+    if (!asset) return undefined
+    return getChainAdapterManager().get(asset.chainId)?.getDisplayName()
+  }, [asset])
+
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const assetIds = useMemo(() => {
+    if (!foundPool) return []
+    return [foundPool.assetId, thorchainAssetId]
+  }, [foundPool])
 
   const handleBack = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
@@ -54,6 +83,8 @@ export const AddLiquidityConfirm = () => {
   }, [history])
 
   const divider = useMemo(() => {
+    if (foundPool?.asymSide) return <></>
+
     return (
       <Flex style={dividerStyle}>
         <Center borderRadius='full' bg='background.surface.base' boxSize='42px'>
@@ -74,7 +105,44 @@ export const AddLiquidityConfirm = () => {
         </Center>
       </Flex>
     )
-  }, [])
+  }, [foundPool?.asymSide])
+
+  const depositCards = useMemo(() => {
+    if (!foundPool || !asset || !rune) return null
+
+    const assets: Asset[] = (() => {
+      if (foundPool.asymSide === null) return [asset, rune]
+      if (foundPool.asymSide === AsymSide.Rune) return [rune]
+      if (foundPool.asymSide === AsymSide.Asset) return [asset]
+
+      throw new Error('Invalid asym side')
+    })()
+
+    return (
+      <Stack direction='row' divider={divider} position='relative'>
+        {assets.map(_asset => (
+          <Card
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            flexDir='column'
+            gap={4}
+            py={6}
+            px={4}
+            flex={1}
+          >
+            <AssetIcon size='sm' assetId={_asset.assetId} />
+            <Stack textAlign='center' spacing={0}>
+              <Amount.Crypto fontWeight='bold' value='100' symbol={_asset.symbol} />
+              <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
+            </Stack>
+          </Card>
+        ))}
+      </Stack>
+    )
+  }, [asset, divider, foundPool, rune])
+
+  if (!(foundPool && asset && rune)) return null
 
   return (
     <SlideTransition>
@@ -87,40 +155,7 @@ export const AddLiquidityConfirm = () => {
       </CardHeader>
       <CardBody pt={0}>
         <Stack spacing={8}>
-          <Stack direction='row' divider={divider} position='relative'>
-            <Card
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-              flexDir='column'
-              gap={4}
-              py={6}
-              px={4}
-              flex={1}
-            >
-              <AssetIcon size='sm' assetId={usdcAssetId} />
-              <Stack textAlign='center' spacing={0}>
-                <Amount.Crypto fontWeight='bold' value='100' symbol='USDC' />
-                <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
-              </Stack>
-            </Card>
-            <Card
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-              flexDir='column'
-              gap={4}
-              py={6}
-              px={4}
-              flex={1}
-            >
-              <AssetIcon size='sm' assetId={thorchainAssetId} />
-              <Stack textAlign='center' spacing={0}>
-                <Amount.Crypto fontWeight='bold' value='100' symbol='RUNE' />
-                <Amount.Fiat fontSize='sm' color='text.subtle' value='100' />
-              </Stack>
-            </Card>
-          </Stack>
+          {depositCards}
           <Timeline>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
@@ -143,7 +178,7 @@ export const AddLiquidityConfirm = () => {
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('pools.chainFee', { chain: 'Ethereum' })}</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: assetNetwork })}</Row.Label>
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='ETH' />
                   <Flex color='text.subtle'>
@@ -179,7 +214,9 @@ export const AddLiquidityConfirm = () => {
           <Row.Value>
             <Flex gap={2} alignItems='center' justifyContent='center'>
               <PoolIcon size='xs' assetIds={assetIds} />
-              <RawText fontWeight='medium'>ETH/USDC</RawText>
+              <RawText fontWeight='medium'>
+                {asset.symbol}/{rune.symbol}
+              </RawText>
             </Flex>
           </Row.Value>
         </Row>
@@ -187,7 +224,7 @@ export const AddLiquidityConfirm = () => {
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={'USDC'} />
+              <Amount.Crypto value={'0'} symbol={asset.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

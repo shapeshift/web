@@ -75,17 +75,12 @@ const options = [
 
 type DepositTypeProps = {
   assetId: AssetId
-  // If undefined/not passed, we're not locking the user in any kind of symmetrical/asymmetrical deposit type, i.e they can choose any of the three
-  // If null, user can only deposit symmetrical
-  // If AsymSide, user can only deposit asymmetrical on said Asymside
-  asymSide?: AsymSide | null
-  onAsymSideChange: (asymSide: AsymSide | null) => void
+  onAsymSideChange: (asymSide: string | null) => void
   defaultOpportunityId?: string
 }
 export const DepositType = ({
   assetId,
   defaultOpportunityId,
-  asymSide,
   onAsymSideChange,
 }: DepositTypeProps) => {
   const assetIds = useMemo(() => {

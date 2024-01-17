@@ -24,13 +24,13 @@ import {
   useGetTradeQuoteQuery,
 } from 'state/apis/swapper/swapperApi'
 import {
-  selectBuyAsset,
   selectFirstHopSellAccountId,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUsd,
+  selectInputSellAsset,
   selectLastHopBuyAccountId,
   selectPortfolioAccountMetadataByAccountId,
-  selectSellAmountCryptoPrecision,
-  selectSellAmountUsd,
-  selectSellAsset,
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
@@ -61,9 +61,9 @@ type GetMixPanelDataFromApiQuotesReturn = {
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const state = store.getState()
-  const { assetId: sellAssetId, chainId: sellAssetChainId } = selectSellAsset(state)
-  const { assetId: buyAssetId, chainId: buyAssetChainId } = selectBuyAsset(state)
-  const sellAmountUsd = selectSellAmountUsd(state)
+  const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
+  const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
+  const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
     .map(({ quote, errors, swapperName, inputOutputRatio }) => {
       const differenceFromBestQuoteDecimalPercentage =
@@ -127,8 +127,8 @@ export const useGetTradeQuotes = () => {
   const previousTradeQuoteInput = usePrevious(tradeQuoteInput)
   const isTradeQuoteUpdated = tradeQuoteInput !== previousTradeQuoteInput
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
-  const sellAsset = useAppSelector(selectSellAsset)
-  const buyAsset = useAppSelector(selectBuyAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
     () => ({
       fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
@@ -136,7 +136,7 @@ export const useGetTradeQuotes = () => {
     [wallet],
   )
   const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
-  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 

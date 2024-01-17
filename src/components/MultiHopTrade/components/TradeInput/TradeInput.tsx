@@ -59,10 +59,10 @@ import {
   selectTradeQuoteRequestFailed,
 } from 'state/apis/swapper/selectors'
 import {
-  selectBuyAsset,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
   selectManualReceiveAddressIsValidating,
-  selectSellAmountCryptoPrecision,
-  selectSellAsset,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -118,8 +118,8 @@ export const TradeInput = memo(() => {
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
-  const buyAsset = useAppSelector(selectBuyAsset)
-  const sellAsset = useAppSelector(selectSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
     if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
@@ -136,7 +136,7 @@ export const TradeInput = memo(() => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
-  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)

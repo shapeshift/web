@@ -30,13 +30,13 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper'
 import {
-  selectBuyAsset,
   selectFeeAssetByChainId,
   selectFeeAssetById,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
   selectMarketDataByFilter,
   selectMarketDataById,
-  selectSellAmountCryptoPrecision,
-  selectSellAsset,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
@@ -86,15 +86,15 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const buyAsset = useAppSelector(selectBuyAsset)
-  const sellAsset = useAppSelector(selectSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const buyAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, buyAsset.assetId ?? ''),
   )
 
-  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const networkFeeUserCurrencyPrecision = useMemo(() => {

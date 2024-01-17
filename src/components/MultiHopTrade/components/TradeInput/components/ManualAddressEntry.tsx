@@ -13,7 +13,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/tradeInputSlice/selectors'
+import {
+  selectInputBuyAsset,
+  selectManualReceiveAddress,
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -31,7 +34,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const { open: openSnapsModal } = useModal('snaps')
 
   const wallet = useWallet().state.wallet
-  const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectBuyAsset)
+  const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 

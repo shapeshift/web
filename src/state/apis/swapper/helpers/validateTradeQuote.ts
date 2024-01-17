@@ -19,8 +19,8 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
+  selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
-  selectSellAmountCryptoPrecision,
 } from 'state/slices/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
 import {
@@ -109,7 +109,7 @@ export const validateTradeQuote = async (
   const secondHop = quote.steps[1]
   const lastHop = isMultiHopTrade ? secondHop : firstHop
   const walletSupportedChainIds = selectWalletSupportedChainIds(state)
-  const sellAmountCryptoPrecision = selectSellAmountCryptoPrecision(state)
+  const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
   const sellAmountCryptoBaseUnit = selectSellAmountCryptoBaseUnit(state)
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
 

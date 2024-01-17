@@ -27,8 +27,8 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectFirstHopSellAccountId,
+  selectInputSellAsset,
   selectManualReceiveAddress,
-  selectSellAsset,
 } from 'state/slices/tradeInputSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
@@ -257,7 +257,7 @@ export const swapperApi = _swapperApi.injectEndpoints({
         const featureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, false)
         const assets = selectAssets(state)
-        const sellAsset = selectSellAsset(state)
+        const sellAsset = selectInputSellAsset(state)
 
         const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)
         const supportedSellAssetIds = sortedAssetIds

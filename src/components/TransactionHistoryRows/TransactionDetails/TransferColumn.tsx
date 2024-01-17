@@ -13,11 +13,12 @@ import { Row } from './Row'
 type AddressesProps = {
   addresses: string[]
   explorerAddressLink: string
+  title: string
 }
 
 const defaultAddressesToShow = 3
 
-const Addresses = ({ addresses, explorerAddressLink }: AddressesProps) => {
+const Addresses = ({ addresses, explorerAddressLink, title }: AddressesProps) => {
   const [showAll, setShowAll] = useState(false)
 
   const visibleAddresses = showAll ? addresses : addresses.slice(0, defaultAddressesToShow)
@@ -26,7 +27,7 @@ const Addresses = ({ addresses, explorerAddressLink }: AddressesProps) => {
 
   return (
     <>
-      <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
+      <Row title={title} justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         {visibleAddresses.map(address => (
           <Box key={address}>
             <Address explorerAddressLink={explorerAddressLink} address={address} />
@@ -70,8 +71,13 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       <Addresses
         addresses={transfer.from}
         explorerAddressLink={transfer.asset.explorerAddressLink}
+        title='from'
       />
-      <Addresses addresses={transfer.to} explorerAddressLink={transfer.asset.explorerAddressLink} />
+      <Addresses
+        addresses={transfer.to}
+        explorerAddressLink={transfer.asset.explorerAddressLink}
+        title='to'
+      />
       <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
           <AssetIcon src={transfer.asset.icon} boxSize='4' />

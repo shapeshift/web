@@ -76,6 +76,8 @@ export const usePools = () => {
   )
   const pools = useQuery({
     queryKey: ['thorchainPoolData'],
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
     queryFn: async () => {
       const { data: poolData } = await axios.get<MidgardPoolResponse[]>(
         `${getConfig().REACT_APP_MIDGARD_URL}/pools`,

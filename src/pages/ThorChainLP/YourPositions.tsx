@@ -217,14 +217,12 @@ export const YourPositions = () => {
     return allPositions.filter(position => position.data?.positions.length)
   }, [allPositions])
 
-  console.log({ activePositions })
-
   const isEmpty = false
 
   const positionRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
 
-    const rows = allPositions.map(position => {
+    const rows = activePositions.map(position => {
       // This should never happen because of isLoading above but just for type safety
       if (!position.data) return null
       if (!position.data.positions.length) return null
@@ -265,7 +263,7 @@ export const YourPositions = () => {
     }
 
     return rows
-  }, [allPositions, emptyIcon, isEmpty, isLoading, parsedPools])
+  }, [activePositions, emptyIcon, isEmpty, isLoading, parsedPools])
 
   const renderHeader = useMemo(() => {
     if (!isEmpty) {

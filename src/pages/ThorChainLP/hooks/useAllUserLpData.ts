@@ -65,6 +65,8 @@ export const useAllUserLpData = ({
   const poolDataQueries = useQueries({
     queries: assetIds.map(assetId => ({
       queryKey: ['thornodePoolData', assetId],
+      // We may or may not want to revisit this, but this will prevent overfetching for now
+      staleTime: Infinity,
       queryFn: async () => {
         const poolAssetId = assetIdToPoolAssetId({ assetId })
         const { data: poolData } = await axios.get<ThornodePoolResponse>(
@@ -78,6 +80,8 @@ export const useAllUserLpData = ({
   const midgardPoolDataQueries = useQueries({
     queries: assetIds.map(assetId => ({
       queryKey: ['midgardPoolData', assetId],
+      // We may or may not want to revisit this, but this will prevent overfetching for now
+      staleTime: Infinity,
       queryFn: async () => {
         const poolAssetId = assetIdToPoolAssetId({ assetId })
         const { data: poolData } = await axios.get<MidgardPoolResponse>(
@@ -91,6 +95,8 @@ export const useAllUserLpData = ({
   const userLpDataQueries = useQueries({
     queries: assetIds.map(assetId => ({
       queryKey: ['thorchainUserLpData', { assetId }],
+      // We may or may not want to revisit this, but this will prevent overfetching for now
+      staleTime: Infinity,
       queryFn: async () => {
         const accountIds = findAccountsByAssetId(portfolioAccounts, assetId)
         const allPositions = (

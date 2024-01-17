@@ -506,7 +506,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         borderBottomRadius='xl'
       >
         {symAlert}
-        <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
+        <Button
+          mx={-2}
+          size='lg'
+          colorScheme='blue'
+          isDisabled={!confirmedQuote}
+          onClick={handleSubmit}
+        >
           {translate('pools.addLiquidity')}
         </Button>
       </CardFooter>

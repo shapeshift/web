@@ -80,4 +80,15 @@ describe('calculateFees', () => {
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))
   })
+
+  it('should return 0 bps for missing foxHeld and above no fee threshold', () => {
+    const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD + 0.01)
+    const foxHeld = undefined
+    const { feeBps, foxDiscountPercent } = calculateFees({
+      tradeAmountUsd,
+      foxHeld,
+    })
+    expect(feeBps.toNumber()).toEqual(0)
+    expect(foxDiscountPercent).toEqual(bn(100))
+  })
 })

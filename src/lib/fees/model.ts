@@ -12,7 +12,7 @@ import {
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
-  foxHeld: BigNumber
+  foxHeld: BigNumber | undefined
 }
 
 /**
@@ -44,7 +44,9 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
 
-  const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
+  // failure to fetch fox discount results in free trades.
+  // trades below the fee threshold are free.
+  const isFree = foxHeld === undefined || tradeAmountUsd.lt(noFeeThresholdUsd)
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = isFree

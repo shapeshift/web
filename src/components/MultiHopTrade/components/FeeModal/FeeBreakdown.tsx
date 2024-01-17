@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
@@ -20,7 +20,7 @@ export const FeeBreakdown = () => {
   const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bnOrZero(sellAmountUsd),
-      foxHeld: bnOrZero(votingPower),
+      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)

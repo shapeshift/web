@@ -11,7 +11,7 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -217,7 +217,7 @@ export const useGetTradeQuotes = () => {
 
         const { feeBps, feeBpsBeforeDiscount } = calculateFees({
           tradeAmountUsd,
-          foxHeld: bnOrZero(votingPower),
+          foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
         })
 
         const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)

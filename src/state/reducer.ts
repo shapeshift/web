@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -49,7 +48,6 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  swapperApi: swapperApi.reducer,
   swappers: swappers.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
@@ -63,7 +61,6 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  swapperApi,
   swappersApi,
   foxyApi,
   fiatRampApi,
@@ -82,7 +79,6 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [swapperApi.reducerPath]: swapperApi.reducer,
   [swappersApi.reducerPath]: swappersApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,

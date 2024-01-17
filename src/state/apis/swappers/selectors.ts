@@ -50,3 +50,8 @@ export const selectSwappersApiTradeQuotePending = createSelector(
   selectMostRecentTradeQuoteQuery,
   query => query?.status === QueryStatus.pending,
 )
+
+export const selectSwapperApiTradingActivePending = (state: ReduxState) =>
+  Object.values(state.swappersApi.queries).some(
+    query => query?.endpointName === 'getIsTradingActive' && query?.status === QueryStatus.pending,
+  )

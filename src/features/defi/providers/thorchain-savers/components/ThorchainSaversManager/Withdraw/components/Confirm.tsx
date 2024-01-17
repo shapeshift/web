@@ -58,7 +58,7 @@ import {
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
-import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import { swappersApi } from 'state/apis/swappers/swappersApi'
 import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
@@ -625,7 +625,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
       }
 
-      const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+      const { getIsTradingActive } = swappersApi.endpoints
       const { data: isTradingActive } = await appDispatch(
         getIsTradingActive.initiate({
           assetId,

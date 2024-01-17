@@ -36,7 +36,6 @@ export const mockStore: ReduxState = {
   nftApi: mockApiFactory('nftApi' as const),
   covalentApi: mockApiFactory('covalentApi' as const),
   zapper: mockApiFactory('zapper' as const),
-  swapperApi: mockApiFactory('swapperApi' as const),
   swappersApi: mockSwappersApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),

@@ -5,7 +5,6 @@ import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
@@ -43,7 +42,6 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   foxyApi.middleware,
-  swapperApi.middleware,
   swappersApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,
@@ -78,7 +76,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
-  store.dispatch(apiSlices.swapperApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 

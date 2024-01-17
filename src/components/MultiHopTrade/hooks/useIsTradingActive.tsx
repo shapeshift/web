@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
-import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import { swappersApi } from 'state/apis/swappers/swappersApi'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/swappersSlice/selectors'
 import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -18,7 +18,7 @@ export const useIsTradingActive = () => {
   const buyAssetId = useAppSelector(selectBuyAsset).assetId
   const sellAssetId = useAppSelector(selectSellAsset).assetId
 
-  const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+  const { getIsTradingActive } = swappersApi.endpoints
   const swapperName = useAppSelector(selectActiveSwapperName)
 
   useEffect(() => {

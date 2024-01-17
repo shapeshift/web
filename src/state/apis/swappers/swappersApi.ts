@@ -1,8 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
 import orderBy from 'lodash/orderBy'
+import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getSupportedBuyAssetIds,
@@ -32,7 +33,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { getIsTradingActiveApi } from '../swapper/getIsTradingActiveApi'
+import { apiErrorHandler } from '../utils'
 import { validateQuoteRequest } from './helpers/validateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
@@ -42,12 +43,35 @@ const sortQuotes = (unorderedQuotes: Omit<ApiQuote, 'index'>[], startingIndex: n
   )
 }
 
+const getIsTradingActiveErrorHandler = apiErrorHandler(
+  'getIsTradingActiveApi: error getting trading status',
+)
+
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
-export const swappersApi = createApi({
+export const _swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
+  endpoints: build => ({
+    getIsTradingActive: build.query<
+      boolean,
+      { assetId: AssetId | undefined; swapperName: SwapperName }
+    >({
+      queryFn: async ({ assetId, swapperName }) => {
+        const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
+        if (maybeIsTradingActive.isErr()) {
+          return getIsTradingActiveErrorHandler(maybeIsTradingActive.unwrapErr())
+        }
+        return {
+          data: maybeIsTradingActive.unwrap(),
+        }
+      },
+    }),
+  }),
+})
+
+export const swappersApi = _swappersApi.injectEndpoints({
   endpoints: build => ({
     getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
@@ -149,7 +173,7 @@ export const swappersApi = createApi({
                 await Promise.all(
                   [sellAsset.assetId, buyAsset.assetId].map(assetId => {
                     return dispatch(
-                      getIsTradingActiveApi.endpoints.getIsTradingActive.initiate({
+                      _swappersApi.endpoints.getIsTradingActive.initiate({
                         assetId,
                         swapperName,
                       }),

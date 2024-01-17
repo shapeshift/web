@@ -17,7 +17,7 @@ import {
   getCurrentValue,
   getThorchainLiquidityProviderPosition,
 } from 'lib/utils/thorchain/lp'
-import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
+import type { MidgardPool, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
@@ -27,26 +27,9 @@ type UseUserLpDataProps = {
   assetId: AssetId
 }
 
-type UseUserLpDataReturn = {
-  dateFirstAdded: string
-  liquidityUnits: string
-  underlyingAssetAmountCryptoPrecision: string
-  underlyingRuneAmountCryptoPrecision: string
-  isAsymmetric: boolean
-  asymSide: AsymSide | null
-  underlyingAssetValueFiatUserCurrency: string
-  underlyingRuneValueFiatUserCurrency: string
-  totalValueFiatUserCurrency: string
-  poolOwnershipPercentage: string
-  opportunityId: string
-  poolShare: string
-  accountId: AccountId
-  assetId: AssetId
-}[]
-
 export const useUserLpData = ({
   assetId,
-}: UseUserLpDataProps): UseQueryResult<UseUserLpDataReturn | null> => {
+}: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )

@@ -18,6 +18,7 @@ import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import { calculateEarnings, getEarnings } from 'lib/utils/thorchain/lp'
+import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,7 +64,7 @@ type PositionButtonProps = {
   opportunityId: string
   accountId: string
   apy: string
-  userPoolData: any // TODO
+  userPoolData: UserLpDataPosition
 }
 
 const PositionButton = ({

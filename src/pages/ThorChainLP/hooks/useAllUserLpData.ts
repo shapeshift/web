@@ -16,6 +16,7 @@ import {
   getCurrentValue,
   getThorchainLiquidityProviderPosition,
 } from 'lib/utils/thorchain/lp'
+import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
@@ -28,22 +29,7 @@ import { useAppSelector } from 'state/store'
 
 type UseUserLpDataReturn = {
   assetId: AssetId
-  positions: {
-    dateFirstAdded: string
-    liquidityUnits: string
-    underlyingAssetAmountCryptoPrecision: string
-    underlyingRuneAmountCryptoPrecision: string
-    isAsymmetric: boolean
-    asymSide: AsymSide | null
-    underlyingAssetValueFiatUserCurrency: string
-    underlyingRuneValueFiatUserCurrency: string
-    totalValueFiatUserCurrency: string
-    poolOwnershipPercentage: string
-    opportunityId: string
-    poolShare: string
-    accountId: AccountId
-    assetId: AssetId
-  }[]
+  positions: UserLpDataPosition[]
 }
 
 export const useAllUserLpData = ({

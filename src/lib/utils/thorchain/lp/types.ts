@@ -1,3 +1,4 @@
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { BN } from 'lib/bignumber/bignumber'
 
 export type ThorNodeLiquidityProvider = {
@@ -197,4 +198,21 @@ export type ConfirmedQuote = {
 export enum AsymSide {
   Asset = 'asset',
   Rune = 'rune',
+}
+
+export type UserLpDataPosition = {
+  dateFirstAdded: string
+  liquidityUnits: string
+  underlyingAssetAmountCryptoPrecision: string
+  underlyingRuneAmountCryptoPrecision: string
+  isAsymmetric: boolean
+  asymSide: AsymSide | null
+  underlyingAssetValueFiatUserCurrency: string
+  underlyingRuneValueFiatUserCurrency: string
+  totalValueFiatUserCurrency: string
+  poolOwnershipPercentage: string
+  opportunityId: string
+  poolShare: string
+  accountId: AccountId
+  assetId: AssetId
 }

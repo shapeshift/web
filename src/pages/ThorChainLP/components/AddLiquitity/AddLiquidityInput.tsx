@@ -359,9 +359,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [asset?.assetId, handleAssetChange, handlePoolAssetClick])
 
-  const handleAsymSideChange = useCallback((asymSide: AsymSide | null) => {
-    console.log('TODO', { asymSide })
-  }, [])
+  const handleAsymSideChange = useCallback(
+    (asymSide: AsymSide | null) => {
+      if (!(parsedPools && asset)) return
+
+      // The null option gets casted as an empty string by the radio component so we cast it back to null
+      const parsedAsymSide = asymSide || null
+      const assetPools = parsedPools.filter(pool => pool.assetId === asset.assetId)
+      const foundPool = assetPools.find(pool => pool.asymSide === parsedAsymSide)
+      if (!foundPool) return
+
+      setActiveOpportunityId(foundPool.opportunityId)
+    },
+    [asset, parsedPools],
+  )
 
   if (!foundPool || !asset || !rune) return null
 

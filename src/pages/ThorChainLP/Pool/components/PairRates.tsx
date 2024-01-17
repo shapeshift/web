@@ -52,11 +52,9 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
 
   const asset0PricePerAsset1 = bn(asset0MarketData.price)
     .div(asset1MarketData.price)
-    .div(1)
     .toString()
   const asset1PricePerAsset0 = bn(asset1MarketData.price)
     .div(asset0MarketData.price)
-    .div(1)
     .toString()
 
   const handleAssetClick = useCallback(

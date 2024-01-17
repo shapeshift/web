@@ -95,8 +95,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     if (!parsedPools) return undefined
     if (opportunityId) return undefined
 
-    // since we do asset/rune/sym ordering, we can assume the the third item is sym
-    return parsedPools[2].opportunityId
+    const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
+
+    return firstAsymOpportunityId
   }, [opportunityId, parsedPools])
 
   const [activeOpportunityId, setActiveOpportunityId] = useState(
@@ -117,9 +118,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   useEffect(() => {
     if (!(asset && parsedPools)) return
 
-    const filteredPools = parsedPools?.filter(pool => pool.assetId === asset.assetId)
-    // since we do asset/rune/sym ordering, we can assume the the third item is sym
-    const foundOpportunityId = filteredPools[2].opportunityId
+    const foundOpportunityId = (parsedPools ?? []).find(
+      pool => pool.assetId === asset.assetId && pool.asymSide === null,
+    )?.opportunityId
+    if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
   }, [asset, parsedPools])
 

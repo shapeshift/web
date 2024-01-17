@@ -19,7 +19,7 @@ import {
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -32,12 +32,14 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { AddLiquidityProps } from './AddLiquidity'
@@ -72,11 +74,69 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
 
   const { data: parsedPools } = usePools()
 
+  const assets = useAppSelector(selectAssets)
+  const poolAssets = useMemo(() => {
+    if (!parsedPools) return []
+
+    return [...new Set(parsedPools.map(pool => assets[pool.assetId]).filter(isSome))]
+  }, [assets, parsedPools])
+
+  // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
+  // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
+  // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
+  // - When a user deposits asymetrically, no matter the side, they *can* deposit symetrically on the other side
+  //   - They can also deposit asymetrically after that, but with one caveat: they can do so only if they deposited asym on the *asset* side only
+  //     In other words, if they have an active asym. RUNE position, they can't deposit symetrically after that unless they withdraw
+  //     The reason for that is that the RUNE side memo performs a nameservice operation, registering the asset address (or a placeholder)
+  //
+  //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
+  //     and not allowing them to select the sure-to-fail deposit types
+  const defaultOpportunityId = useMemo(() => {
+    if (!parsedPools) return undefined
+    if (opportunityId) return undefined
+
+    const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
+
+    return firstAsymOpportunityId
+  }, [opportunityId, parsedPools])
+
+  const [activeOpportunityId, setActiveOpportunityId] = useState(
+    opportunityId ?? defaultOpportunityId,
+  )
+
+  useEffect(() => {
+    if (!(opportunityId || defaultOpportunityId)) return
+
+    setActiveOpportunityId(opportunityId ?? defaultOpportunityId)
+  }, [defaultOpportunityId, opportunityId])
+
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
 
-    return parsedPools.find(pool => pool.opportunityId === opportunityId)
-  }, [opportunityId, parsedPools])
+    return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
+  }, [activeOpportunityId, parsedPools])
+
+  const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  useEffect(() => {
+    if (!_asset) return
+    setAsset(_asset)
+  }, [_asset])
+
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const [asset, setAsset] = useState<Asset | undefined>(_asset)
+
+  useEffect(() => {
+    if (!(asset && parsedPools)) return
+    // We only want to run this effect in the standalone AddLiquidity page
+    if (!defaultOpportunityId) return
+
+    const foundOpportunityId = (parsedPools ?? []).find(
+      pool => pool.assetId === asset.assetId && pool.asymSide === null,
+    )?.opportunityId
+    if (!foundOpportunityId) return
+    setActiveOpportunityId(foundOpportunityId)
+  }, [asset, defaultOpportunityId, parsedPools])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)
@@ -134,9 +194,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
-  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
-  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
   const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
@@ -284,43 +342,80 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [asset, foundPool, rune, translate])
 
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const handlePoolAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onClick: setAsset,
+      title: 'pools.pool',
+      assets: poolAssets,
+    })
+  }, [buyAssetSearch, poolAssets])
+
+  const pairSelect = useMemo(() => {
+    // We only want to show the pair select on standalone "Add Liquidity" - not on the pool page
+    if (!defaultOpportunityId) return null
+    return (
+      <>
+        <FormLabel px={6} mb={0} fontSize='sm'>
+          {translate('pools.selectPair')}
+        </FormLabel>
+        <TradeAssetSelect
+          assetId={asset?.assetId}
+          onAssetClick={handlePoolAssetClick}
+          onAssetChange={handleAssetChange}
+          isLoading={false}
+          mb={0}
+          buttonProps={buttonProps}
+        />
+        <TradeAssetSelect
+          assetId={thorchainAssetId}
+          onAssetChange={handleAssetChange}
+          isLoading={false}
+          mb={0}
+          buttonProps={buttonProps}
+        />
+      </>
+    )
+  }, [asset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
+
+  const handleAsymSideChange = useCallback(
+    (asymSide: string | null) => {
+      if (!(parsedPools && asset)) return
+
+      // The null option gets casted as an empty string by the radio component so we cast it back to null
+      const parsedAsymSide = (asymSide as AsymSide | '') || null
+      const assetPools = parsedPools.filter(pool => pool.assetId === asset.assetId)
+      const foundPool = assetPools.find(pool => pool.asymSide === parsedAsymSide)
+      if (!foundPool) return
+
+      setActiveOpportunityId(foundPool.opportunityId)
+    },
+    [asset, parsedPools],
+  )
+
   if (!foundPool || !asset || !rune) return null
 
   return (
     <SlideTransition>
       {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
-        <Stack>
-          <FormLabel px={6} mb={0} fontSize='sm'>
-            {translate('pools.selectPair')}
-          </FormLabel>
-          <TradeAssetSelect
-            assetId={asset?.assetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
-          <TradeAssetSelect
-            assetId={thorchainAssetId}
-            onAssetChange={handleAssetChange}
-            isLoading={false}
-            mb={0}
-            buttonProps={buttonProps}
-          />
-        </Stack>
+        <Stack>{pairSelect}</Stack>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
           </FormLabel>
-          <DepositType assetId={asset.assetId} asymSide={foundPool.asymSide} />
+          <DepositType
+            assetId={asset.assetId}
+            defaultOpportunityId={defaultOpportunityId}
+            onAsymSideChange={handleAsymSideChange}
+          />
           <Stack divider={pairDivider} spacing={0}>
             {tradeAssetInputs}
           </Stack>
         </Stack>
         <Collapse in={true}>
           <PoolSummary
-            assetId={foundPool.assetId}
+            assetId={asset.assetId}
             runePerAsset={runePerAsset}
             shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
           />

@@ -219,13 +219,10 @@ export const swappersApi = createApi({
         supportedSellAssetIds: AssetId[]
         supportedBuyAssetIds: AssetId[]
       },
-      { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] }
+      { walletSupportedChainIds: ChainId[] }
     >({
       queryFn: async (
-        {
-          walletSupportedChainIds,
-          sortedAssetIds,
-        }: { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] },
+        { walletSupportedChainIds }: { walletSupportedChainIds: ChainId[] },
         { getState },
       ) => {
         const state = getState() as ReduxState
@@ -236,12 +233,10 @@ export const swappersApi = createApi({
         const sellAsset = selectSellAsset(state)
 
         const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)
-        const supportedSellAssetIds = sortedAssetIds
-          .filter(assetId => supportedSellAssetsSet.has(assetId))
-          .filter(assetId => {
-            const chainId = fromAssetId(assetId).chainId
-            return walletSupportedChainIds.includes(chainId)
-          })
+        const supportedSellAssetIds = Array.from(supportedSellAssetsSet).filter(assetId => {
+          const chainId = fromAssetId(assetId).chainId
+          return walletSupportedChainIds.includes(chainId)
+        })
 
         const supportedBuyAssetsSet = await getSupportedBuyAssetIds(
           enabledSwappers,
@@ -249,14 +244,10 @@ export const swappersApi = createApi({
           assets,
         )
 
-        const supportedBuyAssetIds = sortedAssetIds.filter(assetId =>
-          supportedBuyAssetsSet.has(assetId),
-        )
-
         return {
           data: {
             supportedSellAssetIds,
-            supportedBuyAssetIds,
+            supportedBuyAssetIds: Array.from(supportedBuyAssetsSet),
           },
         }
       },

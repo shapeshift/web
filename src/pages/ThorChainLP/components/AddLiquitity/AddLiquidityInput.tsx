@@ -104,6 +104,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     opportunityId ?? defaultOpportunityId,
   )
 
+  useEffect(() => {
+    if (!(opportunityId || defaultOpportunityId)) return
+
+    setActiveOpportunityId(opportunityId ?? defaultOpportunityId)
+  }, [defaultOpportunityId, opportunityId])
+
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
 
@@ -111,7 +117,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   }, [activeOpportunityId, parsedPools])
 
   const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  useEffect(() => {
+    if (!_asset) return
+    setAsset(_asset)
+  }, [_asset])
+
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
   const [asset, setAsset] = useState<Asset | undefined>(_asset)
 
   useEffect(() => {

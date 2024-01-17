@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
@@ -25,7 +25,6 @@ import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
 import { useAllUserLpData } from './hooks/useAllUserLpData'
 import { usePools } from './hooks/usePools'
-import { useUserLpData } from './hooks/useUserLpData'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -62,41 +61,43 @@ type PositionButtonProps = {
   assetId: AssetId
   name: string
   opportunityId: string
+  accountId: string
   apy: string
+  userPoolData: any // TODO
 }
 
-const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonProps) => {
+const PositionButton = ({
+  apy,
+  assetId,
+  name,
+  accountId,
+  opportunityId,
+  userPoolData,
+}: PositionButtonProps) => {
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
-  const { data: userData, isLoading } = useUserLpData({ assetId })
-
-  const foundUserPool = (userData ?? []).find(pool => pool.opportunityId === opportunityId)
-
   const handlePoolClick = useCallback(() => {
-    if (!foundUserPool) return
-
-    const { opportunityId, accountId } = foundUserPool
     history.push(
       generatePath('/pools/poolAccount/:accountId/:opportunityId', { accountId, opportunityId }),
     )
-  }, [foundUserPool, history])
+  }, [accountId, history, opportunityId])
 
   const poolAssetIds = useMemo(() => {
-    if (!foundUserPool) return []
-
     return [assetId, thorchainAssetId]
-  }, [assetId, foundUserPool])
+  }, [assetId])
 
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: thornodePoolData } = useQuery({
-    enabled: Boolean(foundUserPool),
-    queryKey: ['thornodePoolData', foundUserPool?.assetId ?? ''],
+    enabled: Boolean(true),
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
+    queryKey: ['thornodePoolData', assetId],
     queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserPool?.assetId ?? '' })
+      const poolAssetId = assetIdToPoolAssetId({ assetId })
       const { data: poolData } = await axios.get<ThornodePoolResponse>(
         `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
       )
@@ -105,28 +106,29 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
     },
   })
 
-  const { data: earnings } = useQuery({
-    enabled: Boolean(foundUserPool && thornodePoolData),
-    queryKey: ['thorchainearnings', foundUserPool?.dateFirstAdded ?? ''],
-    queryFn: () =>
-      foundUserPool ? getEarnings({ from: foundUserPool.dateFirstAdded }) : undefined,
+  const { data: earnings, isLoading: isEarningsLoading } = useQuery({
+    enabled: Boolean(thornodePoolData),
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
+    queryKey: ['thorchainearnings', userPoolData.dateFirstAdded],
+    queryFn: () => getEarnings({ from: userPoolData.dateFirstAdded }),
     select: data => {
-      if (!data || !foundUserPool || !thornodePoolData) return null
-      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserPool.assetId })
+      if (!data || !thornodePoolData) return null
+      const poolAssetId = assetIdToPoolAssetId({ assetId })
       const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!foundHistoryPool) return null
 
       return calculateEarnings(
         foundHistoryPool.assetLiquidityFees,
         foundHistoryPool.runeLiquidityFees,
-        foundUserPool.poolShare,
+        userPoolData.poolShare,
         runeMarketData.price,
         assetMarketData.price,
       )
     },
   })
 
-  if (!foundUserPool || !asset || !runeAsset) return null
+  if (!asset || !runeAsset) return null
 
   return (
     <Stack mx={listMargin}>
@@ -151,29 +153,25 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
           </Tag>
         </Flex>
         <Stack spacing={0} alignItems={alignItems}>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Fiat value={foundUserPool.totalValueFiatUserCurrency} />
-          </Skeleton>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto
-              value={foundUserPool.underlyingAssetAmountCryptoPrecision}
-              symbol={asset.symbol}
-              fontSize='sm'
-              color='text.subtle'
-            />
-            <Amount.Crypto
-              value={foundUserPool.underlyingRuneAmountCryptoPrecision}
-              symbol={runeAsset.symbol}
-              fontSize='sm'
-              color='text.subtle'
-            />
-          </Skeleton>
+          <Amount.Fiat value={userPoolData.totalValueFiatUserCurrency} />
+          <Amount.Crypto
+            value={userPoolData.underlyingAssetAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontSize='sm'
+            color='text.subtle'
+          />
+          <Amount.Crypto
+            value={userPoolData.underlyingRuneAmountCryptoPrecision}
+            symbol={runeAsset.symbol}
+            fontSize='sm'
+            color='text.subtle'
+          />
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
-          <Skeleton isLoaded={!isLoading}>
+          <Skeleton isLoaded={!isEarningsLoading}>
             <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} />
           </Skeleton>
-          <Skeleton isLoaded={!isLoading}>
+          <Skeleton isLoaded={!isEarningsLoading}>
             <Amount.Crypto
               value={earnings?.assetEarnings ?? '0'}
               symbol={asset.symbol}
@@ -181,7 +179,7 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
               color='text.subtle'
             />
           </Skeleton>
-          <Skeleton isLoaded={!isLoading}>
+          <Skeleton isLoaded={!isEarningsLoading}>
             <Amount.Crypto
               value={earnings?.runeEarnings ?? '0'}
               symbol={'RUNE'}
@@ -190,12 +188,12 @@ const PositionButton = ({ apy, assetId, name, opportunityId }: PositionButtonPro
             />
           </Skeleton>
         </Stack>
-        <Skeleton isLoaded={!isLoading} display={largeDisplay}>
+        <Box display={largeDisplay}>
           <Amount.Percent
             options={{ maximumFractionDigits: 8 }}
-            value={bn(foundUserPool.poolOwnershipPercentage).div(100).toFixed()}
+            value={bn(userPoolData.poolOwnershipPercentage).div(100).toFixed()}
           />
-        </Skeleton>
+        </Box>
       </Button>
     </Stack>
   )
@@ -210,48 +208,30 @@ export const YourPositions = () => {
     () => uniq((parsedPools ?? []).map(pool => pool.assetId)),
     [parsedPools],
   )
-  const allPositions = useAllUserLpData({ assetIds: poolAssetIds })
-  const isLoading = allPositions.some(position => position.isLoading)
+  const allUserLpData = useAllUserLpData({ assetIds: poolAssetIds })
+  // If some are loading, we are loading, but that's not it yet, we also need to check if some are not loaded
+  const someLoading = useMemo(
+    () => allUserLpData.some(position => position.isLoading),
+    [allUserLpData],
+  )
+  // If we have some position data, then *some* is loaded, which means we can instantly display the data but
+  // should still display skeleton for the others that are still loading
+  const someLoaded = useMemo(
+    () => allUserLpData.some(query => Boolean(query.isSuccess)),
+    [allUserLpData],
+  )
 
   const activePositions = useMemo(() => {
-    return allPositions.filter(position => position.data?.positions.length)
-  }, [allPositions])
+    return allUserLpData.filter(query => query.data?.positions.length)
+  }, [allUserLpData])
 
-  const isEmpty = false
+  const allLoaded = useMemo(() => {
+    return allUserLpData.every(query => query.isSuccess)
+  }, [allUserLpData])
+
+  const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
 
   const positionRows = useMemo(() => {
-    if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
-
-    const rows = activePositions.map(position => {
-      // This should never happen because of isLoading above but just for type safety
-      if (!position.data) return null
-      if (!position.data.positions.length) return null
-
-      return position.data.positions
-        .map(userPosition => {
-          if (!userPosition) return null
-
-          const parsedPool = parsedPools?.find(
-            pool =>
-              pool.assetId === userPosition.assetId && pool.asymSide === userPosition.asymSide,
-          )
-
-          if (!parsedPool) return null
-
-          return (
-            <PositionButton
-              assetId={userPosition.assetId}
-              name={parsedPool.name}
-              opportunityId={userPosition.opportunityId}
-              apy={parsedPool.poolAPY}
-              key={userPosition.opportunityId}
-            />
-          )
-        })
-        .filter(isSome)
-        .flat()
-    })
-
     if (isEmpty) {
       return (
         <ResultsEmpty
@@ -262,8 +242,44 @@ export const YourPositions = () => {
       )
     }
 
-    return rows
-  }, [activePositions, emptyIcon, isEmpty, isLoading, parsedPools])
+    const skeletons = new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
+
+    const rows = someLoaded
+      ? activePositions.map(position => {
+          // This should never happen because of isLoading above but just for type safety
+          if (!position.data) return null
+          if (!position.data.positions.length) return null
+
+          return position.data.positions
+            .map(userPosition => {
+              if (!userPosition) return null
+
+              const parsedPool = parsedPools?.find(
+                pool =>
+                  pool.assetId === userPosition.assetId && pool.asymSide === userPosition.asymSide,
+              )
+
+              if (!parsedPool) return null
+
+              return (
+                <PositionButton
+                  accountId={userPosition.accountId}
+                  assetId={userPosition.assetId}
+                  name={parsedPool.name}
+                  opportunityId={userPosition.opportunityId}
+                  apy={parsedPool.poolAPY}
+                  key={userPosition.opportunityId}
+                  userPoolData={userPosition}
+                />
+              )
+            })
+            .filter(isSome)
+            .flat()
+        })
+      : []
+
+    return rows.concat(someLoading ? skeletons : [])
+  }, [activePositions, emptyIcon, isEmpty, parsedPools, someLoaded, someLoading])
 
   const renderHeader = useMemo(() => {
     if (!isEmpty) {

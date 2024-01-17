@@ -75,7 +75,7 @@ export const usePools = () => {
     [assets],
   )
   const pools = useQuery({
-    queryKey: ['thorchainPoolData'],
+    queryKey: ['midgardPoolData'],
     // We may or may not want to revisit this, but this will prevent overfetching for now
     staleTime: Infinity,
     queryFn: async () => {

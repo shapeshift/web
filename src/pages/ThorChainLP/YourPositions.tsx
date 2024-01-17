@@ -217,7 +217,7 @@ export const YourPositions = () => {
   // If we have some position data, then *some* is loaded, which means we can instantly display the data but
   // should still display skeleton for the others that are still loading
   const someLoaded = useMemo(
-    () => allUserLpData.some(query => Boolean(query.isSuccess)),
+    () => allUserLpData.length && allUserLpData.some(query => Boolean(query.isSuccess)),
     [allUserLpData],
   )
 
@@ -226,7 +226,7 @@ export const YourPositions = () => {
   }, [allUserLpData])
 
   const allLoaded = useMemo(() => {
-    return allUserLpData.every(query => query.isSuccess)
+    return allUserLpData.length && allUserLpData.every(query => query.isSuccess)
   }, [allUserLpData])
 
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])

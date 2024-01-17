@@ -47,6 +47,11 @@ type MatchParams = {
 const containerPadding = { base: 6, '2xl': 8 }
 const maxWidth = { base: '100%', md: '350px' }
 
+const subHeaderFlexDirection: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  md: 'row',
+}
+
 type PoolHeaderProps = {
   assetIds: AssetId[]
   name: string
@@ -158,7 +163,12 @@ export const Pool = () => {
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
-          <Flex justifyContent='space-between' alignItems='center'>
+          <Flex
+            gap={4}
+            justifyContent='space-between'
+            alignItems='center'
+            flexDir={subHeaderFlexDirection}
+          >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
               <Button leftIcon={addIcon}>Add Liquidity</Button>
@@ -167,7 +177,7 @@ export const Pool = () => {
               </Button>
             </Flex>
           </Flex>
-          <Flex gap={4}>
+          <Flex flexWrap='wrap' gap={4}>
             <Card width='full' maxWidth={maxWidth}>
               <CardFooter gap={6} display='flex' flexDir='column' px={8} py={8}>
                 <PoolInfo

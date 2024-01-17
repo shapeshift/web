@@ -5,6 +5,7 @@ import { RiMoneyDollarCircleFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
@@ -43,7 +44,7 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   }, [])
 
   const { title, titleProps } = useMemo(() => {
-    return amountAfterDiscountUserCurrency !== '0'
+    return bnOrZero(amountAfterDiscountUserCurrency).gt(0)
       ? { title: toFiat(amountAfterDiscountUserCurrency) }
       : { title: translate('trade.free'), titleProps: { color: 'text.success' } }
   }, [amountAfterDiscountUserCurrency, toFiat, translate])

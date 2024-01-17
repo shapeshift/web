@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_MAX_FEE_BPS } from 'lib/fees/parameters'
+import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
@@ -136,7 +136,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
           foxHeld: bn(debouncedFoxHolding),
-        }).feeBpsRaw.toNumber()
+        }).feeBpsFloat.toNumber()
         return { x: trade, y: feeBps }
       })
       .filter(isSome)
@@ -146,7 +146,7 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
     const feeBps = calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(debouncedFoxHolding),
-    }).feeBpsRaw.toNumber()
+    }).feeBpsFloat.toNumber()
 
     return [{ x: tradeSize, y: feeBps }]
   }, [tradeSize, debouncedFoxHolding])
@@ -338,7 +338,9 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const votingPower = useAppSelector(selectVotingPower)
   const sellAmountUsd = useAppSelector(selectSellAmountUsd)
 
-  const [tradeSize, setTradeSize] = useState(Number.parseFloat(sellAmountUsd ?? '0'))
+  const [tradeSize, setTradeSize] = useState(
+    sellAmountUsd ? Number.parseFloat(sellAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,
+  )
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
   const translate = useTranslate()
 

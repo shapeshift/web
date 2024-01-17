@@ -21,6 +21,8 @@ closes #
 <!-----------------------------------------------------------------------------
 Outline the scope of your changes and the risk associated with them. You must use your discretion as an engineer to determine the potential impact of your changes.
 
+WARNING: If your PR introduces a new on-chain transaction or modifies a previous existing one, please add the "High-Risk" label to this PR and ask for 2 reviewers to approve it before merging.
+
 E.g. an upgrade to `hdwallet` or core state management would be considered higher risk, and might require a full regression test. UI or isolated view changes, or something behind a feature flag may have near zero risk. Small bug fixes might require testing isolated to the specific fix.
 ------------------------------------------------------------------------------>
 

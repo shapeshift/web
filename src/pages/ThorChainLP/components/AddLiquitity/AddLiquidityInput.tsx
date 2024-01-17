@@ -16,16 +16,15 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -33,7 +32,12 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetById } from 'state/slices/selectors'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
+import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
@@ -57,13 +61,22 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent }) => {
+export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+}) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
-  const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const asset2 = useAppSelector(state => selectAssetById(state, usdcAssetId))
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
+
+  const { data: parsedPools } = usePools()
+
+  const foundPool = useMemo(() => {
+    if (!parsedPools) return undefined
+
+    return parsedPools.find(pool => pool.opportunityId === opportunityId)
+  }, [opportunityId, parsedPools])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)
@@ -121,6 +134,158 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
+  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
+
+  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
+  const [slippageRune, setSlippageRune] = React.useState<string | undefined>()
+  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = React.useState<
+    string | undefined
+  >()
+
+  const runePerAsset = useMemo(() => {
+    if (!assetMarketData || !runeMarketData) return undefined
+    return bn(assetMarketData.price).div(bn(runeMarketData.price)).toFixed()
+  }, [assetMarketData, runeMarketData])
+
+  const createHandleAddLiquidityInputChange = useCallback(
+    (marketData: MarketData, isRune: boolean) => {
+      return (value: string, isFiat?: boolean) => {
+        if (!asset || !marketData) return undefined
+        const crypto = (() => {
+          if (!isFiat) return value
+          const valueCryptoPrecision = bnOrZero(value)
+            .div(bn(marketData.price ?? '0'))
+            .toFixed()
+          return valueCryptoPrecision
+        })()
+        const fiat = (() => {
+          if (isFiat) return value
+          const valueFiatUserCurrency = bnOrZero(value)
+            .times(bn(marketData.price ?? '0'))
+            .toFixed()
+          return valueFiatUserCurrency
+        })()
+
+        if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
+          setRuneCryptoLiquidityAmount(crypto)
+          setRuneFiatLiquidityAmount(fiat)
+          setAssetFiatLiquidityAmount(fiat)
+          setAssetCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+        } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
+          setAssetCryptoLiquidityAmount(crypto)
+          setAssetFiatLiquidityAmount(fiat)
+          setRuneFiatLiquidityAmount(fiat)
+          setRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+        }
+      }
+    },
+    [asset, runePerAsset],
+  )
+
+  useEffect(() => {
+    ;(async () => {
+      if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
+
+      const estimate = await estimateAddThorchainLiquidityPosition({
+        runeAmountCryptoThorPrecision: convertPrecision({
+          value: runeCryptoLiquidityAmount,
+          inputExponent: 0,
+          outputExponent: THOR_PRECISION,
+        }).toFixed(),
+        assetAmountCryptoThorPrecision: convertPrecision({
+          value: assetCryptoLiquidityAmount,
+          inputExponent: asset.precision,
+          outputExponent: THOR_PRECISION,
+        }).toFixed(),
+        assetId: asset.assetId,
+      })
+
+      setSlippageRune(
+        bnOrZero(estimate.slipPercent).div(100).times(runeCryptoLiquidityAmount).times(2).toFixed(),
+      )
+      setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
+    })()
+  }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
+
+  const tradeAssetInputs = useMemo(() => {
+    if (!(asset && rune && foundPool)) return null
+
+    const assets: Asset[] = (() => {
+      if (foundPool.asymSide === null) return [asset, rune]
+      if (foundPool.asymSide === AsymSide.Rune) return [rune]
+      if (foundPool.asymSide === AsymSide.Asset) return [asset]
+
+      throw new Error('Invalid asym side')
+    })()
+
+    return assets.map(_asset => {
+      const isRune = _asset.assetId === rune.assetId
+      const marketData = isRune ? runeMarketData : assetMarketData
+      const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(marketData, isRune)
+      const cryptoAmount = isRune ? runeCryptoLiquidityAmount : assetCryptoLiquidityAmount
+      const fiatAmount = isRune ? runeFiatLiquidityAmount : assetFiatLiquidityAmount
+
+      return (
+        <TradeAssetInput
+          assetId={_asset?.assetId}
+          assetIcon={_asset?.icon ?? ''}
+          assetSymbol={_asset?.symbol ?? ''}
+          onAccountIdChange={handleAccountIdChange}
+          percentOptions={percentOptions}
+          rightComponent={ReadOnlyAsset}
+          formControlProps={formControlProps}
+          onChange={handleAddLiquidityInputChange}
+          cryptoAmount={cryptoAmount}
+          fiatAmount={fiatAmount}
+        />
+      )
+    })
+  }, [
+    asset,
+    assetCryptoLiquidityAmount,
+    assetFiatLiquidityAmount,
+    assetMarketData,
+    createHandleAddLiquidityInputChange,
+    foundPool,
+    handleAccountIdChange,
+    percentOptions,
+    rune,
+    runeCryptoLiquidityAmount,
+    runeFiatLiquidityAmount,
+    runeMarketData,
+  ])
+
+  const symAlert = useMemo(() => {
+    if (!(foundPool && rune && asset)) return null
+    if (!foundPool.asymSide) return null
+
+    const from = foundPool.asymSide === AsymSide.Rune ? rune.symbol : asset?.symbol
+    const to = foundPool.asymSide === AsymSide.Rune ? asset?.symbol : rune.symbol
+
+    return (
+      <Alert status='info' mx={-2} width='auto'>
+        <AlertIcon as={BiSolidBoltCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translate('pools.symAlert', { from, to })}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [asset, foundPool, rune, translate])
+
+  if (!foundPool || !asset || !rune) return null
+
   return (
     <SlideTransition>
       {renderHeader}
@@ -130,14 +295,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
             {translate('pools.selectPair')}
           </FormLabel>
           <TradeAssetSelect
-            assetId={ethAssetId}
+            assetId={asset?.assetId}
             onAssetChange={handleAssetChange}
             isLoading={false}
             mb={0}
             buttonProps={buttonProps}
           />
           <TradeAssetSelect
-            assetId={usdcAssetId}
+            assetId={thorchainAssetId}
             onAssetChange={handleAssetChange}
             isLoading={false}
             mb={0}
@@ -148,30 +313,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
           </FormLabel>
-          <LpType />
+          <LpType assetId={asset.assetId} asymSide={foundPool.asymSide} />
           <Stack divider={pairDivider} spacing={0}>
-            <TradeAssetInput
-              assetId={ethAssetId}
-              assetIcon={asset?.icon ?? ''}
-              assetSymbol={asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
-            <TradeAssetInput
-              assetId={usdcAssetId}
-              assetIcon={asset2?.icon ?? ''}
-              assetSymbol={asset2?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
+            {tradeAssetInputs}
           </Stack>
         </Stack>
         <Collapse in={true}>
-          <PoolSummary />
+          <PoolSummary
+            assetId={foundPool.assetId}
+            runePerAsset={runePerAsset}
+            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+          />
         </Collapse>
       </Stack>
       <CardFooter
@@ -187,7 +339,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={'USDC'} />
+              <Amount.Crypto value={slippageRune ?? 'TODO - loading'} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -225,12 +377,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({ headerComponent
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Alert status='info' mx={-2} width='auto'>
-          <AlertIcon as={BiSolidBoltCircle} />
-          <AlertDescription fontSize='sm' fontWeight='medium'>
-            {translate('pools.symAlert', { from: 'USDC', to: 'ETH' })}
-          </AlertDescription>
-        </Alert>
+        {symAlert}
         <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
           {translate('pools.addLiquidity')}
         </Button>

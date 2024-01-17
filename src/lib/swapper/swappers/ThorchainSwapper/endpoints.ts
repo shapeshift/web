@@ -275,8 +275,8 @@ export const thorchainApi: SwapperApi = {
           const gaiaAddressData = maybeGaiaAddressData.unwrap()
           const vault = gaiaAddressData.address
 
-          const msg: cosmossdkChainAdapter.ThorchainMsgSend = {
-            type: cosmossdkChainAdapter.ThorchainMessageType.MsgSend,
+          const msg: cosmossdkChainAdapter.CosmosSdkMsgSend = {
+            type: cosmossdkChainAdapter.CosmosSdkMessageType.MsgSend,
             value: {
               amount: [{ amount: sellAmountIncludingProtocolFeesCryptoBaseUnit, denom: 'uatom' }],
               from_address: from,

@@ -63,27 +63,31 @@ export const HopTransactionStep = ({
     [tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId],
   )
 
-  const { txLink, txHash } = useMemo(() => {
-    if (buyTxHash)
-      return {
+  const txLinks = useMemo(() => {
+    const txLinks = []
+    if (buyTxHash) {
+      txLinks.push({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           tradeId: buyTxHash,
         }),
         txHash: buyTxHash,
-      }
-    if (sellTxHash)
-      return {
+      })
+    }
+
+    if (sellTxHash) {
+      txLinks.push({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           tradeId: sellTxHash,
         }),
         txHash: sellTxHash,
-      }
+      })
+    }
 
-    return {}
+    return txLinks
   }, [buyTxHash, tradeQuoteStep.source, tradeQuoteStep.sellAsset.explorerTxLink, sellTxHash])
 
   const stepIndicator = useMemo(() => {
@@ -159,11 +163,11 @@ export const HopTransactionStep = ({
             <RawText color='text.subtle'>{message}</RawText>
           </Tooltip>
         )}
-        {txLink && (
-          <Link isExternal color='text.link' href={txLink}>
+        {txLinks.map(({ txLink, txHash }) => (
+          <Link isExternal color='text.link' href={txLink} key={txHash}>
             <MiddleEllipsis value={txHash} />
           </Link>
-        )}
+        ))}
       </VStack>
     )
   }, [
@@ -179,8 +183,7 @@ export const HopTransactionStep = ({
     tradeQuoteStep.sellAsset.chainId,
     tradeQuoteStep.sellAsset.precision,
     tradeQuoteStep.sellAsset.symbol,
-    txHash,
-    txLink,
+    txLinks,
   ])
 
   const title = useMemo(() => {

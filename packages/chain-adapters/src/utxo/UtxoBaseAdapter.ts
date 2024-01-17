@@ -31,8 +31,10 @@ import type {
   SubscribeError,
   SubscribeTxsInput,
   Transaction,
+  TransferType,
   TxHistoryInput,
   TxHistoryResponse,
+  TxTransfer,
   UtxoBuildSendApiTxInput,
   ValidAddressResult,
 } from '../types'
@@ -45,10 +47,11 @@ import {
   toAddressNList,
   toRootDerivationPath,
 } from '../utils'
-import { bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput } from './types'
+import { getAddresses } from './utils'
 import { utxoSelect } from './utxoSelect'
 
 export const utxoChainIds = [
@@ -461,62 +464,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       cursor: input.cursor,
     })
 
-    const getAddresses = (tx: unchained.utxo.types.Tx): string[] => {
-      const addresses: string[] = []
-
-      tx.vin?.forEach(vin => {
-        if (!vin.addresses) return
-        addresses.push(...vin.addresses)
-      })
-
-      tx.vout?.forEach(vout => {
-        if (!vout.addresses) return
-        addresses.push(...vout.addresses)
-      })
-
-      return [...new Set(addresses)]
-    }
-
-    const txs = await Promise.all(
-      (data.txs ?? []).map(tx => {
-        const addresses = getAddresses(tx).filter(addr =>
-          this.accountAddresses[input.pubkey].includes(addr),
-        )
-
-        return Promise.all(
-          addresses.map(async addr => {
-            const parsedTx = await this.parser.parse(tx, addr)
-
-            return {
-              address: addr,
-              blockHash: parsedTx.blockHash,
-              blockHeight: parsedTx.blockHeight,
-              blockTime: parsedTx.blockTime,
-              chain: this.getType(),
-              chainId: parsedTx.chainId,
-              confirmations: parsedTx.confirmations,
-              data: parsedTx.data,
-              fee: parsedTx.fee,
-              status: parsedTx.status,
-              trade: parsedTx.trade,
-              transfers: parsedTx.transfers.map(transfer => ({
-                assetId: transfer.assetId,
-                from: transfer.from,
-                to: transfer.to,
-                type: transfer.type,
-                value: transfer.totalValue,
-              })),
-              txid: parsedTx.txid,
-            }
-          }),
-        )
-      }),
-    )
+    const transactions = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: txs.flat(),
+      transactions,
     }
   }
 
@@ -550,30 +503,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     await this.providers.ws.subscribeTxs(
       subscriptionId,
       { topic: 'txs', addresses },
-      async msg => {
-        const tx = await this.parser.parse(msg.data, msg.address)
-
-        onMessage({
-          address: tx.address,
-          blockHash: tx.blockHash,
-          blockHeight: tx.blockHeight,
-          blockTime: tx.blockTime,
-          chainId: tx.chainId,
-          confirmations: tx.confirmations,
-          data: tx.data,
-          fee: tx.fee,
-          status: tx.status,
-          trade: tx.trade,
-          transfers: tx.transfers.map(transfer => ({
-            assetId: transfer.assetId,
-            from: transfer.from,
-            to: transfer.to,
-            type: transfer.type,
-            value: transfer.totalValue,
-          })),
-          txid: tx.txid,
-        })
-      },
+      async msg => onMessage(await this.parseTx(msg.data, account.pubkey)),
       err => onError({ message: err.message }),
     )
   }
@@ -630,5 +560,75 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   async getUtxos(input: GetUtxosRequest): Promise<Utxo[]> {
     const utxos = await this.providers.http.getUtxos(input)
     return utxos
+  }
+
+  async parseTx(tx: unchained.utxo.types.Tx, pubkey: string): Promise<Transaction> {
+    const {
+      ownedAddresses,
+      ownedSendAddresses,
+      unownedReceiveAddresses,
+      receiveAddresses,
+      sendAddresses,
+      ownedReceiveAddresses,
+    } = getAddresses(tx, this.accountAddresses[pubkey])
+
+    // a send transaction where all outputs are sent to owned addresses
+    const isSelfSend =
+      ownedSendAddresses.length &&
+      receiveAddresses.every(address => ownedAddresses.includes(address))
+
+    let transaction = {} as Omit<Transaction, 'transfers'>
+    const transfers: Record<TransferType, TxTransfer[]> = { Contract: [], Send: [], Receive: [] }
+    for (const address of ownedAddresses) {
+      const parsedTx = await this.parser.parse(tx, address)
+
+      // create transaction object with all shared properties
+      if (!Object.keys(transaction).length) {
+        transaction = { ...parsedTx, address: pubkey }
+      }
+
+      // add fee if it exists on any of the parsed transactions
+      if (parsedTx.fee) transaction.fee = parsedTx.fee
+
+      parsedTx.transfers.forEach(transfer => {
+        if (!transfers['Send'][0] && transfer.type === 'Send') {
+          // calculate total output amount excluding change (unless self send)
+          const totalOutput = tx.vout.reduce((prev, vout) => {
+            const isOwnedOutput = vout.addresses?.some(address => ownedAddresses.includes(address))
+
+            if (isOwnedOutput && !isSelfSend) return prev
+
+            return prev.plus(vout.value)
+          }, bn(0))
+
+          transfers[transfer.type][0] = {
+            assetId: transfer.assetId,
+            from: sendAddresses,
+            to: isSelfSend ? ownedReceiveAddresses : unownedReceiveAddresses,
+            type: transfer.type,
+            value: totalOutput.toString(),
+          }
+        }
+
+        if (transfer.type === 'Receive') {
+          const isChange =
+            ownedSendAddresses.length &&
+            receiveAddresses.filter(address => ownedAddresses.includes(address)).length === 1
+
+          // exclude change outputs (unless self send)
+          if (isChange && !isSelfSend) return
+
+          transfers[transfer.type].push({
+            assetId: transfer.assetId,
+            from: sendAddresses,
+            to: [transfer.to],
+            type: transfer.type,
+            value: transfer.totalValue,
+          })
+        }
+      })
+    }
+
+    return Object.assign(transaction, { transfers: Object.values(transfers).flat() })
   }
 }

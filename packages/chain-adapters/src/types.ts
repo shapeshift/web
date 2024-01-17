@@ -116,7 +116,9 @@ export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
   data?: TxMetadata
 }
 
-export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue'> & {
+export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue' | 'from' | 'to'> & {
+  from: string[]
+  to: string[]
   value: string
 }
 

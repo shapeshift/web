@@ -39,13 +39,13 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   let columns = '1fr'
 
   if (isLargerThanSm) {
-    columns = '1fr 2fr'
+    columns = '1.5fr 2fr'
   }
   if (isLargerThanMd) {
-    columns = '1fr 2fr'
+    columns = '1.5fr 2fr'
   }
   if (isLargerThanLg) {
-    columns = '1fr 2fr 1fr 1fr'
+    columns = '1.5fr 2fr 1fr 1fr'
   }
   return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
 }

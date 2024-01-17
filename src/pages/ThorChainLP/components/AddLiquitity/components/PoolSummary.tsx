@@ -10,9 +10,14 @@ import { useAppSelector } from 'state/store'
 type PoolSummaryProps = {
   assetId: AssetId
   runePerAsset: string | undefined
+  shareOfPoolDecimalPercent: string | undefined
 }
 
-export const PoolSummary = ({ assetId, runePerAsset }: PoolSummaryProps) => {
+export const PoolSummary = ({
+  assetId,
+  runePerAsset,
+  shareOfPoolDecimalPercent,
+}: PoolSummaryProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -32,7 +37,7 @@ export const PoolSummary = ({ assetId, runePerAsset }: PoolSummaryProps) => {
       <Row>
         <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Amount.Percent value='0.2' />
+          <Amount.Percent value={shareOfPoolDecimalPercent ?? '0'} />
         </Row.Value>
       </Row>
     </Stack>

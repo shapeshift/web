@@ -19,7 +19,7 @@ import {
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -32,7 +32,9 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -147,6 +149,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     string | undefined
   >()
   const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
+  const [slippageRune, setSlippageRune] = React.useState<string | undefined>()
+  const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = React.useState<
+    string | undefined
+  >()
+
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
     return bn(assetMarketData.price).div(bn(runeMarketData.price)).toFixed()
@@ -155,17 +162,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   const createHandleAddLiquidityInputChange = useCallback(
     (marketData: MarketData, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
+        if (!asset || !marketData) return undefined
         const crypto = (() => {
           if (!isFiat) return value
           const valueCryptoPrecision = bnOrZero(value)
-            .div(bn(marketData?.price ?? '0'))
+            .div(bn(marketData.price ?? '0'))
             .toFixed()
           return valueCryptoPrecision
         })()
         const fiat = (() => {
           if (isFiat) return value
           const valueFiatUserCurrency = bnOrZero(value)
-            .times(bn(marketData?.price ?? '0'))
+            .times(bn(marketData.price ?? '0'))
             .toFixed()
           return valueFiatUserCurrency
         })()
@@ -183,8 +191,33 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         }
       }
     },
-    [runePerAsset],
+    [asset, runePerAsset],
   )
+
+  useEffect(() => {
+    ;(async () => {
+      if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
+
+      const estimate = await estimateAddThorchainLiquidityPosition({
+        runeAmountCryptoThorPrecision: convertPrecision({
+          value: runeCryptoLiquidityAmount,
+          inputExponent: 0,
+          outputExponent: THOR_PRECISION,
+        }).toFixed(),
+        assetAmountCryptoThorPrecision: convertPrecision({
+          value: assetCryptoLiquidityAmount,
+          inputExponent: asset.precision,
+          outputExponent: THOR_PRECISION,
+        }).toFixed(),
+        assetId: asset.assetId,
+      })
+
+      setSlippageRune(
+        bnOrZero(estimate.slipPercent).div(100).times(runeCryptoLiquidityAmount).times(2).toFixed(),
+      )
+      setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
+    })()
+  }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(asset && rune && foundPool)) return null
@@ -286,7 +319,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           </Stack>
         </Stack>
         <Collapse in={true}>
-          <PoolSummary assetId={foundPool.assetId} runePerAsset={runePerAsset} />
+          <PoolSummary
+            assetId={foundPool.assetId}
+            runePerAsset={runePerAsset}
+            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+          />
         </Collapse>
       </Stack>
       <CardFooter
@@ -302,7 +339,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={rune.symbol} />
+              <Amount.Crypto value={slippageRune ?? 'TODO - loading'} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

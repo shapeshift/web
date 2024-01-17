@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
+import uniq from 'lodash/uniq'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -15,12 +16,14 @@ import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isSome } from 'lib/utils'
 import { calculateEarnings, getEarnings } from 'lib/utils/thorchain/lp'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
+import { useAllUserLpData } from './hooks/useAllUserLpData'
 import { usePools } from './hooks/usePools'
 import { useUserLpData } from './hooks/useUserLpData'
 
@@ -202,22 +205,53 @@ export const YourPositions = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
 
-  const { data: parsedPools, isLoading } = usePools()
+  const { data: parsedPools } = usePools()
+  const poolAssetIds = useMemo(
+    () => uniq((parsedPools ?? []).map(pool => pool.assetId)),
+    [parsedPools],
+  )
+  const allPositions = useAllUserLpData({ assetIds: poolAssetIds })
+  const isLoading = allPositions.some(position => position.isLoading)
+
+  const activePositions = useMemo(() => {
+    return allPositions.filter(position => position.data?.positions.length)
+  }, [allPositions])
+
+  console.log({ activePositions })
 
   const isEmpty = false
 
   const positionRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton height={16} key={i} />)
-    const rows = parsedPools?.map(pool => {
-      return (
-        <PositionButton
-          assetId={pool.assetId}
-          name={pool.name}
-          opportunityId={pool.opportunityId}
-          apy={pool.poolAPY}
-          key={pool.opportunityId}
-        />
-      )
+
+    const rows = allPositions.map(position => {
+      // This should never happen because of isLoading above but just for type safety
+      if (!position.data) return null
+      if (!position.data.positions.length) return null
+
+      return position.data.positions
+        .map(userPosition => {
+          if (!userPosition) return null
+
+          const parsedPool = parsedPools?.find(
+            pool =>
+              pool.assetId === userPosition.assetId && pool.asymSide === userPosition.asymSide,
+          )
+
+          if (!parsedPool) return null
+
+          return (
+            <PositionButton
+              assetId={userPosition.assetId}
+              name={parsedPool.name}
+              opportunityId={userPosition.opportunityId}
+              apy={parsedPool.poolAPY}
+              key={userPosition.opportunityId}
+            />
+          )
+        })
+        .filter(isSome)
+        .flat()
     })
 
     if (isEmpty) {
@@ -231,7 +265,7 @@ export const YourPositions = () => {
     }
 
     return rows
-  }, [emptyIcon, isEmpty, isLoading, parsedPools])
+  }, [allPositions, emptyIcon, isEmpty, isLoading, parsedPools])
 
   const renderHeader = useMemo(() => {
     if (!isEmpty) {

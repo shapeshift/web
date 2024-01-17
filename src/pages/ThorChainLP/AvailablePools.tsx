@@ -61,7 +61,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const tvl = useMemo(
-    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price),
+    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price).tvl,
     [pool.assetDepth, pool.runeDepth, runeMarketData.price],
   )
 

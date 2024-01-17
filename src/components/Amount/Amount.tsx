@@ -61,13 +61,18 @@ const Crypto = ({
   prefix,
   suffix,
   omitDecimalTrailingZeros = false,
+  abbreviated = false,
   ...props
 }: CryptoAmountProps) => {
   const {
     number: { toCrypto, toParts },
   } = useLocaleFormatter()
 
-  const crypto = toCrypto(value, symbol, { maximumFractionDigits, omitDecimalTrailingZeros })
+  const crypto = toCrypto(value, symbol, {
+    maximumFractionDigits,
+    omitDecimalTrailingZeros,
+    abbreviated,
+  })
 
   if (!cryptoSymbolStyle) {
     return (

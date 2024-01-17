@@ -12,20 +12,20 @@ import {
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
 
-const selectSwappers = (state: ReduxState) => state.swappers
+const selectTradeInput = (state: ReduxState) => state.tradeInput
 
 export const selectBuyAsset = createDeepEqualOutputSelector(
-  selectSwappers,
-  swappers => swappers.buyAsset,
+  selectTradeInput,
+  tradeInput => tradeInput.buyAsset,
 )
 
 export const selectSellAsset = createDeepEqualOutputSelector(
-  selectSwappers,
-  swappers => swappers.sellAsset,
+  selectTradeInput,
+  tradeInput => tradeInput.sellAsset,
 )
 
 export const selectUserSlippagePercentage: Selector<ReduxState, string | undefined> =
-  createSelector(selectSwappers, swappers => swappers.slippagePreferencePercentage)
+  createSelector(selectTradeInput, tradeInput => tradeInput.slippagePreferencePercentage)
 
 // User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
 export const selectUserSlippagePercentageDecimal: Selector<ReduxState, string | undefined> =
@@ -36,13 +36,13 @@ export const selectUserSlippagePercentageDecimal: Selector<ReduxState, string | 
 
 // selects the account ID we're selling from for the first hop
 export const selectFirstHopSellAccountId = createSelector(
-  selectSwappers,
+  selectTradeInput,
   selectSellAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
-  (swappers, sellAsset, accountIdAssetValues, accountIds) => {
+  (tradeInput, sellAsset, accountIdAssetValues, accountIds) => {
     // return the users selection if it exists
-    if (swappers.sellAssetAccountId) return swappers.sellAssetAccountId
+    if (tradeInput.sellAssetAccountId) return tradeInput.sellAssetAccountId
 
     const highestFiatBalanceSellAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,
@@ -57,13 +57,13 @@ export const selectFirstHopSellAccountId = createSelector(
 
 // selects the account ID we're buying into for the first hop
 export const selectLastHopBuyAccountId = createSelector(
-  selectSwappers,
+  selectTradeInput,
   selectBuyAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
-  (swappers, buyAsset, accountIdAssetValues, accountIds) => {
+  (tradeInput, buyAsset, accountIdAssetValues, accountIds) => {
     // return the users selection if it exists
-    if (swappers.buyAssetAccountId) return swappers.buyAssetAccountId
+    if (tradeInput.buyAssetAccountId) return tradeInput.buyAssetAccountId
 
     const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,
@@ -77,8 +77,8 @@ export const selectLastHopBuyAccountId = createSelector(
 )
 
 export const selectSellAmountCryptoPrecision = createSelector(
-  selectSwappers,
-  swappers => swappers.sellAmountCryptoPrecision,
+  selectTradeInput,
+  tradeInput => tradeInput.sellAmountCryptoPrecision,
 )
 
 export const selectSellAssetUsdRate = createSelector(
@@ -100,13 +100,13 @@ export const selectBuyAssetUsdRate = createSelector(
 )
 
 export const selectManualReceiveAddress = createSelector(
-  selectSwappers,
-  swappers => swappers.manualReceiveAddress,
+  selectTradeInput,
+  tradeInput => tradeInput.manualReceiveAddress,
 )
 
 export const selectManualReceiveAddressIsValidating = createSelector(
-  selectSwappers,
-  swappers => swappers.manualReceiveAddressIsValidating,
+  selectTradeInput,
+  tradeInput => tradeInput.manualReceiveAddressIsValidating,
 )
 
 export const selectSellAmountUsd = createSelector(

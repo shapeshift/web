@@ -51,7 +51,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
-import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
+import { selectManualReceiveAddress } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveStepOrDefault,

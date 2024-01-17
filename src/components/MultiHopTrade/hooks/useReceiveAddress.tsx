@@ -10,7 +10,7 @@ import {
   selectBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
-} from 'state/slices/swappersSlice/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const getReceiveAddress = async ({

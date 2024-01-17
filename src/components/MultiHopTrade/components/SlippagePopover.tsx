@@ -23,8 +23,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectUserSlippagePercentage } from 'state/slices/swappersSlice/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -79,9 +79,9 @@ export const SlippagePopover: FC = () => {
 
   const handleClose = useCallback(() => {
     if (slippageType === SlippageType.Custom && !isInvalid)
-      dispatch(swappers.actions.setSlippagePreferencePercentage(slippageAmount))
+      dispatch(tradeInput.actions.setSlippagePreferencePercentage(slippageAmount))
     else if (slippageType === SlippageType.Auto)
-      dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
+      dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch, isInvalid, slippageAmount, slippageType])
 
   const handleSlippageTypeChange = useCallback(

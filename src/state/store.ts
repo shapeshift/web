@@ -64,7 +64,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
-  store.dispatch(slices.swappers.actions.clear())
+  store.dispatch(slices.tradeInput.actions.clear())
   store.dispatch(slices.localWalletSlice.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())

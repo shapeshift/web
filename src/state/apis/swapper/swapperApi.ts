@@ -29,7 +29,7 @@ import {
   selectFirstHopSellAccountId,
   selectManualReceiveAddress,
   selectSellAsset,
-} from 'state/slices/swappersSlice/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'

@@ -19,7 +19,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
-import { swappers } from './slices/swappersSlice/swappersSlice'
+import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {
@@ -30,7 +30,7 @@ export const slices = {
   preferences,
   opportunities,
   nft,
-  swappers,
+  tradeInput,
   tradeQuoteSlice,
   snapshot,
   localWalletSlice,
@@ -48,7 +48,7 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  swappers: swappers.reducer,
+  tradeInput: tradeInput.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
   tradeQuoteSlice: tradeQuoteSlice.reducer,

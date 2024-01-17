@@ -6,7 +6,7 @@ import type { TradeAssetInputProps } from 'components/MultiHopTrade/components/T
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataByFilter } from 'state/slices/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const formControlProps = { borderRadius: 0, background: 'transparent', borderWidth: 0 }
@@ -45,7 +45,7 @@ export const SellAssetInput = memo(
         setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
 
         dispatch(
-          swappers.actions.setSellAmountCryptoPrecision(
+          tradeInput.actions.setSellAmountCryptoPrecision(
             positiveOrZero(sellAmountCryptoPrecision).toString(),
           ),
         )

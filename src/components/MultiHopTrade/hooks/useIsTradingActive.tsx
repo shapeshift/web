@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
-import { selectBuyAsset, selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/tradeInputSlice/selectors'
 import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

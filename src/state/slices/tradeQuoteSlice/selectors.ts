@@ -18,7 +18,7 @@ import {
   selectFirstHopSellAccountId,
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/swappersSlice/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeUserCurrencyPrecision,

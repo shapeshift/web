@@ -169,7 +169,7 @@ export const mockStore: ReduxState = {
       ids: [],
     },
   },
-  swappers: {
+  tradeInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAssetAccountId: undefined,

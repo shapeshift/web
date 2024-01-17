@@ -47,7 +47,7 @@ const dividerStyle = {
 
 type AddLiquidityConfirmProps = {
   opportunityId?: string
-  confirmedQuote: ConfirmedQuote | null
+  confirmedQuote: ConfirmedQuote
 }
 
 export const AddLiquidityConfirm = ({

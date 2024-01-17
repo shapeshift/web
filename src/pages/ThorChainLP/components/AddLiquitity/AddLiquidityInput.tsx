@@ -354,6 +354,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     if (!defaultOpportunityId) return null
     return (
       <>
+        <FormLabel px={6} mb={0} fontSize='sm'>
+          {translate('pools.selectPair')}
+        </FormLabel>
         <TradeAssetSelect
           assetId={asset?.assetId}
           onAssetClick={handlePoolAssetClick}
@@ -371,7 +374,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
         />
       </>
     )
-  }, [asset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick])
+  }, [asset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {
@@ -394,12 +397,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     <SlideTransition>
       {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
-        <Stack>
-          <FormLabel px={6} mb={0} fontSize='sm'>
-            {translate('pools.selectPair')}
-          </FormLabel>
-          {pairSelect}
-        </Stack>
+        <Stack>{pairSelect}</Stack>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}

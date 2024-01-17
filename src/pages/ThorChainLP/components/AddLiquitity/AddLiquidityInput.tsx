@@ -37,12 +37,12 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { AddLiquidityProps } from './AddLiquidity'
 import { DepositType } from './components/DepositType'
 import { PoolSummary } from './components/PoolSummary'
 import { ReadOnlyAsset } from './components/ReadOnlyAsset'
@@ -63,7 +63,13 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
+export type AddLiquidityInputProps = {
+  headerComponent?: JSX.Element
+  opportunityId?: string
+  setConfirmedQuote: (quote: ConfirmedQuote) => void
+}
+
+export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   headerComponent,
   opportunityId,
   setConfirmedQuote,

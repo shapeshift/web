@@ -19,15 +19,9 @@ const AddLiquidityEntries = [
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
-  setConfirmedQuote: (quote: ConfirmedQuote) => void
-  confirmedQuote: ConfirmedQuote
 }
 
-// TODO(gomes): yeah no this is wrong - split the router prop types from the exposed API prop types
-export const AddLiquidity: React.FC<Omit<AddLiquidityProps, 'setConfirmedQuote'>> = ({
-  opportunityId,
-  headerComponent,
-}) => {
+export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
   const [confirmedQuote, setConfirmedQuote] = useState<any>(null)
 
   return (
@@ -42,7 +36,12 @@ export const AddLiquidity: React.FC<Omit<AddLiquidityProps, 'setConfirmedQuote'>
   )
 }
 
-export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
+type AddLiquidityRoutesProps = AddLiquidityProps & {
+  confirmedQuote: ConfirmedQuote
+  setConfirmedQuote: (quote: ConfirmedQuote) => void
+}
+
+export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
   confirmedQuote,

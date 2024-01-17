@@ -1,43 +1,53 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swappers/swappersApi'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssets } from 'state/slices/selectors'
+import {
+  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
+  selectAssetsSortedByName,
+  selectWalletSupportedChainIds,
+} from 'state/slices/common-selectors'
+import { selectMarketDataDidLoad } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
-  const assets = useAppSelector(selectAssets)
-  const wallet = useWallet().state.wallet
-  const isSnapInstalled = useIsSnapInstalled()
+  const marketDataDidLoad = useAppSelector(selectMarketDataDidLoad)
+  const assetsSortedByName = useAppSelector(selectAssetsSortedByName)
+  const assetsSortedByMarketCapUserCurrencyBalanceAndName = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
+  )
+
+  const sortedAssets = useMemo(() => {
+    // if the market data has not yet loaded once, return a simplified sorting of assets
+    if (!marketDataDidLoad) {
+      return assetsSortedByName
+    } else {
+      return assetsSortedByMarketCapUserCurrencyBalanceAndName
+    }
+  }, [assetsSortedByMarketCapUserCurrencyBalanceAndName, assetsSortedByName, marketDataDidLoad])
+
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   const queryParams = useMemo(() => {
     return {
-      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      ),
-      sortedAssetIds: sortedAssets.map(asset => asset.assetId),
+      walletSupportedChainIds,
     }
-  }, [isSnapInstalled, sortedAssets, wallet])
+  }, [walletSupportedChainIds])
 
-  const { data, isLoading } = useGetSupportedAssetsQuery(queryParams)
+  const { data, isFetching } = useGetSupportedAssetsQuery(queryParams)
 
   const supportedSellAssets = useMemo(() => {
     if (!data) return []
-    return data.supportedSellAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [assets, data])
+    const assetIdsSet = new Set(data.supportedSellAssetIds)
+    return sortedAssets.filter(({ assetId }) => assetIdsSet.has(assetId))
+  }, [data, sortedAssets])
 
   const supportedBuyAssets = useMemo(() => {
     if (!data) return []
-    return data.supportedBuyAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [assets, data])
+    const assetIdsSet = new Set(data.supportedBuyAssetIds)
+    return sortedAssets.filter(({ assetId }) => assetIdsSet.has(assetId))
+  }, [data, sortedAssets])
 
   return {
-    isLoading,
+    isLoading: isFetching,
     supportedSellAssets,
     supportedBuyAssets,
   }

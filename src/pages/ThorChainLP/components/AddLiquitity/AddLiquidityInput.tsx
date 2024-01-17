@@ -104,7 +104,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     opportunityId ?? defaultOpportunityId,
   )
 
-  // TODO(gomes): find the *right* pool type depending on asym type when standalone
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
 

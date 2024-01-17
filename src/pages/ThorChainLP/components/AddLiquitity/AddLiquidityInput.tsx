@@ -342,7 +342,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [asset, foundPool, rune, translate])
 
-  const buyAssetSearch = useModal('sellAssetSearch')
+  const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onClick: setAsset,

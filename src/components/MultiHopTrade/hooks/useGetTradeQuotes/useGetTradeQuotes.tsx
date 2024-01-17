@@ -5,14 +5,13 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_SWAPPER_AFFILIATE_BPS } from 'components/MultiHopTrade/constants'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -215,18 +214,14 @@ export const useGetTradeQuotes = () => {
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
         const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
-        const potentialAffiliateBps = DEFAULT_SWAPPER_AFFILIATE_BPS
-        const affiliateBps = (() => {
-          // free trades if there's an error getting foxHeld
-          if (votingPower === undefined) return '0'
 
-          const affiliateBps = calculateFees({
-            tradeAmountUsd,
-            foxHeld: bnOrZero(votingPower),
-          }).feeBps.toFixed(0)
+        const { feeBps, feeBpsBeforeDiscount } = calculateFees({
+          tradeAmountUsd,
+          foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        })
 
-          return affiliateBps
-        })()
+        const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
+        const affiliateBps = feeBps.toFixed(0)
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,

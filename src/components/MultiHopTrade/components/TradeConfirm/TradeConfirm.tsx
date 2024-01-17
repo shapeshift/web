@@ -45,7 +45,6 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { calculateShapeShiftAndAffiliateFee } from 'lib/fees/utils'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -55,8 +54,6 @@ import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
-  selectActiveQuoteAffiliateBps,
-  selectActiveQuotePotentialAffiliateBps,
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -68,8 +65,6 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectPotentialAffiliateFeeAmountUserCurrency,
-  selectQuoteAffiliateFeeUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -196,33 +191,6 @@ export const TradeConfirm = () => {
     if (buyTxHash) return getBuyTxLink(buyTxHash)
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
-
-  const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
-  const potentialAffiliateFeeAmountUserCurrency = useAppSelector(
-    selectPotentialAffiliateFeeAmountUserCurrency,
-  )
-  const potentialAffiliateBps = useAppSelector(selectActiveQuotePotentialAffiliateBps)
-  const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-
-  const { shapeShiftFee } = useMemo(
-    () =>
-      calculateShapeShiftAndAffiliateFee({
-        quote: tradeQuote,
-        potentialAffiliateFeeAmountUserCurrency,
-        affiliateFeeAmountUserCurrency,
-        affiliateBps,
-        potentialAffiliateBps,
-        swapperName,
-      }),
-    [
-      affiliateFeeAmountUserCurrency,
-      affiliateBps,
-      potentialAffiliateBps,
-      potentialAffiliateFeeAmountUserCurrency,
-      swapperName,
-      tradeQuote,
-    ],
-  )
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -392,7 +360,6 @@ export const TradeConfirm = () => {
           amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? ''}
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
-          shapeShiftFee={shapeShiftFee}
           slippageDecimalPercentage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
@@ -409,7 +376,6 @@ export const TradeConfirm = () => {
       sellAmountBeforeFeesCryptoPrecision,
       sellAmountBeforeFeesUserCurrency,
       sellAsset?.symbol,
-      shapeShiftFee,
       slippageDecimal,
       swapperName,
       tradeQuoteStep?.feeData.protocolFees,

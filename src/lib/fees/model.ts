@@ -12,14 +12,26 @@ import {
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
-  foxHeld: BigNumber
+  foxHeld: BigNumber | undefined
 }
 
+/**
+ * Represents the return type for calculating fee basis points (bps).
+ * @type {Object} CalculateFeeBpsReturn
+ * @property {BigNumber} feeBps - The net fee bps (i.e., including the fox discount) used for actual trades.
+ * @property {BigNumber} feeBpsFloat - `feeBps` as a floating point number, used for plotting the theoretical bps ignoring the realities of integer bps values.
+ * @property {BigNumber} feeUsd - The net USD value of the fee (i.e., including the fox discount).
+ * @property {BigNumber} foxDiscountPercent - The fox discount as a percentage of the gross fee.
+ * @property {BigNumber} foxDiscountUsd - The USD value of the fox discount.
+ * @property {BigNumber} feeUsdBeforeDiscount - The gross USD value of the fee (i.e., excluding the fox discount).
+ * @property {BigNumber} feeBpsBeforeDiscount - The gross fee bps (i.e., excluding the fox discount).
+ */
 type CalculateFeeBpsReturn = {
   feeBps: BigNumber
+  feeBpsFloat: BigNumber
   feeUsd: BigNumber
-  feeUsdDiscount: BigNumber
   foxDiscountPercent: BigNumber
+  foxDiscountUsd: BigNumber
   feeUsdBeforeDiscount: BigNumber
   feeBpsBeforeDiscount: BigNumber
 }
@@ -32,23 +44,17 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
 
-  const foxDiscountPercent = BigNumber.minimum(
-    bn(100),
-    foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
-  )
+  // failure to fetch fox discount results in free trades.
+  // trades below the fee threshold are free.
+  const isFree = foxHeld === undefined || tradeAmountUsd.lt(noFeeThresholdUsd)
 
-  if (tradeAmountUsd.lt(noFeeThresholdUsd)) {
-    return {
-      feeBps: bn(0),
-      feeUsd: bn(0),
-      feeUsdDiscount: bn(0),
-      foxDiscountPercent,
-      feeUsdBeforeDiscount: bn(0),
-      feeBpsBeforeDiscount: bn(0),
-    }
-  }
+  // the fox discount before any other logic is applied
+  const foxBaseDiscountPercent = isFree
+    ? bn(100)
+    : BigNumber.minimum(bn(100), foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)))
 
-  const feeBpsBeforeDiscount = minFeeBps.plus(
+  // the fee bps before the fox discount is applied, as a floating point number
+  const feeBpsBeforeDiscountFloat = minFeeBps.plus(
     maxFeeBps
       .minus(minFeeBps)
       .div(
@@ -62,19 +68,30 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld }) => {
       ),
   )
 
-  const feeBps = BigNumber.maximum(
-    feeBpsBeforeDiscount.multipliedBy(bn(1).minus(foxDiscountPercent.div(100))),
+  const feeBpsFloat = BigNumber.maximum(
+    feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
     bn(0),
   )
+
+  const feeBpsBeforeDiscount = feeBpsBeforeDiscountFloat.decimalPlaces(0)
+  const feeBpsAfterDiscount = feeBpsFloat.decimalPlaces(0)
+  const foxDiscountPercent = feeBpsBeforeDiscountFloat
+    .minus(feeBpsFloat)
+    .div(feeBpsBeforeDiscountFloat)
+    .times(100)
+
+  const feeBps = feeBpsAfterDiscount
   const feeUsdBeforeDiscount = tradeAmountUsd.multipliedBy(feeBpsBeforeDiscount.div(bn(10000)))
   const feeUsdDiscount = feeUsdBeforeDiscount.multipliedBy(foxDiscountPercent.div(100))
   const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
+  const foxDiscountUsd = feeUsdBeforeDiscount.times(foxDiscountPercent.div(100))
 
   return {
     feeBps,
+    feeBpsFloat,
     feeUsd,
-    feeUsdDiscount,
     foxDiscountPercent,
+    foxDiscountUsd,
     feeUsdBeforeDiscount,
     feeBpsBeforeDiscount,
   }

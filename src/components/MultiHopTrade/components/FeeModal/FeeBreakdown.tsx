@@ -1,30 +1,46 @@
 import { Divider, Heading, Stack } from '@chakra-ui/react'
-import React from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-
-type FeeBreakdownProps = {
-  feeBps: string
-  feeUserCurrency: string
-  foxDiscountPercent: string
-  feeBeforeDiscountUserCurrency: string
-  feeBpsBeforeDiscount: string
-  feeDiscountUserCurrency: string
-}
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
 
-export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
-  feeUserCurrency,
-  foxDiscountPercent,
-  feeBeforeDiscountUserCurrency,
-  feeBpsBeforeDiscount,
-  feeDiscountUserCurrency,
-}) => {
+export const FeeBreakdown = () => {
   const translate = useTranslate()
+  const votingPower = useAppSelector(selectVotingPower)
+  const sellAmountUsd = useAppSelector(selectSellAmountUsd)
+  const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
+    calculateFees({
+      tradeAmountUsd: bnOrZero(sellAmountUsd),
+      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+    })
+
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  const feeBeforeDiscountUserCurrency = useMemo(() => {
+    return feeUsdBeforeDiscount.times(userCurrencyToUsdRate).toFixed(2)
+  }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
+
+  const feeDiscountUserCurrency = useMemo(() => {
+    return foxDiscountUsd.times(userCurrencyToUsdRate).toFixed(2)
+  }, [foxDiscountUsd, userCurrencyToUsdRate])
+
+  // use the fee from the actual quote in case it varies from the theoretical calculation
+  const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+
+  const isFree = useMemo(
+    () => bnOrZero(affiliateFeeAmountUserCurrency).eq(0),
+    [affiliateFeeAmountUserCurrency],
+  )
+
   return (
     <Stack spacing={0}>
       <Stack spacing={2} px={8} pt={8} mb={8}>
@@ -43,7 +59,11 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
           <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
             <Amount.Fiat value={feeDiscountUserCurrency} />
-            <Amount.Percent fontSize='sm' value={foxDiscountPercent} color='text.success' />
+            <Amount.Percent
+              fontSize='sm'
+              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
+              color='text.success'
+            />
           </Row.Value>
         </Row>
       </Stack>
@@ -51,10 +71,10 @@ export const FeeBreakdown: React.FC<FeeBreakdownProps> = ({
       <Row px={8} py={4}>
         <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
-          {bnOrZero(feeUserCurrency).eq(0) ? (
+          {isFree ? (
             <Text translation='common.free' color='text.success' />
           ) : (
-            <Amount.Fiat value={feeUserCurrency} />
+            <Amount.Fiat value={affiliateFeeAmountUserCurrency} />
           )}
         </Row.Value>
       </Row>

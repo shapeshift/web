@@ -79,8 +79,9 @@ type DepositTypeProps = {
   // If null, user can only deposit symmetrical
   // If AsymSide, user can only deposit asymmetrical on said Asymside
   asymSide?: AsymSide | null
+  onAsymSideChange: (asymSide: AsymSide | null) => void
 }
-export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
+export const DepositType = ({ assetId, asymSide, onAsymSideChange }: DepositTypeProps) => {
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
   }, [assetId])
@@ -99,7 +100,7 @@ export const DepositType = ({ assetId, asymSide }: DepositTypeProps) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
     defaultValue: 'one',
-    onChange: console.log,
+    onChange: onAsymSideChange,
   })
 
   const radioOptions = useMemo(() => {

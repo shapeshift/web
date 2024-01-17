@@ -99,18 +99,29 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     return parsedPools[2].opportunityId
   }, [opportunityId, parsedPools])
 
+  const [activeOpportunityId, setActiveOpportunityId] = useState(
+    opportunityId ?? defaultOpportunityId,
+  )
+
   // TODO(gomes): find the *right* pool type depending on asym type when standalone
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
 
-    return parsedPools.find(pool =>
-      [opportunityId, defaultOpportunityId].includes(pool.opportunityId),
-    )
-  }, [defaultOpportunityId, opportunityId, parsedPools])
+    return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
+  }, [activeOpportunityId, parsedPools])
 
   const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const [asset, setAsset] = useState<Asset | undefined>(_asset)
+
+  useEffect(() => {
+    if (!(asset && parsedPools)) return
+
+    const filteredPools = parsedPools?.filter(pool => pool.assetId === asset.assetId)
+    // since we do asset/rune/sym ordering, we can assume the the third item is sym
+    const foundOpportunityId = filteredPools[2].opportunityId
+    setActiveOpportunityId(foundOpportunityId)
+  }, [asset, parsedPools])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)
@@ -348,6 +359,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
     )
   }, [asset?.assetId, handleAssetChange, handlePoolAssetClick])
 
+  const handleAsymSideChange = useCallback((asymSide: AsymSide | null) => {
+    console.log('TODO', { asymSide })
+  }, [])
+
   if (!foundPool || !asset || !rune) return null
 
   return (
@@ -364,7 +379,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
           </FormLabel>
-          <DepositType assetId={asset.assetId} asymSide={foundPool.asymSide} />
+          <DepositType
+            assetId={asset.assetId}
+            asymSide={foundPool.asymSide}
+            onAsymSideChange={handleAsymSideChange}
+          />
           <Stack divider={pairDivider} spacing={0}>
             {tradeAssetInputs}
           </Stack>

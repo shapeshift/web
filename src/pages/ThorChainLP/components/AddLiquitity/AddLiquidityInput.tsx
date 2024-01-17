@@ -17,7 +17,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
@@ -32,9 +32,10 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { AddLiquidityProps } from './AddLiquidity'
@@ -132,7 +133,45 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
   }, [backIcon, handleBackClick, headerComponent, translate])
 
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
+
+  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = React.useState<
+    string | undefined
+  >()
+  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = React.useState<string | undefined>()
+
+  const createHandleAddLiquidityInputChange = useCallback(
+    (marketData: MarketData, isRune: boolean) => {
+      return (value: string, isFiat?: boolean) => {
+        const crypto = (() => {
+          if (!isFiat) return value
+          const valueCryptoPrecision = bnOrZero(value)
+            .div(bn(marketData?.price ?? '0'))
+            .toFixed()
+          return valueCryptoPrecision
+        })()
+        const fiat = (() => {
+          if (isFiat) return value
+          const valueFiatUserCurrency = bnOrZero(value)
+            .times(bn(marketData?.price ?? '0'))
+            .toFixed()
+          return valueFiatUserCurrency
+        })()
+
+        isRune ? setRuneCryptoLiquidityAmount(crypto) : setAssetCryptoLiquidityAmount(crypto)
+        isRune ? setRuneFiatLiquidityAmount(fiat) : setAssetFiatLiquidityAmount(fiat)
+      }
+    },
+    [],
+  )
 
   const tradeAssetInputs = useMemo(() => {
     if (!(asset && rune && foundPool)) return null
@@ -145,18 +184,42 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
       throw new Error('Invalid asym side')
     })()
 
-    return assets.map(_asset => (
-      <TradeAssetInput
-        assetId={_asset?.assetId}
-        assetIcon={_asset?.icon ?? ''}
-        assetSymbol={_asset?.symbol ?? ''}
-        onAccountIdChange={handleAccountIdChange}
-        percentOptions={percentOptions}
-        rightComponent={ReadOnlyAsset}
-        formControlProps={formControlProps}
-      />
-    ))
-  }, [asset, foundPool, handleAccountIdChange, percentOptions, rune])
+    return assets.map(_asset => {
+      const isRune = _asset.assetId === rune.assetId
+      const marketData = isRune ? runeMarketData : assetMarketData
+      const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(marketData, isRune)
+      const cryptoAmount = isRune ? runeCryptoLiquidityAmount : assetCryptoLiquidityAmount
+      const fiatAmount = isRune ? runeFiatLiquidityAmount : assetFiatLiquidityAmount
+
+      return (
+        <TradeAssetInput
+          assetId={_asset?.assetId}
+          assetIcon={_asset?.icon ?? ''}
+          assetSymbol={_asset?.symbol ?? ''}
+          onAccountIdChange={handleAccountIdChange}
+          percentOptions={percentOptions}
+          rightComponent={ReadOnlyAsset}
+          formControlProps={formControlProps}
+          onChange={handleAddLiquidityInputChange}
+          cryptoAmount={cryptoAmount}
+          fiatAmount={fiatAmount}
+        />
+      )
+    })
+  }, [
+    asset,
+    assetCryptoLiquidityAmount,
+    assetFiatLiquidityAmount,
+    assetMarketData,
+    createHandleAddLiquidityInputChange,
+    foundPool,
+    handleAccountIdChange,
+    percentOptions,
+    rune,
+    runeCryptoLiquidityAmount,
+    runeFiatLiquidityAmount,
+    runeMarketData,
+  ])
 
   const symAlert = useMemo(() => {
     if (!(foundPool && rune && asset)) return null

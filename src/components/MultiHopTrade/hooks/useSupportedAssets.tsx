@@ -6,17 +6,23 @@ import {
   selectWalletSupportedChainIds,
 } from 'state/slices/common-selectors'
 import { selectMarketDataDidLoad } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const marketDataDidLoad = useAppSelector(selectMarketDataDidLoad)
-  const sortedAssets = useMemo(() => {
-    const state = store.getState()
+  const assetsSortedByName = useAppSelector(selectAssetsSortedByName)
+  const assetsSortedByMarketCapUserCurrencyBalanceAndName = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
+  )
 
+  const sortedAssets = useMemo(() => {
     // if the market data has not yet loaded once, return a simplified sorting of assets
-    if (!marketDataDidLoad) return selectAssetsSortedByName(state)
-    else return selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state)
-  }, [marketDataDidLoad])
+    if (!marketDataDidLoad) {
+      return assetsSortedByName
+    } else {
+      return assetsSortedByMarketCapUserCurrencyBalanceAndName
+    }
+  }, [assetsSortedByMarketCapUserCurrencyBalanceAndName, assetsSortedByName, marketDataDidLoad])
 
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 

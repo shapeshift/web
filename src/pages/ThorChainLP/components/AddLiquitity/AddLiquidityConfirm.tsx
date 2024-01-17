@@ -54,7 +54,6 @@ export const AddLiquidityConfirm = ({
   confirmedQuote,
   opportunityId,
 }: AddLiquidityConfirmProps) => {
-  console.log({ confirmedQuote })
   const translate = useTranslate()
   const history = useHistory()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])

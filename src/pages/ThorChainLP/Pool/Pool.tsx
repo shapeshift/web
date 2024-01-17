@@ -89,6 +89,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 
 export const Pool = () => {
   const params = useParams<MatchParams>()
+  const translate = useTranslate()
 
   const { data: parsedPools } = usePools()
 
@@ -171,9 +172,9 @@ export const Pool = () => {
           >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
-              <Button leftIcon={addIcon}>Add Liquidity</Button>
+              <Button leftIcon={addIcon}>{translate('pools.addLiquidity')}</Button>
               <Button colorScheme='blue' leftIcon={swapIcon}>
-                Trade
+                {translate('trade.trade')}
               </Button>
             </Flex>
           </Flex>

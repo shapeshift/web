@@ -170,11 +170,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityProps> = ({
           return valueFiatUserCurrency
         })()
 
-        isRune ? setRuneCryptoLiquidityAmount(crypto) : setAssetCryptoLiquidityAmount(crypto)
-        isRune ? setRuneFiatLiquidityAmount(fiat) : setAssetFiatLiquidityAmount(fiat)
+        if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
+          setRuneCryptoLiquidityAmount(crypto)
+          setRuneFiatLiquidityAmount(fiat)
+          setAssetFiatLiquidityAmount(fiat)
+          setAssetCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+        } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
+          setAssetCryptoLiquidityAmount(crypto)
+          setAssetFiatLiquidityAmount(fiat)
+          setRuneFiatLiquidityAmount(fiat)
+          setRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+        }
       }
     },
-    [],
+    [runePerAsset],
   )
 
   const tradeAssetInputs = useMemo(() => {

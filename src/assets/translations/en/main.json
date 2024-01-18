@@ -2211,6 +2211,7 @@
     "awaitingConfirmation": "Awaiting confirmation",
     "transactionSubmitted": "Transaction submitted",
     "waitingForConfirmation": "Waiting for Confirmation",
+    "totalTokensLocked": "Total Tokens Locked",
     "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
     "confirmAndDeposit": "Confirm and Deposit",

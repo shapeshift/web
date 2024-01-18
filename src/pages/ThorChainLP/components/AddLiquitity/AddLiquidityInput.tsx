@@ -258,24 +258,30 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ;(async () => {
       if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
       const isAsym = foundPool?.asymSide !== null
-      const runeCryptoLiquidityAmountAdjusted = isAsym
-        ? bn(runeCryptoLiquidityAmount).div(2).toFixed()
-        : runeCryptoLiquidityAmount
-      const assetCryptoLiquidityAmountAdjusted = isAsym
-        ? bn(assetCryptoLiquidityAmount).div(2).toFixed()
-        : assetCryptoLiquidityAmount
+      const isAsymAssetSide = foundPool?.asymSide === AsymSide.Asset
+      const isAsymRuneSide = foundPool?.asymSide === AsymSide.Rune
+
+      // If the pool is asymmetrical the
+      const runeCryptoLiquidityAmountAdjusted =
+        isAsym && isAsymAssetSide ? 0 : runeCryptoLiquidityAmount
+      const assetCryptoLiquidityAmountAdjusted =
+        isAsym && isAsymRuneSide ? 0 : assetCryptoLiquidityAmount
+
+      const runeAmountCryptoThorPrecision = convertPrecision({
+        value: runeCryptoLiquidityAmountAdjusted,
+        inputExponent: 0,
+        outputExponent: THOR_PRECISION,
+      }).toFixed()
+
+      const assetAmountCryptoThorPrecision = convertPrecision({
+        value: assetCryptoLiquidityAmountAdjusted,
+        inputExponent: 0,
+        outputExponent: THOR_PRECISION,
+      }).toFixed()
 
       const estimate = await estimateAddThorchainLiquidityPosition({
-        runeAmountCryptoThorPrecision: convertPrecision({
-          value: runeCryptoLiquidityAmountAdjusted,
-          inputExponent: 0,
-          outputExponent: THOR_PRECISION,
-        }).toFixed(),
-        assetAmountCryptoThorPrecision: convertPrecision({
-          value: assetCryptoLiquidityAmountAdjusted,
-          inputExponent: asset.precision,
-          outputExponent: THOR_PRECISION,
-        }).toFixed(),
+        runeAmountCryptoThorPrecision,
+        assetAmountCryptoThorPrecision,
         assetId: asset.assetId,
       })
 

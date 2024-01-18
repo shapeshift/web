@@ -212,25 +212,6 @@ export const getAccountAddresses = memoize(
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
 
-// Gets all pools, including unavailable
-export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
-  const queryKey = ['thornodePoolData']
-  const queryFn = async () => {
-    const { data } = await axios.get<ThornodePoolResponse[]>(
-      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
-    )
-
-    return data
-  }
-
-  const opportunitiesData = await queryClient.fetchQuery({
-    queryKey,
-    queryFn,
-    staleTime: Infinity,
-  })
-
-  return opportunitiesData
-}
 // WARNING: This uses Infinity staleTime, so will never refetch unless the query is invalidated
 // Consume with caution in domains other than swapper
 // Swapper does *not* use a cached react-query, and uses the thorService variant which has its own caching mechanism

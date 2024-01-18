@@ -203,10 +203,12 @@ export const validateTradeQuote = async (
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit
-  const isUnsafeQuote = !(
-    !recommendedMinimumCryptoBaseUnit ||
-    bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
-  )
+  const isUnsafeQuote =
+    sellAmountCryptoBaseUnit &&
+    !(
+      !recommendedMinimumCryptoBaseUnit ||
+      bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
+    )
 
   const disableSmartContractSwap = await (async () => {
     // Swappers other than THORChain shouldn't be affected by this limitation

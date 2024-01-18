@@ -114,7 +114,7 @@ export const calculateTVL = (
   assetDepthCryptoBaseUnit: string,
   runeDepthCryptoBaseUnit: string,
   runePrice: string,
-): string => {
+): { tvl: string; assetAmountCrytoPrecision: string; runeAmountCryptoPrecision: string } => {
   const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepthCryptoBaseUnit)
   const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepthCryptoBaseUnit)
 
@@ -123,7 +123,13 @@ export const calculateTVL = (
 
   const tvl = assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).times(2)
 
-  return tvl.toFixed()
+  const result = {
+    tvl: tvl.toFixed(),
+    assetAmountCrytoPrecision: assetDepthCryptoPrecision.toFixed(),
+    runeAmountCryptoPrecision: runeDepthCryptoPrecision.toFixed(),
+  }
+
+  return result
 }
 
 export const getVolume = async (

@@ -69,14 +69,14 @@ export const HopTransactionStep = ({
       txLinks.push({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
-          defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+          defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           tradeId: buyTxHash,
         }),
         txHash: buyTxHash,
       })
     }
 
-    if (sellTxHash) {
+    if (sellTxHash && sellTxHash !== buyTxHash) {
       txLinks.push({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
@@ -88,7 +88,7 @@ export const HopTransactionStep = ({
     }
 
     return txLinks
-  }, [buyTxHash, tradeQuoteStep.source, tradeQuoteStep.sellAsset.explorerTxLink, sellTxHash])
+  }, [buyTxHash, sellTxHash, tradeQuoteStep])
 
   const stepIndicator = useMemo(() => {
     const defaultIcon = <SwapperIcon swapperName={swapperName} />

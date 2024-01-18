@@ -326,28 +326,35 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       throw new Error('Invalid asym side')
     })()
 
-    return assets.map(_asset => {
-      const isRune = _asset.assetId === rune.assetId
-      const marketData = isRune ? runeMarketData : assetMarketData
-      const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(marketData, isRune)
-      const cryptoAmount = isRune ? runeCryptoLiquidityAmount : assetCryptoLiquidityAmount
-      const fiatAmount = isRune ? runeFiatLiquidityAmount : assetFiatLiquidityAmount
+    return (
+      <Stack divider={pairDivider} spacing={0}>
+        {assets.map(_asset => {
+          const isRune = _asset.assetId === rune.assetId
+          const marketData = isRune ? runeMarketData : assetMarketData
+          const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(
+            marketData,
+            isRune,
+          )
+          const cryptoAmount = isRune ? runeCryptoLiquidityAmount : assetCryptoLiquidityAmount
+          const fiatAmount = isRune ? runeFiatLiquidityAmount : assetFiatLiquidityAmount
 
-      return (
-        <TradeAssetInput
-          assetId={_asset?.assetId}
-          assetIcon={_asset?.icon ?? ''}
-          assetSymbol={_asset?.symbol ?? ''}
-          onAccountIdChange={handleAccountIdChange}
-          percentOptions={percentOptions}
-          rightComponent={ReadOnlyAsset}
-          formControlProps={formControlProps}
-          onChange={handleAddLiquidityInputChange}
-          cryptoAmount={cryptoAmount}
-          fiatAmount={fiatAmount}
-        />
-      )
-    })
+          return (
+            <TradeAssetInput
+              assetId={_asset?.assetId}
+              assetIcon={_asset?.icon ?? ''}
+              assetSymbol={_asset?.symbol ?? ''}
+              onAccountIdChange={handleAccountIdChange}
+              percentOptions={percentOptions}
+              rightComponent={ReadOnlyAsset}
+              formControlProps={formControlProps}
+              onChange={handleAddLiquidityInputChange}
+              cryptoAmount={cryptoAmount}
+              fiatAmount={fiatAmount}
+            />
+          )
+        })}
+      </Stack>
+    )
   }, [
     asset,
     assetCryptoLiquidityAmount,
@@ -356,6 +363,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     createHandleAddLiquidityInputChange,
     foundPool,
     handleAccountIdChange,
+    pairDivider,
     percentOptions,
     rune,
     runeCryptoLiquidityAmount,
@@ -393,7 +401,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // We only want to show the pair select on standalone "Add Liquidity" - not on the pool page
     if (!defaultOpportunityId) return null
     return (
-      <>
+      <Stack>
         <FormLabel px={6} mb={0} fontSize='sm'>
           {translate('pools.selectPair')}
         </FormLabel>
@@ -412,7 +420,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           mb={0}
           buttonProps={buttonProps}
         />
-      </>
+      </Stack>
     )
   }, [asset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
 
@@ -437,7 +445,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     <SlideTransition>
       {renderHeader}
       <Stack divider={divider} spacing={4} pb={4}>
-        <Stack>{pairSelect}</Stack>
+        {pairSelect}
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
@@ -447,9 +455,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             defaultOpportunityId={defaultOpportunityId}
             onAsymSideChange={handleAsymSideChange}
           />
-          <Stack divider={pairDivider} spacing={0}>
-            {tradeAssetInputs}
-          </Stack>
+          {tradeAssetInputs}
         </Stack>
         <Collapse in={true}>
           <PoolSummary

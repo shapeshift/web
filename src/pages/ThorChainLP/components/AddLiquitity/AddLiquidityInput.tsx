@@ -257,15 +257,22 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   useEffect(() => {
     ;(async () => {
       if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
+      const isAsym = foundPool?.asymSide !== null
+      const runeCryptoLiquidityAmountAdjusted = isAsym
+        ? bn(runeCryptoLiquidityAmount).div(2).toFixed()
+        : runeCryptoLiquidityAmount
+      const assetCryptoLiquidityAmountAdjusted = isAsym
+        ? bn(assetCryptoLiquidityAmount).div(2).toFixed()
+        : assetCryptoLiquidityAmount
 
       const estimate = await estimateAddThorchainLiquidityPosition({
         runeAmountCryptoThorPrecision: convertPrecision({
-          value: runeCryptoLiquidityAmount,
+          value: runeCryptoLiquidityAmountAdjusted,
           inputExponent: 0,
           outputExponent: THOR_PRECISION,
         }).toFixed(),
         assetAmountCryptoThorPrecision: convertPrecision({
-          value: assetCryptoLiquidityAmount,
+          value: assetCryptoLiquidityAmountAdjusted,
           inputExponent: asset.precision,
           outputExponent: THOR_PRECISION,
         }).toFixed(),
@@ -277,7 +284,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
-  }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
+  }, [asset, assetCryptoLiquidityAmount, foundPool?.asymSide, runeCryptoLiquidityAmount])
 
   useEffect(() => {
     if (

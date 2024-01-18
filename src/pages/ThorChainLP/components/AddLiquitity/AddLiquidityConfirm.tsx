@@ -150,6 +150,7 @@ export const AddLiquidityConfirm = ({ confirmedQuote }: AddLiquidityConfirmProps
                   fontWeight='bold'
                   value={amountCryptoPrecision}
                   symbol={_asset.symbol}
+                  maximumFractionDigits={4}
                 />
                 <Amount.Fiat fontSize='sm' color='text.subtle' value={amountFiatUserCurrency} />
               </Stack>

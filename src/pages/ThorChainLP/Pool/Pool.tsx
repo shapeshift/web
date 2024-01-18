@@ -18,7 +18,7 @@ import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
 import {
@@ -90,6 +90,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
+  const history = useHistory()
 
   const { data: parsedPools } = usePools()
 
@@ -110,6 +111,14 @@ export const Pool = () => {
     () => <PoolHeader assetIds={poolAssetIds} name={foundPool?.name ?? ''} />,
     [foundPool?.name, poolAssetIds],
   )
+
+  const handleAddLiquidityClick = useCallback(() => {
+    history.push(
+      generatePath('/pools/add/:poolOpportunityId', {
+        poolOpportunityId: foundPool?.opportunityId ?? '',
+      }),
+    )
+  }, [foundPool?.opportunityId, history])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const assetMarketData = useAppSelector(state =>
@@ -172,7 +181,9 @@ export const Pool = () => {
           >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
-              <Button leftIcon={addIcon}>{translate('pools.addLiquidity')}</Button>
+              <Button onClick={handleAddLiquidityClick} leftIcon={addIcon}>
+                {translate('pools.addLiquidity')}
+              </Button>
               <Button colorScheme='blue' leftIcon={swapIcon}>
                 {translate('trade.trade')}
               </Button>
@@ -182,12 +193,12 @@ export const Pool = () => {
             <Card width='full' maxWidth={maxWidth}>
               <CardFooter gap={6} display='flex' flexDir='column' px={8} py={8}>
                 <PoolInfo
-                  volume24h={volume24h ?? '0'}
-                  volume24hChange={swap24hChange?.volumeChangePercentage ?? 0}
-                  fee24hChange={swap24hChange?.feeChangePercentage ?? 0}
-                  fees24h={fees24h ?? '0'}
-                  allTimeVolume={allTimeVolume ?? '0'}
-                  apy={foundPool.poolAPY ?? '0'}
+                  volume24h={volume24h}
+                  volume24hChange={swap24hChange?.volumeChangePercentage}
+                  fee24hChange={swap24hChange?.feeChangePercentage}
+                  fees24h={fees24h}
+                  allTimeVolume={allTimeVolume}
+                  apy={foundPool.poolAPY}
                   tvl={tvl.tvl}
                   runeTvl={tvl.runeAmountCryptoPrecision}
                   assetTvl={tvl.assetAmountCrytoPrecision}

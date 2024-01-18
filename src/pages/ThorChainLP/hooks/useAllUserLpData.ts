@@ -77,7 +77,10 @@ export const useAllUserLpData = ({
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
-            const accountIds = findAccountsByAssetId(portfolioAccounts, assetId)
+            const assetAccountIds = findAccountsByAssetId(portfolioAccounts, assetId)
+            const runeAccountIds = findAccountsByAssetId(portfolioAccounts, thorchainAssetId)
+            const accountIds = assetAccountIds.concat(runeAccountIds)
+
             const allPositions = (
               await Promise.all(
                 accountIds.map(accountId =>

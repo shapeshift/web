@@ -66,6 +66,7 @@ const dividerStyle = {
 export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
+  paramOpportunityId?: string
   setConfirmedQuote: (quote: ConfirmedQuote) => void
   confirmedQuote: ConfirmedQuote | null
 }
@@ -73,6 +74,7 @@ export type AddLiquidityInputProps = {
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   headerComponent,
   opportunityId,
+  paramOpportunityId,
   confirmedQuote,
   setConfirmedQuote,
 }) => {
@@ -103,11 +105,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const defaultOpportunityId = useMemo(() => {
     if (!parsedPools) return undefined
     if (opportunityId) return undefined
+    if (paramOpportunityId) return paramOpportunityId
 
     const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
 
     return firstAsymOpportunityId
-  }, [opportunityId, parsedPools])
+  }, [parsedPools, opportunityId, paramOpportunityId])
 
   const [activeOpportunityId, setActiveOpportunityId] = useState(
     opportunityId ?? defaultOpportunityId,
@@ -121,7 +124,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
-
     return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
   }, [activeOpportunityId, parsedPools])
 

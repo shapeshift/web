@@ -18,7 +18,7 @@ import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
 import {
@@ -90,6 +90,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 export const Pool = () => {
   const params = useParams<MatchParams>()
   const translate = useTranslate()
+  const history = useHistory()
 
   const { data: parsedPools } = usePools()
 
@@ -110,6 +111,14 @@ export const Pool = () => {
     () => <PoolHeader assetIds={poolAssetIds} name={foundPool?.name ?? ''} />,
     [foundPool?.name, poolAssetIds],
   )
+
+  const handleAddLiquidityClick = useCallback(() => {
+    history.push(
+      generatePath('/pools/add/:poolOpportunityId', {
+        poolOpportunityId: foundPool?.opportunityId ?? '',
+      }),
+    )
+  }, [foundPool?.opportunityId, history])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const assetMarketData = useAppSelector(state =>
@@ -172,7 +181,9 @@ export const Pool = () => {
           >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
-              <Button leftIcon={addIcon}>{translate('pools.addLiquidity')}</Button>
+              <Button onClick={handleAddLiquidityClick} leftIcon={addIcon}>
+                {translate('pools.addLiquidity')}
+              </Button>
               <Button colorScheme='blue' leftIcon={swapIcon}>
                 {translate('trade.trade')}
               </Button>

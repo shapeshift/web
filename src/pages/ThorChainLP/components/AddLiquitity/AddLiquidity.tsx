@@ -19,15 +19,21 @@ const AddLiquidityEntries = [
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
+  paramOpportunityId?: string
 }
 
-export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
+export const AddLiquidity: React.FC<AddLiquidityProps> = ({
+  opportunityId,
+  headerComponent,
+  paramOpportunityId,
+}) => {
   const [confirmedQuote, setConfirmedQuote] = useState<ConfirmedQuote | null>(null)
 
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
       <AddLiquidityRoutes
         opportunityId={opportunityId}
+        paramOpportunityId={paramOpportunityId}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
@@ -44,6 +50,7 @@ type AddLiquidityRoutesProps = AddLiquidityProps & {
 export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
+  paramOpportunityId,
   confirmedQuote,
   setConfirmedQuote,
 }) => {
@@ -53,12 +60,13 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     () => (
       <AddLiquidityInput
         opportunityId={opportunityId}
+        paramOpportunityId={paramOpportunityId}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
       />
     ),
-    [confirmedQuote, headerComponent, opportunityId, setConfirmedQuote],
+    [confirmedQuote, headerComponent, opportunityId, paramOpportunityId, setConfirmedQuote],
   )
   const renderAddLiquidityConfirm = useCallback(
     () => (confirmedQuote ? <AddLiquidityConfirm confirmedQuote={confirmedQuote} /> : null),

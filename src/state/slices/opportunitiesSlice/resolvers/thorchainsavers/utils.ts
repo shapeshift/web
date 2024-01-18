@@ -19,7 +19,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
@@ -78,16 +77,6 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
 const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
   assetId => fromAssetId(assetId).chainId,
 )
-
-export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
-  const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
-  )
-
-  if (!opportunitiesData) return []
-
-  return opportunitiesData
-}
 
 export const getAllThorchainSaversPositions = async (
   assetId: AssetId,

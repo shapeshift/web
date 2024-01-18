@@ -8,6 +8,7 @@ import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
@@ -211,16 +212,45 @@ export const getAccountAddresses = memoize(
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
 
-export const getThorchainAvailablePools = async () => {
-  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
-  )
-  if (poolResponse.isOk()) {
-    const allPools = poolResponse.unwrap().data
-    const availablePools = allPools.filter(pool => pool.status === 'Available')
-    return availablePools
+// Gets all pools, including unavailable
+export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
+  const queryKey = ['thornodePoolData']
+  const queryFn = async () => {
+    const { data } = await axios.get<ThornodePoolResponse[]>(
+      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
+    )
+
+    return data
   }
 
-  return []
+  const opportunitiesData = await queryClient.fetchQuery({
+    queryKey,
+    queryFn,
+    staleTime: Infinity,
+  })
+
+  return opportunitiesData
+}
+// WARNING: This uses Infinity staleTime, so will never refetch unless the query is invalidated
+// Consume with caution in domains other than swapper
+// Swapper does *not* use a cached react-query, and uses the thorService variant which has its own caching mechanism
+export const getThorchainAvailablePools = async () => {
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const queryKey = ['thornodePoolData']
+  const queryFn = async () => {
+    const { data: poolData } = await axios.get<ThornodePoolResponse[]>(
+      `${daemonUrl}/lcd/thorchain/pools`,
+    )
+
+    return poolData
+  }
+
+  const allPools = await queryClient.fetchQuery({
+    queryKey,
+    queryFn,
+    staleTime: Infinity,
+  })
+
+  const availablePools = allPools.filter(pool => pool.status === 'Available')
+  return availablePools
 }

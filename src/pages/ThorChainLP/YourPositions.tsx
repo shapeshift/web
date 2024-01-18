@@ -96,14 +96,20 @@ const PositionButton = ({
     enabled: Boolean(true),
     // We may or may not want to revisit this, but this will prevent overfetching for now
     staleTime: Infinity,
-    queryKey: ['thornodePoolData', assetId],
+    // Note: since this fetches *all* pools, we do not use the assetId in the queryKey.
+    // Selectors re-run on every render, but all consumoors with the same queryKey will subscribe to this, which will cache a lot better
+    queryKey: ['thornodePoolData'],
     queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+      const { data: poolData } = await axios.get<ThornodePoolResponse[]>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
       )
 
       return poolData
+    },
+    select: data => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId })
+      if (!poolAssetId) throw new Error(`poolAssetId not found for ${assetId}`)
+      return data.find(pool => pool.asset === poolAssetId)
     },
   })
 

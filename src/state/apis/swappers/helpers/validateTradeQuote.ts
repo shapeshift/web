@@ -23,10 +23,7 @@ import {
   selectSellAmountCryptoPrecision,
 } from 'state/slices/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
-import {
-  selectSecondHopSellAccountId,
-  selectSellAmountCryptoBaseUnit,
-} from 'state/slices/tradeQuoteSlice/selectors'
+import { selectSecondHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'

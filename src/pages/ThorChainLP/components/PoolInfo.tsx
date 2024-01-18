@@ -97,15 +97,15 @@ export const PoolInfo = ({
             <Stack px={4} py={2} spacing={4}>
               <Flex justifyContent='space-between' fontSize='sm' fontWeight='medium'>
                 <Flex gap={2}>
-                  <AssetIcon size='xs' assetId={assetIds[0]} />
-                  <AssetSymbol assetId={assetIds[0]} />
+                  <AssetIcon size='xs' assetId={assetIds[1]} />
+                  <AssetSymbol assetId={assetIds[1]} />
                 </Flex>
                 <Amount value={runeTvl ?? ''} abbreviated={true} />
               </Flex>
               <Flex justifyContent='space-between' fontSize='sm' fontWeight='medium'>
                 <Flex gap={2}>
-                  <AssetIcon size='xs' assetId={assetIds[1]} />
-                  <AssetSymbol assetId={assetIds[1]} />
+                  <AssetIcon size='xs' assetId={assetIds[0]} />
+                  <AssetSymbol assetId={assetIds[0]} />
                 </Flex>
                 <Amount value={assetTvl ?? ''} abbreviated={true} />
               </Flex>

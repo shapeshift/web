@@ -50,7 +50,7 @@ const getIsTradingActiveErrorHandler = apiErrorHandler(
 )
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
-export const _swapperApi = createApi({
+export const swapperApiBase = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
@@ -73,47 +73,15 @@ export const _swapperApi = createApi({
   }),
 })
 
-export const swapperApi = _swapperApi.injectEndpoints({
+export const swapperApiWithSwappers = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
+    getSwapperTradeQuotes: build.query<Omit<ApiQuote, 'index'>[], GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
-        if (bnOrZero(tradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit).isZero()) {
-          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
-          return { data: { errors: [], quotes: [] } }
-        }
-
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
-        const isWalletConnected = selectIsWalletConnected(state)
-        const walletSupportedChainIds = selectWalletSupportedChainIds(state)
-        const manualReceiveAddress = selectManualReceiveAddress(state)
-        const firstHopSellAccountId = selectFirstHopSellAccountId(state)
-        const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
-          accountId: firstHopSellAccountId,
-          assetId: tradeQuoteInput.sellAsset.assetId,
-        })
-
-        const topLevelValidationErrors = validateQuoteRequest({
-          tradeQuoteInput,
-          isWalletConnected,
-          walletSupportedChainIds,
-          manualReceiveAddress,
-          sellAssetBalanceCryptoBaseUnit,
-        })
-
-        // hydrate crypto market data for buy and sell assets
-        await dispatch(
-          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
-        )
-
-        const sellAssetUsdRate = selectUsdRateByAssetId(state, tradeQuoteInput.sellAsset.assetId)
-
-        // this should never be needed but here for paranoia
-        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
-
         const quoteResults = await getTradeQuotes(
           {
             ...tradeQuoteInput,
@@ -124,15 +92,7 @@ export const swapperApi = _swapperApi.injectEndpoints({
         )
 
         if (quoteResults.length === 0) {
-          return {
-            data: {
-              errors: [
-                { error: TradeQuoteRequestError.NoQuotesAvailable },
-                ...topLevelValidationErrors,
-              ],
-              quotes: [],
-            },
-          }
+          return { data: [] }
         }
 
         const quotesWithInputOutputRatios = quoteResults
@@ -176,7 +136,7 @@ export const swapperApi = _swapperApi.injectEndpoints({
                 await Promise.all(
                   [sellAsset.assetId, buyAsset.assetId].map(assetId => {
                     return dispatch(
-                      _swapperApi.endpoints.getIsTradingActive.initiate({
+                      swapperApiBase.endpoints.getIsTradingActive.initiate({
                         assetId,
                         swapperName,
                       }),
@@ -217,6 +177,66 @@ export const swapperApi = _swapperApi.injectEndpoints({
             }
           }),
         )
+
+        return { data: unorderedQuotes }
+      },
+    }),
+  }),
+})
+
+export const swapperApi = swapperApiWithSwappers.injectEndpoints({
+  endpoints: build => ({
+    getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
+      queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+        if (bnOrZero(tradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit).isZero()) {
+          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
+          return { data: { errors: [], quotes: [] } }
+        }
+
+        const state = getState() as ReduxState
+        const { sellAsset, buyAsset } = tradeQuoteInput
+        const isWalletConnected = selectIsWalletConnected(state)
+        const walletSupportedChainIds = selectWalletSupportedChainIds(state)
+        const manualReceiveAddress = selectManualReceiveAddress(state)
+        const firstHopSellAccountId = selectFirstHopSellAccountId(state)
+        const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+          accountId: firstHopSellAccountId,
+          assetId: tradeQuoteInput.sellAsset.assetId,
+        })
+
+        const topLevelValidationErrors = validateQuoteRequest({
+          tradeQuoteInput,
+          isWalletConnected,
+          walletSupportedChainIds,
+          manualReceiveAddress,
+          sellAssetBalanceCryptoBaseUnit,
+        })
+
+        // hydrate crypto market data for buy and sell assets
+        await dispatch(
+          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
+        )
+
+        const sellAssetUsdRate = selectUsdRateByAssetId(state, tradeQuoteInput.sellAsset.assetId)
+
+        // this should never be needed but here for paranoia
+        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
+
+        const { data: unorderedQuotes } = await dispatch(
+          swapperApiWithSwappers.endpoints.getSwapperTradeQuotes.initiate(tradeQuoteInput),
+        )
+
+        if (unorderedQuotes === undefined || unorderedQuotes.length === 0) {
+          return {
+            data: {
+              errors: [
+                { error: TradeQuoteRequestError.NoQuotesAvailable },
+                ...topLevelValidationErrors,
+              ],
+              quotes: [],
+            },
+          }
+        }
 
         // ensure quotes with errors are placed below actionable quotes
         const happyQuotes = sortQuotes(

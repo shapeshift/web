@@ -45,13 +45,23 @@ export const getAllThorchainLiquidityProviderPositions = async (
 }
 
 export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidityProvidersList> => {
-  const { data } = await axios.get<MidgardLiquidityProvidersList>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/members`,
-  )
+  const queryKey = ['thorchainLiquidityMembers']
+  const queryFn = async () => {
+    const { data } = await axios.get<MidgardLiquidityProvidersList>(
+      `${getConfig().REACT_APP_MIDGARD_URL}/members`,
+    )
 
-  if (!data?.length || 'error' in data) return []
+    return data
+  }
 
-  return data
+  const result = await queryClient.fetchQuery({
+    queryKey,
+    queryFn,
+    // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
+    staleTime: Infinity,
+  })
+
+  return result
 }
 
 export const getThorchainLiquidityMember = async (

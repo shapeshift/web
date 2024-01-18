@@ -5,12 +5,10 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'
-import type {
-  MidgardPoolResponse,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
+import { getThorchainAvailablePools } from 'lib/utils/thorchain'
 import {
   calculatePoolOwnershipPercentage,
   getCurrentValue,
@@ -42,14 +40,10 @@ export const useAllUserLpData = ({
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: allThornodePools, isSuccess: isThornodePoolsDataLoaded } = useQuery({
-    queryKey: ['thornodePoolData'],
-    staleTime: Infinity,
-    queryFn: async () => {
-      const { data } = await axios.get<ThornodePoolResponse[]>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
-      )
-      return data
-    },
+    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
+    staleTime: 60_000,
+    queryKey: ['thorchainAvailablePools'],
+    queryFn: getThorchainAvailablePools,
   })
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({

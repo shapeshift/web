@@ -166,10 +166,47 @@ export const useAllUserLpData = ({
       runeMarketData?.price,
     ],
   )
-  const userLpDataQueries = useQueries({
+  // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector
+  const _userLpDataQueries = useQueries({
     // @ts-ignore useQueries isn't strongly typed :(
     queries,
-  })
+  }) as UseQueryResult<UseUserLpDataReturn | null>[]
 
-  return userLpDataQueries as UseQueryResult<UseUserLpDataReturn | null>[]
+  // Massage queries data to dedupe opportunities
+  // e.g if a user has an asset sym and a RUNE opportunity, their position will be present in both the asset and RUNE address members
+  const userLpDataQueries = useMemo(() => {
+    const seenOpportunityIds = new Set()
+
+    const dedupedDataQueries = _userLpDataQueries.map(queryResult => {
+      // No-op. No data, no massaging.
+      if (!queryResult.data) {
+        return queryResult
+      }
+
+      const dedupedPositions = queryResult.data.positions.filter(position => {
+        if (seenOpportunityIds.has(position.opportunityId)) {
+          // The magic - we've seen this OpportunityId already
+          // TODO(gomes): this won't work for multi-account. We can't use AccountId as a discriminator either because it will be a diff. one when fetched from the asset and ROON side
+          // We need to expose runeAddress and assetAddress properties and do some rambo serializing here to be futureproof
+          return false
+        }
+
+        // Mark this opportunityId as seen and include the position
+        seenOpportunityIds.add(position.opportunityId)
+        return true
+      })
+
+      return {
+        ...queryResult,
+        data: {
+          ...queryResult.data,
+          positions: dedupedPositions,
+        },
+      }
+    })
+
+    return dedupedDataQueries
+  }, [_userLpDataQueries])
+
+  return userLpDataQueries
 }

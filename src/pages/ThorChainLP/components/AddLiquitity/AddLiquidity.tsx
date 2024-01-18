@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback } from 'react'
+import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
@@ -21,31 +22,52 @@ export type AddLiquidityProps = {
 }
 
 export const AddLiquidity: React.FC<AddLiquidityProps> = ({ opportunityId, headerComponent }) => {
+  const [confirmedQuote, setConfirmedQuote] = useState<ConfirmedQuote | null>(null)
+
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <AddLiquidityRoutes opportunityId={opportunityId} headerComponent={headerComponent} />
+      <AddLiquidityRoutes
+        opportunityId={opportunityId}
+        headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
+        confirmedQuote={confirmedQuote}
+      />
     </MemoryRouter>
   )
 }
 
-export const AddLiquidityRoutes: React.FC<AddLiquidityProps> = ({
+type AddLiquidityRoutesProps = AddLiquidityProps & {
+  confirmedQuote: ConfirmedQuote | null
+  setConfirmedQuote: (quote: ConfirmedQuote) => void
+}
+
+export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
+  confirmedQuote,
+  setConfirmedQuote,
 }) => {
   const location = useLocation()
 
   const renderAddLiquidityInput = useCallback(
-    () => <AddLiquidityInput opportunityId={opportunityId} headerComponent={headerComponent} />,
-    [headerComponent, opportunityId],
+    () => (
+      <AddLiquidityInput
+        opportunityId={opportunityId}
+        headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
+        confirmedQuote={confirmedQuote}
+      />
+    ),
+    [confirmedQuote, headerComponent, opportunityId, setConfirmedQuote],
   )
   const renderAddLiquidityConfirm = useCallback(
-    () => <AddLiquidityConfirm opportunityId={opportunityId} />,
-    [opportunityId],
+    () => (confirmedQuote ? <AddLiquidityConfirm confirmedQuote={confirmedQuote} /> : null),
+    [confirmedQuote],
   )
 
   const renderAddLiquidityStatus = useCallback(
-    () => <AddLiquidityStatus opportunityId={opportunityId} />,
-    [opportunityId],
+    () => (confirmedQuote ? <AddLiquidityStatus confirmedQuote={confirmedQuote} /> : null),
+    [confirmedQuote],
   )
 
   return (

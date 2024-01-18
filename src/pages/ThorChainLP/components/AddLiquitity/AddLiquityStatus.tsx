@@ -11,9 +11,10 @@ import {
   HStack,
   Stack,
 } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { utils } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -21,9 +22,12 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
 import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
@@ -42,6 +46,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   const [firstTx, setFirstTx] = useState(TxStatus.Unknown)
   const [secondTx, setSecondTx] = useState(TxStatus.Pending)
   const [isComplete, setIsComplete] = useState(false)
+  const wallet = useWallet().state.wallet
 
   const { opportunityId } = confirmedQuote
 
@@ -70,15 +75,83 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
 
-  const handleComplete = useCallback(() => {
-    setSecondTx(TxStatus.Confirmed)
-    setIsComplete(true)
-  }, [])
+  const buildAndSign = useCallback(
+    (asset: Asset) => {
+      const amountCryptoPrecision =
+        asset.assetId === thorchainAssetId
+          ? confirmedQuote.runeCryptoLiquidityAmount
+          : confirmedQuote.assetCryptoLiquidityAmount
+      console.log('xxx amountCryptoPrecision', amountCryptoPrecision)
+    },
+    [confirmedQuote],
+  )
 
-  const handleNext = useCallback(() => {
-    setFirstTx(TxStatus.Confirmed)
-    setSecondTx(TxStatus.Unknown)
-  }, [])
+  const handleNext = useCallback(
+    (asset: Asset, index: number) => () => {
+      buildAndSign(asset)
+      console.log('xxx data', { assetsLength: assets.length, index })
+      index === 0 ? setFirstTx(TxStatus.Confirmed) : setSecondTx(TxStatus.Confirmed)
+      switch (index) {
+        case 0:
+          setFirstTx(TxStatus.Confirmed)
+          setSecondTx(TxStatus.Unknown)
+          break
+        case 1:
+          setSecondTx(TxStatus.Confirmed)
+          break
+        default:
+          break
+      }
+      index === assets.length - 1 && setIsComplete(true)
+      // build and sign!
+      // const supportedEvmChainIds = getSupportedEvmChainIds()
+      // const maybeTxId = (() => {
+      //   if (!defaultAccountId) return Promise.reject('No default account id')
+      //   if (!wallet) return Promise.reject('No wallet')
+      //   return (async () => {
+      //     const { account } = fromAccountId(defaultAccountId)
+
+      //     const estimatedFees = await estimateFees({
+      //       cryptoAmount: '1',
+      //       assetId: thorchainAssetId,
+      //       memo: supportedEvmChainIds.includes(
+      //         fromAssetId(thorchainAssetId).chainId as KnownChainIds,
+      //       )
+      //         ? utils.hexlify(utils.toUtf8Bytes('+:ETH.ETH::t:0'))
+      //         : '+:ETH.ETH::t:0',
+      //       to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+      //       sendMax: false,
+      //       accountId: defaultAccountId,
+      //       contractAddress: undefined,
+      //     })
+
+      //     const adapter = assertGetThorchainChainAdapter()
+
+      //     // LP deposit using THOR is a MsgDeposit tx
+      //     const { txToSign } = await adapter.buildDepositTransaction({
+      //       from: account,
+      //       accountNumber: 0,
+      //       value: '1',
+      //       memo: '+:ETH.ETH::t:0',
+      //       chainSpecific: {
+      //         gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+      //           .chainSpecific.gasLimit,
+      //         fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+      //       },
+      //     })
+      //     const signedTx = await adapter.signTransaction({
+      //       txToSign,
+      //       wallet,
+      //     })
+      //     return adapter.broadcastTransaction({
+      //       senderAddress: account,
+      //       receiverAddress: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+      //       hex: signedTx,
+      //     })
+      //   })()
+    },
+    [assets.length, buildAndSign],
+  )
 
   const hStackDivider = useMemo(() => {
     if (foundPool?.asymSide) return <></>
@@ -177,12 +250,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
                   <Amount.Crypto value='0.02' symbol={asset.symbol} />
                 </Row.Value>
               </Row>
-              <Button
-                mx={-2}
-                size='lg'
-                colorScheme='blue'
-                onClick={index === 0 ? handleNext : handleComplete}
-              >
+              <Button mx={-2} size='lg' colorScheme='blue' onClick={handleNext(asset, index)}>
                 {translate('common.signTransaction')}
               </Button>
             </CardBody>
@@ -198,7 +266,6 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
     secondTx,
     translate,
     handleNext,
-    handleComplete,
   ])
 
   if (!foundPool) return null

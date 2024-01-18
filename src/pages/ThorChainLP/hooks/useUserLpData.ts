@@ -125,6 +125,8 @@ export const useUserLpData = ({
         poolShare: currentValue.poolShare,
         accountId: position.accountId,
         assetId,
+        runeAddress: position.runeAddress,
+        assetAddress: position.assetAddress,
       }
     })
 

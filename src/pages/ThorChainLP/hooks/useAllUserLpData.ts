@@ -148,6 +148,8 @@ export const useAllUserLpData = ({
                     poolShare: currentValue.poolShare,
                     accountId: position.accountId,
                     assetId,
+                    runeAddress: position.runeAddress,
+                    assetAddress: position.assetAddress,
                   }
                 })
                 .filter(isSome),
@@ -173,9 +175,9 @@ export const useAllUserLpData = ({
   }) as UseQueryResult<UseUserLpDataReturn | null>[]
 
   // Massage queries data to dedupe opportunities
-  // e.g if a user has an asset sym and a RUNE opportunity, their position will be present in both the asset and RUNE address members
+  // i.e for sym, positions will be present in both the asset and RUNE address members
   const userLpDataQueries = useMemo(() => {
-    const seenOpportunityIds = new Set()
+    const seenAccountOpportunities = new Set()
 
     const dedupedDataQueries = _userLpDataQueries.map(queryResult => {
       // No-op. No data, no massaging.
@@ -184,15 +186,15 @@ export const useAllUserLpData = ({
       }
 
       const dedupedPositions = queryResult.data.positions.filter(position => {
-        if (seenOpportunityIds.has(position.opportunityId)) {
-          // The magic - we've seen this OpportunityId already
-          // TODO(gomes): this won't work for multi-account. We can't use AccountId as a discriminator either because it will be a diff. one when fetched from the asset and ROON side
-          // We need to expose runeAddress and assetAddress properties and do some rambo serializing here to be futureproof
+        const compositeKey = `${position.opportunityId}*${position.runeAddress}*${position.assetAddress}`
+
+        if (seenAccountOpportunities.has(compositeKey)) {
+          // The magic - we've seen this OpportunityId for thie asset address and RUNE address already
           return false
         }
 
-        // Mark this opportunityId as seen and include the position
-        seenOpportunityIds.add(position.opportunityId)
+        // Mark this opportunityId as seen for thie asset address and RUNE address, and include the position
+        seenAccountOpportunities.add(compositeKey)
         return true
       })
 

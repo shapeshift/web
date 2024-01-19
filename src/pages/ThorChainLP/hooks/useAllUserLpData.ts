@@ -47,6 +47,7 @@ export const useAllUserLpData = ({
   })
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({
+    // TODO(gomes): this is wrong and will rug us - should be midgard pools data
     queryKey: ['midgardPoolData'],
     staleTime: Infinity,
     queryFn: async () => {

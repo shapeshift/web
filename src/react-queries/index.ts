@@ -3,7 +3,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  MidgardPoolResponse,
+  ThornodePoolResponse,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import { getEarnings } from 'lib/utils/thorchain/lp'
@@ -47,6 +50,29 @@ export const reactQueries = createQueryKeyStore({
           }/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
         )
         return data
+      },
+    }),
+    poolData: (assetId: AssetId | undefined) => ({
+      enabled: !!assetId,
+      queryKey: ['midgardPoolData', assetId],
+      queryFn: async () => {
+        if (!assetId) throw new Error('assetId is required')
+        const poolAssetId = assetIdToPoolAssetId({ assetId })
+        const { data: poolData } = await axios.get<MidgardPoolResponse>(
+          `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}`,
+        )
+
+        return poolData
+      },
+    }),
+    poolsData: () => ({
+      queryKey: ['midgardPoolsData'],
+      staleTime: Infinity,
+      queryFn: async () => {
+        const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
+          `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+        )
+        return poolsData
       },
     }),
   },

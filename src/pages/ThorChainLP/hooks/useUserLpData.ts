@@ -49,15 +49,7 @@ export const useUserLpData = ({
   })
 
   const { data: midgardPoolData } = useQuery({
-    queryKey: ['midgardPoolData', assetId],
-    queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<MidgardPoolResponse>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}`,
-      )
-
-      return poolData
-    },
+    ...reactQueries.midgard.poolData(assetId),
   })
 
   const selectLiquidityPositionsData = (

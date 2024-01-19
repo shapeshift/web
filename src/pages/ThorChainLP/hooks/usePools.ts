@@ -74,6 +74,7 @@ export const usePools = () => {
     [assets],
   )
   const pools = useQuery({
+    // TODO(gomes): this is wrong and will rug us - should be midgardPoolsData
     queryKey: ['midgardPoolData'],
     // We may or may not want to revisit this, but this will prevent overfetching for now
     staleTime: Infinity,

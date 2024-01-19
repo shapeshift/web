@@ -4,6 +4,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -47,15 +48,8 @@ export const useAllUserLpData = ({
   })
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({
-    // TODO(gomes): this is wrong and will rug us - should be midgard pools data
-    queryKey: ['midgardPoolData'],
+    ...reactQueries.midgard.poolsData(),
     staleTime: Infinity,
-    queryFn: async () => {
-      const { data } = await axios.get<MidgardPoolResponse[]>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
-      )
-      return data
-    },
   })
   const queries = useMemo(
     () =>

@@ -8,6 +8,7 @@ import type {
   ThornodePoolResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
@@ -100,6 +101,24 @@ const thornode = createQueryKeys('thornode', {
       )
 
       return poolData
+    },
+  }),
+  poolsData: () => ({
+    queryKey: ['thornodePoolsData'],
+    // Typically 60 second staleTime to handle pools going to live/halt states
+    // This may not be required in your specific consumption, override if needed
+    staleTime: 60_000,
+    queryFn: async () => {
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const poolResponse = await thorService.get<ThornodePoolResponse[]>(
+        `${daemonUrl}/lcd/thorchain/pools`,
+      )
+
+      if (poolResponse.isOk()) {
+        return poolResponse.unwrap().data
+      }
+
+      return []
     },
   }),
   mimir: () => {

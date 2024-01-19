@@ -7,7 +7,6 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getThorchainAvailablePools } from 'lib/utils/thorchain'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
@@ -35,10 +34,8 @@ export const useAllUserLpData = ({
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: allThornodePools, isSuccess: isThornodePoolsDataLoaded } = useQuery({
-    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
-    staleTime: 60_000,
-    queryKey: ['thorchainAvailablePools'],
-    queryFn: getThorchainAvailablePools,
+    ...reactQueries.thornode.poolsData(),
+    select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({

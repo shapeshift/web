@@ -26,7 +26,7 @@ import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -336,7 +336,7 @@ type FeeExplainerProps = CardProps
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const votingPower = useAppSelector(selectVotingPower)
-  const sellAmountUsd = useAppSelector(selectSellAmountUsd)
+  const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
   const [tradeSize, setTradeSize] = useState(
     sellAmountUsd ? Number.parseFloat(sellAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,

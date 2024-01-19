@@ -7,7 +7,7 @@ import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -16,7 +16,7 @@ const divider = <Divider />
 export const FeeBreakdown = () => {
   const translate = useTranslate()
   const votingPower = useAppSelector(selectVotingPower)
-  const sellAmountUsd = useAppSelector(selectSellAmountUsd)
+  const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bnOrZero(sellAmountUsd),

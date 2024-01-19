@@ -43,7 +43,6 @@ REACT_APP_POLYGON_NODE_URL=https://nownodes.shapeshift.com/polygon
 REACT_APP_GNOSIS_NODE_URL=https://daemon.gnosis.shapeshift.com
 REACT_APP_ARBITRUM_NODE_URL=https://nownodes.shapeshift.com/arbitrum
 REACT_APP_ARBITRUM_NOVA_NODE_URL=https://daemon.arbitrum-nova.shapeshift.com
-REACT_APP_COSMOS_NODE_URL=https://daemon.cosmos.shapeshift.com
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 
 # thorchain

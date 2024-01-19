@@ -258,11 +258,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   useEffect(() => {
     ;(async () => {
       if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
-      const isAsym = foundPool?.asymSide !== null
+      const isAsym = foundPool?.isAsymmetric
       const isAsymAssetSide = foundPool?.asymSide === AsymSide.Asset
       const isAsymRuneSide = foundPool?.asymSide === AsymSide.Rune
 
-      // If the pool is asymmetrical the then we are only depositing one asset amount, and the other is zero
+      // If the pool is asymmetrical then we are only depositing one asset amount, and the other is zero
       const runeCryptoLiquidityAmountAdjusted =
         isAsym && isAsymAssetSide ? 0 : runeCryptoLiquidityAmount
       const assetCryptoLiquidityAmountAdjusted =

@@ -1,8 +1,6 @@
 import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { reactQueries } from 'react-queries'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -11,6 +9,7 @@ import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorSer
 import { fromThorBaseUnit } from '.'
 import type {
   AsymSide,
+  MidgardPool,
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
@@ -309,17 +308,16 @@ export const estimateAddThorchainLiquidityPosition = async ({
 // TODO: add 'percentage' param
 // https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
-  accountId,
+  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
+  lpPositions,
   assetId,
 }: {
   accountId: AccountId
   assetId: AssetId
   assetAmountCryptoThorPrecision: string
+  lpPositions: (MidgardPool & { accountId: AccountId })[]
   asymSide: AsymSide | null
 }) => {
-  const lpPositions = await queryClient.fetchQuery(
-    reactQueries.thorchainLp.liquidityProviderPosition({ accountId, assetId }),
-  )
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
   // and get the right position for the user depending on the asymSide

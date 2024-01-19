@@ -1,7 +1,9 @@
 import { createQueryKeyStore } from '@lukemorales/query-key-factory'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { getAddress, isAddress } from 'viem'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -10,7 +12,11 @@ import type {
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import { getEarnings } from 'lib/utils/thorchain/lp'
-import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
+import type {
+  MidgardLiquidityProvider,
+  MidgardLiquidityProvidersList,
+  MidgardSwapHistoryResponse,
+} from 'lib/utils/thorchain/lp/types'
 
 export const reactQueries = createQueryKeyStore({
   // Feature-agnostic, abstracts away midgard endpoints
@@ -139,6 +145,40 @@ export const reactQueries = createQueryKeyStore({
       queryFn: () => {
         if (!from) throw new Error('from is required')
         return getEarnings({ from })
+      },
+    }),
+    liquidityMembers: () => ({
+      queryKey: ['thorchainLiquidityMembers'],
+      // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
+      staleTime: Infinity,
+      queryFn: async () => {
+        const { data } = await axios.get<MidgardLiquidityProvidersList>(
+          `${getConfig().REACT_APP_MIDGARD_URL}/members`,
+        )
+
+        return data
+      },
+    }),
+    liquidityMember: (address: string) => ({
+      queryKey: ['thorchainLiquidityMember', { address }],
+      // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
+      staleTime: Infinity,
+      queryFn: async () => {
+        try {
+          const checksumAddress = isAddress(address) ? getAddress(address) : address
+          const { data } = await axios.get<MidgardLiquidityProvider>(
+            `${getConfig().REACT_APP_MIDGARD_URL}/member/${checksumAddress}`,
+          )
+
+          return data
+        } catch (e) {
+          // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
+          // We only want to log errors to the console if they're actual errors, not 404s
+          if ((e as AxiosError).isAxiosError && (e as AxiosError).response?.status !== 404)
+            console.error(e)
+
+          return null
+        }
       },
     }),
   },

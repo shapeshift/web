@@ -1,7 +1,5 @@
 import { type AssetId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useCallback } from 'react'
 import { reactQueries } from 'react-queries'
 import { sellSupportedChainIds } from 'lib/swapper/swappers/ThorchainSwapper/constants'

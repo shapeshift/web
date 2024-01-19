@@ -25,7 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
-import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

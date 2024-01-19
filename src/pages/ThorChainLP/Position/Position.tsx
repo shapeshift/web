@@ -48,8 +48,8 @@ import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'
 import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
-import { usePools } from '../hooks/usePools'
-import { useUserLpData } from '../hooks/useUserLpData'
+import { usePools } from '../queries/hooks/usePools'
+import { useUserLpData } from '../queries/hooks/useUserLpData'
 
 type MatchParams = {
   poolAccountId?: AccountId

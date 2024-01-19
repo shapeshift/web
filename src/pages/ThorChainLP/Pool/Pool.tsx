@@ -36,7 +36,7 @@ import { useAppSelector } from 'state/store'
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'
-import { usePools } from '../hooks/usePools'
+import { usePools } from '../queries/hooks/usePools'
 import { PairRates } from './components/PairRates'
 import { PoolChart } from './components/PoolChart'
 

@@ -22,8 +22,8 @@ import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import { useAllUserLpData } from './hooks/useAllUserLpData'
-import { usePools } from './hooks/usePools'
+import { useAllUserLpData } from './queries/hooks/useAllUserLpData'
+import { usePools } from './queries/hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',

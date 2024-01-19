@@ -26,7 +26,7 @@ import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
-import { usePools } from 'pages/ThorChainLP/hooks/usePools'
+import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 

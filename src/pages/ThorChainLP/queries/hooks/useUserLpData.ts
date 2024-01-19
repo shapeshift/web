@@ -2,7 +2,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
@@ -28,11 +27,6 @@ export const useUserLpData = ({
     ...useAppSelector(state => selectAccountIdsByAssetId(state, { assetId })),
     ...thorchainAccountIds,
   ]
-
-  const lpPositionQueryKey: [string, { assetId: AssetId }] = useMemo(
-    () => ['thorchainUserLpData', { assetId }],
-    [assetId],
-  )
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
@@ -108,13 +102,11 @@ export const useUserLpData = ({
     return parsedPositions
   }
 
-  // TODO(gomes): this is dumb and not really the way to use react-query - this is really just mapping over positions as queries and running a selector.
-  // We may want to run the queries themselves with `useQueries` and then map over the results with a `useMemo`
   const liquidityPoolPositionData = useQuery({
-    queryKey: lpPositionQueryKey,
+    ...reactQueries.thorchainLp.userLpData(assetId),
     staleTime: Infinity,
     queryFn: async ({ queryKey }) => {
-      const [, { assetId }] = queryKey
+      const [, , assetId] = queryKey
 
       const allPositions = (
         await Promise.all(

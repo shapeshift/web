@@ -122,4 +122,7 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       return positions
     },
   }),
+  userLpData: (assetId: AssetId) => ({
+    queryKey: ['thorchainUserLpData', { assetId }],
+  }),
 })

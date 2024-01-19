@@ -46,13 +46,13 @@ export const useAllUserLpData = ({
       assetIds.map(assetId => {
         const poolAssetId = assetIdToPoolAssetId({ assetId })
         return {
+          ...reactQueries.thorchainLp.userLpData(assetId),
           enabled: Boolean(
             isThornodePoolsDataLoaded &&
               isMidgardPoolsDataLoaded &&
               allThornodePools?.find(pool => pool.asset === poolAssetId) &&
               allMidgardPools?.find(pool => pool.asset === poolAssetId),
           ),
-          queryKey: ['thorchainUserLpData', { assetId }],
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {

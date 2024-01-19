@@ -103,7 +103,7 @@ const LendingRowGrid = ({ asset, accountId, onPoolClick }: LendingRowGridProps) 
     [accountNumber],
   )
 
-  const isRepaymentLocked = bnOrZero(repaymentLockData?.repaymentLock).gt(0)
+  const isRepaymentLocked = bnOrZero(repaymentLockData).gt(0)
 
   if (
     lendingPositionData &&

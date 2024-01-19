@@ -7,10 +7,7 @@ import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
-import type {
-  MidgardPoolResponse,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import {

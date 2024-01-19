@@ -47,43 +47,28 @@ export const useRepaymentLockData = ({
 
   const repaymentLockData = useQuery({
     ...reactQueries.thornode.mimir(),
-    enabled,
-    select: mimir => {
-      if (!mimir) return null
+    select: mimirData => {
+      if (!mimirData || !blockHeight) return null
 
-      const repaymentMaturity =
-        'LOANREPAYMENTMATURITY' in mimir ? (mimir.LOANREPAYMENTMATURITY as number) : null
+      const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY as number
 
-      // If we have position and blockHeight, calculate repaymentLock
-      if (
-        accountId &&
-        assetId &&
-        position &&
-        isPositionQuerySuccess &&
-        blockHeight &&
-        repaymentMaturity
-      ) {
-        const { last_open_height } = position
-        const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
-        const repaymentLock = bnOrZero(repaymentBlock)
-          .minus(blockHeight)
+      // If position is not available, return the repayment maturity as specified by the network, currently about 30 days
+      if (!position) {
+        return bnOrZero(repaymentMaturity)
           .times(thorchainBlockTimeSeconds)
           .div(60 * 60 * 24)
-          .toFixed(1)
-
-        return {
-          ...mimir,
-          repaymentMaturity,
-          repaymentLock,
-        }
+          .toString()
       }
 
-      // Return mimir data with repayment maturity if available
-      return {
-        ...mimir,
-        repaymentMaturity,
-      }
+      // We have a user position, so we can calculate the actual repayment lock
+      const repaymentBlock = bnOrZero(position.last_open_height).plus(repaymentMaturity)
+      return bnOrZero(repaymentBlock)
+        .minus(blockHeight)
+        .times(thorchainBlockTimeSeconds)
+        .div(60 * 60 * 24)
+        .toFixed(1)
     },
+    enabled: isPositionQuerySuccess,
   })
 
   return repaymentLockData

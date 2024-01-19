@@ -258,18 +258,31 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   useEffect(() => {
     ;(async () => {
       if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
+      const isAsym = foundPool?.isAsymmetric
+      const isAsymAssetSide = foundPool?.asymSide === AsymSide.Asset
+      const isAsymRuneSide = foundPool?.asymSide === AsymSide.Rune
+
+      // If the pool is asymmetrical then we are only depositing one asset amount, and the other is zero
+      const runeCryptoLiquidityAmountAdjusted =
+        isAsym && isAsymAssetSide ? 0 : runeCryptoLiquidityAmount
+      const assetCryptoLiquidityAmountAdjusted =
+        isAsym && isAsymRuneSide ? 0 : assetCryptoLiquidityAmount
+
+      const runeAmountCryptoThorPrecision = convertPrecision({
+        value: runeCryptoLiquidityAmountAdjusted,
+        inputExponent: 0,
+        outputExponent: THOR_PRECISION,
+      }).toFixed()
+
+      const assetAmountCryptoThorPrecision = convertPrecision({
+        value: assetCryptoLiquidityAmountAdjusted,
+        inputExponent: 0,
+        outputExponent: THOR_PRECISION,
+      }).toFixed()
 
       const estimate = await estimateAddThorchainLiquidityPosition({
-        runeAmountCryptoThorPrecision: convertPrecision({
-          value: runeCryptoLiquidityAmount,
-          inputExponent: 0,
-          outputExponent: THOR_PRECISION,
-        }).toFixed(),
-        assetAmountCryptoThorPrecision: convertPrecision({
-          value: assetCryptoLiquidityAmount,
-          inputExponent: asset.precision,
-          outputExponent: THOR_PRECISION,
-        }).toFixed(),
+        runeAmountCryptoThorPrecision,
+        assetAmountCryptoThorPrecision,
         assetId: asset.assetId,
       })
 
@@ -278,7 +291,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
-  }, [asset, assetCryptoLiquidityAmount, runeCryptoLiquidityAmount])
+  }, [
+    asset,
+    assetCryptoLiquidityAmount,
+    foundPool?.asymSide,
+    foundPool?.isAsymmetric,
+    runeCryptoLiquidityAmount,
+  ])
 
   useEffect(() => {
     if (

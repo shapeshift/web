@@ -332,7 +332,7 @@ export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Pro
   return totalVolumeFiatUserCurrency.toFixed()
 }
 
-// https://dev.thorchain.org/thorchain-dev/interface-guide/math#lp-units-add
+// https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const getLiquidityUnits = ({
   pool,
   assetAmountCryptoThorPrecision,
@@ -371,6 +371,7 @@ export const getPoolShare = (liquidityUnits: BN, pool: MidgardPoolResponse): Poo
   }
 }
 
+// https://dev.thorchain.org/concepts/math.html#slippage
 export const getSlipOnLiquidity = ({
   runeAmountCryptoThorPrecision,
   assetAmountCryptoThorPrecision,
@@ -392,6 +393,7 @@ export const getSlipOnLiquidity = ({
 }
 
 // Estimates a liquidity position for given crypto amount value, both asymmetrical and symetrical
+// https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const estimateAddThorchainLiquidityPosition = async ({
   runeAmountCryptoThorPrecision,
   assetId,
@@ -440,6 +442,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
 }
 
 // TODO: add 'percentage' param
+// https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
   accountId,
   assetId,

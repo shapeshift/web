@@ -72,6 +72,9 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
     accountId: AccountId
     assetId: AssetId
   }) => ({
+    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
+    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
+    staleTime: 0,
     enabled: !!accountId && !!assetId,
     queryKey: ['thorchainLiquidityProviderPosition', { accountId, assetId }],
     queryFn: async () => {

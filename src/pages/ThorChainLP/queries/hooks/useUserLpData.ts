@@ -108,6 +108,8 @@ export const useUserLpData = ({
     return parsedPositions
   }
 
+  // TODO(gomes): this is dumb and not really the way to use react-query - this is really just mapping over positions as queries and running a selector.
+  // We may want to run the queries themselves with `useQueries` and then map over the results with a `useMemo`
   const liquidityPoolPositionData = useQuery({
     queryKey: lpPositionQueryKey,
     staleTime: Infinity,

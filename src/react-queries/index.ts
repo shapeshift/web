@@ -12,6 +12,10 @@ import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 
+// Current blocktime as per https://thorchain.network/stats
+export const thorchainBlockTimeSeconds = '6.1'
+const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
+
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
   swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
@@ -99,9 +103,6 @@ const thornode = createQueryKeys('thornode', {
     },
   }),
   mimir: () => {
-    // Current blocktime as per https://thorchain.network/stats
-    const thorchainBlockTimeSeconds = '6.1'
-    const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
     return {
       // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
       staleTime: thorchainBlockTimeMs,
@@ -117,10 +118,6 @@ const thornode = createQueryKeys('thornode', {
     }
   },
   block: () => {
-    // Current blocktime as per https://thorchain.network/stats
-    const thorchainBlockTimeSeconds = '6.1'
-    const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
-
     return {
       // Mark blockHeight query as stale at the end of each THOR block
       staleTime: thorchainBlockTimeMs,

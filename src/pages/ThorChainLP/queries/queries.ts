@@ -8,7 +8,7 @@ import { getAddress, isAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses } from 'lib/utils/thorchain'
-import { getEarnings } from 'lib/utils/thorchain/lp'
+import { get24hTvlChangePercentage, getAllTimeVolume, getEarnings } from 'lib/utils/thorchain/lp'
 import type {
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
@@ -61,6 +61,22 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       if (!from) throw new Error('from is required')
       return getEarnings({ from })
     },
+  }),
+  tvl24hChange: (assetId: AssetId | undefined) => ({
+    queryKey: ['thorchainTvl24hChange', assetId],
+    queryFn: () => {
+      if (!assetId) throw new Error('assetId is required')
+      return get24hTvlChangePercentage(assetId)
+    },
+    enabled: !!assetId,
+  }),
+  allTimeVolume: (assetId: AssetId | undefined, runePrice: string) => ({
+    queryKey: ['thorchainAllTimeVolume', assetId],
+    queryFn: () => {
+      if (!assetId) throw new Error('assetId is required')
+      return getAllTimeVolume(assetId, runePrice)
+    },
+    enabled: !!assetId && !!runePrice,
   }),
   liquidityMembers,
   liquidityMember,

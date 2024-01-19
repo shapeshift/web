@@ -34,8 +34,6 @@ import {
   calculateEarnings,
   calculateTVL,
   get24hSwapChangePercentage,
-  get24hTvlChangePercentage,
-  getAllTimeVolume,
   getFees,
   getVolume,
 } from 'lib/utils/thorchain/lp'
@@ -208,14 +206,11 @@ export const Position = () => {
   }, [foundPool, swapData24h, swapDataPrevious24h, runeMarketData, assetMarketData])
 
   const { data: tvl24hChange } = useQuery({
-    queryKey: ['get24hTvlChangePercentage', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool ? get24hTvlChangePercentage(foundPool.assetId) : Promise.resolve(null),
+    ...reactQueries.thorchainLp.tvl24hChange(foundPool?.assetId),
   })
 
   const { data: allTimeVolume } = useQuery({
-    queryKey: ['thorchainPoolVolumeAllTime', foundPool?.assetId ?? ''],
-    queryFn: () => (foundPool ? getAllTimeVolume(foundPool.assetId, runeMarketData.price) : ''),
+    ...reactQueries.thorchainLp.allTimeVolume(foundPool?.assetId, runeMarketData.price),
   })
 
   const { data: thornodePoolData } = useQuery({

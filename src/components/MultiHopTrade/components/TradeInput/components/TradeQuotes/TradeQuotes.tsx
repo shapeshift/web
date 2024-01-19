@@ -11,7 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { ApiQuote } from 'state/apis/swapper'
 import { selectInputBuyAsset } from 'state/slices/selectors'
-import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveQuoteId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
@@ -51,7 +51,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
       return _sortedQuotes
     }, [_sortedQuotes, isBuyAssetChainSupported, receiveAddress])
 
-    const activeQuoteIndex = useAppSelector(selectActiveQuoteIndex)
+    const activeQuoteIndex = useAppSelector(selectActiveQuoteId)
     const translate = useTranslate()
     const [showAll, setShowAll] = useState(false)
     const bestQuoteData = sortedQuotes[0]

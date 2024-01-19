@@ -2,9 +2,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
-import orderBy from 'lodash/orderBy'
 import { isTradingActive } from 'components/MultiHopTrade/utils'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -14,36 +12,19 @@ import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/ge
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swapper/types'
-import { TradeQuoteRequestError, TradeQuoteValidationError } from 'state/apis/swapper/types'
+import type { ApiQuote } from 'state/apis/swapper/types'
+import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import {
-  selectIsWalletConnected,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectWalletSupportedChainIds,
-} from 'state/slices/common-selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import {
-  selectFirstHopSellAccountId,
-  selectInputSellAsset,
-  selectManualReceiveAddress,
-} from 'state/slices/tradeInputSlice/selectors'
+import { selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { apiErrorHandler } from '../utils'
-import { validateQuoteRequest } from './helpers/validateQuoteRequest'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
-
-const sortQuotes = (unorderedQuotes: Omit<ApiQuote, 'index'>[], startingIndex: number) => {
-  return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc']).map(
-    (apiQuote, i) => Object.assign(apiQuote, { index: startingIndex + i }),
-  )
-}
 
 const getIsTradingActiveErrorHandler = apiErrorHandler(
   'getIsTradingActiveApi: error getting trading status',
@@ -73,15 +54,24 @@ export const swapperApiBase = createApi({
   }),
 })
 
-export const swapperApiWithSwappers = swapperApiBase.injectEndpoints({
+export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getSwapperTradeQuotes: build.query<Omit<ApiQuote, 'index'>[], GetTradeQuoteInput>({
+    getTradeQuote: build.query<Omit<ApiQuote, 'index'>[], GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+        // clear the trade quote slice to prevent data corruption as results come in
+        dispatch(tradeQuoteSlice.actions.clear())
+
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
+
+        // hydrate crypto market data for buy and sell assets
+        await dispatch(
+          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
+        )
+
         const quoteResults = await getTradeQuotes(
           {
             ...tradeQuoteInput,
@@ -180,87 +170,6 @@ export const swapperApiWithSwappers = swapperApiBase.injectEndpoints({
 
         return { data: unorderedQuotes }
       },
-    }),
-  }),
-})
-
-export const swapperApi = swapperApiWithSwappers.injectEndpoints({
-  endpoints: build => ({
-    getTradeQuote: build.query<TradeQuoteResponse, GetTradeQuoteInput>({
-      queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
-        if (bnOrZero(tradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit).isZero()) {
-          dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(undefined))
-          return { data: { errors: [], quotes: [] } }
-        }
-
-        const state = getState() as ReduxState
-        const { sellAsset, buyAsset } = tradeQuoteInput
-        const isWalletConnected = selectIsWalletConnected(state)
-        const walletSupportedChainIds = selectWalletSupportedChainIds(state)
-        const manualReceiveAddress = selectManualReceiveAddress(state)
-        const firstHopSellAccountId = selectFirstHopSellAccountId(state)
-        const sellAssetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
-          accountId: firstHopSellAccountId,
-          assetId: tradeQuoteInput.sellAsset.assetId,
-        })
-
-        const topLevelValidationErrors = validateQuoteRequest({
-          tradeQuoteInput,
-          isWalletConnected,
-          walletSupportedChainIds,
-          manualReceiveAddress,
-          sellAssetBalanceCryptoBaseUnit,
-        })
-
-        // hydrate crypto market data for buy and sell assets
-        await dispatch(
-          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
-        )
-
-        const sellAssetUsdRate = selectUsdRateByAssetId(state, tradeQuoteInput.sellAsset.assetId)
-
-        // this should never be needed but here for paranoia
-        if (!sellAssetUsdRate) throw Error('missing sellAssetUsdRate')
-
-        const { data: unorderedQuotes } = await dispatch(
-          swapperApiWithSwappers.endpoints.getSwapperTradeQuotes.initiate(tradeQuoteInput),
-        )
-
-        if (unorderedQuotes === undefined || unorderedQuotes.length === 0) {
-          return {
-            data: {
-              errors: [
-                { error: TradeQuoteRequestError.NoQuotesAvailable },
-                ...topLevelValidationErrors,
-              ],
-              quotes: [],
-            },
-          }
-        }
-
-        // ensure quotes with errors are placed below actionable quotes
-        const happyQuotes = sortQuotes(
-          unorderedQuotes.filter(({ errors }) => errors.length === 0),
-          0,
-        )
-        const errorQuotes = sortQuotes(
-          unorderedQuotes.filter(({ errors }) => errors.length > 0),
-          happyQuotes.length,
-        )
-        const orderedQuotes: ApiQuote[] = [...happyQuotes, ...errorQuotes]
-
-        // Ensure we auto-select the first actionable quote, or nothing otherwise
-        dispatch(
-          tradeQuoteSlice.actions.setActiveQuoteIndex(happyQuotes.length > 0 ? 0 : undefined),
-        )
-
-        return {
-          data: {
-            errors: topLevelValidationErrors,
-            quotes: orderedQuotes,
-          },
-        }
-      },
       providesTags: ['TradeQuote'],
     }),
     getSupportedAssets: build.query<
@@ -314,4 +223,5 @@ export const swapperApi = swapperApiWithSwappers.injectEndpoints({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery, useGetIsTradingActiveQuery } =
+  swapperApi

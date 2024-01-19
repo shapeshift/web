@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { ApiQuote } from 'state/apis/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {
@@ -13,9 +14,10 @@ import {
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
-  activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
+  activeQuoteId: number | undefined // the selected swapper used to find the active quote in the api response
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
+  tradeQuotes: Record<string, ApiQuote> // mapping from quoteId to ApiQuote
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -24,7 +26,7 @@ export const tradeQuoteSlice = createSlice({
   reducers: {
     clear: () => initialState,
     setActiveQuoteIndex: (state, action: PayloadAction<number | undefined>) => {
-      state.activeQuoteIndex = action.payload
+      state.activeQuoteId = action.payload
     },
     incrementStep: state => {
       const activeQuote = state.confirmedQuote
@@ -37,7 +39,7 @@ export const tradeQuoteSlice = createSlice({
       state.activeStep = undefined
     },
     resetActiveQuoteIndex: state => {
-      state.activeQuoteIndex = undefined
+      state.activeQuoteId = undefined
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
       state.confirmedQuote = action.payload

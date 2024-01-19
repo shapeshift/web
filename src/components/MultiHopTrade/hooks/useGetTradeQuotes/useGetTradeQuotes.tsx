@@ -34,6 +34,7 @@ import {
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
+import { selectTradeQuoteRequestErrors } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -58,7 +59,9 @@ type GetMixPanelDataFromApiQuotesReturn = {
   isActionable: boolean // is any quote in the request actionable
 }
 
-const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
+const getMixPanelDataFromApiQuotes = (
+  quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
+): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
@@ -291,7 +294,7 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  useGetTradeQuoteQuery(tradeQuoteInput, {
+  const { data, isFetching, error } = useGetTradeQuoteQuery(tradeQuoteInput, {
     skip: !shouldRefetchTradeQuotes,
     pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
     /*
@@ -301,15 +304,18 @@ export const useGetTradeQuotes = () => {
     refetchOnMountOrArgChange: true,
   })
 
-  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
-  // This ensures we never return cached data, if skip has been set after the initial query load
-  // currentData is always undefined when skip === true, so we have to access it like so:
-  const { currentData } = swapperApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
+  const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+
+  const didFail = useMemo(() => {
+    return !!error || tradeQuoteRequestErrors.length > 0
+  }, [error, tradeQuoteRequestErrors.length])
 
   useEffect(() => {
-    if (currentData && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(currentData.quotes)
+    if (data && mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(data)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [currentData, mixpanel])
+  }, [data, mixpanel])
+
+  return { isFetching, didFail }
 }

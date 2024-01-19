@@ -53,12 +53,6 @@ import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getTh
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
-  selectSwappersApiTradeQuotePending,
-  selectSwappersApiTradeQuotes,
-  selectTradeQuoteRequestErrors,
-  selectTradeQuoteRequestFailed,
-} from 'state/apis/swapper/selectors'
-import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
@@ -74,9 +68,11 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
+  selectSortedTradeQuotes,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
+  selectTradeQuoteRequestErrors,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -101,7 +97,7 @@ const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
-  useGetTradeQuotes()
+  const { isFetching: isQuoteLoading, didFail: tradeQuoteRequestFailed } = useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
@@ -189,12 +185,9 @@ export const TradeInput = memo(() => {
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
-  const tradeQuoteRequestFailed = useAppSelector(selectTradeQuoteRequestFailed)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
+  const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const rate = activeQuote?.steps[0].rate
-
-  const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(selectVotingPower)
 

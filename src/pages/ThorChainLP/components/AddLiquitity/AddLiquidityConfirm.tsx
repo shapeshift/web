@@ -25,9 +25,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/hooks/usePools'
-import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -150,6 +149,7 @@ export const AddLiquidityConfirm = ({ confirmedQuote }: AddLiquidityConfirmProps
                   fontWeight='bold'
                   value={amountCryptoPrecision}
                   symbol={_asset.symbol}
+                  maximumFractionDigits={4}
                 />
                 <Amount.Fiat fontSize='sm' color='text.subtle' value={amountFiatUserCurrency} />
               </Stack>

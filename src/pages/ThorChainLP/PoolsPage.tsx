@@ -29,7 +29,7 @@ export const PoolsPage = () => {
       <Route path={`${path}/poolAccount/:poolOpportunityId`}>
         <Pool />
       </Route>
-      <Route path={`${path}/add`}>
+      <Route path={`${path}/add/:poolOpportunityId?`}>
         <AddLiquidityPage />
       </Route>
     </Switch>

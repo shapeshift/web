@@ -50,8 +50,8 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
   const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[0]))
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[1]))
 
-  const asset0PricePerAsset1 = bn(asset0MarketData.price).div(asset1MarketData.price).toString()
-  const asset1PricePerAsset0 = bn(asset1MarketData.price).div(asset0MarketData.price).toString()
+  const asset0PricePerAsset1 = bn(asset1MarketData.price).div(asset0MarketData.price).toString()
+  const asset1PricePerAsset0 = bn(asset0MarketData.price).div(asset1MarketData.price).toString()
 
   const handleAssetClick = useCallback(
     (assetId: AssetId) => {

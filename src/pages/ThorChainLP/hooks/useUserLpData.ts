@@ -12,8 +12,13 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getCurrentValue, getThorchainLiquidityProviderPosition } from 'lib/utils/thorchain/lp'
-import type { MidgardPool } from 'lib/utils/thorchain/lp/types'
+import {
+  calculatePoolOwnershipPercentage,
+  getCurrentValue,
+  getThorchainLiquidityProviderPosition,
+} from 'lib/utils/thorchain/lp'
+import type { MidgardPool, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -22,39 +27,9 @@ type UseUserLpDataProps = {
   assetId: AssetId
 }
 
-const calculatePoolOwnershipPercentage = ({
-  userLiquidityUnits,
-  totalPoolUnits,
-}: {
-  userLiquidityUnits: string
-  totalPoolUnits: string
-}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
-
-export enum AsymSide {
-  Asset = 'asset',
-  Rune = 'rune',
-}
-
-type UseUserLpDataReturn = {
-  dateFirstAdded: string
-  liquidityUnits: string
-  underlyingAssetAmountCryptoPrecision: string
-  underlyingRuneAmountCryptoPrecision: string
-  isAsymmetric: boolean
-  asymSide: AsymSide | null
-  underlyingAssetValueFiatUserCurrency: string
-  underlyingRuneValueFiatUserCurrency: string
-  totalValueFiatUserCurrency: string
-  poolOwnershipPercentage: string
-  opportunityId: string
-  poolShare: string
-  accountId: AccountId
-  assetId: AssetId
-}[]
-
 export const useUserLpData = ({
   assetId,
-}: UseUserLpDataProps): UseQueryResult<UseUserLpDataReturn | null> => {
+}: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
@@ -150,6 +125,8 @@ export const useUserLpData = ({
         poolShare: currentValue.poolShare,
         accountId: position.accountId,
         assetId,
+        runeAddress: position.runeAddress,
+        assetAddress: position.assetAddress,
       }
     })
 

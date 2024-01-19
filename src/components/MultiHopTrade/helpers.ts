@@ -9,9 +9,9 @@ import {
   selectLastHopBuyAsset,
   selectQuoteAffiliateFeeUserCurrency,
   selectQuoteFeeAmountUsd,
-  selectSellAmountBeforeFeesCryptoPrecision,
-  selectSellAmountUsd,
-  selectSellAmountUserCurrency,
+  selectQuoteSellAmountBeforeFeesCryptoPrecision,
+  selectQuoteSellAmountUsd,
+  selectQuoteSellAmountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store } from 'state/store'
 
@@ -30,10 +30,10 @@ export const getMixpanelEventData = () => {
   const assets = selectAssets(state)
   const shapeShiftFeeUserCurrency = selectQuoteAffiliateFeeUserCurrency(state)
   const shapeshiftFeeUsd = selectQuoteFeeAmountUsd(state)
-  const sellAmountBeforeFeesUsd = selectSellAmountUsd(state)
-  const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
+  const sellAmountBeforeFeesUsd = selectQuoteSellAmountUsd(state)
+  const sellAmountBeforeFeesUserCurrency = selectQuoteSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
-  const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
+  const sellAmountBeforeFeesCryptoPrecision = selectQuoteSellAmountBeforeFeesCryptoPrecision(state)
   const swapperName = selectActiveSwapperName(state)
   const activeQuote = selectActiveQuote(state)
 

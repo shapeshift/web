@@ -9,7 +9,7 @@ import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-route
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from './types'
@@ -78,10 +78,10 @@ export const MultiHopTrade = memo(
     const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
 
     useEffect(() => {
-      dispatch(swappers.actions.clear())
-      if (defaultSellAsset) dispatch(swappers.actions.setSellAsset(defaultSellAsset))
-      if (routeBuyAsset) dispatch(swappers.actions.setBuyAsset(routeBuyAsset))
-      else if (defaultBuyAsset) dispatch(swappers.actions.setBuyAsset(defaultBuyAsset))
+      dispatch(tradeInput.actions.clear())
+      if (defaultSellAsset) dispatch(tradeInput.actions.setSellAsset(defaultSellAsset))
+      if (routeBuyAsset) dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
+      else if (defaultBuyAsset) dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
     }, [defaultBuyAsset, defaultSellAsset, dispatch, routeBuyAsset])
 
     return (
@@ -108,7 +108,7 @@ const MultiHopRoutes = memo(() => {
       // Reset the swapper slice to initial state on mount
       // Don't move me to one of the trade route components, this needs to be at router-level
       // We only want to clear swapper state when trade components are fully unmounted, not when trade routes change
-      dispatch(swappers.actions.clear())
+      dispatch(tradeInput.actions.clear())
     }
   }, [dispatch])
 

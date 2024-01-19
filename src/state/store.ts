@@ -5,7 +5,6 @@ import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
@@ -13,7 +12,7 @@ import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
-import { swappersApi } from './apis/swappers/swappersApi'
+import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
@@ -44,7 +43,6 @@ const apiMiddleware = [
   txHistoryApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
-  swappersApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,
   zapper.middleware,
@@ -66,7 +64,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
-  store.dispatch(slices.swappers.actions.clear())
+  store.dispatch(slices.tradeInput.actions.clear())
   store.dispatch(slices.localWalletSlice.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
@@ -78,7 +76,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
-  store.dispatch(apiSlices.swapperApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 

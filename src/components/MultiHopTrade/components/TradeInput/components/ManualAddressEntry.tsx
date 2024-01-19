@@ -13,8 +13,11 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import {
+  selectInputBuyAsset,
+  selectManualReceiveAddress,
+} from 'state/slices/tradeInputSlice/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
@@ -31,7 +34,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const { open: openSnapsModal } = useModal('snaps')
 
   const wallet = useWallet().state.wallet
-  const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectBuyAsset)
+  const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
@@ -54,7 +57,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
-    dispatch(swappers.actions.setManualReceiveAddress(undefined))
+    dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
     setFormValue(SendFormFields.Input, '')
   }, [buyAssetAssetId, dispatch, setFormValue])
 
@@ -64,7 +67,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   }, [dispatch, manualReceiveAddress, setFormValue])
 
   useEffect(() => {
-    dispatch(swappers.actions.setManualReceiveAddressIsValidating(isValidating))
+    dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
 
   const rules = useMemo(
@@ -82,7 +85,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
               disableUrlParsing: true,
             }
             const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-            dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
+            dispatch(tradeInput.actions.setManualReceiveAddress(address || undefined))
             const invalidMessage = isYatSupported
               ? 'common.invalidAddressOrYat'
               : 'common.invalidAddress'
@@ -90,7 +93,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
           } catch (e) {
             // This function should never throw, but in case it ever does, we never want to have a stale manual receive address stored
             console.error(e)
-            dispatch(swappers.actions.setManualReceiveAddress(undefined))
+            dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
           }
         },
       },

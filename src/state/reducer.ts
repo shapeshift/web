@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -10,7 +9,7 @@ import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nft, nftApi } from './apis/nft/nftApi'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
-import { swappersApi } from './apis/swappers/swappersApi'
+import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -20,7 +19,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
-import { swappers } from './slices/swappersSlice/swappersSlice'
+import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {
@@ -31,7 +30,7 @@ export const slices = {
   preferences,
   opportunities,
   nft,
-  swappers,
+  tradeInput,
   tradeQuoteSlice,
   snapshot,
   localWalletSlice,
@@ -49,8 +48,7 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  swapperApi: swapperApi.reducer,
-  swappers: swappers.reducer,
+  tradeInput: tradeInput.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
   tradeQuoteSlice: tradeQuoteSlice.reducer,
@@ -63,8 +61,7 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  swapperApi,
-  swappersApi,
+  swappersApi: swapperApi,
   foxyApi,
   fiatRampApi,
   snapshotApi,
@@ -83,7 +80,6 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
-  [swappersApi.reducerPath]: swappersApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [snapshotApi.reducerPath]: snapshotApi.reducer,

@@ -2,12 +2,11 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
-import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectSecondHop,
-  selectSecondHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'

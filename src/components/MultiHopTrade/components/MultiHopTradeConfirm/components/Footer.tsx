@@ -19,7 +19,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveSwapperName,
   selectLastHopBuyAsset,
-  selectSellAmountUserCurrency,
+  selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -34,7 +34,7 @@ export const Footer = () => {
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
   const { isModeratePriceImpact } = usePriceImpact()
 
   const handleConfirm = useCallback(() => {

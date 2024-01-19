@@ -5,7 +5,7 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { swappers as swappersSlice } from 'state/slices/swappersSlice/swappersSlice'
+import { tradeInput as swappersSlice } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { selectTradeExecutionState } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'

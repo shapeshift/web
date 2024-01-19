@@ -51,7 +51,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
-import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
+import { selectManualReceiveAddress } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveStepOrDefault,
@@ -65,8 +65,8 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectSellAmountBeforeFeesCryptoPrecision,
-  selectSellAmountUserCurrency,
+  selectQuoteSellAmountBeforeFeesCryptoPrecision,
+  selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -137,14 +137,14 @@ export const TradeConfirm = () => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const netBuyAmountUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
-  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
-    selectSellAmountBeforeFeesCryptoPrecision,
+    selectQuoteSellAmountBeforeFeesCryptoPrecision,
   )
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)

@@ -3,15 +3,12 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import { getThorchainAvailablePools } from 'lib/utils/thorchain'
-import {
-  calculatePoolOwnershipPercentage,
-  getCurrentValue,
-  getThorchainLiquidityProviderPosition,
-} from 'lib/utils/thorchain/lp'
+import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -70,7 +67,9 @@ export const useAllUserLpData = ({
             const allPositions = (
               await Promise.all(
                 accountIds.map(accountId =>
-                  getThorchainLiquidityProviderPosition({ accountId, assetId }),
+                  queryClient.fetchQuery(
+                    reactQueries.thorchainLp.liquidityProviderPosition({ accountId, assetId }),
+                  ),
                 ),
               )
             )

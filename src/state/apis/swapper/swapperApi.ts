@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import { isTradingActive } from 'components/MultiHopTrade/utils'
 import {
   getSupportedBuyAssetIds,
@@ -12,7 +12,7 @@ import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/ge
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote } from 'state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
@@ -56,63 +56,69 @@ export const swapperApiBase = createApi({
 
 export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<null, GetTradeQuoteInput>({
-      queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
+    getTradeQuote: build.query<null, TradeQuoteRequest>({
+      queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
         // clear the trade quote slice to prevent data corruption as results come in
         dispatch(tradeQuoteSlice.actions.clear())
 
         const state = getState() as ReduxState
-        const { sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } = tradeQuoteInput
+        const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
+          tradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
-        const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
+        const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
+
+        if (!isSwapperEnabled) return { data: null }
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
           marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
         )
 
-        const quoteResults = await getTradeQuotes(
+        const quoteResult = await getTradeQuotes(
           {
             ...tradeQuoteInput,
             affiliateBps,
           },
-          enabledSwappers,
+          swapperName,
           selectAssets(state),
         )
 
-        if (quoteResults.length === 0) {
+        if (quoteResult === undefined) {
           return { data: null }
         }
 
-        const quotesWithInputOutputRatios = quoteResults
-          .map(result => {
-            if (result.isErr()) {
-              const error = result.unwrapErr()
-              return [
-                {
-                  quote: undefined,
-                  error,
-                  inputOutputRatio: -Infinity,
-                  swapperName: result.swapperName,
-                },
-              ]
-            }
+        const quoteWithInputOutputRatios = (quoteResult => {
+          if (quoteResult.isErr()) {
+            const error = quoteResult.unwrapErr()
+            return [
+              {
+                quote: undefined,
+                error,
+                inputOutputRatio: -Infinity,
+                swapperName: quoteResult.swapperName,
+              },
+            ]
+          }
 
-            return result.unwrap().map(quote => {
-              const inputOutputRatio = getInputOutputRatioFromQuote({
-                // We need to get the freshest state after fetching market data above
-                state: getState() as ReduxState,
-                quote,
-                swapperName: result.swapperName,
-              })
-              return { quote, error: undefined, inputOutputRatio, swapperName: result.swapperName }
+          return quoteResult.unwrap().map(quote => {
+            const inputOutputRatio = getInputOutputRatioFromQuote({
+              // We need to get the freshest state after fetching market data above
+              state: getState() as ReduxState,
+              quote,
+              swapperName: quoteResult.swapperName,
             })
+            return {
+              quote,
+              error: undefined,
+              inputOutputRatio,
+              swapperName: quoteResult.swapperName,
+            }
           })
-          .flat()
+        })(quoteResult)
 
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
-          quotesWithInputOutputRatios.map(async quoteData => {
+          quoteWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
             const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
 

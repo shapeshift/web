@@ -2,7 +2,8 @@ import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
@@ -18,11 +19,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSkipToken, isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
-import {
-  GET_TRADE_QUOTE_POLLING_INTERVAL,
-  swapperApi,
-  useGetTradeQuoteQuery,
-} from 'state/apis/swapper/swapperApi'
+import { GET_TRADE_QUOTE_POLLING_INTERVAL, swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -40,6 +37,8 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -297,21 +296,63 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const { isFetching, error } = useGetTradeQuoteQuery(tradeQuoteInput, {
-    skip: !shouldRefetchTradeQuotes,
-    pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
-    /*
-    If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
-    We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
-    */
-    refetchOnMountOrArgChange: true,
-  })
+  const skip = !shouldRefetchTradeQuotes
+  const pollingInterval = hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined
+
+  const cowSwapQuoteMeta = useGetSwapperTradeQuote(
+    SwapperName.CowSwap,
+    tradeQuoteInput,
+    skip,
+    pollingInterval,
+  )
+
+  const oneInchQuoteMeta = useGetSwapperTradeQuote(
+    SwapperName.OneInch,
+    tradeQuoteInput,
+    skip,
+    pollingInterval,
+  )
+
+  const lifiQuoteMeta = useGetSwapperTradeQuote(
+    SwapperName.LIFI,
+    tradeQuoteInput,
+    skip,
+    pollingInterval,
+  )
+
+  const thorchainQuoteMeta = useGetSwapperTradeQuote(
+    SwapperName.Thorchain,
+    tradeQuoteInput,
+    skip,
+    pollingInterval,
+  )
+
+  const zrxQuoteMeta = useGetSwapperTradeQuote(
+    SwapperName.Zrx,
+    tradeQuoteInput,
+    skip,
+    pollingInterval,
+  )
+
+  const combinedQuoteMeta = useMemo(() => {
+    return [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta]
+  }, [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta])
+
+  // cease fetching state when at least 1 response is available
+  // more quotes will arrive after, which is intentional.
+  const isFetching = useMemo(() => {
+    return combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
+  }, [combinedQuoteMeta])
+
+  const allQuotesHaveError = useMemo(() => {
+    return combinedQuoteMeta.every(quoteMeta => !!quoteMeta.error)
+  }, [combinedQuoteMeta])
 
   const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
 
   const didFail = useMemo(() => {
-    return !!error || tradeQuoteRequestErrors.length > 0
-  }, [error, tradeQuoteRequestErrors.length])
+    return allQuotesHaveError || tradeQuoteRequestErrors.length > 0
+  }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
 

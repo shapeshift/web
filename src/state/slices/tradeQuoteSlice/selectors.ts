@@ -101,7 +101,7 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
       Object.values(tradeQuotes).filter(({ errors }) => errors.length > 0),
       happyQuotes.length,
     )
-    return [...happyQuotes, ...errorQuotes].map((quote, index) => Object.assign(quote, { index }))
+    return [...happyQuotes, ...errorQuotes]
   },
 )
 

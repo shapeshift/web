@@ -39,11 +39,12 @@ export class TradeExecution {
     ) => Promise<string>,
   ) {
     try {
-      const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
+      const maybeSwapper = swappers[swapperName]
 
-      if (!maybeSwapper) throw new Error(`no swapper matching swapperName '${swapperName}'`)
+      if (maybeSwapper === undefined)
+        throw new Error(`no swapper matching swapperName '${swapperName}'`)
 
-      const { swapper } = maybeSwapper
+      const swapper = maybeSwapper
 
       const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 

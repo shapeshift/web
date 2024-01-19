@@ -57,6 +57,8 @@ export type ApiQuote = {
   warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }
 
+export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
+
 export type TradeQuoteResponse = {
   errors: ErrorWithMeta<TradeQuoteRequestError>[]
   quotes: ApiQuote[]

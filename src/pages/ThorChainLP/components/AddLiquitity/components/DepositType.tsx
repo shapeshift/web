@@ -6,7 +6,7 @@ import React, { useCallback, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
-import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 
 import { PoolIcon } from '../../PoolIcon'
 
